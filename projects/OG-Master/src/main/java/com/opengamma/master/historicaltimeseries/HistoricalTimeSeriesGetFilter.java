@@ -291,9 +291,9 @@ public class HistoricalTimeSeriesGetFilter extends DirectBean implements Seriali
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEarliestDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLatestDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxPoints());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEarliestDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLatestDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaxPoints());
     return hash;
   }
 

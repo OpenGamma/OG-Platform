@@ -377,15 +377,15 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundle());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeriesObjectId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRequiredPermissions());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundle());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataField());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeriesObjectId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRequiredPermissions());
     return hash;
   }
 

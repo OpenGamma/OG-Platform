@@ -416,12 +416,12 @@ public class HistoricalTimeSeriesProviderGetRequest extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundles());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDateRange());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxPoints());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundles());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataField());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDateRange());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaxPoints());
     return hash;
   }
 

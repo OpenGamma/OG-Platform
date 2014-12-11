@@ -251,12 +251,12 @@ public class ValidationNode extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSubNodes());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getErrors());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getWarnings());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isError());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSubNodes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getErrors());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getWarnings());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isError());
     return hash;
   }
 

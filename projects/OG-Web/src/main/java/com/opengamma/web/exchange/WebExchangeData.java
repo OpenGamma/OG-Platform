@@ -254,11 +254,11 @@ public class WebExchangeData extends WebPerRequestData {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriExchangeId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchange());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExchangeMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUriExchangeId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExchange());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVersioned());
     return hash ^ super.hashCode();
   }
 

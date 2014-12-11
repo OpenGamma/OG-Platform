@@ -464,16 +464,16 @@ public class CompoundingIborLegConvention extends FinancialConvention {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIborIndexConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCompoundingType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCompositionTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStubTypeCompound());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsExchangeNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStubTypeLeg());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentLag());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIborIndexConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentTenor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCompoundingType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCompositionTenor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStubTypeCompound());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isIsExchangeNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStubTypeLeg());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentLag());
     return hash ^ super.hashCode();
   }
 

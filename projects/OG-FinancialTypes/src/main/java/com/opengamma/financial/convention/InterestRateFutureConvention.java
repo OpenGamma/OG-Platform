@@ -157,7 +157,7 @@ public class InterestRateFutureConvention extends ExchangeTradedFutureAndOptionC
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIndexConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIndexConvention());
     return hash ^ super.hashCode();
   }
 

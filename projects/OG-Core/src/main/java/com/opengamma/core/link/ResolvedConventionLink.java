@@ -145,7 +145,7 @@ public final class ResolvedConventionLink<C extends Convention> extends Conventi
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConvention());
     return hash;
   }
 

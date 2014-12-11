@@ -190,8 +190,8 @@ public class SwapIndexConvention extends FinancialConvention {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSwapConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSwapConvention());
     return hash ^ super.hashCode();
   }
 

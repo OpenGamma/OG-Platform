@@ -177,8 +177,8 @@ public class BondIndex extends Index {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBondComponents());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getWeightingType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBondComponents());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getWeightingType());
     return hash ^ super.hashCode();
   }
 

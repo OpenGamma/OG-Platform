@@ -219,8 +219,8 @@ public class BloombergContractID extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getContractCode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketSector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getContractCode());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketSector());
     return hash;
   }
 

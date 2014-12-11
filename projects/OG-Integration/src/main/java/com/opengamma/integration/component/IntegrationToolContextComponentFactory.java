@@ -140,8 +140,8 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBloombergReferenceDataProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDependencyGraphTraceProvider());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBloombergReferenceDataProvider());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDependencyGraphTraceProvider());
     return hash ^ super.hashCode();
   }
 

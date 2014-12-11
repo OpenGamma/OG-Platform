@@ -144,7 +144,7 @@ public class YearOnYearInflationSwapSecurity extends SwapSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityTenor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityTenor());
     return hash ^ super.hashCode();
   }
 

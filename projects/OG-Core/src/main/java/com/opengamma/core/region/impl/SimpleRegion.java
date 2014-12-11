@@ -420,13 +420,13 @@ public class SimpleRegion extends DirectBean
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundle());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassification());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getParentRegionIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFullName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getData());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundle());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassification());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getParentRegionIds());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFullName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getData());
     return hash;
   }
 

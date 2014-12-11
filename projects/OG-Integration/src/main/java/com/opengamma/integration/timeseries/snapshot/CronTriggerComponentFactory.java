@@ -577,21 +577,21 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJobName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJobGroup());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCronExpression());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSchemeBlackList());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataFieldBlackList());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNormalizationRuleSetId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGlobalPrefix());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHtsMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseDir());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getScheduler());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJobName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJobGroup());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCronExpression());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSchemeBlackList());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataFieldBlackList());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNormalizationRuleSetId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getGlobalPrefix());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHtsMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRedisConnector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBaseDir());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getScheduler());
     return hash ^ super.hashCode();
   }
 

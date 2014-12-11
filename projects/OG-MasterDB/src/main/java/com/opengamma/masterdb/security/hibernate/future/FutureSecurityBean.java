@@ -501,20 +501,20 @@ public abstract class FutureSecurityBean extends SecurityBean {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExpiry());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradingExchange());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementExchange());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnitAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnitName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnitNumber());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBasket());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstDeliveryDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLastDeliveryDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstNoticeDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLastNoticeDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCategory());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiry());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTradingExchange());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementExchange());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnitAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnitName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnitNumber());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBasket());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFirstDeliveryDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLastDeliveryDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFirstNoticeDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLastNoticeDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCategory());
     return hash ^ super.hashCode();
   }
 

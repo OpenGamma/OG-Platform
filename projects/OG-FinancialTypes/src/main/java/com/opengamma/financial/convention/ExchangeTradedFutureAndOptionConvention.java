@@ -175,8 +175,8 @@ public class ExchangeTradedFutureAndOptionConvention extends FinancialConvention
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExpiryConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeCalendar());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExchangeCalendar());
     return hash ^ super.hashCode();
   }
 

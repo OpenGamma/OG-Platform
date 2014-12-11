@@ -133,7 +133,7 @@ public class FixedInflationSwapLeg extends InflationLeg {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRate());
     return hash ^ super.hashCode();
   }
 

@@ -279,7 +279,7 @@ public class SimpleSecurityLink extends AbstractLink<Security>
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTarget());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTarget());
     return hash ^ super.hashCode();
   }
 

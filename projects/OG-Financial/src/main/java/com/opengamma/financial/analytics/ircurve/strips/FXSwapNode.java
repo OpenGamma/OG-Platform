@@ -300,11 +300,11 @@ public class FXSwapNode extends CurveNode {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFxSwapConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPayCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStartTenor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityTenor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFxSwapConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPayCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReceiveCurrency());
     return hash ^ super.hashCode();
   }
 

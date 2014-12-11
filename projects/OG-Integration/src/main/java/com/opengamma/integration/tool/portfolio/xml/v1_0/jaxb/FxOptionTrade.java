@@ -228,11 +228,11 @@ public class FxOptionTrade extends AbstractFxOptionTrade {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotionalCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotionalCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
     return hash ^ super.hashCode();
   }
 

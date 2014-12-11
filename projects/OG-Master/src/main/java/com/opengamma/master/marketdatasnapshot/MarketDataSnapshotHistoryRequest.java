@@ -158,7 +158,7 @@ public class MarketDataSnapshotHistoryRequest extends AbstractHistoryRequest {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIncludeData());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isIncludeData());
     return hash ^ super.hashCode();
   }
 

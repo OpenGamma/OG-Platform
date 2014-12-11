@@ -220,9 +220,9 @@ public class Bundle extends DirectBean implements BundleNode {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getChildNodes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getChildNodes());
     return hash;
   }
 

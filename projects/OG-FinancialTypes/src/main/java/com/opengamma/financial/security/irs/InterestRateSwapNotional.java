@@ -308,9 +308,9 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDates());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotionals());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getShiftTypes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDates());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotionals());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getShiftTypes());
     return hash ^ super.hashCode();
   }
 

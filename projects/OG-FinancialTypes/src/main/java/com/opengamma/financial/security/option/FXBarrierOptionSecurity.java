@@ -513,18 +513,18 @@ public class FXBarrierOptionSecurity extends FinancialSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPutCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCallCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPutAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCallAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExpiry());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBarrierType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBarrierDirection());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMonitoringType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSamplingFrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBarrierLevel());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLongShort());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPutCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCallCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPutAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCallAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiry());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBarrierType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBarrierDirection());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMonitoringType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSamplingFrequency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBarrierLevel());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLongShort());
     return hash ^ super.hashCode();
   }
 

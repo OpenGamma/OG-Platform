@@ -131,7 +131,7 @@ public class HistoricalMarketDataSpecification implements ImmutableBean, MarketD
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeriesResolverKey());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeriesResolverKey());
     return hash;
   }
 

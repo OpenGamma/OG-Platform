@@ -485,15 +485,15 @@ public class UserSearchRequest implements Bean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPagingRequest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAlternateIdScheme());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAlternateIdValue());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAssociatedPermission());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEmailAddress());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDisplayName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPagingRequest());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObjectIds());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUserName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAlternateIdScheme());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAlternateIdValue());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAssociatedPermission());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEmailAddress());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDisplayName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
     return hash;
   }
 

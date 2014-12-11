@@ -108,7 +108,7 @@ public class ConfigMetaDataRequest extends AbstractMetaDataRequest {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(isConfigTypes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isConfigTypes());
     return hash ^ super.hashCode();
   }
 

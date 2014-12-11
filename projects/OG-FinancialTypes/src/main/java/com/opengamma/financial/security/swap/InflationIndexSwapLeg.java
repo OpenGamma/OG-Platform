@@ -237,10 +237,10 @@ public class InflationIndexSwapLeg extends InflationLeg {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIndexId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getQuotationIndexationLag());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionalIndexationLag());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInterpolationMethod());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIndexId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getQuotationIndexationLag());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConventionalIndexationLag());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getInterpolationMethod());
     return hash ^ super.hashCode();
   }
 

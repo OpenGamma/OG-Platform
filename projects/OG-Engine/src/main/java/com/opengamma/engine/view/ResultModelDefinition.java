@@ -529,11 +529,11 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAggregatePositionOutputMode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionOutputMode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeOutputMode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityOutputMode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPrimitiveOutputMode());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAggregatePositionOutputMode());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPositionOutputMode());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeOutputMode());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityOutputMode());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPrimitiveOutputMode());
     return hash;
   }
 

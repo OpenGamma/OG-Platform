@@ -128,7 +128,7 @@ public class DbConventionMasterComponentFactory extends AbstractDocumentDbMaster
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPopulateDefaultConventions());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPopulateDefaultConventions());
     return hash ^ super.hashCode();
   }
 

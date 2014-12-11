@@ -181,9 +181,9 @@ public class VolatilityPoint extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSwapTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOptionExpiry());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRelativeStrike());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSwapTenor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getOptionExpiry());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRelativeStrike());
     return hash;
   }
 

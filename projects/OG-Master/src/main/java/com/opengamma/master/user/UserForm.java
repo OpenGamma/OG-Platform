@@ -751,15 +751,15 @@ public class UserForm implements Bean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPasswordRaw());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEmailAddress());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDisplayName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLocale());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getZone());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDateStyle());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeStyle());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseUser());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUserName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPasswordRaw());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEmailAddress());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDisplayName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLocale());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getZone());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDateStyle());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeStyle());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBaseUser());
     return hash;
   }
 

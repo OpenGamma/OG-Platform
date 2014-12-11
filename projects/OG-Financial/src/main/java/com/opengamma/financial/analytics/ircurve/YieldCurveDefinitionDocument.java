@@ -176,8 +176,8 @@ public class YieldCurveDefinitionDocument extends AbstractDocument implements Se
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getYieldCurveDefinition());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getYieldCurveDefinition());
     return hash ^ super.hashCode();
   }
 

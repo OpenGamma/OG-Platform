@@ -465,12 +465,12 @@ public class OldBloombergRemoteAccessComponentFactory extends AbstractComponentF
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceDataProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJettyPort());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsReferenceDataTopic());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceDataProvider());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesProvider());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJettyPort());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsReferenceDataTopic());
     return hash ^ super.hashCode();
   }
 

@@ -134,8 +134,8 @@ public final class IdMappings implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIds());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaxId());
     return hash;
   }
 

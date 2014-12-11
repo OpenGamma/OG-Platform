@@ -589,19 +589,19 @@ public class FloatingRateNoteSecurity extends FinancialSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIssueDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMinimumIncrement());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDaysToSettle());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getResetDays());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLegalEntityId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBenchmarkRateId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSpread());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLeverageFactor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCouponFrequency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIssueDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMinimumIncrement());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDaysToSettle());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getResetDays());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRegionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLegalEntityId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBenchmarkRateId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSpread());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLeverageFactor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCouponFrequency());
     return hash ^ super.hashCode();
   }
 

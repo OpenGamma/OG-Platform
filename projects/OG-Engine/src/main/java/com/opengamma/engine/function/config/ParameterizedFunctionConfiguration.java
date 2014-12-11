@@ -150,7 +150,7 @@ public class ParameterizedFunctionConfiguration extends StaticFunctionConfigurat
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getParameter());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getParameter());
     return hash ^ super.hashCode();
   }
 

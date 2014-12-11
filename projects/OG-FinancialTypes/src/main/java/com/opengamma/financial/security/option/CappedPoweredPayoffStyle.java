@@ -153,8 +153,8 @@ public class CappedPoweredPayoffStyle extends PayoffStyle {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPower());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCap());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPower());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCap());
     return hash ^ super.hashCode();
   }
 

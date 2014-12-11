@@ -28,6 +28,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.Tenor;
+import java.util.Arrays;
 
 /**
  * Container for the relevant details for pricing a floating swap leg, with the entries
@@ -457,7 +458,7 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCashFlowDetails());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCashFlowDetails());
     return hash;
   }
 
@@ -646,6 +647,16 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
       JodaBeanUtils.notNull(cashFlowDetails, "cashFlowDetails");
       this._cashFlowDetails = cashFlowDetails;
       return this;
+    }
+
+    /**
+     * Sets the {@code cashFlowDetails} property in the builder
+     * from an array of objects.
+     * @param cashFlowDetails  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder cashFlowDetails(FloatingCashFlowDetails... cashFlowDetails) {
+      return cashFlowDetails(Arrays.asList(cashFlowDetails));
     }
 
     //-----------------------------------------------------------------------

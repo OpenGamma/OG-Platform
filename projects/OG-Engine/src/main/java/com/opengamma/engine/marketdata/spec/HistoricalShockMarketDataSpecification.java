@@ -169,10 +169,10 @@ public final class HistoricalShockMarketDataSpecification implements ImmutableBe
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getShockType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalSpecification1());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalSpecification2());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseSpecification());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getShockType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHistoricalSpecification1());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHistoricalSpecification2());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBaseSpecification());
     return hash;
   }
 

@@ -128,8 +128,8 @@ public final class CombinedMarketDataSpecification implements ImmutableBean, Mar
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPreferredSpecification());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFallbackSpecification());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPreferredSpecification());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFallbackSpecification());
     return hash;
   }
 

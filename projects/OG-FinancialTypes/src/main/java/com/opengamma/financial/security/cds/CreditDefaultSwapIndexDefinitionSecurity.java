@@ -342,13 +342,13 @@ public class CreditDefaultSwapIndexDefinitionSecurity extends FinancialSecurity 
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersion());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSeries());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFamily());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRecoveryRate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTerms());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getComponents());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVersion());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSeries());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFamily());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRecoveryRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTerms());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getComponents());
     return hash ^ super.hashCode();
   }
 

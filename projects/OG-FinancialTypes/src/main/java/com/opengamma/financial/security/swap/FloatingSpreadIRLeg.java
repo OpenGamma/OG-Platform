@@ -135,7 +135,7 @@ public class FloatingSpreadIRLeg extends FloatingInterestRateLeg {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSpread());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSpread());
     return hash ^ super.hashCode();
   }
 

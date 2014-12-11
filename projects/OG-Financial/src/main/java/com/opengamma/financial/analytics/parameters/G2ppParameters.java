@@ -376,14 +376,14 @@ public class G2ppParameters extends DirectBean implements Serializable, UniqueId
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstMeanReversionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecondMeanReversionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstInitialVolatilityId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecondInitialVolatilityId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityTermStructure());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrelationId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFirstMeanReversionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecondMeanReversionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFirstInitialVolatilityId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecondInitialVolatilityId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVolatilityTermStructure());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCorrelationId());
     return hash;
   }
 

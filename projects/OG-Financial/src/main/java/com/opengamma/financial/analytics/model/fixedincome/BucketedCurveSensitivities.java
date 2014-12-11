@@ -127,7 +127,7 @@ public final class BucketedCurveSensitivities implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSensitivities());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSensitivities());
     return hash;
   }
 

@@ -120,7 +120,7 @@ public class BbgFieldMappingHistoricalTimeSeriesSourceComponentFactory extends H
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBbgReferenceData());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBbgReferenceData());
     return hash ^ super.hashCode();
   }
 

@@ -166,8 +166,8 @@ public class ScheduledExecutorServiceComponentFactory extends AbstractComponentF
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getThreadNamePrefix());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getThreadNamePrefix());
     return hash ^ super.hashCode();
   }
 

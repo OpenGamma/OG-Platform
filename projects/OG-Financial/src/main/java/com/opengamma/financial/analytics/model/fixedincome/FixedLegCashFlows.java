@@ -27,6 +27,7 @@ import org.threeten.bp.LocalDate;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
+import java.util.Arrays;
 
 /**
  * Container for the relevant details for pricing a fixed swap leg, with the entries
@@ -320,7 +321,7 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCashFlowDetails());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCashFlowDetails());
     return hash;
   }
 
@@ -509,6 +510,16 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
       JodaBeanUtils.notNull(cashFlowDetails, "cashFlowDetails");
       this._cashFlowDetails = cashFlowDetails;
       return this;
+    }
+
+    /**
+     * Sets the {@code cashFlowDetails} property in the builder
+     * from an array of objects.
+     * @param cashFlowDetails  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder cashFlowDetails(FixedCashFlowDetails... cashFlowDetails) {
+      return cashFlowDetails(Arrays.asList(cashFlowDetails));
     }
 
     //-----------------------------------------------------------------------

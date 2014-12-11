@@ -23,6 +23,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import java.util.Arrays;
 
 /**
  * Shifts a volatility surface whose X axis is time.
@@ -139,8 +140,8 @@ public final class DateDoubleSurfaceShift extends VolatilitySurfaceShiftManipula
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getYValues());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getXValues());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getYValues());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getXValues());
     return hash ^ super.hashCode();
   }
 
@@ -354,7 +355,7 @@ public final class DateDoubleSurfaceShift extends VolatilitySurfaceShiftManipula
      * @param yValues  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder yValues(double[] yValues) {
+    public Builder yValues(double... yValues) {
       JodaBeanUtils.notNull(yValues, "yValues");
       this._yValues = yValues;
       return this;
@@ -369,6 +370,16 @@ public final class DateDoubleSurfaceShift extends VolatilitySurfaceShiftManipula
       JodaBeanUtils.notNull(xValues, "xValues");
       this._xValues = xValues;
       return this;
+    }
+
+    /**
+     * Sets the {@code xValues} property in the builder
+     * from an array of objects.
+     * @param xValues  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder xValues(Period... xValues) {
+      return xValues(Arrays.asList(xValues));
     }
 
     //-----------------------------------------------------------------------

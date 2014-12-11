@@ -727,16 +727,16 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayObjectIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProviderId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDateToCheck());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionExternalIdSearch());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeExternalIdSearch());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCustomExternalIdSearch());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHolidayObjectIds());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProviderId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDateToCheck());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRegionExternalIdSearch());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExchangeExternalIdSearch());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCustomExternalIdSearch());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
     return hash ^ super.hashCode();
   }
 

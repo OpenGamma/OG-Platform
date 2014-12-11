@@ -135,7 +135,7 @@ public class FloatingGearingIRLeg extends FloatingInterestRateLeg {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGearing());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getGearing());
     return hash ^ super.hashCode();
   }
 

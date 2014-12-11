@@ -839,13 +839,13 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfiguration());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTemplateEngineContexts());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTemplateTargetResolver());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isStrict());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConfiguration());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTemplateEngineContexts());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTemplateTargetResolver());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isStrict());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
     return hash ^ super.hashCode();
   }
 

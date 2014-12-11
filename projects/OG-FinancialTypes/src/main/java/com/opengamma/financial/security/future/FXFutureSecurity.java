@@ -184,9 +184,9 @@ public class FXFutureSecurity extends FutureSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNumerator());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDenominator());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMultiplicationFactor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNumerator());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDenominator());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMultiplicationFactor());
     return hash ^ super.hashCode();
   }
 

@@ -208,9 +208,9 @@ public abstract class AbstractSearchRequest extends DirectBean implements PagedR
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPagingRequest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionCorrection());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPagingRequest());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVersionCorrection());
     return hash;
   }
 

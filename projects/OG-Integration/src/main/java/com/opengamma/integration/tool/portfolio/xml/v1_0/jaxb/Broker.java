@@ -136,8 +136,8 @@ public class Broker extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBrokerType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBrokerType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExternalId());
     return hash;
   }
 

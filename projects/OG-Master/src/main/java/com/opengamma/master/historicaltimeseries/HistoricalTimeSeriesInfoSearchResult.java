@@ -176,7 +176,7 @@ public class HistoricalTimeSeriesInfoSearchResult extends AbstractSearchResult<H
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnauthorizedCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnauthorizedCount());
     return hash ^ super.hashCode();
   }
 

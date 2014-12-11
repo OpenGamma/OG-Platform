@@ -238,12 +238,12 @@ public abstract class AbstractCashFlowDetails implements CashFlowDetails, Immuta
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualStartDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualEndDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualFactor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDf());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAccrualStartDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAccrualEndDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAccrualFactor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDf());
     return hash;
   }
 

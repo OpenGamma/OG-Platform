@@ -350,12 +350,12 @@ public class ManageableExchange extends DirectBean implements Exchange, Serializ
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundle());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionIdBundle());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeZone());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDetail());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundle());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRegionIdBundle());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeZone());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDetail());
     return hash;
   }
 

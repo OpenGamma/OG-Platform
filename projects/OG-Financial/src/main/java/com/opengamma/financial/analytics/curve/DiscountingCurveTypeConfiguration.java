@@ -115,7 +115,7 @@ public class DiscountingCurveTypeConfiguration extends CurveTypeConfiguration {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReference());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReference());
     return hash ^ super.hashCode();
   }
 

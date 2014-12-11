@@ -379,17 +379,17 @@ public class SwapSecurityBean extends SecurityBean {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSwapType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEffectiveDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getForwardStartDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCounterparty());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isExchangeInitialNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isExchangeFinalNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPayLeg());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveLeg());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSwapType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEffectiveDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getForwardStartDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCounterparty());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isExchangeInitialNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isExchangeFinalNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityTenor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPayLeg());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReceiveLeg());
     return hash ^ super.hashCode();
   }
 

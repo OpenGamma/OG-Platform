@@ -342,11 +342,11 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPath());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRemote());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPath());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRemote());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
     return hash ^ super.hashCode();
   }
 

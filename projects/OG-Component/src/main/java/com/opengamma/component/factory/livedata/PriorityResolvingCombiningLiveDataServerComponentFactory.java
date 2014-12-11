@@ -375,13 +375,13 @@ public class PriorityResolvingCombiningLiveDataServerComponentFactory extends Ab
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getServer1());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getServer2());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getServer3());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getServer4());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getServer5());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getServer6());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getServer1());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getServer2());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getServer3());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getServer4());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getServer5());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getServer6());
     return hash ^ super.hashCode();
   }
 

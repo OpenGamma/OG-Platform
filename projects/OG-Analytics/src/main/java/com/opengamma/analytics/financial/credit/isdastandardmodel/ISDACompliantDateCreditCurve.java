@@ -254,9 +254,9 @@ public class ISDACompliantDateCreditCurve
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDates());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBaseDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDates());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     return hash ^ super.hashCode();
   }
 

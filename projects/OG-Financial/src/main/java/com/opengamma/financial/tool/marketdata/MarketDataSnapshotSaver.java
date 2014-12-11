@@ -415,11 +415,11 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotter());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataTimeoutMillis());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSnapshotter());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataTimeoutMillis());
     return hash;
   }
 

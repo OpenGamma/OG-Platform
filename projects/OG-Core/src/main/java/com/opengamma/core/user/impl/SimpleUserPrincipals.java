@@ -289,10 +289,10 @@ public class SimpleUserPrincipals implements Bean, UserPrincipals, Serializable 
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAlternateIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNetworkAddress());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEmailAddress());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUserName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAlternateIds());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNetworkAddress());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEmailAddress());
     return hash;
   }
 

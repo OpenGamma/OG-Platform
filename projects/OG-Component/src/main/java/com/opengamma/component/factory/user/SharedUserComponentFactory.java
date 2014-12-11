@@ -111,7 +111,7 @@ public class SharedUserComponentFactory extends AbstractComponentFactory {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUserName());
     return hash ^ super.hashCode();
   }
 

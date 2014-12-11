@@ -184,8 +184,8 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurveNodeIdMapperName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveNodeIdMapperName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
     return hash;
   }
 

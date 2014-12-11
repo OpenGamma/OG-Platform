@@ -191,9 +191,9 @@ public class SimpleChooserPayoffStyle extends PayoffStyle {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getChooseDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingStrike());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingExpiry());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getChooseDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingStrike());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingExpiry());
     return hash ^ super.hashCode();
   }
 

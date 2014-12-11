@@ -463,14 +463,14 @@ public abstract class AbstractDbMasterComponentFactory<I, M extends Configurable
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isEnforceSchemaVersion());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isAutoSchemaManagement());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxRetries());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isTrackingMode());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isEnforceSchemaVersion());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isAutoSchemaManagement());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaxRetries());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isTrackingMode());
     return hash ^ super.hashCode();
   }
 

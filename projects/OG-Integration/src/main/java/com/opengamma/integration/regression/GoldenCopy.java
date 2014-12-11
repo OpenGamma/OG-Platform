@@ -167,10 +167,10 @@ public final class GoldenCopy implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCalculationResults());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSnapshotName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getViewName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCalculationResults());
     return hash;
   }
 

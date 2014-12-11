@@ -148,8 +148,8 @@ public class DefaultHistoricalTimeSeriesResolverFactoryBean extends SpringFactor
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
     return hash ^ super.hashCode();
   }
 

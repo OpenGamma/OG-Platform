@@ -141,8 +141,8 @@ public class ExampleSecurityLoaderComponentFactory extends AbstractSecurityLoade
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityProvider());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
     return hash ^ super.hashCode();
   }
 

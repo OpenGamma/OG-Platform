@@ -515,18 +515,18 @@ public class Obligor extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObligorTicker());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObligorShortName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObligorREDCode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCompositeRating());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getImpliedRating());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMoodysCreditRating());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStandardAndPoorsCreditRating());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFitchCreditRating());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isHasDefaulted());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegion());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCountry());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObligorTicker());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObligorShortName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObligorREDCode());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCompositeRating());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getImpliedRating());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMoodysCreditRating());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStandardAndPoorsCreditRating());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFitchCreditRating());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isHasDefaulted());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRegion());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCountry());
     return hash;
   }
 

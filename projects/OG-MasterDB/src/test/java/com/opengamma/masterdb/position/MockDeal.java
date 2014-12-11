@@ -137,8 +137,8 @@ import org.joda.beans.Bean;
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPropertyOne());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPropertyTwo());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPropertyOne());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPropertyTwo());
     return hash;
   }
 

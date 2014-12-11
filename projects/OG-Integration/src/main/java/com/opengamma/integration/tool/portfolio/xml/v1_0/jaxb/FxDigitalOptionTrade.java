@@ -138,8 +138,8 @@ public class FxDigitalOptionTrade extends AbstractFxOptionTrade {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPayout());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPayoutCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPayout());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPayoutCurrency());
     return hash ^ super.hashCode();
   }
 

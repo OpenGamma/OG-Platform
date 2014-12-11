@@ -173,9 +173,9 @@ public class Rating implements Bean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRater());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getScore());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSeniorityLevel());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRater());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getScore());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSeniorityLevel());
     return hash;
   }
 

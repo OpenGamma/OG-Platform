@@ -11,8 +11,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.timeseries.date.localdate.LocalDateToIntConverter;
-
 /**
  * Test.
  */

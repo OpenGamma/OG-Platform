@@ -265,11 +265,11 @@ public class HullWhiteOneFactorParameters extends DirectBean implements Serializ
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMeanReversionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInitialVolatilityId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityTermStructure());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMeanReversionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getInitialVolatilityId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVolatilityTermStructure());
     return hash;
   }
 

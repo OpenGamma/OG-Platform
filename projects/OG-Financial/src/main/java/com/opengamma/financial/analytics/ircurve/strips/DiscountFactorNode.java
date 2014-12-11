@@ -140,7 +140,7 @@ public class DiscountFactorNode extends CurveNode {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTenor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTenor());
     return hash ^ super.hashCode();
   }
 

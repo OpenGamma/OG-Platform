@@ -189,8 +189,8 @@ public class RollDateFRAConvention extends FinancialConvention {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIndexConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRollDateConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIndexConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRollDateConvention());
     return hash ^ super.hashCode();
   }
 

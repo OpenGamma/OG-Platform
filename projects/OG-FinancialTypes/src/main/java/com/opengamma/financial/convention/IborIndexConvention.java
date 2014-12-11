@@ -467,16 +467,16 @@ public class IborIndexConvention extends FinancialConvention {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingTimeZone());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingCalendar());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionCalendar());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingPage());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingTimeZone());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingCalendar());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRegionCalendar());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingPage());
     return hash ^ super.hashCode();
   }
 

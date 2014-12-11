@@ -437,14 +437,14 @@ public class SimpleUserAccount implements Bean, UserAccount, Serializable {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPasswordHash());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStatus());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAlternateIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRoles());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPermissions());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEmailAddress());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProfile());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUserName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPasswordHash());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStatus());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAlternateIds());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRoles());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPermissions());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEmailAddress());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProfile());
     return hash;
   }
 

@@ -543,15 +543,15 @@ public class DbConnectorComponentFactory extends AbstractAliasedComponentFactory
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDialect());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHibernateMappingFiles());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isHibernateShowSql());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isAllowHibernateThreadBoundSession());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTransactionIsolationLevel());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTransactionPropagationBehavior());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTransactionTimeout());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDialect());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHibernateMappingFiles());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isHibernateShowSql());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isAllowHibernateThreadBoundSession());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTransactionIsolationLevel());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTransactionPropagationBehavior());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTransactionTimeout());
     return hash ^ super.hashCode();
   }
 

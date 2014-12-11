@@ -106,7 +106,7 @@ public class RootPortfolio implements Bean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolio());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPortfolio());
     return hash;
   }
 

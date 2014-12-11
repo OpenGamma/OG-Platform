@@ -172,8 +172,8 @@ public class UserEventHistoryRequest implements Bean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObjectId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUserName());
     return hash;
   }
 

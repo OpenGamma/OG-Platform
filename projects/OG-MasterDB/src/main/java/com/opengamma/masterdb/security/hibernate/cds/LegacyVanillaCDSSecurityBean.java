@@ -93,7 +93,7 @@ public class LegacyVanillaCDSSecurityBean extends CreditDefaultSwapSecurityBean 
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getParSpread());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getParSpread());
     return hash ^ super.hashCode();
   }
 

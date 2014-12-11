@@ -166,8 +166,8 @@ public class RoleSearchResult implements Bean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaging());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRoles());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaging());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRoles());
     return hash;
   }
 

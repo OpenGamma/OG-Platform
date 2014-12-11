@@ -115,7 +115,7 @@ public class BloombergSecurityProviderComponentFactory extends SecurityProviderC
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceDataProvider());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceDataProvider());
     return hash ^ super.hashCode();
   }
 

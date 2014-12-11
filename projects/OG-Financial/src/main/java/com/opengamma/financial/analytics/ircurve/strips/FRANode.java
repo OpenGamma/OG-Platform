@@ -216,9 +216,9 @@ public class FRANode extends CurveNode {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingStart());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingEnd());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingStart());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingEnd());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConvention());
     return hash ^ super.hashCode();
   }
 

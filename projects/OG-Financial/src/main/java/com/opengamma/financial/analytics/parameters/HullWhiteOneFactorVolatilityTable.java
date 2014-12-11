@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.parameters;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -183,7 +184,7 @@ public class HullWhiteOneFactorVolatilityTable implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEntries());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEntries());
     return hash;
   }
 
@@ -372,6 +373,16 @@ public class HullWhiteOneFactorVolatilityTable implements ImmutableBean {
       JodaBeanUtils.notNull(entries, "entries");
       this._entries = entries;
       return this;
+    }
+
+    /**
+     * Sets the {@code entries} property in the builder
+     * from an array of objects.
+     * @param entries  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder entries(HullWhiteOneFactorVolatilityEntry... entries) {
+      return entries(new TreeSet<HullWhiteOneFactorVolatilityEntry>(Arrays.asList(entries)));
     }
 
     //-----------------------------------------------------------------------

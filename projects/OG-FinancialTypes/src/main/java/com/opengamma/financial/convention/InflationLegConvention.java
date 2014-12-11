@@ -325,12 +325,12 @@ public class InflationLegConvention extends FinancialConvention {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMonthLag());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSpotLag());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPriceIndexConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMonthLag());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSpotLag());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPriceIndexConvention());
     return hash ^ super.hashCode();
   }
 

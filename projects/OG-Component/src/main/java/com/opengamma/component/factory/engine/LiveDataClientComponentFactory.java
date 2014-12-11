@@ -247,11 +247,11 @@ public class LiveDataClientComponentFactory extends AbstractComponentFactory {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSubscriptionTopic());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEntitlementTopic());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHeartbeatTopic());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSubscriptionTopic());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEntitlementTopic());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHeartbeatTopic());
     return hash ^ super.hashCode();
   }
 

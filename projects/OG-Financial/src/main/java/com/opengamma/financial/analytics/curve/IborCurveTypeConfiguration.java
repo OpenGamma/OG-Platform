@@ -153,8 +153,8 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTenor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTenor());
     return hash ^ super.hashCode();
   }
 

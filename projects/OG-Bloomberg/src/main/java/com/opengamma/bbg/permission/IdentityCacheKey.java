@@ -123,8 +123,8 @@ public final class IdentityCacheKey implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIpAddress());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIpAddress());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUserId());
     return hash;
   }
 

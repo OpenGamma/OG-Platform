@@ -271,10 +271,10 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurveGroups());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExogenousConfigurations());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveGroups());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExogenousConfigurations());
     return hash;
   }
 

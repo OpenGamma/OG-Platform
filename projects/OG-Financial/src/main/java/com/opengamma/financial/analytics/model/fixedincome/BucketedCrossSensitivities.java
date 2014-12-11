@@ -121,7 +121,7 @@ public final class BucketedCrossSensitivities implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCrossSensitivities());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCrossSensitivities());
     return hash;
   }
 

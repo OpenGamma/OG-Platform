@@ -380,8 +380,8 @@ public final class VersionCorrection implements ImmutableBean, Comparable<Versio
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionAsOf());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrectedTo());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVersionAsOf());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCorrectedTo());
     return hash;
   }
 

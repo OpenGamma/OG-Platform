@@ -181,8 +181,8 @@ public class NonVersionedRedisConfigSourceComponentFactory extends AbstractNonVe
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserConfigMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUserClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUserConfigMaster());
     return hash ^ super.hashCode();
   }
 

@@ -162,7 +162,7 @@ public class PortfolioHistoryRequest extends AbstractHistoryRequest {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDepth());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDepth());
     return hash ^ super.hashCode();
   }
 

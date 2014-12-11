@@ -140,8 +140,8 @@ public final class ValueRequirementTargetForCell implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getColumnSet());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValueRequirement());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getColumnSet());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValueRequirement());
     return hash;
   }
 

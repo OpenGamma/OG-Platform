@@ -32,6 +32,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
+import java.util.Arrays;
 
 /**
  * A manipulator which applies a list of point shifts.
@@ -167,8 +168,8 @@ public final class YieldCurvePointShiftManipulator implements ImmutableBean, Str
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getShiftType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPointShifts());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getShiftType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPointShifts());
     return hash;
   }
 
@@ -388,6 +389,16 @@ public final class YieldCurvePointShiftManipulator implements ImmutableBean, Str
       JodaBeanUtils.notNull(pointShifts, "pointShifts");
       this._pointShifts = pointShifts;
       return this;
+    }
+
+    /**
+     * Sets the {@code pointShifts} property in the builder
+     * from an array of objects.
+     * @param pointShifts  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder pointShifts(YieldCurvePointShift... pointShifts) {
+      return pointShifts(Arrays.asList(pointShifts));
     }
 
     //-----------------------------------------------------------------------

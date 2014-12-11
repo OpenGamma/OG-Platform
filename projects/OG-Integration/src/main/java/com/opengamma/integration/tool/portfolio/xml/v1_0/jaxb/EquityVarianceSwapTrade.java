@@ -354,15 +354,15 @@ public class EquityVarianceSwapTrade extends Trade {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBuySell());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVegaAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationStartDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationEndDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationfrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAnnualizationFactor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBuySell());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStrike());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVegaAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObservationStartDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObservationEndDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObservationfrequency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAnnualizationFactor());
     return hash ^ super.hashCode();
   }
 

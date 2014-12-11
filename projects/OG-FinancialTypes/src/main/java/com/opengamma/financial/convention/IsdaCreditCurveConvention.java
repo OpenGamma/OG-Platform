@@ -416,16 +416,16 @@ public class IsdaCreditCurveConvention extends ManageableConvention {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStepIn());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCashSettle());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPayAccOnDefault());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCouponInterval());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStubType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isProtectFromStartOfDay());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualDayCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurveDayCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStepIn());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCashSettle());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPayAccOnDefault());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCouponInterval());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStubType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isProtectFromStartOfDay());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRegionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAccrualDayCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveDayCount());
     return hash ^ super.hashCode();
   }
 

@@ -294,13 +294,13 @@ public class Position extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalSystemId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getQuantity());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTrades());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurity());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getListedSecurityDefinition());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAdditionalAttributes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExternalSystemId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getQuantity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTrades());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getListedSecurityDefinition());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAdditionalAttributes());
     return hash;
   }
 

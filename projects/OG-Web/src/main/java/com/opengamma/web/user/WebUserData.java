@@ -223,10 +223,10 @@ public class WebUserData extends WebPerRequestData {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPasswordService());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriUserName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUser());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUserMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPasswordService());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUriUserName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUser());
     return hash ^ super.hashCode();
   }
 

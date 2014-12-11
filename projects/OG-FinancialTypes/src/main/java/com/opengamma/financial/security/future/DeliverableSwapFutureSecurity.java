@@ -167,8 +167,8 @@ public class DeliverableSwapFutureSecurity extends FutureSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingSwapId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingSwapId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
     return hash ^ super.hashCode();
   }
 

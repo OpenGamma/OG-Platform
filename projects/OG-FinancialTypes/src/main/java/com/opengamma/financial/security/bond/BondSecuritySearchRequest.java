@@ -165,8 +165,8 @@ public class BondSecuritySearchRequest extends SecuritySearchRequest {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuerName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuerType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIssuerName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIssuerType());
     return hash ^ super.hashCode();
   }
 

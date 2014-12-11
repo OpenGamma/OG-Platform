@@ -416,13 +416,13 @@ public class ShiroSecurityComponentFactory extends AbstractComponentFactory {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isEnabled());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHashAlgorithm());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHashIterations());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPrivateSalt());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isEnabled());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUserSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUserMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHashAlgorithm());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHashIterations());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPrivateSalt());
     return hash ^ super.hashCode();
   }
 

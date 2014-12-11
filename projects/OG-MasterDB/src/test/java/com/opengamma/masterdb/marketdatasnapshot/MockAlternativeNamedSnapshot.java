@@ -139,9 +139,9 @@ final class MockAlternativeNamedSnapshot implements NamedSnapshot, ImmutableBean
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAnswer());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAnswer());
     return hash;
   }
 
@@ -149,26 +149,18 @@ final class MockAlternativeNamedSnapshot implements NamedSnapshot, ImmutableBean
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("MockAlternativeNamedSnapshot{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
+    buf.append("name").append('=').append(getName()).append(',').append(' ');
+    buf.append("answer").append('=').append(JodaBeanUtils.toString(getAnswer()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
-    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
-    buf.append("answer").append('=').append(JodaBeanUtils.toString(getAnswer())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code MockAlternativeNamedSnapshot}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -201,7 +193,7 @@ final class MockAlternativeNamedSnapshot implements NamedSnapshot, ImmutableBean
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -237,7 +229,7 @@ final class MockAlternativeNamedSnapshot implements NamedSnapshot, ImmutableBean
      * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueId> uniqueId() {
+    public MetaProperty<UniqueId> uniqueId() {
       return _uniqueId;
     }
 
@@ -245,7 +237,7 @@ final class MockAlternativeNamedSnapshot implements NamedSnapshot, ImmutableBean
      * The meta-property for the {@code name} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> name() {
+    public MetaProperty<String> name() {
       return _name;
     }
 
@@ -253,7 +245,7 @@ final class MockAlternativeNamedSnapshot implements NamedSnapshot, ImmutableBean
      * The meta-property for the {@code answer} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Integer> answer() {
+    public MetaProperty<Integer> answer() {
       return _answer;
     }
 
@@ -286,7 +278,7 @@ final class MockAlternativeNamedSnapshot implements NamedSnapshot, ImmutableBean
   /**
    * The bean-builder for {@code MockAlternativeNamedSnapshot}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<MockAlternativeNamedSnapshot> {
+  public static final class Builder extends DirectFieldsBeanBuilder<MockAlternativeNamedSnapshot> {
 
     private UniqueId _uniqueId;
     private String _name;
@@ -295,14 +287,14 @@ final class MockAlternativeNamedSnapshot implements NamedSnapshot, ImmutableBean
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(MockAlternativeNamedSnapshot beanToCopy) {
+    private Builder(MockAlternativeNamedSnapshot beanToCopy) {
       this._uniqueId = beanToCopy.getUniqueId();
       this._name = beanToCopy.getName();
       this._answer = beanToCopy.getAnswer();
@@ -409,19 +401,11 @@ final class MockAlternativeNamedSnapshot implements NamedSnapshot, ImmutableBean
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("MockAlternativeNamedSnapshot.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
       buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(_uniqueId)).append(',').append(' ');
       buf.append("name").append('=').append(JodaBeanUtils.toString(_name)).append(',').append(' ');
-      buf.append("answer").append('=').append(JodaBeanUtils.toString(_answer)).append(',').append(' ');
+      buf.append("answer").append('=').append(JodaBeanUtils.toString(_answer));
+      buf.append('}');
+      return buf.toString();
     }
 
   }

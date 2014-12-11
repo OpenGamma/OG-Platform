@@ -178,8 +178,8 @@ public class PeriodicallyCompoundedRateNode extends CurveNode {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCompoundingPeriodsPerYear());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTenor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCompoundingPeriodsPerYear());
     return hash ^ super.hashCode();
   }
 

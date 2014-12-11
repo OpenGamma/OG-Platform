@@ -140,8 +140,8 @@ public class SecurityMetaDataRequest extends AbstractMetaDataRequest {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(isSecurityTypes());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isSchemaVersion());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isSecurityTypes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isSchemaVersion());
     return hash ^ super.hashCode();
   }
 

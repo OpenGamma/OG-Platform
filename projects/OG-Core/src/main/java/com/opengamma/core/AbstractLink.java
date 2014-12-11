@@ -272,8 +272,8 @@ public abstract class AbstractLink<T extends UniqueIdentifiable> extends DirectB
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObjectId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExternalId());
     return hash;
   }
 

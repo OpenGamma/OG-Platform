@@ -328,13 +328,13 @@ public class NonDeliverableFXForwardSecurity extends FinancialSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPayCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPayAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getForwardDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isDeliverInReceiveCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPayCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPayAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReceiveCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReceiveAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getForwardDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRegionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isDeliverInReceiveCurrency());
     return hash ^ super.hashCode();
   }
 

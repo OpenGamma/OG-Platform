@@ -613,22 +613,22 @@ public abstract class InterestRateSwapLeg extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPayReceiveType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStubCalculationMethod());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCountConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRollConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDateCalendars());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDateBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentDateCalendars());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentDateBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentDateFrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentDateRelativeTo());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentOffset());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualPeriodCalendars());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualPeriodBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualPeriodFrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCompoundingMethod());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPayReceiveType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStubCalculationMethod());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCountConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRollConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityDateCalendars());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityDateBusinessDayConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDateCalendars());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDateBusinessDayConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDateFrequency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDateRelativeTo());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentOffset());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAccrualPeriodCalendars());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAccrualPeriodBusinessDayConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAccrualPeriodFrequency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCompoundingMethod());
     return hash;
   }
 

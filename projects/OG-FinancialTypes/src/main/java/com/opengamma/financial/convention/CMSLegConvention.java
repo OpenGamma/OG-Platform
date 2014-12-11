@@ -223,9 +223,9 @@ public class CMSLegConvention extends FinancialConvention {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSwapIndexConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsAdvanceFixing());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSwapIndexConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentTenor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isIsAdvanceFixing());
     return hash ^ super.hashCode();
   }
 

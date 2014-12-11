@@ -293,13 +293,13 @@ public class FxForwardTrade extends Trade {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPayAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPayCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFxExpiry());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentCalendars());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPayAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPayCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReceiveAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReceiveCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFxExpiry());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentCalendars());
     return hash ^ super.hashCode();
   }
 

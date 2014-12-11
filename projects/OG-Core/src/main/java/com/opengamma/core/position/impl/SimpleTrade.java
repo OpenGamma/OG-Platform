@@ -577,17 +577,17 @@ public class SimpleTrade extends DirectBean
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getQuantity());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLink());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCounterparty());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPremium());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getQuantity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityLink());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCounterparty());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPremium());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPremiumCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPremiumDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPremiumTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAttributes());
     return hash;
   }
 

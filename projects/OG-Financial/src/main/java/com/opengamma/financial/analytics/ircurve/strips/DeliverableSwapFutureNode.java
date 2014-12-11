@@ -330,12 +330,12 @@ public class DeliverableSwapFutureNode extends CurveNode {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFutureNumber());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFutureTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFutureConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSwapConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFutureNumber());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStartTenor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFutureTenor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingTenor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFutureConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSwapConvention());
     return hash ^ super.hashCode();
   }
 

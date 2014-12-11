@@ -367,8 +367,8 @@ public final class Paging implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRequest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTotalItems());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRequest());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTotalItems());
     return hash;
   }
 

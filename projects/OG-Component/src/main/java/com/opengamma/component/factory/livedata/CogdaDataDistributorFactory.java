@@ -299,14 +299,14 @@ public abstract class CogdaDataDistributorFactory extends AbstractComponentFacto
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisServer());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisPort());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisPrefix());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isUpdateRedis());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPublishJmsConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPublishTopicName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getListenJmsConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getListenTopicName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRedisServer());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRedisPort());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRedisPrefix());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isUpdateRedis());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPublishJmsConnector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPublishTopicName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getListenJmsConnector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getListenTopicName());
     return hash ^ super.hashCode();
   }
 

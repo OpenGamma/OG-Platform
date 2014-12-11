@@ -125,7 +125,7 @@ public class ForwardSwapSecurity extends SwapSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getForwardStartDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getForwardStartDate());
     return hash ^ super.hashCode();
   }
 

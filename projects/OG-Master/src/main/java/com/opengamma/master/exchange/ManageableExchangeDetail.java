@@ -669,25 +669,25 @@ public class ManageableExchangeDetail extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProductGroup());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProductName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProductType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProductCode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCalendarStart());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCalendarEnd());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayStart());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayRangeType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayEnd());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPhaseName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPhaseType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPhaseStart());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPhaseEnd());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRandomStartMin());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRandomStartMax());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRandomEndMin());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRandomEndMax());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLastConfirmed());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProductGroup());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProductName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProductType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProductCode());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCalendarStart());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCalendarEnd());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDayStart());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDayRangeType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDayEnd());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPhaseName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPhaseType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPhaseStart());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPhaseEnd());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRandomStartMin());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRandomStartMax());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRandomEndMin());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRandomEndMax());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLastConfirmed());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotes());
     return hash;
   }
 

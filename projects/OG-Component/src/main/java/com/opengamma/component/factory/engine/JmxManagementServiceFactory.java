@@ -188,9 +188,9 @@ public class JmxManagementServiceFactory extends AbstractSpringComponentFactory 
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMBeanServer());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isSplitByViewProcessor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMBeanServer());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isSplitByViewProcessor());
     return hash ^ super.hashCode();
   }
 

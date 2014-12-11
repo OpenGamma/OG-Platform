@@ -169,8 +169,8 @@ public class RoleEventHistoryRequest implements Bean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRoleName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObjectId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRoleName());
     return hash;
   }
 

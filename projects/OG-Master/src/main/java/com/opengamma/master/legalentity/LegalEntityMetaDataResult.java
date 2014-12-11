@@ -112,7 +112,7 @@ public class LegalEntityMetaDataResult extends AbstractMetaDataResult {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSchemaVersion());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSchemaVersion());
     return hash ^ super.hashCode();
   }
 

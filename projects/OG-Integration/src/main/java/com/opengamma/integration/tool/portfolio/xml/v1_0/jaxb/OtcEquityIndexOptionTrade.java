@@ -394,16 +394,16 @@ public class OtcEquityIndexOptionTrade extends Trade {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOptionType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBuySell());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotionalCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExpiryDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExpiryCalendars());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementCalendars());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getOptionType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBuySell());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotionalCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStrike());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryCalendars());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementCalendars());
     return hash ^ super.hashCode();
   }
 

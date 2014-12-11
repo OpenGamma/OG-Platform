@@ -163,9 +163,9 @@ public final class FixedCashFlowDetails extends AbstractCashFlowDetails implemen
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProjectedAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPresentValue());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProjectedAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPresentValue());
     return hash ^ super.hashCode();
   }
 

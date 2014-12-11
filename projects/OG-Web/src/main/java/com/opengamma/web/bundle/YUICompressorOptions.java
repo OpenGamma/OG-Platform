@@ -221,11 +221,11 @@ public class YUICompressorOptions extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLineBreakPosition());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isMunge());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPreserveAllSemiColons());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isOptimize());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isWarn());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLineBreakPosition());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isMunge());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPreserveAllSemiColons());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isOptimize());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isWarn());
     return hash;
   }
 

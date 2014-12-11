@@ -179,9 +179,9 @@ public class WebFunctionData extends WebPerRequestData {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriFunctionName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionConfiguration());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFunctionSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUriFunctionName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFunctionConfiguration());
     return hash ^ super.hashCode();
   }
 

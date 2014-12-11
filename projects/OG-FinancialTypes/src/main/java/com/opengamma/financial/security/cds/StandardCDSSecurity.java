@@ -221,8 +221,8 @@ public abstract class StandardCDSSecurity extends CreditDefaultSwapSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getQuotedSpread());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUpfrontAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getQuotedSpread());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUpfrontAmount());
     return hash ^ super.hashCode();
   }
 

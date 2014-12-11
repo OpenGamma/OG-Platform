@@ -101,7 +101,7 @@ public class TimeOverrideRequest extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeOverride());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeOverride());
     return hash;
   }
 

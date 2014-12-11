@@ -152,7 +152,7 @@ public class ActiveMqJmsConnectorComponentFactory extends AbstractAliasedCompone
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClientBrokerUri());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClientBrokerUri());
     return hash ^ super.hashCode();
   }
 

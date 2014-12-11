@@ -156,7 +156,7 @@ public class ResolvableConventionLink<T extends Convention> extends ConventionLi
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIdentifier());
     return hash;
   }
 

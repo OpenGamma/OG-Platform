@@ -337,11 +337,11 @@ public class LegalEntityRegion implements LegalEntityFilter<LegalEntity>, Bean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(isUseName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isUseCountry());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCountries());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isUseCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrencies());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isUseName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isUseCountry());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCountries());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isUseCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrencies());
     return hash;
   }
 

@@ -211,8 +211,8 @@ public class MultiFileConventionSaver extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getZipFileName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getZipFileName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConventionMaster());
     return hash;
   }
 

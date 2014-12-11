@@ -31,7 +31,6 @@ import java.util.NoSuchElementException;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.DoubleTimeSeriesOperators;
 import com.opengamma.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
 import com.opengamma.timeseries.date.AbstractDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.DateDoubleTimeSeries;

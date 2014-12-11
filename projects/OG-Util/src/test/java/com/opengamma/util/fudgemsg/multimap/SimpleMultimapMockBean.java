@@ -110,7 +110,7 @@ public class SimpleMultimapMockBean implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSimpleMultimap());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSimpleMultimap());
     return hash;
   }
 

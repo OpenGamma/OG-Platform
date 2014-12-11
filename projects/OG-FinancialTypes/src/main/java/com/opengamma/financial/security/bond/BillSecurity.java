@@ -415,15 +415,15 @@ public class BillSecurity extends FinancialSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIssueDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMinimumIncrement());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDaysToSettle());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getYieldConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLegalEntityId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIssueDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMinimumIncrement());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDaysToSettle());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRegionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getYieldConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLegalEntityId());
     return hash ^ super.hashCode();
   }
 

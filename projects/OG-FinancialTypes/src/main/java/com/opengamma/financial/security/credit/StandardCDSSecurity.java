@@ -388,13 +388,13 @@ public class StandardCDSSecurity extends FinancialSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceEntity());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isBuyProtection());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSeniority());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCoupon());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceEntity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isBuyProtection());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSeniority());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCoupon());
     return hash ^ super.hashCode();
   }
 

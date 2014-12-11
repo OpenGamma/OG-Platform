@@ -134,8 +134,8 @@ public final class DoubleDoubleSurfaceShift extends VolatilitySurfaceShiftManipu
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getXValues());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getYValues());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getXValues());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getYValues());
     return hash ^ super.hashCode();
   }
 
@@ -347,7 +347,7 @@ public final class DoubleDoubleSurfaceShift extends VolatilitySurfaceShiftManipu
      * @param xValues  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder xValues(double[] xValues) {
+    public Builder xValues(double... xValues) {
       JodaBeanUtils.notNull(xValues, "xValues");
       this._xValues = xValues;
       return this;
@@ -358,7 +358,7 @@ public final class DoubleDoubleSurfaceShift extends VolatilitySurfaceShiftManipu
      * @param yValues  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder yValues(double[] yValues) {
+    public Builder yValues(double... yValues) {
       JodaBeanUtils.notNull(yValues, "yValues");
       this._yValues = yValues;
       return this;

@@ -200,10 +200,10 @@ public class PortfolioDocumentV1_0 extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSchemaVersion());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolios());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositions());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTrades());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSchemaVersion());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPortfolios());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPositions());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTrades());
     return hash;
   }
 

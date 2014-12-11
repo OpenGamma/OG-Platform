@@ -412,15 +412,15 @@ public class NonDeliverableFXDigitalOptionSecurity extends FinancialSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPutCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCallCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPutAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCallAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExpiry());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLongShort());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isDeliverInCallCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPutCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCallCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPutAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCallAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiry());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLongShort());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isDeliverInCallCurrency());
     return hash ^ super.hashCode();
   }
 

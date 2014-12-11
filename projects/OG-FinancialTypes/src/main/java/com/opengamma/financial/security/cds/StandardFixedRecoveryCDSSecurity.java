@@ -139,7 +139,7 @@ public class StandardFixedRecoveryCDSSecurity  extends StandardCDSSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRecoveryRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRecoveryRate());
     return hash ^ super.hashCode();
   }
 

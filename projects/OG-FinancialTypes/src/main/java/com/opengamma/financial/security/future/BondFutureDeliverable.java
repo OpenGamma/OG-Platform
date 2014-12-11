@@ -155,8 +155,8 @@ public class BondFutureDeliverable extends DirectBean implements Serializable {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifiers());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConversionFactor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIdentifiers());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConversionFactor());
     return hash;
   }
 

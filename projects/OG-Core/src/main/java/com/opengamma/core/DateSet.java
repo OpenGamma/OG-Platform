@@ -5,6 +5,7 @@
  */
 package com.opengamma.core;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -166,7 +167,7 @@ public class DateSet implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDates());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDates());
     return hash;
   }
 
@@ -355,6 +356,16 @@ public class DateSet implements ImmutableBean {
       JodaBeanUtils.notNull(dates, "dates");
       this._dates = dates;
       return this;
+    }
+
+    /**
+     * Sets the {@code dates} property in the builder
+     * from an array of objects.
+     * @param dates  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder dates(LocalDate... dates) {
+      return dates(new TreeSet<LocalDate>(Arrays.asList(dates)));
     }
 
     //-----------------------------------------------------------------------

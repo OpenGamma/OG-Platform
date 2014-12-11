@@ -222,9 +222,9 @@ public class DbPositionMasterComponentFactory extends AbstractDocumentDbMasterCo
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxGetRequestSize());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxSearchRequestSize());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isParallelSearchQueries());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaxGetRequestSize());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaxSearchRequestSize());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isParallelSearchQueries());
     return hash ^ super.hashCode();
   }
 

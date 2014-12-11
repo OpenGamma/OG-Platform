@@ -253,11 +253,11 @@ public class RedisConnectorComponentFactory extends AbstractComponentFactory {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHostName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisPort());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPassword());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeOut());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHostName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRedisPort());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPassword());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeOut());
     return hash ^ super.hashCode();
   }
 

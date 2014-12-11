@@ -597,15 +597,15 @@ public class RoleForm implements Bean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRoleName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDescription());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAddRoles());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRemoveRoles());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAddPermissions());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRemovePermissions());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAddUsers());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRemoveUsers());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseRole());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRoleName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDescription());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAddRoles());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRemoveRoles());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAddPermissions());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRemovePermissions());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAddUsers());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRemoveUsers());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBaseRole());
     return hash;
   }
 

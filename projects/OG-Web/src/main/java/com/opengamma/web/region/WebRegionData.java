@@ -318,13 +318,13 @@ public class WebRegionData extends WebPerRequestData {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriRegionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegion());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionParents());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionChildren());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRegionMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUriRegionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRegion());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRegionParents());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRegionChildren());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVersioned());
     return hash ^ super.hashCode();
   }
 

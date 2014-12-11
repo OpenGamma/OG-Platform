@@ -5,7 +5,9 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -251,11 +253,11 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getShiftType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getShiftAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMinRate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxRate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrencyPairs());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getShiftType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getShiftAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMinRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaxRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrencyPairs());
     return hash;
   }
 
@@ -588,6 +590,16 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
       JodaBeanUtils.notNull(currencyPairs, "currencyPairs");
       this._currencyPairs = currencyPairs;
       return this;
+    }
+
+    /**
+     * Sets the {@code currencyPairs} property in the builder
+     * from an array of objects.
+     * @param currencyPairs  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder currencyPairs(CurrencyPair... currencyPairs) {
+      return currencyPairs(new LinkedHashSet<CurrencyPair>(Arrays.asList(currencyPairs)));
     }
 
     //-----------------------------------------------------------------------

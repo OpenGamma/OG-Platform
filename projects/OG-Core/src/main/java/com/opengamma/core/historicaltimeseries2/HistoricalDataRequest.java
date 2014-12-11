@@ -198,13 +198,13 @@ public final class HistoricalDataRequest implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBundle());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getField());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFrom());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isFromInclusive());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTo());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isToInclusive());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getResolver());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBundle());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getField());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFrom());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isFromInclusive());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTo());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isToInclusive());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getResolver());
     return hash;
   }
 

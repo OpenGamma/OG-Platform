@@ -12,7 +12,6 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.util.ParallelArrayBinarySort;
 import com.opengamma.util.test.TestGroup;
 
 /**

@@ -315,13 +315,13 @@ public abstract class Trade extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalSystemId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCounterparty());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAdditionalCashflows());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAdditionalAttributes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExternalSystemId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCounterparty());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAdditionalCashflows());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAdditionalAttributes());
     return hash;
   }
 

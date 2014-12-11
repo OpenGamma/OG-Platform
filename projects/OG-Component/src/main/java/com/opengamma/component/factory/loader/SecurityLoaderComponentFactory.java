@@ -256,11 +256,11 @@ public class SecurityLoaderComponentFactory extends AbstractSecurityLoaderCompon
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityEnhancer1());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityEnhancer2());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityEnhancer3());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityProvider());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityEnhancer1());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityEnhancer2());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityEnhancer3());
     return hash ^ super.hashCode();
   }
 

@@ -224,10 +224,10 @@ public class FactorExposureData extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFactorSetId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFactorType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFactorName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNode());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFactorSetId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFactorType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFactorName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNode());
     return hash;
   }
 

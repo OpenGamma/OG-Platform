@@ -377,12 +377,12 @@ public class ComponentServer implements Bean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUri());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersion());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBuild());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBuildId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrentInstant());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getComponentInfos());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUri());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVersion());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBuild());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBuildId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrentInstant());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getComponentInfos());
     return hash;
   }
 

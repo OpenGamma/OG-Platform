@@ -377,15 +377,15 @@ public final class StubCalculationMethod implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstStubRate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLastStubRate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstStubEndDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLastStubEndDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstStubStartReferenceRateId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstStubEndReferenceRateId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLastStubStartReferenceRateId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLastStubEndReferenceRateId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFirstStubRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLastStubRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFirstStubEndDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLastStubEndDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFirstStubStartReferenceRateId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFirstStubEndReferenceRateId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLastStubStartReferenceRateId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLastStubEndReferenceRateId());
     return hash;
   }
 

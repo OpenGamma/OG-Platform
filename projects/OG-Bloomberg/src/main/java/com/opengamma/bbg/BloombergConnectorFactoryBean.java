@@ -367,13 +367,13 @@ public class BloombergConnectorFactoryBean extends SpringFactoryBean<BloombergCo
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHost());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPort());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getApplicationName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isAutoRestartOnDisconnection());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSessionOptions());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceDataStatistics());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHost());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPort());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getApplicationName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isAutoRestartOnDisconnection());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSessionOptions());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceDataStatistics());
     return hash ^ super.hashCode();
   }
 

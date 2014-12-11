@@ -150,9 +150,9 @@ public final class NotionalExchange implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(isExchangeFinalNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isExchangeInitialNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isExchangeInterimNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isExchangeFinalNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isExchangeInitialNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isExchangeInterimNotional());
     return hash;
   }
 

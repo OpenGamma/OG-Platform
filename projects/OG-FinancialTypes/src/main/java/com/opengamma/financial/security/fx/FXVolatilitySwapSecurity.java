@@ -209,8 +209,8 @@ public class FXVolatilitySwapSecurity extends VolatilitySwapSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCounterCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBaseCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCounterCurrency());
     return hash ^ super.hashCode();
   }
 

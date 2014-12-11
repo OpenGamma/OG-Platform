@@ -112,7 +112,7 @@ public class AnalyticsEnvironmentComponentFactory extends AbstractComponentFacto
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getModelDayCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getModelDayCount());
     return hash ^ super.hashCode();
   }
 

@@ -663,27 +663,27 @@ public class CreditDefaultSwapIndexSecurityBean extends SecurityBean {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBuy());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProtectionBuyer());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProtectionSeller());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEffectiveDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStubType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCouponFrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getImmAdjustMaturityDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAdjustEffectiveDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAdjustMaturityDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAdjustSettlementDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIncludeAccruedPremium());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProtectionStart());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUpfrontPayment());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIndexCoupon());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBuy());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProtectionBuyer());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProtectionSeller());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEffectiveDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStubType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCouponFrequency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getImmAdjustMaturityDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAdjustEffectiveDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAdjustMaturityDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAdjustSettlementDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIncludeAccruedPremium());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProtectionStart());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUpfrontPayment());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIndexCoupon());
     return hash ^ super.hashCode();
   }
 

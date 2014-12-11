@@ -397,14 +397,14 @@ public class AmericanDepositaryReceiptSecurity extends FinancialSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getShortName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchange());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeCode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCompanyName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getForeignCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGicsCode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingIdBundle());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getShortName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExchange());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExchangeCode());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCompanyName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getForeignCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getGicsCode());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingIdBundle());
     return hash ^ super.hashCode();
   }
 

@@ -393,15 +393,15 @@ public class LiveDataMetaData extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSupportedSchemes());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getServerType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDescription());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConnectionUri());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsBrokerUri());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionTopic());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionQueue());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsEntitlementTopic());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsHeartbeatTopic());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSupportedSchemes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getServerType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDescription());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConnectionUri());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsBrokerUri());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionTopic());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionQueue());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsEntitlementTopic());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsHeartbeatTopic());
     return hash;
   }
 

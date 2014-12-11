@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.core.config.Config;
 import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.id.UniqueIdentifiable;
+import java.util.Arrays;
 
 /**
  * Holds the range of X for a future price curve (to be used with volatility surfaces).
@@ -176,9 +177,9 @@ public final class FuturePriceCurveDefinition<X> implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTarget());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getXs());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTarget());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getXs());
     return hash;
   }
 
@@ -440,6 +441,16 @@ public final class FuturePriceCurveDefinition<X> implements ImmutableBean {
       JodaBeanUtils.notNull(xs, "xs");
       this._xs = xs;
       return this;
+    }
+
+    /**
+     * Sets the {@code xs} property in the builder
+     * from an array of objects.
+     * @param xs  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder<X> xs(X... xs) {
+      return xs(Arrays.asList(xs));
     }
 
     //-----------------------------------------------------------------------

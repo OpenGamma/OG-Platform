@@ -174,9 +174,9 @@ public class ConnectionResponseMessage extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getResult());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAvailableServers());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCapabilities());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getResult());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAvailableServers());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCapabilities());
     return hash;
   }
 

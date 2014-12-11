@@ -236,10 +236,10 @@ public class ExampleLiveDataServerComponentFactory extends AbstractStandardLiveD
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSimulatedData());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxMillisBetweenTicks());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getScalingFactor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSimulatedData());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaxMillisBetweenTicks());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getScalingFactor());
     return hash ^ super.hashCode();
   }
 

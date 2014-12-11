@@ -153,7 +153,7 @@ public class FixedDateInterpolatedCurveDefinition extends InterpolatedCurveDefin
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixedDates());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixedDates());
     return hash ^ super.hashCode();
   }
 

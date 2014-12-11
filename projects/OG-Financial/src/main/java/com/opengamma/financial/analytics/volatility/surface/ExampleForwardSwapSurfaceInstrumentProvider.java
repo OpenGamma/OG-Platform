@@ -215,7 +215,7 @@ public class ExampleForwardSwapSurfaceInstrumentProvider implements Bean, Surfac
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCountry());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCountry());
     return hash;
   }
 

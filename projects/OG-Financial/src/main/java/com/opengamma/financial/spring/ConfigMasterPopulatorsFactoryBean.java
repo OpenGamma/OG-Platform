@@ -421,16 +421,16 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isYieldCurve());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isCurrencyMatrix());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isSwaptionVolatilitySurface());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIrFutureOptionSurface());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isFxOptionVolatilitySurface());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isEquityOptionSurface());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isVolatilityCube());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isFxForwardCurve());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isCurveCalculationConfiguration());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isYieldCurve());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isCurrencyMatrix());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isSwaptionVolatilitySurface());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isIrFutureOptionSurface());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isFxOptionVolatilitySurface());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isEquityOptionSurface());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isVolatilityCube());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isFxForwardCurve());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isCurveCalculationConfiguration());
     return hash;
   }
 

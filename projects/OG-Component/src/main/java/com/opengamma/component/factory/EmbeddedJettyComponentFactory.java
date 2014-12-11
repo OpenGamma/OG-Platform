@@ -443,11 +443,11 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(isActive());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPort());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurePort());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getResourceBase());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecondaryResourceBases());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isActive());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPort());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurePort());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getResourceBase());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecondaryResourceBases());
     return hash ^ super.hashCode();
   }
 

@@ -499,12 +499,12 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getParentNodeId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getChildNodes());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionIds());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getParentNodeId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPortfolioId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getChildNodes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPositionIds());
     return hash;
   }
 

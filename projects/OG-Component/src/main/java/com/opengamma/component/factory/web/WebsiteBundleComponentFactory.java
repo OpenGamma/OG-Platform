@@ -422,15 +422,15 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigXmlPath());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseDir());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDeployMode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCompressorLineBreakPosition());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isCompressorMunge());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isCompressorPreserveAllSemiColons());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isCompressorOptimize());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isCompressorWarn());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConfigXmlPath());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBaseDir());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDeployMode());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCompressorLineBreakPosition());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isCompressorMunge());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isCompressorPreserveAllSemiColons());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isCompressorOptimize());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isCompressorWarn());
     return hash ^ super.hashCode();
   }
 

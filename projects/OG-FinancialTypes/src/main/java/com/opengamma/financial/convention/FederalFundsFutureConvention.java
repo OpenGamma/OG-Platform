@@ -190,8 +190,8 @@ public class FederalFundsFutureConvention extends ExchangeTradedFutureAndOptionC
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIndexConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIndexConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
     return hash ^ super.hashCode();
   }
 

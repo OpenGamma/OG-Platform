@@ -291,11 +291,11 @@ public class ONCompoundedLegRollDateConvention extends FinancialConvention {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOvernightIndexConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStubType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsExchangeNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentLag());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getOvernightIndexConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentTenor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStubType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isIsExchangeNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentLag());
     return hash ^ super.hashCode();
   }
 

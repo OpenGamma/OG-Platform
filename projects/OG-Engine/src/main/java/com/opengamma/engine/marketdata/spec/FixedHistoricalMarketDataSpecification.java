@@ -123,7 +123,7 @@ public class FixedHistoricalMarketDataSpecification extends HistoricalMarketData
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSnapshotDate());
     return hash ^ super.hashCode();
   }
 

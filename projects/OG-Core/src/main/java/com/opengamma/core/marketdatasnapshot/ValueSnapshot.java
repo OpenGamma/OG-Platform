@@ -242,8 +242,8 @@ public final class ValueSnapshot implements Bean, Serializable {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketValue());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOverrideValue());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketValue());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getOverrideValue());
     return hash;
   }
 

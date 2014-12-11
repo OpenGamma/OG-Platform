@@ -145,7 +145,7 @@ public class DbFunctionConfigurationSourceComponentFactory extends FunctionConfi
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionDefinitionName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFunctionDefinitionName());
     return hash ^ super.hashCode();
   }
 

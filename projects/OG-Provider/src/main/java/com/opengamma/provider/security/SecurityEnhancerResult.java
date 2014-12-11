@@ -151,7 +151,7 @@ public class SecurityEnhancerResult extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getResultList());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getResultList());
     return hash;
   }
 

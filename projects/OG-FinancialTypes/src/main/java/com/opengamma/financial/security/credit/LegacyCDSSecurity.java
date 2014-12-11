@@ -856,23 +856,23 @@ public class LegacyCDSSecurity extends FinancialSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceEntity());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isBuyProtection());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSeniority());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCoupon());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCouponFrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCalendars());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRestructuringClause());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUpfrontPayment());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFeeSettlementDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isAccruedOnDefault());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixedRecovery());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceEntity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isBuyProtection());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSeniority());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCoupon());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCouponFrequency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCalendars());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRestructuringClause());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUpfrontPayment());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFeeSettlementDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isAccruedOnDefault());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixedRecovery());
     return hash ^ super.hashCode();
   }
 

@@ -227,8 +227,8 @@ public abstract class AbstractSpringComponentFactory extends DirectBean implemen
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSpringFile());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPropertiesFile());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSpringFile());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPropertiesFile());
     return hash;
   }
 

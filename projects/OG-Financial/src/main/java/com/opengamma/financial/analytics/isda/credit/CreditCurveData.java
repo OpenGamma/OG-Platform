@@ -160,9 +160,9 @@ public class CreditCurveData implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurveConventionLink());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCdsQuotes());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRecoveryRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveConventionLink());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCdsQuotes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRecoveryRate());
     return hash;
   }
 

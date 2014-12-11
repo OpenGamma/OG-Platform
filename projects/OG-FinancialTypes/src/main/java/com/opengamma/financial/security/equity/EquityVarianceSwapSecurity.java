@@ -461,17 +461,17 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSpotUnderlyingId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isParameterizedAsVariance());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAnnualizationFactor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstObservationDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLastObservationDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationFrequency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSpotUnderlyingId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStrike());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isParameterizedAsVariance());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAnnualizationFactor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFirstObservationDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLastObservationDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRegionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObservationFrequency());
     return hash ^ super.hashCode();
   }
 

@@ -313,12 +313,12 @@ public class LegalEntity implements Bean, Serializable {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTicker());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getShortName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCreditRatings());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegion());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isHasDefaulted());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTicker());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getShortName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCreditRatings());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRegion());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isHasDefaulted());
     return hash;
   }
 

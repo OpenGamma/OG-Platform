@@ -5,7 +5,9 @@
  */
 package com.opengamma.financial.analytics.model.fixedincome;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -354,16 +356,16 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingStartDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingEndDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingYearFrac());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixedRate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getForwardRate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSpread());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGearing());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIndexTenors());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProjectedAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPresentValue());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingStartDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingEndDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingYearFrac());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixedRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getForwardRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSpread());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getGearing());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIndexTenors());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProjectedAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPresentValue());
     return hash ^ super.hashCode();
   }
 
@@ -859,6 +861,16 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
       JodaBeanUtils.notNull(indexTenors, "indexTenors");
       this._indexTenors = indexTenors;
       return this;
+    }
+
+    /**
+     * Sets the {@code indexTenors} property in the builder
+     * from an array of objects.
+     * @param indexTenors  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder indexTenors(Tenor... indexTenors) {
+      return indexTenors(new LinkedHashSet<Tenor>(Arrays.asList(indexTenors)));
     }
 
     /**

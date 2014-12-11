@@ -885,12 +885,7 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
           JodaBeanUtils.equal(getGearings(), other.getGearings()) &&
           JodaBeanUtils.equal(getPaymentDiscountFactors(), other.getPaymentDiscountFactors()) &&
           JodaBeanUtils.equal(getProjectedAmounts(), other.getProjectedAmounts()) &&
-          JodaBeanUtils.equal(getIndexTenors(), other.getIndexTenors()) &&
-          (getNumberOfCashFlows() == other.getNumberOfCashFlows()) &&
-          (getNumberOfFixedCashFlows() == other.getNumberOfFixedCashFlows()) &&
-          (getNumberOfFloatingCashFlows() == other.getNumberOfFloatingCashFlows()) &&
-          JodaBeanUtils.equal(getDiscountedPaymentAmounts(), other.getDiscountedPaymentAmounts()) &&
-          JodaBeanUtils.equal(getDiscountedProjectedAmounts(), other.getDiscountedProjectedAmounts());
+          JodaBeanUtils.equal(getIndexTenors(), other.getIndexTenors());
     }
     return false;
   }
@@ -898,28 +893,23 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualStart());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualEnd());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualYearFractions());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingStart());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingEnd());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingYearFractions());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getForwardRates());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixedRates());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentDates());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentTimes());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentAmounts());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotionals());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSpreads());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGearings());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentDiscountFactors());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProjectedAmounts());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIndexTenors());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNumberOfCashFlows());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNumberOfFixedCashFlows());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNumberOfFloatingCashFlows());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDiscountedPaymentAmounts());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDiscountedProjectedAmounts());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAccrualStart());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAccrualEnd());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAccrualYearFractions());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingStart());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingEnd());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingYearFractions());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getForwardRates());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixedRates());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDates());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentTimes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentAmounts());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotionals());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSpreads());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getGearings());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDiscountFactors());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProjectedAmounts());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIndexTenors());
     return hash;
   }
 

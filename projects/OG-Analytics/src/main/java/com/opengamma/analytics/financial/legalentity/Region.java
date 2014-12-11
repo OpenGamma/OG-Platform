@@ -177,9 +177,9 @@ public final class Region implements ImmutableBean, Serializable {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCountries());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrencies());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCountries());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrencies());
     return hash;
   }
 

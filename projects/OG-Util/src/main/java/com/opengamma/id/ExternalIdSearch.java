@@ -427,8 +427,8 @@ public final class ExternalIdSearch implements ImmutableBean, Iterable<ExternalI
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSearchType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExternalIds());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSearchType());
     return hash;
   }
 

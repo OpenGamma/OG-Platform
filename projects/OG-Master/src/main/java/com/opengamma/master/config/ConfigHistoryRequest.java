@@ -169,7 +169,7 @@ public class ConfigHistoryRequest<T> extends AbstractHistoryRequest {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getType());
     return hash ^ super.hashCode();
   }
 

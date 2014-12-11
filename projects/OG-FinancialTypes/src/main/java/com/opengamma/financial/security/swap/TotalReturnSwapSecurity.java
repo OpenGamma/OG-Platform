@@ -520,18 +520,18 @@ public abstract class TotalReturnSwapSecurity extends FinancialSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFundingLeg());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAssetId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEffectiveDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentSettlementDays());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentDateCalendar());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getResetDateRelativeTo());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentFrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRollConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDates());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentDates());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFundingLeg());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAssetId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEffectiveDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentSettlementDays());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDateCalendar());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentBusinessDayConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getResetDateRelativeTo());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentFrequency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRollConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDates());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDates());
     return hash ^ super.hashCode();
   }
 

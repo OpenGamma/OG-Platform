@@ -427,17 +427,17 @@ public class SwaptionTrade extends Trade {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBuySell());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentCalendars());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseCalendars());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExpirationDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStubPeriodType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCashSettlementCalculationMethod());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCashSettlementPaymentDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCashSettlementCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingSwapTrade());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBuySell());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentCalendars());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExerciseCalendars());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExpirationDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStubPeriodType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCashSettlementCalculationMethod());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCashSettlementPaymentDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCashSettlementCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingSwapTrade());
     return hash ^ super.hashCode();
   }
 

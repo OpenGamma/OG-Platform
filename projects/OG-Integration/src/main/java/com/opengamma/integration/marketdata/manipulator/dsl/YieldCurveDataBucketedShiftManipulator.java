@@ -39,6 +39,7 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveData;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
+import java.util.Arrays;
 
 /**
  * A {@link StructureManipulator} which performs a list of bucketed shifts on {@link YieldCurveData}.
@@ -199,8 +200,8 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getShiftType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getShifts());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getShiftType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getShifts());
     return hash;
   }
 
@@ -420,6 +421,16 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
       JodaBeanUtils.notNull(shifts, "shifts");
       this._shifts = shifts;
       return this;
+    }
+
+    /**
+     * Sets the {@code shifts} property in the builder
+     * from an array of objects.
+     * @param shifts  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder shifts(YieldCurveBucketedShift... shifts) {
+      return shifts(Arrays.asList(shifts));
     }
 
     //-----------------------------------------------------------------------
