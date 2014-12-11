@@ -29,6 +29,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.NarrowingSecuritySource;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.config.EngineUtils;
@@ -72,13 +73,10 @@ class CapturingCycleInitializer implements CycleInitializer {
                                    ViewConfig viewConfig,
                                    CacheBuilder<Object, Object> cacheBuilder,
                                    List<?> inputs) {
-
+    ArgumentChecker.notNull(calculationArguments, "calculationArguments");
     _cacheBuilder = ArgumentChecker.notNull(cacheBuilder, "cacheBuilder");
 
-    VersionCorrectionProvider vcProvider = calculationArguments.getConfigVersionCorrection() != null &&
-        !calculationArguments.getConfigVersionCorrection().containsLatest() ?
-        new FixedInstantVersionCorrectionProvider(calculationArguments.getConfigVersionCorrection().getVersionAsOf()) :
-        new FixedInstantVersionCorrectionProvider();
+    VersionCorrectionProvider vcProvider = getVersionCorrectionProvider(calculationArguments);
 
     ProxiedComponentMap collector = new DefaultProxiedComponentMap();
 
@@ -98,6 +96,13 @@ class CapturingCycleInitializer implements CycleInitializer {
 
     _serviceContext = serviceContext.with(wrappedComponents.getComponents());
     _recorder = new DefaultCycleRecorder(viewConfig, inputs, calculationArguments, marketDataEnvironment, collector);
+  }
+
+  private VersionCorrectionProvider getVersionCorrectionProvider(CalculationArguments calculationArguments) {
+    VersionCorrection correction = calculationArguments.getConfigVersionCorrection();
+    return correction == null || correction.containsLatest() ?
+        new FixedInstantVersionCorrectionProvider() :
+        new FixedInstantVersionCorrectionProvider(correction.getVersionAsOf());
   }
 
   @Override

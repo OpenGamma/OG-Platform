@@ -6,9 +6,11 @@
 package com.opengamma.sesame.engine;
 
 import com.google.common.cache.Cache;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.graph.Graph;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A cycle initializer to be used in standard (non-capturing)
@@ -24,6 +26,7 @@ class StandardCycleInitializer implements CycleInitializer {
    * Create the cycle initializer.
    *
    * @param originalContext the current service context source for the cycle
+   * @param calculationArguments the calculation arguments
    * @param graph the current graph
    * @param cache the cache that should be used by functions during the cycle
    */
@@ -31,18 +34,19 @@ class StandardCycleInitializer implements CycleInitializer {
                            CalculationArguments calculationArguments,
                            Graph graph,
                            Cache<Object, Object> cache) {
-
-    if (originalContext != null) {
-      VersionCorrectionProvider vcProvider = calculationArguments.getConfigVersionCorrection() != null &&
-          !calculationArguments.getConfigVersionCorrection().containsLatest() ?
-          new FixedInstantVersionCorrectionProvider(calculationArguments.getConfigVersionCorrection().getVersionAsOf()) :
-          new FixedInstantVersionCorrectionProvider();
-      _context = originalContext.with(VersionCorrectionProvider.class, vcProvider);
-    } else {
-      _context = null;
-    }
+    ArgumentChecker.notNull(originalContext, "originalContext");
+    ArgumentChecker.notNull(calculationArguments, "calculationArguments");
+    VersionCorrectionProvider vcProvider = getVersionCorrectionProvider(calculationArguments);
+    _context = originalContext.with(VersionCorrectionProvider.class, vcProvider);
     _graph = graph;
     _cache = cache;
+  }
+
+  private VersionCorrectionProvider getVersionCorrectionProvider(CalculationArguments calculationArguments) {
+    VersionCorrection correction = calculationArguments.getConfigVersionCorrection();
+    return correction == null || correction.containsLatest() ?
+        new FixedInstantVersionCorrectionProvider() :
+        new FixedInstantVersionCorrectionProvider(correction.getVersionAsOf());
   }
 
   @Override
