@@ -115,7 +115,7 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionServer());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFunctionServer());
     return hash ^ super.hashCode();
   }
 

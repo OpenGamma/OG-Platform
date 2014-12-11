@@ -157,7 +157,7 @@ public class FunctionArguments implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getArguments());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getArguments());
     return hash;
   }
 

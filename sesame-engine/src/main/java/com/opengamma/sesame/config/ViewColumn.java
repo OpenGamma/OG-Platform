@@ -191,9 +191,9 @@ public final class ViewColumn implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDefaultOutput());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOutputs());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDefaultOutput());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getOutputs());
     return hash;
   }
 

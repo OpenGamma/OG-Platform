@@ -164,9 +164,9 @@ public final class SabrNode implements ImmutableBean, Comparable<SabrNode> {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getX());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getY());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getZ());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getX());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getY());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getZ());
     return hash;
   }
 

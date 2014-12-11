@@ -236,12 +236,12 @@ public class SabrSwaptionInterpolationConfig implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTenorInterpolatorName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLeftTenorExtrapolatorName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRightTenorExtrapolatorName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExpiryInterpolatorName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLeftExpiryExtrapolatorName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRightExpiryExtrapolatorName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTenorInterpolatorName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLeftTenorExtrapolatorName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRightTenorExtrapolatorName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiryInterpolatorName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLeftExpiryExtrapolatorName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRightExpiryExtrapolatorName());
     return hash;
   }
 

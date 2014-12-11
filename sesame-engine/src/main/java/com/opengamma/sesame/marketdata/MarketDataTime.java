@@ -191,10 +191,10 @@ public final class MarketDataTime implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDateRange());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDateRange());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getType());
     return hash;
   }
 

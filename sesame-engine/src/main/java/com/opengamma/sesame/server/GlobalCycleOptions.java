@@ -270,11 +270,11 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(isAwaitAllMarketData());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNumCycles());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSpec());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValuationTimeSupplier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isAwaitAllMarketData());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNumCycles());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataSpec());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationTimeSupplier());
     return hash;
   }
 

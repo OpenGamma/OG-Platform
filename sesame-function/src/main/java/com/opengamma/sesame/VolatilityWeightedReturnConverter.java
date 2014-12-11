@@ -150,8 +150,8 @@ public final class VolatilityWeightedReturnConverter implements TimeSeriesReturn
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConversionType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLambda());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConversionType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLambda());
     return hash;
   }
 

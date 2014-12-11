@@ -6,6 +6,7 @@
 package com.opengamma.sesame.server;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -169,9 +170,9 @@ public final class IndividualCycleOptions implements ImmutableBean, CycleOptions
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSpecs());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isCaptureInputs());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataSpecs());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isCaptureInputs());
     return hash;
   }
 
@@ -407,6 +408,16 @@ public final class IndividualCycleOptions implements ImmutableBean, CycleOptions
       JodaBeanUtils.notNull(marketDataSpecs, "marketDataSpecs");
       this._marketDataSpecs = marketDataSpecs;
       return this;
+    }
+
+    /**
+     * Sets the {@code marketDataSpecs} property in the builder
+     * from an array of objects.
+     * @param marketDataSpecs  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder marketDataSpecs(MarketDataSpecification... marketDataSpecs) {
+      return marketDataSpecs(Arrays.asList(marketDataSpecs));
     }
 
     /**

@@ -133,7 +133,7 @@ public final class SabrSwaptionDataConfig implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrencyMap());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrencyMap());
     return hash;
   }
 

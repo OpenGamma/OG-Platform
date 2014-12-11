@@ -566,11 +566,11 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLiveMarketDataProviderFactory());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxCacheEntries());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDefaultFunctionServices());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMetricRegistry());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLiveMarketDataProviderFactory());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaxCacheEntries());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDefaultFunctionServices());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMetricRegistry());
     return hash ^ super.hashCode();
   }
 

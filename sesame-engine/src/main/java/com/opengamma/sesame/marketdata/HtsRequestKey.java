@@ -187,10 +187,10 @@ public class HtsRequestKey implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifierBundle());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIdentifierBundle());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataField());
     return hash;
   }
 

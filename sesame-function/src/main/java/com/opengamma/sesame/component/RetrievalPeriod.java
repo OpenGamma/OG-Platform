@@ -105,7 +105,7 @@ public final class RetrievalPeriod implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRetrievalPeriod());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRetrievalPeriod());
     return hash;
   }
 

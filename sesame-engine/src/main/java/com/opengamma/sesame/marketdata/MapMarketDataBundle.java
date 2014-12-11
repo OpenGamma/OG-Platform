@@ -177,8 +177,8 @@ public final class MapMarketDataBundle implements MarketDataBundle, ImmutableBea
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEnv());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEnv());
     return hash;
   }
 

@@ -200,11 +200,11 @@ public class ViewTimer implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStart());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTotalDuration());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInitializationDuration());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExecutionDuration());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getResultsBuildDuration());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStart());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTotalDuration());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getInitializationDuration());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExecutionDuration());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getResultsBuildDuration());
     return hash;
   }
 

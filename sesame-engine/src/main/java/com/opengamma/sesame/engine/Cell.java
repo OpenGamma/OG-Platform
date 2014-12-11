@@ -134,8 +134,8 @@ public final class Cell implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRow());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCol());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRow());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCol());
     return hash;
   }
 

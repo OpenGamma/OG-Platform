@@ -6,6 +6,7 @@
 package com.opengamma.sesame.server;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -178,9 +179,9 @@ public final class FunctionServerRequest<T extends CycleOptions>
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewConfig());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCycleOptions());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInputs());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getViewConfig());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCycleOptions());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getInputs());
     return hash;
   }
 
@@ -443,6 +444,16 @@ public final class FunctionServerRequest<T extends CycleOptions>
       JodaBeanUtils.notNull(inputs, "inputs");
       this._inputs = inputs;
       return this;
+    }
+
+    /**
+     * Sets the {@code inputs} property in the builder
+     * from an array of objects.
+     * @param inputs  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder<T> inputs(Object... inputs) {
+      return inputs(Arrays.asList(inputs));
     }
 
     //-----------------------------------------------------------------------

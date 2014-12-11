@@ -7,6 +7,7 @@ package com.opengamma.sesame.engine;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -159,9 +160,9 @@ public class ViewOutputs implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getColumnNames());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRows());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNonPortfolioResults());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getColumnNames());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRows());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNonPortfolioResults());
     return hash;
   }
 
@@ -407,6 +408,16 @@ public class ViewOutputs implements ImmutableBean {
     }
 
     /**
+     * Sets the {@code columnNames} property in the builder
+     * from an array of objects.
+     * @param columnNames  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder columnNames(String... columnNames) {
+      return columnNames(Arrays.asList(columnNames));
+    }
+
+    /**
      * Sets the {@code rows} property in the builder.
      * @param rows  the new value, not null
      * @return this, for chaining, not null
@@ -415,6 +426,16 @@ public class ViewOutputs implements ImmutableBean {
       JodaBeanUtils.notNull(rows, "rows");
       this._rows = rows;
       return this;
+    }
+
+    /**
+     * Sets the {@code rows} property in the builder
+     * from an array of objects.
+     * @param rows  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder rows(ResultRow... rows) {
+      return rows(Arrays.asList(rows));
     }
 
     /**

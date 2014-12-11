@@ -6,6 +6,7 @@
 package com.opengamma.sesame.trace;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -774,6 +775,16 @@ public final class CallGraph implements ImmutableBean {
     }
 
     /**
+     * Sets the {@code arguments} property in the builder
+     * from an array of objects.
+     * @param arguments  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder arguments(Object... arguments) {
+      return arguments(Arrays.asList(arguments));
+    }
+
+    /**
      * Sets the {@code returnValue} property in the builder.
      * @param returnValue  the new value
      * @return this, for chaining, not null
@@ -822,6 +833,16 @@ public final class CallGraph implements ImmutableBean {
       JodaBeanUtils.notNull(calls, "calls");
       this._calls = calls;
       return this;
+    }
+
+    /**
+     * Sets the {@code calls} property in the builder
+     * from an array of objects.
+     * @param calls  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder calls(CallGraph... calls) {
+      return calls(Arrays.asList(calls));
     }
 
     /**

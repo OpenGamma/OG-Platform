@@ -199,8 +199,8 @@ public final class SabrSurfaceSelector<C extends Convention, S extends NamedSnap
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSabrSurfaceMap());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSabrSurfaceMap());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConvention());
     return hash;
   }
 

@@ -137,7 +137,7 @@ public class SabrConfigSelector implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigurations());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConfigurations());
     return hash;
   }
 

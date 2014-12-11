@@ -6,6 +6,7 @@
 package com.opengamma.sesame.engine;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -173,10 +174,10 @@ public final class EngineRunScenariosArguments implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewConfig());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCalculationArguments());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketData());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolio());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getViewConfig());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCalculationArguments());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketData());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPortfolio());
     return hash;
   }
 
@@ -472,6 +473,16 @@ public final class EngineRunScenariosArguments implements ImmutableBean {
       JodaBeanUtils.notNull(portfolio, "portfolio");
       this._portfolio = portfolio;
       return this;
+    }
+
+    /**
+     * Sets the {@code portfolio} property in the builder
+     * from an array of objects.
+     * @param portfolio  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder portfolio(Object... portfolio) {
+      return portfolio(Arrays.asList(portfolio));
     }
 
     //-----------------------------------------------------------------------

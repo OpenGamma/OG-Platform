@@ -133,8 +133,8 @@ public final class IssuerProviderBundle implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getParameterIssuerProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurveBuildingBlockBundle());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getParameterIssuerProvider());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveBuildingBlockBundle());
     return hash;
   }
 

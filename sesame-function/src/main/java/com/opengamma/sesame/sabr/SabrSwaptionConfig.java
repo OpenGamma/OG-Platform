@@ -246,8 +246,8 @@ public class SabrSwaptionConfig implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSabrDataConfig());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSabrInterpolationConfig());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSabrDataConfig());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSabrInterpolationConfig());
     return hash;
   }
 

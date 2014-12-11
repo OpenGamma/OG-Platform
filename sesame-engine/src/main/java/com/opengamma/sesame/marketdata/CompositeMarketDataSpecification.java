@@ -136,7 +136,7 @@ public final class CompositeMarketDataSpecification implements MarketDataSpecifi
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSpecifications());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSpecifications());
     return hash;
   }
 
@@ -318,6 +318,16 @@ public final class CompositeMarketDataSpecification implements MarketDataSpecifi
       JodaBeanUtils.notNull(specifications, "specifications");
       this._specifications = specifications;
       return this;
+    }
+
+    /**
+     * Sets the {@code specifications} property in the builder
+     * from an array of objects.
+     * @param specifications  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder specifications(MarketDataSpecification... specifications) {
+      return specifications(Arrays.asList(specifications));
     }
 
     //-----------------------------------------------------------------------

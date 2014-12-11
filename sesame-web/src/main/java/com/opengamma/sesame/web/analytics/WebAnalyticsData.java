@@ -197,9 +197,9 @@ public class WebAnalyticsData extends WebPerRequestData {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionServer());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriViewId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCalculationRequest());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFunctionServer());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUriViewId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCalculationRequest());
     return hash ^ super.hashCode();
   }
 

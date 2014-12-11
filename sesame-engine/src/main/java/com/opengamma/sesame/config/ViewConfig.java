@@ -6,6 +6,7 @@
 package com.opengamma.sesame.config;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -238,11 +239,11 @@ public final class ViewConfig implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDefaultConfig());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getColumns());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNonPortfolioOutputs());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getScenarioDefinition());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDefaultConfig());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getColumns());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNonPortfolioOutputs());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getScenarioDefinition());
     return hash;
   }
 
@@ -558,6 +559,16 @@ public final class ViewConfig implements ImmutableBean {
     }
 
     /**
+     * Sets the {@code columns} property in the builder
+     * from an array of objects.
+     * @param columns  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder columns(ViewColumn... columns) {
+      return columns(Arrays.asList(columns));
+    }
+
+    /**
      * Sets the {@code nonPortfolioOutputs} property in the builder.
      * @param nonPortfolioOutputs  the new value, not null
      * @return this, for chaining, not null
@@ -566,6 +577,16 @@ public final class ViewConfig implements ImmutableBean {
       JodaBeanUtils.notNull(nonPortfolioOutputs, "nonPortfolioOutputs");
       this._nonPortfolioOutputs = nonPortfolioOutputs;
       return this;
+    }
+
+    /**
+     * Sets the {@code nonPortfolioOutputs} property in the builder
+     * from an array of objects.
+     * @param nonPortfolioOutputs  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder nonPortfolioOutputs(NonPortfolioOutput... nonPortfolioOutputs) {
+      return nonPortfolioOutputs(Arrays.asList(nonPortfolioOutputs));
     }
 
     /**

@@ -6,6 +6,7 @@
 package com.opengamma.sesame.sabr;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -217,9 +218,9 @@ public final class SabrExpiryTenorSurface implements ImmutableBean, NamedSnapsho
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSabrData());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSabrData());
     return hash;
   }
 
@@ -476,6 +477,16 @@ public final class SabrExpiryTenorSurface implements ImmutableBean, NamedSnapsho
       JodaBeanUtils.notNull(sabrData, "sabrData");
       this._sabrData = sabrData;
       return this;
+    }
+
+    /**
+     * Sets the {@code sabrData} property in the builder
+     * from an array of objects.
+     * @param sabrData  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder sabrData(SabrNode... sabrData) {
+      return sabrData(Arrays.asList(sabrData));
     }
 
     //-----------------------------------------------------------------------

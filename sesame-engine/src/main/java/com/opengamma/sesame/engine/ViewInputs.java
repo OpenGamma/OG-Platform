@@ -6,6 +6,7 @@
 package com.opengamma.sesame.engine;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -289,15 +290,15 @@ public final class ViewInputs implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeInputs());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewConfig());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionArguments());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionArgs());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketData());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigData());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHtsData());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataEnvironment());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeInputs());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getViewConfig());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFunctionArguments());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFunctionArgs());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketData());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConfigData());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHtsData());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataEnvironment());
     return hash;
   }
 
@@ -701,6 +702,16 @@ public final class ViewInputs implements ImmutableBean {
     public Builder tradeInputs(List<Object> tradeInputs) {
       this._tradeInputs = tradeInputs;
       return this;
+    }
+
+    /**
+     * Sets the {@code tradeInputs} property in the builder
+     * from an array of objects.
+     * @param tradeInputs  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder tradeInputs(Object... tradeInputs) {
+      return tradeInputs(Arrays.asList(tradeInputs));
     }
 
     /**

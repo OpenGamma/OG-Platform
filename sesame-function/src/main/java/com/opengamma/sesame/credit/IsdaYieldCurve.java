@@ -137,8 +137,8 @@ public final class IsdaYieldCurve implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurveData());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCalibratedCurve());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveData());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCalibratedCurve());
     return hash;
   }
 

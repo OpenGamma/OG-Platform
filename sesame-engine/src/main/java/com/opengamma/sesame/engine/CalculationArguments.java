@@ -243,13 +243,13 @@ public final class CalculationArguments implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigVersionCorrection());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSpecification());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTraceCells());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTraceOutputs());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionArguments());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isCaptureInputs());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConfigVersionCorrection());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataSpecification());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTraceCells());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTraceOutputs());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFunctionArguments());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isCaptureInputs());
     return hash;
   }
 

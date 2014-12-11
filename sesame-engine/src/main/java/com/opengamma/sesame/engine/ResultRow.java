@@ -6,6 +6,7 @@
 package com.opengamma.sesame.engine;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -137,8 +138,8 @@ public final class ResultRow implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInput());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getItems());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getInput());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getItems());
     return hash;
   }
 
@@ -348,6 +349,16 @@ public final class ResultRow implements ImmutableBean {
       JodaBeanUtils.notNull(items, "items");
       this._items = items;
       return this;
+    }
+
+    /**
+     * Sets the {@code items} property in the builder
+     * from an array of objects.
+     * @param items  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder items(ResultItem... items) {
+      return items(Arrays.asList(items));
     }
 
     //-----------------------------------------------------------------------

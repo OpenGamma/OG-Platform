@@ -119,7 +119,7 @@ public final class IndexCDSTrade extends TradeWrapper<IndexCDSSecurity> implemen
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeBundle());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeBundle());
     return hash;
   }
 

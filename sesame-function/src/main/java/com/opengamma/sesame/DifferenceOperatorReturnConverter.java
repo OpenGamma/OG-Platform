@@ -131,7 +131,7 @@ public class DifferenceOperatorReturnConverter implements TimeSeriesReturnConver
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConversionType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConversionType());
     return hash;
   }
 

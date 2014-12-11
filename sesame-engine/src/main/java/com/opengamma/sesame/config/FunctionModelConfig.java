@@ -385,9 +385,9 @@ public class FunctionModelConfig implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getImplementations());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getArguments());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDecoratorsByFn());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getImplementations());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getArguments());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDecoratorsByFn());
     return hash;
   }
 

@@ -6,6 +6,7 @@
 package com.opengamma.sesame.credit;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -181,10 +182,10 @@ public final class IsdaCreditCurve implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getYieldCurve());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurveData());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCalibratedCurve());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCalibratedCds());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getYieldCurve());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveData());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCalibratedCurve());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCalibratedCds());
     return hash;
   }
 
@@ -480,6 +481,16 @@ public final class IsdaCreditCurve implements ImmutableBean {
       JodaBeanUtils.notNull(calibratedCds, "calibratedCds");
       this._calibratedCds = calibratedCds;
       return this;
+    }
+
+    /**
+     * Sets the {@code calibratedCds} property in the builder
+     * from an array of objects.
+     * @param calibratedCds  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder calibratedCds(CDSAnalytic... calibratedCds) {
+      return calibratedCds(Arrays.asList(calibratedCds));
     }
 
     //-----------------------------------------------------------------------

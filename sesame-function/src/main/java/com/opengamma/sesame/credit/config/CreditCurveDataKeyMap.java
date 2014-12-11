@@ -121,7 +121,7 @@ public final class CreditCurveDataKeyMap implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityCurveMappings());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityCurveMappings());
     return hash;
   }
 

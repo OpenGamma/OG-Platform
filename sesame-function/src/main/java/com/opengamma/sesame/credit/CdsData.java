@@ -141,9 +141,9 @@ public class CdsData implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInterestRateNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCoupon());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isBuy());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getInterestRateNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCoupon());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isBuy());
     return hash;
   }
 

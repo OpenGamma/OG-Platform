@@ -6,6 +6,7 @@
 package com.opengamma.sesame;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -154,9 +155,9 @@ public final class ImpliedDepositCurveData implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTenors());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getParRates());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCashNodes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTenors());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getParRates());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCashNodes());
     return hash;
   }
 
@@ -397,6 +398,16 @@ public final class ImpliedDepositCurveData implements ImmutableBean {
     }
 
     /**
+     * Sets the {@code tenors} property in the builder
+     * from an array of objects.
+     * @param tenors  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder tenors(Tenor... tenors) {
+      return tenors(Arrays.asList(tenors));
+    }
+
+    /**
      * Sets the {@code parRates} property in the builder.
      * @param parRates  the new value, not null
      * @return this, for chaining, not null
@@ -408,6 +419,16 @@ public final class ImpliedDepositCurveData implements ImmutableBean {
     }
 
     /**
+     * Sets the {@code parRates} property in the builder
+     * from an array of objects.
+     * @param parRates  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder parRates(Double... parRates) {
+      return parRates(Arrays.asList(parRates));
+    }
+
+    /**
      * Sets the {@code cashNodes} property in the builder.
      * @param cashNodes  the new value, not null
      * @return this, for chaining, not null
@@ -416,6 +437,16 @@ public final class ImpliedDepositCurveData implements ImmutableBean {
       JodaBeanUtils.notNull(cashNodes, "cashNodes");
       this._cashNodes = cashNodes;
       return this;
+    }
+
+    /**
+     * Sets the {@code cashNodes} property in the builder
+     * from an array of objects.
+     * @param cashNodes  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder cashNodes(InstrumentDerivative... cashNodes) {
+      return cashNodes(Arrays.asList(cashNodes));
     }
 
     //-----------------------------------------------------------------------

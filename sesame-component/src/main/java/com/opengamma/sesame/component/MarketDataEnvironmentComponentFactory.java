@@ -411,12 +411,12 @@ public class MarketDataEnvironmentComponentFactory extends AbstractComponentFact
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getComponentMap());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeriesSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeriesDataSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrencyMatrixName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getComponentMap());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeriesSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeriesDataSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSnapshotSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrencyMatrixName());
     return hash ^ super.hashCode();
   }
 

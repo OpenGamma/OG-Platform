@@ -177,8 +177,8 @@ public final class SingleValueRequirement extends MarketDataRequirement implemen
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataTime());
     return hash;
   }
 

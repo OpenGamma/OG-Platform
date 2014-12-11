@@ -372,8 +372,8 @@ public final class ScenarioDefinition implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getArguments());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getColumnArguments());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getArguments());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getColumnArguments());
     return hash;
   }
 
