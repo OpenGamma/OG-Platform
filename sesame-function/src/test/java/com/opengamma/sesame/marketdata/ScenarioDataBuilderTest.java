@@ -7,9 +7,8 @@ package com.opengamma.sesame.marketdata;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.time.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.security.Security;
