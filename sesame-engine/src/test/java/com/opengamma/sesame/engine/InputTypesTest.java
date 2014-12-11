@@ -16,6 +16,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.util.EnumSet;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Optional;
@@ -23,6 +24,9 @@ import com.google.common.collect.Lists;
 import com.opengamma.core.position.Trade;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.service.ServiceContext;
+import com.opengamma.service.ThreadLocalServiceContext;
+import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.DirectExecutorService;
 import com.opengamma.sesame.EngineTestUtils;
 import com.opengamma.sesame.Environment;
@@ -46,6 +50,9 @@ public class InputTypesTest {
 
   @Test
   public void tradeWithSecurity() {
+    VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
+    ServiceContext serviceContext = ServiceContext.of(VersionCorrectionProvider.class, vcProvider);
+    ThreadLocalServiceContext.init(serviceContext);
     ViewConfig viewConfig = configureView("Trade with security", column("Foo"));
     AvailableOutputs availableOutputs = new AvailableOutputsImpl(EquityTradeWithSecurity.class, CashFlowTradeWithSecurity.class);
     availableOutputs.register(EquityTradeWithSecurityFn.class, CashFlowTradeWithSecurityFn.class);
