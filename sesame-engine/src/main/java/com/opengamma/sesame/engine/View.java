@@ -38,8 +38,10 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
+import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.cache.CacheInvalidator;
 import com.opengamma.sesame.cache.CacheProvider;
@@ -303,10 +305,12 @@ public class View {
    * @param calculationArguments settings for running the calculations
    * @param inputs the inputs to the calculation, e.g. trades, positions, securities
    * @return a future representing the calculation results
+   * @throws IllegalStateException if ThreadLocalServiceContext not set
    */
   public ListenableFuture<Results> runAsync(CalculationArguments calculationArguments,
                                             MarketDataEnvironment marketData,
                                             final List<?> inputs) {
+    ArgumentChecker.notNull(calculationArguments, "calculationArguments");
     final Instant start = Instant.now();
     final long startInitialization = System.nanoTime();
     final long startExecution;
@@ -328,12 +332,17 @@ public class View {
      * the cycle's cache before executing the calculations and clearing the thread local afterwards.
      */
     Cache<Object, Object> cache = _cachingEnabled ? _cacheFactory.get() : new NoOpCache();
+    VersionCorrectionProvider vcProvider = getVersionCorrectionProvider(calculationArguments);
     ServiceContext originalContext = ThreadLocalServiceContext.getInstance();
+    if (originalContext == null) {
+      throw new IllegalStateException("ThreadLocalServiceContext not set");
+    }
+    ServiceContext context = originalContext.with(VersionCorrectionProvider.class, vcProvider);
 
     final CycleInitializer cycleInitializer = calculationArguments.isCaptureInputs() ?
-        new CapturingCycleInitializer(originalContext, _componentMap, calculationArguments, 
+        new CapturingCycleInitializer(context, _componentMap, calculationArguments,
                                       marketData, _graphModel, _viewConfig, _cacheBuilder, inputs) :
-        new StandardCycleInitializer(originalContext, calculationArguments, _graph, cache);
+        new StandardCycleInitializer(context, _graph, cache);
 
     List<Task> tasks = new ArrayList<>();
     Graph graph = cycleInitializer.getGraph();
@@ -356,6 +365,13 @@ public class View {
         return buildResults(inputs, resultFutures, start, startInitialization, startExecution, cycleInitializer);
       }
     });
+  }
+
+  private VersionCorrectionProvider getVersionCorrectionProvider(CalculationArguments calculationArguments) {
+    VersionCorrection correction = calculationArguments.getConfigVersionCorrection();
+    return correction == null || correction.containsLatest() ?
+        new FixedInstantVersionCorrectionProvider() :
+        new FixedInstantVersionCorrectionProvider(correction.getVersionAsOf());
   }
 
   /**

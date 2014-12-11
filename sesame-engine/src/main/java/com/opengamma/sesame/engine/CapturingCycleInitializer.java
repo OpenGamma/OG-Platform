@@ -29,9 +29,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.NarrowingSecuritySource;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.service.ServiceContext;
-import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.graph.FunctionBuilder;
@@ -73,10 +71,8 @@ class CapturingCycleInitializer implements CycleInitializer {
                                    ViewConfig viewConfig,
                                    CacheBuilder<Object, Object> cacheBuilder,
                                    List<?> inputs) {
-    ArgumentChecker.notNull(calculationArguments, "calculationArguments");
-    _cacheBuilder = ArgumentChecker.notNull(cacheBuilder, "cacheBuilder");
 
-    VersionCorrectionProvider vcProvider = getVersionCorrectionProvider(calculationArguments);
+    _cacheBuilder = ArgumentChecker.notNull(cacheBuilder, "cacheBuilder");
 
     ProxiedComponentMap collector = new DefaultProxiedComponentMap();
 
@@ -86,7 +82,7 @@ class CapturingCycleInitializer implements CycleInitializer {
     // all views but is not what is required here. We need a
     // component map that only receives calls from this view so we
     // need to wrap again
-    ComponentMap wrappedComponents = wrap(componentMap.with(VersionCorrectionProvider.class, vcProvider), collector);
+    ComponentMap wrappedComponents = wrap(componentMap, collector);
 
     // If we are capturing the inputs then we don't want to use
     // memoized functions from the normal cache as that would
@@ -96,13 +92,6 @@ class CapturingCycleInitializer implements CycleInitializer {
 
     _serviceContext = serviceContext.with(wrappedComponents.getComponents());
     _recorder = new DefaultCycleRecorder(viewConfig, inputs, calculationArguments, marketDataEnvironment, collector);
-  }
-
-  private VersionCorrectionProvider getVersionCorrectionProvider(CalculationArguments calculationArguments) {
-    VersionCorrection correction = calculationArguments.getConfigVersionCorrection();
-    return correction == null || correction.containsLatest() ?
-        new FixedInstantVersionCorrectionProvider() :
-        new FixedInstantVersionCorrectionProvider(correction.getVersionAsOf());
   }
 
   @Override
