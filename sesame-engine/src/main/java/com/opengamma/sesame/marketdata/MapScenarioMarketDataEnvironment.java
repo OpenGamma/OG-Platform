@@ -30,7 +30,7 @@ import com.google.common.collect.ImmutableMap;
  * <p>
  * The data is stored in the map in the order the scenarios were added
  */
-@BeanDefinition()
+@BeanDefinition
 public class MapScenarioMarketDataEnvironment implements ScenarioMarketDataEnvironment, ImmutableBean {
 
   /** The market data for each scenario, keyed by scenario ID */
@@ -43,7 +43,7 @@ public class MapScenarioMarketDataEnvironment implements ScenarioMarketDataEnvir
    * @param scenarioData a map of market data keyed by scenario ID. This is an {@code ImmutableMap} because it
    *   stores and returns entries in insertion order.
    */
-  public MapScenarioMarketDataEnvironment(Map<String, MarketDataEnvironment> scenarioData) {
+  public MapScenarioMarketDataEnvironment(ImmutableMap<String, MarketDataEnvironment> scenarioData) {
     _data = ImmutableMap.copyOf(scenarioData);
   }
 
