@@ -7,6 +7,7 @@ package com.opengamma.sesame.engine;
 
 import com.google.common.cache.Cache;
 import com.opengamma.service.ServiceContext;
+import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.graph.Graph;
 
 /**
@@ -15,7 +16,7 @@ import com.opengamma.sesame.graph.Graph;
  */
 class StandardCycleInitializer implements CycleInitializer {
 
-  private final ServiceContext _originalContext;
+  private final ServiceContext _context;
   private final Graph _graph;
   private final Cache<Object, Object> _cache;
 
@@ -27,16 +28,26 @@ class StandardCycleInitializer implements CycleInitializer {
    * @param cache the cache that should be used by functions during the cycle
    */
   StandardCycleInitializer(ServiceContext originalContext,
+                           CalculationArguments calculationArguments,
                            Graph graph,
                            Cache<Object, Object> cache) {
-    _originalContext = originalContext;
+
+    if (originalContext != null) {
+      VersionCorrectionProvider vcProvider = calculationArguments.getConfigVersionCorrection() != null &&
+          !calculationArguments.getConfigVersionCorrection().containsLatest() ?
+          new FixedInstantVersionCorrectionProvider(calculationArguments.getConfigVersionCorrection().getVersionAsOf()) :
+          new FixedInstantVersionCorrectionProvider();
+      _context = originalContext.with(VersionCorrectionProvider.class, vcProvider);
+    } else {
+      _context = null;
+    }
     _graph = graph;
     _cache = cache;
   }
 
   @Override
   public ServiceContext getServiceContext() {
-    return _originalContext;
+    return _context;
   }
 
   @Override

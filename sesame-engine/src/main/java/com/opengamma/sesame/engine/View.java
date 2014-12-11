@@ -333,7 +333,7 @@ public class View {
     final CycleInitializer cycleInitializer = calculationArguments.isCaptureInputs() ?
         new CapturingCycleInitializer(originalContext, _componentMap, calculationArguments, 
                                       marketData, _graphModel, _viewConfig, _cacheBuilder, inputs) :
-        new StandardCycleInitializer(originalContext, _graph, cache);
+        new StandardCycleInitializer(originalContext, calculationArguments, _graph, cache);
 
     List<Task> tasks = new ArrayList<>();
     Graph graph = cycleInitializer.getGraph();

@@ -30,6 +30,7 @@ import com.opengamma.core.security.impl.NarrowingSecuritySource;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.service.ServiceContext;
+import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.graph.FunctionBuilder;
@@ -74,6 +75,11 @@ class CapturingCycleInitializer implements CycleInitializer {
 
     _cacheBuilder = ArgumentChecker.notNull(cacheBuilder, "cacheBuilder");
 
+    VersionCorrectionProvider vcProvider = calculationArguments.getConfigVersionCorrection() != null &&
+        !calculationArguments.getConfigVersionCorrection().containsLatest() ?
+        new FixedInstantVersionCorrectionProvider(calculationArguments.getConfigVersionCorrection().getVersionAsOf()) :
+        new FixedInstantVersionCorrectionProvider();
+
     ProxiedComponentMap collector = new DefaultProxiedComponentMap();
 
     // The component map has its components wrapped so they can
@@ -82,7 +88,7 @@ class CapturingCycleInitializer implements CycleInitializer {
     // all views but is not what is required here. We need a
     // component map that only receives calls from this view so we
     // need to wrap again
-    ComponentMap wrappedComponents = wrap(componentMap, collector);
+    ComponentMap wrappedComponents = wrap(componentMap.with(VersionCorrectionProvider.class, vcProvider), collector);
 
     // If we are capturing the inputs then we don't want to use
     // memoized functions from the normal cache as that would
