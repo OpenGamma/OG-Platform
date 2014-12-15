@@ -103,12 +103,18 @@ public class BondDataSetsUsd {
   private static final ZonedDateTime MATURITY_DATE_US24 = DateUtils.getUTCDate(2024, 11, 15);
   private static final double RATE_US24 = 0.0225;
 
-  //UST 3 1944-11-15 - US912810RJ97
+  //UST 3 2044-11-15 - US912810RJ97
   private static final ZonedDateTime START_ACCRUAL_DATE_US44 = DateUtils.getUTCDate(2014, 11, 17);
   private static final ZonedDateTime FIRST_COUPON_DATE_US44 = DateUtils.getUTCDate(2015, 05, 15);
   private static final ZonedDateTime MATURITY_DATE_US44 = DateUtils.getUTCDate(2044, 11, 15);
   private static final double RATE_US44 = 0.003;
-  
+
+  //UST 2.375 2024-08-15 US912828D564
+  private static final ZonedDateTime START_ACCRUAL_DATE_US2024 = DateUtils.getUTCDate(2014, 8, 15);
+  private static final ZonedDateTime FIRST_COUPON_DATE_US2024 = DateUtils.getUTCDate(2015, 04, 15);
+  private static final ZonedDateTime MATURITY_DATE_US2024 = DateUtils.getUTCDate(2024, 8, 15);
+  private static final double RATE_US2024 = 0.02375;
+
   /**
    * Returns the legal entity used for the US GOVT bonds and bills.
    * @return The legal entity.
@@ -150,6 +156,12 @@ public class BondDataSetsUsd {
   public static BondFixedSecurityDefinition bondUST_20441115(double notional) {
     return BondFixedSecurityDefinition.from(USD, START_ACCRUAL_DATE_US44, FIRST_COUPON_DATE_US44, MATURITY_DATE_US44,
                                             PAYMENT_TENOR, RATE_US44, SETTLEMENT_DAYS, notional, EX_DIVIDEND_DAYS, NYC, DAY_COUNT, BUSINESS_DAY, YIELD_BOND,
+                                            IS_EOM, US_GOVT_LEGAL_ENTITY);
+  }
+
+  public static BondFixedSecurityDefinition bondUST_20240815(double notional) {
+    return BondFixedSecurityDefinition.from(USD, START_ACCRUAL_DATE_US2024, FIRST_COUPON_DATE_US2024, MATURITY_DATE_US2024,
+                                            PAYMENT_TENOR, RATE_US2024, SETTLEMENT_DAYS, notional, EX_DIVIDEND_DAYS, NYC, DAY_COUNT, BUSINESS_DAY, YIELD_BOND,
                                             IS_EOM, US_GOVT_LEGAL_ENTITY);
   }
 
@@ -236,6 +248,17 @@ public class BondDataSetsUsd {
   private static final double INDEX_START_TIPS_24_7 = 237.44594;
   private static final double REAL_RATE_TIPS_24_7 = 0.00125;
 
+  private static final ZonedDateTime START_DATE_TIPS_44 = DateUtils.getUTCDate(2014, 10, 31);
+  private static final ZonedDateTime MATURITY_DATE_TIPS_44 = DateUtils.getUTCDate(2044, 2, 15);
+  private static final double INDEX_START_TIPS_44 = 233.059;
+  private static final double REAL_RATE_TIPS_44 = 0.01375;
+
+  private static final ZonedDateTime START_DATE_TIPS_43 = DateUtils.getUTCDate(2013, 6, 28);
+  private static final ZonedDateTime MATURITY_DATE_TIPS_43 = DateUtils.getUTCDate(2043, 2, 15);
+  private static final double INDEX_START_TIPS_43 = 229.911;
+  private static final double REAL_RATE_TIPS_43 = 0.0625;
+
+
   /**
    * Returns the definition of the TIPS 2.00 2016-01-15 - ISIN-US912828ET33 security.
    * @param notional The bond notional.
@@ -254,11 +277,11 @@ public class BondDataSetsUsd {
    * @param notional The bond notional.
    * @return The bond.
    */
-  public static BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> 
+  public static BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition>
     bondTIPS_20160715(double notional) {
-    return BondCapitalIndexedSecurityDefinition.fromInterpolation(USCPI, MONTH_LAG_TIPS, 
-        START_DATE_TIPS_16_7, INDEX_START_TIPS_16_7, MATURITY_DATE_TIPS_16_7, COUPON_PERIOD_TIPS, NOTIONAL_TIPS, 
-        REAL_RATE_TIPS_16_7, BUSINESS_DAY, SETTLEMENT_DAYS_TIPS, NYC, DAY_COUNT, YIELD_CONVENTION_TIPS, IS_EOM_TIPS, 
+    return BondCapitalIndexedSecurityDefinition.fromInterpolation(USCPI, MONTH_LAG_TIPS,
+        START_DATE_TIPS_16_7, INDEX_START_TIPS_16_7, MATURITY_DATE_TIPS_16_7, COUPON_PERIOD_TIPS, NOTIONAL_TIPS,
+        REAL_RATE_TIPS_16_7, BUSINESS_DAY, SETTLEMENT_DAYS_TIPS, NYC, DAY_COUNT, YIELD_CONVENTION_TIPS, IS_EOM_TIPS,
         US_GOVT_LEGAL_ENTITY);
   }
 
@@ -267,13 +290,19 @@ public class BondDataSetsUsd {
    * @param notional The bond notional.
    * @return The bond.
    */
-  public static BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> 
+  public static BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition>
     bondTIPS_20190715(double notional) {
-    return BondCapitalIndexedSecurityDefinition.fromInterpolation(USCPI, MONTH_LAG_TIPS, 
-        START_DATE_TIPS_19_7, INDEX_START_TIPS_19_7, MATURITY_DATE_TIPS_19_7, COUPON_PERIOD_TIPS, NOTIONAL_TIPS, 
-        REAL_RATE_TIPS_19_7, BUSINESS_DAY, SETTLEMENT_DAYS_TIPS, NYC, DAY_COUNT, YIELD_CONVENTION_TIPS, IS_EOM_TIPS, 
+    return BondCapitalIndexedSecurityDefinition.fromInterpolation(USCPI, MONTH_LAG_TIPS,
+        START_DATE_TIPS_19_7, INDEX_START_TIPS_19_7, MATURITY_DATE_TIPS_19_7, COUPON_PERIOD_TIPS, NOTIONAL_TIPS,
+        REAL_RATE_TIPS_19_7, BUSINESS_DAY, SETTLEMENT_DAYS_TIPS, NYC, DAY_COUNT, YIELD_CONVENTION_TIPS, IS_EOM_TIPS,
         US_GOVT_LEGAL_ENTITY);
   }
+
+
+
+
+
+
 
   /**
    * Returns the definition of the TIPS 0.125 2024-07-15 - ISIN-US912828FL97 security.
@@ -287,8 +316,24 @@ public class BondDataSetsUsd {
         REAL_RATE_TIPS_24_7, BUSINESS_DAY, SETTLEMENT_DAYS_TIPS, NYC, DAY_COUNT, YIELD_CONVENTION_TIPS, IS_EOM_TIPS, 
         US_GOVT_LEGAL_ENTITY);
   }
-  
-  
+
+
+  public static BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition>
+  bondTIPS_20440215(double notional) {
+    return BondCapitalIndexedSecurityDefinition.fromInterpolation(USCPI, MONTH_LAG_TIPS,
+                                                                  START_DATE_TIPS_44, INDEX_START_TIPS_44, MATURITY_DATE_TIPS_44, COUPON_PERIOD_TIPS, NOTIONAL_TIPS,
+                                                                  REAL_RATE_TIPS_44, BUSINESS_DAY, SETTLEMENT_DAYS_TIPS, NYC, DAY_COUNT, YIELD_CONVENTION_TIPS, IS_EOM_TIPS,
+                                                                  US_GOVT_LEGAL_ENTITY);
+  }
+
+
+  public static BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition>
+  bondTIPS_20430215(double notional) {
+    return BondCapitalIndexedSecurityDefinition.fromInterpolation(USCPI, MONTH_LAG_TIPS,
+                                                                  START_DATE_TIPS_43, INDEX_START_TIPS_43, MATURITY_DATE_TIPS_43, COUPON_PERIOD_TIPS, NOTIONAL_TIPS,
+                                                                  REAL_RATE_TIPS_43, BUSINESS_DAY, SETTLEMENT_DAYS_TIPS, NYC, DAY_COUNT, YIELD_CONVENTION_TIPS, IS_EOM_TIPS,
+                                                                  US_GOVT_LEGAL_ENTITY);
+  }
   
 
 }

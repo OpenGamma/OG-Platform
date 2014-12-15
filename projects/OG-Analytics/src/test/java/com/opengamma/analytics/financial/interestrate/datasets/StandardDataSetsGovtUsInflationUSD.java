@@ -205,7 +205,7 @@ public class StandardDataSetsGovtUsInflationUSD {
   }
   
   /** Market quotes for the USD-TIPSUSGVT curve */
-  private static final int NB_TIPS = 3;
+  private static final int NB_TIPS = 4;
   private static final List<BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition>> 
     TIPS_SECURITY = new ArrayList<>();
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] TIPS_GENERATORS = new GeneratorBondCapitalIndexed[NB_TIPS];
@@ -213,13 +213,14 @@ public class StandardDataSetsGovtUsInflationUSD {
     TIPS_SECURITY.add(BondDataSetsUsd.bondTIPS_20160715(NOTIONAL));
     TIPS_SECURITY.add(BondDataSetsUsd.bondTIPS_20190715(NOTIONAL));
     TIPS_SECURITY.add(BondDataSetsUsd.bondTIPS_20240715(NOTIONAL));
+    TIPS_SECURITY.add(BondDataSetsUsd.bondTIPS_20440215(NOTIONAL));
     for (int loopbnd = 0; loopbnd < NB_TIPS; loopbnd++) {
       TIPS_GENERATORS[loopbnd] = new GeneratorBondCapitalIndexed("GeneratorBond" + loopbnd, TIPS_SECURITY.get(loopbnd));
     }
   }
   /** Market values for the US TIPS curve */
   private static final double[] TIPS_MARKET_QUOTES =
-      new double[] {1.06d + 6.0d / 100.0d / 32.0d, 1.10d + 15.0d / 100.0d / 32.0d, 0.98 + 23.5d / 100.0d / 32.0d };
+      new double[] {1.06d + 6.0d / 100.0d / 32.0d, 1.10d + 15.0d / 100.0d / 32.0d, 0.98 + 23.5d / 100.0d / 32.0d,112.11/100d };
   /** Attributes for the US Govt curve */
   private static final GeneratorAttributeET[] TIPS_ATTR = new GeneratorAttributeET[TIPS_MARKET_QUOTES.length];
   static {

@@ -102,6 +102,16 @@ public class BondCapitalIndexedDiscountingE2ETest {
       new BondFixedTransactionDefinition(UST_SEC_DEFINITION, QUANTITY, SETTLE_DATE_FIXED, TRADE_PRICE_FIXED);
   private static final BondFixedTransaction UST_TRA = 
       UST_TRA_DEFINITION.toDerivative(CALIBRATION_DATE);
+
+
+  private static final BondFixedSecurityDefinition UST_SEC_DEFINITION1 = BondDataSetsUsd.bondUST_20240815(1.0);
+  private static final double QUANTITY1 = 10000000; // 10m
+  private static final ZonedDateTime SETTLE_DATE_FIXED1 = DateUtils.getUTCDate(2014, 12, 16);
+  private static final double TRADE_PRICE_FIXED1 = 1.01;
+  private static final BondFixedTransactionDefinition UST_TRA_DEFINITION1 =
+      new BondFixedTransactionDefinition(UST_SEC_DEFINITION1, QUANTITY1, SETTLE_DATE_FIXED1, TRADE_PRICE_FIXED1);
+  private static final BondFixedTransaction UST_TRA1 =
+      UST_TRA_DEFINITION1.toDerivative(CALIBRATION_DATE);
   
   /** Zero-coupon Inflation US (linear interpolation of Price Index). 5Y aged. */
   private static final double NOTIONAL = 10_000_000;
@@ -113,17 +123,28 @@ public class BondCapitalIndexedDiscountingE2ETest {
   private static final InstrumentDerivative ZCI_2 = ZCI_2_DEFINITION.toDerivative(ACCRUAL_START_DATE_2, 
       new ZonedDateTimeDoubleTimeSeries[] {HTS_EMPTY, HTS_CPI});
   
-  /** Bond Inflation (TIPS) 2016 */
+  /** Bond Inflation (TIPS) 2024 */
   private static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> 
-    TIPS_16_SEC_DEFINITION = BondDataSetsUsd.bondTIPS_20160115(1.0); 
+    TIPS_24_SEC_DEFINITION = BondDataSetsUsd.bondTIPS_20240715(1.0);
   private static final double QUANTITY_TIPS_1 = 10000000; // 10m
-  private static final ZonedDateTime SETTLE_DATE_TIPS_1 = DateUtils.getUTCDate(2014, 10, 15);
-  private static final double TRADE_PRICE_TIPS_1 = 0.99;
+  private static final ZonedDateTime SETTLE_DATE_TIPS_1 = DateUtils.getUTCDate(2014, 12, 16);
+  private static final double TRADE_PRICE_TIPS_1 = 0.98 + 23.5d / 100.0d / 32.0d;
   private static final BondCapitalIndexedTransactionDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> 
-    TIPS_16_TRA_DEFINITION = new BondCapitalIndexedTransactionDefinition<>(TIPS_16_SEC_DEFINITION, QUANTITY_TIPS_1, 
+    TIPS_24_TRA_DEFINITION = new BondCapitalIndexedTransactionDefinition<>(TIPS_24_SEC_DEFINITION, QUANTITY_TIPS_1,
         SETTLE_DATE_TIPS_1, TRADE_PRICE_TIPS_1);
-  private static final BondCapitalIndexedTransaction<?> TIPS_16_1_TRA = 
-      TIPS_16_TRA_DEFINITION.toDerivative(CALIBRATION_DATE, HTS_CPI);
+  private static final BondCapitalIndexedTransaction<?> TIPS_24_1_TRA =
+      TIPS_24_TRA_DEFINITION.toDerivative(CALIBRATION_DATE, HTS_CPI);
+
+  private static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition>
+      TIPS_43_SEC_DEFINITION = BondDataSetsUsd.bondTIPS_20160115(1.0);
+//  private static final double QUANTITY_TIPS_1 = 10000000; // 10m
+//  private static final ZonedDateTime SETTLE_DATE_TIPS_1 = DateUtils.getUTCDate(2014, 12, 15);
+  private static final double TRADE_PRICE_TIPS_43 = 1.1211;
+  private static final BondCapitalIndexedTransactionDefinition<CouponInflationZeroCouponInterpolationGearingDefinition>
+      TIPS_43_TRA_DEFINITION = new BondCapitalIndexedTransactionDefinition<>(TIPS_43_SEC_DEFINITION, QUANTITY_TIPS_1,
+                                                                             SETTLE_DATE_TIPS_1, TRADE_PRICE_TIPS_43);
+  private static final BondCapitalIndexedTransaction<?> TIPS_43_1_TRA =
+      TIPS_43_TRA_DEFINITION.toDerivative(CALIBRATION_DATE, HTS_CPI);
   
   /** Curves **/
   private static final Pair<IssuerProviderDiscount, CurveBuildingBlockBundle> ISSUER_GOVT_PAIR = 
@@ -156,6 +177,7 @@ public class BondCapitalIndexedDiscountingE2ETest {
   public void presentValueBondFixed() {
     double pvExpected = 0;
     MultipleCurrencyAmount pvComputedIs = UST_TRA.accept(PVIssuerC, ISSUER_GOVT);
+    MultipleCurrencyAmount pvComputedIs1 = UST_TRA1.accept(PVIssuerC, ISSUER_GOVT);
 //    assertEquals("BondCapitalIndexedDiscountingE2E: present value bond fixed",
 //        pvExpected, pvComputedIs.getAmount(USD), TOLERANCE_PV);
 //    MultipleCurrencyAmount pvComputedInIs = UST_TRA.accept(PVInflIssuerC, INFL_ISSUER_GOVT_1);
@@ -163,8 +185,8 @@ public class BondCapitalIndexedDiscountingE2ETest {
 //        pvExpected, pvComputedInIs.getAmount(USD), TOLERANCE_PV);
 
 //    MultipleCurrencyParameterSensitivity
-      System.out.println("PV Computed: " + pvComputedIs.getAmount(USD));
-
+      System.out.println("OTR PV Computed: " + pvComputedIs.getAmount(USD));
+      System.out.println("OffTR PV Computed: " + pvComputedIs1.getAmount(USD));
   }
   
   @Test
@@ -177,15 +199,30 @@ public class BondCapitalIndexedDiscountingE2ETest {
     final double[] deltaCpi =
       {881.5432, 0.0000,0.0000};
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity = new LinkedHashMap<>();
-    sensitivity.put(ObjectsPair.of(INFL_ISSUER_GOVT_3.getName(USD), USD), new DoubleMatrix1D(deltaDsc));
-    sensitivity.put(ObjectsPair.of(INFL_ISSUER_GOVT_3.getIssuerProvider().getName(TIPS_16_SEC_DEFINITION.getIssuerEntity()), USD),
+    sensitivity.put(ObjectsPair.of(INFL_ISSUER_GOVT_2.getName(USD), USD), new DoubleMatrix1D(deltaDsc));
+    sensitivity.put(ObjectsPair.of(INFL_ISSUER_GOVT_2.getIssuerProvider().getName(TIPS_24_SEC_DEFINITION.getIssuerEntity()), USD),
         new DoubleMatrix1D(deltaGovt));
-    sensitivity.put(ObjectsPair.of(INFL_ISSUER_GOVT_3.getName(US_CPI), USD), new DoubleMatrix1D(deltaCpi));
+    sensitivity.put(ObjectsPair.of(INFL_ISSUER_GOVT_2.getName(US_CPI), USD), new DoubleMatrix1D(deltaCpi));
     MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
     MultipleCurrencyParameterSensitivity pvpsComputed =
-        MQISBC.fromInstrument(TIPS_16_1_TRA, INFL_ISSUER_GOVT_3, INFL_ISSUER_GOVT_3_BLOCK).multipliedBy(BP1);
-    AssertSensitivityObjects.assertEquals("BondCapitalIndexedDiscountingE2E",
-        pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
+        MQISBC.fromInstrument(TIPS_24_1_TRA, INFL_ISSUER_GOVT_2, INFL_ISSUER_GOVT_2_BLOCK).multipliedBy(BP1);
+
+
+    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity1 = new LinkedHashMap<>();
+    sensitivity.put(ObjectsPair.of(INFL_ISSUER_GOVT_3.getName(USD), USD), new DoubleMatrix1D(deltaDsc));
+    sensitivity.put(ObjectsPair.of(INFL_ISSUER_GOVT_3.getIssuerProvider().getName(TIPS_24_SEC_DEFINITION.getIssuerEntity()), USD),
+                    new DoubleMatrix1D(deltaGovt));
+    sensitivity.put(ObjectsPair.of(INFL_ISSUER_GOVT_3.getName(US_CPI), USD), new DoubleMatrix1D(deltaCpi));
+//    MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity1);
+    MultipleCurrencyParameterSensitivity pvpsComputed1 =
+        MQISBC.fromInstrument(TIPS_24_1_TRA, INFL_ISSUER_GOVT_3, INFL_ISSUER_GOVT_3_BLOCK).multipliedBy(BP1);
+
+
+
+    System.out.println("Sensitivities Gov2: " + pvpsComputed);
+    System.out.println("Sensitivities Gov3: " + pvpsComputed1);
+//    AssertSensitivityObjects.assertEquals("BondCapitalIndexedDiscountingE2E",
+//        pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
   }
 //
 //  @Test
@@ -337,13 +374,16 @@ public class BondCapitalIndexedDiscountingE2ETest {
 //                 pvExpected, pv1.getAmount(USD), TOLERANCE_PV);
 //  }
 //
-//  @Test
-//  public void presentValueTipsFromTips() {
-//    double pvExpected = 937819.3845;
-//    MultipleCurrencyAmount pv1 = TIPS_16_1_TRA.accept(PVInflIssuerC, INFL_ISSUER_GOVT_3);
+  @Test
+  public void presentValueTipsFromTips() {
+    double pvExpected = 937819.3845;
+    MultipleCurrencyAmount pv1 = TIPS_24_1_TRA.accept(PVInflIssuerC, INFL_ISSUER_GOVT_3);
+    MultipleCurrencyAmount pv43 = TIPS_43_1_TRA.accept(PVInflIssuerC, INFL_ISSUER_GOVT_3);
 //    assertEquals("BondCapitalIndexedDiscountingE2E: present value TIPS",
 //                 pvExpected, pv1.getAmount(USD), TOLERANCE_PV);
-//  }
+    System.out.println("TIPS from TIPS PV: " + pv1.getAmount(USD));
+    System.out.println("TIPS from TIPS PV43: " + pv43.getAmount(USD));
+  }
 //
 //  @Test
 //  public void bucketePV01TipsToZCITreasury() {
