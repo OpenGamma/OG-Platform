@@ -49,17 +49,18 @@ import com.opengamma.financial.security.irs.StubCalculationMethod;
 import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
 import com.opengamma.sesame.DefaultCurveNodeConverterFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
-import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
+import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.ViewColumn;
+import com.opengamma.sesame.irs.DefaultInterestRateSwapConverterFn;
 import com.opengamma.sesame.irs.DiscountingInterestRateSwapCalculatorFactory;
 import com.opengamma.sesame.irs.DiscountingInterestRateSwapFn;
 import com.opengamma.sesame.irs.InterestRateSwapCalculatorFactory;
+import com.opengamma.sesame.irs.InterestRateSwapConverterFn;
 import com.opengamma.sesame.irs.InterestRateSwapFn;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
@@ -142,7 +143,7 @@ public final class RemoteViewSwapUtils {
       ImmutableList.<Object>of(createIborCompoundingSwap());
 
   /** List of All IRS inputs */
-  public static final List<Object> SWAP_INPUTS = ImmutableList.<Object>builder()
+  public static final List<Object> SWAP_INPUTS = ImmutableList.builder()
       .addAll(VANILLA_INPUTS)
       .addAll(COMPOUNDING_INPUTS)
       .addAll(SPREAD_INPUTS)
@@ -169,36 +170,36 @@ public final class RemoteViewSwapUtils {
     ArgumentChecker.notNull(currencyMatrixLink, "currencyMatrixLink");
 
     return
-        column(output,
+        column(
+            output,
             config(
                 arguments(
-                    function(ConfigDbMarketExposureSelectorFn.class,
-                        argument("exposureConfig", exposureConfig)),
+                    function(
+                        MarketExposureSelector.class,
+                        argument("exposureFunctions", exposureConfig)),
                     function(
                         RootFinderConfiguration.class,
                         argument("rootFinderAbsoluteTolerance", 1e-10),
                         argument("rootFinderRelativeTolerance", 1e-10),
                         argument("rootFinderMaxIterations", 1000)),
-                    function(DefaultCurveNodeConverterFn.class,
+                    function(
+                        DefaultCurveNodeConverterFn.class,
                         argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
-                    function(DefaultHistoricalMarketDataFn.class,
-                        argument("dataSource", "BLOOMBERG"),
-                        argument("currencyMatrix", currencyMatrixLink)),
-                    function(DefaultMarketDataFn.class,
+                    function(
+                        DefaultHistoricalMarketDataFn.class,
                         argument("dataSource", "BLOOMBERG"),
                         argument("currencyMatrix", currencyMatrixLink)),
                     function(
-                        DefaultHistoricalTimeSeriesFn.class,
-                        argument("resolutionKey", "DEFAULT_TSS"),
-                        argument("htsRetrievalPeriod", RetrievalPeriod.of((Period.ofYears(1))))),
+                        DefaultMarketDataFn.class,
+                        argument("dataSource", "BLOOMBERG"),
+                        argument("currencyMatrix", currencyMatrixLink)),
                     function(
                         DefaultDiscountingMulticurveBundleFn.class,
                         argument("impliedCurveNames", StringSet.of()))),
                 implementations(
-                    InterestRateSwapFn.class,
-                    DiscountingInterestRateSwapFn.class,
-                    InterestRateSwapCalculatorFactory.class,
-                    DiscountingInterestRateSwapCalculatorFactory.class)));
+                    InterestRateSwapFn.class, DiscountingInterestRateSwapFn.class,
+                    InterestRateSwapConverterFn.class, DefaultInterestRateSwapConverterFn.class,
+                    InterestRateSwapCalculatorFactory.class, DiscountingInterestRateSwapCalculatorFactory.class)));
   }
 
   /* Sample Interest Rate Swaps */

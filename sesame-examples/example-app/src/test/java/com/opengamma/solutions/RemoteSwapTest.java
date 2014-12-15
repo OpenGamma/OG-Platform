@@ -6,6 +6,7 @@
 package com.opengamma.solutions;
 
 import static com.opengamma.sesame.config.ConfigBuilder.configureView;
+import static com.opengamma.util.result.ResultTestUtils.assertSuccess;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -17,18 +18,20 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.link.ConfigLink;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.id.UniqueId;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.config.ViewConfig;
+import com.opengamma.sesame.engine.CalculationArguments;
+import com.opengamma.sesame.engine.Engine;
+import com.opengamma.sesame.engine.RemoteEngine;
 import com.opengamma.sesame.engine.ResultRow;
 import com.opengamma.sesame.engine.Results;
-import com.opengamma.sesame.server.FunctionServer;
-import com.opengamma.sesame.server.FunctionServerRequest;
-import com.opengamma.sesame.server.IndividualCycleOptions;
-import com.opengamma.sesame.server.RemoteFunctionServer;
+import com.opengamma.sesame.marketdata.MarketDataEnvironment;
+import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -41,11 +44,11 @@ import com.opengamma.util.time.DateUtils;
  * Output: Present Value / Bucketed PV01 / Cash flows
  */
 
-@Test(groups = TestGroup.INTEGRATION, enabled = true)
+@Test(groups = TestGroup.INTEGRATION)
 public class RemoteSwapTest {
 
-  private FunctionServer _functionServer;
-  private IndividualCycleOptions _cycleOptions;
+  private static final double STD_TOLERANCE_PV = 1.0E-3;
+
   private ConfigLink<ExposureFunctions> _exposureConfig;
   private ConfigLink<CurrencyMatrix> _currencyMatrixLink;
   private Results _vanillaResults;
@@ -60,128 +63,41 @@ public class RemoteSwapTest {
   private Results _iborCompoundingResults;
   private Results _notionalExchangeResults;
 
-  private static final double STD_TOLERANCE_PV = 1.0E-3;
-
-
   @BeforeClass
   public void setUp() {
-
     String property = System.getProperty("server.url");
     String url = property == null ? "http://localhost:8080/jax" : property;
 
-    _functionServer = new RemoteFunctionServer(URI.create(url));
-    _cycleOptions = IndividualCycleOptions.builder()
-        .valuationTime(DateUtils.getUTCDate(2014, 1, 22))
-        .marketDataSpec(UserMarketDataSpecification.of(UniqueId.of("DbSnp", "1000")))
-        .build();
+    Engine engine = new RemoteEngine(URI.create(url));
+    UniqueId snapshotId = UniqueId.of("DbSnp", "1000");
+    MarketDataSpecification marketDataSpec = UserMarketDataSpecification.of(snapshotId);
+    CalculationArguments args =
+        CalculationArguments.builder()
+            .marketDataSpecification(marketDataSpec)
+            .valuationTime(DateUtils.getUTCDate(2014, 1, 22))
+            .build();
 
     _exposureConfig = ConfigLink.resolvable("USD-GBP-FF-1", ExposureFunctions.class);
     _currencyMatrixLink = ConfigLink.resolvable("BBG-Matrix", CurrencyMatrix.class);
 
-    FunctionServerRequest<IndividualCycleOptions> vanillaRequest =
-        FunctionServerRequest.<IndividualCycleOptions>builder()
-            .viewConfig(createViewConfig())
-            .inputs(RemoteViewSwapUtils.VANILLA_INPUTS)
-            .cycleOptions(_cycleOptions)
-            .build();
+    ViewConfig viewConfig = createViewConfig();
+    // don't want to provide any data, let the server source it
+    MarketDataEnvironment env = MarketDataEnvironmentBuilder.empty();
 
-    _vanillaResults = _functionServer.executeSingleCycle(vanillaRequest);
-
-    FunctionServerRequest<IndividualCycleOptions> spreadRequest =
-        FunctionServerRequest.<IndividualCycleOptions>builder()
-            .viewConfig(createViewConfig())
-            .inputs(RemoteViewSwapUtils.SPREAD_INPUTS)
-            .cycleOptions(_cycleOptions)
-            .build();
-
-    _spreadResults = _functionServer.executeSingleCycle(spreadRequest);
-
-    FunctionServerRequest<IndividualCycleOptions> fixingRequest =
-        FunctionServerRequest.<IndividualCycleOptions>builder()
-            .viewConfig(createViewConfig())
-            .inputs(RemoteViewSwapUtils.FIXING_INPUTS)
-            .cycleOptions(_cycleOptions)
-            .build();
-
-    _fixingResults = _functionServer.executeSingleCycle(fixingRequest);
-
-    FunctionServerRequest<IndividualCycleOptions> compoundingRequest =
-        FunctionServerRequest.<IndividualCycleOptions>builder()
-            .viewConfig(createViewConfig())
-            .inputs(RemoteViewSwapUtils.COMPOUNDING_INPUTS)
-            .cycleOptions(_cycleOptions)
-            .build();
-
-    _compoundingResults = _functionServer.executeSingleCycle(compoundingRequest);
-
-    FunctionServerRequest<IndividualCycleOptions> stubRequest =
-        FunctionServerRequest.<IndividualCycleOptions>builder()
-            .viewConfig(createViewConfig())
-            .inputs(RemoteViewSwapUtils.STUB_INPUTS)
-            .cycleOptions(_cycleOptions)
-            .build();
-
-    _stubResults = _functionServer.executeSingleCycle(stubRequest);
-
-    FunctionServerRequest<IndividualCycleOptions> xccyRequest =
-        FunctionServerRequest.<IndividualCycleOptions>builder()
-            .viewConfig(createViewConfig())
-            .inputs(RemoteViewSwapUtils.XCCY_INPUTS)
-            .cycleOptions(_cycleOptions)
-            .build();
-
-    _xccyResults = _functionServer.executeSingleCycle(xccyRequest);
-
-    FunctionServerRequest<IndividualCycleOptions> feesRequest =
-        FunctionServerRequest.<IndividualCycleOptions>builder()
-            .viewConfig(createViewConfig())
-            .inputs(RemoteViewSwapUtils.FEES_INPUT)
-            .cycleOptions(_cycleOptions)
-            .build();
-
-    _feesResults = _functionServer.executeSingleCycle(feesRequest);
-
-    FunctionServerRequest<IndividualCycleOptions> singleLegRequest =
-        FunctionServerRequest.<IndividualCycleOptions>builder()
-            .viewConfig(createViewConfig())
-            .inputs(RemoteViewSwapUtils.SINGLE_LEG_INPUT)
-            .cycleOptions(_cycleOptions)
-            .build();
-
-    _singleLegResults = _functionServer.executeSingleCycle(singleLegRequest);
-
-    FunctionServerRequest<IndividualCycleOptions> zeroCouponRequest =
-        FunctionServerRequest.<IndividualCycleOptions>builder()
-            .viewConfig(createViewConfig())
-            .inputs(RemoteViewSwapUtils.ZERO_COUPON_COMPOUNDING_INPUT)
-            .cycleOptions(_cycleOptions)
-            .build();
-
-    _zeroCouponResults = _functionServer.executeSingleCycle(zeroCouponRequest);
-
-    FunctionServerRequest<IndividualCycleOptions> iborCompoundingRequest =
-        FunctionServerRequest.<IndividualCycleOptions>builder()
-            .viewConfig(createViewConfig())
-            .inputs(RemoteViewSwapUtils.IBOR_COMPOUNDING_INPUT)
-            .cycleOptions(_cycleOptions)
-            .build();
-
-    _iborCompoundingResults = _functionServer.executeSingleCycle(iborCompoundingRequest);
-
-    FunctionServerRequest<IndividualCycleOptions> notionalExchangeRequest =
-        FunctionServerRequest.<IndividualCycleOptions>builder()
-            .viewConfig(createViewConfig())
-            .inputs(RemoteViewSwapUtils.NOTIONAL_EXCHANGE_INPUT)
-            .cycleOptions(_cycleOptions)
-            .build();
-
-    _notionalExchangeResults = _functionServer.executeSingleCycle(notionalExchangeRequest);
-
-
+    _vanillaResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.VANILLA_INPUTS);
+    _spreadResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.SPREAD_INPUTS);
+    _fixingResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.FIXING_INPUTS);
+    _compoundingResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.COMPOUNDING_INPUTS);
+    _stubResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.STUB_INPUTS);
+    _xccyResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.XCCY_INPUTS);
+    _feesResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.FEES_INPUT);
+    _singleLegResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.SINGLE_LEG_INPUT);
+    _zeroCouponResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.ZERO_COUPON_COMPOUNDING_INPUT);
+    _iborCompoundingResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.IBOR_COMPOUNDING_INPUT);
+    _notionalExchangeResults = engine.runView(viewConfig, args, env,RemoteViewSwapUtils.NOTIONAL_EXCHANGE_INPUT);
   }
 
   private ViewConfig createViewConfig() {
-
     return
         configureView(
             "IRS Remote view",
@@ -196,22 +112,20 @@ public class RemoteSwapTest {
                                                                  _currencyMatrixLink),
             RemoteViewSwapUtils.createInterestRateSwapViewColumn(OutputNames.RECEIVE_LEG_CASH_FLOWS,
                                                                  _exposureConfig,
-                                                                 _currencyMatrixLink)
-        );
+                                                                 _currencyMatrixLink));
   }
 
   /* Single Leg - start */
 
-  @Test(enabled = true)
+  @Test
   public void testSingleLegSwapPV() {
-
     Result fixedResult = _singleLegResults.get(0, 0).getResult();
-    assertThat(fixedResult.isSuccess(), is(true));
+    assertSuccess(fixedResult);
     assertThat(fixedResult.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount fixedMca = (MultipleCurrencyAmount) fixedResult.getValue();
 
     Result floatResult = _singleLegResults.get(1, 0).getResult();
-    assertThat(floatResult.isSuccess(), is(true));
+    assertSuccess(floatResult);
     assertThat(floatResult.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount floatMca = (MultipleCurrencyAmount) floatResult.getValue();
 
@@ -219,18 +133,16 @@ public class RemoteSwapTest {
     Double combined = fixedMca.getCurrencyAmount(Currency.USD).getAmount() +
         floatMca.getCurrencyAmount(Currency.USD).getAmount();
     assertThat(combined, is(closeTo(6072234.4631, STD_TOLERANCE_PV)));
-
   }
 
   /* Single Leg - end */
 
   /* Zero Coupon - start */
 
-  @Test(enabled = true)
+  @Test
   public void testZeroCouponSwapPV() {
-
     Result fixedResult = _zeroCouponResults.get(0, 0).getResult();
-    assertThat(fixedResult.isSuccess(), is(true));
+    assertSuccess(fixedResult);
     assertThat(fixedResult.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount amount = (MultipleCurrencyAmount) fixedResult.getValue();
     assertThat(amount.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(6606079.576346258, STD_TOLERANCE_PV)));
@@ -242,11 +154,10 @@ public class RemoteSwapTest {
 
   @Test
   public void testIborCompoundingSwapPV() {
-
     Result fixedResult = _iborCompoundingResults.get(0, 0).getResult();
-    assertThat(fixedResult.isSuccess(), is(true));
+    assertSuccess(fixedResult);
     assertThat(fixedResult.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
-    MultipleCurrencyAmount amount = (MultipleCurrencyAmount) fixedResult.getValue();
+    //MultipleCurrencyAmount amount = (MultipleCurrencyAmount) fixedResult.getValue();
     // TODO - this value has not been derived from an equivalent analytics test
     //assertThat(amount.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(6598909.63457769, STD_TOLERANCE_PV)));
   }
@@ -256,12 +167,11 @@ public class RemoteSwapTest {
 
   /* Fees - start */
 
-  @Test(enabled = true)
+  @Test
   public void testFeesFixedVsLiborSwapPV() {
-
     // Note: not tested v Analytics
     Result result = _feesResults.get(0, 0).getResult();
-    assertThat(result.isSuccess(), is(true));
+    assertSuccess(result);
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(6071234.9209, STD_TOLERANCE_PV)));
@@ -271,77 +181,66 @@ public class RemoteSwapTest {
 
   /* Vanilla - start */
 
-  @Test(enabled = true)
+  @Test
   public void testVanillaFixedVsLiborSwapPV() {
-
     Result result = _vanillaResults.get(0, 0).getResult();
-    assertThat(result.isSuccess(), is(true));
+    assertSuccess(result);
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(6072234.4631, STD_TOLERANCE_PV)));
-
   }
 
   /* Vanilla - end */
 
   /* Compounding -start */
 
-  @Test(enabled = true)
+  @Test
   public void testCompoundingFixedVsONSwapPV() {
-
     Result result = _compoundingResults.get(0, 0).getResult();
-    assertThat(result.isSuccess(), is(true));
+    assertSuccess(result);
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-5969.7908, STD_TOLERANCE_PV)));
-
   }
 
-  @Test(enabled = true)
+  @Test
   public void testCompoundingFFAAVsLiborSwapPV() {
-
     Result result = _compoundingResults.get(1, 0).getResult();
-    assertThat(result.isSuccess(), is(true));
+    assertSuccess(result);
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-1304207.7900, STD_TOLERANCE_PV)));
-
   }
 
-  @Test(enabled = true)
+  @Test
   public void testCompoundingLiborVsLiborSwapPV() {
-
     //TODO PLAT-6743 + Check with analytics
     Result result = _compoundingResults.get(2, 0).getResult();
-    assertThat(result.isSuccess(), is(true));
+    assertSuccess(result);
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-828863.7078, STD_TOLERANCE_PV)));
-
   }
 
   /* Compounding -start */
 
   /* Spread - start */
 
-  @Test(enabled = true)
+  @Test
   public void testSpreadLiborVsLiborSwapPV() {
-
     //TODO PLAT-6743 + check with Analytics
     Result result = _spreadResults.get(0, 0).getResult();
-    assertThat(result.isSuccess(), is(true));
+    assertSuccess(result);
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(80166.8308, STD_TOLERANCE_PV)));
-
   }
 
-  @Test(enabled = true)
+  @Test
   public void testSpreadFFAAVsLiborSwapPV() {
-
     //TODO PLAT-6794
     Result result = _spreadResults.get(1, 0).getResult();
-    assertThat(result.isSuccess(), is(true));
+    assertSuccess(result);
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(142681.6754, STD_TOLERANCE_PV)));
@@ -352,287 +251,252 @@ public class RemoteSwapTest {
 
   /* Fixing - start */
 
-  @Test(enabled = true)
+  @Test
   public void testFixingFixedVsLiborSwapPV() {
-
     Result result = _fixingResults.get(0, 0).getResult();
-    assertThat(result.isSuccess(), is(true));
+    assertSuccess(result);
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(3194260.3186, STD_TOLERANCE_PV)));
-
   }
 
-  @Test(enabled = true)
+  @Test
   public void testFixingFixedVsONSwapPV() {
-
     Result result = _fixingResults.get(1, 0).getResult();
-    assertThat(result.isSuccess(), is(true));
+    assertSuccess(result);
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-5569.499485016839, STD_TOLERANCE_PV)));
-
   }
 
   /* Fixing - end */
 
   /* Stubs - start */
 
-  @Test(enabled = true)
+  @Test
   public void testFixedVsLibor3mStub3MSwapPV() {
-
     Result result = _stubResults.get(0, 0).getResult();
-    assertThat(result.isSuccess(), is(true));
+    assertSuccess(result);
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-181665.9361, STD_TOLERANCE_PV)));
-
   }
 
-  @Test(enabled = true)
+  @Test
   public void testFixedVsLibor3mStub1MSwapPV() {
-
     Result result = _stubResults.get(1, 0).getResult();
-    assertThat(result.isSuccess(), is(true));
+    assertSuccess(result);
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-262948.9316, STD_TOLERANCE_PV)));
-    
   }
 
-  @Test(enabled = true)
+  @Test
   public void testFixedVsLibor6mStub3MSwapPV() {
-
     Result result = _stubResults.get(2, 0).getResult();
-    assertThat(result.isSuccess(), is(true));
+    assertSuccess(result);
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-318570.8721, 10*STD_TOLERANCE_PV))); // <- ???
-
   }
 
-  @Test(enabled = true)
+  @Test
   public void testFixedVsLibor6mStub4MSwapPV() {
-
     Result result = _stubResults.get(3, 0).getResult();
-    assertThat(result.isSuccess(), is(true));
+    assertSuccess(result);
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-406168.2802, 10*STD_TOLERANCE_PV))); // <- ???
-
   }
 
-  @Test(enabled = true)
+  @Test
   public void testFixedVsLibor3mLongStartStub6MSwapPV() {
-
     //TODO PLAT-6777
     Result result = _stubResults.get(4, 0).getResult();
-    assertThat(result.isSuccess(), is(true));
+    assertSuccess(result);
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
-
   }
 
-  @Test(enabled = true)
+  @Test
   public void testFixedVsLibor6mShortEndStub2MSwapPV() {
-
     //TODO PLAT-6777
     Result result = _stubResults.get(5, 0).getResult();
-    assertThat(result.isSuccess(), is(true));
+    assertSuccess(result);
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
-
   }
-
   /* Stubs - end */
 
   /* XCCY - start */
 
-  @Test(enabled = true)
+  @Test
   public void testLiborUS3mVsLiborBP3mSwapPV() {
-
     //TODO PLAT-6782
     Result result = _xccyResults.get(0, 0).getResult();
-    assertThat(result.isSuccess(), is(true));
+    assertSuccess(result);
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(20382165.8257, STD_TOLERANCE_PV)));
     assertThat(mca.getCurrencyAmount(Currency.GBP).getAmount(), is(closeTo(-8303201.9931, 50.0)));
-
   }
 
-  @Test(enabled = true)
-  public void testFixedUSVsLivborBP3mSwapPV() {
-
+  @Test
+  public void testFixedUSVsLiborBP3mSwapPV() {
     //TODO PLAT-6782
     Result result = _xccyResults.get(1, 0).getResult();
-    assertThat(result.isSuccess(), is(true));
+    assertSuccess(result);
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-19913853.4812, STD_TOLERANCE_PV)));
     assertThat(mca.getCurrencyAmount(Currency.GBP).getAmount(), is(closeTo(8303201.9931, 50.0)));
-
   }
 
   /* XCCY - end */
 
   /* Notional Exchange - start */
 
-  @Test(enabled = true)
+  @Test
   public void testInitialNotionalExchangeSwapPV() {
-
     //TODO PLAT-6807
     Result result = _notionalExchangeResults.get(0, 0).getResult();
-    assertThat(result.isSuccess(), is(true));
+    assertSuccess(result);
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(80085298.7823, STD_TOLERANCE_PV)));
     assertThat(mca.getCurrencyAmount(Currency.GBP).getAmount(), is(closeTo(-53295535.6962, STD_TOLERANCE_PV)));
-
   }
 
-  @Test(enabled = true)
+  @Test
   public void testFinalNotionalExchangeSwapPV() {
-
     //TODO PLAT-6807
     Result result = _notionalExchangeResults.get(1, 0).getResult();
-    assertThat(result.isSuccess(), is(true));
+    assertSuccess(result);
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-107119236.1726, STD_TOLERANCE_PV)));
     assertThat(mca.getCurrencyAmount(Currency.GBP).getAmount(), is(closeTo(62611433.5861, STD_TOLERANCE_PV)));
-
   }
 
-  @Test(enabled = true)
-  public void testIntialFinalNotionalExchangeSwapPV() {
-    
+  @Test
+  public void testInitialFinalNotionalExchangeSwapPV() {
     Result result = _notionalExchangeResults.get(2, 0).getResult();
-    assertThat(result.isSuccess(), is(true));
+    assertSuccess(result);
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-7120083.9091, STD_TOLERANCE_PV)));
     assertThat(mca.getCurrencyAmount(Currency.GBP).getAmount(), is(closeTo(1012655.4392, 1.0)));
-
   }
 
   /* Notional Exchange - end */
 
-  @Test(enabled = true)
+  @Test
   public void testBuckedPV01() {
     // TODO: test results value
-
     for (ResultRow result : _vanillaResults.getRows()) {
-      assertThat(result.get(1).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(1).getResult());
     }
     for (ResultRow result : _spreadResults.getRows()) {
-      assertThat(result.get(1).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(1).getResult());
     }
     for (ResultRow result : _fixingResults.getRows()) {
-      assertThat(result.get(1).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(1).getResult());
     }
     for (ResultRow result : _compoundingResults.getRows()) {
-      assertThat(result.get(1).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(1).getResult());
     }
     for (ResultRow result : _xccyResults.getRows()) {
-      assertThat(result.get(1).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(1).getResult());
     }
     for (ResultRow result : _stubResults.getRows()) {
-      assertThat(result.get(1).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(1).getResult());
     }
     for (ResultRow result : _feesResults.getRows()) {
-      assertThat(result.get(1).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(1).getResult());
     }
     for (ResultRow result : _singleLegResults.getRows()) {
-      assertThat(result.get(1).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(1).getResult());
     }
     for (ResultRow result : _zeroCouponResults.getRows()) {
-      assertThat(result.get(1).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(1).getResult());
     }
     for (ResultRow result : _iborCompoundingResults.getRows()) {
-      assertThat(result.get(1).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(1).getResult());
     }
     for (ResultRow result : _notionalExchangeResults.getRows()) {
-      assertThat(result.get(1).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(1).getResult());
     }
-
   }
 
-  @Test(enabled = true)
+  @Test
   public void testPayLegCashFlows() {
-
     for (ResultRow result : _vanillaResults.getRows()) {
-      assertThat(result.get(2).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(2).getResult());
     }
     for (ResultRow result : _spreadResults.getRows()) {
-      assertThat(result.get(2).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(2).getResult());
     }
     for (ResultRow result : _fixingResults.getRows()) {
-      assertThat(result.get(2).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(2).getResult());
     }
     for (ResultRow result : _compoundingResults.getRows()) {
-      assertThat(result.get(2).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(2).getResult());
     }
     for (ResultRow result : _xccyResults.getRows()) {
-      assertThat(result.get(2).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(2).getResult());
     }
     for (ResultRow result : _stubResults.getRows()) {
-      assertThat(result.get(2).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(2).getResult());
     }
     for (ResultRow result : _feesResults.getRows()) {
-      assertThat(result.get(2).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(2).getResult());
     }
     for (ResultRow result : _zeroCouponResults.getRows()) {
-      assertThat(result.get(2).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(2).getResult());
     }
     for (ResultRow result : _iborCompoundingResults.getRows()) {
-      assertThat(result.get(2).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(2).getResult());
     }
     for (ResultRow result : _notionalExchangeResults.getRows()) {
-      assertThat(result.get(2).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(2).getResult());
     }
     for (ResultRow result : _singleLegResults.getRows()) {
-      assertThat(result.get(2).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(2).getResult());
     }
-
   }
 
-  @Test(enabled = true)
+  @Test
   public void testReceiveLegCashFlows() {
-
     for (ResultRow result : _vanillaResults.getRows()) {
-      assertThat(result.get(3).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(3).getResult());
     }
     for (ResultRow result : _spreadResults.getRows()) {
-      assertThat(result.get(3).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(3).getResult());
     }
     for (ResultRow result : _fixingResults.getRows()) {
-      assertThat(result.get(3).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(3).getResult());
     }
     for (ResultRow result : _compoundingResults.getRows()) {
-      assertThat(result.get(3).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(3).getResult());
     }
     for (ResultRow result : _xccyResults.getRows()) {
-      assertThat(result.get(3).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(3).getResult());
     }
     for (ResultRow result : _stubResults.getRows()) {
-      assertThat(result.get(3).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(3).getResult());
     }
     for (ResultRow result : _feesResults.getRows()) {
-      assertThat(result.get(3).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(3).getResult());
     }
     for (ResultRow result : _zeroCouponResults.getRows()) {
-      assertThat(result.get(3).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(3).getResult());
     }
     for (ResultRow result : _iborCompoundingResults.getRows()) {
-      assertThat(result.get(3).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(3).getResult());
     }
     for (ResultRow result : _notionalExchangeResults.getRows()) {
-      assertThat(result.get(3).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(3).getResult());
     }
     for (ResultRow result : _singleLegResults.getRows()) {
-      assertThat(result.get(3).getResult().isSuccess(), is(true));
+      assertSuccess(result.get(3).getResult());
     }
-
   }
-
-
 }

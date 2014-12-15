@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.currency.CurrencyMatrix;
@@ -86,12 +87,17 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
     }
 
     if (commandLine.hasOption(SNAPSHOT_UID)) {
-      builder.marketDataSpec(UserMarketDataSpecification.of(UniqueId.parse(commandLine.getOptionValue(SNAPSHOT_UID))));
+      UniqueId snapshotId = UniqueId.parse(commandLine.getOptionValue(SNAPSHOT_UID));
+      MarketDataSpecification marketDataSpecification = UserMarketDataSpecification.of(snapshotId);
+      builder.marketDataSpecs(ImmutableList.of(marketDataSpecification));
     } else if (commandLine.hasOption(LIVE_DATA)) {
-      builder.marketDataSpec(LiveMarketDataSpecification.of(commandLine.getOptionValue(LIVE_DATA)));
+      String liveDataSource = commandLine.getOptionValue(LIVE_DATA);
+      MarketDataSpecification marketDataSpecification = LiveMarketDataSpecification.of(liveDataSource);
+      builder.marketDataSpecs(ImmutableList.of(marketDataSpecification));
     } else {
       // Default to Bloomberg if snapshot or live data provider is not stipulated
-      builder.marketDataSpec(LiveMarketDataSpecification.of("Bloomberg"));
+      MarketDataSpecification marketDataSpecification = LiveMarketDataSpecification.of("Bloomberg");
+      builder.marketDataSpecs(ImmutableList.of(marketDataSpecification));
     }
 
     if (commandLine.hasOption(SECURITY_INPUTS)) {
