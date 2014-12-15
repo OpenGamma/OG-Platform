@@ -11,8 +11,10 @@ import java.util.Map;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.core.security.Security;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.sesame.MulticurveBundle;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Builder for creating a {@link ScenarioMarketDataEnvironment}.
@@ -32,7 +34,7 @@ public class ScenarioDataBuilder {
    * @return this builder
    */
   public ScenarioDataBuilder addMulticurve(String scenarioId, String name, MulticurveBundle multicurve) {
-    bundle(scenarioId).add(MulticurveId.of(name), multicurve);
+    builder(scenarioId).add(MulticurveId.of(name), multicurve);
     return this;
   }
 
@@ -45,7 +47,51 @@ public class ScenarioDataBuilder {
    * @return this builder
    */
   public ScenarioDataBuilder addFxRate(String scenarioId, CurrencyPair currencyPair, double rate) {
-    bundle(scenarioId).add(FxRateId.of(currencyPair), rate);
+    builder(scenarioId).add(FxRateId.of(currencyPair), rate);
+    return this;
+  }
+
+  /**
+   * Adds the market value of a security to the market data environment.
+   * <p>
+   * The field name {@code Market_Value} is used for the data.
+   *
+   * @param scenarioId ID of the scenario to which the data should be added
+   * @param security the security
+   * @param marketValue the security's market value
+   * @return this builder
+   */
+  public ScenarioDataBuilder addSecurityMarketValue(String scenarioId, Security security, double marketValue) {
+    builder(scenarioId).add(SecurityId.of(security), marketValue);
+    return this;
+  }
+
+  /**
+   * Adds a value for a security to the market data environment.
+   *
+   * @param scenarioId ID of the scenario to which the data should be added
+   * @param security the security
+   * @param fieldName the field name in the market data record containing the value
+   * @param value the value
+   * @return this builder
+   */
+  public ScenarioDataBuilder addSecurityValue(String scenarioId, Security security, FieldName fieldName, double value) {
+    builder(scenarioId).add(SecurityId.of(security, Double.class, fieldName), value);
+    return this;
+  }
+
+  /**
+   * Adds a value for a security to the market data environment.
+   *
+   * @param scenarioId ID of the scenario to which the data should be added
+   * @param security the security
+   * @param fieldName the field name in the market data record containing the value
+   * @param value the value
+   * @return this builder
+   */
+  public ScenarioDataBuilder addSecurityValue(String scenarioId, Security security, FieldName fieldName, Object value) {
+    ArgumentChecker.notNull(value, "value");
+    builder(scenarioId).add(SecurityId.of(security, value.getClass(), fieldName), value);
     return this;
   }
 
@@ -57,7 +103,7 @@ public class ScenarioDataBuilder {
    * @return this builder
    */
   public ScenarioDataBuilder valuationTime(String scenarioId, ZonedDateTime valuationTime) {
-    bundle(scenarioId).valuationTime(valuationTime);
+    builder(scenarioId).valuationTime(valuationTime);
     return this;
   }
 
@@ -67,7 +113,7 @@ public class ScenarioDataBuilder {
    * @param scenarioId ID of the scenario
    * @return the bundle builder for a scenario
    */
-  private MarketDataEnvironmentBuilder bundle(String scenarioId) {
+  private MarketDataEnvironmentBuilder builder(String scenarioId) {
     MarketDataEnvironmentBuilder builder = _builders.get(scenarioId);
 
     if (builder != null) {
