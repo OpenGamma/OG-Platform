@@ -138,8 +138,8 @@ public class StandardDataSetsGovtUsInflationUSD {
   }
   
   /** Market quotes for the USD-USGVT curve */
-  private static final ZonedDateTime[] BILL_MATURITY = new ZonedDateTime[] {DateUtils.getUTCDate(2015, 1, 8),
-    DateUtils.getUTCDate(2015, 4, 9), DateUtils.getUTCDate(2015, 9, 17) };
+  private static final ZonedDateTime[] BILL_MATURITY = new ZonedDateTime[] {DateUtils.getUTCDate(2015, 1, 2),
+    DateUtils.getUTCDate(2015, 3, 5), DateUtils.getUTCDate(2015, 6, 4), DateUtils.getUTCDate(2015, 11, 12) };
   private static final int NB_BILL = BILL_MATURITY.length;
   private static final BillSecurityDefinition[] BILL_SECURITY = new BillSecurityDefinition[NB_BILL];
   private static final GeneratorBill[] GENERATOR_BILL = new GeneratorBill[NB_BILL];
@@ -149,24 +149,30 @@ public class StandardDataSetsGovtUsInflationUSD {
       GENERATOR_BILL[loopbill] = new GeneratorBill("GeneratorBill" + loopbill, BILL_SECURITY[loopbill]);
     }
   }
-  private static final int NB_BOND = 3;
+  private static final int NB_BOND = 6;
   private static final BondFixedSecurityDefinition[] BOND_SECURITY = new BondFixedSecurityDefinition[NB_BOND];
   private static final GeneratorBondFixed[] GENERATOR_BOND = new GeneratorBondFixed[NB_BOND];
   static {
-    BOND_SECURITY[0] = BondDataSetsUsd.bondUST_20160930(NOTIONAL);
-    BOND_SECURITY[1] = BondDataSetsUsd.bondUST_20190930(NOTIONAL);
-    BOND_SECURITY[2] = BondDataSetsUsd.bondUST_20240815(NOTIONAL);
+//    BOND_SECURITY[0] = BondDataSetsUsd.bondUST_20160930(NOTIONAL);
+//    BOND_SECURITY[1] = BondDataSetsUsd.bondUST_20190930(NOTIONAL);
+//    BOND_SECURITY[2] = BondDataSetsUsd.bondUST_20240815(NOTIONAL);
+    BOND_SECURITY[0]=BondDataSetsUsd.bondUST_20161130(NOTIONAL);
+    BOND_SECURITY[1]=BondDataSetsUsd.bondUST_20171115(NOTIONAL);
+    BOND_SECURITY[2]=BondDataSetsUsd.bondUST_20191130(NOTIONAL);
+    BOND_SECURITY[3]=BondDataSetsUsd.bondUST_20211130(NOTIONAL);
+    BOND_SECURITY[4]=BondDataSetsUsd.bondUST_20241115(NOTIONAL);
+    BOND_SECURITY[5]=BondDataSetsUsd.bondUST_20441115(NOTIONAL);
     for (int loopbnd = 0; loopbnd < NB_BOND; loopbnd++) {
       GENERATOR_BOND[loopbnd] = new GeneratorBondFixed("GeneratorBond" + loopbnd, BOND_SECURITY[loopbnd]);
     }
   }
   /** Market values for the US Govt curve */
   private static final double[] GOVT_MARKET_QUOTES = 
-      new double[] {0.00005, 0.0003, 0.0007, 1.0+7.0/32.0/100.0, 1.01+11.0/32.0/100.0, 1.01+10.0/32.0/100.0 };
+      new double[] {0.00005, 0.0003, 0.0007, 0.0007, 1.0+7.0/32.0/100.0,1.0+7.0/32.0/100.0,1.0+7.0/32.0/100.0,1.0+7.0/32.0/100.0, 1.01+11.0/32.0/100.0, 1.01+10.0/32.0/100.0 };
   /** Generators for the US Govt curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] GOVT_GENERATORS =
-      new GeneratorInstrument<?>[] {GENERATOR_BILL[0], GENERATOR_BILL[1], GENERATOR_BILL[2],
-        GENERATOR_BOND[0], GENERATOR_BOND[1], GENERATOR_BOND[2] };
+      new GeneratorInstrument<?>[] {GENERATOR_BILL[0], GENERATOR_BILL[1], GENERATOR_BILL[2],GENERATOR_BILL[3],
+        GENERATOR_BOND[0], GENERATOR_BOND[1], GENERATOR_BOND[2],GENERATOR_BOND[3],GENERATOR_BOND[4],GENERATOR_BOND[5] };
   /** Attributes for the US Govt curve */
   private static final GeneratorAttributeET[] GOVT_ATTR = new GeneratorAttributeET[GOVT_MARKET_QUOTES.length];
   static {
@@ -207,7 +213,7 @@ public class StandardDataSetsGovtUsInflationUSD {
     TIPS_SECURITY.add(BondDataSetsUsd.bondTIPS_20160715(NOTIONAL));
     TIPS_SECURITY.add(BondDataSetsUsd.bondTIPS_20190715(NOTIONAL));
     TIPS_SECURITY.add(BondDataSetsUsd.bondTIPS_20240715(NOTIONAL));
-    for (int loopbnd = 0; loopbnd < NB_BOND; loopbnd++) {
+    for (int loopbnd = 0; loopbnd < NB_TIPS; loopbnd++) {
       TIPS_GENERATORS[loopbnd] = new GeneratorBondCapitalIndexed("GeneratorBond" + loopbnd, TIPS_SECURITY.get(loopbnd));
     }
   }

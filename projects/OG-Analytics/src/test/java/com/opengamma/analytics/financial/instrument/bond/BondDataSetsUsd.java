@@ -55,23 +55,59 @@ public class BondDataSetsUsd {
   private static final YieldConvention YIELD_BOND = 
       YieldConventionFactory.INSTANCE.getYieldConvention("US street");
   
-  //UST 0.50 2016-09-30 - ISIN-US912828F478
-  private static final ZonedDateTime START_ACCRUAL_DATE_US16 = DateUtils.getUTCDate(2014, 9, 30);
-  private static final ZonedDateTime FIRST_COUPON_DATE_US16 = DateUtils.getUTCDate(2015, 3, 31);
-  private static final ZonedDateTime MATURITY_DATE_US16 = DateUtils.getUTCDate(2016, 9, 30);
-  private static final double RATE_US16 = 0.0500;
+//  //UST 0.50 2016-09-30 - ISIN-US912828F478
+//  private static final ZonedDateTime START_ACCRUAL_DATE_US16 = DateUtils.getUTCDate(2014, 9, 30);
+//  private static final ZonedDateTime FIRST_COUPON_DATE_US16 = DateUtils.getUTCDate(2015, 3, 31);
+//  private static final ZonedDateTime MATURITY_DATE_US16 = DateUtils.getUTCDate(2016, 9, 30);
+//  private static final double RATE_US16 = 0.0500;
+//
+//  //UST 1.75 2019-09-30 - ISIN-US912828F395
+//  private static final ZonedDateTime START_ACCRUAL_DATE_US19 = DateUtils.getUTCDate(2014, 9, 30);
+//  private static final ZonedDateTime FIRST_COUPON_DATE_US19 = DateUtils.getUTCDate(2015, 3, 31);
+//  private static final ZonedDateTime MATURITY_DATE_US19 = DateUtils.getUTCDate(2019, 9, 30);
+//  private static final double RATE_US19 = 0.0175;
+//
+//  //UST 2.375 2024-08-15 - ISIN-US912828D564
+//  private static final ZonedDateTime START_ACCRUAL_DATE_US24 = DateUtils.getUTCDate(2014, 8, 15);
+//  private static final ZonedDateTime FIRST_COUPON_DATE_US24 = DateUtils.getUTCDate(2015, 2, 15);
+//  private static final ZonedDateTime MATURITY_DATE_US24 = DateUtils.getUTCDate(2024, 8, 15);
+//  private static final double RATE_US24 = 0.02375;
 
-  //UST 1.75 2019-09-30 - ISIN-US912828F395
-  private static final ZonedDateTime START_ACCRUAL_DATE_US19 = DateUtils.getUTCDate(2014, 9, 30);
-  private static final ZonedDateTime FIRST_COUPON_DATE_US19 = DateUtils.getUTCDate(2015, 3, 31);
-  private static final ZonedDateTime MATURITY_DATE_US19 = DateUtils.getUTCDate(2019, 9, 30);
-  private static final double RATE_US19 = 0.0175;
+  //UST 0.5 2016-11-30 - US912828G468
+  private static final ZonedDateTime START_ACCRUAL_DATE_US16 = DateUtils.getUTCDate(2014, 12, 1);
+  private static final ZonedDateTime FIRST_COUPON_DATE_US16 = DateUtils.getUTCDate(2015, 05, 30);
+  private static final ZonedDateTime MATURITY_DATE_US16 = DateUtils.getUTCDate(2016, 11, 30);
+  private static final double RATE_US16 = 0.005;
 
-  //UST 2.375 2024-08-15 - ISIN-US912828D564
-  private static final ZonedDateTime START_ACCRUAL_DATE_US24 = DateUtils.getUTCDate(2014, 8, 15);
-  private static final ZonedDateTime FIRST_COUPON_DATE_US24 = DateUtils.getUTCDate(2015, 2, 15);
-  private static final ZonedDateTime MATURITY_DATE_US24 = DateUtils.getUTCDate(2024, 8, 15);
-  private static final double RATE_US24 = 0.02375;
+  //UST 0.875 2017-11-15 - US912828G203
+  private static final ZonedDateTime START_ACCRUAL_DATE_US17 = DateUtils.getUTCDate(2014, 11, 17);
+  private static final ZonedDateTime FIRST_COUPON_DATE_US17 = DateUtils.getUTCDate(2015, 05, 15);
+  private static final ZonedDateTime MATURITY_DATE_US17 = DateUtils.getUTCDate(2017, 11, 15);
+  private static final double RATE_US17 = 0.00875;
+
+  //UST 1.5 2019-11-30 - US912828G617
+  private static final ZonedDateTime START_ACCRUAL_DATE_US19 = DateUtils.getUTCDate(2014, 12, 1);
+  private static final ZonedDateTime FIRST_COUPON_DATE_US19 = DateUtils.getUTCDate(2015, 05, 30);
+  private static final ZonedDateTime MATURITY_DATE_US19 = DateUtils.getUTCDate(2019, 11, 30);
+  private static final double RATE_US19 = 0.015;
+
+  //UST 1.875 2021-11-30 - US912828G534
+  private static final ZonedDateTime START_ACCRUAL_DATE_US21 = DateUtils.getUTCDate(2014, 12, 1);
+  private static final ZonedDateTime FIRST_COUPON_DATE_US21 = DateUtils.getUTCDate(2015, 05, 30);
+  private static final ZonedDateTime MATURITY_DATE_US21 = DateUtils.getUTCDate(2021, 11, 30);
+  private static final double RATE_US21 = 0.01875;
+
+  //UST 2.25 2024-11-15 - US912828G385
+  private static final ZonedDateTime START_ACCRUAL_DATE_US24 = DateUtils.getUTCDate(2014, 11, 17);
+  private static final ZonedDateTime FIRST_COUPON_DATE_US24 = DateUtils.getUTCDate(2015, 05, 15);
+  private static final ZonedDateTime MATURITY_DATE_US24 = DateUtils.getUTCDate(2024, 11, 15);
+  private static final double RATE_US24 = 0.0225;
+
+  //UST 3 1944-11-15 - US912810RJ97
+  private static final ZonedDateTime START_ACCRUAL_DATE_US44 = DateUtils.getUTCDate(2014, 11, 17);
+  private static final ZonedDateTime FIRST_COUPON_DATE_US44 = DateUtils.getUTCDate(2015, 05, 15);
+  private static final ZonedDateTime MATURITY_DATE_US44 = DateUtils.getUTCDate(2044, 11, 15);
+  private static final double RATE_US44 = 0.003;
   
   /**
    * Returns the legal entity used for the US GOVT bonds and bills.
@@ -81,38 +117,74 @@ public class BondDataSetsUsd {
     return US_GOVT_LEGAL_ENTITY;
   }
 
-  /**
-   * Returns the definition of the UST 0.50 2016-09-30 - ISIN-US912828F478 bond security.
-   * @param notional The bond notional.
-   * @return The bond.
-   */
-  public static BondFixedSecurityDefinition bondUST_20160930(double notional) {
+  public static BondFixedSecurityDefinition bondUST_20161130(double notional) {
     return BondFixedSecurityDefinition.from(USD, START_ACCRUAL_DATE_US16, FIRST_COUPON_DATE_US16, MATURITY_DATE_US16,
-        PAYMENT_TENOR, RATE_US16, SETTLEMENT_DAYS, notional, EX_DIVIDEND_DAYS, NYC, DAY_COUNT, BUSINESS_DAY, YIELD_BOND,
-        IS_EOM, US_GOVT_LEGAL_ENTITY);
+                                            PAYMENT_TENOR, RATE_US16, SETTLEMENT_DAYS, notional, EX_DIVIDEND_DAYS, NYC, DAY_COUNT, BUSINESS_DAY, YIELD_BOND,
+                                            IS_EOM, US_GOVT_LEGAL_ENTITY);
   }
 
-  /**
-   * Returns the definition of the UST 1.75 2019-09-30 - ISIN-US912828F395 bond security.
-   * @param notional The bond notional.
-   * @return The bond.
-   */
-  public static BondFixedSecurityDefinition bondUST_20190930(double notional) {
+  public static BondFixedSecurityDefinition bondUST_20171115(double notional) {
+    return BondFixedSecurityDefinition.from(USD, START_ACCRUAL_DATE_US17, FIRST_COUPON_DATE_US17, MATURITY_DATE_US17,
+                                            PAYMENT_TENOR, RATE_US17, SETTLEMENT_DAYS, notional, EX_DIVIDEND_DAYS, NYC, DAY_COUNT, BUSINESS_DAY, YIELD_BOND,
+                                            IS_EOM, US_GOVT_LEGAL_ENTITY);
+  }
+
+  public static BondFixedSecurityDefinition bondUST_20191130(double notional) {
     return BondFixedSecurityDefinition.from(USD, START_ACCRUAL_DATE_US19, FIRST_COUPON_DATE_US19, MATURITY_DATE_US19,
-        PAYMENT_TENOR, RATE_US19, SETTLEMENT_DAYS, notional, EX_DIVIDEND_DAYS, NYC, DAY_COUNT, BUSINESS_DAY, YIELD_BOND,
-        IS_EOM, US_GOVT_LEGAL_ENTITY);
+                                            PAYMENT_TENOR, RATE_US19, SETTLEMENT_DAYS, notional, EX_DIVIDEND_DAYS, NYC, DAY_COUNT, BUSINESS_DAY, YIELD_BOND,
+                                            IS_EOM, US_GOVT_LEGAL_ENTITY);
   }
 
-  /**
-   * Returns the definition of the UST 2.375 2024-08-15 - ISIN-US912828D564 bond security.
-   * @param notional The bond notional.
-   * @return The bond.
-   */
-  public static BondFixedSecurityDefinition bondUST_20240815(double notional) {
-    return BondFixedSecurityDefinition.from(USD, START_ACCRUAL_DATE_US24, FIRST_COUPON_DATE_US24, MATURITY_DATE_US24,
-        PAYMENT_TENOR, RATE_US24, SETTLEMENT_DAYS, notional, EX_DIVIDEND_DAYS, NYC, DAY_COUNT, BUSINESS_DAY, YIELD_BOND,
-        IS_EOM, US_GOVT_LEGAL_ENTITY);
+  public static BondFixedSecurityDefinition bondUST_20211130(double notional) {
+    return BondFixedSecurityDefinition.from(USD, START_ACCRUAL_DATE_US21, FIRST_COUPON_DATE_US21, MATURITY_DATE_US21,
+                                            PAYMENT_TENOR, RATE_US21, SETTLEMENT_DAYS, notional, EX_DIVIDEND_DAYS, NYC, DAY_COUNT, BUSINESS_DAY, YIELD_BOND,
+                                            IS_EOM, US_GOVT_LEGAL_ENTITY);
   }
+
+  public static BondFixedSecurityDefinition bondUST_20241115(double notional) {
+    return BondFixedSecurityDefinition.from(USD, START_ACCRUAL_DATE_US24, FIRST_COUPON_DATE_US24, MATURITY_DATE_US24,
+                                            PAYMENT_TENOR, RATE_US24, SETTLEMENT_DAYS, notional, EX_DIVIDEND_DAYS, NYC, DAY_COUNT, BUSINESS_DAY, YIELD_BOND,
+                                            IS_EOM, US_GOVT_LEGAL_ENTITY);
+  }
+
+  public static BondFixedSecurityDefinition bondUST_20441115(double notional) {
+    return BondFixedSecurityDefinition.from(USD, START_ACCRUAL_DATE_US44, FIRST_COUPON_DATE_US44, MATURITY_DATE_US44,
+                                            PAYMENT_TENOR, RATE_US44, SETTLEMENT_DAYS, notional, EX_DIVIDEND_DAYS, NYC, DAY_COUNT, BUSINESS_DAY, YIELD_BOND,
+                                            IS_EOM, US_GOVT_LEGAL_ENTITY);
+  }
+
+//  /**
+//   * Returns the definition of the UST 0.50 2016-09-30 - ISIN-US912828F478 bond security.
+//   * @param notional The bond notional.
+//   * @return The bond.
+//   */
+//  public static BondFixedSecurityDefinition bondUST_20160930(double notional) {
+//    return BondFixedSecurityDefinition.from(USD, START_ACCRUAL_DATE_US16, FIRST_COUPON_DATE_US16, MATURITY_DATE_US16,
+//        PAYMENT_TENOR, RATE_US16, SETTLEMENT_DAYS, notional, EX_DIVIDEND_DAYS, NYC, DAY_COUNT, BUSINESS_DAY, YIELD_BOND,
+//        IS_EOM, US_GOVT_LEGAL_ENTITY);
+//  }
+//
+//  /**
+//   * Returns the definition of the UST 1.75 2019-09-30 - ISIN-US912828F395 bond security.
+//   * @param notional The bond notional.
+//   * @return The bond.
+//   */
+//  public static BondFixedSecurityDefinition bondUST_20190930(double notional) {
+//    return BondFixedSecurityDefinition.from(USD, START_ACCRUAL_DATE_US19, FIRST_COUPON_DATE_US19, MATURITY_DATE_US19,
+//        PAYMENT_TENOR, RATE_US19, SETTLEMENT_DAYS, notional, EX_DIVIDEND_DAYS, NYC, DAY_COUNT, BUSINESS_DAY, YIELD_BOND,
+//        IS_EOM, US_GOVT_LEGAL_ENTITY);
+//  }
+//
+//  /**
+//   * Returns the definition of the UST 2.375 2024-08-15 - ISIN-US912828D564 bond security.
+//   * @param notional The bond notional.
+//   * @return The bond.
+//   */
+//  public static BondFixedSecurityDefinition bondUST_20240815(double notional) {
+//    return BondFixedSecurityDefinition.from(USD, START_ACCRUAL_DATE_US24, FIRST_COUPON_DATE_US24, MATURITY_DATE_US24,
+//        PAYMENT_TENOR, RATE_US24, SETTLEMENT_DAYS, notional, EX_DIVIDEND_DAYS, NYC, DAY_COUNT, BUSINESS_DAY, YIELD_BOND,
+//        IS_EOM, US_GOVT_LEGAL_ENTITY);
+//  }
 
   /** =====     Bills     ===== */
   
