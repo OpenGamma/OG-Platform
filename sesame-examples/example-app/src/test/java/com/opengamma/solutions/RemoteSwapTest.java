@@ -35,7 +35,6 @@ import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.ResultTestUtils;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
@@ -393,111 +392,111 @@ public class RemoteSwapTest {
   public void testBuckedPV01() {
     // TODO: test results value
     for (ResultRow result : _vanillaResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(1).getResult());
+      assertSuccess(result.get(1).getResult());
     }
     for (ResultRow result : _spreadResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(1).getResult());
+      assertSuccess(result.get(1).getResult());
     }
     for (ResultRow result : _fixingResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(1).getResult());
+      assertSuccess(result.get(1).getResult());
     }
     for (ResultRow result : _compoundingResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(1).getResult());
+      assertSuccess(result.get(1).getResult());
     }
     for (ResultRow result : _xccyResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(1).getResult());
+      assertSuccess(result.get(1).getResult());
     }
     for (ResultRow result : _stubResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(1).getResult());
+      assertSuccess(result.get(1).getResult());
     }
     for (ResultRow result : _feesResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(1).getResult());
+      assertSuccess(result.get(1).getResult());
     }
     for (ResultRow result : _singleLegResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(1).getResult());
+      assertSuccess(result.get(1).getResult());
     }
     for (ResultRow result : _zeroCouponResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(1).getResult());
+      assertSuccess(result.get(1).getResult());
     }
     for (ResultRow result : _iborCompoundingResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(1).getResult());
+      assertSuccess(result.get(1).getResult());
     }
     for (ResultRow result : _notionalExchangeResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(1).getResult());
+      assertSuccess(result.get(1).getResult());
     }
   }
 
   @Test
   public void testPayLegCashFlows() {
     for (ResultRow result : _vanillaResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(2).getResult());
+      assertSuccess(result.get(2).getResult());
     }
     for (ResultRow result : _spreadResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(2).getResult());
+      assertSuccess(result.get(2).getResult());
     }
     for (ResultRow result : _fixingResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(2).getResult());
+      assertSuccess(result.get(2).getResult());
     }
     for (ResultRow result : _compoundingResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(2).getResult());
+      assertSuccess(result.get(2).getResult());
     }
     for (ResultRow result : _xccyResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(2).getResult());
+      assertSuccess(result.get(2).getResult());
     }
     for (ResultRow result : _stubResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(2).getResult());
+      assertSuccess(result.get(2).getResult());
     }
     for (ResultRow result : _feesResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(2).getResult());
+      assertSuccess(result.get(2).getResult());
     }
     for (ResultRow result : _zeroCouponResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(2).getResult());
+      assertSuccess(result.get(2).getResult());
     }
     for (ResultRow result : _iborCompoundingResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(2).getResult());
+      assertSuccess(result.get(2).getResult());
     }
     for (ResultRow result : _notionalExchangeResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(2).getResult());
+      assertSuccess(result.get(2).getResult());
     }
     for (ResultRow result : _singleLegResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(2).getResult());
+      assertSuccess(result.get(2).getResult());
     }
   }
 
   @Test
   public void testReceiveLegCashFlows() {
     for (ResultRow result : _vanillaResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(3).getResult());
+      assertSuccess(result.get(3).getResult());
     }
     for (ResultRow result : _spreadResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(3).getResult());
+      assertSuccess(result.get(3).getResult());
     }
     for (ResultRow result : _fixingResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(3).getResult());
+      assertSuccess(result.get(3).getResult());
     }
     for (ResultRow result : _compoundingResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(3).getResult());
+      assertSuccess(result.get(3).getResult());
     }
     for (ResultRow result : _xccyResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(3).getResult());
+      assertSuccess(result.get(3).getResult());
     }
     for (ResultRow result : _stubResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(3).getResult());
+      assertSuccess(result.get(3).getResult());
     }
     for (ResultRow result : _feesResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(3).getResult());
+      assertSuccess(result.get(3).getResult());
     }
     for (ResultRow result : _zeroCouponResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(3).getResult());
+      assertSuccess(result.get(3).getResult());
     }
     for (ResultRow result : _iborCompoundingResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(3).getResult());
+      assertSuccess(result.get(3).getResult());
     }
     for (ResultRow result : _notionalExchangeResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(3).getResult());
+      assertSuccess(result.get(3).getResult());
     }
     for (ResultRow result : _singleLegResults.getRows()) {
-      ResultTestUtils.assertSuccess(result.get(3).getResult());
+      assertSuccess(result.get(3).getResult());
     }
   }
 }
