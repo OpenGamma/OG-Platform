@@ -256,7 +256,7 @@ public class BondDataSetsUsd {
   private static final ZonedDateTime START_DATE_TIPS_43 = DateUtils.getUTCDate(2013, 6, 28);
   private static final ZonedDateTime MATURITY_DATE_TIPS_43 = DateUtils.getUTCDate(2043, 2, 15);
   private static final double INDEX_START_TIPS_43 = 229.911;
-  private static final double REAL_RATE_TIPS_43 = 0.0625;
+  private static final double REAL_RATE_TIPS_43 = 0.00625;
 
 
   /**

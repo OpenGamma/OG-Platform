@@ -96,8 +96,10 @@ public class StandardDataSetsGovtUsInflationUSD {
   private static final IndexON USDFEDFUND = GENERATOR_OIS_USD.getIndex();
   
   private static final String CURVE_NAME_OIS = "USD-OIS";
-  private static final String CURVE_NAME_GVT = "USD-BLBNUSGOVT";
-  private static final String CURVE_NAME_CPI = "USD-ZCHICP";
+  private static final String CURVE_NAME_GVT = "USD-USGOVT";
+  private static final String CURVE_NAME_CPI = "USD-CPI";
+//  private static final String CURVE_NAME_GVT = "USD-BLBNUSGOVT";
+ // private static final String CURVE_NAME_CPI = "USD-ZCHICP";
   
   private static final IndexPrice USCPI = IndexPriceMaster.getInstance().getIndex("USCPI");
   private static final GeneratorPriceIndexCurve GENERATOR_PI_FIX_LIN = 
@@ -110,9 +112,13 @@ public class StandardDataSetsGovtUsInflationUSD {
   private static final Interpolator1D INTERPOLATOR_LINEAR = 
       CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, 
           Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final Interpolator1D INTERPOLATOR_EXP = 
+	      CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.EXPONENTIAL, 
+	          Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   private static final LastFixingEndTimeCalculator LAST_FIXING_END_CALCULATOR = LastFixingEndTimeCalculator.getInstance();
   public static final double[] SEASONAL_FACTORS = 
-    {1.005, 1.001, 1.01, .999, .998, .9997, 1.004, 1.006, .994, .993, .9991 };
+	    {1.00, 1.00, 1.0, 1, 1, 1, 1, 1, 1, 1, 1 };
+//    {1.005, 1.001, 1.01, .999, .998, .9997, 1.004, 1.006, .994, .993, .9991 };
   
   /** Market values for the dsc USD curve */
   private static final double[] OIS_MARKET_QUOTES = new double[] {0.0016, 0.0016,
@@ -153,9 +159,6 @@ public class StandardDataSetsGovtUsInflationUSD {
   private static final BondFixedSecurityDefinition[] BOND_SECURITY = new BondFixedSecurityDefinition[NB_BOND];
   private static final GeneratorBondFixed[] GENERATOR_BOND = new GeneratorBondFixed[NB_BOND];
   static {
-//    BOND_SECURITY[0] = BondDataSetsUsd.bondUST_20160930(NOTIONAL);
-//    BOND_SECURITY[1] = BondDataSetsUsd.bondUST_20190930(NOTIONAL);
-//    BOND_SECURITY[2] = BondDataSetsUsd.bondUST_20240815(NOTIONAL);
     BOND_SECURITY[0]=BondDataSetsUsd.bondUST_20161130(NOTIONAL);
     BOND_SECURITY[1]=BondDataSetsUsd.bondUST_20171115(NOTIONAL);
     BOND_SECURITY[2]=BondDataSetsUsd.bondUST_20191130(NOTIONAL);
@@ -168,7 +171,16 @@ public class StandardDataSetsGovtUsInflationUSD {
   }
   /** Market values for the US Govt curve */
   private static final double[] GOVT_MARKET_QUOTES = 
-      new double[] {0.00005, 0.0003, 0.0007, 0.0007, 1.0+7.0/32.0/100.0,1.0+7.0/32.0/100.0,1.0+7.0/32.0/100.0,1.0+7.0/32.0/100.0, 1.01+11.0/32.0/100.0, 1.01+10.0/32.0/100.0 };
+      new double[] {0.00005,
+	  				0.0003, 
+	  				0.0007, 
+	  				0.0007, 
+	  				1.0+7.0/32.0/100.0,     // UST_20161130
+	  				1.0+7.0/32.0/100.0,     // UST_20171115
+	  				1.0+7.0/32.0/100.0,     // UST_20191130
+	  				1.0+7.0/32.0/100.0,     // UST_20211130
+	  				1.01+11.0/32.0/100.0,   // UST_20241115
+	  				1.01+10.0/32.0/100.0 }; // UST_20441115
   /** Generators for the US Govt curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] GOVT_GENERATORS =
       new GeneratorInstrument<?>[] {GENERATOR_BILL[0], GENERATOR_BILL[1], GENERATOR_BILL[2],GENERATOR_BILL[3],
@@ -220,7 +232,11 @@ public class StandardDataSetsGovtUsInflationUSD {
   }
   /** Market values for the US TIPS curve */
   private static final double[] TIPS_MARKET_QUOTES =
-      new double[] {1.06d + 6.0d / 100.0d / 32.0d, 1.10d + 15.0d / 100.0d / 32.0d, 0.98 + 23.5d / 100.0d / 32.0d,112.11/100d };
+      new double[] {1.06d + 6.0d / 100.0d / 32.0d,  // TIPS_20160715
+	  				1.10d + 15.0d / 100.0d / 32.0d, // TIPS_20190715
+	  				0.98 + 23.5d / 100.0d / 32.0d,  // TIPS_20240715
+	  				112.11/100d }; 					// TIPS_20440215
+
   /** Attributes for the US Govt curve */
   private static final GeneratorAttributeET[] TIPS_ATTR = new GeneratorAttributeET[TIPS_MARKET_QUOTES.length];
   static {
@@ -294,7 +310,28 @@ public class StandardDataSetsGovtUsInflationUSD {
    */
   public static Pair<InflationIssuerProviderDiscount, CurveBuildingBlockBundle> getCurvesUsdOisUsGovtUsCpi(
       ZonedDateTime calibrationDate) {
-    InstrumentDefinition<?>[] oisDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
+		ZonedDateTimeDoubleTimeSeries htsCpi = StandardTimeSeriesInflationDataSets
+				.timeSeriesUsCpi(
+						calibrationDate.minusMonths(7).with(
+								TemporalAdjusters.lastDayOfMonth()),
+						calibrationDate);
+		List<ZonedDateTime> timesList = htsCpi.times();
+		List<Double> valuesList = htsCpi.values();
+		int nbTimes = timesList.size();
+		Double[] times = new Double[nbTimes];
+		Double[] values = valuesList.toArray(new Double[0]);
+		for (int i = 0; i < nbTimes; i++) {
+			times[i] = TimeCalculator.getTimeBetween(calibrationDate,
+					timesList.get(i));
+		}
+		InterpolatedDoublesCurve startCurve = new InterpolatedDoublesCurve(
+				times, values, INTERPOLATOR_STEP_FLAT, true);
+		GeneratorPriceIndexCurve generatorFixLinAnchor = new GeneratorPriceIndexCurveInterpolatedAnchor(
+				LAST_FIXING_END_CALCULATOR, INTERPOLATOR_EXP,
+				times[nbTimes - 1], 1.0);
+		GeneratorPriceIndexCurve genAdjustment = new GeneratorPriceIndexCurveMultiplyFixedCurve(
+				generatorFixLinAnchor, startCurve);
+		InstrumentDefinition<?>[] oisDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
         OIS_MARKET_QUOTES, OIS_GENERATORS, OIS_ATTR);
     InstrumentDefinition<?>[] govtDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
         GOVT_MARKET_QUOTES, GOVT_GENERATORS, GOVT_ATTR);
@@ -303,7 +340,7 @@ public class StandardDataSetsGovtUsInflationUSD {
     InstrumentDefinition<?>[][][] unitDefinition = 
         new InstrumentDefinition<?>[][][] {{oisDefinition}, {govtDefinition}, {inflDefinition}};
     GeneratorCurve[][] generator = 
-        new GeneratorCurve[][] {{GENERATOR_YD_MAT_LIN}, {GENERATOR_YD_MAT_LIN}, {GENERATOR_PI_FIX_LIN}};
+        new GeneratorCurve[][] {{GENERATOR_YD_MAT_LIN}, {GENERATOR_YD_MAT_LIN}, {genAdjustment}};
     String[][] namesCurves = new String[][] {{CURVE_NAME_OIS}, {CURVE_NAME_GVT}, {CURVE_NAME_CPI}};
     Map<IndexON, ZonedDateTimeDoubleTimeSeries> htsOn = getOnHts(calibrationDate, false);
     InflationIssuerProviderDiscount knownDataIssuer = new InflationIssuerProviderDiscount(FX_MATRIX);
@@ -347,7 +384,7 @@ public class StandardDataSetsGovtUsInflationUSD {
     // Total adjustment as multiplication between seasonal and start.
     DoublesCurve adjustmentCurve = new SpreadDoublesCurve(MultiplyCurveSpreadFunction.getInstance(), startCurve, seasonalCurve);
     GeneratorPriceIndexCurve generatorFixLinAnchor = new GeneratorPriceIndexCurveInterpolatedAnchor(
-        LAST_FIXING_END_CALCULATOR, INTERPOLATOR_LINEAR, times[nbTimes-1], 1.0);
+        LAST_FIXING_END_CALCULATOR, INTERPOLATOR_EXP, times[nbTimes-1], 1.0);
     GeneratorPriceIndexCurve genAdjustment = 
         new GeneratorPriceIndexCurveMultiplyFixedCurve(generatorFixLinAnchor, adjustmentCurve);
     InstrumentDefinition<?>[] oisDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
@@ -391,7 +428,7 @@ public class StandardDataSetsGovtUsInflationUSD {
     }
     InterpolatedDoublesCurve startCurve = new InterpolatedDoublesCurve(times, values, INTERPOLATOR_STEP_FLAT, true);
     GeneratorPriceIndexCurve generatorFixLinAnchor = new GeneratorPriceIndexCurveInterpolatedAnchor(
-        LAST_FIXING_END_CALCULATOR, INTERPOLATOR_LINEAR, times[nbTimes-1], 1.0);
+        LAST_FIXING_END_CALCULATOR, INTERPOLATOR_EXP, times[nbTimes-1], 1.0);
     GeneratorPriceIndexCurve genAdjustment = 
         new GeneratorPriceIndexCurveMultiplyFixedCurve(generatorFixLinAnchor, startCurve);
     InstrumentDefinition<?>[] oisDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
