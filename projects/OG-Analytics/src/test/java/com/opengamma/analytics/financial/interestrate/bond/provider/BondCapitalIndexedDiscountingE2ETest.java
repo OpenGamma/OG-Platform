@@ -32,6 +32,7 @@ import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsG
 import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsInflationUSD;
 import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveUSD;
 import com.opengamma.analytics.financial.interestrate.datasets.StandardTimeSeriesInflationDataSets;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.provider.calculator.generic.MarketQuoteSensitivityBlockCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.MarketQuoteInflationSensitivityBlockCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
@@ -54,6 +55,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.parameter.Paramete
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.util.export.ExportUtils;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
@@ -209,7 +211,7 @@ public class BondCapitalIndexedDiscountingE2ETest {
 	MultipleCurrencyParameterSensitivity pvpsComputed =
 			MQSBC.fromInstrument(UST_TRA, ISSUER_GOVT, BLOCK).multipliedBy(BP1);
 	System.out.println("Sensitivities (OIS/USGOVT/TIPS): " + pvpsComputed);
-  
+	ExportUtils.consolePrint(pvpsComputed,ISSUER_GOVT.getMulticurveProvider());
 	
 	// Compute accrued
 	double accruedInterest = UST_TRA.getBondStandard().getAccruedInterest()*10000000;
@@ -242,6 +244,7 @@ public class BondCapitalIndexedDiscountingE2ETest {
 	MultipleCurrencyParameterSensitivity pvpsComputed1 =
 			MQSBC.fromInstrument(UST_TRA1, ISSUER_GOVT, BLOCK).multipliedBy(BP1);
 	System.out.println("Sensitivities (OIS/USGOVT/TIPS): " + pvpsComputed1);
+	ExportUtils.consolePrint(pvpsComputed1,ISSUER_GOVT.getMulticurveProvider());
   
 	
 	// Compute accrued
@@ -275,6 +278,7 @@ public class BondCapitalIndexedDiscountingE2ETest {
 	  MultipleCurrencyParameterSensitivity pvpsComputed1 =
 			  MQISBC.fromInstrument(TIPS_24_1_TRA, INFL_ISSUER_GOVT_3, INFL_ISSUER_GOVT_3_BLOCK).multipliedBy(BP1);
 	  System.out.println("Sensitivities [OIS + USGOVT + TIPS]: " + pvpsComputed1);
+	  ExportUtils.consolePrint(pvpsComputed1,INFL_ISSUER_GOVT_3.getMulticurveProvider());
 
 
 	  // Using curves: OIS + USGOVT + USCPI
@@ -285,6 +289,7 @@ public class BondCapitalIndexedDiscountingE2ETest {
 	  MultipleCurrencyParameterSensitivity pvpsComputed2 =
 			  MQISBC.fromInstrument(TIPS_24_1_TRA, INFL_ISSUER_GOVT_1, INFL_ISSUER_GOVT_1_BLOCK).multipliedBy(BP1);
 	  System.out.println("Sensitivities [OIS + USGOVT + USCPI]: " + pvpsComputed2);
+	  ExportUtils.consolePrint(pvpsComputed2,INFL_ISSUER_GOVT_1.getMulticurveProvider());
 
 	  
 	  // Using curves: OIS + USGOVT + USCPI + SEASONALITY
@@ -295,10 +300,15 @@ public class BondCapitalIndexedDiscountingE2ETest {
 	  MultipleCurrencyParameterSensitivity pvpsComputed3 =
 			  MQISBC.fromInstrument(TIPS_24_1_TRA, INFL_ISSUER_GOVT_2, INFL_ISSUER_GOVT_2_BLOCK).multipliedBy(BP1);
 	  System.out.println("Sensitivities [OIS + USGOVT + USCPI + SEASONALITY]: " + pvpsComputed3);
+	  ExportUtils.consolePrint(pvpsComputed3,INFL_ISSUER_GOVT_1.getMulticurveProvider());
 
 		
+      // Index ratio to T+1
+	  double ratio = ((CouponFixed) TIPS_24_1_TRA.getBondTransaction().getSettlement()).getFixedRate();
+	  System.out.println("Index ratio to standard settlement date: " + ratio);
+	  
 	  // Compute accrued
-	  double accruedInterest = TIPS_24_1_TRA.getBondStandard().getAccruedInterest()*10000000;
+	  double accruedInterest = TIPS_24_1_TRA.getBondStandard().getAccruedInterest() * 10000000;
 	  System.out.println("Accrued interest to standard settlement date: " + accruedInterest);
 		
 	  // Compute real yield
@@ -328,6 +338,7 @@ public class BondCapitalIndexedDiscountingE2ETest {
 	  MultipleCurrencyParameterSensitivity pvpsComputed1 =
 			  MQISBC.fromInstrument(TIPS_43_1_TRA, INFL_ISSUER_GOVT_3, INFL_ISSUER_GOVT_3_BLOCK).multipliedBy(BP1);
 	  System.out.println("Sensitivities [OIS + USGOVT + TIPS]: " + pvpsComputed1);
+	  ExportUtils.consolePrint(pvpsComputed1,INFL_ISSUER_GOVT_3.getMulticurveProvider());
 
 
 	  // Using curves: OIS + USGOVT + USCPI
@@ -338,6 +349,7 @@ public class BondCapitalIndexedDiscountingE2ETest {
 	  MultipleCurrencyParameterSensitivity pvpsComputed2 =
 			  MQISBC.fromInstrument(TIPS_43_1_TRA, INFL_ISSUER_GOVT_1, INFL_ISSUER_GOVT_1_BLOCK).multipliedBy(BP1);
 	  System.out.println("Sensitivities [OIS + USGOVT + USCPI]: " + pvpsComputed2);
+	  ExportUtils.consolePrint(pvpsComputed2,INFL_ISSUER_GOVT_1.getMulticurveProvider());
 
 	  
 	  // Using curves: OIS + USGOVT + USCPI + SEASONALITY
@@ -348,8 +360,13 @@ public class BondCapitalIndexedDiscountingE2ETest {
 	  MultipleCurrencyParameterSensitivity pvpsComputed3 =
 			  MQISBC.fromInstrument(TIPS_43_1_TRA, INFL_ISSUER_GOVT_2, INFL_ISSUER_GOVT_2_BLOCK).multipliedBy(BP1);
 	  System.out.println("Sensitivities [OIS + USGOVT + USCPI + SEASONALITY]: " + pvpsComputed3);
+	  ExportUtils.consolePrint(pvpsComputed3,INFL_ISSUER_GOVT_2.getMulticurveProvider());
 	  
 		
+      // Index ratio to T+1
+	  double ratio = ((CouponFixed) TIPS_43_1_TRA.getBondTransaction().getSettlement()).getFixedRate();
+	  System.out.println("Index ratio to standard settlement date: " + ratio);
+	  
 	  // Compute accrued
 	  double accruedInterest = TIPS_43_1_TRA.getBondStandard().getAccruedInterest()*10000000;
 	  System.out.println("Accrued interest to standard settlement date: " + accruedInterest);
