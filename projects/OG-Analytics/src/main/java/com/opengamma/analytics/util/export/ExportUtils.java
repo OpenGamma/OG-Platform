@@ -20,6 +20,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
@@ -385,6 +386,40 @@ public class ExportUtils {
               String.valueOf(getRate(zeroRates[i], dateFractions[i], transformDfToZeroRates)) + "," +
               String.valueOf(sensitivitiesValues[i]));
         }
+      }
+    }
+  }
+
+  public static void consolePrint(MultipleCurrencyParameterSensitivity sensitivities,
+                                  InflationIssuerProviderDiscount curves) {
+    System.out.println("--- Sensitivities ---");
+    System.out.println("Curve name,Currency,Date fraction,Zero rate,PV01");
+
+    for (Map.Entry<Pair<String, Currency>, DoubleMatrix1D> sensitivity : sensitivities.getSensitivities().entrySet()) {
+      String curveName = sensitivity.getKey().getFirst();
+      Currency ccy = sensitivity.getKey().getSecond();
+      DoubleMatrix1D bucketedPv01 = sensitivity.getValue();
+      YieldAndDiscountCurve yieldAndDiscountCurve = curves.getCurve(curveName);
+      boolean transformDfToZeroRates = false;
+      Curve<Double, Double> yieldCurveValues = null;
+
+
+      if (yieldAndDiscountCurve instanceof YieldCurve) {
+        yieldCurveValues = ((YieldCurve) yieldAndDiscountCurve).getCurve();
+      } else if (yieldAndDiscountCurve instanceof DiscountCurve) {
+        yieldCurveValues = ((DiscountCurve) yieldAndDiscountCurve).getCurve();
+        transformDfToZeroRates = true;
+      }
+      Double[] dateFractions = yieldCurveValues.getXData();
+      Double[] zeroRates = yieldCurveValues.getYData();
+      double[] sensitivitiesValues = bucketedPv01.getData();
+      for (int i = 0; i < sensitivitiesValues.length; ++i) {
+        System.out.println(
+            curveName + "," +
+                ccy + "," +
+                String.valueOf(dateFractions[i]) + "," +
+                String.valueOf(getRate(zeroRates[i], dateFractions[i], transformDfToZeroRates)) + "," +
+                String.valueOf(sensitivitiesValues[i]));
       }
     }
   }

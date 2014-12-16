@@ -42,6 +42,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.index.IndexPriceMaster;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationGearingDefinition;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondCapitalIndexedDiscountingE2ETest;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.legalentity.LegalEntityShortName;
@@ -108,7 +109,8 @@ public class StandardDataSetsGovtUsInflationUSD {
       CurveCalibrationConventionDataSets.generatorYDMatLin();
   private static final Interpolator1D INTERPOLATOR_STEP_FLAT =
       CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.STEP,
-          Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+                                                              Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+                                                              Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   private static final Interpolator1D INTERPOLATOR_LINEAR = 
       CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, 
           Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
@@ -345,13 +347,79 @@ public class StandardDataSetsGovtUsInflationUSD {
     Map<IndexON, ZonedDateTimeDoubleTimeSeries> htsOn = getOnHts(calibrationDate, false);
     InflationIssuerProviderDiscount knownDataIssuer = new InflationIssuerProviderDiscount(FX_MATRIX);
     Pair<InflationIssuerProviderDiscount, CurveBuildingBlockBundle> multicurveInflation = 
-        CurveCalibrationTestsUtils.makeCurvesFromDefinitionsInflationIssuer(calibrationDate, unitDefinition, 
-            generator, namesCurves, knownDataIssuer, new CurveBuildingBlockBundle(), PSMQIssuerInflationC, 
-            PSMQCSIssuerInflationC, DSC_MAP, FWD_ON_MAP, FWD_IBOR_MAP, USD_HICP_MAP, DSC_ISS_MAP, 
-            CURVE_BUILDING_REPOSITORY_INFLATION_ISSUER, htsOn, HTS_IBOR, getCpiHts(calibrationDate));
+        CurveCalibrationTestsUtils.makeCurvesFromDefinitionsInflationIssuer(calibrationDate,
+                                                                            unitDefinition,
+                                                                            generator,
+                                                                            namesCurves,
+                                                                            knownDataIssuer,
+                                                                            new CurveBuildingBlockBundle(),
+                                                                            PSMQIssuerInflationC,
+                                                                            PSMQCSIssuerInflationC,
+                                                                            DSC_MAP,
+                                                                            FWD_ON_MAP,
+                                                                            FWD_IBOR_MAP,
+                                                                            USD_HICP_MAP,
+                                                                            DSC_ISS_MAP,
+                                                                            CURVE_BUILDING_REPOSITORY_INFLATION_ISSUER,
+                                                                            htsOn,
+                                                                            HTS_IBOR,
+                                                                            getCpiHts(calibrationDate));
+
     return multicurveInflation;
   }
-  
+
+  public static Pair<InflationIssuerProviderDiscount, CurveBuildingBlockBundle> getHedgeCurvesUsdOisUsGovtUsCpi(
+      ZonedDateTime calibrationDate) {
+    ZonedDateTimeDoubleTimeSeries htsCpi = StandardTimeSeriesInflationDataSets
+        .timeSeriesUsCpi(
+            calibrationDate.minusMonths(7).with(
+                TemporalAdjusters.lastDayOfMonth()),
+            calibrationDate);
+    List<ZonedDateTime> timesList = htsCpi.times();
+    List<Double> valuesList = htsCpi.values();
+    int nbTimes = timesList.size();
+    Double[] times = new Double[nbTimes];
+    Double[] values = valuesList.toArray(new Double[0]);
+    for (int i = 0; i < nbTimes; i++) {
+      times[i] = TimeCalculator.getTimeBetween(calibrationDate,
+                                               timesList.get(i));
+    }
+    InterpolatedDoublesCurve startCurve = new InterpolatedDoublesCurve(
+        times, values, INTERPOLATOR_STEP_FLAT, true);
+    GeneratorPriceIndexCurve generatorFixLinAnchor = new GeneratorPriceIndexCurveInterpolatedAnchor(
+        LAST_FIXING_END_CALCULATOR, INTERPOLATOR_EXP,
+        times[nbTimes - 1], 1.0);
+    GeneratorPriceIndexCurve genAdjustment = new GeneratorPriceIndexCurveMultiplyFixedCurve(
+        generatorFixLinAnchor, startCurve);
+    InstrumentDefinition<?>[] oisDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
+                                                                                        OIS_MARKET_QUOTES, OIS_GENERATORS, OIS_ATTR);
+    InstrumentDefinition<?>[] govtDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
+                                                                                         GOVT_MARKET_QUOTES, GOVT_GENERATORS, GOVT_ATTR);
+    InstrumentDefinition<?>[] inflDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
+                                                                                         CPI_USD_MARKET_QUOTES, HICP_USD_GENERATORS, HICP_USD_ATTR);
+    InstrumentDefinition<?>[][][] unitDefinition =
+        new InstrumentDefinition<?>[][][] {{oisDefinition}, {govtDefinition}, {inflDefinition}};
+    GeneratorCurve[][] generator =
+        new GeneratorCurve[][] {{GENERATOR_YD_MAT_LIN}, {GENERATOR_YD_MAT_LIN}, {genAdjustment}};
+    String[][] namesCurves = new String[][] {{CURVE_NAME_OIS}, {CURVE_NAME_GVT}, {CURVE_NAME_CPI}};
+    Map<IndexON, ZonedDateTimeDoubleTimeSeries> htsOn = getOnHts(calibrationDate, false);
+    InflationIssuerProviderDiscount knownDataIssuer = new InflationIssuerProviderDiscount(FX_MATRIX);
+    Pair<InflationIssuerProviderDiscount, CurveBuildingBlockBundle> multicurveInflation =
+        CurveCalibrationTestsUtils.makeCurvesFromDefinitionsInflationIssuer(calibrationDate, unitDefinition,
+                                                                            generator, namesCurves, knownDataIssuer, new CurveBuildingBlockBundle(), PSMQIssuerInflationC,
+                                                                            PSMQCSIssuerInflationC, DSC_MAP, FWD_ON_MAP, FWD_IBOR_MAP, USD_HICP_MAP, DSC_ISS_MAP,
+                                                                            CURVE_BUILDING_REPOSITORY_INFLATION_ISSUER, htsOn, HTS_IBOR, getCpiHts(calibrationDate));
+    InstrumentDefinition<?>[] inflSwaps= BondCapitalIndexedDiscountingE2ETest.getHedgeCurveBundle(calibrationDate,multicurveInflation.getFirst());
+    InstrumentDefinition<?>[][][] unitDefinition2 =
+        new InstrumentDefinition<?>[][][] {{oisDefinition}, {govtDefinition}, {inflSwaps}};
+    Pair<InflationIssuerProviderDiscount, CurveBuildingBlockBundle> hedgeMulticurveInflation =
+        CurveCalibrationTestsUtils.makeCurvesFromDefinitionsInflationIssuer(calibrationDate, unitDefinition2,
+                                                                            generator, namesCurves, knownDataIssuer, new CurveBuildingBlockBundle(), PSMQIssuerInflationC,
+                                                                            PSMQCSIssuerInflationC, DSC_MAP, FWD_ON_MAP, FWD_IBOR_MAP, USD_HICP_MAP, DSC_ISS_MAP,
+                                                                            CURVE_BUILDING_REPOSITORY_INFLATION_ISSUER, htsOn, HTS_IBOR, getCpiHts(calibrationDate));
+
+    return hedgeMulticurveInflation;
+  }
   /**
    * Returns a set of calibrated curve: dsc/on with OIS and US CPI with zero-coupon swaps.
    * The curves are calibrated as two units in a unique calibration.

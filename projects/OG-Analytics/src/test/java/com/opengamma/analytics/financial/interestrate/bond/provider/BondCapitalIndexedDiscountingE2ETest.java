@@ -14,12 +14,16 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondDataSetsUsd;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.index.GeneratorAttribute;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
+import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflationMaster;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflationZeroCoupon;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
@@ -27,6 +31,8 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZer
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedInflationZeroCouponDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorDelegate;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsGovtUsInflationUSD;
@@ -37,26 +43,36 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.provider.calculator.generic.MarketQuoteSensitivityBlockCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PV01CurveParametersCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.MarketQuoteInflationSensitivityBlockCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueCurveSensitivityDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflationissuer.PresentValueCurveSensitivityInflationIssuerCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflationissuer.PresentValueInflationIssuerDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueCurveSensitivityIssuerCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueIssuerCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
+import com.opengamma.analytics.financial.provider.curve.CurveCalibrationConventionDataSets;
+import com.opengamma.analytics.financial.provider.curve.CurveCalibrationTestsUtils;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationIssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.ParameterSensitivityInflationParameterCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveMatrixCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.analytics.util.export.ExportUtils;
@@ -98,6 +114,14 @@ public class BondCapitalIndexedDiscountingE2ETest {
       PresentValueIssuerCalculator.getInstance();
   private static final PresentValueDiscountingInflationCalculator PVInflC = 
       PresentValueDiscountingInflationCalculator.getInstance();
+
+
+  private static final ParSpreadInflationMarketQuoteDiscountingCalculator PSIMQDC = ParSpreadInflationMarketQuoteDiscountingCalculator.getInstance();
+  private static final ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalculator PSIMQCSDC = ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalculator.getInstance();
+
+
+  private static final PresentValueCurveSensitivityDiscountingInflationCalculator sensi =
+      PresentValueCurveSensitivityDiscountingInflationCalculator.getInstance();
   private static final PresentValueInflationIssuerDiscountingCalculator PVInflIssuerC =
       PresentValueInflationIssuerDiscountingCalculator.getInstance();
   private static final PresentValueCurveSensitivityInflationIssuerCalculator PVCSInflIssuerC =
@@ -193,6 +217,12 @@ public class BondCapitalIndexedDiscountingE2ETest {
       StandardDataSetsGovtUsInflationUSD.getCurvesUsdOisUsGovtUsTips(CALIBRATION_DATE);
   private static final InflationIssuerProviderDiscount INFL_ISSUER_GOVT_3 = INFL_ISSUER_GOVT_3_PAIR.getFirst();
   private static final CurveBuildingBlockBundle INFL_ISSUER_GOVT_3_BLOCK = INFL_ISSUER_GOVT_3_PAIR.getSecond();
+
+  // Curves for Inflation-linked Treasury bonds - OIS + USGOVT + TIPS + Hedged
+  private static final Pair<InflationIssuerProviderDiscount, CurveBuildingBlockBundle> INFL_ISSUER_GOVT_4_PAIR =
+      StandardDataSetsGovtUsInflationUSD.getHedgeCurvesUsdOisUsGovtUsCpi(CALIBRATION_DATE);
+  private static final InflationIssuerProviderDiscount INFL_ISSUER_GOVT_4 = INFL_ISSUER_GOVT_4_PAIR.getFirst();
+  private static final CurveBuildingBlockBundle INFL_ISSUER_GOVT_4_BLOCK = INFL_ISSUER_GOVT_4_PAIR.getSecond();
   
   private static final double BP1 = 1.0E-4;
   private static final double TOLERANCE_PRICE = 1.0E-8;
@@ -215,6 +245,7 @@ public class BondCapitalIndexedDiscountingE2ETest {
 	MultipleCurrencyParameterSensitivity pvpsComputed =
 			MQSBC.fromInstrument(UST_TRA, ISSUER_GOVT, BLOCK).multipliedBy(BP1);
 	System.out.println("Sensitivities (OIS/USGOVT/TIPS): " + pvpsComputed);
+    System.out.print(pvpsComputed.getAllNamesCurrency());
 	ExportUtils.consolePrint(pvpsComputed,ISSUER_GOVT.getMulticurveProvider());
 	
 	// Compute accrued
@@ -282,8 +313,17 @@ public class BondCapitalIndexedDiscountingE2ETest {
 	  MultipleCurrencyParameterSensitivity pvpsComputed1 =
 			  MQISBC.fromInstrument(TIPS_24_1_TRA, INFL_ISSUER_GOVT_3, INFL_ISSUER_GOVT_3_BLOCK).multipliedBy(BP1);
 	  System.out.println("Sensitivities [OIS + USGOVT + TIPS]: " + pvpsComputed1);
-	  ExportUtils.consolePrint(pvpsComputed1,INFL_ISSUER_GOVT_3.getMulticurveProvider());
-	  
+	  ExportUtils.consolePrint(pvpsComputed1,INFL_ISSUER_GOVT_3);
+
+    // Using curves: OIS + USGOVT + TIPS + Hedged
+    // - PV
+    MultipleCurrencyAmount pv4 = TIPS_24_1_TRA.accept(PVInflIssuerC, INFL_ISSUER_GOVT_4);
+    System.out.println("On-the-run TIPS from [OIS + USGOVT + TIPS + Hedged] PV: " + pv4.getAmount(USD));
+    // - Sensitivity
+    MultipleCurrencyParameterSensitivity pvpsComputed4 =
+        MQISBC.fromInstrument(TIPS_24_1_TRA, INFL_ISSUER_GOVT_4, INFL_ISSUER_GOVT_4_BLOCK).multipliedBy(BP1);
+    System.out.println("Sensitivities [OIS + USGOVT + TIPS + Hedged]: " + pvpsComputed1);
+    ExportUtils.consolePrint(pvpsComputed1,INFL_ISSUER_GOVT_4);
 
 	  // Using curves: OIS + USGOVT + USCPI
 	  // - PV
@@ -293,7 +333,7 @@ public class BondCapitalIndexedDiscountingE2ETest {
 	  MultipleCurrencyParameterSensitivity pvpsComputed2 =
 			  MQISBC.fromInstrument(TIPS_24_1_TRA, INFL_ISSUER_GOVT_1, INFL_ISSUER_GOVT_1_BLOCK).multipliedBy(BP1);
 	  System.out.println("Sensitivities [OIS + USGOVT + USCPI]: " + pvpsComputed2);
-	  ExportUtils.consolePrint(pvpsComputed2,INFL_ISSUER_GOVT_1.getMulticurveProvider());
+	  ExportUtils.consolePrint(pvpsComputed2,INFL_ISSUER_GOVT_1);
 
 	  
 	  // Using curves: OIS + USGOVT + USCPI + SEASONALITY
@@ -304,7 +344,7 @@ public class BondCapitalIndexedDiscountingE2ETest {
 	  MultipleCurrencyParameterSensitivity pvpsComputed3 =
 			  MQISBC.fromInstrument(TIPS_24_1_TRA, INFL_ISSUER_GOVT_2, INFL_ISSUER_GOVT_2_BLOCK).multipliedBy(BP1);
 	  System.out.println("Sensitivities [OIS + USGOVT + USCPI + SEASONALITY]: " + pvpsComputed3);
-	  ExportUtils.consolePrint(pvpsComputed3,INFL_ISSUER_GOVT_1.getMulticurveProvider());
+	  ExportUtils.consolePrint(pvpsComputed3,INFL_ISSUER_GOVT_1);
 
 		
       // Index ratio to T+1
@@ -342,7 +382,17 @@ public class BondCapitalIndexedDiscountingE2ETest {
 	  MultipleCurrencyParameterSensitivity pvpsComputed1 =
 			  MQISBC.fromInstrument(TIPS_43_1_TRA, INFL_ISSUER_GOVT_3, INFL_ISSUER_GOVT_3_BLOCK).multipliedBy(BP1);
 	  System.out.println("Sensitivities [OIS + USGOVT + TIPS]: " + pvpsComputed1);
-	  ExportUtils.consolePrint(pvpsComputed1,INFL_ISSUER_GOVT_3.getMulticurveProvider());
+	  ExportUtils.consolePrint(pvpsComputed1,INFL_ISSUER_GOVT_3);
+
+    // Using curves: OIS + USGOVT + TIPS + Hedged
+    // - PV
+    MultipleCurrencyAmount pv4 = TIPS_43_1_TRA.accept(PVInflIssuerC, INFL_ISSUER_GOVT_4);
+    System.out.println("Off-the-run TIPS from [OIS + USGOVT + TIPS + Hedged] PV: " + pv4.getAmount(USD));
+    // - Sensitivity
+    MultipleCurrencyParameterSensitivity pvpsComputed4 =
+        MQISBC.fromInstrument(TIPS_43_1_TRA, INFL_ISSUER_GOVT_4, INFL_ISSUER_GOVT_4_BLOCK).multipliedBy(BP1);
+    System.out.println("Sensitivities [OIS + USGOVT + TIPS + Hedged]: " + pvpsComputed4);
+    ExportUtils.consolePrint(pvpsComputed1,INFL_ISSUER_GOVT_4);
 
 
 	  // Using curves: OIS + USGOVT + USCPI
@@ -353,7 +403,7 @@ public class BondCapitalIndexedDiscountingE2ETest {
 	  MultipleCurrencyParameterSensitivity pvpsComputed2 =
 			  MQISBC.fromInstrument(TIPS_43_1_TRA, INFL_ISSUER_GOVT_1, INFL_ISSUER_GOVT_1_BLOCK).multipliedBy(BP1);
 	  System.out.println("Sensitivities [OIS + USGOVT + USCPI]: " + pvpsComputed2);
-	  ExportUtils.consolePrint(pvpsComputed2,INFL_ISSUER_GOVT_1.getMulticurveProvider());
+	  ExportUtils.consolePrint(pvpsComputed2,INFL_ISSUER_GOVT_1);
 
 	  
 	  // Using curves: OIS + USGOVT + USCPI + SEASONALITY
@@ -364,7 +414,7 @@ public class BondCapitalIndexedDiscountingE2ETest {
 	  MultipleCurrencyParameterSensitivity pvpsComputed3 =
 			  MQISBC.fromInstrument(TIPS_43_1_TRA, INFL_ISSUER_GOVT_2, INFL_ISSUER_GOVT_2_BLOCK).multipliedBy(BP1);
 	  System.out.println("Sensitivities [OIS + USGOVT + USCPI + SEASONALITY]: " + pvpsComputed3);
-	  ExportUtils.consolePrint(pvpsComputed3,INFL_ISSUER_GOVT_2.getMulticurveProvider());
+	  ExportUtils.consolePrint(pvpsComputed3,INFL_ISSUER_GOVT_2);
 	  
 		
       // Index ratio to T+1
@@ -385,4 +435,46 @@ public class BondCapitalIndexedDiscountingE2ETest {
 	   
   }
 
+
+
+
+
+  public static SwapFixedInflationZeroCouponDefinition[] getHedgeCurveBundle(
+      ZonedDateTime calibrationDate, ParameterInflationProviderInterface standardCurveBundle) {
+
+    /** Tenors for the HICP USD curve */
+    final Period[] HICP_USD_TENOR = new Period[] {
+        Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
+        Period.ofYears(6), Period.ofYears(7), Period.ofYears(8), Period.ofYears(9), Period.ofYears(10),
+        Period.ofYears(12), Period.ofYears(15), Period.ofYears(20), Period.ofYears(25), Period.ofYears(30) };
+    final GeneratorAttributeIR[] HICP_USD_ATTR = new GeneratorAttributeIR[HICP_USD_TENOR.length];
+
+      for (int loopins = 0; loopins < HICP_USD_TENOR.length; loopins++) {
+        HICP_USD_ATTR[loopins] = new GeneratorAttributeIR(HICP_USD_TENOR[loopins]);
+      }
+
+
+    InstrumentDerivativeVisitorAdapter<ParameterInflationProviderInterface, Double> target= PSIMQDC;;
+    InstrumentDerivativeVisitorAdapter<ParameterInflationProviderInterface, InflationSensitivity> targetSensitivity= PSIMQCSDC;
+
+    double[] initRates = new double[HICP_USD_TENOR.length];
+    double[] calcRates = new double[HICP_USD_TENOR.length];
+    double notional = 1000000;
+
+    for(int i=0;i<HICP_USD_TENOR.length;i++) {
+      SwapFixedInflationZeroCouponDefinition definition=GENERATOR_ZCINFLATION_US.generateInstrument(calibrationDate, initRates[i], notional, HICP_USD_ATTR[i]);
+      InstrumentDerivative derivative=definition.toDerivative(calibrationDate,
+                                                   new ZonedDateTimeDoubleTimeSeries[] {HTS_EMPTY, HTS_CPI});
+
+      calcRates[i]=derivative.accept(target, standardCurveBundle);
+    }
+
+    SwapFixedInflationZeroCouponDefinition[] definitions= new SwapFixedInflationZeroCouponDefinition[HICP_USD_TENOR.length];
+
+    for(int i=0;i<HICP_USD_TENOR.length;i++) {
+      definitions[i]=GENERATOR_ZCINFLATION_US.generateInstrument(calibrationDate, calcRates[i], notional, HICP_USD_ATTR[i]);
+    }
+
+    return definitions;
+  }
 }

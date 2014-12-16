@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_examples" default="compile.module.examples">
+  <dirname property="module.examples.basedir" file="${ant.file.module_examples}"/>
+  
+  <property name="module.jdk.home.examples" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.examples" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.examples" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.examples" value="-encoding UTF-8 -source 1.7 -target 1.7 ${compiler.args}"/>
+  
+  <property name="examples.output.dir" value="${module.examples.basedir}/target/classes"/>
+  <property name="examples.testoutput.dir" value="${module.examples.basedir}/target/test-classes"/>
+  
+  <path id="examples.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="examples.module.production.classpath">
+    <path refid="${module.jdk.classpath.examples}"/>
+  </path>
+  
+  <path id="examples.runtime.production.module.classpath">
+    <pathelement location="${examples.output.dir}"/>
+  </path>
+  
+  <path id="examples.module.classpath">
+    <path refid="${module.jdk.classpath.examples}"/>
+    <pathelement location="${examples.output.dir}"/>
+    <path refid="library.maven:_org.testng:testng:6.8.5.classpath"/>
+    <path refid="library.maven:_com.beust:jcommander:1.27.classpath"/>
+    <path refid="library.maven:_org.mockito:mockito-core:1.9.5.classpath"/>
+    <path refid="library.maven:_org.hamcrest:hamcrest-core:1.3.classpath"/>
+    <path refid="library.maven:_org.objenesis:objenesis:1.0.classpath"/>
+  </path>
+  
+  <path id="examples.runtime.module.classpath">
+    <pathelement location="${examples.testoutput.dir}"/>
+    <pathelement location="${examples.output.dir}"/>
+    <path refid="library.maven:_org.testng:testng:6.8.5.classpath"/>
+    <path refid="library.maven:_com.beust:jcommander:1.27.classpath"/>
+    <path refid="library.maven:_org.mockito:mockito-core:1.9.5.classpath"/>
+    <path refid="library.maven:_org.hamcrest:hamcrest-core:1.3.classpath"/>
+    <path refid="library.maven:_org.objenesis:objenesis:1.0.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.examples">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.examples">
+    <patternset refid="excluded.from.module.examples"/>
+  </patternset>
+  
+  
+  <target name="compile.module.examples" depends="compile.module.examples.production,compile.module.examples.tests" description="Compile module examples"/>
+  
+  <target name="compile.module.examples.production" depends="register.custom.compilers" description="Compile module examples; production classes"/>
+  
+  <target name="compile.module.examples.tests" depends="register.custom.compilers,compile.module.examples.production" description="compile module examples; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.examples" description="cleanup module">
+    <delete dir="${examples.output.dir}"/>
+    <delete dir="${examples.testoutput.dir}"/>
+  </target>
+</project>
