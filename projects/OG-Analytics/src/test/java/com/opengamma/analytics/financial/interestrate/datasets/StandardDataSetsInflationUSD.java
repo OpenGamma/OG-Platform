@@ -100,8 +100,8 @@ public class StandardDataSetsInflationUSD {
       CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, 
           Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   private static final LastFixingEndTimeCalculator LAST_FIXING_END_CALCULATOR = LastFixingEndTimeCalculator.getInstance();
-  public static final double[] SEASONAL_FACTORS = 
-	    {1.00, 1.00, 1.0, 1, 1, 1, 1, 1, 1, 1, 1 };
+  public static final double[] SEASONAL_FACTORS =
+      { 1.0082, 1.0026, 0.9990, 1.0018, 1.0024, 1.0004, 1.0012, 1.0012, 0.9974, 0.99795, 0.9999 };
 //    {1.005, 1.001, 1.01, .999, .998, .9997, 1.004, 1.006, .994, .993, .9991 };
   
   /** Market values for the dsc USD curve */

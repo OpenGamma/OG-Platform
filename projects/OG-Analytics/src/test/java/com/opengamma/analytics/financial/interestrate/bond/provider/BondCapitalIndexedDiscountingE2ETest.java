@@ -218,7 +218,7 @@ public class BondCapitalIndexedDiscountingE2ETest {
   private static final InflationIssuerProviderDiscount INFL_ISSUER_GOVT_3 = INFL_ISSUER_GOVT_3_PAIR.getFirst();
   private static final CurveBuildingBlockBundle INFL_ISSUER_GOVT_3_BLOCK = INFL_ISSUER_GOVT_3_PAIR.getSecond();
 
-  // Curves for Inflation-linked Treasury bonds - OIS + USGOVT + TIPS + Hedged
+  // Curves for Inflation-linked Treasury bonds - OIS + USGOVT + Hedged
   private static final Pair<InflationIssuerProviderDiscount, CurveBuildingBlockBundle> INFL_ISSUER_GOVT_4_PAIR =
       StandardDataSetsGovtUsInflationUSD.getHedgeCurvesUsdOisUsGovtUsCpi(CALIBRATION_DATE);
   private static final InflationIssuerProviderDiscount INFL_ISSUER_GOVT_4 = INFL_ISSUER_GOVT_4_PAIR.getFirst();
@@ -245,8 +245,8 @@ public class BondCapitalIndexedDiscountingE2ETest {
 	MultipleCurrencyParameterSensitivity pvpsComputed =
 			MQSBC.fromInstrument(UST_TRA, ISSUER_GOVT, BLOCK).multipliedBy(BP1);
 	System.out.println("Sensitivities (OIS/USGOVT/TIPS): " + pvpsComputed);
-    System.out.print(pvpsComputed.getAllNamesCurrency());
-	ExportUtils.consolePrint(pvpsComputed,ISSUER_GOVT.getMulticurveProvider());
+    //System.out.print(pvpsComputed.getAllNamesCurrency());
+	//ExportUtils.consolePrint(pvpsComputed,ISSUER_GOVT.getMulticurveProvider());
 	
 	// Compute accrued
 	double accruedInterest = UST_TRA.getBondStandard().getAccruedInterest()*10000000;
@@ -279,7 +279,7 @@ public class BondCapitalIndexedDiscountingE2ETest {
 	MultipleCurrencyParameterSensitivity pvpsComputed1 =
 			MQSBC.fromInstrument(UST_TRA1, ISSUER_GOVT, BLOCK).multipliedBy(BP1);
 	System.out.println("Sensitivities (OIS/USGOVT/TIPS): " + pvpsComputed1);
-	ExportUtils.consolePrint(pvpsComputed1,ISSUER_GOVT.getMulticurveProvider());
+//	ExportUtils.consolePrint(pvpsComputed1,ISSUER_GOVT.getMulticurveProvider());
   
 	
 	// Compute accrued
@@ -313,17 +313,17 @@ public class BondCapitalIndexedDiscountingE2ETest {
 	  MultipleCurrencyParameterSensitivity pvpsComputed1 =
 			  MQISBC.fromInstrument(TIPS_24_1_TRA, INFL_ISSUER_GOVT_3, INFL_ISSUER_GOVT_3_BLOCK).multipliedBy(BP1);
 	  System.out.println("Sensitivities [OIS + USGOVT + TIPS]: " + pvpsComputed1);
-	  ExportUtils.consolePrint(pvpsComputed1,INFL_ISSUER_GOVT_3);
+//	  ExportUtils.consolePrint(pvpsComputed1,INFL_ISSUER_GOVT_3);
 
     // Using curves: OIS + USGOVT + TIPS + Hedged
     // - PV
     MultipleCurrencyAmount pv4 = TIPS_24_1_TRA.accept(PVInflIssuerC, INFL_ISSUER_GOVT_4);
-    System.out.println("On-the-run TIPS from [OIS + USGOVT + TIPS + Hedged] PV: " + pv4.getAmount(USD));
+    System.out.println("On-the-run TIPS from [OIS + USGOVT + Hedged] PV: " + pv4.getAmount(USD));
     // - Sensitivity
     MultipleCurrencyParameterSensitivity pvpsComputed4 =
         MQISBC.fromInstrument(TIPS_24_1_TRA, INFL_ISSUER_GOVT_4, INFL_ISSUER_GOVT_4_BLOCK).multipliedBy(BP1);
-    System.out.println("Sensitivities [OIS + USGOVT + TIPS + Hedged]: " + pvpsComputed1);
-    ExportUtils.consolePrint(pvpsComputed1,INFL_ISSUER_GOVT_4);
+    System.out.println("Sensitivities [OIS + USGOVT + Hedged]: " + pvpsComputed1);
+//    ExportUtils.consolePrint(pvpsComputed1,INFL_ISSUER_GOVT_4);
 
 	  // Using curves: OIS + USGOVT + USCPI
 	  // - PV
@@ -333,7 +333,7 @@ public class BondCapitalIndexedDiscountingE2ETest {
 	  MultipleCurrencyParameterSensitivity pvpsComputed2 =
 			  MQISBC.fromInstrument(TIPS_24_1_TRA, INFL_ISSUER_GOVT_1, INFL_ISSUER_GOVT_1_BLOCK).multipliedBy(BP1);
 	  System.out.println("Sensitivities [OIS + USGOVT + USCPI]: " + pvpsComputed2);
-	  ExportUtils.consolePrint(pvpsComputed2,INFL_ISSUER_GOVT_1);
+//	  ExportUtils.consolePrint(pvpsComputed2,INFL_ISSUER_GOVT_1);
 
 	  
 	  // Using curves: OIS + USGOVT + USCPI + SEASONALITY
@@ -344,7 +344,7 @@ public class BondCapitalIndexedDiscountingE2ETest {
 	  MultipleCurrencyParameterSensitivity pvpsComputed3 =
 			  MQISBC.fromInstrument(TIPS_24_1_TRA, INFL_ISSUER_GOVT_2, INFL_ISSUER_GOVT_2_BLOCK).multipliedBy(BP1);
 	  System.out.println("Sensitivities [OIS + USGOVT + USCPI + SEASONALITY]: " + pvpsComputed3);
-	  ExportUtils.consolePrint(pvpsComputed3,INFL_ISSUER_GOVT_1);
+//	  ExportUtils.consolePrint(pvpsComputed3,INFL_ISSUER_GOVT_1);
 
 		
       // Index ratio to T+1
@@ -382,7 +382,7 @@ public class BondCapitalIndexedDiscountingE2ETest {
 	  MultipleCurrencyParameterSensitivity pvpsComputed1 =
 			  MQISBC.fromInstrument(TIPS_43_1_TRA, INFL_ISSUER_GOVT_3, INFL_ISSUER_GOVT_3_BLOCK).multipliedBy(BP1);
 	  System.out.println("Sensitivities [OIS + USGOVT + TIPS]: " + pvpsComputed1);
-	  ExportUtils.consolePrint(pvpsComputed1,INFL_ISSUER_GOVT_3);
+//	  ExportUtils.consolePrint(pvpsComputed1,INFL_ISSUER_GOVT_3);
 
     // Using curves: OIS + USGOVT + TIPS + Hedged
     // - PV
@@ -391,8 +391,8 @@ public class BondCapitalIndexedDiscountingE2ETest {
     // - Sensitivity
     MultipleCurrencyParameterSensitivity pvpsComputed4 =
         MQISBC.fromInstrument(TIPS_43_1_TRA, INFL_ISSUER_GOVT_4, INFL_ISSUER_GOVT_4_BLOCK).multipliedBy(BP1);
-    System.out.println("Sensitivities [OIS + USGOVT + TIPS + Hedged]: " + pvpsComputed4);
-    ExportUtils.consolePrint(pvpsComputed1,INFL_ISSUER_GOVT_4);
+    System.out.println("Sensitivities [OIS + USGOVT + Hedged]: " + pvpsComputed4);
+//    ExportUtils.consolePrint(pvpsComputed1,INFL_ISSUER_GOVT_4);
 
 
 	  // Using curves: OIS + USGOVT + USCPI
@@ -403,7 +403,7 @@ public class BondCapitalIndexedDiscountingE2ETest {
 	  MultipleCurrencyParameterSensitivity pvpsComputed2 =
 			  MQISBC.fromInstrument(TIPS_43_1_TRA, INFL_ISSUER_GOVT_1, INFL_ISSUER_GOVT_1_BLOCK).multipliedBy(BP1);
 	  System.out.println("Sensitivities [OIS + USGOVT + USCPI]: " + pvpsComputed2);
-	  ExportUtils.consolePrint(pvpsComputed2,INFL_ISSUER_GOVT_1);
+//	  ExportUtils.consolePrint(pvpsComputed2,INFL_ISSUER_GOVT_1);
 
 	  
 	  // Using curves: OIS + USGOVT + USCPI + SEASONALITY
@@ -414,7 +414,7 @@ public class BondCapitalIndexedDiscountingE2ETest {
 	  MultipleCurrencyParameterSensitivity pvpsComputed3 =
 			  MQISBC.fromInstrument(TIPS_43_1_TRA, INFL_ISSUER_GOVT_2, INFL_ISSUER_GOVT_2_BLOCK).multipliedBy(BP1);
 	  System.out.println("Sensitivities [OIS + USGOVT + USCPI + SEASONALITY]: " + pvpsComputed3);
-	  ExportUtils.consolePrint(pvpsComputed3,INFL_ISSUER_GOVT_2);
+//	  ExportUtils.consolePrint(pvpsComputed3,INFL_ISSUER_GOVT_2);
 	  
 		
       // Index ratio to T+1

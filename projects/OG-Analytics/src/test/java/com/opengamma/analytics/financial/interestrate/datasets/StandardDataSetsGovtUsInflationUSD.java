@@ -118,8 +118,8 @@ public class StandardDataSetsGovtUsInflationUSD {
 	      CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.EXPONENTIAL, 
 	          Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   private static final LastFixingEndTimeCalculator LAST_FIXING_END_CALCULATOR = LastFixingEndTimeCalculator.getInstance();
-  public static final double[] SEASONAL_FACTORS = 
-	    {1.00, 1.00, 1.0, 1, 1, 1, 1, 1, 1, 1, 1 };
+  public static final double[] SEASONAL_FACTORS =
+      { 1.0082, 1.0026, 0.9990, 1.0018, 1.0024, 1.0004, 1.0012, 1.0012, 0.9974, 0.99795, 0.9999 };
 //    {1.005, 1.001, 1.01, .999, .998, .9997, 1.004, 1.006, .994, .993, .9991 };
   
   /** Market values for the dsc USD curve */
@@ -237,7 +237,7 @@ public class StandardDataSetsGovtUsInflationUSD {
       new double[] {1.06d + 6.0d / 100.0d / 32.0d,  // TIPS_20160715
 	  				1.10d + 15.0d / 100.0d / 32.0d, // TIPS_20190715
 	  				0.98 + 23.5d / 100.0d / 32.0d,  // TIPS_20240715
-	  				112.11/100d }; 					// TIPS_20440215
+	  				135.11/100d }; 					// TIPS_20440215
 
   /** Attributes for the US Govt curve */
   private static final GeneratorAttributeET[] TIPS_ATTR = new GeneratorAttributeET[TIPS_MARKET_QUOTES.length];
@@ -370,33 +370,27 @@ public class StandardDataSetsGovtUsInflationUSD {
 
   public static Pair<InflationIssuerProviderDiscount, CurveBuildingBlockBundle> getHedgeCurvesUsdOisUsGovtUsCpi(
       ZonedDateTime calibrationDate) {
-    ZonedDateTimeDoubleTimeSeries htsCpi = StandardTimeSeriesInflationDataSets
-        .timeSeriesUsCpi(
-            calibrationDate.minusMonths(7).with(
-                TemporalAdjusters.lastDayOfMonth()),
-            calibrationDate);
+    ZonedDateTimeDoubleTimeSeries htsCpi = StandardTimeSeriesInflationDataSets.timeSeriesUsCpi(
+        calibrationDate.minusMonths(7).with(TemporalAdjusters.lastDayOfMonth()), calibrationDate);
     List<ZonedDateTime> timesList = htsCpi.times();
     List<Double> valuesList = htsCpi.values();
     int nbTimes = timesList.size();
     Double[] times = new Double[nbTimes];
     Double[] values = valuesList.toArray(new Double[0]);
-    for (int i = 0; i < nbTimes; i++) {
-      times[i] = TimeCalculator.getTimeBetween(calibrationDate,
-                                               timesList.get(i));
+    for(int i=0; i<nbTimes; i++) {
+      times[i] = TimeCalculator.getTimeBetween(calibrationDate, timesList.get(i));
     }
-    InterpolatedDoublesCurve startCurve = new InterpolatedDoublesCurve(
-        times, values, INTERPOLATOR_STEP_FLAT, true);
+    InterpolatedDoublesCurve startCurve = new InterpolatedDoublesCurve(times, values, INTERPOLATOR_STEP_FLAT, true);
     GeneratorPriceIndexCurve generatorFixLinAnchor = new GeneratorPriceIndexCurveInterpolatedAnchor(
-        LAST_FIXING_END_CALCULATOR, INTERPOLATOR_EXP,
-        times[nbTimes - 1], 1.0);
-    GeneratorPriceIndexCurve genAdjustment = new GeneratorPriceIndexCurveMultiplyFixedCurve(
-        generatorFixLinAnchor, startCurve);
+        LAST_FIXING_END_CALCULATOR, INTERPOLATOR_EXP, times[nbTimes-1], 1.0);
+    GeneratorPriceIndexCurve genAdjustment =
+        new GeneratorPriceIndexCurveMultiplyFixedCurve(generatorFixLinAnchor, startCurve);
     InstrumentDefinition<?>[] oisDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
                                                                                         OIS_MARKET_QUOTES, OIS_GENERATORS, OIS_ATTR);
     InstrumentDefinition<?>[] govtDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
                                                                                          GOVT_MARKET_QUOTES, GOVT_GENERATORS, GOVT_ATTR);
     InstrumentDefinition<?>[] inflDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
-                                                                                         CPI_USD_MARKET_QUOTES, HICP_USD_GENERATORS, HICP_USD_ATTR);
+                                                                                         TIPS_MARKET_QUOTES, TIPS_GENERATORS, TIPS_ATTR);
     InstrumentDefinition<?>[][][] unitDefinition =
         new InstrumentDefinition<?>[][][] {{oisDefinition}, {govtDefinition}, {inflDefinition}};
     GeneratorCurve[][] generator =
