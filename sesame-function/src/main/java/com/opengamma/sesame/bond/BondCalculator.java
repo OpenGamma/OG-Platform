@@ -14,7 +14,10 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Bond calculator.
+ *
+ * @deprecated use {@link DiscountingBondFn} instead of {@link DefaultBondFn}, the calculator and factory
  */
+@Deprecated
 public interface BondCalculator {
 
   /**

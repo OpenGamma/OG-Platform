@@ -18,6 +18,7 @@ import java.util.Map;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
@@ -47,20 +48,22 @@ import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
+import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.RootFinderConfiguration;
+import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
-import com.opengamma.sesame.fra.FRAFnTest;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.interestrate.InterestRateMockSources;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.time.DateUtils;
 
 @Test(groups = TestGroup.UNIT)
 public class MulticurveMarketDataBuilderTest {
@@ -96,8 +99,8 @@ public class MulticurveMarketDataBuilderTest {
     ThreadLocalServiceContext.init(serviceContext);
     ComponentMap componentMap = ComponentMap.of(components);
     MulticurveMarketDataBuilder curveBuilder = FunctionModel.build(MulticurveMarketDataBuilder.class,
-                                                                    curveBuilderConfig,
-                                                                    componentMap);
+                                                                   curveBuilderConfig,
+                                                                   componentMap);
     MarketDataEnvironment baseMarketData = InterestRateMockSources.createMarketDataEnvironment();
     FXMatrix fxMatrix = new FXMatrix();
     MarketDataEnvironment marketData = baseMarketData.toBuilder().add(FxMatrixId.of(Currency.USD), fxMatrix).build();
@@ -140,7 +143,9 @@ public class MulticurveMarketDataBuilderTest {
         FunctionModel.build(DefaultDiscountingMulticurveBundleResolverFn.class, config, ComponentMap.of(components));
     CurveConstructionConfiguration curveConfig =
         ConfigLink.resolvable("USD_ON-OIS_LIBOR3M-FRAIRS_1U", CurveConstructionConfiguration.class).resolve();
-    Result<MulticurveBundle> result = fn.generateBundle(FRAFnTest.ENV, curveConfig);
+    ZonedDateTime valuationTime = DateUtils.getUTCDate(2014, 1, 22);
+    Environment env = new SimpleEnvironment(valuationTime, createMarketDataBundle());
+    Result<MulticurveBundle> result = fn.generateBundle(env, curveConfig);
     MulticurveBundle curveBundle2 = result.getValue();
 
     assertEquals(curveBundle1.getCurveBuildingBlockBundle(), curveBundle2.getCurveBuildingBlockBundle());
@@ -151,5 +156,12 @@ public class MulticurveMarketDataBuilderTest {
     assertEquals(multicurveProvider1.getForwardONCurves(), multicurveProvider2.getForwardONCurves());
     assertEquals(multicurveProvider1.getFxRates(), multicurveProvider2.getFxRates());
     assertEquals(multicurveProvider1.getAllCurveNames(), multicurveProvider2.getAllCurveNames());
+  }
+
+  private static MarketDataBundle createMarketDataBundle() {
+    MarketDataEnvironmentBuilder builder = InterestRateMockSources.createMarketDataEnvironment().toBuilder();
+    RawId liborId = RawId.of(InterestRateMockSources.LIBOR_INDEX_ID.toBundle());
+    builder.add(liborId, InterestRateMockSources.FLAT_TIME_SERIES);
+    return new MapMarketDataBundle(builder.build());
   }
 }
