@@ -8,12 +8,16 @@ package com.opengamma.sesame.server;
 import java.net.URI;
 import java.util.List;
 
+import com.opengamma.sesame.engine.Engine;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.util.rest.AbstractRemoteClient;
 
 /**
  * Function server which executes view requests RESTfully.
+ *
+ * @deprecated use {@link Engine}
  */
+@Deprecated
 public class RemoteFunctionServer extends AbstractRemoteClient implements FunctionServer {
 
   /**

@@ -46,7 +46,10 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Discounting calculator for bond.
+ *
+ * @deprecated use {@link DiscountingBondFn} instead of {@link DefaultBondFn}, the calculator and factory
  */
+@Deprecated
 public class DiscountingBondCalculator implements BondCalculator {
 
   /** Calculator for PV from curves */
