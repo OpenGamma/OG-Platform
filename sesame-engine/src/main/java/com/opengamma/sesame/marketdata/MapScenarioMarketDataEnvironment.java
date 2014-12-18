@@ -62,6 +62,14 @@ public class MapScenarioMarketDataEnvironment implements ScenarioMarketDataEnvir
   }
 
   /**
+   * Returns a builder used to create an instance of the bean.
+   * @return the builder, not null
+   */
+  public static MapScenarioMarketDataEnvironment.Builder builder() {
+    return new MapScenarioMarketDataEnvironment.Builder();
+  }
+
+  /**
    * Restricted constructor.
    * @param builder  the builder to copy from, not null
    */
@@ -95,6 +103,14 @@ public class MapScenarioMarketDataEnvironment implements ScenarioMarketDataEnvir
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Returns a builder that allows this bean to be mutated.
+   * @return the mutable builder, not null
+   */
+  public Builder toBuilder() {
+    return new Builder(this);
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -170,7 +186,7 @@ public class MapScenarioMarketDataEnvironment implements ScenarioMarketDataEnvir
     }
 
     @Override
-    public BeanBuilder<? extends MapScenarioMarketDataEnvironment> builder() {
+    public MapScenarioMarketDataEnvironment.Builder builder() {
       return new MapScenarioMarketDataEnvironment.Builder();
     }
 
@@ -218,7 +234,7 @@ public class MapScenarioMarketDataEnvironment implements ScenarioMarketDataEnvir
   /**
    * The bean-builder for {@code MapScenarioMarketDataEnvironment}.
    */
-  private static class Builder extends DirectFieldsBeanBuilder<MapScenarioMarketDataEnvironment> {
+  public static class Builder extends DirectFieldsBeanBuilder<MapScenarioMarketDataEnvironment> {
 
     private Map<String, MarketDataEnvironment> _data = new HashMap<String, MarketDataEnvironment>();
 
@@ -226,6 +242,14 @@ public class MapScenarioMarketDataEnvironment implements ScenarioMarketDataEnvir
      * Restricted constructor.
      */
     protected Builder() {
+    }
+
+    /**
+     * Restricted copy constructor.
+     * @param beanToCopy  the bean to copy from, not null
+     */
+    protected Builder(MapScenarioMarketDataEnvironment beanToCopy) {
+      this._data = new HashMap<String, MarketDataEnvironment>(beanToCopy.getData());
     }
 
     //-----------------------------------------------------------------------
@@ -279,6 +303,18 @@ public class MapScenarioMarketDataEnvironment implements ScenarioMarketDataEnvir
     @Override
     public MapScenarioMarketDataEnvironment build() {
       return new MapScenarioMarketDataEnvironment(this);
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Sets the {@code data} property in the builder.
+     * @param data  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder data(Map<String, MarketDataEnvironment> data) {
+      JodaBeanUtils.notNull(data, "data");
+      this._data = data;
+      return this;
     }
 
     //-----------------------------------------------------------------------
