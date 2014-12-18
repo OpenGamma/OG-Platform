@@ -40,16 +40,11 @@ import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.CurveDefinitionCurveLabellingFn;
 import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.CurveLabellingFn;
-import com.opengamma.sesame.CurveSelectorFn;
-import com.opengamma.sesame.CurveSelectorMulticurveBundleFn;
 import com.opengamma.sesame.DefaultCurrencyPairsFn;
 import com.opengamma.sesame.DefaultCurveDefinitionFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
-import com.opengamma.sesame.DefaultFixingsFn;
-import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.FXMatrixFn;
-import com.opengamma.sesame.FixingsFn;
 import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.CalculationArguments;
@@ -140,13 +135,10 @@ public class RemoteComponentSwapTest {
                 InterestRateSwapCalculatorFactory.class, DiscountingInterestRateSwapCalculatorFactory.class,
                 InterestRateSwapCalculator.class, DiscountingInterestRateSwapCalculator.class,
                 FXMatrixFn.class, DefaultFXMatrixFn.class,
-                DiscountingMulticurveCombinerFn.class, CurveSelectorMulticurveBundleFn.class,
                 CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
                 InterestRateSwapConverterFn.class, DefaultInterestRateSwapConverterFn.class,
                 CurveLabellingFn.class, CurveDefinitionCurveLabellingFn.class,
-                CurveSelectorFn.class, MarketExposureSelector.class,
                 HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
-                FixingsFn.class, DefaultFixingsFn.class,
                 MarketDataFn.class, DefaultMarketDataFn.class));
   }
 

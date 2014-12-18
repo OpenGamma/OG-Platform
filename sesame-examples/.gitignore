@@ -24,6 +24,7 @@ foo~
 build.number
 javadoc-data.json
 *.pyc
+*/web-engine/*
 
 # IntelliJ config files
 *.iws

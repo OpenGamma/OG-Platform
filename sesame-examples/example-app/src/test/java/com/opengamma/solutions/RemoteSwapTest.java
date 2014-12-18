@@ -18,11 +18,13 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.link.ConfigLink;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.RemoteMarketDataSnapshotSource;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.currency.CurrencyMatrix;
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.CalculationArguments;
@@ -66,11 +68,16 @@ public class RemoteSwapTest {
   @BeforeClass
   public void setUp() {
     String property = System.getProperty("server.url");
-    String url = property == null ? "http://localhost:8080/jax" : property;
+    String url = property == null ? "http://localhost:8080/jax/" : property;
+
+    RemoteMarketDataSnapshotSource snapshotSource =
+        new RemoteMarketDataSnapshotSource(URI.create(url + "components/MarketDataSnapshotSource/default/"));
+    ManageableMarketDataSnapshot snapshot = snapshotSource.getSingle(ManageableMarketDataSnapshot.class,
+                                                                     "USD_GBP_XCcy_Integration",
+                                                                     VersionCorrection.LATEST);
 
     Engine engine = new RemoteEngine(URI.create(url));
-    UniqueId snapshotId = UniqueId.of("DbSnp", "1000");
-    MarketDataSpecification marketDataSpec = UserMarketDataSpecification.of(snapshotId);
+    MarketDataSpecification marketDataSpec = UserMarketDataSpecification.of(snapshot.getUniqueId());
     CalculationArguments args =
         CalculationArguments.builder()
             .marketDataSpecification(marketDataSpec)
@@ -94,7 +101,7 @@ public class RemoteSwapTest {
     _singleLegResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.SINGLE_LEG_INPUT);
     _zeroCouponResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.ZERO_COUPON_COMPOUNDING_INPUT);
     _iborCompoundingResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.IBOR_COMPOUNDING_INPUT);
-    _notionalExchangeResults = engine.runView(viewConfig, args, env,RemoteViewSwapUtils.NOTIONAL_EXCHANGE_INPUT);
+    _notionalExchangeResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.NOTIONAL_EXCHANGE_INPUT);
   }
 
   private ViewConfig createViewConfig() {

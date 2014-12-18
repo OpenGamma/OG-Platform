@@ -12,8 +12,8 @@
             <Value type="string">US0006M Index</Value>
          </ID>
       </externalIdBundle>
-      <name type="string">PX_LAST US0006M Index</name>
-      <dataField type="string">PX_LAST</dataField>
+      <name type="string">Market_Value US0006M Index</name>
+      <dataField type="string">Market_Value</dataField>
       <dataSource type="string">BLOOMBERG</dataSource>
       <dataProvider type="string">DEFAULT</dataProvider>
       <observationTime type="string">DEFAULT</observationTime>
