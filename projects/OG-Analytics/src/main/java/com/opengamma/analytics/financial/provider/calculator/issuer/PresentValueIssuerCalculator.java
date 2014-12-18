@@ -65,10 +65,6 @@ public final class PresentValueIssuerCalculator extends InstrumentDerivativeVisi
   private static final BondTransactionDiscountingMethod METHOD_BOND_TR = BondTransactionDiscountingMethod.getInstance();
   /** Method for bond future transactions */
   private static final BondFuturesTransactionDiscountingMethod METHOD_BNDFUT_TRA = BondFuturesTransactionDiscountingMethod.getInstance();
-  /** Method for bond Total Return Swap */
-  private static final BondTotalReturnSwapDiscountingMethod METHOD_TRS_BND = BondTotalReturnSwapDiscountingMethod.getInstance();
-  /** Method for bill Total Return Swap */
-  private static final BillTotalReturnSwapDiscountingMethod METHOD_TRS_BILL = BillTotalReturnSwapDiscountingMethod.getInstance();
 
   //     -----     Deposit     -----
 
@@ -120,12 +116,16 @@ public final class PresentValueIssuerCalculator extends InstrumentDerivativeVisi
 
   @Override
   public MultipleCurrencyAmount visitBondTotalReturnSwap(final BondTotalReturnSwap trs, final ParameterIssuerProviderInterface issuercurves) {
-    return METHOD_TRS_BND.presentValue(trs, issuercurves.getIssuerProvider());
+    // do not convert BondTotalReturnSwapDiscountingMethod.getInstance() to a static constant
+    // doing so creates a cycle in static constants
+    return BondTotalReturnSwapDiscountingMethod.getInstance().presentValue(trs, issuercurves.getIssuerProvider());
   }
 
   @Override
   public MultipleCurrencyAmount visitBillTotalReturnSwap(final BillTotalReturnSwap trs, final ParameterIssuerProviderInterface issuercurves) {
-    return METHOD_TRS_BILL.presentValue(trs, issuercurves.getIssuerProvider());
+    // do not convert BillTotalReturnSwapDiscountingMethod.getInstance() to a static constant
+    // doing so creates a cycle in static constants
+    return BillTotalReturnSwapDiscountingMethod.getInstance().presentValue(trs, issuercurves.getIssuerProvider());
   }
 
 }

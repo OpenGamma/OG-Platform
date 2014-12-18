@@ -40,10 +40,6 @@ public final class FuturesPriceMulticurveCalculator extends InstrumentDerivative
   private FuturesPriceMulticurveCalculator() {
   }
 
-  /** Implementation note: The pricing of some futures is done by calling the PresentValueDiscountingCalculator on the underlying. 
-   *    The present value calculator refers to the futures calculator, that creates a circular reference of static methods.              */
-  private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
-
   //     -----     Futures     -----
 
   @Override
@@ -85,7 +81,9 @@ public final class FuturesPriceMulticurveCalculator extends InstrumentDerivative
   public Double visitSwapFuturesPriceDeliverableSecurity(final SwapFuturesPriceDeliverableSecurity futures, final ParameterProviderInterface multicurve) {
     ArgumentChecker.notNull(futures, "futures");
     ArgumentChecker.notNull(multicurve, "multi-curve provider");
-    MultipleCurrencyAmount pv = futures.getUnderlyingSwap().accept(PVDC, multicurve.getMulticurveProvider());
+    // do not convert PresentValueDiscountingCalculator.getInstance() to a static constant
+    // doing so creates a cycle in static constants
+    MultipleCurrencyAmount pv = futures.getUnderlyingSwap().accept(PresentValueDiscountingCalculator.getInstance(), multicurve.getMulticurveProvider());
     return 1.0d + pv.getAmount(futures.getCurrency()) / multicurve.getMulticurveProvider().getDiscountFactor(futures.getCurrency(), futures.getDeliveryTime());
   }
 
