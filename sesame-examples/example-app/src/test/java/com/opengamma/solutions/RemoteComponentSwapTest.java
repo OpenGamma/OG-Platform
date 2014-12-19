@@ -23,6 +23,8 @@ import org.threeten.bp.Instant;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.RemoteMarketDataSnapshotSource;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
@@ -30,7 +32,7 @@ import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesResolver;
 import com.opengamma.service.ServiceContext;
@@ -86,17 +88,18 @@ public class RemoteComponentSwapTest {
   private ConfigLink<CurrencyMatrix> _currencyMatrixLink;
   private InterestRateSwapFn _swapFunction;
   private FunctionRunner _functionRunner;
+  private static String _url;
 
   @BeforeClass
   public void setUp() {
     String property = System.getProperty("server.url");
-    String url = property == null ? "http://localhost:8080/jax" : property;
+    _url = property == null ? "http://localhost:8080/jax/" : property;
 
-    URI htsResolverUri = URI.create(url + "components/HistoricalTimeSeriesResolver/shared");
+    URI htsResolverUri = URI.create(_url + "components/HistoricalTimeSeriesResolver/shared");
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
     Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
 
-    ComponentMap componentMap = ComponentMap.loadComponents(url).with(comps);
+    ComponentMap componentMap = ComponentMap.loadComponents(_url).with(comps);
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
     ServiceContext serviceContext =
         ServiceContext.of(componentMap.getComponents()).with(VersionCorrectionProvider.class, vcProvider);
@@ -145,8 +148,15 @@ public class RemoteComponentSwapTest {
   @Test(enabled = true)
   public void testSwapPV() {
     final InterestRateSwapSecurity irs = (InterestRateSwapSecurity) RemoteViewSwapUtils.VANILLA_INPUTS.get(0);
-    UniqueId snapshotId = UniqueId.of("DbSnp", "1000");
-    MarketDataSpecification marketDataSpec = UserMarketDataSpecification.of(snapshotId);
+
+    RemoteMarketDataSnapshotSource snapshotSource =
+        new RemoteMarketDataSnapshotSource(URI.create(_url + "components/MarketDataSnapshotSource/default/"));
+    ManageableMarketDataSnapshot snapshot = snapshotSource.getSingle(ManageableMarketDataSnapshot.class,
+                                                                     "GBP_Bond_Integration",
+                                                                     VersionCorrection.LATEST);
+
+    MarketDataSpecification marketDataSpec = UserMarketDataSpecification.of(snapshot.getUniqueId());
+
     CalculationArguments calculationArguments =
         CalculationArguments.builder()
             .marketDataSpecification(marketDataSpec)
