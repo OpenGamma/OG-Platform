@@ -210,6 +210,11 @@ public final class Interpolator1DFactory {
   /**Instance of log cubic spline with clamped endpoint conditions*/
   public static final LogClampedCubicSplineInterpolator1D LOG_CLAMPED_CUBIC_INSTANCE = new LogClampedCubicSplineInterpolator1D();
 
+  /**Square linear interpolation*/
+  public static final String SQUARE_LINEAR = "SquareLinear";
+  /**Instance of square linear interpolation*/
+  public static final SquareLinearInterpolator1D SQUARE_LINEAR_INSTANCE = new SquareLinearInterpolator1D();
+
   private static final Map<String, Interpolator1D> s_staticInstances;
   private static final Map<Class<?>, String> s_instanceNames;
 
@@ -306,6 +311,9 @@ public final class Interpolator1DFactory {
     instanceNames.put(LogNotAKnotCubicSplineInterpolator1D.class, LOG_NOTAKNOT_CUBIC);
     staticInstances.put(LOG_CLAMPED_CUBIC, LOG_CLAMPED_CUBIC_INSTANCE);
     instanceNames.put(LogClampedCubicSplineInterpolator1D.class, LOG_CLAMPED_CUBIC);
+
+    staticInstances.put(SQUARE_LINEAR, SQUARE_LINEAR_INSTANCE);
+    instanceNames.put(SquareLinearInterpolator1D.class, SQUARE_LINEAR);
 
     s_staticInstances = new HashMap<>(staticInstances);
     s_instanceNames = new HashMap<>(instanceNames);
