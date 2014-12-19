@@ -49,4 +49,63 @@ public class ArrayInterpolator1DDataBundleTest extends Interpolator1DDataBundleT
     }
   }
 
+  /**
+   * Test getLowerBoundIndex with 0.0 and -0.0
+   */
+  @Test
+  public void getLowerBoundIndexTest() {
+    double[] xValues;
+    double[] yValues = new double[] {1., 2., 3. };
+    ArrayInterpolator1DDataBundle bundle;
+
+    xValues = new double[] {1., 2., 3. };
+    bundle = new ArrayInterpolator1DDataBundle(xValues, yValues);
+    int i = bundle.getLowerBoundIndex(2.5);
+    assertEquals(1, i);
+    i = bundle.getLowerBoundIndex(2.);
+    assertEquals(1, i);
+
+    xValues = new double[] {-2., -1., 0. };
+    bundle = new ArrayInterpolator1DDataBundle(xValues, yValues);
+    i = bundle.getLowerBoundIndex(0.);
+    assertEquals(2, i);
+    i = bundle.getLowerBoundIndex(-0.);
+    assertEquals(2, i);
+
+
+    xValues = new double[] {-2., -1., -0. };
+    bundle = new ArrayInterpolator1DDataBundle(xValues, yValues);
+    i = bundle.getLowerBoundIndex(0.);
+    assertEquals(2, i);
+    i = bundle.getLowerBoundIndex(-0.);
+    assertEquals(2, i);
+
+    xValues = new double[] {-1., 0., 1. };
+    bundle = new ArrayInterpolator1DDataBundle(xValues, yValues);
+    i = bundle.getLowerBoundIndex(0.);
+    assertEquals(1, i);
+    i = bundle.getLowerBoundIndex(-0.);
+    assertEquals(1, i);
+
+    xValues = new double[] {-1., -0., 1. };
+    bundle = new ArrayInterpolator1DDataBundle(xValues, yValues);
+    i = bundle.getLowerBoundIndex(0.);
+    assertEquals(1, i);
+    i = bundle.getLowerBoundIndex(-0.);
+    assertEquals(1, i);
+
+    xValues = new double[] {0., 1., 2. };
+    bundle = new ArrayInterpolator1DDataBundle(xValues, yValues);
+    i = bundle.getLowerBoundIndex(0.);
+    assertEquals(0, i);
+    i = bundle.getLowerBoundIndex(-0.);
+    assertEquals(0, i);
+
+    xValues = new double[] {-0., 1., 2. };
+    bundle = new ArrayInterpolator1DDataBundle(xValues, yValues);
+    i = bundle.getLowerBoundIndex(0.);
+    assertEquals(0, i);
+    i = bundle.getLowerBoundIndex(-0.);
+    assertEquals(0, i);
+  }
 }
