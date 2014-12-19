@@ -114,7 +114,7 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
        These are needed as specific arguments in the creation of the ViewConfig. */
     ConfigLink<ExposureFunctions> exposureConfig =
         ConfigLink.resolvable(commandLine.getOptionValue(EXPOSURE_FUNCTION), ExposureFunctions.class);
-    ConfigLink<CurrencyMatrix> currencyMatrixLink = ConfigLink.resolvable("BloombergLiveData", CurrencyMatrix.class);
+    ConfigLink<CurrencyMatrix> currencyMatrixLink = ConfigLink.resolvable("BBG-Matrix", CurrencyMatrix.class);
 
 
     /* Building the output specific request, based on a the view config, the single cycle options

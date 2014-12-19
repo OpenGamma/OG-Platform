@@ -47,6 +47,7 @@ import com.opengamma.sesame.DefaultCurveDefinitionFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.FXMatrixFn;
+import com.opengamma.sesame.FixingsFn;
 import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.CalculationArguments;
@@ -142,6 +143,7 @@ public class RemoteComponentSwapTest {
                 InterestRateSwapConverterFn.class, DefaultInterestRateSwapConverterFn.class,
                 CurveLabellingFn.class, CurveDefinitionCurveLabellingFn.class,
                 HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
+                FixingsFn.class, DefaultFXMatrixFn.class,
                 MarketDataFn.class, DefaultMarketDataFn.class));
   }
 
@@ -152,7 +154,7 @@ public class RemoteComponentSwapTest {
     RemoteMarketDataSnapshotSource snapshotSource =
         new RemoteMarketDataSnapshotSource(URI.create(_url + "components/MarketDataSnapshotSource/default/"));
     ManageableMarketDataSnapshot snapshot = snapshotSource.getSingle(ManageableMarketDataSnapshot.class,
-                                                                     "GBP_Bond_Integration",
+                                                                     "USD_GBP_XCcy_Integration",
                                                                      VersionCorrection.LATEST);
 
     MarketDataSpecification marketDataSpec = UserMarketDataSpecification.of(snapshot.getUniqueId());
