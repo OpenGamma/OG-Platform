@@ -191,6 +191,7 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
     final List<Payment> resultList = new ArrayList<>();
     for (final P payment : _payments) {
       //TODO check this
+      //TODO The comparison should be done on LocalDate and not on ZonedDateTime, to avoid jumps during the day. PLAT-6872
       if (!date.isAfter(payment.getPaymentDate())) {
         if (payment instanceof InstrumentDefinitionWithData) {
           resultList.add(((InstrumentDefinitionWithData<? extends Payment, DoubleTimeSeries<ZonedDateTime>>) payment).toDerivative(date, indexFixingTS));
