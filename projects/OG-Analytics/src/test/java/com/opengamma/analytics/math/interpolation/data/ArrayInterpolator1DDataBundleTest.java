@@ -54,12 +54,10 @@ public class ArrayInterpolator1DDataBundleTest extends Interpolator1DDataBundleT
    */
   @Test
   public void getLowerBoundIndexTest() {
-    double[] xValues;
     double[] yValues = new double[] {1., 2., 3. };
-    ArrayInterpolator1DDataBundle bundle;
 
-    xValues = new double[] {1., 2., 3. };
-    bundle = new ArrayInterpolator1DDataBundle(xValues, yValues);
+    double[] xValues = new double[] {1., 2., 3. };
+    ArrayInterpolator1DDataBundle bundle = new ArrayInterpolator1DDataBundle(xValues, yValues);
     int i = bundle.getLowerBoundIndex(2.5);
     assertEquals(1, i);
     i = bundle.getLowerBoundIndex(2.);
@@ -71,7 +69,6 @@ public class ArrayInterpolator1DDataBundleTest extends Interpolator1DDataBundleT
     assertEquals(2, i);
     i = bundle.getLowerBoundIndex(-0.);
     assertEquals(2, i);
-
 
     xValues = new double[] {-2., -1., -0. };
     bundle = new ArrayInterpolator1DDataBundle(xValues, yValues);
