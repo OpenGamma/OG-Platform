@@ -22,6 +22,7 @@ import com.opengamma.sesame.marketdata.ScenarioMarketDataEnvironment;
  * but not available in the data provided by the user.
  *
  * TODO the documentation needs to be expanded
+ * TODO asynchronous versions of the run* methods?
  */
 public interface Engine {
 

@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.marketdata;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,6 +16,7 @@ import java.util.Set;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.Lists;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.sesame.marketdata.builders.MarketDataBuilder;
@@ -34,8 +36,12 @@ public class FxMatrixMarketDataBuilder implements MarketDataBuilder {
                                                                Set<? extends MarketDataRequirement> suppliedData) {
     FxMatrixId id = (FxMatrixId) requirement.getMarketDataId();
     Set<Currency> currencies = id.getCurrencies();
+    ArrayList<Currency> currencyList = Lists.newArrayList(currencies);
+    // sort the currencies so the order is predictable. otherwise the currency pairs can be reversed between
+    // runs and the market data requested in the first won't necessarily match what's requested in the second
+    Collections.sort(currencyList);
     // arbitrarily choose the first currency as the base
-    Iterator<Currency> itr = currencies.iterator();
+    Iterator<Currency> itr = currencyList.iterator();
     Currency baseCurrency = itr.next();
     Set<MarketDataRequirement> requirements = new HashSet<>();
 
@@ -48,8 +54,10 @@ public class FxMatrixMarketDataBuilder implements MarketDataBuilder {
   }
 
   @Override
-  public Set<MarketDataRequirement> getTimeSeriesRequirements(TimeSeriesRequirement requirement,
-                                                              Set<MarketDataId<?>> suppliedData) {
+  public Set<MarketDataRequirement> getTimeSeriesRequirements(
+      TimeSeriesRequirement requirement,
+      Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> suppliedData) {
+
     // TODO implement getTimeSeriesRequirements()
     throw new UnsupportedOperationException("getTimeSeriesRequirements not implemented");
   }
@@ -71,7 +79,7 @@ public class FxMatrixMarketDataBuilder implements MarketDataBuilder {
   }
 
   @Override
-  public Map<TimeSeriesRequirement, Result<DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
+  public Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
       MarketDataBundle marketDataBundle,
       Set<TimeSeriesRequirement> requirements,
       MarketDataSource marketDataSource) {
@@ -82,19 +90,22 @@ public class FxMatrixMarketDataBuilder implements MarketDataBuilder {
 
   private Result<FXMatrix> buildFxMatrix(MarketDataBundle marketDataBundle, Set<Currency> currencies) {
     FXMatrix fxMatrix = new FXMatrix();
+    ArrayList<Currency> currencyList = Lists.newArrayList(currencies);
+    // sort the currencies so the order is predictable. otherwise the currency pairs can be reversed between
+    // runs and the market data requested in the first won't necessarily match what's requested in the second
+    Collections.sort(currencyList);
     // arbitrarily choose the first currency as the base
-    Iterator<Currency> itr = currencies.iterator();
+    Iterator<Currency> itr = currencyList.iterator();
     Currency baseCurrency = itr.next();
 
     while (itr.hasNext()) {
       Currency counterCurrency = itr.next();
-      FxRateId rateId = FxRateId.of(CurrencyPair.of(counterCurrency, baseCurrency));
+      FxRateId rateId = FxRateId.of(CurrencyPair.of(baseCurrency, counterCurrency));
       Result<Double> rate = marketDataBundle.get(rateId, Double.class);
 
       if (!rate.isSuccess()) {
         return Result.failure(rate);
       }
-      // TODO confirm this always gets the rate the right way round
       fxMatrix.addCurrency(counterCurrency, baseCurrency, rate.getValue());
     }
     return Result.success(fxMatrix);

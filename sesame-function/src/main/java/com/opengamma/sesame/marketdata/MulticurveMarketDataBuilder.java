@@ -64,8 +64,10 @@ public class MulticurveMarketDataBuilder
   }
 
   @Override
-  public Set<MarketDataRequirement> getTimeSeriesRequirements(TimeSeriesRequirement requirement,
-                                                              Set<MarketDataId<?>> suppliedData) {
+  public Set<MarketDataRequirement> getTimeSeriesRequirements(
+      TimeSeriesRequirement requirement,
+      Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> suppliedData) {
+
     // TODO implement getTimeSeriesRequirements()
     throw new UnsupportedOperationException("getTimeSeriesRequirements not implemented");
   }
@@ -87,7 +89,7 @@ public class MulticurveMarketDataBuilder
   }
 
   @Override
-  public Map<TimeSeriesRequirement, Result<DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
+  public Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
       MarketDataBundle marketDataBundle,
       Set<TimeSeriesRequirement> requirements,
       MarketDataSource marketDataSource) {

@@ -138,7 +138,9 @@ public class MarketDataEnvironmentBuilder {
    * @param timeSeries the time series
    * @return this builder
    */
-  public MarketDataEnvironmentBuilder addTimeSeries(Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> timeSeries) {
+  public MarketDataEnvironmentBuilder addTimeSeries(
+      Map<MarketDataId<?>, ? extends DateTimeSeries<LocalDate, ?>> timeSeries) {
+
     ArgumentChecker.notNull(timeSeries, "timeSeries");
     _timeSeries.putAll(timeSeries);
     return this;

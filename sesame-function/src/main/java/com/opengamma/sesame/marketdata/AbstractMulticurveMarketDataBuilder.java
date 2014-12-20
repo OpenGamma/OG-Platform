@@ -139,13 +139,13 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
 
   @Override
   public Set<MarketDataRequirement> getTimeSeriesRequirements(TimeSeriesRequirement requirement,
-                                                              Set<MarketDataId<?>> suppliedData) {
+                                                              Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> suppliedData) {
     // TODO implement getTimeSeriesRequirements()
     throw new UnsupportedOperationException("getTimeSeriesRequirements not implemented");
   }
 
   @Override
-  public Map<TimeSeriesRequirement, Result<DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
+  public Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
       MarketDataBundle marketDataBundle,
       Set<TimeSeriesRequirement> requirements,
       MarketDataSource marketDataSource) {

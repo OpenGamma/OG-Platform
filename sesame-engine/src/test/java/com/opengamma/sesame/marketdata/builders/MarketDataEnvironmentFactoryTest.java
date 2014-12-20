@@ -182,6 +182,7 @@ public class MarketDataEnvironmentFactoryTest {
 
   /**
    * tests that two time series for the same ID are correctly merged when they overlap
+   * TODO need to test this works when they're built in different phases (which hasn't been implemented yet)
    */
   @Test
   public void buildOverlappingTimeSeries() {
@@ -461,7 +462,7 @@ class RawBuilder implements MarketDataBuilder {
 
   @Override
   public Set<MarketDataRequirement> getTimeSeriesRequirements(TimeSeriesRequirement requirement,
-                                                              Set<MarketDataId<?>> suppliedData) {
+                                                              Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> suppliedData) {
     return Collections.emptySet();
   }
 
@@ -495,12 +496,12 @@ class RawBuilder implements MarketDataBuilder {
   }
 
   @Override
-  public Map<TimeSeriesRequirement, Result<DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
+  public Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
       MarketDataBundle marketDataBundle,
       Set<TimeSeriesRequirement> requirements,
       MarketDataSource marketDataSource) {
 
-    Map<TimeSeriesRequirement, Result<DateTimeSeries<LocalDate, ?>>> results = new HashMap<>();
+    Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> results = new HashMap<>();
 
     for (TimeSeriesRequirement requirement : requirements) {
       LocalDateDoubleTimeSeriesBuilder builder = ImmutableLocalDateDoubleTimeSeries.builder();
@@ -556,8 +557,10 @@ class CurveBuilder implements MarketDataBuilder {
   }
 
   @Override
-  public Set<MarketDataRequirement> getTimeSeriesRequirements(TimeSeriesRequirement requirement,
-                                                              Set<MarketDataId<?>> suppliedData) {
+  public Set<MarketDataRequirement> getTimeSeriesRequirements(
+      TimeSeriesRequirement requirement,
+      Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> suppliedData) {
+
     // TODO implement getTimeSeriesRequirements()
     throw new UnsupportedOperationException("getTimeSeriesRequirements not implemented");
   }
@@ -597,7 +600,7 @@ class CurveBuilder implements MarketDataBuilder {
   }
 
   @Override
-  public Map<TimeSeriesRequirement, Result<DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
+  public Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
       MarketDataBundle marketDataBundle,
       Set<TimeSeriesRequirement> requirements,
       MarketDataSource marketDataSource) {
@@ -622,7 +625,7 @@ class SecurityBuilder implements MarketDataBuilder {
 
   @Override
   public Set<MarketDataRequirement> getTimeSeriesRequirements(TimeSeriesRequirement requirement,
-                                                              Set<MarketDataId<?>> suppliedData) {
+                                                              Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> suppliedData) {
     // TODO implement getTimeSeriesRequirements()
     throw new UnsupportedOperationException("getTimeSeriesRequirements not implemented");
   }
@@ -646,7 +649,7 @@ class SecurityBuilder implements MarketDataBuilder {
   }
 
   @Override
-  public Map<TimeSeriesRequirement, Result<DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
+  public Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
       MarketDataBundle marketDataBundle,
       Set<TimeSeriesRequirement> requirements,
       MarketDataSource marketDataSource) {
