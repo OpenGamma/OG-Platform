@@ -128,21 +128,21 @@ public final class VersionCorrection implements ImmutableBean, Comparable<Versio
    * This parses the version-correction from the form produced by {@code toString()}.
    * It consists of 'V' followed by the version, a dot, then 'C' followed by the correction,
    * such as {@code V2011-02-01T12:30:40Z.C2011-02-01T12:30:40Z}.
-   * The text 'LATEST' is used in place of the instant for a latest version or correction.
+   * The text 'VLATEST.CLATEST' is used in place of the instant for a latest version and correction.
    * 
-   * @param str the identifier to parse, not null
+   * @param versionCorrection the identifier to parse, not null
    * @return the version-correction combination, not null
    * @throws IllegalArgumentException if the version-correction cannot be parsed
    */
   @FromString
-  public static VersionCorrection parse(String str) {
-    ArgumentChecker.notEmpty(str, "str");
-    int posC = str.indexOf(".C");
-    if (str.charAt(0) != 'V' || posC < 0) {
-      throw new IllegalArgumentException("Invalid identifier format: " + str);
+  public static VersionCorrection parse(String versionCorrection) {
+    ArgumentChecker.notEmpty(versionCorrection, "versionCorrection");
+    int posC = versionCorrection.indexOf(".C");
+    if (versionCorrection.charAt(0) != 'V' || posC < 0) {
+      throw new IllegalArgumentException("Invalid identifier format: " + versionCorrection);
     }
-    String verStr = str.substring(1, posC);
-    String corrStr = str.substring(posC + 2);
+    String verStr = versionCorrection.substring(1, posC);
+    String corrStr = versionCorrection.substring(posC + 2);
     Instant versionAsOf = parseInstantString(verStr);
     Instant correctedTo = parseInstantString(corrStr);
     return of(versionAsOf, correctedTo);
