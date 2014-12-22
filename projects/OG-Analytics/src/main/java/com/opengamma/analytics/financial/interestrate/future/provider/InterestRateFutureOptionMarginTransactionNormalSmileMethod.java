@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.interestrate.future.provider;
 
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
-import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesSmileProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesProviderInterface;
 import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -16,7 +16,8 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * The normal parameters are represented by (expiration-strike-delay) surfaces. The "delay" is the time between option expiration and future last trading date,
  * i.e. 0 for quarterly options and x for x-year mid-curve options. The future prices are computed without convexity adjustments.
  */
-public final class InterestRateFutureOptionMarginTransactionNormalSmileMethod extends InterestRateFutureOptionMarginTransactionGenericMethod<NormalSTIRFuturesSmileProviderInterface> {
+public final class InterestRateFutureOptionMarginTransactionNormalSmileMethod extends
+    InterestRateFutureOptionMarginTransactionGenericMethod<NormalSTIRFuturesProviderInterface> {
 
   /**
    * Creates the method unique instance.
@@ -54,7 +55,8 @@ public final class InterestRateFutureOptionMarginTransactionNormalSmileMethod ex
    * @param priceFuture The price of the underlying future.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValueFromFuturePrice(final InterestRateFutureOptionMarginTransaction transaction, final NormalSTIRFuturesSmileProviderInterface normalData,
+  public MultipleCurrencyAmount presentValueFromFuturePrice(
+      final InterestRateFutureOptionMarginTransaction transaction, final NormalSTIRFuturesProviderInterface normalData,
       final double priceFuture) {
     ArgumentChecker.notNull(transaction, "Transaction on option on STIR futures");
     ArgumentChecker.notNull(normalData, "Normal / multi-curves provider");
@@ -69,7 +71,8 @@ public final class InterestRateFutureOptionMarginTransactionNormalSmileMethod ex
    * @param normalData The Black volatility and multi-curves provider.
    * @return The present value curve sensitivity.
    */
-  public SurfaceValue presentValueNormalSensitivity(final InterestRateFutureOptionMarginTransaction transaction, final NormalSTIRFuturesSmileProviderInterface normalData) {
+  public SurfaceValue presentValueNormalSensitivity(final InterestRateFutureOptionMarginTransaction transaction,
+      final NormalSTIRFuturesProviderInterface normalData) {
     ArgumentChecker.notNull(transaction, "Transaction on option on STIR futures");
     ArgumentChecker.notNull(normalData, "Normal / multi-curves provider");
     SurfaceValue securitySensitivity = getSecurityMethod().priceNormalSensitivity(transaction.getUnderlyingSecurity(), normalData);

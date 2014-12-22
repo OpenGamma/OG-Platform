@@ -8,13 +8,14 @@ package com.opengamma.analytics.financial.provider.calculator.normalstirfutures;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureOptionMarginTransactionNormalSmileMethod;
-import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesSmileProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 
 /**
  * Calculator of the present value as a multiple currency amount.
  */
-public final class PresentValueCurveSensitivityNormalSTIRFuturesCalculator extends InstrumentDerivativeVisitorAdapter<NormalSTIRFuturesSmileProviderInterface, MultipleCurrencyMulticurveSensitivity> {
+public final class PresentValueCurveSensitivityNormalSTIRFuturesCalculator extends
+    InstrumentDerivativeVisitorAdapter<NormalSTIRFuturesProviderInterface, MultipleCurrencyMulticurveSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -44,7 +45,7 @@ public final class PresentValueCurveSensitivityNormalSTIRFuturesCalculator exten
 
   @Override
   public MultipleCurrencyMulticurveSensitivity visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction futures,
-      final NormalSTIRFuturesSmileProviderInterface normal) {
+      final NormalSTIRFuturesProviderInterface normal) {
     return METHOD_STRIRFUT_MARGIN.presentValueCurveSensitivity(futures, normal);
   }
 

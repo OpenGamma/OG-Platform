@@ -5,9 +5,13 @@
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 
 /**
  * 
@@ -20,6 +24,7 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessMethodE2ETest {
   private static final Interpolator1D TIME_SQUARE_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
       Interpolator1DFactory.TIME_SQUARE, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(TIME_SQUARE_FLAT, SQUARE_FLAT);
 
   private static final double[] EXPIRY;
   private static final double[] SIMPLEMONEY;
@@ -33,22 +38,52 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessMethodE2ETest {
       0.9611, 0.9265, 0.8938, 0.8630, 0.8347, 0.8089, 0.7859, 0.7659, 0.7489, 0.7351, 0.7242, 0.7161, 0.7105,
       0.9523, 0.9116, 0.8741, 0.8401, 0.8101, 0.7843, 0.7626, 0.7451, 0.7310, 0.7197, 0.7098, 0.7000, 0.6886
   };
+  private static final double[] EXPIRY_SET = new double[] {7.0 / 365.0, 14.0 / 365.0, 21.0 / 365.0, 30.0 / 365.0,
+      60.0 / 365.0, 90.0 / 365.0, 120.0 / 365.0, 180.0 / 365.0 };
+  private static final double[] MONEYNESS_SET = new double[] {-8.0E-3, -7.0E-3, -6.0E-3, -5.0E-3, -4.0E-3, -3.0E-3,
+      -2.0E-3, -1.0E-3, 0.0, 1.0E-3, 2.0E-3, 3.0E-3, 4.0E-3 };
+  private static final int NUM_EXPIRY = EXPIRY_SET.length;
+  private static final int NUM_MONEY = MONEYNESS_SET.length;
   static {
-    double[] expirySet = new double[] {7.0 / 365.0, 14.0 / 365.0, 21.0 / 365.0, 30.0 / 365.0, 60.0 / 365.0,
-        90.0 / 365.0, 120.0 / 365.0, 180.0 / 365.0 };
-    double[] moneynessSet = new double[] {-8.0E-3, -7.0E-3, -6.0E-3, -5.0E-3, -4.0E-3, -3.0E-3, -2.0E-3, -1.0E-3, 0.0,
-        1.0E-3, 2.0E-3, 3.0E-3, 4.0E-3 };
-    int nExpiry = expirySet.length;
-    int nMoney = moneynessSet.length;
-    int nTotal = nExpiry * nMoney;
+    int nTotal = NUM_EXPIRY * NUM_MONEY;
     EXPIRY = new double[nTotal];
     SIMPLEMONEY = new double[nTotal];
-    for (int i = 0; i < nExpiry; ++i) {
-      for (int j = 0; j < nMoney; ++j) {
-        EXPIRY[i * nMoney + j] = expirySet[i];
-        SIMPLEMONEY[i * nMoney + j] = moneynessSet[j];
+    for (int i = 0; i < NUM_EXPIRY; ++i) {
+      for (int j = 0; j < NUM_MONEY; ++j) {
+        EXPIRY[i * NUM_MONEY + j] = EXPIRY_SET[i];
+        SIMPLEMONEY[i * NUM_MONEY + j] = MONEYNESS_SET[j];
       }
     }
   }
+  
+  final private static InterpolatedDoublesSurface VOL_SURFACE_SIMPLEMONEY = InterpolatedDoublesSurface.from(EXPIRY,
+      SIMPLEMONEY, VOL, INTERPOLATOR_2D);
 
+  @Test
+  public void volatilitySurfaceTest() {
+    int nSample = 100;
+    double minExpiry = EXPIRY_SET[0] * 0.8;
+    double maxExpiry = EXPIRY_SET[NUM_EXPIRY - 1] * 1.2;
+    double intervalExpiry = (maxExpiry - minExpiry) / (nSample - 1.0);
+
+    double minMoney = MONEYNESS_SET[0] * 1.2;
+    double maxMoney = MONEYNESS_SET[NUM_MONEY - 1] * 1.2;
+    double intervalMoney = (maxMoney - minMoney) / (nSample - 1.0);
+
+    for (int j = 0; j < nSample; ++j) {
+      double moneyness = minMoney + intervalMoney * j;
+      System.out.print("\t" + moneyness);
+    }
+    System.out.print("\n");
+    for (int i = 0; i < nSample; ++i) {
+      double expiry = minExpiry + intervalExpiry * i;
+      System.out.print(expiry);
+      for (int j = 0; j < nSample; ++j) {
+        double moneyness = minMoney + intervalMoney * j;
+        System.out.print("\t" + VOL_SURFACE_SIMPLEMONEY.getZValue(expiry, moneyness));
+      }
+      System.out.print("\n");
+    }
+
+  }
 }
