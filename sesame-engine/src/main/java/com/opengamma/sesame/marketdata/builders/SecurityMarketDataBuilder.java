@@ -41,8 +41,10 @@ public class SecurityMarketDataBuilder implements MarketDataBuilder {
   }
 
   @Override
-  public Set<MarketDataRequirement> getTimeSeriesRequirements(TimeSeriesRequirement requirement,
-                                                              Set<MarketDataId<?>> suppliedData) {
+  public Set<MarketDataRequirement> getTimeSeriesRequirements(
+      TimeSeriesRequirement requirement,
+      Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> suppliedData) {
+
     RawId<?> rawId = rawId(requirement);
     LocalDateRange dateRange = requirement.getMarketDataTime().getDateRange();
     return ImmutableSet.<MarketDataRequirement>of(TimeSeriesRequirement.of(rawId, dateRange));
@@ -63,12 +65,13 @@ public class SecurityMarketDataBuilder implements MarketDataBuilder {
   }
 
   @Override
-  public Map<TimeSeriesRequirement, Result<DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
+  public Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
       MarketDataBundle marketDataBundle,
       Set<TimeSeriesRequirement> requirements,
       MarketDataSource marketDataSource) {
 
-    ImmutableMap.Builder<TimeSeriesRequirement, Result<DateTimeSeries<LocalDate, ?>>> results = ImmutableMap.builder();
+    ImmutableMap.Builder<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> results =
+        ImmutableMap.builder();
 
     for (TimeSeriesRequirement requirement : requirements) {
       RawId<?> rawId = rawId(requirement);

@@ -79,8 +79,7 @@ public final class MapMarketDataBundle implements MarketDataBundle, ImmutableBea
                                                       LocalDateRange dateRange) {
     DateTimeSeries<LocalDate, ?> timeSeries = _env.getTimeSeries().get(id);
 
-    // TODO should the size only be checked if the date range is non-empty?
-    if (timeSeries != null && timeSeries.size() > 0) {
+    if (timeSeries != null && !timeSeries.isEmpty()) {
       // TODO type check
       @SuppressWarnings("unchecked")
       DateTimeSeries<LocalDate, T> castTimeSeries = (DateTimeSeries<LocalDate, T>) timeSeries;

@@ -58,6 +58,8 @@ public interface MarketDataBundle {
    * @param dataType the expected type of the market data
    * @return a successful result containing the market data, or a failure result if it is unavailable or not
    *   compatible with the requested type
+   *
+   * TODO separate version for double data that returns LocalDateDoubleTimeSeries?
    */
   <T> Result<DateTimeSeries<LocalDate, T>> get(MarketDataId<?> id, Class<T> dataType, LocalDateRange dateRange);
 

@@ -76,7 +76,7 @@ public interface MarketDataBuilder {
    * @return requirements for the data needed to satisfy the requirement
    */
   Set<MarketDataRequirement> getTimeSeriesRequirements(TimeSeriesRequirement requirement,
-                                                       Set<MarketDataId<?>> suppliedData);
+                                                       Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> suppliedData);
 
   /**
    * Builds single values of market data.
@@ -108,9 +108,10 @@ public interface MarketDataBuilder {
    * @return a map of market data values keyed by ID. If a value can't be built the map will contain
    *   an entry with a failure result.
    */
-  Map<TimeSeriesRequirement, Result<DateTimeSeries<LocalDate, ?>>> buildTimeSeries(MarketDataBundle marketDataBundle,
-                                                                                   Set<TimeSeriesRequirement> requirements,
-                                                                                   MarketDataSource marketDataSource);
+  Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
+      MarketDataBundle marketDataBundle,
+      Set<TimeSeriesRequirement> requirements,
+      MarketDataSource marketDataSource);
 
   /**
    * Returns the type of market data ID this builder can handle.

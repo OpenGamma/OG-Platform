@@ -68,8 +68,9 @@ public class RawMarketDataBuilder implements MarketDataBuilder {
   }
 
   @Override
-  public Set<MarketDataRequirement> getTimeSeriesRequirements(TimeSeriesRequirement requirement,
-                                                              Set<MarketDataId<?>> suppliedData) {
+  public Set<MarketDataRequirement> getTimeSeriesRequirements(
+      TimeSeriesRequirement requirement,
+      Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> suppliedData) {
     return Collections.emptySet();
   }
 
@@ -128,12 +129,12 @@ public class RawMarketDataBuilder implements MarketDataBuilder {
   }
 
   @Override
-  public Map<TimeSeriesRequirement, Result<DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
+  public Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
       MarketDataBundle marketDataBundle,
       Set<TimeSeriesRequirement> requirements,
       MarketDataSource marketDataSource) {
 
-    Map<TimeSeriesRequirement, Result<DateTimeSeries<LocalDate, ?>>> results = new HashMap<>();
+    Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> results = new HashMap<>();
 
     for (TimeSeriesRequirement requirement : requirements) {
       RawId<?> marketDataId = (RawId<?>) requirement.getMarketDataId();

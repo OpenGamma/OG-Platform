@@ -267,13 +267,15 @@ public class MarketDataEnvironmentFactory {
       //   overlapping series for the same ID. as things stand the overlapping values would be built twice.
       //   but if the builder can see the existing series it can avoid rebuilding duplicate data.
       //   the merging logic below will ensure the correct data is created anyway, at the cost of some efficiency
-      Map<TimeSeriesRequirement, Result<DateTimeSeries<LocalDate, ?>>> timeSeriesData =
+      Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> timeSeriesData =
           dataBuilder.buildTimeSeries(marketDataBundle, timeSeriesReqsForKey, marketDataSource);
 
       // the single values that were successfully built
       Map<SingleValueRequirement, Object> singleValues = successfulSingleValues(singleValueData);
       // the time series that were successfully built
-      Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> timeSeries = successfulTimeSeries(timeSeriesData);
+      // TODO this merges time series built at the same time but not in different passes
+      //   need to include time series from the the built data too
+      Map<MarketDataId<?>, ? extends DateTimeSeries<LocalDate, ?>> timeSeries = successfulTimeSeries(timeSeriesData);
 
       // environment contains the passed in data, plus all the data built so far
       environmentBuilder.addSingleValues(singleValues).addTimeSeries(timeSeries).valuationTime(valuationTime).build();
@@ -287,13 +289,15 @@ public class MarketDataEnvironmentFactory {
    * @param timeSeriesData the results of building the time series
    * @return the time series that were successfully built
    */
-  private static Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> successfulTimeSeries(
-      Map<TimeSeriesRequirement, Result<DateTimeSeries<LocalDate, ?>>> timeSeriesData) {
+  private static Map<MarketDataId<?>, ? extends DateTimeSeries<LocalDate, ?>> successfulTimeSeries(
+      Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> timeSeriesData) {
 
     Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> timeSeries = new HashMap<>();
 
-    for (Map.Entry<TimeSeriesRequirement, Result<DateTimeSeries<LocalDate, ?>>> entry : timeSeriesData.entrySet()) {
-      Result<DateTimeSeries<LocalDate, ?>> result = entry.getValue();
+    for (Map.Entry<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> entry :
+        timeSeriesData.entrySet()) {
+
+      Result<? extends DateTimeSeries<LocalDate, ?>> result = entry.getValue();
 
       if (result.isSuccess()) {
         MarketDataId id = entry.getKey().getMarketDataId();

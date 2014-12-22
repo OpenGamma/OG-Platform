@@ -30,7 +30,7 @@ public class EmptyMarketDataFactory implements MarketDataFactory<EmptyMarketData
   /**
    * Data source that never returns any data.
    */
-  private static class DataSource implements MarketDataSource {
+  public static class DataSource implements MarketDataSource {
 
     @Override
     public Map<MarketDataRequest, Result<?>> get(Set<MarketDataRequest> requests) {
