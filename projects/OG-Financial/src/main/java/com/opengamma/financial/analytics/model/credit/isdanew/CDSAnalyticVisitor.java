@@ -14,6 +14,7 @@ import com.opengamma.financial.analytics.model.credit.IMMDateGenerator;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.businessday.BusinessDayDateUtils;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
@@ -21,6 +22,7 @@ import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.money.Currency;
 
 /**
  * Creates a {@link CDSAnalytic} object from the security
@@ -64,7 +66,19 @@ public class CDSAnalyticVisitor extends FinancialSecurityVisitorAdapter<CDSAnaly
 
   @Override
   public CDSAnalytic visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security) {
-    final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getNotional().getCurrency());
+    Calendar calendar;
+
+    if (security.getAttributes().containsKey("calendar")) {
+      String calendarOverride = security.getAttributes().get("calendar");
+      if (calendarOverride.equalsIgnoreCase("5D")) {
+        calendar = new MondayToFridayCalendar("MondayToFridayCalendar");
+      } else {
+        calendar = new HolidaySourceCalendarAdapter(_holidaySource, Currency.of(calendarOverride));
+      }
+    } else {
+      calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getNotional().getCurrency());
+    }
+
     final StubType stubType = security.getStubType().toAnalyticsType();
     final Period period = (IMMDateGenerator.isIMMDate(security.getMaturityDate())) ? getPeriodFrequency(security.getCouponFrequency()).getPeriod() :
         Period.ofMonths(6); // non IMM forced to semi annual
