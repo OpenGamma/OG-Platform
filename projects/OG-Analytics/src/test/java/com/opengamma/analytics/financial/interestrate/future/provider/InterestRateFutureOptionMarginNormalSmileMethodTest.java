@@ -21,8 +21,8 @@ import com.opengamma.analytics.financial.provider.calculator.normalstirfutures.P
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.NormalDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesSmileProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesSmileProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.normalstirfutures.NormalSTIRFuturesSensitivityFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
@@ -89,7 +89,7 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
   private static final PresentValueNormalSTIRFuturesCalculator PVNFC = PresentValueNormalSTIRFuturesCalculator.getInstance();
   private static final PresentValueCurveSensitivityNormalSTIRFuturesCalculator PVCSNFC = PresentValueCurveSensitivityNormalSTIRFuturesCalculator.getInstance();
   private static final double SHIFT = 1.0E-6;
-  private static final ParameterSensitivityParameterCalculator<NormalSTIRFuturesSmileProviderInterface> PSNFC = new ParameterSensitivityParameterCalculator<>(
+  private static final ParameterSensitivityParameterCalculator<NormalSTIRFuturesProviderInterface> PSNFC = new ParameterSensitivityParameterCalculator<>(
       PVCSNFC);
   private static final NormalSTIRFuturesSensitivityFDCalculator PSNFC_FD = new NormalSTIRFuturesSensitivityFDCalculator(PVNFC, SHIFT);
 

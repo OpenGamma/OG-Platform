@@ -15,8 +15,8 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesSmileProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesSmileProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -36,7 +36,7 @@ public class NormalSTIRFuturesSensitivityFDCalculator {
   /**
    * The value calculator.
    */
-  private final InstrumentDerivativeVisitor<NormalSTIRFuturesSmileProviderInterface, MultipleCurrencyAmount> _valueCalculator;
+  private final InstrumentDerivativeVisitor<NormalSTIRFuturesProviderInterface, MultipleCurrencyAmount> _valueCalculator;
   /**
    * The shift used for finite difference.
    */
@@ -47,7 +47,8 @@ public class NormalSTIRFuturesSensitivityFDCalculator {
    * @param valueCalculator The value calculator.
    * @param shift The shift used for finite difference.
    */
-  public NormalSTIRFuturesSensitivityFDCalculator(final InstrumentDerivativeVisitor<NormalSTIRFuturesSmileProviderInterface, MultipleCurrencyAmount> valueCalculator,
+  public NormalSTIRFuturesSensitivityFDCalculator(
+      final InstrumentDerivativeVisitor<NormalSTIRFuturesProviderInterface, MultipleCurrencyAmount> valueCalculator,
       final double shift) {
     ArgumentChecker.notNull(valueCalculator, "Calculator");
     _valueCalculator = valueCalculator;
