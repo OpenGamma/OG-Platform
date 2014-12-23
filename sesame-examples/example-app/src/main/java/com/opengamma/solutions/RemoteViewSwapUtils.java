@@ -49,12 +49,10 @@ import com.opengamma.financial.security.irs.StubCalculationMethod;
 import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.sesame.DefaultCurveNodeConverterFn;
-import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
+import com.opengamma.sesame.CurveSelector;
+import com.opengamma.sesame.CurveSelectorMulticurveBundleFn;
+import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.MarketExposureSelector;
-import com.opengamma.sesame.RootFinderConfiguration;
-import com.opengamma.sesame.component.RetrievalPeriod;
-import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.irs.DefaultInterestRateSwapConverterFn;
 import com.opengamma.sesame.irs.DiscountingInterestRateSwapCalculatorFactory;
@@ -178,25 +176,15 @@ public final class RemoteViewSwapUtils {
                         MarketExposureSelector.class,
                         argument("exposureFunctions", exposureConfig)),
                     function(
-                        RootFinderConfiguration.class,
-                        argument("rootFinderAbsoluteTolerance", 1e-10),
-                        argument("rootFinderRelativeTolerance", 1e-10),
-                        argument("rootFinderMaxIterations", 1000)),
-                    function(
-                        DefaultCurveNodeConverterFn.class,
-                        argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
-                    function(
                         DefaultHistoricalMarketDataFn.class,
                         argument("dataSource", "BLOOMBERG"),
                         argument("currencyMatrix", currencyMatrixLink)),
                     function(
                         DefaultMarketDataFn.class,
-                        argument("dataSource", "BLOOMBERG"),
-                        argument("currencyMatrix", currencyMatrixLink)),
-                    function(
-                        DefaultDiscountingMulticurveBundleFn.class,
-                        argument("impliedCurveNames", StringSet.of()))),
+                        argument("dataSource", "BLOOMBERG"))),
                 implementations(
+                    CurveSelector.class, MarketExposureSelector.class,
+                    DiscountingMulticurveCombinerFn.class, CurveSelectorMulticurveBundleFn.class,
                     InterestRateSwapFn.class, DiscountingInterestRateSwapFn.class,
                     InterestRateSwapConverterFn.class, DefaultInterestRateSwapConverterFn.class,
                     InterestRateSwapCalculatorFactory.class, DiscountingInterestRateSwapCalculatorFactory.class)));

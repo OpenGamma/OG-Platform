@@ -108,7 +108,7 @@
   </build>
 
   <properties>
-    <og.version>2.8.0-SNAPSHOT</og.version>
+    <og.version>2.9.0-SNAPSHOT</og.version>
   </properties>
 
 </project>

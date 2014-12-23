@@ -15,7 +15,6 @@ import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import java.util.List;
 
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.Period;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
@@ -28,12 +27,10 @@ import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.sesame.DefaultCurveNodeConverterFn;
-import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
+import com.opengamma.sesame.CurveSelector;
+import com.opengamma.sesame.CurveSelectorMulticurveBundleFn;
+import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.MarketExposureSelector;
-import com.opengamma.sesame.RootFinderConfiguration;
-import com.opengamma.sesame.component.RetrievalPeriod;
-import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.fra.DiscountingFRACalculatorFactory;
 import com.opengamma.sesame.fra.DiscountingFRAFn;
@@ -76,25 +73,15 @@ public final class RemoteViewFraUtils {
                         MarketExposureSelector.class,
                         argument("exposureFunctions", exposureConfig)),
                     function(
-                        RootFinderConfiguration.class,
-                        argument("rootFinderAbsoluteTolerance", 1e-10),
-                        argument("rootFinderRelativeTolerance", 1e-10),
-                        argument("rootFinderMaxIterations", 1000)),
-                    function(
-                        DefaultCurveNodeConverterFn.class,
-                        argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
-                    function(
                         DefaultHistoricalMarketDataFn.class,
                         argument("dataSource", "BLOOMBERG"),
                         argument("currencyMatrix", currencyMatrixLink)),
                     function(
                         DefaultMarketDataFn.class,
-                        argument("dataSource", "BLOOMBERG"),
-                        argument("currencyMatrix", currencyMatrixLink)),
-                    function(
-                        DefaultDiscountingMulticurveBundleFn.class,
-                        argument("impliedCurveNames", StringSet.of()))),
+                        argument("dataSource", "BLOOMBERG"))),
                 implementations(
+                    CurveSelector.class, MarketExposureSelector.class,
+                    DiscountingMulticurveCombinerFn.class, CurveSelectorMulticurveBundleFn.class,
                     FRAFn.class, DiscountingFRAFn.class,
                     FRACalculatorFactory.class, DiscountingFRACalculatorFactory.class)));
   }

@@ -75,7 +75,7 @@
         <directory>config</directory>
       </resource>
       <resource>
-        <directory>resource</directory>
+        <directory>resources</directory>
       </resource>
     </resources>
 
@@ -130,7 +130,7 @@
   </build>
 
   <properties>
-    <og.version>2.8.0-SNAPSHOT</og.version>
+    <og.version>2.9.0-SNAPSHOT</og.version>
   </properties>
 
 </project>

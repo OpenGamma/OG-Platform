@@ -42,9 +42,13 @@ import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.CurveDefinitionCurveLabellingFn;
 import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.CurveLabellingFn;
+import com.opengamma.sesame.CurveSelector;
+import com.opengamma.sesame.CurveSelectorMulticurveBundleFn;
 import com.opengamma.sesame.DefaultCurrencyPairsFn;
 import com.opengamma.sesame.DefaultCurveDefinitionFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
+import com.opengamma.sesame.DefaultFixingsFn;
+import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.FixingsFn;
@@ -134,16 +138,18 @@ public class RemoteComponentSwapTest {
                     argument("currencyMatrix", _currencyMatrixLink))),
             implementations(
                 InterestRateSwapFn.class, DiscountingInterestRateSwapFn.class,
+                CurveSelector.class, MarketExposureSelector.class,
                 CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
                 InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
                 InterestRateSwapCalculatorFactory.class, DiscountingInterestRateSwapCalculatorFactory.class,
+                DiscountingMulticurveCombinerFn.class, CurveSelectorMulticurveBundleFn.class,
                 InterestRateSwapCalculator.class, DiscountingInterestRateSwapCalculator.class,
                 FXMatrixFn.class, DefaultFXMatrixFn.class,
                 CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
                 InterestRateSwapConverterFn.class, DefaultInterestRateSwapConverterFn.class,
                 CurveLabellingFn.class, CurveDefinitionCurveLabellingFn.class,
                 HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
-                FixingsFn.class, DefaultFXMatrixFn.class,
+                FixingsFn.class, DefaultFixingsFn.class,
                 MarketDataFn.class, DefaultMarketDataFn.class));
   }
 

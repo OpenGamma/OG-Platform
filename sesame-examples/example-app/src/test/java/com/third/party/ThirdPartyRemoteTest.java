@@ -27,19 +27,24 @@ import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
-import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
+import com.opengamma.sesame.CurveSelector;
+import com.opengamma.sesame.CurveSelectorMulticurveBundleFn;
 import com.opengamma.sesame.DefaultCurveNodeConverterFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
+import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
+import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.Results;
+import com.opengamma.sesame.irs.DefaultInterestRateSwapConverterFn;
 import com.opengamma.sesame.irs.DiscountingInterestRateSwapFn;
 import com.opengamma.sesame.irs.InterestRateSwapCalculatorFactory;
+import com.opengamma.sesame.irs.InterestRateSwapConverterFn;
 import com.opengamma.sesame.irs.InterestRateSwapFn;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
@@ -202,30 +207,23 @@ public class ThirdPartyRemoteTest {
                 configureView(
                         "IRS Remote view",
                         column(OutputNames.PRESENT_VALUE,
-                                config(
-                                        arguments(
-                                                function(ConfigDbMarketExposureSelectorFn.class, argument("exposureConfig", _exposureConfig)),
-                                                function(
-                                                        RootFinderConfiguration.class,
-                                                        argument("rootFinderAbsoluteTolerance", 1e-9),
-                                                        argument("rootFinderRelativeTolerance", 1e-9),
-                                                        argument("rootFinderMaxIterations", 1000)),
-                                                function(DefaultCurveNodeConverterFn.class,
-                                                        argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
-                                                function(DefaultHistoricalMarketDataFn.class,
-                                                        argument("dataSource", "BLOOMBERG"),
-                                                        argument("currencyMatrix", _currencyMatrixLink)),
-                                                function(DefaultMarketDataFn.class,
-                                                        argument("dataSource", "BLOOMBERG"),
-                                                        argument("currencyMatrix", _currencyMatrixLink)),
-                                                function(
-                                                        DefaultHistoricalTimeSeriesFn.class,
-                                                        argument("resolutionKey", "DEFAULT_TSS"),
-                                                        argument("htsRetrievalPeriod", RetrievalPeriod.of((Period.ofYears(1))))),
-                                                function(
-                                                        DefaultDiscountingMulticurveBundleFn.class,
-                                                        argument("impliedCurveNames", StringSet.of()))),
-                                        implementations(
+                               config(
+                                   arguments(
+                                       function(
+                                           MarketExposureSelector.class,
+                                           argument("exposureFunctions", _exposureConfig)),
+                                       function(
+                                           DefaultHistoricalMarketDataFn.class,
+                                           argument("dataSource", "BLOOMBERG"),
+                                           argument("currencyMatrix", _currencyMatrixLink)),
+                                       function(
+                                           DefaultMarketDataFn.class,
+                                           argument("dataSource", "BLOOMBERG"))),
+                                   implementations(
+                                       CurveSelector.class, MarketExposureSelector.class,
+                                       DiscountingMulticurveCombinerFn.class, CurveSelectorMulticurveBundleFn.class,
+                                       InterestRateSwapFn.class, DiscountingInterestRateSwapFn.class,
+                                       InterestRateSwapConverterFn.class, DefaultInterestRateSwapConverterFn.class,
                                                 InterestRateSwapFn.class, DiscountingInterestRateSwapFn.class,
                                                 InterestRateSwapCalculatorFactory.class, ThirdPartyInterestRateSwapCalculatorFactory.class)
                                 ),
