@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.solutions;
+package com.opengamma.solutions.client;
 
 import static com.opengamma.sesame.config.ConfigBuilder.configureView;
 
@@ -36,6 +36,8 @@ import com.opengamma.sesame.server.FunctionServer;
 import com.opengamma.sesame.server.FunctionServerRequest;
 import com.opengamma.sesame.server.IndividualCycleOptions;
 import com.opengamma.sesame.server.RemoteFunctionServer;
+import com.opengamma.solutions.util.RemoteViewSwapUtils;
+import com.opengamma.solutions.util.RemoteViewUtils;
 import com.opengamma.util.time.DateUtils;
 
 /** The entry point for running an example remote view. */

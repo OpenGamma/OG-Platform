@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.solutions;
+package com.opengamma.solutions.util;
 
 import static com.opengamma.sesame.config.ConfigBuilder.argument;
 import static com.opengamma.sesame.config.ConfigBuilder.arguments;

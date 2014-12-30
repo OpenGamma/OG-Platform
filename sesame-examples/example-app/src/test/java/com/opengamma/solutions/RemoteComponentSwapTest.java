@@ -75,6 +75,7 @@ import com.opengamma.sesame.marketdata.SnapshotMarketDataFactory;
 import com.opengamma.sesame.marketdata.builders.MarketDataBuilder;
 import com.opengamma.sesame.marketdata.builders.MarketDataBuilders;
 import com.opengamma.sesame.marketdata.builders.MarketDataEnvironmentFactory;
+import com.opengamma.solutions.util.RemoteViewSwapUtils;
 import com.opengamma.util.function.Function;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;

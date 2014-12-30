@@ -52,7 +52,7 @@ import com.opengamma.sesame.server.FunctionServer;
 import com.opengamma.sesame.server.FunctionServerRequest;
 import com.opengamma.sesame.server.IndividualCycleOptions;
 import com.opengamma.sesame.server.RemoteFunctionServer;
-import com.opengamma.solutions.RemoteViewSwapUtils;
+import com.opengamma.solutions.util.RemoteViewSwapUtils;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;

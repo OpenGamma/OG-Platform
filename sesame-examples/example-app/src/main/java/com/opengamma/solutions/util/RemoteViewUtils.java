@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.solutions;
+package com.opengamma.solutions.util;
 
 import java.util.Iterator;
 import java.util.Map;

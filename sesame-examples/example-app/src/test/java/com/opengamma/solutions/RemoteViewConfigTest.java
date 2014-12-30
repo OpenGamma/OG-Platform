@@ -6,15 +6,11 @@
 package com.opengamma.solutions;
 
 import static com.opengamma.sesame.config.ConfigBuilder.configureView;
-import static com.opengamma.util.result.ResultTestUtils.assertSuccess;
-import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 
 import java.net.URI;
-import java.util.Collection;
-import java.util.List;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -26,10 +22,6 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.config.impl.RemoteConfigSource;
 import com.opengamma.core.link.ConfigLink;
-import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
-import com.opengamma.core.marketdatasnapshot.impl.RemoteMarketDataSnapshotSource;
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
-import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.id.VersionCorrection;
@@ -38,17 +30,8 @@ import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.RemoteConfigMaster;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.config.ViewConfig;
-import com.opengamma.sesame.engine.CalculationArguments;
-import com.opengamma.sesame.engine.Engine;
-import com.opengamma.sesame.engine.RemoteEngine;
-import com.opengamma.sesame.engine.Results;
-import com.opengamma.sesame.marketdata.MarketDataEnvironment;
-import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
-import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.result.Result;
+import com.opengamma.solutions.util.RemoteViewFraUtils;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.time.DateUtils;
 
 /**
  * Integration tests run against a remote server

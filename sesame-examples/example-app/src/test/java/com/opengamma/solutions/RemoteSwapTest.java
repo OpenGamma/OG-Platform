@@ -34,6 +34,7 @@ import com.opengamma.sesame.engine.ResultRow;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
+import com.opengamma.solutions.util.RemoteViewSwapUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
