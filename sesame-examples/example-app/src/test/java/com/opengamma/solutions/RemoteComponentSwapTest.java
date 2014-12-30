@@ -130,11 +130,9 @@ public class RemoteComponentSwapTest {
                     argument("exposureFunctions", _exposureConfig)),
                 function(
                     DefaultHistoricalMarketDataFn.class,
-                    argument("dataSource", "BLOOMBERG"),
                     argument("currencyMatrix", _currencyMatrixLink)),
                 function(
                     DefaultMarketDataFn.class,
-                    argument("dataSource", "BLOOMBERG"),
                     argument("currencyMatrix", _currencyMatrixLink))),
             implementations(
                 InterestRateSwapFn.class, DiscountingInterestRateSwapFn.class,

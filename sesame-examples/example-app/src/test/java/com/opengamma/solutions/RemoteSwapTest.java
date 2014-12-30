@@ -226,7 +226,7 @@ public class RemoteSwapTest {
     assertSuccess(result);
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-828863.7078, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-828863.7088161744, STD_TOLERANCE_PV)));
   }
 
   /* Compounding -start */
@@ -240,7 +240,7 @@ public class RemoteSwapTest {
     assertSuccess(result);
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(80166.8308, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(80166.8297495842, STD_TOLERANCE_PV)));
   }
 
   @Test

@@ -16,7 +16,6 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 
-import org.joda.beans.Property;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -38,7 +37,6 @@ import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.RemoteConfigMaster;
 import com.opengamma.sesame.OutputNames;
-import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.CalculationArguments;
 import com.opengamma.sesame.engine.Engine;
@@ -54,66 +52,64 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Integration tests run against a remote server
- * Input: Vanilla Interest Rate Swaps, Snapshot Market Data
- * Output: Present Value
+ * Test the creation and access of a view config
  */
 @Test(groups = TestGroup.INTEGRATION)
-public class RemoteFraTest {
-
-  private static final double STD_TOLERANCE_PV = 1.0E-3;
+public class RemoteViewConfigTest {
 
   private ConfigLink<ExposureFunctions> _exposureConfig;
   private ConfigLink<CurrencyMatrix> _currencyMatrixLink;
-  private Results _results;
+  private String _url;
+  private static final String CONFIG_NAME = "Remote view";
 
   @BeforeClass
   public void setUp() {
     String property = System.getProperty("server.url");
-    String url = property == null ? "http://localhost:8080/jax/" : property;
-
-    RemoteMarketDataSnapshotSource snapshotSource =
-        new RemoteMarketDataSnapshotSource(URI.create(url + "components/MarketDataSnapshotSource/default/"));
-    ManageableMarketDataSnapshot snapshot = snapshotSource.getSingle(ManageableMarketDataSnapshot.class,
-                                                                     "USD_GBP_XCcy_Integration",
-                                                                     VersionCorrection.LATEST);
-
-    Engine engine = new RemoteEngine(URI.create(url));
-    MarketDataSpecification marketDataSpec = UserMarketDataSpecification.of(snapshot.getUniqueId());
-
-    CalculationArguments calculationArguments =
-        CalculationArguments.builder()
-            .valuationTime(DateUtils.getUTCDate(2014, 1, 22))
-            .marketDataSpecification(marketDataSpec)
-            .build();
-
+    _url = property == null ? "http://localhost:8080/jax/" : property;
     _exposureConfig = ConfigLink.resolvable("USD-GBP-FF-1", ExposureFunctions.class);
     _currencyMatrixLink = ConfigLink.resolvable("BBG-Matrix", CurrencyMatrix.class);
+  }
 
-    // don't want to provide any data, let the server source it
-    MarketDataEnvironment marketDataEnvironment = MarketDataEnvironmentBuilder.empty();
-    ViewConfig viewConfig = createViewConfig();
-    List<Object> trades = RemoteViewFraUtils.INPUTS;
+  @Test(enabled = true)
+  public void persistAndAccessViewConfig() {
 
-    _results = engine.runView(viewConfig, calculationArguments, marketDataEnvironment, trades);
+    // Access the components running on the remote server
+    RemoteComponentServer remoteComponentServer = new RemoteComponentServer(URI.create(_url));
+    ComponentServer componentServer = remoteComponentServer.getComponentServer();
+
+    // Get the info on the ConfigMaster (write access)
+    ComponentInfo configMasterInfo = componentServer.getComponentInfo(ConfigMaster.class, "default");
+
+    // Create the config item and document
+    ConfigItem<ViewConfig> columnConfigItem = ConfigItem.of(createViewConfig(), "View Config", ViewConfig.class);
+    ConfigDocument doc = new ConfigDocument(columnConfigItem);
+
+    // Persist in the Master
+    RemoteConfigMaster configMaster = new RemoteConfigMaster(configMasterInfo.getUri());
+    configMaster.add(doc);
+
+    // Get the info on the ConfigSource (read access)
+    ComponentInfo configSourceInfo = componentServer.getComponentInfo(ConfigSource.class, "default");
+    RemoteConfigSource configSource = new RemoteConfigSource(configSourceInfo.getUri());
+
+    // Query the source
+    ViewConfig configItem = configSource.getSingle(ViewConfig.class,
+                                                    "View Config",
+                                                    VersionCorrection.LATEST);
+
+    assertThat(configItem.getName(), is(CONFIG_NAME));
+    assertThat(configItem.getColumns().size(), is(1));
+    assertThat(configItem.getColumns().get(0).getName(), is(OutputNames.PRESENT_VALUE));
   }
 
   private ViewConfig createViewConfig() {
     return
         configureView(
-            "FRA Remote view",
+            CONFIG_NAME,
             RemoteViewFraUtils.createFraViewColumn(
                 OutputNames.PRESENT_VALUE,
                 _exposureConfig,
                 _currencyMatrixLink));
   }
 
-  @Test(enabled = true)
-  public void testForwardRateAgreementPV() {
-
-    Result result = _results.get(0, 0).getResult();
-    assertSuccess(result);
-    assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
-    MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(21750.76254296188, STD_TOLERANCE_PV)));
-  }
 }

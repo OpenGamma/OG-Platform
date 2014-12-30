@@ -177,11 +177,7 @@ public final class RemoteViewSwapUtils {
                         argument("exposureFunctions", exposureConfig)),
                     function(
                         DefaultHistoricalMarketDataFn.class,
-                        argument("dataSource", "BLOOMBERG"),
-                        argument("currencyMatrix", currencyMatrixLink)),
-                    function(
-                        DefaultMarketDataFn.class,
-                        argument("dataSource", "BLOOMBERG"))),
+                        argument("currencyMatrix", currencyMatrixLink))),
                 implementations(
                     CurveSelector.class, MarketExposureSelector.class,
                     DiscountingMulticurveCombinerFn.class, CurveSelectorMulticurveBundleFn.class,
