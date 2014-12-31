@@ -43,7 +43,7 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Integration tests run against a remote server
- * Input: Vanilla Interest Rate Swaps, Snapshot Market Data
+ * Input: Forward Rate Agreement, Snapshot Market Data
  * Output: Present Value
  */
 @Test(groups = TestGroup.INTEGRATION)

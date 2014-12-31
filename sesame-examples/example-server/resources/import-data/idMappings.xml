@@ -1,42 +1,294 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fudgeEnvelope>
    <ids type="message">
+      <fudgeField1 ordinal="1" type="string">MemCfg~30</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">23</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~7</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">35</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemSnap~4</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">3</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~6</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">34</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~32</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">25</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~5</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">33</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~31</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">24</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~4</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">32</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~9</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">31</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemSnap~1</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">0</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~3</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">22</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~8</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">30</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~2</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">11</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemSnap~3</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">2</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~1</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">0</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemSnap~2</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">1</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~32</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">25</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~5</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">27</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~31</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">24</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~4</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">26</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~30</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">23</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~7</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">29</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~6</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">28</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~1</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">0</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~3</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">22</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~9</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">37</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~2</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">11</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~8</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">36</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~28</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">20</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCfg~1063</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">23</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~29</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">21</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~26</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">18</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~27</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">19</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCfg~1066</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">24</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~24</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">16</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~25</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">17</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~22</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">14</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~23</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">15</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~26</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">18</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~27</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">19</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~28</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">20</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~29</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">21</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~22</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">14</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~23</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">15</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbLen~1000</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">0</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~24</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">16</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~25</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">17</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCfg~1069</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">25</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCfg~1076</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">30</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCfg~1077</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">31</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCfg~1074</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">29</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCfg~1072</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">27</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCfg~1073</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">28</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCfg~1071</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">26</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~37</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">30</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~38</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">31</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~35</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">28</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~36</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">29</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~33</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">26</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~34</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">27</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbSnp~1000</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">0</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCfg~1000</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">0</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~10</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">1</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbSec~1006</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">5</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbSec~1005</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">4</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbSec~1007</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">6</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~10</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">1</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbSec~1002</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">1</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbHol~1000</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">0</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbSec~1004</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">3</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbSec~1003</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">2</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemHol~2</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">1</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCfg~1081</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">32</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCfg~1082</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">33</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCfg~1083</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">34</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemHol~1</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">0</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCfg~1085</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">35</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCnv~1000</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">0</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCnv~1001</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">1</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCnv~1002</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">2</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCnv~1003</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">3</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemLen~1</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">0</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCnv~1004</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">4</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~21</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">13</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCnv~1005</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">5</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~20</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">12</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCnv~1006</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">6</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCnv~1007</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">7</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCfg~1010</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">5</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCnv~1008</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">8</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCnv~1009</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">9</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~21</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">13</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~20</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">12</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~11</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">2</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~12</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">3</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbHol~1001</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">1</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbSec~1000</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">0</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCfg~1009</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">4</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~13</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">4</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~19</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">10</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~14</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">5</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~15</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">6</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~16</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">7</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~17</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">8</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~18</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">9</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCnv~19</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">10</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~13</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">4</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~14</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">5</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~11</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">2</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~12</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">3</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~17</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">8</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCfg~1006</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">1</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~18</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">9</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~15</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">6</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCnv~1011</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">11</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCfg~1008</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">3</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemCfg~16</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">7</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCnv~1010</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">10</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">DbCfg~1007</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">2</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbSec~1023</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">13</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbSec~1024</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">14</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemSec~8</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">13</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemSec~9</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">14</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCnv~1019</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">18</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCfg~1022</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">12</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemSec~4</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">9</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemSec~5</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">10</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCfg~1021</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">11</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemSec~6</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">11</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCnv~1017</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">17</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCfg~1020</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">10</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemSec~7</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">12</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCnv~1016</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">16</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCnv~1015</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">15</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemSec~1</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">0</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCnv~1014</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">14</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemSec~2</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">7</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCnv~1013</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">13</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemSec~3</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">8</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCnv~1012</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">12</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCnv~1021</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">20</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCfg~1063</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">23</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCnv~1022</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">21</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCfg~1019</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">9</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCnv~1020</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">19</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCfg~1066</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">24</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCfg~1017</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">8</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCfg~1014</fudgeField1>
@@ -45,8 +297,6 @@
       <fudgeField2 ordinal="2" type="byte">1</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCfg~1013</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">6</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbLen~1000</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">0</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbSec~1018</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">9</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbSec~1016</fudgeField1>
@@ -61,40 +311,26 @@
       <fudgeField2 ordinal="2" type="byte">23</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCnv~1023</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">22</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCfg~1069</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">25</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCnv~1026</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">25</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCnv~1025</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">24</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCnv~1030</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">28</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCfg~1076</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">30</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCfg~1027</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">17</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCnv~1031</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">29</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCfg~1077</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">31</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCnv~1032</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">30</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCfg~1074</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">29</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCnv~1033</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">31</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCfg~1072</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">27</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCfg~1023</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">13</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCfg~1073</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">28</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCfg~1024</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">14</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCfg~1025</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">15</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCfg~1071</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">26</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCfg~1026</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">16</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbSec~1022</fudgeField1>
@@ -103,42 +339,18 @@
       <fudgeField2 ordinal="2" type="byte">11</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbSec~1020</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">10</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbSnp~1000</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">0</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCfg~1000</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">0</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbSec~1006</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">5</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbSec~1005</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">4</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbSec~1007</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">6</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbSec~1002</fudgeField1>
+      <fudgeField1 ordinal="1" type="string">MemSec~10</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">1</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbHol~1000</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">0</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbSec~1004</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">3</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCfg~1042</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">21</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbSec~1003</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">2</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCfg~1041</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">20</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCfg~1081</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">32</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCfg~1082</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">33</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCfg~1037</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">18</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbHts~DP1000</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">0</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCfg~1083</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">34</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbHts~DP1002</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">2</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCfg~1085</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">35</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbHts~DP1001</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">1</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbHts~DP1004</fudgeField1>
@@ -147,47 +359,29 @@
       <fudgeField2 ordinal="2" type="byte">19</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbHts~DP1003</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">3</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCnv~1000</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">0</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCnv~1001</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">1</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCnv~1002</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">2</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCnv~1003</fudgeField1>
+      <fudgeField1 ordinal="1" type="string">MemSec~12</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">3</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCnv~1004</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">4</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCnv~1005</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">5</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCnv~1006</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">6</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCnv~1007</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">7</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCfg~1010</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">5</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCnv~1008</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">8</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCnv~1009</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">9</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbHol~1001</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">1</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbSec~1000</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">0</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCfg~1009</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">4</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemSec~11</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">2</fudgeField2>
       <fudgeField1 ordinal="1" type="string">DbCfg~1046</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">22</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCfg~1006</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">1</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCnv~1011</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">11</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCfg~1008</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">3</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCnv~1010</fudgeField1>
-      <fudgeField2 ordinal="2" type="byte">10</fudgeField2>
-      <fudgeField1 ordinal="1" type="string">DbCfg~1007</fudgeField1>
+      <fudgeField1 ordinal="1" type="string">MemSec~14</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">5</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemSec~13</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">4</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemSec~15</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">6</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemHts~3</fudgeField1>
       <fudgeField2 ordinal="2" type="byte">2</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemHts~2</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">1</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemHts~1</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">0</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemHts~5</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">4</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">MemHts~4</fudgeField1>
+      <fudgeField2 ordinal="2" type="byte">3</fudgeField2>
    </ids>
-   <maxId type="byte">35</maxId>
+   <maxId type="byte">37</maxId>
    <fudgeField0 ordinal="0" type="string">com.opengamma.integration.regression.IdMappings</fudgeField0>
 </fudgeEnvelope>

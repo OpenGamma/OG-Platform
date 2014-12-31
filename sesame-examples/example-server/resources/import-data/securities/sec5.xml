@@ -1,29 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fudgeEnvelope>
-   <uniqueId type="string">DbSec~1006~6</uniqueId>
+   <uniqueId type="string">MemSec~14</uniqueId>
    <externalIdBundle type="message">
       <ID type="message">
-         <Scheme type="string">BLOOMBERG_BUID</Scheme>
-         <Value type="string">NI373119</Value>
-      </ID>
-      <ID type="message">
-         <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-         <Value type="string">US0006M Index</Value>
-      </ID>
-      <ID type="message">
-         <Scheme type="string">OG_TICKER</Scheme>
-         <Value type="string">USDLIBOR6M</Value>
+         <Scheme type="string">ISIN</Scheme>
+         <Value type="string">GB00BDNHF692</Value>
       </ID>
    </externalIdBundle>
-   <name type="string">USDLIBOR6M</name>
-   <securityType type="string">IBOR_INDEX</securityType>
+   <name type="string">UKTB 0 10/06/14</name>
+   <securityType type="string">BILL</securityType>
    <attributes type="message"/>
    <requiredPermissions type="message"/>
-   <indexFamilyId type="string">INDEX_FAMILY~USDLIBOR</indexFamilyId>
-   <tenor type="string">P6M</tenor>
-   <conventionId type="string">CONVENTION~USDLIBOR</conventionId>
-   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.security.index.IborIndex</fudgeField0>
-   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.security.index.Index</fudgeField0>
+   <currency type="string">GBP</currency>
+   <maturityDate type="message">
+      <datetime type="datetime">2014-10-06T00:00Z</datetime>
+      <timezone type="string">Z</timezone>
+   </maturityDate>
+   <issueDate type="message">
+      <datetime type="datetime">2014-03-28T17:00Z</datetime>
+      <zone type="string">Z</zone>
+   </issueDate>
+   <minimumIncrement type="double">1.0</minimumIncrement>
+   <daysToSettle type="byte">1</daysToSettle>
+   <regionId type="string">FINANCIAL_REGION~GB</regionId>
+   <yieldConvention type="string">INTEREST@MTY</yieldConvention>
+   <dayCount type="string">Actual/365</dayCount>
+   <legalEntityId type="string">OG_TICKER~UKGOVT</legalEntityId>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.security.bond.BillSecurity</fudgeField0>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.security.FinancialSecurity</fudgeField0>
    <fudgeField0 ordinal="0" type="string">com.opengamma.master.security.ManageableSecurity</fudgeField0>
    <fudgeField0 ordinal="0" type="string">org.joda.beans.impl.direct.DirectBean</fudgeField0>
 </fudgeEnvelope>

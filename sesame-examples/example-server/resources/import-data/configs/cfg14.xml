@@ -1,85 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fudgeEnvelope>
-   <type type="string">com.opengamma.financial.analytics.curve.CurveNodeIdMapper</type>
-   <name type="string">USD-LIBOR-BS-3M-6M-BBG</name>
-   <uniqueId type="string">DbCfg~1024~0</uniqueId>
+   <type type="string">com.opengamma.financial.currency.CurrencyMatrix</type>
+   <name type="string">BBG-Matrix</name>
+   <uniqueId type="string">MemCfg~22~22</uniqueId>
    <value type="message">
-      <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.curve.CurveNodeIdMapper</fudgeField0>
-      <name type="string">USD-LIBOR-BS-3M-6M-BBG</name>
-      <swapIds type="message">
-         <P1Y type="message">
-            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
-            <instrument type="string">BLOOMBERG_TICKER~USBC1 Curncy</instrument>
-            <dataField type="string">Market_Value</dataField>
-            <typeField type="string">OUTRIGHT</typeField>
-         </P1Y>
-         <P2Y type="message">
-            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
-            <instrument type="string">BLOOMBERG_TICKER~USBC2 Curncy</instrument>
-            <dataField type="string">Market_Value</dataField>
-            <typeField type="string">OUTRIGHT</typeField>
-         </P2Y>
-         <P3Y type="message">
-            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
-            <instrument type="string">BLOOMBERG_TICKER~USBC3 Curncy</instrument>
-            <dataField type="string">Market_Value</dataField>
-            <typeField type="string">OUTRIGHT</typeField>
-         </P3Y>
-         <P4Y type="message">
-            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
-            <instrument type="string">BLOOMBERG_TICKER~USBC4 Curncy</instrument>
-            <dataField type="string">Market_Value</dataField>
-            <typeField type="string">OUTRIGHT</typeField>
-         </P4Y>
-         <P20Y type="message">
-            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
-            <instrument type="string">BLOOMBERG_TICKER~USBC20 Curncy</instrument>
-            <dataField type="string">Market_Value</dataField>
-            <typeField type="string">OUTRIGHT</typeField>
-         </P20Y>
-         <P5Y type="message">
-            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
-            <instrument type="string">BLOOMBERG_TICKER~USBC5 Curncy</instrument>
-            <dataField type="string">Market_Value</dataField>
-            <typeField type="string">OUTRIGHT</typeField>
-         </P5Y>
-         <P7Y type="message">
-            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
-            <instrument type="string">BLOOMBERG_TICKER~USBC7 Curncy</instrument>
-            <dataField type="string">Market_Value</dataField>
-            <typeField type="string">OUTRIGHT</typeField>
-         </P7Y>
-         <P25Y type="message">
-            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
-            <instrument type="string">BLOOMBERG_TICKER~USBC25 Curncy</instrument>
-            <dataField type="string">Market_Value</dataField>
-            <typeField type="string">OUTRIGHT</typeField>
-         </P25Y>
-         <P10Y type="message">
-            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
-            <instrument type="string">BLOOMBERG_TICKER~USBC10 Curncy</instrument>
-            <dataField type="string">Market_Value</dataField>
-            <typeField type="string">OUTRIGHT</typeField>
-         </P10Y>
-         <P12Y type="message">
-            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
-            <instrument type="string">BLOOMBERG_TICKER~USBC12 Curncy</instrument>
-            <dataField type="string">Market_Value</dataField>
-            <typeField type="string">OUTRIGHT</typeField>
-         </P12Y>
-         <P30Y type="message">
-            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
-            <instrument type="string">BLOOMBERG_TICKER~USBC30 Curncy</instrument>
-            <dataField type="string">Market_Value</dataField>
-            <typeField type="string">OUTRIGHT</typeField>
-         </P30Y>
-         <P15Y type="message">
-            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
-            <instrument type="string">BLOOMBERG_TICKER~USBC15 Curncy</instrument>
-            <dataField type="string">Market_Value</dataField>
-            <typeField type="string">OUTRIGHT</typeField>
-         </P15Y>
-      </swapIds>
+      <fudgeField0 ordinal="0" type="string">com.opengamma.financial.currency.CurrencyMatrix</fudgeField0>
+      <valueReq type="message">
+         <JPY type="message">
+            <USD type="message">
+               <valueName type="string">Market_Value</valueName>
+               <computationTargetType type="string">PRIMITIVE</computationTargetType>
+               <computationTargetIdentifier type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">JPY Curncy</Value>
+                  </ID>
+               </computationTargetIdentifier>
+               <reciprocal type="boolean">false</reciprocal>
+            </USD>
+         </JPY>
+         <EUR type="message">
+            <USD type="message">
+               <valueName type="string">Market_Value</valueName>
+               <computationTargetType type="string">PRIMITIVE</computationTargetType>
+               <computationTargetIdentifier type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">EUR Curncy</Value>
+                  </ID>
+               </computationTargetIdentifier>
+               <reciprocal type="boolean">true</reciprocal>
+            </USD>
+         </EUR>
+         <GBP type="message">
+            <USD type="message">
+               <valueName type="string">Market_Value</valueName>
+               <computationTargetType type="string">PRIMITIVE</computationTargetType>
+               <computationTargetIdentifier type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">GBP Curncy</Value>
+                  </ID>
+               </computationTargetIdentifier>
+               <reciprocal type="boolean">true</reciprocal>
+            </USD>
+         </GBP>
+      </valueReq>
+      <crossConvert type="message">
+         <USD type="message">
+            <EUR type="string">GBP</EUR>
+         </USD>
+      </crossConvert>
+      <uniqueId type="string">MemCfg~22~22</uniqueId>
    </value>
    <fudgeField0 ordinal="0" type="string">com.opengamma.core.config.impl.ConfigItem</fudgeField0>
    <fudgeField0 ordinal="0" type="string">org.joda.beans.impl.direct.DirectBean</fudgeField0>

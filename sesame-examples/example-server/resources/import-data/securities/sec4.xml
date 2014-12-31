@@ -1,29 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fudgeEnvelope>
-   <uniqueId type="string">DbSec~1005~5</uniqueId>
-   <externalIdBundle type="message">
+   <uniqueId type="message">
+      <Scheme type="string">MemSec</Scheme>
+      <Value type="string">13</Value>
+   </uniqueId>
+   <name type="string">UKT 2 01/22/16</name>
+   <securityType type="string">BOND</securityType>
+   <identifiers type="message">
       <ID type="message">
          <Scheme type="string">BLOOMBERG_BUID</Scheme>
-         <Value type="string">NI373113</Value>
+         <Value type="string">COEI4503385</Value>
+      </ID>
+      <ID type="message">
+         <Scheme type="string">BLOOMBERG_TCM</Scheme>
+         <Value type="string">UKT 2.0 2016-01-22 Govt</Value>
       </ID>
       <ID type="message">
          <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-         <Value type="string">US0001M Index</Value>
+         <Value type="string">UKT 2 01/22/16 Govt</Value>
       </ID>
       <ID type="message">
-         <Scheme type="string">OG_TICKER</Scheme>
-         <Value type="string">USDLIBOR1M</Value>
+         <Scheme type="string">CUSIP</Scheme>
+         <Value type="string">EI4503385</Value>
       </ID>
-   </externalIdBundle>
-   <name type="string">USDLIBOR1M</name>
-   <securityType type="string">IBOR_INDEX</securityType>
-   <attributes type="message"/>
-   <requiredPermissions type="message"/>
-   <indexFamilyId type="string">INDEX_FAMILY~USDLIBOR</indexFamilyId>
-   <tenor type="string">P1M</tenor>
-   <conventionId type="string">CONVENTION~USDLIBOR</conventionId>
-   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.security.index.IborIndex</fudgeField0>
-   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.security.index.Index</fudgeField0>
+      <ID type="message">
+         <Scheme type="string">ISIN</Scheme>
+         <Value type="string">GB00B3QCG246</Value>
+      </ID>
+      <ID type="message">
+         <Scheme type="string">SEDOL1</Scheme>
+         <Value type="string">B3QCG24</Value>
+      </ID>
+   </identifiers>
+   <attributes type="message">
+      <fudgeField-1 ordinal="-1" type="string">java.lang.CharSequence</fudgeField-1>
+      <fudgeField-2 ordinal="-2" type="string">java.lang.CharSequence</fudgeField-2>
+      <fudgeField1 ordinal="1" type="string">IndustrySector</fudgeField1>
+      <fudgeField2 ordinal="2" type="string">Government</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">Bullet</fudgeField1>
+      <fudgeField2 ordinal="2" type="string">Y</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">LegalEntityId</fudgeField1>
+      <fudgeField2 ordinal="2" type="string">OG_TICKER~UKGOVT</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">Perpetual</fudgeField1>
+      <fudgeField2 ordinal="2" type="string">N</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">RatingComposite</fudgeField1>
+      <fudgeField2 ordinal="2" type="string">AA+</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">EOM</fudgeField1>
+      <fudgeField2 ordinal="2" type="string">Y</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">RatingMoody</fudgeField1>
+      <fudgeField2 ordinal="2" type="string">Aa1u</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">RatingFitch</fudgeField1>
+      <fudgeField2 ordinal="2" type="string">AA+</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">Callable</fudgeField1>
+      <fudgeField2 ordinal="2" type="string">N</fudgeField2>
+   </attributes>
+   <issuerName type="string">UK TSY 2% 2016</issuerName>
+   <issuerType type="string">Sovereign</issuerType>
+   <issuerDomicile type="string">GB</issuerDomicile>
+   <market type="string">UK GILT STOCK</market>
+   <currency type="string">GBP</currency>
+   <yieldConvention type="string">UK:BUMP/DMO METHOD</yieldConvention>
+   <lastTradeDate type="message">
+      <datetime type="datetime">2016-01-22T00:00Z</datetime>
+      <timezone type="string">Z</timezone>
+   </lastTradeDate>
+   <couponType type="string">FIXED</couponType>
+   <couponRate type="double">2.0</couponRate>
+   <couponFrequency type="string">Semi-annual</couponFrequency>
+   <dayCountConvention type="string">Actual/Actual ICMA</dayCountConvention>
+   <announcementDate type="message">
+      <datetime type="datetime">2010-10-26T17:00Z</datetime>
+      <zone type="string">Z</zone>
+   </announcementDate>
+   <interestAccrualDate type="message">
+      <datetime type="datetime">2010-11-03T17:00Z</datetime>
+      <zone type="string">Z</zone>
+   </interestAccrualDate>
+   <settlementDate type="message">
+      <datetime type="datetime">2014-10-08T17:00Z</datetime>
+      <zone type="string">Z</zone>
+   </settlementDate>
+   <firstCouponDate type="message">
+      <datetime type="datetime">2011-01-22T17:00Z</datetime>
+      <zone type="string">Z</zone>
+   </firstCouponDate>
+   <issuancePrice type="double">100.21000000000001</issuancePrice>
+   <totalAmountIssued type="double">3.2743281E10</totalAmountIssued>
+   <minimumAmount type="double">0.01</minimumAmount>
+   <minimumIncrement type="double">0.01</minimumIncrement>
+   <parAmount type="double">100.0</parAmount>
+   <redemptionValue type="double">100.0</redemptionValue>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.security.bond.GovernmentBondSecurity</fudgeField0>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.security.bond.BondSecurity</fudgeField0>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.security.FinancialSecurity</fudgeField0>
    <fudgeField0 ordinal="0" type="string">com.opengamma.master.security.ManageableSecurity</fudgeField0>
    <fudgeField0 ordinal="0" type="string">org.joda.beans.impl.direct.DirectBean</fudgeField0>
 </fudgeEnvelope>

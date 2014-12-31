@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fudgeEnvelope>
    <type type="string">com.opengamma.financial.analytics.curve.CurveConstructionConfiguration</type>
-   <name type="string">USD_FF_DSCON-OISFFS_L3M-FRAIRS_L1M-BS_L6M-BS</name>
-   <uniqueId type="string">MemCfg~27~27</uniqueId>
+   <name type="string">USD_GBP_FF_DSCON-OISFFS_L3M-FRAIRS_L1M-BS_L6M-BS__DSC-FXXCCY_L3M-FRAIRS</name>
+   <uniqueId type="string">MemCfg~8~8</uniqueId>
    <value type="message">
       <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.curve.CurveConstructionConfiguration</fudgeField0>
-      <name type="string">USD_FF_DSCON-OISFFS_L3M-FRAIRS_L1M-BS_L6M-BS</name>
+      <name type="string">USD_GBP_FF_DSCON-OISFFS_L3M-FRAIRS_L1M-BS_L6M-BS__DSC-FXXCCY_L3M-FRAIRS</name>
       <group type="message">
          <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.curve.CurveGroupConfiguration</fudgeField0>
          <order type="byte">0</order>
@@ -53,10 +53,29 @@
             </type>
          </typesForCurve>
       </group>
+      <group type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.curve.CurveGroupConfiguration</fudgeField0>
+         <order type="byte">4</order>
+         <curveName type="string">GBP-FRAL3M-IRSL3M-NCS</curveName>
+         <typesForCurve type="message">
+            <type type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.curve.IborCurveTypeConfiguration</fudgeField0>
+               <convention type="string">OG_TICKER~GBPLIBOR3M</convention>
+               <indexTenor type="string">P3M</indexTenor>
+            </type>
+         </typesForCurve>
+         <curveName type="string">GBPUSD-FX-XCCYL3ML3M-NCS</curveName>
+         <typesForCurve type="message">
+            <type type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration</fudgeField0>
+               <reference type="string">GBP</reference>
+            </type>
+         </typesForCurve>
+      </group>
       <uniqueId type="message">
          <Scheme type="string">MemCfg</Scheme>
-         <Value type="string">27</Value>
-         <Version type="string">27</Version>
+         <Value type="string">8</Value>
+         <Version type="string">8</Version>
       </uniqueId>
    </value>
    <fudgeField0 ordinal="0" type="string">com.opengamma.core.config.impl.ConfigItem</fudgeField0>
