@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fudgeEnvelope>
-   <uniqueId type="string">DbSnp~1013~17</uniqueId>
+   <uniqueId type="string">MemSnap~2</uniqueId>
    <name type="string">GBP_Bond_Integration</name>
    <basisViewName type="string">Test</basisViewName>
    <globalValues type="message">

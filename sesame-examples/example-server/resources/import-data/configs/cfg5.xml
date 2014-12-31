@@ -1,195 +1,161 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fudgeEnvelope>
-   <type type="string">com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition</type>
-   <name type="string">GBPUSD-FX-XCCYL3ML3M-NCS</name>
-   <uniqueId type="string">DbCfg~1010~42</uniqueId>
+   <type type="string">com.opengamma.financial.analytics.curve.CurveNodeIdMapper</type>
+   <name type="string">USD-LIBOR3M-BBG</name>
+   <uniqueId type="string">MemCfg~14~14</uniqueId>
    <value type="message">
-      <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition</fudgeField0>
-      <uniqueId type="string">DbCfg~1010~42</uniqueId>
-      <name type="string">GBPUSD-FX-XCCYL3ML3M-NCS</name>
-      <node type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.FXForwardNode</fudgeField0>
-         <startTenor type="string">P0D</startTenor>
-         <maturityTenor type="string">P1M</maturityTenor>
-         <convention type="string">CONVENTION~GBPUSDFXSwap</convention>
-         <payCurrency type="string">GBP</payCurrency>
-         <receiveCurrency type="string">USD</receiveCurrency>
-         <curveNodeIdMapper type="string">GBP-USD-FX-Forward-BBG</curveNodeIdMapper>
-      </node>
-      <node type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.FXForwardNode</fudgeField0>
-         <startTenor type="string">P0D</startTenor>
-         <maturityTenor type="string">P2M</maturityTenor>
-         <convention type="string">CONVENTION~GBPUSDFXSwap</convention>
-         <payCurrency type="string">GBP</payCurrency>
-         <receiveCurrency type="string">USD</receiveCurrency>
-         <curveNodeIdMapper type="string">GBP-USD-FX-Forward-BBG</curveNodeIdMapper>
-      </node>
-      <node type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.FXForwardNode</fudgeField0>
-         <startTenor type="string">P0D</startTenor>
-         <maturityTenor type="string">P3M</maturityTenor>
-         <convention type="string">CONVENTION~GBPUSDFXSwap</convention>
-         <payCurrency type="string">GBP</payCurrency>
-         <receiveCurrency type="string">USD</receiveCurrency>
-         <curveNodeIdMapper type="string">GBP-USD-FX-Forward-BBG</curveNodeIdMapper>
-      </node>
-      <node type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.FXForwardNode</fudgeField0>
-         <startTenor type="string">P0D</startTenor>
-         <maturityTenor type="string">P6M</maturityTenor>
-         <convention type="string">CONVENTION~GBPUSDFXSwap</convention>
-         <payCurrency type="string">GBP</payCurrency>
-         <receiveCurrency type="string">USD</receiveCurrency>
-         <curveNodeIdMapper type="string">GBP-USD-FX-Forward-BBG</curveNodeIdMapper>
-      </node>
-      <node type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.FXForwardNode</fudgeField0>
-         <startTenor type="string">P0D</startTenor>
-         <maturityTenor type="string">P9M</maturityTenor>
-         <convention type="string">CONVENTION~GBPUSDFXSwap</convention>
-         <payCurrency type="string">GBP</payCurrency>
-         <receiveCurrency type="string">USD</receiveCurrency>
-         <curveNodeIdMapper type="string">GBP-USD-FX-Forward-BBG</curveNodeIdMapper>
-      </node>
-      <node type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
-         <startTenor type="string">P0D</startTenor>
-         <maturityTenor type="string">P1Y</maturityTenor>
-         <payLegConvention type="string">CONVENTION~GBPLIBOR3M_NYC</payLegConvention>
-         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M_LON</receiveLegConvention>
-         <curveNodeIdMapper type="string">GBP-USD-LIBOR3M-LIBOR3M-BBG</curveNodeIdMapper>
-         <useFixings type="boolean">true</useFixings>
-      </node>
-      <node type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
-         <startTenor type="string">P0D</startTenor>
-         <maturityTenor type="string">P2Y</maturityTenor>
-         <payLegConvention type="string">CONVENTION~GBPLIBOR3M_NYC</payLegConvention>
-         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M_LON</receiveLegConvention>
-         <curveNodeIdMapper type="string">GBP-USD-LIBOR3M-LIBOR3M-BBG</curveNodeIdMapper>
-         <useFixings type="boolean">true</useFixings>
-      </node>
-      <node type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
-         <startTenor type="string">P0D</startTenor>
-         <maturityTenor type="string">P3Y</maturityTenor>
-         <payLegConvention type="string">CONVENTION~GBPLIBOR3M_NYC</payLegConvention>
-         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M_LON</receiveLegConvention>
-         <curveNodeIdMapper type="string">GBP-USD-LIBOR3M-LIBOR3M-BBG</curveNodeIdMapper>
-         <useFixings type="boolean">true</useFixings>
-      </node>
-      <node type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
-         <startTenor type="string">P0D</startTenor>
-         <maturityTenor type="string">P4Y</maturityTenor>
-         <payLegConvention type="string">CONVENTION~GBPLIBOR3M_NYC</payLegConvention>
-         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M_LON</receiveLegConvention>
-         <curveNodeIdMapper type="string">GBP-USD-LIBOR3M-LIBOR3M-BBG</curveNodeIdMapper>
-         <useFixings type="boolean">true</useFixings>
-      </node>
-      <node type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
-         <startTenor type="string">P0D</startTenor>
-         <maturityTenor type="string">P5Y</maturityTenor>
-         <payLegConvention type="string">CONVENTION~GBPLIBOR3M_NYC</payLegConvention>
-         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M_LON</receiveLegConvention>
-         <curveNodeIdMapper type="string">GBP-USD-LIBOR3M-LIBOR3M-BBG</curveNodeIdMapper>
-         <useFixings type="boolean">true</useFixings>
-      </node>
-      <node type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
-         <startTenor type="string">P0D</startTenor>
-         <maturityTenor type="string">P6Y</maturityTenor>
-         <payLegConvention type="string">CONVENTION~GBPLIBOR3M_NYC</payLegConvention>
-         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M_LON</receiveLegConvention>
-         <curveNodeIdMapper type="string">GBP-USD-LIBOR3M-LIBOR3M-BBG</curveNodeIdMapper>
-         <useFixings type="boolean">true</useFixings>
-      </node>
-      <node type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
-         <startTenor type="string">P0D</startTenor>
-         <maturityTenor type="string">P7Y</maturityTenor>
-         <payLegConvention type="string">CONVENTION~GBPLIBOR3M_NYC</payLegConvention>
-         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M_LON</receiveLegConvention>
-         <curveNodeIdMapper type="string">GBP-USD-LIBOR3M-LIBOR3M-BBG</curveNodeIdMapper>
-         <useFixings type="boolean">true</useFixings>
-      </node>
-      <node type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
-         <startTenor type="string">P0D</startTenor>
-         <maturityTenor type="string">P8Y</maturityTenor>
-         <payLegConvention type="string">CONVENTION~GBPLIBOR3M_NYC</payLegConvention>
-         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M_LON</receiveLegConvention>
-         <curveNodeIdMapper type="string">GBP-USD-LIBOR3M-LIBOR3M-BBG</curveNodeIdMapper>
-         <useFixings type="boolean">true</useFixings>
-      </node>
-      <node type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
-         <startTenor type="string">P0D</startTenor>
-         <maturityTenor type="string">P9Y</maturityTenor>
-         <payLegConvention type="string">CONVENTION~GBPLIBOR3M_NYC</payLegConvention>
-         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M_LON</receiveLegConvention>
-         <curveNodeIdMapper type="string">GBP-USD-LIBOR3M-LIBOR3M-BBG</curveNodeIdMapper>
-         <useFixings type="boolean">true</useFixings>
-      </node>
-      <node type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
-         <startTenor type="string">P0D</startTenor>
-         <maturityTenor type="string">P10Y</maturityTenor>
-         <payLegConvention type="string">CONVENTION~GBPLIBOR3M_NYC</payLegConvention>
-         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M_LON</receiveLegConvention>
-         <curveNodeIdMapper type="string">GBP-USD-LIBOR3M-LIBOR3M-BBG</curveNodeIdMapper>
-         <useFixings type="boolean">true</useFixings>
-      </node>
-      <node type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
-         <startTenor type="string">P0D</startTenor>
-         <maturityTenor type="string">P12Y</maturityTenor>
-         <payLegConvention type="string">CONVENTION~GBPLIBOR3M_NYC</payLegConvention>
-         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M_LON</receiveLegConvention>
-         <curveNodeIdMapper type="string">GBP-USD-LIBOR3M-LIBOR3M-BBG</curveNodeIdMapper>
-         <useFixings type="boolean">true</useFixings>
-      </node>
-      <node type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
-         <startTenor type="string">P0D</startTenor>
-         <maturityTenor type="string">P15Y</maturityTenor>
-         <payLegConvention type="string">CONVENTION~GBPLIBOR3M_NYC</payLegConvention>
-         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M_LON</receiveLegConvention>
-         <curveNodeIdMapper type="string">GBP-USD-LIBOR3M-LIBOR3M-BBG</curveNodeIdMapper>
-         <useFixings type="boolean">true</useFixings>
-      </node>
-      <node type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
-         <startTenor type="string">P0D</startTenor>
-         <maturityTenor type="string">P20Y</maturityTenor>
-         <payLegConvention type="string">CONVENTION~GBPLIBOR3M_NYC</payLegConvention>
-         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M_LON</receiveLegConvention>
-         <curveNodeIdMapper type="string">GBP-USD-LIBOR3M-LIBOR3M-BBG</curveNodeIdMapper>
-         <useFixings type="boolean">true</useFixings>
-      </node>
-      <node type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
-         <startTenor type="string">P0D</startTenor>
-         <maturityTenor type="string">P25Y</maturityTenor>
-         <payLegConvention type="string">CONVENTION~GBPLIBOR3M_NYC</payLegConvention>
-         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M_LON</receiveLegConvention>
-         <curveNodeIdMapper type="string">GBP-USD-LIBOR3M-LIBOR3M-BBG</curveNodeIdMapper>
-         <useFixings type="boolean">true</useFixings>
-      </node>
-      <node type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
-         <startTenor type="string">P0D</startTenor>
-         <maturityTenor type="string">P30Y</maturityTenor>
-         <payLegConvention type="string">CONVENTION~GBPLIBOR3M_NYC</payLegConvention>
-         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M_LON</receiveLegConvention>
-         <curveNodeIdMapper type="string">GBP-USD-LIBOR3M-LIBOR3M-BBG</curveNodeIdMapper>
-         <useFixings type="boolean">true</useFixings>
-      </node>
-      <interpolatorName type="string">NaturalCubicSpline</interpolatorName>
-      <rightExtrapolatorName type="string">FlatExtrapolator</rightExtrapolatorName>
-      <leftExtrapolatorName type="string">FlatExtrapolator</leftExtrapolatorName>
+      <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.curve.CurveNodeIdMapper</fudgeField0>
+      <name type="string">USD-LIBOR3M-BBG</name>
+      <cashIds type="message">
+         <P3M type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+            <instrument type="string">BLOOMBERG_TICKER~US0003M Index</instrument>
+            <dataField type="string">Market_Value</dataField>
+            <typeField type="string">OUTRIGHT</typeField>
+         </P3M>
+      </cashIds>
+      <fraIds type="message">
+         <P24M type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+            <instrument type="string">BLOOMBERG_TICKER~USFR1I2 Curncy</instrument>
+            <dataField type="string">Market_Value</dataField>
+            <typeField type="string">OUTRIGHT</typeField>
+         </P24M>
+         <P9M type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+            <instrument type="string">BLOOMBERG_TICKER~USFR0FI Curncy</instrument>
+            <dataField type="string">Market_Value</dataField>
+            <typeField type="string">OUTRIGHT</typeField>
+         </P9M>
+         <P18M type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+            <instrument type="string">BLOOMBERG_TICKER~USFR1C1F Curncy</instrument>
+            <dataField type="string">Market_Value</dataField>
+            <typeField type="string">OUTRIGHT</typeField>
+         </P18M>
+         <P27M type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+            <instrument type="string">BLOOMBERG_TICKER~USFR02C Curncy</instrument>
+            <dataField type="string">Market_Value</dataField>
+            <typeField type="string">OUTRIGHT</typeField>
+         </P27M>
+         <P21M type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+            <instrument type="string">BLOOMBERG_TICKER~USFR1F1I Curncy</instrument>
+            <dataField type="string">Market_Value</dataField>
+            <typeField type="string">OUTRIGHT</typeField>
+         </P21M>
+         <P6M type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+            <instrument type="string">BLOOMBERG_TICKER~USFR0CF Curncy</instrument>
+            <dataField type="string">Market_Value</dataField>
+            <typeField type="string">OUTRIGHT</typeField>
+         </P6M>
+      </fraIds>
+      <rateFutureIds type="message">
+         <P0D type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.BloombergFutureCurveInstrumentProvider</fudgeField0>
+            <prefix type="string">ED</prefix>
+            <marketSector type="string">Comdty</marketSector>
+            <dataField type="string">Market_Value</dataField>
+            <typeField type="string">OUTRIGHT</typeField>
+         </P0D>
+         <P1D type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.BloombergFutureCurveInstrumentProvider</fudgeField0>
+            <prefix type="string">ED</prefix>
+            <marketSector type="string">Comdty</marketSector>
+            <dataField type="string">Market_Value</dataField>
+            <typeField type="string">OUTRIGHT</typeField>
+         </P1D>
+         <P3D type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.BloombergFutureCurveInstrumentProvider</fudgeField0>
+            <prefix type="string">ED</prefix>
+            <marketSector type="string">Comdty</marketSector>
+            <dataField type="string">Market_Value</dataField>
+            <typeField type="string">OUTRIGHT</typeField>
+         </P3D>
+         <P3M type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.BloombergFutureCurveInstrumentProvider</fudgeField0>
+            <prefix type="string">ED</prefix>
+            <marketSector type="string">Comdty</marketSector>
+            <dataField type="string">Market_Value</dataField>
+            <typeField type="string">OUTRIGHT</typeField>
+         </P3M>
+      </rateFutureIds>
+      <swapIds type="message">
+         <P1Y type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+            <instrument type="string">BLOOMBERG_TICKER~USSW1 Curncy</instrument>
+            <dataField type="string">Market_Value</dataField>
+            <typeField type="string">OUTRIGHT</typeField>
+         </P1Y>
+         <P2Y type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+            <instrument type="string">BLOOMBERG_TICKER~USSW2 Curncy</instrument>
+            <dataField type="string">Market_Value</dataField>
+            <typeField type="string">OUTRIGHT</typeField>
+         </P2Y>
+         <P3Y type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+            <instrument type="string">BLOOMBERG_TICKER~USSW3 Curncy</instrument>
+            <dataField type="string">Market_Value</dataField>
+            <typeField type="string">OUTRIGHT</typeField>
+         </P3Y>
+         <P4Y type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+            <instrument type="string">BLOOMBERG_TICKER~USSW4 Curncy</instrument>
+            <dataField type="string">Market_Value</dataField>
+            <typeField type="string">OUTRIGHT</typeField>
+         </P4Y>
+         <P20Y type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+            <instrument type="string">BLOOMBERG_TICKER~USSW20 Curncy</instrument>
+            <dataField type="string">Market_Value</dataField>
+            <typeField type="string">OUTRIGHT</typeField>
+         </P20Y>
+         <P5Y type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+            <instrument type="string">BLOOMBERG_TICKER~USSW5 Curncy</instrument>
+            <dataField type="string">Market_Value</dataField>
+            <typeField type="string">OUTRIGHT</typeField>
+         </P5Y>
+         <P7Y type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+            <instrument type="string">BLOOMBERG_TICKER~USSW7 Curncy</instrument>
+            <dataField type="string">Market_Value</dataField>
+            <typeField type="string">OUTRIGHT</typeField>
+         </P7Y>
+         <P25Y type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+            <instrument type="string">BLOOMBERG_TICKER~USSW25 Curncy</instrument>
+            <dataField type="string">Market_Value</dataField>
+            <typeField type="string">OUTRIGHT</typeField>
+         </P25Y>
+         <P10Y type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+            <instrument type="string">BLOOMBERG_TICKER~USSW10 Curncy</instrument>
+            <dataField type="string">Market_Value</dataField>
+            <typeField type="string">OUTRIGHT</typeField>
+         </P10Y>
+         <P12Y type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+            <instrument type="string">BLOOMBERG_TICKER~USSW12 Curncy</instrument>
+            <dataField type="string">Market_Value</dataField>
+            <typeField type="string">OUTRIGHT</typeField>
+         </P12Y>
+         <P30Y type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+            <instrument type="string">BLOOMBERG_TICKER~USSW30 Curncy</instrument>
+            <dataField type="string">Market_Value</dataField>
+            <typeField type="string">OUTRIGHT</typeField>
+         </P30Y>
+         <P15Y type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+            <instrument type="string">BLOOMBERG_TICKER~USSW15 Curncy</instrument>
+            <dataField type="string">Market_Value</dataField>
+            <typeField type="string">OUTRIGHT</typeField>
+         </P15Y>
+      </swapIds>
    </value>
    <fudgeField0 ordinal="0" type="string">com.opengamma.core.config.impl.ConfigItem</fudgeField0>
    <fudgeField0 ordinal="0" type="string">org.joda.beans.impl.direct.DirectBean</fudgeField0>

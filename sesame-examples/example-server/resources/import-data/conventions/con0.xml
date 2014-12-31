@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fudgeEnvelope>
-   <uniqueId type="string">DbCnv~1000~0</uniqueId>
+   <uniqueId type="string">MemCnv~1</uniqueId>
    <externalIdBundle type="message">
       <ID type="message">
          <Scheme type="string">CONVENTION</Scheme>

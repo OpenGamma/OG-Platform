@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fudgeEnvelope>
-   <uniqueId type="string">DbSnp~1000~15</uniqueId>
+   <uniqueId type="string">MemSnap~1</uniqueId>
    <name type="string">USD_GBP_XCcy_Integration</name>
    <basisViewName type="string"></basisViewName>
    <globalValues type="message">
@@ -20,7 +20,7 @@
    <yieldCurves type="message"/>
    <curves type="message">
       <fudgeField1 ordinal="1" type="message">
-         <name type="string">GBP-FRAL3M-IRSL3M-NCS</name>
+         <name type="string">USD-OIS-FFS-NCS</name>
       </fudgeField1>
       <fudgeField2 ordinal="2" type="message">
          <fudgeField0 ordinal="0" type="string">com.opengamma.core.marketdatasnapshot.impl.ManageableCurveSnapshot</fudgeField0>
@@ -29,1257 +29,252 @@
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW1V3 Curncy</Value>
+                     <Value type="string">USBG15 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.007840000000000001</marketValue>
+                  <marketValue type="double">0.0023848500000000004</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW12V3 Curncy</Value>
+                     <Value type="string">USBG8 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.023880000000000002</marketValue>
+                  <marketValue type="double">0.0022500000000000003</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW3V3 Curncy</Value>
+                     <Value type="string">USBG3 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.01433</marketValue>
+                  <marketValue type="double">0.0017810300000000003</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW4V3 Curncy</Value>
+                     <Value type="string">USBG12 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.01641</marketValue>
+                  <marketValue type="double">0.00237</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPFR0CF Curncy</Value>
+                     <Value type="string">USSOB Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.006790000000000002</marketValue>
+                  <marketValue type="double">9.1E-4</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW20V3 Curncy</Value>
+                     <Value type="string">USBG4 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.02656</marketValue>
+                  <marketValue type="double">0.00192735</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW10V3 Curncy</Value>
+                     <Value type="string">USSOC Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.022640000000000007</marketValue>
+                  <marketValue type="double">9.150000000000001E-4</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW2V3 Curncy</Value>
+                     <Value type="string">USBG5 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.011389999999999997</marketValue>
+                  <marketValue type="double">0.0020548700000000003</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW9V3 Curncy</Value>
+                     <Value type="string">USDR1T Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.021920000000000002</marketValue>
+                  <marketValue type="double">0.0015500000000000002</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW30V3 Curncy</Value>
+                     <Value type="string">USBG6 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.027070000000000004</marketValue>
+                  <marketValue type="double">0.0021300000000000004</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW6V3 Curncy</Value>
+                     <Value type="string">USSO1 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.019200000000000002</marketValue>
+                  <marketValue type="double">0.001805</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BP0003M Index</Value>
+                     <Value type="string">USBG2 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.005639999999999999</marketValue>
+                  <marketValue type="double">0.00163006</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW25V3 Curncy</Value>
+                     <Value type="string">USSOA Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.026940000000000002</marketValue>
+                  <marketValue type="double">9.000000000000001E-4</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW7V3 Curncy</Value>
+                     <Value type="string">USBG9 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.020270000000000007</marketValue>
+                  <marketValue type="double">0.0022900000000000004</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW8V3 Curncy</Value>
+                     <Value type="string">USBG10 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.02117</marketValue>
+                  <marketValue type="double">0.0023218600000000002</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPFR0FI Curncy</Value>
+                     <Value type="string">USBG25 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.00847</marketValue>
+                  <marketValue type="double">0.0024400000000000003</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW5V3 Curncy</Value>
+                     <Value type="string">USSOF Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.01794</marketValue>
+                  <marketValue type="double">0.001</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW15V3 Curncy</Value>
+                     <Value type="string">USBG20 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.025240000000000002</marketValue>
+                  <marketValue type="double">0.0024500000000000004</marketValue>
                </value>
             </fudgeField1>
-         </values>
-         <valuationTime type="datetime">2014-01-22T17:00:02.884Z</valuationTime>
-      </fudgeField2>
-      <fudgeField1 ordinal="1" type="message">
-         <name type="string">USD-IRSL1M-BSL1ML3M-NCS</name>
-      </fudgeField1>
-      <fudgeField2 ordinal="2" type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.core.marketdatasnapshot.impl.ManageableCurveSnapshot</fudgeField0>
-         <values type="message">
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USSWBV1 Curncy</Value>
+                     <Value type="string">USSOI Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.0019</marketValue>
+                  <marketValue type="double">0.001245</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USSWCV1 Curncy</Value>
+                     <Value type="string">USBG7 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.0022</marketValue>
+                  <marketValue type="double">0.00219723</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBA7 Curncy</Value>
+                     <Value type="string">USBG30 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.00103125</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBA15 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">7.3125E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBAAI Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">8.500000000000002E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBA3 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.00101875</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">US0001M Index</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.0015600000000000002</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBA20 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">6.5625E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBA12 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">8.175000000000001E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBA25 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">5.9375E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBA4 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.00105625</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBA10 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">9.0625E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBA2 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">9.6875E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBAAF Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">8.25E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBA1 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">8.812500000000002E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBA30 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">5.5625E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBA5 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.00106875</marketValue>
-               </value>
-            </fudgeField1>
-         </values>
-         <valuationTime type="datetime">2014-01-22T17:00:02.884Z</valuationTime>
-      </fudgeField2>
-      <fudgeField1 ordinal="1" type="message">
-         <name type="string">USD-FRAL3M-IRSL3M-NCS</name>
-      </fudgeField1>
-      <fudgeField2 ordinal="2" type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.core.marketdatasnapshot.impl.ManageableCurveSnapshot</fudgeField0>
-         <values type="message">
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USSW12 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.02672</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USFR0CF Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.0026</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USFR0FI Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.003</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USSW4 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.015050000000000001</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USSW7 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.02145</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USSW30 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.031024999999999997</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USSW3 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.011428500000000001</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USSW5 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.0177025</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USSW15 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.028425</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">US0003M Index</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.0023810000000000003</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USSW2 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.0071175</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USSW25 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.030682499999999998</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USSW1 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.0033049999999999998</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USSW10 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.025050000000000003</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USSW20 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.029970000000000004</marketValue>
-               </value>
-            </fudgeField1>
-         </values>
-         <valuationTime type="datetime">2014-01-22T17:00:02.884Z</valuationTime>
-      </fudgeField2>
-      <fudgeField1 ordinal="1" type="message">
-         <name type="string">GBPUSD-FX-XCCYL3ML3M-NCS</name>
-      </fudgeField1>
-      <fudgeField2 ordinal="2" type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.core.marketdatasnapshot.impl.ManageableCurveSnapshot</fudgeField0>
-         <values type="message">
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPBS3 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.0</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">GBP2M Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">-8.154999999905321E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPBS2 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">7.500000000000002E-5</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPBS1 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">4.0E-5</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">GBP3M Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">-0.0012574999999901415</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">GBP6M Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">-0.0029759999999903197</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPBS12 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">-6.450000000000002E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">GBP9M Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">-0.005200999999990241</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPBS5 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">-2.0E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">GBP1M Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">-3.99999999990186E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPBS8 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">-3.8E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPBS25 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">-7.35E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPBS15 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">-8.500000000000002E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPBS4 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">-1.0E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPBS10 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">-5.0E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPBS20 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">-9.000000000000002E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPBS7 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">-3.000000000000001E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPBS30 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">-5.0E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPBS9 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">-4.4000000000000007E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPBS6 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">-2.75E-4</marketValue>
-               </value>
-            </fudgeField1>
-         </values>
-         <valuationTime type="datetime">2014-01-22T17:00:02.884Z</valuationTime>
-      </fudgeField2>
-      <fudgeField1 ordinal="1" type="message">
-         <name type="string">GBP CSA USD 6M Curve</name>
-      </fudgeField1>
-      <fudgeField2 ordinal="2" type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.core.marketdatasnapshot.impl.ManageableCurveSnapshot</fudgeField0>
-         <values type="message">
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW7 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.0217575</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW20 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.026695000000000007</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW8 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.022744</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW5 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.018625</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW9 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.0236</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW3 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.015297499999999999</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW30 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.028310000000000002</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW4 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.017275000000000002</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW12 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.02557000000000001</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW10 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.02433</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPFR0F1 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.01037</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BP0006M Index</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.0070155999999999994</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW15 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.0268375</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPFR0CI Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.008490000000000001</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW25 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.02696</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW2 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.012280000000000001</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">BPSW6 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.0205825</marketValue>
-               </value>
-            </fudgeField1>
-         </values>
-         <valuationTime type="datetime">2014-01-22T17:00:02.884Z</valuationTime>
-      </fudgeField2>
-      <fudgeField1 ordinal="1" type="message">
-         <name type="string">USD-FRAL6M-BSL3ML6M-NCS</name>
-      </fudgeField1>
-      <fudgeField2 ordinal="2" type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.core.marketdatasnapshot.impl.ManageableCurveSnapshot</fudgeField0>
-         <values type="message">
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBC12 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">9.187500000000002E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USFR0CI Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.004</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBC25 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">9.187500000000002E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBC2 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">9.000000000000002E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBC7 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">9.0625E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBC20 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">9.187500000000002E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBC4 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">9.000000000000002E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBC3 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">9.000000000000002E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBC30 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">9.3125E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBC10 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">9.0625E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBC15 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">9.45E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBC5 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">9.000000000000002E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBC1 Curncy</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">8.9375E-4</marketValue>
-               </value>
-            </fudgeField1>
-            <fudgeField1 ordinal="1" type="message">
-               <identifiers type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">US0006M Index</Value>
-                  </ID>
-               </identifiers>
-               <valueName type="string">Market_Value</valueName>
-               <value type="message">
-                  <marketValue type="double">0.0032990000000000003</marketValue>
+                  <marketValue type="double">0.00241265</marketValue>
                </value>
             </fudgeField1>
          </values>
@@ -1547,7 +542,7 @@
          <valuationTime type="datetime">2014-01-22T17:00:02.884Z</valuationTime>
       </fudgeField2>
       <fudgeField1 ordinal="1" type="message">
-         <name type="string">USD-OIS-FFS-NCS</name>
+         <name type="string">USD-FRAL3M-IRSL3M-NCS</name>
       </fudgeField1>
       <fudgeField2 ordinal="2" type="message">
          <fudgeField0 ordinal="0" type="string">com.opengamma.core.marketdatasnapshot.impl.ManageableCurveSnapshot</fudgeField0>
@@ -1556,252 +551,1257 @@
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBG15 Curncy</Value>
+                     <Value type="string">USSW12 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.0023848500000000004</marketValue>
+                  <marketValue type="double">0.02672</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBG8 Curncy</Value>
+                     <Value type="string">USFR0CF Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.0022500000000000003</marketValue>
+                  <marketValue type="double">0.0026</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBG3 Curncy</Value>
+                     <Value type="string">USFR0FI Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.0017810300000000003</marketValue>
+                  <marketValue type="double">0.003</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBG12 Curncy</Value>
+                     <Value type="string">USSW4 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.00237</marketValue>
+                  <marketValue type="double">0.015050000000000001</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USSOB Curncy</Value>
+                     <Value type="string">USSW7 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">9.1E-4</marketValue>
+                  <marketValue type="double">0.02145</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBG4 Curncy</Value>
+                     <Value type="string">USSW30 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.00192735</marketValue>
+                  <marketValue type="double">0.031024999999999997</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USSOC Curncy</Value>
+                     <Value type="string">USSW3 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">9.150000000000001E-4</marketValue>
+                  <marketValue type="double">0.011428500000000001</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBG5 Curncy</Value>
+                     <Value type="string">USSW5 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.0020548700000000003</marketValue>
+                  <marketValue type="double">0.0177025</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USDR1T Curncy</Value>
+                     <Value type="string">USSW15 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.0015500000000000002</marketValue>
+                  <marketValue type="double">0.028425</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBG6 Curncy</Value>
+                     <Value type="string">US0003M Index</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.0021300000000000004</marketValue>
+                  <marketValue type="double">0.0023810000000000003</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USSO1 Curncy</Value>
+                     <Value type="string">USSW2 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.001805</marketValue>
+                  <marketValue type="double">0.0071175</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBG2 Curncy</Value>
+                     <Value type="string">USSW25 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.00163006</marketValue>
+                  <marketValue type="double">0.030682499999999998</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USSOA Curncy</Value>
+                     <Value type="string">USSW1 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">9.000000000000001E-4</marketValue>
+                  <marketValue type="double">0.0033049999999999998</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBG9 Curncy</Value>
+                     <Value type="string">USSW10 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.0022900000000000004</marketValue>
+                  <marketValue type="double">0.025050000000000003</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBG10 Curncy</Value>
+                     <Value type="string">USSW20 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.0023218600000000002</marketValue>
+                  <marketValue type="double">0.029970000000000004</marketValue>
+               </value>
+            </fudgeField1>
+         </values>
+         <valuationTime type="datetime">2014-01-22T17:00:02.884Z</valuationTime>
+      </fudgeField2>
+      <fudgeField1 ordinal="1" type="message">
+         <name type="string">GBP CSA USD 6M Curve</name>
+      </fudgeField1>
+      <fudgeField2 ordinal="2" type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.core.marketdatasnapshot.impl.ManageableCurveSnapshot</fudgeField0>
+         <values type="message">
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPSW7 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.0217575</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBG25 Curncy</Value>
+                     <Value type="string">BPSW20 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.0024400000000000003</marketValue>
+                  <marketValue type="double">0.026695000000000007</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USSOF Curncy</Value>
+                     <Value type="string">BPSW8 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.001</marketValue>
+                  <marketValue type="double">0.022744</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBG20 Curncy</Value>
+                     <Value type="string">BPSW5 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.0024500000000000004</marketValue>
+                  <marketValue type="double">0.018625</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USSOI Curncy</Value>
+                     <Value type="string">BPSW9 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.001245</marketValue>
+                  <marketValue type="double">0.0236</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBG7 Curncy</Value>
+                     <Value type="string">BPSW3 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.00219723</marketValue>
+                  <marketValue type="double">0.015297499999999999</marketValue>
                </value>
             </fudgeField1>
             <fudgeField1 ordinal="1" type="message">
                <identifiers type="message">
                   <ID type="message">
                      <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">USBG30 Curncy</Value>
+                     <Value type="string">BPSW30 Curncy</Value>
                   </ID>
                </identifiers>
                <valueName type="string">Market_Value</valueName>
                <value type="message">
-                  <marketValue type="double">0.00241265</marketValue>
+                  <marketValue type="double">0.028310000000000002</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPSW4 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.017275000000000002</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPSW12 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.02557000000000001</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPSW10 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.02433</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPFR0F1 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.01037</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BP0006M Index</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.0070155999999999994</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPSW15 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.0268375</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPFR0CI Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.008490000000000001</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPSW25 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.02696</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPSW2 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.012280000000000001</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPSW6 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.0205825</marketValue>
+               </value>
+            </fudgeField1>
+         </values>
+         <valuationTime type="datetime">2014-01-22T17:00:02.884Z</valuationTime>
+      </fudgeField2>
+      <fudgeField1 ordinal="1" type="message">
+         <name type="string">USD-IRSL1M-BSL1ML3M-NCS</name>
+      </fudgeField1>
+      <fudgeField2 ordinal="2" type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.core.marketdatasnapshot.impl.ManageableCurveSnapshot</fudgeField0>
+         <values type="message">
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USSWBV1 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.0019</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USSWCV1 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.0022</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USBA7 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.00103125</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USBA15 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">7.3125E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USBAAI Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">8.500000000000002E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USBA3 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.00101875</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">US0001M Index</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.0015600000000000002</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USBA20 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">6.5625E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USBA12 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">8.175000000000001E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USBA25 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">5.9375E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USBA4 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.00105625</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USBA10 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">9.0625E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USBA2 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">9.6875E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USBAAF Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">8.25E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USBA1 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">8.812500000000002E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USBA30 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">5.5625E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USBA5 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.00106875</marketValue>
+               </value>
+            </fudgeField1>
+         </values>
+         <valuationTime type="datetime">2014-01-22T17:00:02.884Z</valuationTime>
+      </fudgeField2>
+      <fudgeField1 ordinal="1" type="message">
+         <name type="string">USD-FRAL6M-BSL3ML6M-NCS</name>
+      </fudgeField1>
+      <fudgeField2 ordinal="2" type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.core.marketdatasnapshot.impl.ManageableCurveSnapshot</fudgeField0>
+         <values type="message">
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USBC12 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">9.187500000000002E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USFR0CI Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.004</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USBC25 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">9.187500000000002E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USBC2 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">9.000000000000002E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USBC7 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">9.0625E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USBC20 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">9.187500000000002E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USBC4 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">9.000000000000002E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USBC3 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">9.000000000000002E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USBC30 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">9.3125E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USBC10 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">9.0625E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USBC15 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">9.45E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USBC5 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">9.000000000000002E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">USBC1 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">8.9375E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">US0006M Index</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.0032990000000000003</marketValue>
+               </value>
+            </fudgeField1>
+         </values>
+         <valuationTime type="datetime">2014-01-22T17:00:02.884Z</valuationTime>
+      </fudgeField2>
+      <fudgeField1 ordinal="1" type="message">
+         <name type="string">GBP-FRAL3M-IRSL3M-NCS</name>
+      </fudgeField1>
+      <fudgeField2 ordinal="2" type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.core.marketdatasnapshot.impl.ManageableCurveSnapshot</fudgeField0>
+         <values type="message">
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPSW1V3 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.007840000000000001</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPSW12V3 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.023880000000000002</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPSW3V3 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.01433</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPSW4V3 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.01641</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPFR0CF Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.006790000000000002</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPSW20V3 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.02656</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPSW10V3 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.022640000000000007</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPSW2V3 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.011389999999999997</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPSW9V3 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.021920000000000002</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPSW30V3 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.027070000000000004</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPSW6V3 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.019200000000000002</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BP0003M Index</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.005639999999999999</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPSW25V3 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.026940000000000002</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPSW7V3 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.020270000000000007</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPSW8V3 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.02117</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPFR0FI Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.00847</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPSW5V3 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.01794</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPSW15V3 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.025240000000000002</marketValue>
+               </value>
+            </fudgeField1>
+         </values>
+         <valuationTime type="datetime">2014-01-22T17:00:02.884Z</valuationTime>
+      </fudgeField2>
+      <fudgeField1 ordinal="1" type="message">
+         <name type="string">GBPUSD-FX-XCCYL3ML3M-NCS</name>
+      </fudgeField1>
+      <fudgeField2 ordinal="2" type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.core.marketdatasnapshot.impl.ManageableCurveSnapshot</fudgeField0>
+         <values type="message">
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPBS3 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">0.0</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">GBP2M Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">-8.154999999905321E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPBS2 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">7.500000000000002E-5</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPBS1 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">4.0E-5</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">GBP3M Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">-0.0012574999999901415</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">GBP6M Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">-0.0029759999999903197</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPBS12 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">-6.450000000000002E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">GBP9M Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">-0.005200999999990241</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPBS5 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">-2.0E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">GBP1M Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">-3.99999999990186E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPBS8 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">-3.8E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPBS25 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">-7.35E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPBS15 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">-8.500000000000002E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPBS4 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">-1.0E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPBS10 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">-5.0E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPBS20 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">-9.000000000000002E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPBS7 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">-3.000000000000001E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPBS30 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">-5.0E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPBS9 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">-4.4000000000000007E-4</marketValue>
+               </value>
+            </fudgeField1>
+            <fudgeField1 ordinal="1" type="message">
+               <identifiers type="message">
+                  <ID type="message">
+                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                     <Value type="string">BPBS6 Curncy</Value>
+                  </ID>
+               </identifiers>
+               <valueName type="string">Market_Value</valueName>
+               <value type="message">
+                  <marketValue type="double">-2.75E-4</marketValue>
                </value>
             </fudgeField1>
          </values>

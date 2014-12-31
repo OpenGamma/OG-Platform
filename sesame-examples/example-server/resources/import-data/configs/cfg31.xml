@@ -1,40 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fudgeEnvelope>
-   <type type="string">com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition</type>
-   <name type="string">GBP-BLUKGVT-BNUKGVT-LIN</name>
-   <uniqueId type="string">DbCfg~1077~17</uniqueId>
+   <type type="string">com.opengamma.sesame.credit.config.RestructuringSettings</type>
+   <name type="string">Sample Restructuring Map</name>
+   <uniqueId type="string">MemCfg~38~38</uniqueId>
    <value type="message">
-      <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition</fudgeField0>
-      <uniqueId type="string">DbCfg~1077~17</uniqueId>
-      <name type="string">GBP-BLUKGVT-BNUKGVT-LIN</name>
-      <node type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.BillNode</fudgeField0>
-         <curveNodeIdMapper type="string">GBP-UKGovt-Yield-BBG</curveNodeIdMapper>
-         <tenor type="string">P3M</tenor>
-      </node>
-      <node type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.BillNode</fudgeField0>
-         <curveNodeIdMapper type="string">GBP-UKGovt-Yield-BBG</curveNodeIdMapper>
-         <tenor type="string">P6M</tenor>
-      </node>
-      <node type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.BondNode</fudgeField0>
-         <curveNodeIdMapper type="string">GBP-UKGovt-Yield-BBG</curveNodeIdMapper>
-         <tenor type="string">P2Y</tenor>
-      </node>
-      <node type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.BondNode</fudgeField0>
-         <curveNodeIdMapper type="string">GBP-UKGovt-Yield-BBG</curveNodeIdMapper>
-         <tenor type="string">P5Y</tenor>
-      </node>
-      <node type="message">
-         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.BondNode</fudgeField0>
-         <curveNodeIdMapper type="string">GBP-UKGovt-Yield-BBG</curveNodeIdMapper>
-         <tenor type="string">P10Y</tenor>
-      </node>
-      <interpolatorName type="string">Linear</interpolatorName>
-      <rightExtrapolatorName type="string">FlatExtrapolator</rightExtrapolatorName>
-      <leftExtrapolatorName type="string">FlatExtrapolator</leftExtrapolatorName>
+      <restructuringMappings type="message">
+         <fudgeField1 ordinal="1" type="string">EUR</fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.analytics.financial.credit.RestructuringClause</fudgeField0>
+            <fudgeField1 ordinal="1" type="string">MM</fudgeField1>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="string">USD</fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.analytics.financial.credit.RestructuringClause</fudgeField0>
+            <fudgeField1 ordinal="1" type="string">XR</fudgeField1>
+         </fudgeField2>
+      </restructuringMappings>
    </value>
    <fudgeField0 ordinal="0" type="string">com.opengamma.core.config.impl.ConfigItem</fudgeField0>
    <fudgeField0 ordinal="0" type="string">org.joda.beans.impl.direct.DirectBean</fudgeField0>
