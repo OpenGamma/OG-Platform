@@ -49,7 +49,9 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ * Examples for variation margin (VM) calculation. 
+ * The VM is computed by the formula, VM(t) = PV(t) – PV(t-d) + PAI(t),  
+ * where PAI(t) = -PV(t-d) * ON(t-d,t) * d/DC
  */
 public class SwapVariationMarginE2ETest {
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
