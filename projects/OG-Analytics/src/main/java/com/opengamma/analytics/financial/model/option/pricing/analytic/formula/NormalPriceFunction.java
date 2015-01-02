@@ -99,4 +99,80 @@ public class NormalPriceFunction implements OptionPriceFunction<NormalFunctionDa
     }
     return price;
   }
+
+  /**
+   * Computes forward delta of an option in the normally distributed assets hypothesis (Bachelier model). 
+   * @param option The option description.
+   * @param data The model data.
+   * @return The Delta.
+   */
+  public double getDelta(EuropeanVanillaOption option, NormalFunctionData data) {
+    Validate.notNull(option, "option");
+    Validate.notNull(data, "data");
+    double strike = option.getStrike();
+    double t = option.getTimeToExpiry();
+    double forward = data.getForward();
+    double numeraire = data.getNumeraire();
+    double sigma = data.getNormalVolatility();
+    int sign = option.isCall() ? 1 : -1;
+    double sigmaRootT = sigma * Math.sqrt(t);
+    if (sigmaRootT < 1e-16) {
+      double x = sign * (forward - strike);
+      return x > 0 ? sign * numeraire : 0.0; // ambiguous if x and sigmaRootT are tiny, then reference number is returned
+    }
+    double arg = sign * (forward - strike) / sigmaRootT;
+    double nCDF = NORMAL.getCDF(arg);
+    return numeraire * sign * nCDF;
+  }
+
+  /**
+   * Computes forward gamma of an option in the normally distributed assets hypothesis (Bachelier model). 
+   * @param option The option description.
+   * @param data The model data.
+   * @return The gamma.
+   */
+  public double getGamma(EuropeanVanillaOption option, NormalFunctionData data) {
+    Validate.notNull(option, "option");
+    Validate.notNull(data, "data");
+    double strike = option.getStrike();
+    double t = option.getTimeToExpiry();
+    double forward = data.getForward();
+    double numeraire = data.getNumeraire();
+    double sigma = data.getNormalVolatility();
+    int sign = option.isCall() ? 1 : -1;
+    double sigmaRootT = sigma * Math.sqrt(t);
+    if (sigmaRootT < 1e-16) {
+      double x = sign * (forward - strike);
+      return Math.abs(x) > 1e-16 ? 0.0 : Double.POSITIVE_INFINITY;
+    }
+    double arg = (forward - strike) / sigmaRootT;
+    double nPDF = NORMAL.getPDF(arg);
+    return numeraire * nPDF / sigmaRootT;
+  }
+
+  /**
+   * Computes vega of an option in the normally distributed assets hypothesis (Bachelier model). 
+   * @param option The option description.
+   * @param data The model data.
+   * @return The vega.
+   */
+  public double getVega(EuropeanVanillaOption option, NormalFunctionData data) {
+    Validate.notNull(option, "option");
+    Validate.notNull(data, "data");
+    double strike = option.getStrike();
+    double t = option.getTimeToExpiry();
+    double forward = data.getForward();
+    double numeraire = data.getNumeraire();
+    double sigma = data.getNormalVolatility();
+    int sign = option.isCall() ? 1 : -1;
+    double rootT = Math.sqrt(t);
+    double sigmaRootT = sigma * rootT;
+    if (sigmaRootT < 1e-16) {
+      double x = sign * (forward - strike);
+      return Math.abs(x) > 1e-16 ? 0.0 : rootT; // ambiguous if x and sigmaRootT are tiny, then reference number is returned
+    }
+    double arg = (forward - strike) / sigmaRootT;
+    double nPDF = NORMAL.getPDF(arg);
+    return numeraire * nPDF * rootT;
+  }
 }
