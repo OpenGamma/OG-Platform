@@ -6,24 +6,44 @@
 package com.opengamma.analytics.financial.interestrate.future.provider;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalFunctionData;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalPriceFunction;
+import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
+import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesExpSimpleMoneynessProviderDiscount;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.analytics.math.interpolation.InterpolatorTestUtil;
+import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
+import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
+import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
  */
 public class STIRFuturesOptionNormalExpSimpleMoneynessMethodE2ETest {
 
-  private static final Interpolator1D SQUARE_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
-      Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-  private static final Interpolator1D TIME_SQUARE_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
-      Interpolator1DFactory.TIME_SQUARE, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final Interpolator1D SQUARE_FLAT =
+      CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.SQUARE_LINEAR,
+          Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final Interpolator1D TIME_SQUARE_FLAT =
+      CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.TIME_SQUARE,
+          Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(TIME_SQUARE_FLAT, SQUARE_FLAT);
 
   private static final double[] EXPIRY;
@@ -55,12 +75,114 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessMethodE2ETest {
       }
     }
   }
-  
+
+  private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
+  private static final IborIndex[] IBOR_INDEXES = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd();
+  private static final IborIndex EURIBOR3M = IBOR_INDEXES[0];
   final private static InterpolatedDoublesSurface VOL_SURFACE_SIMPLEMONEY = InterpolatedDoublesSurface.from(EXPIRY,
       SIMPLEMONEY, VOL, INTERPOLATOR_2D);
+  final private static NormalSTIRFuturesExpSimpleMoneynessProviderDiscount NORMAL_MULTICURVES = new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(
+      MULTICURVES, VOL_SURFACE_SIMPLEMONEY, EURIBOR3M);
+
+  private static final Calendar TARGET = MulticurveProviderDiscountDataSets.getEURCalendar();
+  private static final ZonedDateTime SPOT_LAST_TRADING_DATE = DateUtils.getUTCDate(2012, 9, 19);
+  private static final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE,
+      -EURIBOR3M.getSpotLag(), TARGET);
+  private static final double NOTIONAL = 1000000.0; // 1m
+  private static final double FUTURE_FACTOR = 0.25;
+  private static final String NAME = "ERU2";
+  private static final double STRIKE = 0.9850;
+  private static final InterestRateFutureSecurityDefinition ERU2_DEFINITION = new InterestRateFutureSecurityDefinition(
+      LAST_TRADING_DATE, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, NAME, TARGET);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18, 10, 0);
+  private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2011, 9, 16);
+  private static final boolean IS_CALL = true;
+  private static final InterestRateFutureOptionMarginSecurityDefinition OPTION_ERU2_DEFINITION = new InterestRateFutureOptionMarginSecurityDefinition(
+      ERU2_DEFINITION, EXPIRATION_DATE, STRIKE, IS_CALL);
+  private static final InterestRateFutureOptionMarginSecurity OPTION_ERU2 = OPTION_ERU2_DEFINITION
+      .toDerivative(REFERENCE_DATE);
+
+  private static final InterestRateFutureOptionMarginSecurityNormalSmileMethod METHOD_SECURITY_OPTION_NORMAL = InterestRateFutureOptionMarginSecurityNormalSmileMethod
+      .getInstance();
+  private static final InterestRateFutureSecurityDiscountingMethod METHOD_FUTURE = InterestRateFutureSecurityDiscountingMethod
+      .getInstance();
+  private static final NormalPriceFunction NORMAL_FUNCTION = new NormalPriceFunction();
 
   @Test
-  public void volatilitySurfaceTest() {
+  public void blackTest() {
+    double expirationTime = 1.4959;
+    double volatility = 0.9;
+    double futurePrice = 98.5 * 0.01;
+    double strike = 99.5 * 0.01;
+    double forwardInterestRate = (1.0 - futurePrice);
+    double strikeInterestRate = (1.0 - strike);
+
+    System.out.println(BlackFormulaRepository.price(futurePrice, strike, expirationTime, volatility, IS_CALL));
+    System.out.println(BlackFormulaRepository.price(forwardInterestRate, strikeInterestRate, expirationTime,
+        volatility, !IS_CALL));
+    System.out.println();
+
+  }
+
+  @Test
+  public void test() {
+    double computed = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, NORMAL_MULTICURVES);
+
+    InterestRateFutureSecurity underlyingFuture = ERU2_DEFINITION.toDerivative(REFERENCE_DATE);
+    double priceFuture = METHOD_FUTURE.price(underlyingFuture, MULTICURVES); // 1 - forward
+    double expirationTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, EXPIRATION_DATE);
+    EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKE, expirationTime, IS_CALL);
+    double volatility = VOL_SURFACE_SIMPLEMONEY.getZValue(expirationTime, STRIKE - priceFuture);
+    final NormalFunctionData normalPoint = new NormalFunctionData(priceFuture, 1.0, volatility);
+    double expected = NORMAL_FUNCTION.getPriceFunction(option).evaluate(normalPoint);
+    System.out.println(expected + "\t" + computed);
+  }
+
+  @Test
+  public void decompositionTest() {
+    double expirationTime = 1.4959;
+    double volatility = 0.9;
+    double futurePrice = 101.5 * 0.01;
+    double strike = 99.5 * 0.01;
+    double forwardInterestRate = (1.0 - futurePrice);
+    double strikeInterestRate = (1.0 - strike);
+    //        TimeCalculator.getTimeBetween(LocalDate.of(2014, 3, 17), LocalDate.of(2015, 9, 14));
+    EuropeanVanillaOption option = new EuropeanVanillaOption(strikeInterestRate, expirationTime, true);
+    final NormalFunctionData normalPoint = new NormalFunctionData(forwardInterestRate, 1.0, volatility);
+    normalPoint.getForward();
+    double computed = NORMAL_FUNCTION.getPriceFunction(option).evaluate(normalPoint);
+    System.out.println(computed);
+
+    System.out.println();
+    ProbabilityDistribution<Double> normal = new NormalDistribution(0, 1);
+    double sigmaRootT = volatility * Math.sqrt(expirationTime);
+    double d = (forwardInterestRate - strikeInterestRate) / sigmaRootT;
+    double call = normal.getCDF(d) * (forwardInterestRate - strikeInterestRate) + sigmaRootT *
+        normal.getPDF(d);
+    double put = normal.getCDF(-d) * (strikeInterestRate - forwardInterestRate) + sigmaRootT *
+        normal.getPDF(d);
+    System.out.println(call);
+    System.out.println(put);
+
+    System.out.println();
+    double dP = (futurePrice - strike) / sigmaRootT;
+    double callP = normal.getCDF(dP) * (futurePrice - strike) + sigmaRootT *
+        normal.getPDF(dP);
+    double putP = normal.getCDF(-dP) * (strike - futurePrice) + sigmaRootT *
+        normal.getPDF(dP);
+    System.out.println(callP);
+    System.out.println(putP);
+
+    System.out.println();
+    System.out.println(BlackFormulaRepository.price(0.410, 0.500, expirationTime, volatility, false));
+    System.out.println(BlackFormulaRepository.price(100.0 - 0.410, 100.0 - 0.500, expirationTime, volatility, true));
+  }
+
+  /**
+   * Print volatility surface
+   */
+  @Test(enabled = false)
+  public void volatilitySurfacePrintTest() {
     int nSample = 100;
     double minExpiry = EXPIRY_SET[0] * 0.8;
     double maxExpiry = EXPIRY_SET[NUM_EXPIRY - 1] * 1.2;
@@ -84,6 +206,46 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessMethodE2ETest {
       }
       System.out.print("\n");
     }
+  }
 
+  /**
+   * Check surface is correctly interpolated. 
+   */
+  @Test
+  public void Interpolation2DTest() {
+    double tol = 1.0e-10;
+
+    double[] expiry = new double[] {22.0 / 365.0, 22.0 / 365.0, 22.0 / 365.0, 22.0 / 365.0, 22.0 / 365.0, 57.0 / 365.0,
+        57.0 / 365.0, 57.0 / 365.0, 57.0 / 365.0, 57.0 / 365.0 };
+    double[] moneyness = new double[] {-0.001086366, -0.000180979, 0.0, 0.000723589, 0.00162734, -0.001540065,
+        -0.000633857, 0.0, 0.00027153, 0.001176098 };
+    double[] vol = new double[] {0.716515, 0.641929, 0.637017, 0.662312, 0.747397, 0.703106, 0.677655, 0.663821,
+        0.659139, 0.649632 };
+    InterpolatedDoublesSurface surface = InterpolatedDoublesSurface.from(expiry, moneyness, vol, INTERPOLATOR_2D);
+
+    double keyMoneyness = 0.001;
+    double computed1 = surface.getZValue(22.0 / 365.0, keyMoneyness);
+    double ratio1 = (keyMoneyness - 0.000723589) / (0.00162734 - 0.000723589);
+    double exp1 = Math.sqrt(0.662312 * 0.662312 * (1.0 - ratio1) + 0.747397 * 0.747397 * ratio1);
+    InterpolatorTestUtil.assertRelative("Interpolation2DTest, moneyness", exp1, computed1, tol);
+
+    double keyExpiry = 40.0;
+    double computed2 = surface.getZValue(keyExpiry / 365.0, 0.0);
+    double ratio2 = (keyExpiry - 22.0) / (57.0 - 22.0);
+    double exp2 = Math.sqrt((0.637017 * 0.637017 * 22.0 * (1.0 - ratio2) + 0.663821 * 0.663821 * 57.0 * ratio2) /
+        keyExpiry);
+    InterpolatorTestUtil.assertRelative("Interpolation2DTest, time", exp2, computed2, tol);
+
+    expiry = new double[] {22.0 / 365.0, 57.0 / 365.0, 22.0 / 365.0, 57.0 / 365.0, 22.0 / 365.0,
+        57.0 / 365.0, 22.0 / 365.0, 57.0 / 365.0, 22.0 / 365.0, 57.0 / 365.0 };
+    moneyness = new double[] {-0.001086366, -0.001540065, -0.000180979, -0.000633857, 0.0, 0.0, 0.000723589,
+        0.00027153, 0.00162734, 0.001176098 };
+    vol = new double[] {0.716515, 0.703106, 0.641929, 0.677655, 0.637017, 0.663821, 0.662312, 0.659139,
+        0.747397, 0.649632 };
+    surface = InterpolatedDoublesSurface.from(expiry, moneyness, vol, INTERPOLATOR_2D);
+    computed1 = surface.getZValue(22.0 / 365.0, keyMoneyness);
+    InterpolatorTestUtil.assertRelative("Interpolation2DTest, moneyness", exp1, computed1, tol);
+    computed2 = surface.getZValue(keyExpiry / 365.0, 0.0);
+    InterpolatorTestUtil.assertRelative("Interpolation2DTest, time", exp2, computed2, tol);
   }
 }

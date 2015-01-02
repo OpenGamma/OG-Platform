@@ -168,4 +168,110 @@ public final class InterestRateFutureOptionMarginSecurityNormalSmileMethod exten
     return METHOD_FUTURE.price(security.getUnderlyingFuture(), multicurves);
   }
 
+  /**
+   * Computes the option security price delta, wrt the futures price dV/df. The futures price is computed without convexity adjustment.
+   * It is supposed that for a given strike the volatility does not change with the curves.
+   * @param security The future option security.
+   * @param normalData The curve and normal volatility data.
+   * @return The delta.
+   */
+  public double priceDelta(InterestRateFutureOptionMarginSecurity security,
+      NormalSTIRFuturesProviderInterface normalData) {
+    ArgumentChecker.notNull(security, "Option security");
+    ArgumentChecker.notNull(normalData, "Normal data");
+    double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), normalData.getMulticurveProvider());
+    return priceDeltaFromFuturePrice(security, normalData, priceFuture);
+  }
+
+  /**
+   * Computes the option security price delta, wrt the futures price dV/df. The futures price is computed without convexity adjustment.
+   * It is supposed that for a given strike the volatility does not change with the curves.
+   * @param security The future option security.
+   * @param normalData The curve and normal volatility data.
+   * @param priceFuture The price of the underlying future.
+   * @return The delta.
+   */
+  public double priceDeltaFromFuturePrice(final InterestRateFutureOptionMarginSecurity security,
+      final NormalSTIRFuturesProviderInterface normalData, final double priceFuture) {
+    ArgumentChecker.notNull(security, "Option security");
+    ArgumentChecker.notNull(normalData, "Normal data");
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(security.getStrike(), security.getExpirationTime(),
+        security.isCall());
+    final double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
+    double volatility = normalData
+        .getVolatility(security.getExpirationTime(), delay, security.getStrike(), priceFuture);
+    final NormalFunctionData normalPoint = new NormalFunctionData(priceFuture, 1.0, volatility);
+    return NORMAL_FUNCTION.getDelta(option, normalPoint);
+  }
+
+  /**
+   * Computes the option's value gamma, the second derivative of the security price wrt underlying futures rate.
+   * The future price is computed without convexity adjustment.
+   * @param security The future option security.
+   * @param normalData The curve and normal volatility data.
+   * @return The gamma.
+   */
+  public double priceGamma(InterestRateFutureOptionMarginSecurity security,
+      NormalSTIRFuturesProviderInterface normalData) {
+    ArgumentChecker.notNull(security, "Option security");
+    ArgumentChecker.notNull(normalData, "Normal data");
+    double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), normalData.getMulticurveProvider());
+    return priceGammaFromFuturePrice(security, normalData, priceFuture);
+  }
+
+  /**
+   * Computes the option's value gamma, the second derivative of the security price wrt underlying futures rate.
+   * The future price is computed without convexity adjustment.
+   * @param security The future option security.
+   * @param normalData The curve and normal volatility data.
+   * @param priceFuture The price of the underlying future.
+   * @return The gamma.
+   */
+  public double priceGammaFromFuturePrice(final InterestRateFutureOptionMarginSecurity security,
+      final NormalSTIRFuturesProviderInterface normalData, final double priceFuture) {
+    ArgumentChecker.notNull(security, "Option security");
+    ArgumentChecker.notNull(normalData, "Normal data");
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(security.getStrike(), security.getExpirationTime(),
+        security.isCall());
+    final double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
+    double volatility = normalData
+        .getVolatility(security.getExpirationTime(), delay, security.getStrike(), priceFuture);
+    final NormalFunctionData normalPoint = new NormalFunctionData(priceFuture, 1.0, volatility);
+    return NORMAL_FUNCTION.getGamma(option, normalPoint);
+  }
+
+  /**
+   * Computes the option security vega. The future price is computed without convexity adjustment.
+   * @param security The future option security.
+   * @param normalData The curve and normal volatility data.
+   * @return The vega.
+   */
+  public double priceVega(InterestRateFutureOptionMarginSecurity security,
+      NormalSTIRFuturesProviderInterface normalData) {
+    ArgumentChecker.notNull(security, "Option security");
+    ArgumentChecker.notNull(normalData, "Normal data");
+    double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), normalData.getMulticurveProvider());
+    return priceVegaFromFuturePrice(security, normalData, priceFuture);
+  }
+
+  /**
+   * Computes the option security vega. The future price is computed without convexity adjustment.
+   * @param security The future option security.
+   * @param normalData The curve and normal volatility data.
+   * @param priceFuture The price of the underlying future.
+   * @return The vega.
+   */
+  public double priceVegaFromFuturePrice(final InterestRateFutureOptionMarginSecurity security,
+      final NormalSTIRFuturesProviderInterface normalData, final double priceFuture) {
+    ArgumentChecker.notNull(security, "Option security");
+    ArgumentChecker.notNull(normalData, "Normal data");
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(security.getStrike(), security.getExpirationTime(),
+        security.isCall());
+    final double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
+    double volatility = normalData
+        .getVolatility(security.getExpirationTime(), delay, security.getStrike(), priceFuture);
+    final NormalFunctionData normalPoint = new NormalFunctionData(priceFuture, 1.0, volatility);
+    return NORMAL_FUNCTION.getVega(option, normalPoint);
+  }
+
 }
