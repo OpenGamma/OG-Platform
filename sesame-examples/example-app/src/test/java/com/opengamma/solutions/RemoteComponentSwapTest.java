@@ -24,7 +24,6 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
-import com.opengamma.core.marketdatasnapshot.impl.RemoteMarketDataSnapshotSource;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
@@ -33,6 +32,7 @@ import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvi
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.integration.server.RemoteServer;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesResolver;
 import com.opengamma.service.ServiceContext;
@@ -98,8 +98,8 @@ public class RemoteComponentSwapTest {
 
   @BeforeClass
   public void setUp() {
-    String property = System.getProperty("server.url");
-    _url = property == null ? "http://localhost:8080/jax/" : property;
+    String serverUrl = System.getProperty("server.url");
+    _url = serverUrl == null ? RemoteTestUtils.LOCALHOST : serverUrl;
 
     URI htsResolverUri = URI.create(_url + "components/HistoricalTimeSeriesResolver/shared");
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
@@ -111,8 +111,8 @@ public class RemoteComponentSwapTest {
         ServiceContext.of(componentMap.getComponents()).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
 
-    _exposureConfig = ConfigLink.resolvable("USD-GBP-FF-1", ExposureFunctions.class);
-    _currencyMatrixLink = ConfigLink.resolvable("BBG-Matrix", CurrencyMatrix.class);
+    _exposureConfig = ConfigLink.resolvable(RemoteTestUtils.USD_GBP_FF_EXPOSURE, ExposureFunctions.class);
+    _currencyMatrixLink = ConfigLink.resolvable(RemoteTestUtils.CURRENCY_MATRIX, CurrencyMatrix.class);
     MarketDataSnapshotSource snapshotSource = componentMap.getComponent(MarketDataSnapshotSource.class);
     SnapshotMarketDataFactory marketDataFactory = new SnapshotMarketDataFactory(snapshotSource);
     List<MarketDataBuilder> builders = MarketDataBuilders.standard(componentMap, "BLOOMBERG", _currencyMatrixLink);
@@ -156,10 +156,10 @@ public class RemoteComponentSwapTest {
   public void testSwapPV() {
     final InterestRateSwapSecurity irs = (InterestRateSwapSecurity) RemoteViewSwapUtils.VANILLA_INPUTS.get(0);
 
-    RemoteMarketDataSnapshotSource snapshotSource =
-        new RemoteMarketDataSnapshotSource(URI.create(_url + "components/MarketDataSnapshotSource/default/"));
+    RemoteServer server = RemoteServer.create(_url);
+    MarketDataSnapshotSource snapshotSource = server.getMarketDataSnapshotSource();
     ManageableMarketDataSnapshot snapshot = snapshotSource.getSingle(ManageableMarketDataSnapshot.class,
-                                                                     "USD_GBP_XCcy_Integration",
+                                                                     RemoteTestUtils.USD_GBP_SNAPSHOT,
                                                                      VersionCorrection.LATEST);
 
     MarketDataSpecification marketDataSpec = UserMarketDataSpecification.of(snapshot.getUniqueId());

@@ -19,13 +19,14 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.link.ConfigLink;
+import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
-import com.opengamma.core.marketdatasnapshot.impl.RemoteMarketDataSnapshotSource;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.integration.server.RemoteServer;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.CalculationArguments;
@@ -61,10 +62,11 @@ public class RemoteBondTest {
 
   @BeforeClass
   public void setUp() {
-    String property = System.getProperty("server.url");
-    String url = property == null ? "http://localhost:8080/jax/" : property;
-    RemoteMarketDataSnapshotSource snapshotSource =
-        new RemoteMarketDataSnapshotSource(URI.create(url + "components/MarketDataSnapshotSource/default/"));
+    String serverUrl = System.getProperty("server.url");
+    String url = serverUrl == null ? RemoteTestUtils.LOCALHOST : serverUrl;
+
+    RemoteServer server = RemoteServer.create(url);
+    MarketDataSnapshotSource snapshotSource = server.getMarketDataSnapshotSource();
     ManageableMarketDataSnapshot snapshot = snapshotSource.getSingle(ManageableMarketDataSnapshot.class,
                                                                      "GBP_Bond_Integration",
                                                                      VersionCorrection.LATEST);
@@ -78,9 +80,9 @@ public class RemoteBondTest {
             .marketDataSpecification(marketDataSpec)
             .build();
 
-    _exposureConfigOis = ConfigLink.resolvable("GBP_SO_DSCONISCCY-OIS", ExposureFunctions.class);
-    _exposureConfigUkGovt = ConfigLink.resolvable("GBP_SO_DSCON-OIS_ISCCY-UKGVT", ExposureFunctions.class);
-    _currencyMatrixLink = ConfigLink.resolvable("BBG-Matrix", CurrencyMatrix.class);
+    _exposureConfigOis = ConfigLink.resolvable(RemoteTestUtils.OIS_EXPOSURE, ExposureFunctions.class);
+    _exposureConfigUkGovt = ConfigLink.resolvable(RemoteTestUtils.UK_GOV_EXPOSURE, ExposureFunctions.class);
+    _currencyMatrixLink = ConfigLink.resolvable(RemoteTestUtils.CURRENCY_MATRIX, CurrencyMatrix.class);
 
 
     // don't want to provide any data, let the server source it

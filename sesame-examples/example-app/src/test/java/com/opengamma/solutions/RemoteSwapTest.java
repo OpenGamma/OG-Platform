@@ -18,13 +18,14 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.link.ConfigLink;
+import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
-import com.opengamma.core.marketdatasnapshot.impl.RemoteMarketDataSnapshotSource;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.integration.server.RemoteServer;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.CalculationArguments;
@@ -68,13 +69,13 @@ public class RemoteSwapTest {
 
   @BeforeClass
   public void setUp() {
-    String property = System.getProperty("server.url");
-    String url = property == null ? "http://localhost:8080/jax/" : property;
+    String serverUrl = System.getProperty("server.url");
+    String url = serverUrl == null ? RemoteTestUtils.LOCALHOST : serverUrl;
 
-    RemoteMarketDataSnapshotSource snapshotSource =
-        new RemoteMarketDataSnapshotSource(URI.create(url + "components/MarketDataSnapshotSource/default/"));
+    RemoteServer server = RemoteServer.create(url);
+    MarketDataSnapshotSource snapshotSource = server.getMarketDataSnapshotSource();
     ManageableMarketDataSnapshot snapshot = snapshotSource.getSingle(ManageableMarketDataSnapshot.class,
-                                                                     "USD_GBP_XCcy_Integration",
+                                                                     RemoteTestUtils.USD_GBP_SNAPSHOT,
                                                                      VersionCorrection.LATEST);
 
     Engine engine = new RemoteEngine(URI.create(url));
@@ -85,8 +86,8 @@ public class RemoteSwapTest {
             .valuationTime(DateUtils.getUTCDate(2014, 1, 22))
             .build();
 
-    _exposureConfig = ConfigLink.resolvable("USD-GBP-FF-1", ExposureFunctions.class);
-    _currencyMatrixLink = ConfigLink.resolvable("BBG-Matrix", CurrencyMatrix.class);
+    _exposureConfig = ConfigLink.resolvable(RemoteTestUtils.USD_GBP_FF_EXPOSURE, ExposureFunctions.class);
+    _currencyMatrixLink = ConfigLink.resolvable(RemoteTestUtils.CURRENCY_MATRIX, CurrencyMatrix.class);
 
     ViewConfig viewConfig = createViewConfig();
     // don't want to provide any data, let the server source it

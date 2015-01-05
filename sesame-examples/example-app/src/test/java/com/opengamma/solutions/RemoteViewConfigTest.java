@@ -10,24 +10,18 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 
-import java.net.URI;
-
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.opengamma.component.ComponentInfo;
-import com.opengamma.component.ComponentServer;
-import com.opengamma.component.rest.RemoteComponentServer;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
-import com.opengamma.core.config.impl.RemoteConfigSource;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.integration.server.RemoteServer;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
-import com.opengamma.master.config.impl.RemoteConfigMaster;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.solutions.util.RemoteViewFraUtils;
@@ -43,44 +37,37 @@ public class RemoteViewConfigTest {
   private ConfigLink<ExposureFunctions> _exposureConfig;
   private ConfigLink<CurrencyMatrix> _currencyMatrixLink;
   private String _url;
-  private static final String CONFIG_NAME = "Remote view";
 
   @BeforeClass
   public void setUp() {
-    String property = System.getProperty("server.url");
-    _url = property == null ? "http://localhost:8080/jax/" : property;
-    _exposureConfig = ConfigLink.resolvable("USD-GBP-FF-1", ExposureFunctions.class);
-    _currencyMatrixLink = ConfigLink.resolvable("BBG-Matrix", CurrencyMatrix.class);
+    String serverUrl = System.getProperty("server.url");
+    _url = serverUrl == null ? RemoteTestUtils.LOCALHOST : serverUrl;
+    _exposureConfig = ConfigLink.resolvable(RemoteTestUtils.USD_GBP_FF_EXPOSURE, ExposureFunctions.class);
+    _currencyMatrixLink = ConfigLink.resolvable(RemoteTestUtils.CURRENCY_MATRIX, CurrencyMatrix.class);
   }
 
   @Test(enabled = true)
   public void persistAndAccessViewConfig() {
 
-    // Access the components running on the remote server
-    RemoteComponentServer remoteComponentServer = new RemoteComponentServer(URI.create(_url));
-    ComponentServer componentServer = remoteComponentServer.getComponentServer();
-
-    // Get the info on the ConfigMaster (write access)
-    ComponentInfo configMasterInfo = componentServer.getComponentInfo(ConfigMaster.class, "default");
+    RemoteServer server = RemoteServer.create(_url);
 
     // Create the config item and document
     ConfigItem<ViewConfig> columnConfigItem = ConfigItem.of(createViewConfig(), "View Config", ViewConfig.class);
     ConfigDocument doc = new ConfigDocument(columnConfigItem);
 
     // Persist in the Master
-    RemoteConfigMaster configMaster = new RemoteConfigMaster(configMasterInfo.getUri());
+    ConfigMaster configMaster = server.getConfigMaster();
     configMaster.add(doc);
 
-    // Get the info on the ConfigSource (read access)
-    ComponentInfo configSourceInfo = componentServer.getComponentInfo(ConfigSource.class, "default");
-    RemoteConfigSource configSource = new RemoteConfigSource(configSourceInfo.getUri());
+    // Get the ConfigSource (read access)
+    ConfigSource configSource = server.getConfigSource();
 
     // Query the source
     ViewConfig configItem = configSource.getSingle(ViewConfig.class,
-                                                    "View Config",
-                                                    VersionCorrection.LATEST);
+                                                   "View Config",
+                                                   VersionCorrection.LATEST);
 
-    assertThat(configItem.getName(), is(CONFIG_NAME));
+    assertThat(configItem.getName(), is(RemoteTestUtils.CONFIG_NAME));
     assertThat(configItem.getColumns().size(), is(1));
     assertThat(configItem.getColumns().get(0).getName(), is(OutputNames.PRESENT_VALUE));
   }
@@ -88,7 +75,7 @@ public class RemoteViewConfigTest {
   private ViewConfig createViewConfig() {
     return
         configureView(
-            CONFIG_NAME,
+            RemoteTestUtils.CONFIG_NAME,
             RemoteViewFraUtils.createFraViewColumn(
                 OutputNames.PRESENT_VALUE,
                 _exposureConfig,

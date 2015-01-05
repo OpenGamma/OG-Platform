@@ -203,33 +203,33 @@ public class ThirdPartyRemoteTest {
     /* Output specific view configuration for interest rate swaps */
     private ViewConfig createViewConfig(String output) {
 
-        return
-                configureView(
-                        "IRS Remote view",
-                        column(OutputNames.PRESENT_VALUE,
-                               config(
-                                   arguments(
-                                       function(
-                                           MarketExposureSelector.class,
-                                           argument("exposureFunctions", _exposureConfig)),
-                                       function(
-                                           DefaultHistoricalMarketDataFn.class,
-                                           argument("dataSource", "BLOOMBERG"),
-                                           argument("currencyMatrix", _currencyMatrixLink)),
-                                       function(
-                                           DefaultMarketDataFn.class,
-                                           argument("dataSource", "BLOOMBERG"))),
-                                   implementations(
-                                       CurveSelector.class, MarketExposureSelector.class,
-                                       DiscountingMulticurveCombinerFn.class, CurveSelectorMulticurveBundleFn.class,
-                                       InterestRateSwapFn.class, DiscountingInterestRateSwapFn.class,
-                                       InterestRateSwapConverterFn.class, DefaultInterestRateSwapConverterFn.class,
-                                                InterestRateSwapFn.class, DiscountingInterestRateSwapFn.class,
-                                                InterestRateSwapCalculatorFactory.class, ThirdPartyInterestRateSwapCalculatorFactory.class)
-                                ),
-                                output(output, InterestRateSwapSecurity.class)
-                        )
-                );
+      return
+          configureView(
+              "IRS Remote view",
+              column(OutputNames.PRESENT_VALUE,
+                     config(
+                         arguments(
+                             function(
+                                 MarketExposureSelector.class,
+                                 argument("exposureFunctions", _exposureConfig)),
+                             function(
+                                 DefaultHistoricalMarketDataFn.class,
+                                 argument("dataSource", "BLOOMBERG"),
+                                 argument("currencyMatrix", _currencyMatrixLink)),
+                             function(
+                                 DefaultMarketDataFn.class,
+                                 argument("dataSource", "BLOOMBERG"))),
+                         implementations(
+                             CurveSelector.class, MarketExposureSelector.class,
+                             DiscountingMulticurveCombinerFn.class, CurveSelectorMulticurveBundleFn.class,
+                             InterestRateSwapFn.class, DiscountingInterestRateSwapFn.class,
+                             InterestRateSwapConverterFn.class, DefaultInterestRateSwapConverterFn.class,
+                             InterestRateSwapFn.class, DiscountingInterestRateSwapFn.class,
+                             InterestRateSwapCalculatorFactory.class, ThirdPartyInterestRateSwapCalculatorFactory.class)
+                     ),
+                     output(output, InterestRateSwapSecurity.class)
+              )
+          );
     }
 
     /* A non portfolio output view configuration to capture the build curves */
