@@ -11,7 +11,7 @@
     <relativePath></relativePath>
   </parent>
   <groupId>com.opengamma.solutions</groupId>
-  <artifactId>example-app</artifactId>
+  <artifactId>example-server</artifactId>
   <version>0.6</version>
 
   <dependencies>
@@ -59,14 +59,6 @@
       <scope>test</scope>
     </dependency>
 
-    <dependency>
-      <groupId>com.opengamma.platform</groupId>
-      <artifactId>og-util</artifactId>
-      <version>${og.version}</version>
-      <scope>test</scope>
-      <type>test-jar</type>
-    </dependency>
-
   </dependencies>
 
   <build>
@@ -75,7 +67,7 @@
         <directory>config</directory>
       </resource>
       <resource>
-        <directory>resource</directory>
+        <directory>resources</directory>
       </resource>
     </resources>
 
@@ -87,6 +79,7 @@
           <target>1.7</target>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
@@ -99,11 +92,32 @@
           </execution>
         </executions>
       </plugin>
+
+      <!-- Unpack for dev environment -->
       <plugin>
-        <groupId>org.joda</groupId>
-        <artifactId>joda-beans-maven-plugin</artifactId>
-        <version>0.7.3</version>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.opengamma.platform</groupId>
+                  <artifactId>og-web</artifactId>
+                  <version>${og.version}</version>
+                  <type>zip</type>
+                  <classifier>web-engine</classifier>
+                  <outputDirectory>web-engine</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
+
     </plugins>
   </build>
 

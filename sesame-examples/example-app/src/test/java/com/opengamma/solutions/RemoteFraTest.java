@@ -18,12 +18,16 @@ import java.util.List;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.google.common.base.Objects;
 import com.opengamma.core.link.ConfigLink;
+import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.currency.CurrencyMatrix;
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.integration.server.RemoteServer;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.CalculationArguments;
@@ -32,6 +36,7 @@ import com.opengamma.sesame.engine.RemoteEngine;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
+import com.opengamma.solutions.util.RemoteViewFraUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -54,20 +59,25 @@ public class RemoteFraTest {
 
   @BeforeClass
   public void setUp() {
-    String property = System.getProperty("server.url");
-    String url = property == null ? "http://localhost:8080/jax" : property;
+    String url = Objects.firstNonNull(System.getProperty("server.url"), RemoteTestUtils.LOCALHOST);
+
+    RemoteServer server = RemoteServer.create(url);
+    MarketDataSnapshotSource snapshotSource = server.getMarketDataSnapshotSource();
+    ManageableMarketDataSnapshot snapshot = snapshotSource.getSingle(ManageableMarketDataSnapshot.class,
+                                                                     RemoteTestUtils.USD_GBP_SNAPSHOT,
+                                                                     VersionCorrection.LATEST);
+
     Engine engine = new RemoteEngine(URI.create(url));
-    UniqueId snapshotId = UniqueId.of("DbSnp", "1000");
-    MarketDataSpecification marketDataSpecification = UserMarketDataSpecification.of(snapshotId);
+    MarketDataSpecification marketDataSpec = UserMarketDataSpecification.of(snapshot.getUniqueId());
 
     CalculationArguments calculationArguments =
         CalculationArguments.builder()
             .valuationTime(DateUtils.getUTCDate(2014, 1, 22))
-            .marketDataSpecification(marketDataSpecification)
+            .marketDataSpecification(marketDataSpec)
             .build();
 
-    _exposureConfig = ConfigLink.resolvable("USD-GBP-FF-1", ExposureFunctions.class);
-    _currencyMatrixLink = ConfigLink.resolvable("BBG-Matrix", CurrencyMatrix.class);
+    _exposureConfig = ConfigLink.resolvable(RemoteTestUtils.USD_GBP_FF_EXPOSURE, ExposureFunctions.class);
+    _currencyMatrixLink = ConfigLink.resolvable(RemoteTestUtils.CURRENCY_MATRIX, CurrencyMatrix.class);
 
     // don't want to provide any data, let the server source it
     MarketDataEnvironment marketDataEnvironment = MarketDataEnvironmentBuilder.empty();

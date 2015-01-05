@@ -20,9 +20,11 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
@@ -30,7 +32,8 @@ import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.integration.server.RemoteServer;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesResolver;
 import com.opengamma.service.ServiceContext;
@@ -40,7 +43,7 @@ import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.CurveDefinitionCurveLabellingFn;
 import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.CurveLabellingFn;
-import com.opengamma.sesame.CurveSelectorFn;
+import com.opengamma.sesame.CurveSelector;
 import com.opengamma.sesame.CurveSelectorMulticurveBundleFn;
 import com.opengamma.sesame.DefaultCurrencyPairsFn;
 import com.opengamma.sesame.DefaultCurveDefinitionFn;
@@ -73,6 +76,7 @@ import com.opengamma.sesame.marketdata.SnapshotMarketDataFactory;
 import com.opengamma.sesame.marketdata.builders.MarketDataBuilder;
 import com.opengamma.sesame.marketdata.builders.MarketDataBuilders;
 import com.opengamma.sesame.marketdata.builders.MarketDataEnvironmentFactory;
+import com.opengamma.solutions.util.RemoteViewSwapUtils;
 import com.opengamma.util.function.Function;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
@@ -91,24 +95,24 @@ public class RemoteComponentSwapTest {
   private ConfigLink<CurrencyMatrix> _currencyMatrixLink;
   private InterestRateSwapFn _swapFunction;
   private FunctionRunner _functionRunner;
+  private static String _url;
 
   @BeforeClass
   public void setUp() {
-    String property = System.getProperty("server.url");
-    String url = property == null ? "http://localhost:8080/jax" : property;
+    _url = Objects.firstNonNull(System.getProperty("server.url"), RemoteTestUtils.LOCALHOST);
 
-    URI htsResolverUri = URI.create(url + "components/HistoricalTimeSeriesResolver/shared");
+    URI htsResolverUri = URI.create(_url + "components/HistoricalTimeSeriesResolver/shared");
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
     Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
 
-    ComponentMap componentMap = ComponentMap.loadComponents(url).with(comps);
+    ComponentMap componentMap = ComponentMap.loadComponents(_url).with(comps);
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
     ServiceContext serviceContext =
         ServiceContext.of(componentMap.getComponents()).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
 
-    _exposureConfig = ConfigLink.resolvable("USD-GBP-FF-1", ExposureFunctions.class);
-    _currencyMatrixLink = ConfigLink.resolvable("BBG-Matrix", CurrencyMatrix.class);
+    _exposureConfig = ConfigLink.resolvable(RemoteTestUtils.USD_GBP_FF_EXPOSURE, ExposureFunctions.class);
+    _currencyMatrixLink = ConfigLink.resolvable(RemoteTestUtils.CURRENCY_MATRIX, CurrencyMatrix.class);
     MarketDataSnapshotSource snapshotSource = componentMap.getComponent(MarketDataSnapshotSource.class);
     SnapshotMarketDataFactory marketDataFactory = new SnapshotMarketDataFactory(snapshotSource);
     List<MarketDataBuilder> builders = MarketDataBuilders.standard(componentMap, "BLOOMBERG", _currencyMatrixLink);
@@ -127,24 +131,22 @@ public class RemoteComponentSwapTest {
                     argument("exposureFunctions", _exposureConfig)),
                 function(
                     DefaultHistoricalMarketDataFn.class,
-                    argument("dataSource", "BLOOMBERG"),
                     argument("currencyMatrix", _currencyMatrixLink)),
                 function(
                     DefaultMarketDataFn.class,
-                    argument("dataSource", "BLOOMBERG"),
                     argument("currencyMatrix", _currencyMatrixLink))),
             implementations(
                 InterestRateSwapFn.class, DiscountingInterestRateSwapFn.class,
+                CurveSelector.class, MarketExposureSelector.class,
                 CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
                 InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
                 InterestRateSwapCalculatorFactory.class, DiscountingInterestRateSwapCalculatorFactory.class,
+                DiscountingMulticurveCombinerFn.class, CurveSelectorMulticurveBundleFn.class,
                 InterestRateSwapCalculator.class, DiscountingInterestRateSwapCalculator.class,
                 FXMatrixFn.class, DefaultFXMatrixFn.class,
-                DiscountingMulticurveCombinerFn.class, CurveSelectorMulticurveBundleFn.class,
                 CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
                 InterestRateSwapConverterFn.class, DefaultInterestRateSwapConverterFn.class,
                 CurveLabellingFn.class, CurveDefinitionCurveLabellingFn.class,
-                CurveSelectorFn.class, MarketExposureSelector.class,
                 HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
                 FixingsFn.class, DefaultFixingsFn.class,
                 MarketDataFn.class, DefaultMarketDataFn.class));
@@ -153,8 +155,15 @@ public class RemoteComponentSwapTest {
   @Test(enabled = true)
   public void testSwapPV() {
     final InterestRateSwapSecurity irs = (InterestRateSwapSecurity) RemoteViewSwapUtils.VANILLA_INPUTS.get(0);
-    UniqueId snapshotId = UniqueId.of("DbSnp", "1000");
-    MarketDataSpecification marketDataSpec = UserMarketDataSpecification.of(snapshotId);
+
+    RemoteServer server = RemoteServer.create(_url);
+    MarketDataSnapshotSource snapshotSource = server.getMarketDataSnapshotSource();
+    ManageableMarketDataSnapshot snapshot = snapshotSource.getSingle(ManageableMarketDataSnapshot.class,
+                                                                     RemoteTestUtils.USD_GBP_SNAPSHOT,
+                                                                     VersionCorrection.LATEST);
+
+    MarketDataSpecification marketDataSpec = UserMarketDataSpecification.of(snapshot.getUniqueId());
+
     CalculationArguments calculationArguments =
         CalculationArguments.builder()
             .marketDataSpecification(marketDataSpec)

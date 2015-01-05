@@ -2,14 +2,12 @@
 Examples covered
 ================
 
-The best place to start exploring the functionality covered in this project is in the tests.
+The best place to start exploring the functionality covered in this project is in the example app tests.
 
 RemoteBondTest
 ==============
 
 This integration test validates Present Value against a remote server. The view definition and bond inputs are defined in **RemoteViewBondUtils**.
-
-Bond examples include
 
 RemoteFraTest
 ==============
@@ -26,4 +24,9 @@ Examples include swaps with fixed, float, spread, fixing, compounding, stubs, fe
 RemoteComponentSwapTest
 =======================
 
-This integration test runs a single cycle of the engine locally, pulling the configuration components from the remote server
+This integration test runs a single cycle of the engine locally, pulling the configuration components from the remote server.
+
+RemoteViewConfigTest
+==============
+
+This integration test creates, persists and accesses a view config

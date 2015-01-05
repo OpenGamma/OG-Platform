@@ -73,6 +73,18 @@ public class ThirdPartyInterestRateSwapCalculator implements InterestRateSwapCal
 
   /* Not implemented */
   @Override
+  public Result<MultipleCurrencyAmount> calculatePayLegPv() {
+    throw new UnsupportedOperationException();
+  }
+
+  /* Not implemented */
+  @Override
+  public Result<MultipleCurrencyAmount> calculateReceiveLegPv() {
+    throw new UnsupportedOperationException();
+  }
+
+  /* Not implemented */
+  @Override
   public Result<BucketedCurveSensitivities> calculateBucketedPV01() {
     throw new UnsupportedOperationException();
   }

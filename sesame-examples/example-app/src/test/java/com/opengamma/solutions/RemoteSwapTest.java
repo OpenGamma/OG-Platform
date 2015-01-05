@@ -17,12 +17,16 @@ import java.net.URI;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.google.common.base.Objects;
 import com.opengamma.core.link.ConfigLink;
+import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.currency.CurrencyMatrix;
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.integration.server.RemoteServer;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.CalculationArguments;
@@ -32,6 +36,7 @@ import com.opengamma.sesame.engine.ResultRow;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
+import com.opengamma.solutions.util.RemoteViewSwapUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -65,20 +70,24 @@ public class RemoteSwapTest {
 
   @BeforeClass
   public void setUp() {
-    String property = System.getProperty("server.url");
-    String url = property == null ? "http://localhost:8080/jax" : property;
+    String url = Objects.firstNonNull(System.getProperty("server.url"), RemoteTestUtils.LOCALHOST);
+
+    RemoteServer server = RemoteServer.create(url);
+    MarketDataSnapshotSource snapshotSource = server.getMarketDataSnapshotSource();
+    ManageableMarketDataSnapshot snapshot = snapshotSource.getSingle(ManageableMarketDataSnapshot.class,
+                                                                     RemoteTestUtils.USD_GBP_SNAPSHOT,
+                                                                     VersionCorrection.LATEST);
 
     Engine engine = new RemoteEngine(URI.create(url));
-    UniqueId snapshotId = UniqueId.of("DbSnp", "1000");
-    MarketDataSpecification marketDataSpec = UserMarketDataSpecification.of(snapshotId);
+    MarketDataSpecification marketDataSpec = UserMarketDataSpecification.of(snapshot.getUniqueId());
     CalculationArguments args =
         CalculationArguments.builder()
             .marketDataSpecification(marketDataSpec)
             .valuationTime(DateUtils.getUTCDate(2014, 1, 22))
             .build();
 
-    _exposureConfig = ConfigLink.resolvable("USD-GBP-FF-1", ExposureFunctions.class);
-    _currencyMatrixLink = ConfigLink.resolvable("BBG-Matrix", CurrencyMatrix.class);
+    _exposureConfig = ConfigLink.resolvable(RemoteTestUtils.USD_GBP_FF_EXPOSURE, ExposureFunctions.class);
+    _currencyMatrixLink = ConfigLink.resolvable(RemoteTestUtils.CURRENCY_MATRIX, CurrencyMatrix.class);
 
     ViewConfig viewConfig = createViewConfig();
     // don't want to provide any data, let the server source it
@@ -94,7 +103,7 @@ public class RemoteSwapTest {
     _singleLegResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.SINGLE_LEG_INPUT);
     _zeroCouponResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.ZERO_COUPON_COMPOUNDING_INPUT);
     _iborCompoundingResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.IBOR_COMPOUNDING_INPUT);
-    _notionalExchangeResults = engine.runView(viewConfig, args, env,RemoteViewSwapUtils.NOTIONAL_EXCHANGE_INPUT);
+    _notionalExchangeResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.NOTIONAL_EXCHANGE_INPUT);
   }
 
   private ViewConfig createViewConfig() {
@@ -219,7 +228,7 @@ public class RemoteSwapTest {
     assertSuccess(result);
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-828863.7078, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-828863.7088161744, STD_TOLERANCE_PV)));
   }
 
   /* Compounding -start */
@@ -233,7 +242,7 @@ public class RemoteSwapTest {
     assertSuccess(result);
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(80166.8308, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(80166.8297495842, STD_TOLERANCE_PV)));
   }
 
   @Test
