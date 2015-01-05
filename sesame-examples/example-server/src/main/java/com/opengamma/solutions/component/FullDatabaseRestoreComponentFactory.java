@@ -34,7 +34,7 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 
 /**
- * Populate sample data
+ * Populate masters with sample data by parsing and persisting xml
  */
 @BeanDefinition
 public class FullDatabaseRestoreComponentFactory extends AbstractComponentFactory {
