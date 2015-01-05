@@ -118,7 +118,10 @@ public class NormalPriceFunction implements OptionPriceFunction<NormalFunctionDa
     double sigmaRootT = sigma * Math.sqrt(t);
     if (sigmaRootT < 1e-16) {
       double x = sign * (forward - strike);
-      return x > 0 ? sign * numeraire : 0.0; // ambiguous if x and sigmaRootT are tiny, then reference number is returned
+      if (Math.abs(x) <= 1e-16) {
+        return sign * 0.5 * numeraire; // ambiguous if x and sigmaRootT are tiny, then reference number is returned
+      }
+      return x > 0 ? sign * numeraire : 0.0;
     }
     double arg = sign * (forward - strike) / sigmaRootT;
     double nCDF = NORMAL.getCDF(arg);
@@ -143,7 +146,8 @@ public class NormalPriceFunction implements OptionPriceFunction<NormalFunctionDa
     double sigmaRootT = sigma * Math.sqrt(t);
     if (sigmaRootT < 1e-16) {
       double x = sign * (forward - strike);
-      return Math.abs(x) > 1e-16 ? 0.0 : Double.POSITIVE_INFINITY;
+      // ambiguous (tend to be infinite) if x and sigmaRootT are tiny, then reference number is returned
+      return Math.abs(x) > 1e-16 ? 0.0 : numeraire / Math.sqrt(2.0 * Math.PI) / sigmaRootT;
     }
     double arg = (forward - strike) / sigmaRootT;
     double nPDF = NORMAL.getPDF(arg);
@@ -169,7 +173,8 @@ public class NormalPriceFunction implements OptionPriceFunction<NormalFunctionDa
     double sigmaRootT = sigma * rootT;
     if (sigmaRootT < 1e-16) {
       double x = sign * (forward - strike);
-      return Math.abs(x) > 1e-16 ? 0.0 : rootT; // ambiguous if x and sigmaRootT are tiny, then reference number is returned
+      // ambiguous if x and sigmaRootT are tiny, then reference number is returned
+      return Math.abs(x) > 1e-16 ? 0.0 : numeraire * rootT / Math.sqrt(2.0 * Math.PI);
     }
     double arg = (forward - strike) / sigmaRootT;
     double nPDF = NORMAL.getPDF(arg);
