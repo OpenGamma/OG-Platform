@@ -17,6 +17,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.base.Objects;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.CalculationArguments;
@@ -50,8 +51,7 @@ public class RemoteCreditTest {
 
   @BeforeClass
   public void setUp() {
-    String property = System.getProperty("server.url");
-    String url = property == null ? "http://localhost:8080/jax/" : property;
+    String url = Objects.firstNonNull(System.getProperty("server.url"), RemoteTestUtils.LOCALHOST);
 
     Engine engine = new RemoteEngine(URI.create(url));
     MarketDataSpecification marketDataSpec = EmptyMarketDataSpec.INSTANCE;
