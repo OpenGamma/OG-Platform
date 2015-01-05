@@ -20,6 +20,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
@@ -98,8 +99,7 @@ public class RemoteComponentSwapTest {
 
   @BeforeClass
   public void setUp() {
-    String serverUrl = System.getProperty("server.url");
-    _url = serverUrl == null ? RemoteTestUtils.LOCALHOST : serverUrl;
+    _url = Objects.firstNonNull(System.getProperty("server.url"), RemoteTestUtils.LOCALHOST);
 
     URI htsResolverUri = URI.create(_url + "components/HistoricalTimeSeriesResolver/shared");
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);

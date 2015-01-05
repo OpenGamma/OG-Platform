@@ -13,6 +13,7 @@ import static org.hamcrest.Matchers.closeTo;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.google.common.base.Objects;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.link.ConfigLink;
@@ -40,8 +41,7 @@ public class RemoteViewConfigTest {
 
   @BeforeClass
   public void setUp() {
-    String serverUrl = System.getProperty("server.url");
-    _url = serverUrl == null ? RemoteTestUtils.LOCALHOST : serverUrl;
+    _url = Objects.firstNonNull(System.getProperty("server.url"), RemoteTestUtils.LOCALHOST);
     _exposureConfig = ConfigLink.resolvable(RemoteTestUtils.USD_GBP_FF_EXPOSURE, ExposureFunctions.class);
     _currencyMatrixLink = ConfigLink.resolvable(RemoteTestUtils.CURRENCY_MATRIX, CurrencyMatrix.class);
   }

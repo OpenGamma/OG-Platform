@@ -18,6 +18,7 @@ import java.util.List;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.google.common.base.Objects;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
@@ -62,8 +63,7 @@ public class RemoteBondTest {
 
   @BeforeClass
   public void setUp() {
-    String serverUrl = System.getProperty("server.url");
-    String url = serverUrl == null ? RemoteTestUtils.LOCALHOST : serverUrl;
+    String url = Objects.firstNonNull(System.getProperty("server.url"), RemoteTestUtils.LOCALHOST);
 
     RemoteServer server = RemoteServer.create(url);
     MarketDataSnapshotSource snapshotSource = server.getMarketDataSnapshotSource();
