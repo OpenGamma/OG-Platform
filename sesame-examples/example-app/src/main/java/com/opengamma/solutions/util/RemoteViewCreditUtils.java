@@ -41,6 +41,7 @@ import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.OutputNames;
+import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.credit.DefaultIsdaCompliantYieldCurveFn;
@@ -100,11 +101,12 @@ public final class RemoteViewCreditUtils {
     return
         configureView(
             "CDS view",
-            createViewColumn(OutputNames.PRESENT_VALUE, creditCurveName, yieldCurveName),
-            createViewColumn(OutputNames.CS01, creditCurveName, yieldCurveName));
+            createFunctionLevelConfig(creditCurveName, yieldCurveName),
+            column(OutputNames.PRESENT_VALUE, output(OutputNames.PRESENT_VALUE, StandardCDSSecurity.class)),
+            column(OutputNames.CS01, output(OutputNames.CS01, StandardCDSSecurity.class)));
   }
 
-  private static ViewColumn createViewColumn(String output, String creditCurveName, String yieldCurveName) {
+  private static FunctionModelConfig createFunctionLevelConfig(String creditCurveName, String yieldCurveName) {
 
     SnapshotLink<CreditCurveDataSnapshot> creditCurve =
         SnapshotLink.resolvable(creditCurveName, CreditCurveDataSnapshot.class);
@@ -117,41 +119,39 @@ public final class RemoteViewCreditUtils {
         .securityCurveMappings(ImmutableMap.<CreditCurveDataKey, CreditCurveDataKey>of())
         .build();
 
-    return column(output,
-                  config(
-                      arguments(
-                          function(
-                              DefaultCreditCs01Fn.class,
-                              argument("accrualOnDefaultFormulae", AccrualOnDefaultFormulae.OrignalISDA)),
-                          function(
-                              DefaultCreditPvFn.class,
-                              argument("priceType", PriceType.CLEAN),
-                              argument("accrualOnDefaultFormulae", AccrualOnDefaultFormulae.OrignalISDA)),
-                          function(
-                              DefaultCreditKeyMapperFn.class,
-                              argument("keyMap", configKeyMap)),
-                          function(
-                              DefaultStandardCdsMarketDataResolverFn.class,
-                              argument("restructuringSettings", restructuringSettings)),
-                          function(
-                              SnapshotCreditCurveDataProviderFn.class,
-                              argument("snapshotLink", creditCurve)),
-                          function(
-                              SnapshotYieldCurveDataProviderFn.class,
-                              argument("snapshotLink", yieldCurve))),
-                      implementations(
-                          CreditPvFn.class, DefaultCreditPvFn.class,
-                          CreditCs01Fn.class, DefaultCreditCs01Fn.class,
-                          IsdaCompliantYieldCurveFn.class, DefaultIsdaCompliantYieldCurveFn.class,
-                          YieldCurveDataProviderFn.class, SnapshotYieldCurveDataProviderFn.class,
-                          CreditCurveDataProviderFn.class, SnapshotCreditCurveDataProviderFn.class,
-                          IsdaCompliantCreditCurveFn.class, StandardIsdaCompliantCreditCurveFn.class,
-                          LegacyCdsConverterFn.class, DefaultLegacyCdsConverterFn.class,
-                          StandardCdsConverterFn.class, DefaultStandardCdsConverterFn.class,
-                          StandardCdsMarketDataResolverFn.class, DefaultStandardCdsMarketDataResolverFn.class,
-                          LegacyCdsMarketDataResolverFn.class, DefaultLegacyCdsMarketDataResolverFn.class,
-                          CreditKeyMapperFn.class, DefaultCreditKeyMapperFn.class)),
-                  output(output, StandardCDSSecurity.class));
+    return config(
+        arguments(
+            function(
+                DefaultCreditCs01Fn.class,
+                argument("accrualOnDefaultFormulae", AccrualOnDefaultFormulae.OrignalISDA)),
+            function(
+                DefaultCreditPvFn.class,
+                argument("priceType", PriceType.CLEAN),
+                argument("accrualOnDefaultFormulae", AccrualOnDefaultFormulae.OrignalISDA)),
+            function(
+                DefaultCreditKeyMapperFn.class,
+                argument("keyMap", configKeyMap)),
+            function(
+                DefaultStandardCdsMarketDataResolverFn.class,
+                argument("restructuringSettings", restructuringSettings)),
+            function(
+                SnapshotCreditCurveDataProviderFn.class,
+                argument("snapshotLink", creditCurve)),
+            function(
+                SnapshotYieldCurveDataProviderFn.class,
+                argument("snapshotLink", yieldCurve))),
+        implementations(
+            CreditPvFn.class, DefaultCreditPvFn.class,
+            CreditCs01Fn.class, DefaultCreditCs01Fn.class,
+            IsdaCompliantYieldCurveFn.class, DefaultIsdaCompliantYieldCurveFn.class,
+            YieldCurveDataProviderFn.class, SnapshotYieldCurveDataProviderFn.class,
+            CreditCurveDataProviderFn.class, SnapshotCreditCurveDataProviderFn.class,
+            IsdaCompliantCreditCurveFn.class, StandardIsdaCompliantCreditCurveFn.class,
+            LegacyCdsConverterFn.class, DefaultLegacyCdsConverterFn.class,
+            StandardCdsConverterFn.class, DefaultStandardCdsConverterFn.class,
+            StandardCdsMarketDataResolverFn.class, DefaultStandardCdsMarketDataResolverFn.class,
+            LegacyCdsMarketDataResolverFn.class, DefaultLegacyCdsMarketDataResolverFn.class,
+            CreditKeyMapperFn.class, DefaultCreditKeyMapperFn.class));
   }
 
   /**
