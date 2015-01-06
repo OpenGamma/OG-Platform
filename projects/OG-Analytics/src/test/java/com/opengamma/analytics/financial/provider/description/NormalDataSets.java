@@ -68,5 +68,49 @@ public class NormalDataSets {
     return InterpolatedDoublesSurface.from(EXPIRATIONS_2, SWAPTION_TENOR_2, volShifted, INTERPOLATOR_2D);
   }
   
+  /** 
+   * Constructing surface for NormalSTIRFuturesExpSimpleMoneynessProviderDiscount 
+   */
+  private static final Interpolator1D SQUARE_FLAT =
+      CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.SQUARE_LINEAR,
+          Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final Interpolator1D TIME_SQUARE_FLAT =
+      CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.TIME_SQUARE,
+          Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final GridInterpolator2D INTERPOLATOR_2D_MONEYNESS = new GridInterpolator2D(TIME_SQUARE_FLAT,
+      SQUARE_FLAT);
+
+  private static final double FORWARD = 0.983; // dummy forward to convert the strikes to the moneyness
+  private static final double[] SIMPLE_MONEYNESS_1;
+  static {
+    final int nStrikes = STIRFUTURES_STRIKES_PRICES_1.length;
+    SIMPLE_MONEYNESS_1 = new double[nStrikes];
+    for (int i = 0; i < nStrikes; ++i) {
+      SIMPLE_MONEYNESS_1[i] = SIMPLE_MONEYNESS_1[i] - FORWARD;
+    }
+  }
+  private static final InterpolatedDoublesSurface NOR_DOUBLES_SURFACE_SIMPLE_MONEYNESS =
+      InterpolatedDoublesSurface.from(EXPIRATIONS_1, SIMPLE_MONEYNESS_1, VOLATILITIES_1, INTERPOLATOR_2D_MONEYNESS);
+
+  /**
+   * Access NOR_DOUBLES_SURFACE_SIMPLE_MONEYNESS
+   * @return NOR_DOUBLES_SURFACE_SIMPLE_MONEYNESS
+   */
+  public static InterpolatedDoublesSurface createNormalSurfaceFuturesPricesSimpleMoneyness() {
+    return NOR_DOUBLES_SURFACE_SIMPLE_MONEYNESS;
+  }
+
+  /**
+   * Return NOR_DOUBLES_SURFACE_SIMPLE_MONEYNESS with shift
+   * @param shift The shift
+   * @return The shifted vol surface
+   */
+  public static InterpolatedDoublesSurface createNormalSurfaceFuturesPricesSimpleMoneynessShift(final double shift) {
+    double[] shiftedVol = VOLATILITIES_1.clone();
+    for (int loopvol = 0; loopvol < shiftedVol.length; loopvol++) {
+      shiftedVol[loopvol] += shift;
+    }
+    return InterpolatedDoublesSurface.from(EXPIRATIONS_1, SIMPLE_MONEYNESS_1, shiftedVol, INTERPOLATOR_2D_MONEYNESS);
+  }
   
 }

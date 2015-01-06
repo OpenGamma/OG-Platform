@@ -26,8 +26,7 @@ public class NormalSTIRFuturesExpSimpleMoneynessProvider implements NormalSTIRFu
    */
   private final MulticurveProviderInterface _multicurveProvider;
   /**
-   * The Black volatility cube. Not null.
-   * TODO: Change to a cube (with the delay dimension).
+   * The normal volatility surface. Not null.
    */
   private final Surface<Double, Double, Double> _parameters;
   /**
@@ -73,10 +72,7 @@ public class NormalSTIRFuturesExpSimpleMoneynessProvider implements NormalSTIRFu
     return _multicurveProvider;
   }
 
-  /**
-   * Returns the Black parameters.
-   * @return The parameters.
-   */
+  @Override
   public Surface<Double, Double, Double> getNormalParameters() {
     return _parameters;
   }
