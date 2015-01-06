@@ -1,17 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fudgeEnvelope>
-   <uniqueId type="string">DbCnv~1003~0</uniqueId>
+   <uniqueId type="string">MemCnv~12</uniqueId>
    <externalIdBundle type="message">
       <ID type="message">
          <Scheme type="string">CONVENTION</Scheme>
-         <Value type="string">EURGBPFXSpot</Value>
+         <Value type="string">USDFEDFUNDSCmp1Y</Value>
       </ID>
    </externalIdBundle>
    <attributes type="message"/>
-   <name type="string">EURGBPFXSpot</name>
+   <name type="string">USDFEDFUNDSCmp1Y</name>
+   <overnightIndexConvention type="string">OG_TICKER~USDFEDFUNDS</overnightIndexConvention>
+   <paymentTenor type="string">P1Y</paymentTenor>
+   <paymentLag type="byte">2</paymentLag>
+   <businessDayConvention type="string">Modified Following</businessDayConvention>
    <settlementDays type="byte">2</settlementDays>
-   <settlementRegion type="string">FINANCIAL_REGION~EU+GB</settlementRegion>
-   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.convention.FXSpotConvention</fudgeField0>
+   <isEOM type="boolean">true</isEOM>
+   <stubType type="message">
+      <fudgeField0 ordinal="0" type="string">com.opengamma.financial.convention.StubType</fudgeField0>
+      <fudgeField1 ordinal="1" type="string">NONE</fudgeField1>
+   </stubType>
+   <isExchangeNotional type="boolean">false</isExchangeNotional>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.convention.OISLegConvention</fudgeField0>
    <fudgeField0 ordinal="0" type="string">com.opengamma.financial.convention.FinancialConvention</fudgeField0>
    <fudgeField0 ordinal="0" type="string">com.opengamma.master.convention.ManageableConvention</fudgeField0>
 </fudgeEnvelope>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fudgeEnvelope>
-   <uniqueId type="string">DbSec~1000~15</uniqueId>
+   <uniqueId type="string">MemSec~1</uniqueId>
    <externalIdBundle type="message">
       <ID type="message">
          <Scheme type="string">BLOOMBERG_BUID</Scheme>

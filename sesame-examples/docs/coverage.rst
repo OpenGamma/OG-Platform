@@ -21,12 +21,20 @@ This integration test validates Present Value, Bucketed PV01 and cash flows agai
 
 Examples include swaps with fixed, float, spread, fixing, compounding, stubs, fees, single leg, zero coupon, cross currency and notional exchange.
 
+RemoteCreditTest
+================
+
+This integration test validates Present Value and CS01 against a remote server. The view definition and credit inputs are defined in **RemoteViewCreditUtils**
+
+Examples include legacy and standard credit default swaps.
+
+
 RemoteComponentSwapTest
 =======================
 
 This integration test runs a single cycle of the engine locally, pulling the configuration components from the remote server.
 
 RemoteViewConfigTest
-==============
+====================
 
 This integration test creates, persists and accesses a view config
