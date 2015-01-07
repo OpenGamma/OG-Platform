@@ -44,6 +44,7 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessMethodE2ETest {
   private static final Interpolator1D TIME_SQUARE_FLAT =
       CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.TIME_SQUARE,
           Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  /* Interpolation is done along y direction first */
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(TIME_SQUARE_FLAT, SQUARE_FLAT);
 
   private static final double[] EXPIRY;
@@ -107,6 +108,74 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessMethodE2ETest {
   private static final InterestRateFutureSecurityDiscountingMethod METHOD_FUTURE = InterestRateFutureSecurityDiscountingMethod
       .getInstance();
   private static final NormalPriceFunction NORMAL_FUNCTION = new NormalPriceFunction();
+
+  @Test
+  public void testt() {
+    double[] x = new double[] {1., 3., 2., 4., };
+    double[] y = new double[] {1., 2., 3., 4., };
+    double[] z = new double[] {1., Math.sqrt(13.0), Math.sqrt(13.0), 4. };
+
+    Interpolator1D interp1 = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR,
+        Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    Interpolator1D interp2 = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR,
+        Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    GridInterpolator2D interp2D = new GridInterpolator2D(interp1, interp2);
+    InterpolatedDoublesSurface surface = InterpolatedDoublesSurface.from(x, y, z, interp2D);
+
+    int m = 100;
+    int n = 100;
+    double intX = (x[x.length - 1] - x[0]) / (m - 1);
+    double intY = (y[y.length - 1] - y[0]) / (n - 1);
+    for (int j = 0; j < n; ++j) {
+      double keyY = y[0] + intY * j;
+      System.out.print("\t" + keyY);
+    }
+    System.out.print("\n");
+    for (int i = 0; i < m; ++i) {
+      double keyX = x[0] + intX * i;
+      System.out.print(keyX);
+      for (int j = 0; j < n; ++j) {
+        double keyY = y[0] + intY * j;
+        System.out.print("\t" + surface.getZValue(keyX, keyY));
+      }
+      System.out.print("\n");
+    }
+    //    System.out.println(surface.getZValue(2.5, 2.5));
+  }
+
+  @Test
+  public void testtt() {
+    double[] x = new double[] {1., 1., 3., 3., };
+    double[] y = new double[] {1., 4., 2., 3., };
+    double[] z = new double[] {1., 5.0, 4.0, 2.0 };
+
+    Interpolator1D interp1 = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR,
+        Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    Interpolator1D interp2 = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR,
+        Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    GridInterpolator2D interp2D = new GridInterpolator2D(interp1, interp2);
+    InterpolatedDoublesSurface surface = InterpolatedDoublesSurface.from(x, y, z, interp2D);
+
+    int m = 100;
+    int n = 100;
+    double intX = (x[x.length - 1] - x[0]) / (m - 1);
+    double intY = (y[1] - y[0]) / (n - 1);
+    for (int j = 0; j < n; ++j) {
+      double keyY = y[0] + intY * j;
+      System.out.print("\t" + keyY);
+    }
+    System.out.print("\n");
+    for (int i = 0; i < m; ++i) {
+      double keyX = x[0] + intX * i;
+      System.out.print(keyX);
+      for (int j = 0; j < n; ++j) {
+        double keyY = y[0] + intY * j;
+        System.out.print("\t" + surface.getZValue(keyX, keyY));
+      }
+      System.out.print("\n");
+    }
+    //    System.out.println(surface.getZValue(2.5, 2.5));
+  }
 
   @Test
   public void blackTest() {
