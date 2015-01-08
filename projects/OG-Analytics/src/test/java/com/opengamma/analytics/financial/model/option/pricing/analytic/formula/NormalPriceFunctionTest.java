@@ -120,6 +120,14 @@ public class NormalPriceFunctionTest {
       double ref = 0.5 * (deltaUp - deltaDw) / eps;
       double gamma = FUNCTION.getGamma(option, VOL_DATA);
       assertEquals(ref, gamma, eps);
+
+      EuropeanVanillaOption optionUp = new EuropeanVanillaOption(option.getStrike(), T + eps, option.isCall());
+      EuropeanVanillaOption optionDw = new EuropeanVanillaOption(option.getStrike(), T - eps, option.isCall());
+      double priceTimeUp = FUNCTION.getPriceAdjoint(optionUp, VOL_DATA, priceDerivative);
+      double priceTimeDw = FUNCTION.getPriceAdjoint(optionDw, VOL_DATA, priceDerivative);
+      ref = -0.5 * (priceTimeUp - priceTimeDw) / eps;
+      double theta = FUNCTION.getTheta(option, VOL_DATA);
+      assertEquals(ref, theta, eps);
     }
   }
 
@@ -157,6 +165,14 @@ public class NormalPriceFunctionTest {
       } else {
         assertEquals(refGamma, gamma, eps);
       }
+
+      EuropeanVanillaOption optionUp = new EuropeanVanillaOption(option.getStrike(), T + eps, option.isCall());
+      EuropeanVanillaOption optionDw = new EuropeanVanillaOption(option.getStrike(), T - eps, option.isCall());
+      double priceTimeUp = FUNCTION.getPriceAdjoint(optionUp, ZERO_VOL_DATA, der);
+      double priceTimeDw = FUNCTION.getPriceAdjoint(optionDw, ZERO_VOL_DATA, der);
+      double refTheta = -0.5 * (priceTimeUp - priceTimeDw) / eps;
+      double theta = FUNCTION.getTheta(option, ZERO_VOL_DATA);
+      assertEquals(refTheta, theta, eps);
     }
   }
 

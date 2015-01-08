@@ -178,7 +178,7 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
   }
 
   /**
-   * Test price delta, price gamma and price vega
+   * Test price delta, price gamma, price vega and price theta
    */
   @Test
   public void greeksTest() {
@@ -211,6 +211,20 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
         NORMAL_MULTICURVES, priceFuture - eps);
     double expectedGamma = 0.5 * (deltaFutUp - deltaFutDw) / eps;
     assertEquals("Future option with volatilities, Greeks", expectedGamma, computedGamma, eps);
+
+    double computedTheta = METHOD_SECURITY_OPTION_NORMAL.priceTheta(OPTION_ERU2, NORMAL_MULTICURVES);
+    double time = OPTION_ERU2.getExpirationTime();
+    InterestRateFutureOptionMarginSecurity OptionUp = new InterestRateFutureOptionMarginSecurity(ERU2, time + eps,
+        STRIKE, IS_CALL);
+    InterestRateFutureOptionMarginSecurity OptionDw = new InterestRateFutureOptionMarginSecurity(ERU2, time - eps,
+        STRIKE, IS_CALL);
+    double priceTimeUp = METHOD_SECURITY_OPTION_NORMAL.priceFromFuturePrice(OptionUp, NORMAL_MULTICURVES, priceFuture);
+    double priceTimeDw = METHOD_SECURITY_OPTION_NORMAL.priceFromFuturePrice(OptionDw, NORMAL_MULTICURVES, priceFuture);
+    double volatilityUp = NORMAL_MULTICURVES.getVolatility(time + eps, 0.0, STRIKE, priceFuture);
+    double volatilityDw = NORMAL_MULTICURVES.getVolatility(time - eps, 0.0, STRIKE, priceFuture);
+    double expectedTheta = -0.5 * (priceTimeUp - priceTimeDw) / eps + 0.5 * computedVega *
+        (volatilityUp - volatilityDw) / eps;
+    assertEquals("Future option with volatilities, Greeks", expectedTheta, computedTheta, eps);
   }
 
   /* 
@@ -312,7 +326,7 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
   }
 
   /**
-   * Test price delta, price gamma and price vega
+   * Test price delta, price gamma, price vega and price theta
    */
   @Test
   public void greeksMoneynessTest() {
@@ -345,5 +359,21 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
         NORMAL_MULTICURVES_MONEYNESS, priceFuture - eps);
     double expectedGamma = 0.5 * (deltaFutUp - deltaFutDw) / eps;
     assertEquals("Future option with volatilities, Greeks", expectedGamma, computedGamma, eps);
+
+    double computedTheta = METHOD_SECURITY_OPTION_NORMAL.priceTheta(OPTION_ERU2, NORMAL_MULTICURVES_MONEYNESS);
+    double time = OPTION_ERU2.getExpirationTime();
+    InterestRateFutureOptionMarginSecurity OptionUp = new InterestRateFutureOptionMarginSecurity(ERU2, time + eps,
+        STRIKE, IS_CALL);
+    InterestRateFutureOptionMarginSecurity OptionDw = new InterestRateFutureOptionMarginSecurity(ERU2, time - eps,
+        STRIKE, IS_CALL);
+    double priceTimeUp = METHOD_SECURITY_OPTION_NORMAL.priceFromFuturePrice(OptionUp, NORMAL_MULTICURVES_MONEYNESS,
+        priceFuture);
+    double priceTimeDw = METHOD_SECURITY_OPTION_NORMAL.priceFromFuturePrice(OptionDw, NORMAL_MULTICURVES_MONEYNESS,
+        priceFuture);
+    double volatilityUp = NORMAL_MULTICURVES_MONEYNESS.getVolatility(time + eps, 0.0, STRIKE, priceFuture);
+    double volatilityDw = NORMAL_MULTICURVES_MONEYNESS.getVolatility(time - eps, 0.0, STRIKE, priceFuture);
+    double expectedTheta = -0.5 * (priceTimeUp - priceTimeDw) / eps + 0.5 * computedVega *
+        (volatilityUp - volatilityDw) / eps;
+    assertEquals("Future option with volatilities, Greeks", expectedTheta, computedTheta, eps);
   }
 }
