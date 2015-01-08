@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.solutions;
+package com.opengamma.solutions.remote;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -27,7 +27,7 @@ import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.marketdata.EmptyMarketDataSpec;
 import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
-import com.opengamma.solutions.util.RemoteViewCreditUtils;
+import com.opengamma.solutions.util.CreditViewUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -43,7 +43,7 @@ import com.opengamma.util.time.DateUtils;
 public class RemoteCreditTest {
 
   private static final double EXPECTED_PV = 103477.13641;
-  public static final double EXPECTED_CS01 = 4884.4636;
+  private static final double EXPECTED_CS01 = 4884.4636;
   private static final double STD_TOLERANCE = 1.0E-3;
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 10, 16);
 
@@ -64,12 +64,11 @@ public class RemoteCreditTest {
 
     // don't want to provide any data, let the server source it
     MarketDataEnvironment marketDataEnvironment = MarketDataEnvironmentBuilder.empty();
-    ViewConfig viewConfig = RemoteViewCreditUtils.createViewConfig("Sample Credit Curve", "Sample Yield Curve");
-    List<Object> trades = RemoteViewCreditUtils.INPUTS;
+    ViewConfig viewConfig = CreditViewUtils.createViewConfig("Sample Credit Curve", "Sample Yield Curve");
+    List<Object> trades = CreditViewUtils.INPUTS;
 
     _results = engine.runView(viewConfig, calculationArguments, marketDataEnvironment, trades);
   }
-
 
   @Test
   public void testStandardCdsPV() {

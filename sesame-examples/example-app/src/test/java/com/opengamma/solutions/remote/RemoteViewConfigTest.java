@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.solutions;
+package com.opengamma.solutions.remote;
 
 import static com.opengamma.sesame.config.ConfigBuilder.configureView;
 import static org.hamcrest.CoreMatchers.is;
@@ -25,7 +25,7 @@ import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.config.ViewConfig;
-import com.opengamma.solutions.util.RemoteViewFraUtils;
+import com.opengamma.solutions.util.FraViewUtils;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -76,7 +76,7 @@ public class RemoteViewConfigTest {
     return
         configureView(
             RemoteTestUtils.CONFIG_NAME,
-            RemoteViewFraUtils.createFraViewColumn(
+            FraViewUtils.createFraViewColumn(
                 OutputNames.PRESENT_VALUE,
                 _exposureConfig,
                 _currencyMatrixLink));

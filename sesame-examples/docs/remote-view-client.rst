@@ -31,4 +31,4 @@ Running in the command line
 
 It is also possible to take the compiled jar of OG-Solutions and place it in *{OG install location}/lib/* then from within the root of the OG installation run the following::
 
-      java -cp lib/*:platform/lib/* com.opengamma.solutions.client.ExampleRemoteClientTool -l com/opengamma/util/warn-logback.xml -c http://your-server-ip:8080 -d 20140122 -ef "USD-GBP-FF-1" -ld Bloomberg
+      java -cp lib/*:platform/lib/* com.opengamma.solutions.remote.client.ExampleRemoteClientTool -l com/opengamma/util/warn-logback.xml -c http://your-server-ip:8080 -d 20140122 -ef "USD-GBP-FF-1" -ld Bloomberg

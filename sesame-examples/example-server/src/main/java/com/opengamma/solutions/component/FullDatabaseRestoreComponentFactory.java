@@ -5,6 +5,7 @@
  */
 package com.opengamma.solutions.component;
 
+import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -75,7 +76,9 @@ public class FullDatabaseRestoreComponentFactory extends AbstractComponentFactor
 
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    DatabaseRestore databaseRestore = new DatabaseRestore(getPath(),
+
+    URL systemResource = ClassLoader.getSystemResource(getPath());
+    DatabaseRestore databaseRestore = new DatabaseRestore(systemResource.getPath(),
                                                           getSecurityMaster(),
                                                           getPositionMaster(),
                                                           getPortfolioMaster(),

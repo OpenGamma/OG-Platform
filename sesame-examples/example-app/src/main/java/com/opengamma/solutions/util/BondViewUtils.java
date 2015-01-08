@@ -61,11 +61,11 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
- * Utility class for remote views
+ * Utility class for bond views
  */
-public final class RemoteViewBondUtils {
+public final class BondViewUtils {
 
-  private RemoteViewBondUtils() { /* private constructor */ }
+  private BondViewUtils() { /* private constructor */ }
 
   /**
    * Utility for creating a fra specific view column

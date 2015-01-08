@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.solutions;
+package com.opengamma.solutions.remote;
 
 import static com.opengamma.sesame.config.ConfigBuilder.configureView;
 import static com.opengamma.util.result.ResultTestUtils.assertSuccess;
@@ -36,7 +36,7 @@ import com.opengamma.sesame.engine.RemoteEngine;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
-import com.opengamma.solutions.util.RemoteViewBondUtils;
+import com.opengamma.solutions.util.BondViewUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -87,7 +87,7 @@ public class RemoteBondTest {
 
     // don't want to provide any data, let the server source it
     MarketDataEnvironment marketDataEnvironment = MarketDataEnvironmentBuilder.empty();
-    List<Object> trades = RemoteViewBondUtils.BOND_INPUTS;
+    List<Object> trades = BondViewUtils.BOND_INPUTS;
     ViewConfig viewConfig = createViewConfig();
 
     _bondResults = engine.runView(viewConfig, calculationArguments, marketDataEnvironment, trades);
@@ -98,54 +98,54 @@ public class RemoteBondTest {
     return
         configureView(
             "Bond Remote view",
-            RemoteViewBondUtils.createBondViewColumn("OIS " + OutputNames.PRESENT_VALUE_CLEAN_PRICE, 
-                                                     OutputNames.PRESENT_VALUE_CLEAN_PRICE,
-                                                     _exposureConfigOis,
-                                                     _currencyMatrixLink), // 0
-            RemoteViewBondUtils.createBondViewColumn("OIS " + OutputNames.PRESENT_VALUE_CURVES,
-                                                     OutputNames.PRESENT_VALUE_CURVES,
-                                                     _exposureConfigOis,
-                                                     _currencyMatrixLink), // 1
-            RemoteViewBondUtils.createBondViewColumn("OIS " + OutputNames.PRESENT_VALUE_YIELD,
-                                                     OutputNames.PRESENT_VALUE_YIELD,
-                                                     _exposureConfigOis,
-                                                     _currencyMatrixLink), // 2
-            RemoteViewBondUtils.createBondViewColumn("OIS " + OutputNames.CLEAN_PRICE_MARKET,
-                                                     OutputNames.CLEAN_PRICE_MARKET,
-                                                     _exposureConfigOis,
-                                                     _currencyMatrixLink), // 3
-            RemoteViewBondUtils.createBondViewColumn("OIS " + OutputNames.CLEAN_PRICE_CURVES,
-                                                     OutputNames.CLEAN_PRICE_CURVES,
-                                                     _exposureConfigOis,
-                                                     _currencyMatrixLink), // 4
-            RemoteViewBondUtils.createBondViewColumn("OIS " + OutputNames.CLEAN_PRICE_YIELD,
-                                                     OutputNames.CLEAN_PRICE_YIELD,
-                                                     _exposureConfigOis,
-                                                     _currencyMatrixLink), // 5
-            RemoteViewBondUtils.createBondViewColumn("OIS " + OutputNames.YIELD_TO_MATURITY_CLEAN_PRICE,
-                                                     OutputNames.YIELD_TO_MATURITY_CLEAN_PRICE,
-                                                     _exposureConfigOis,
-                                                     _currencyMatrixLink), // 6
-            RemoteViewBondUtils.createBondViewColumn("OIS " + OutputNames.YIELD_TO_MATURITY_CURVES,
-                                                     OutputNames.YIELD_TO_MATURITY_CURVES,
-                                                     _exposureConfigOis,
-                                                     _currencyMatrixLink), // 7
-            RemoteViewBondUtils.createBondViewColumn("OIS " + OutputNames.YIELD_TO_MATURITY_MARKET,
-                                                     OutputNames.YIELD_TO_MATURITY_MARKET,
-                                                     _exposureConfigOis,
-                                                     _currencyMatrixLink), // 8
-            RemoteViewBondUtils.createBondViewColumn("Govt " + OutputNames.PRESENT_VALUE_CLEAN_PRICE,
-                                                     OutputNames.PRESENT_VALUE_CLEAN_PRICE,
-                                                     _exposureConfigUkGovt,
-                                                     _currencyMatrixLink), // 9
-            RemoteViewBondUtils.createBondViewColumn("Govt " + OutputNames.PRESENT_VALUE_CURVES,
-                                                     OutputNames.PRESENT_VALUE_CURVES,
-                                                     _exposureConfigUkGovt,
-                                                     _currencyMatrixLink), // 10
-            RemoteViewBondUtils.createBondViewColumn("Govt " + OutputNames.PRESENT_VALUE_YIELD,
-                                                     OutputNames.PRESENT_VALUE_YIELD,
-                                                     _exposureConfigUkGovt,
-                                                     _currencyMatrixLink) // 11
+            BondViewUtils.createBondViewColumn("OIS " + OutputNames.PRESENT_VALUE_CLEAN_PRICE,
+                                               OutputNames.PRESENT_VALUE_CLEAN_PRICE,
+                                               _exposureConfigOis,
+                                               _currencyMatrixLink), // 0
+            BondViewUtils.createBondViewColumn("OIS " + OutputNames.PRESENT_VALUE_CURVES,
+                                               OutputNames.PRESENT_VALUE_CURVES,
+                                               _exposureConfigOis,
+                                               _currencyMatrixLink), // 1
+            BondViewUtils.createBondViewColumn("OIS " + OutputNames.PRESENT_VALUE_YIELD,
+                                               OutputNames.PRESENT_VALUE_YIELD,
+                                               _exposureConfigOis,
+                                               _currencyMatrixLink), // 2
+            BondViewUtils.createBondViewColumn("OIS " + OutputNames.CLEAN_PRICE_MARKET,
+                                               OutputNames.CLEAN_PRICE_MARKET,
+                                               _exposureConfigOis,
+                                               _currencyMatrixLink), // 3
+            BondViewUtils.createBondViewColumn("OIS " + OutputNames.CLEAN_PRICE_CURVES,
+                                               OutputNames.CLEAN_PRICE_CURVES,
+                                               _exposureConfigOis,
+                                               _currencyMatrixLink), // 4
+            BondViewUtils.createBondViewColumn("OIS " + OutputNames.CLEAN_PRICE_YIELD,
+                                               OutputNames.CLEAN_PRICE_YIELD,
+                                               _exposureConfigOis,
+                                               _currencyMatrixLink), // 5
+            BondViewUtils.createBondViewColumn("OIS " + OutputNames.YIELD_TO_MATURITY_CLEAN_PRICE,
+                                               OutputNames.YIELD_TO_MATURITY_CLEAN_PRICE,
+                                               _exposureConfigOis,
+                                               _currencyMatrixLink), // 6
+            BondViewUtils.createBondViewColumn("OIS " + OutputNames.YIELD_TO_MATURITY_CURVES,
+                                               OutputNames.YIELD_TO_MATURITY_CURVES,
+                                               _exposureConfigOis,
+                                               _currencyMatrixLink), // 7
+            BondViewUtils.createBondViewColumn("OIS " + OutputNames.YIELD_TO_MATURITY_MARKET,
+                                               OutputNames.YIELD_TO_MATURITY_MARKET,
+                                               _exposureConfigOis,
+                                               _currencyMatrixLink), // 8
+            BondViewUtils.createBondViewColumn("Govt " + OutputNames.PRESENT_VALUE_CLEAN_PRICE,
+                                               OutputNames.PRESENT_VALUE_CLEAN_PRICE,
+                                               _exposureConfigUkGovt,
+                                               _currencyMatrixLink), // 9
+            BondViewUtils.createBondViewColumn("Govt " + OutputNames.PRESENT_VALUE_CURVES,
+                                               OutputNames.PRESENT_VALUE_CURVES,
+                                               _exposureConfigUkGovt,
+                                               _currencyMatrixLink), // 10
+            BondViewUtils.createBondViewColumn("Govt " + OutputNames.PRESENT_VALUE_YIELD,
+                                               OutputNames.PRESENT_VALUE_YIELD,
+                                               _exposureConfigUkGovt,
+                                               _currencyMatrixLink) // 11
         );
   }
 

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.solutions;
+package com.opengamma.solutions.remote;
 
 import static com.opengamma.sesame.config.ConfigBuilder.configureView;
 import static com.opengamma.util.result.ResultTestUtils.assertSuccess;
@@ -36,7 +36,7 @@ import com.opengamma.sesame.engine.RemoteEngine;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
-import com.opengamma.solutions.util.RemoteViewFraUtils;
+import com.opengamma.solutions.util.FraViewUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -82,7 +82,7 @@ public class RemoteFraTest {
     // don't want to provide any data, let the server source it
     MarketDataEnvironment marketDataEnvironment = MarketDataEnvironmentBuilder.empty();
     ViewConfig viewConfig = createViewConfig();
-    List<Object> trades = RemoteViewFraUtils.INPUTS;
+    List<Object> trades = FraViewUtils.INPUTS;
 
     _results = engine.runView(viewConfig, calculationArguments, marketDataEnvironment, trades);
   }
@@ -91,7 +91,7 @@ public class RemoteFraTest {
     return
         configureView(
             "FRA Remote view",
-            RemoteViewFraUtils.createFraViewColumn(
+            FraViewUtils.createFraViewColumn(
                 OutputNames.PRESENT_VALUE,
                 _exposureConfig,
                 _currencyMatrixLink));

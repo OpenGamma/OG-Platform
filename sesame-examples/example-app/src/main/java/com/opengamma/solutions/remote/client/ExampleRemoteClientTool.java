@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.solutions.client;
+package com.opengamma.solutions.remote.client;
 
 import static com.opengamma.sesame.config.ConfigBuilder.configureView;
 
@@ -36,8 +36,8 @@ import com.opengamma.sesame.server.FunctionServer;
 import com.opengamma.sesame.server.FunctionServerRequest;
 import com.opengamma.sesame.server.IndividualCycleOptions;
 import com.opengamma.sesame.server.RemoteFunctionServer;
-import com.opengamma.solutions.util.RemoteViewSwapUtils;
-import com.opengamma.solutions.util.RemoteViewUtils;
+import com.opengamma.solutions.util.SwapViewUtils;
+import com.opengamma.solutions.util.ViewUtils;
 import com.opengamma.util.time.DateUtils;
 
 /** The entry point for running an example remote view. */
@@ -107,7 +107,7 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
       SecurityDocument doc = securityMaster.get(UniqueId.parse(commandLine.getOptionValue(SECURITY_INPUTS)));
       inputs.add(doc.getSecurity());
     } else {
-      inputs.addAll(RemoteViewSwapUtils.SWAP_INPUTS);
+      inputs.addAll(SwapViewUtils.SWAP_INPUTS);
     }
 
     IndividualCycleOptions cycleOptions = builder.build();
@@ -125,12 +125,12 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
         FunctionServerRequest.<IndividualCycleOptions>builder()
             .viewConfig(configureView(
                 "IRS remote view",
-                RemoteViewSwapUtils.createInterestRateSwapViewColumn(OutputNames.PRESENT_VALUE,
-                    exposureConfig,
-                    currencyMatrixLink),
-                RemoteViewSwapUtils.createInterestRateSwapViewColumn(OutputNames.BUCKETED_PV01,
-                    exposureConfig,
-                    currencyMatrixLink)))
+                SwapViewUtils.createInterestRateSwapViewColumn(OutputNames.PRESENT_VALUE,
+                                                               exposureConfig,
+                                                               currencyMatrixLink),
+                SwapViewUtils.createInterestRateSwapViewColumn(OutputNames.BUCKETED_PV01,
+                                                               exposureConfig,
+                                                               currencyMatrixLink)))
             .inputs(inputs.build())
             .cycleOptions(cycleOptions)
             .build();
@@ -141,9 +141,9 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
     for (ResultRow row : results.getRows()) {
       InterestRateSwapSecurity irs =  (InterestRateSwapSecurity) row.getInput();
       // Output PV
-      RemoteViewUtils.outputMultipleCurrencyAmount(irs.getName(), row.get(0).getResult());
+      ViewUtils.outputMultipleCurrencyAmount(irs.getName(), row.get(0).getResult());
       // Output Bucketed PV01
-      RemoteViewUtils.outputBucketedCurveSensitivities(irs.getName(), row.get(1).getResult());
+      ViewUtils.outputBucketedCurveSensitivities(irs.getName(), row.get(1).getResult());
     }
     System.exit(0);
   }

@@ -42,11 +42,11 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Utility class for remote views
+ * Utility class for FRA views
  */
-public final class RemoteViewFraUtils {
+public final class FraViewUtils {
 
-  private RemoteViewFraUtils() { /* private constructor */ }
+  private FraViewUtils() { /* private constructor */ }
 
   /** List of Forward Rate Agreement inputs */
   public static final List<Object> INPUTS = ImmutableList.<Object>of(createSingleForwardRateAgreement());

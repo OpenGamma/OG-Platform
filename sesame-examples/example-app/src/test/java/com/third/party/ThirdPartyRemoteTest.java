@@ -52,7 +52,7 @@ import com.opengamma.sesame.server.FunctionServer;
 import com.opengamma.sesame.server.FunctionServerRequest;
 import com.opengamma.sesame.server.IndividualCycleOptions;
 import com.opengamma.sesame.server.RemoteFunctionServer;
-import com.opengamma.solutions.util.RemoteViewSwapUtils;
+import com.opengamma.solutions.util.SwapViewUtils;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
@@ -74,7 +74,7 @@ public class ThirdPartyRemoteTest {
     private ConfigLink<CurrencyMatrix> _currencyMatrixLink;
     private ConfigLink<CurveConstructionConfiguration> _curveConstructionConfiguration;
     /* A single Fixed vs Libor 3m Swap ManageableSecurity list */
-    private List<Object> _inputs = RemoteViewSwapUtils.VANILLA_INPUTS;
+    private List<Object> _inputs = SwapViewUtils.VANILLA_INPUTS;
 
 
     @BeforeClass

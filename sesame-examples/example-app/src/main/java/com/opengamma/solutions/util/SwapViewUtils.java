@@ -61,18 +61,17 @@ import com.opengamma.sesame.irs.InterestRateSwapCalculatorFactory;
 import com.opengamma.sesame.irs.InterestRateSwapConverterFn;
 import com.opengamma.sesame.irs.InterestRateSwapFn;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
-import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.trade.InterestRateSwapTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.money.Currency;
 
 /**
- * Utility class for remote views
+ * Utility class for swap views
  */
-public final class RemoteViewSwapUtils {
+public final class SwapViewUtils {
 
-  private RemoteViewSwapUtils() { /* private constructor */ }
+  private SwapViewUtils() { /* private constructor */ }
 
   private static final InterestRateSwapNotional USD_NOTIONAL = new InterestRateSwapNotional(Currency.USD, 100_000_000);
   private static final InterestRateSwapNotional GBP_NOTIONAL = new InterestRateSwapNotional(Currency.GBP, 61_600_000);

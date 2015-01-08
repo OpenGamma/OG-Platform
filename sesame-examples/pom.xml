@@ -21,6 +21,7 @@
   <modules>
     <module>example-app</module>
     <module>example-server</module>
+    <module>example-data</module>
   </modules>
 
 </project>
