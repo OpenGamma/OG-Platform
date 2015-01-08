@@ -180,4 +180,31 @@ public class NormalPriceFunction implements OptionPriceFunction<NormalFunctionDa
     double nPDF = NORMAL.getPDF(arg);
     return numeraire * nPDF * rootT;
   }
+
+  /**
+   * Computes theta of an option in the normally distributed assets hypothesis (Bachelier model). 
+   * @param option The option description.
+   * @param data The model data.
+   * @return The theta.
+   */
+  public double getTheta(EuropeanVanillaOption option, NormalFunctionData data) {
+    Validate.notNull(option, "option");
+    Validate.notNull(data, "data");
+    double strike = option.getStrike();
+    double t = option.getTimeToExpiry();
+    double forward = data.getForward();
+    double numeraire = data.getNumeraire();
+    double sigma = data.getNormalVolatility();
+    int sign = option.isCall() ? 1 : -1;
+    double rootT = Math.sqrt(t);
+    double sigmaRootT = sigma * rootT;
+    if (sigmaRootT < 1e-16) {
+      double x = sign * (forward - strike);
+      // ambiguous if x and sigmaRootT are tiny, then reference number is returned
+      return Math.abs(x) > 1e-16 ? 0.0 : -0.5 * numeraire * sigma / rootT / Math.sqrt(2.0 * Math.PI);
+    }
+    double arg = (forward - strike) / sigmaRootT;
+    double nPDF = NORMAL.getPDF(arg);
+    return -0.5 * numeraire * nPDF * sigma / rootT;
+  }
 }
