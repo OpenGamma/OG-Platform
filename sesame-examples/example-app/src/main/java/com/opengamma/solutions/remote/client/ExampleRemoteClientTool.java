@@ -138,15 +138,15 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
     Results results = functionServer.executeSingleCycle(request);
 
     for (ResultRow row : results.getRows()) {
-        Object input = row.getInput();
-        String name = "Security";
-        if (input instanceof InterestRateSwapTrade) {
-            name = ((InterestRateSwapTrade) input).getTradeBundle().getSecurity().getName();
-        } else if (input instanceof InterestRateSwapSecurity) {
-            name = ((InterestRateSwapSecurity) input).getName();
-        } else {
-            System.out.print("Unsupported Output");
-        }
+      Object input = row.getInput();
+      String name = "Security";
+      if (input instanceof InterestRateSwapTrade) {
+        name = ((InterestRateSwapTrade) input).getTradeBundle().getSecurity().getName();
+      } else if (input instanceof InterestRateSwapSecurity) {
+        name = ((InterestRateSwapSecurity) input).getName();
+      } else {
+        System.out.println("Unsupported Output");
+      }
     }
     System.exit(0);
   }
