@@ -124,7 +124,7 @@ public class CyclePerturbations {
     // be perturbed independently. e.g. the individual curves inside a curve bundle.
     // the keys in this map are the match details returned by the filter. the details identify the part of
     // the value that was matched
-    Map<Object, FilteredPerturbation> matches = new HashMap<>();
+    Map<MatchDetails, FilteredPerturbation> matches = new HashMap<>();
 
     for (SinglePerturbationMapping mapping : mappings) {
       // TODO this would be more efficient if the mappings were supplied in a multimap keyed by market data type
