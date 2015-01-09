@@ -117,10 +117,7 @@ public class CurveBuildingIntegrationTest {
                     argument("rootFinderMaxIterations", 1000)),
                 function(
                     DefaultDiscountingMulticurveBundleFn.class,
-                    argument("impliedCurveNames", StringSet.of())),
-                function(
-                    DefaultMarketDataFn.class,
-                    argument("currencyMatrix", currencyMatrixLink))));
+                    argument("impliedCurveNames", StringSet.of()))));
 
     ViewConfig viewConfig =
         configureView(

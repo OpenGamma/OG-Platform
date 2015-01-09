@@ -233,10 +233,7 @@ public class FXForwardPnlSeriesFunctionTest {
                     argument("impliedCurveNames", StringSet.of())),
                 function(
                     DefaultCurveNodeConverterFn.class,
-                    argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
-                function(
-                    DefaultMarketDataFn.class,
-                    argument("currencyMatrix", currencyMatrix))),
+                    argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1))))),
 
             implementations(
                 FXForwardPnLSeriesFn.class, DiscountingFXForwardSpotPnLSeriesFn.class,
