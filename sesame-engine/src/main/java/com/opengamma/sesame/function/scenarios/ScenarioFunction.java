@@ -16,7 +16,10 @@ package com.opengamma.sesame.function.scenarios;
  * @param <A> the type of argument this function requires. Typically the argument instance describes the
  *   transformation that should be applied to the data and the function contains the logic to perform
  *   the transformation.
+ *
+ * @deprecated use the new scenario framework
  */
+@Deprecated
 public interface ScenarioFunction<A extends ScenarioArgument<A, F>, F extends ScenarioFunction<A, F>> {
 
   /**

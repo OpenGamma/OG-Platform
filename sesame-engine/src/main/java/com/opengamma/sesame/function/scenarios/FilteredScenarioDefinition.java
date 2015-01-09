@@ -38,7 +38,10 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * A filtered definition is typically obtained by {@link ScenarioDefinition#filter(String) filtering} a
  * {@link ScenarioDefinition}.
+ *
+ * @deprecated use the new scenario framework
  */
+@Deprecated
 @BeanDefinition
 public final class FilteredScenarioDefinition implements ImmutableBean {
 

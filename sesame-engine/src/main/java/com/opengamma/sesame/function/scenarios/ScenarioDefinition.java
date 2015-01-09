@@ -43,7 +43,10 @@ import com.opengamma.util.ArgumentChecker;
  * A definition also knows which {@link ScenarioFunction} types must be added to the configuration to perform
  * the transformations. This allows a scenario definition to be applied to an existing view (see
  * {@link ViewConfig#withScenario(ScenarioDefinition)}).
+ *
+ * @deprecated use the new scenario framework
  */
+@Deprecated
 @BeanDefinition
 public final class ScenarioDefinition implements ImmutableBean {
 
