@@ -163,7 +163,7 @@ public class MarketDataEnvironmentComponentFactory extends AbstractComponentFact
    * @return a builder that provides FX rates.
    */
   protected FxRateMarketDataBuilder fxRateBuilder() {
-    return new FxRateMarketDataBuilder(ConfigLink.resolvable(_currencyMatrixName, CurrencyMatrix.class).resolve());
+    return new FxRateMarketDataBuilder(ConfigLink.resolvable(_currencyMatrixName, CurrencyMatrix.class));
   }
 
   /**

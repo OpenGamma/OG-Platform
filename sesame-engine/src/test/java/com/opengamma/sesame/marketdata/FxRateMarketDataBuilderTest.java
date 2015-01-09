@@ -19,9 +19,11 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.SimpleCurrencyMatrix;
 import com.opengamma.id.ExternalId;
@@ -56,7 +58,7 @@ public class FxRateMarketDataBuilderTest {
   public void fixedRate() {
     SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
     matrix.setFixedConversion(Currency.GBP, Currency.USD, GBPUSD_RATE);
-    FxRateMarketDataBuilder builder = new FxRateMarketDataBuilder(matrix);
+    FxRateMarketDataBuilder builder = new FxRateMarketDataBuilder(ConfigLink.<CurrencyMatrix>resolved(matrix));
 
     MarketDataBundle emptyBundle = MarketDataEnvironmentBuilder.empty().toBundle();
     SingleValueRequirement gbpUsd = singleValueRequirement("GBP/USD");
@@ -81,7 +83,7 @@ public class FxRateMarketDataBuilderTest {
     ExternalId rateId = ExternalId.of("x", "GBPUSD");
     ValueRequirement valueReq = new ValueRequirement(MARKET_VALUE.getName(), ComputationTargetType.PRIMITIVE, rateId);
     matrix.setLiveData(Currency.GBP, Currency.USD, valueReq);
-    FxRateMarketDataBuilder builder = new FxRateMarketDataBuilder(matrix);
+    FxRateMarketDataBuilder builder = new FxRateMarketDataBuilder(ConfigLink.<CurrencyMatrix>resolved(matrix));
     MarketDataSource marketDataSource = mock(MarketDataSource.class);
     MarketDataBundle bundle =
         new MarketDataEnvironmentBuilder()
@@ -111,7 +113,7 @@ public class FxRateMarketDataBuilderTest {
     matrix.setFixedConversion(Currency.USD, Currency.CHF, USDCHF_RATE);
     matrix.setFixedConversion(Currency.EUR, Currency.USD, EURUSD_RATE);
     matrix.setCrossConversion(Currency.EUR, Currency.CHF, Currency.USD);
-    FxRateMarketDataBuilder builder = new FxRateMarketDataBuilder(matrix);
+    FxRateMarketDataBuilder builder = new FxRateMarketDataBuilder(ConfigLink.<CurrencyMatrix>resolved(matrix));
 
     SingleValueRequirement eurChf = singleValueRequirement("EUR/CHF");
     SingleValueRequirement chfEur = singleValueRequirement("CHF/EUR");
@@ -145,7 +147,7 @@ public class FxRateMarketDataBuilderTest {
     double eurusdValue = EURUSD_RATE;
 
     matrix.setCrossConversion(Currency.EUR, Currency.CHF, Currency.USD);
-    FxRateMarketDataBuilder builder = new FxRateMarketDataBuilder(matrix);
+    FxRateMarketDataBuilder builder = new FxRateMarketDataBuilder(ConfigLink.<CurrencyMatrix>resolved(matrix));
 
     MarketDataBundle bundle =
         new MarketDataEnvironmentBuilder()
@@ -180,7 +182,7 @@ public class FxRateMarketDataBuilderTest {
     ExternalId rateId = ExternalId.of("x", "GBPUSD");
     ValueRequirement valueReq = new ValueRequirement(MARKET_VALUE.getName(), ComputationTargetType.PRIMITIVE, rateId);
     matrix.setLiveData(Currency.GBP, Currency.USD, valueReq);
-    FxRateMarketDataBuilder builder = new FxRateMarketDataBuilder(matrix);
+    FxRateMarketDataBuilder builder = new FxRateMarketDataBuilder(ConfigLink.<CurrencyMatrix>resolved(matrix));
     LocalDateRange dateRange = LocalDateRange.of(LocalDate.of(2010, 5, 17), LocalDate.of(2012, 6, 4), true);
 
     FxRateId fxRateId = FxRateId.of(Currency.GBP, Currency.USD);
@@ -221,7 +223,7 @@ public class FxRateMarketDataBuilderTest {
     FxRateId inverseRateId = FxRateId.of(Currency.USD, Currency.GBP);
     ValueRequirement valueReq = new ValueRequirement(MARKET_VALUE.getName(), ComputationTargetType.PRIMITIVE, rateId);
     matrix.setLiveData(Currency.GBP, Currency.USD, valueReq);
-    FxRateMarketDataBuilder builder = new FxRateMarketDataBuilder(matrix);
+    FxRateMarketDataBuilder builder = new FxRateMarketDataBuilder(ConfigLink.<CurrencyMatrix>resolved(matrix));
     LocalDateRange dateRange = LocalDateRange.of(LocalDate.of(2011, 5, 17), LocalDate.of(2011, 6, 4), true);
 
     LocalDateDoubleTimeSeriesBuilder timeSeriesBuilder = ImmutableLocalDateDoubleTimeSeries.builder();
@@ -248,7 +250,7 @@ public class FxRateMarketDataBuilderTest {
     FxRateId inverseRateId = FxRateId.of(Currency.USD, Currency.GBP);
     ValueRequirement valueReq = new ValueRequirement(MARKET_VALUE.getName(), ComputationTargetType.PRIMITIVE, rateId);
     matrix.setLiveData(Currency.GBP, Currency.USD, valueReq);
-    FxRateMarketDataBuilder builder = new FxRateMarketDataBuilder(matrix);
+    FxRateMarketDataBuilder builder = new FxRateMarketDataBuilder(ConfigLink.<CurrencyMatrix>resolved(matrix));
     LocalDateRange dateRange = LocalDateRange.of(LocalDate.of(2009, 5, 17), LocalDate.of(2011, 6, 4), true);
 
     LocalDateDoubleTimeSeriesBuilder timeSeriesBuilder = ImmutableLocalDateDoubleTimeSeries.builder();
@@ -284,7 +286,7 @@ public class FxRateMarketDataBuilderTest {
     FxRateId fxRateId = FxRateId.of(Currency.GBP, Currency.USD);
     ValueRequirement valueReq = new ValueRequirement(MARKET_VALUE.getName(), ComputationTargetType.PRIMITIVE, rateId);
     matrix.setLiveData(Currency.GBP, Currency.USD, valueReq);
-    FxRateMarketDataBuilder builder = new FxRateMarketDataBuilder(matrix);
+    FxRateMarketDataBuilder builder = new FxRateMarketDataBuilder(ConfigLink.<CurrencyMatrix>resolved(matrix));
 
     MarketDataEnvironment marketData =
         new MarketDataEnvironmentBuilder()
@@ -324,7 +326,7 @@ public class FxRateMarketDataBuilderTest {
     FxRateId fxRateId = FxRateId.of(Currency.USD, Currency.GBP);
     ValueRequirement valueReq = new ValueRequirement(MARKET_VALUE.getName(), ComputationTargetType.PRIMITIVE, rateId);
     matrix.setLiveData(Currency.GBP, Currency.USD, valueReq);
-    FxRateMarketDataBuilder builder = new FxRateMarketDataBuilder(matrix);
+    FxRateMarketDataBuilder builder = new FxRateMarketDataBuilder(ConfigLink.<CurrencyMatrix>resolved(matrix));
 
     MarketDataEnvironment marketData =
         new MarketDataEnvironmentBuilder()
@@ -370,7 +372,7 @@ public class FxRateMarketDataBuilderTest {
     matrix.setLiveData(Currency.EUR, Currency.USD, eurUsdValueReq);
 
     matrix.setCrossConversion(Currency.EUR, Currency.CHF, Currency.USD);
-    FxRateMarketDataBuilder builder = new FxRateMarketDataBuilder(matrix);
+    FxRateMarketDataBuilder builder = new FxRateMarketDataBuilder(ConfigLink.<CurrencyMatrix>resolved(matrix));
 
     RawId usdChfFxRateId = RawId.of(usdChfId.toBundle());
     RawId eurUsdFxRateId = RawId.of(eurUsdId.toBundle());
