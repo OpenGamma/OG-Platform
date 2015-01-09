@@ -7,7 +7,10 @@ package com.opengamma.sesame.function.scenarios.curvedata;
 
 /**
  * Performs a relative shift on a set of curve input data if the curve matches a {@link CurveSpecificationMatcher matcher}.
+ *
+ * @deprecated use the new scenario framework
  */
+@Deprecated
 public class CurveDataRelativeShift extends CurveDataShift {
 
   /**

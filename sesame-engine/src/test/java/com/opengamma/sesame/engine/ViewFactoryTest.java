@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.shiro.authz.AuthorizationException;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
@@ -87,6 +88,11 @@ public class ViewFactoryTest {
   private static final String PRESENT_VALUE_HEADER = "PV";
   private static final String BLOOMBERG_HEADER = "Bloomberg Ticker";
   private static final String ACTIV_HEADER = "ACTIV Symbol";
+
+  @BeforeMethod
+  public void setUp() {
+    ThreadLocalServiceContext.init(ServiceContext.of(ImmutableMap.<Class<?>, Object>of()));
+  }
 
   @Test
   public void basicFunctionWithTrade() {
