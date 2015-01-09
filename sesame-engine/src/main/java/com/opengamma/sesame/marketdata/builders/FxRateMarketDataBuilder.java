@@ -15,6 +15,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.core.link.ConfigLink;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyMatrixValue;
@@ -56,14 +57,14 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
 
   private static final Logger s_logger = LoggerFactory.getLogger(FxRateMarketDataBuilder.class);
 
-  private final CurrencyMatrix _currencyMatrix;
+  private final ConfigLink<CurrencyMatrix> _currencyMatrixLink;
 
   /**
-   * @param currencyMatrix defines how FX rates should be looked up from a market data provider or derived
+   * @param currencyMatrixLink defines how FX rates should be looked up from a market data provider or derived
    *   from other rates
    */
-  public FxRateMarketDataBuilder(CurrencyMatrix currencyMatrix) {
-    _currencyMatrix = ArgumentChecker.notNull(currencyMatrix, "currencyMatrix");
+  public FxRateMarketDataBuilder(ConfigLink<CurrencyMatrix> currencyMatrixLink) {
+    _currencyMatrixLink = ArgumentChecker.notNull(currencyMatrixLink, "currencyMatrix");
   }
 
   @Override
@@ -255,7 +256,7 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
         });
       }
     };
-    CurrencyMatrixValue value = _currencyMatrix.getConversion(base, counter);
+    CurrencyMatrixValue value = _currencyMatrixLink.resolve().getConversion(base, counter);
 
     if (value == null) {
       return Result.failure(FailureStatus.MISSING_DATA,
@@ -318,7 +319,7 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
         }
       }
     };
-    CurrencyMatrixValue value = _currencyMatrix.getConversion(base, counter);
+    CurrencyMatrixValue value = _currencyMatrixLink.resolve().getConversion(base, counter);
 
     if (value == null) {
       return Result.failure(FailureStatus.MISSING_DATA,
@@ -390,7 +391,7 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
             .build();
       }
     };
-    CurrencyMatrixValue value = _currencyMatrix.getConversion(base, counter);
+    CurrencyMatrixValue value = _currencyMatrixLink.resolve().getConversion(base, counter);
     return value.accept(visitor);
   }
 }

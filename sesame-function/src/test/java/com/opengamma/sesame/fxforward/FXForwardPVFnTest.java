@@ -281,21 +281,15 @@ public class FXForwardPVFnTest {
                                    argument("rootFinderMaxIterations", 1000)),
                                function(
                                    DefaultCurrencyPairsFn.class,
-                                   argument("currencyPairs", ImmutableSet.of(CurrencyPair.of(USD, JPY),
-                                                                             CurrencyPair.of(EUR, USD),
-                                                                             CurrencyPair.of(GBP, USD)))),
+                                   argument("currencyPairs", ImmutableSet.of(
+                                           CurrencyPair.of(USD, JPY),
+                                           CurrencyPair.of(EUR, USD),
+                                           CurrencyPair.of(GBP, USD)))),
                                function(
                                    DefaultDiscountingMulticurveBundleFn.class,
                                    argument("impliedCurveNames", StringSet.of()),
-                                   argument("curveConfig", ConfigLink.resolvable("USD",
-                                                                                 CurveConstructionConfiguration.class))),
-                               function(
-                                   DefaultMarketDataFn.class,
-                                   argument("currencyMatrix", currencyMatrixLink)),
-                               function(
-                                   DefaultHistoricalMarketDataFn.class,
-                                   argument("currencyMatrix", currencyMatrixLink),
-                                   argument("dataSource", "BLOOMBERG")))))));
+                                   argument("curveConfig",
+                                       ConfigLink.resolvable("USD", CurveConstructionConfiguration.class))))))));
 
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(DiscountingMulticurveBundleFn.class);

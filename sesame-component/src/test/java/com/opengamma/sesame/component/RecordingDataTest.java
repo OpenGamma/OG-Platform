@@ -338,13 +338,6 @@ public class RecordingDataTest {
                                 DefaultCurveNodeConverterFn.class,
                                 argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
                             function(
-                                DefaultMarketDataFn.class,
-                                argument("currencyMatrix", _currencyMatrixLink)),
-                            function(
-                                DefaultHistoricalMarketDataFn.class,
-                                argument("dataSource", "BLOOMBERG"),
-                                argument("currencyMatrix", _currencyMatrixLink)),
-                            function(
                                 DefaultDiscountingMulticurveBundleResolverFn.class,
                                 argument("curveConfig", curveConstructionConfiguration)),
                             function(
@@ -373,13 +366,6 @@ public class RecordingDataTest {
                     function(
                         DefaultCurveNodeConverterFn.class,
                         argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
-                    function(
-                        DefaultHistoricalMarketDataFn.class,
-                        argument("dataSource", "BLOOMBERG"),
-                        argument("currencyMatrix", _currencyMatrixLink)),
-                    function(
-                        DefaultMarketDataFn.class,
-                        argument("currencyMatrix", _currencyMatrixLink)),
                     function(
                         DefaultDiscountingMulticurveBundleFn.class,
                         argument("impliedCurveNames", StringSet.of())))),

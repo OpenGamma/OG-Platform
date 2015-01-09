@@ -135,9 +135,6 @@ public class InterestRateFutureFnTest {
                     DefaultDiscountingMulticurveBundleFn.class,
                     argument("impliedCurveNames", StringSet.of())),
                 function(
-                    DefaultHistoricalMarketDataFn.class,
-                    argument("dataSource", "BLOOMBERG")),
-                function(
                     DefaultCurveNodeConverterFn.class,
                     argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1))))),
             implementations(
