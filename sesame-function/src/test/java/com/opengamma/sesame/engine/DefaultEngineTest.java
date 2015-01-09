@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
@@ -25,6 +26,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -36,6 +38,8 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
+import com.opengamma.service.ServiceContext;
+import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.sesame.CurveSelector;
 import com.opengamma.sesame.CurveSelectorMulticurveBundleFn;
 import com.opengamma.sesame.DirectExecutorService;
@@ -82,6 +86,11 @@ public class DefaultEngineTest {
           column("col1", "Foo"));
 
   // TODO tests that include building market data
+
+  @BeforeMethod
+  public void setUp() {
+    ThreadLocalServiceContext.init(ServiceContext.of(ImmutableMap.<Class<?>, Object>of()));
+  }
 
   @Test
   public void runViewDataProvided() {
@@ -139,11 +148,11 @@ public class DefaultEngineTest {
         builder.addMulticurve("base", BUNDLE1, createMulticurve(Currency.USD, 1))
                .addMulticurve("base", BUNDLE2, createMulticurve(Currency.EUR, 2))
                .valuationTime("base", valuationTime)
-               .addMulticurve("s1", BUNDLE1, createMulticurve(Currency.USD, 3))
+            .addMulticurve("s1", BUNDLE1, createMulticurve(Currency.USD, 3))
                .addMulticurve("s1", BUNDLE2, createMulticurve(Currency.EUR, 4))
                .valuationTime("s1", valuationTime)
-               .addMulticurve("s2", BUNDLE1, createMulticurve(Currency.USD, 5))
-               .addMulticurve("s2", BUNDLE2, createMulticurve(Currency.EUR, 6))
+            .addMulticurve("s2", BUNDLE1, createMulticurve(Currency.USD, 5))
+            .addMulticurve("s2", BUNDLE2, createMulticurve(Currency.EUR, 6))
                .valuationTime("s2", valuationTime)
                .build();
     List<?> trades = ImmutableList.of(createTrade());
