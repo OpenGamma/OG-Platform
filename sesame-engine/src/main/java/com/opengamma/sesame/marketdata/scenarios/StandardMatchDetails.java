@@ -16,13 +16,13 @@ import com.google.common.collect.ImmutableSet;
  * could accidentally be applied to the same piece of market data.
  * <p>
  * If a type of market data doesn't need to use match details (which should be most types) the filter should return
- * {@link #MATCH} from it's {@code apply} method.
+ * {@link #MATCH} from its {@code apply} method.
  */
 public final class StandardMatchDetails {
 
   /**
    * If a type of market data doesn't need to use match details (which should be most types) the filter should return
-   * this from it's {@code apply} method.
+   * this from its {@code apply} method.
    */
   public final ImmutableSet<MatchDetails> MATCH = ImmutableSet.<MatchDetails>of(new NoDetails());
 

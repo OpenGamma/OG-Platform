@@ -14,6 +14,9 @@ import com.opengamma.sesame.marketdata.MarketDataId;
  * <p>
  * For example, a filter could apply to all yield curves whose currency is USD, or quoted prices of equity securities
  * in the pharmaceutical sector.
+ * <p>
+ * Market data filter implementations should generally implement the Joda Beans {@code ImmutableBean} interface
+ * which allows them to be serialized and used with a remote implementation of the engine API.
  */
 public interface MarketDataFilter {
 

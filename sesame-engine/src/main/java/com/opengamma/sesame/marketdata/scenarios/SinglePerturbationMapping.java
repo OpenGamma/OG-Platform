@@ -25,7 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
- * A perturbation that transforms an item of data and a filter that decides what data it applies to.
+ * A perturbation that transforms an item of data with a filter that decides what data it applies to.
  */
 @BeanDefinition
 public final class SinglePerturbationMapping implements ImmutableBean {

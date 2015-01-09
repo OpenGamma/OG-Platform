@@ -123,6 +123,7 @@ public class MarketDataUtils {
     return liveDataClient;
   }
 
+  // TODO Java 8 - replace with stream().filter()
   /**
    * Returns the perturbations whose {@link Perturbation#getMarketDataType() data type} equals {@code dataType}
    * and {@link Perturbation#getMatchDetailsType()} equals {@code matchDetailsType}.
@@ -131,10 +132,7 @@ public class MarketDataUtils {
    * @param dataType a type of market data or data used to build market data that the returned perturbations must handle
    * @param matchDetailsType a type of {@link MatchDetails} that the returned perturbations must handle
    * @return the perturbations that can act on the specified data type
-   *
-   * TODO Java 8 - replace with stream().filter()
    */
-  @SuppressWarnings("unchecked")
   static <T> Collection<FilteredPerturbation> filterPerturbations(
       Collection<FilteredPerturbation> filteredPerturbations,
       Class<T> dataType,
@@ -177,11 +175,13 @@ public class MarketDataUtils {
     if (currency != null) {
       updatedProvider = multicurve.withDiscountFactor(currency, curve);
     }
+
     IborIndex iborIndex = multicurve.getIborIndexForName(curve.getName());
 
     if (iborIndex != null) {
       updatedProvider = multicurve.withForward(iborIndex, curve);
     }
+
     IndexON indexON = multicurve.getOvernightIndexForName(curve.getName());
 
     if (indexON != null) {
