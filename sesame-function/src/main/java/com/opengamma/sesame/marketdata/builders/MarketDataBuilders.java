@@ -141,7 +141,7 @@ public class MarketDataBuilders {
    * @return a builder for FX rates
    */
   public static FxRateMarketDataBuilder fxRate(ConfigLink<CurrencyMatrix> currencyMatrixLink) {
-    return new FxRateMarketDataBuilder(currencyMatrixLink.resolve());
+    return new FxRateMarketDataBuilder(currencyMatrixLink);
   }
 
   /**
