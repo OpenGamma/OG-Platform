@@ -291,11 +291,7 @@ public class FXForwardPVFnTest {
                                                                                  CurveConstructionConfiguration.class))),
                                function(
                                    DefaultMarketDataFn.class,
-                                   argument("currencyMatrix", currencyMatrixLink)),
-                               function(
-                                   DefaultHistoricalMarketDataFn.class,
-                                   argument("currencyMatrix", currencyMatrixLink),
-                                   argument("dataSource", "BLOOMBERG")))))));
+                                   argument("currencyMatrix", currencyMatrixLink)))))));
 
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(DiscountingMulticurveBundleFn.class);

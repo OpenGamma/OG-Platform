@@ -145,9 +145,6 @@ public class IRFutureOptionFnTest {
                     DefaultCurveNodeConverterFn.class,
                     argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
                 function(
-                    DefaultHistoricalMarketDataFn.class,
-                    argument("dataSource", "BLOOMBERG")),
-                function(
                     DefaultDiscountingMulticurveBundleFn.class,
                     argument("impliedCurveNames", StringSet.of()))),
             implementations(

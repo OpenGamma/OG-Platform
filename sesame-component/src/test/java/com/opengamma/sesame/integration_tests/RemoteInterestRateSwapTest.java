@@ -64,7 +64,6 @@ import com.opengamma.sesame.irs.DiscountingInterestRateSwapCalculatorFactory;
 import com.opengamma.sesame.irs.DiscountingInterestRateSwapFn;
 import com.opengamma.sesame.irs.InterestRateSwapCalculatorFactory;
 import com.opengamma.sesame.irs.InterestRateSwapFn;
-import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.server.FunctionServer;
 import com.opengamma.sesame.server.FunctionServerRequest;
@@ -280,10 +279,6 @@ public class RemoteInterestRateSwapTest {
                         DefaultCurveNodeConverterFn.class,
                         argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
                     function(
-                        DefaultHistoricalMarketDataFn.class,
-                        argument("dataSource", "BLOOMBERG"),
-                        argument("currencyMatrix", _currencyMatrixLink)),
-                    function(
                         DefaultMarketDataFn.class,
                         argument("dataSource", "BLOOMBERG"),
                         argument("currencyMatrix", _currencyMatrixLink)),
@@ -316,10 +311,6 @@ public class RemoteInterestRateSwapTest {
                             function(
                                 DefaultCurveNodeConverterFn.class,
                                 argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
-                            function(
-                                DefaultHistoricalMarketDataFn.class,
-                                argument("dataSource", "BLOOMBERG"),
-                                argument("currencyMatrix", _currencyMatrixLink)),
                             function(
                                 DefaultMarketDataFn.class,
                                 argument("dataSource", "BLOOMBERG"),

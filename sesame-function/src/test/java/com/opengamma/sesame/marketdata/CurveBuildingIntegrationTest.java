@@ -120,11 +120,7 @@ public class CurveBuildingIntegrationTest {
                     argument("impliedCurveNames", StringSet.of())),
                 function(
                     DefaultMarketDataFn.class,
-                    argument("currencyMatrix", currencyMatrixLink)),
-                function(
-                    DefaultHistoricalMarketDataFn.class,
-                    argument("currencyMatrix", currencyMatrixLink),
-                    argument("dataSource", "BLOOMBERG"))));
+                    argument("currencyMatrix", currencyMatrixLink))));
 
     ViewConfig viewConfig =
         configureView(

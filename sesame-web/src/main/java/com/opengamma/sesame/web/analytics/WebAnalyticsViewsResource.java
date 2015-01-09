@@ -309,17 +309,11 @@ public class WebAnalyticsViewsResource extends AbstractWebAnalyticsResource {
                         CurrencyPair.of(GBP, USD)))),
             function(DefaultCurveNodeConverterFn.class,
                 argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
-            function(DefaultHistoricalMarketDataFn.class,
-                argument("dataSource", "BLOOMBERG")),
             function(
                 DefaultDiscountingMulticurveBundleFn.class,
                 argument("impliedCurveNames", StringSet.of("Implied Deposit Curve EUR"))),
             function(DefaultHistoricalPnLFXConverterFn.class,
                 argument("periodBound", PnLPeriodBound.START)),
-            function(
-                DefaultHistoricalMarketDataFn.class,
-                argument("dataSource", "BLOOMBERG"),
-                argument("currencyMatrix", currencyMatrixLink)),
             function(DefaultMarketDataFn.class,
                 argument("currencyMatrix", currencyMatrixLink))),
         implementations(

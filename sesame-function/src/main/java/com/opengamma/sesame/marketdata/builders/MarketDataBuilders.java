@@ -77,10 +77,7 @@ public class MarketDataBuilders {
                     argument("stepMaximum", 5000)),
                 function(
                     ConfigDBCurveSpecificationBuilder.class,
-                    argument("versionCorrection", VersionCorrection.LATEST)),
-                function(
-                    DefaultHistoricalMarketDataFn.class,
-                    argument("currencyMatrix", currencyMatrixLink))),
+                    argument("versionCorrection", VersionCorrection.LATEST))),
             implementations(
                 CurveSpecificationBuilder.class, ConfigDBCurveSpecificationBuilder.class,
                 CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
@@ -103,9 +100,6 @@ public class MarketDataBuilders {
                 function(
                     DefaultCurveNodeConverterFn.class,
                     argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
-                function(
-                    DefaultHistoricalMarketDataFn.class,
-                    argument("currencyMatrix", currencyMatrixLink)),
                 function(
                     IssuerDiscountBuildingRepository.class,
                     argument("toleranceAbs", 1e-9),

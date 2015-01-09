@@ -11,7 +11,6 @@ import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdent
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.Environment;
-import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 
 /**
@@ -50,11 +49,7 @@ public class DefaultMarketDataFn implements MarketDataFn {
 
   @Override
   public Result<Double> getFxRate(final Environment env, CurrencyPair currencyPair) {
-    return getFxRate(env, currencyPair.getBase(), currencyPair.getCounter());
-  }
-
-  private Result<Double> getFxRate(final Environment env, final Currency base, final Currency counter) {
-    FxRateId rateId = FxRateId.of(CurrencyPair.of(base, counter));
+    FxRateId rateId = FxRateId.of(CurrencyPair.of(currencyPair.getBase(), currencyPair.getCounter()));
     return env.getMarketDataBundle().get(rateId, Double.class);
   }
 }
