@@ -7,8 +7,6 @@ package com.opengamma.solutions.library.tool;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZonedDateTime;
 
@@ -25,13 +23,11 @@ import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.CalculationArguments;
 import com.opengamma.sesame.engine.Engine;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
-import com.opengamma.sesame.engine.ResultRow;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.marketdata.EmptyMarketDataSpec;
 import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.solutions.util.CreditViewUtils;
-import com.opengamma.solutions.util.ViewUtils;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtils;
 
@@ -41,9 +37,9 @@ import com.opengamma.util.time.DateUtils;
 public class CreditPricer {
 
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 10, 16);
-  private Engine _engine;
-  private DatabaseRestore _databaseRestore;
-  private RegionMaster _regionMaster;
+  private final Engine _engine;
+  private final DatabaseRestore _databaseRestore;
+  private final RegionMaster _regionMaster;
 
   /**
    * Create an instance of the Credit Pricer
