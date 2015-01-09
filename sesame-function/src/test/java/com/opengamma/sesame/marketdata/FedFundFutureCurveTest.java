@@ -132,9 +132,6 @@ public class FedFundFutureCurveTest {
                     DefaultDiscountingMulticurveBundleFn.class,
                     argument("impliedCurveNames", StringSet.of())),
                 function(
-                    DefaultHistoricalMarketDataFn.class,
-                    argument("dataSource", "BLOOMBERG")),
-                function(
                     RootFinderConfiguration.class,
                     argument("rootFinderAbsoluteTolerance", 1e-9),
                     argument("rootFinderRelativeTolerance", 1e-9),

@@ -70,7 +70,6 @@ import com.opengamma.sesame.engine.ResultItem;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.engine.ViewInputs;
 import com.opengamma.sesame.interestrate.InterestRateMockSources;
-import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.server.FunctionServer;
 import com.opengamma.sesame.server.FunctionServerRequest;
 import com.opengamma.sesame.server.GlobalCycleOptions;
@@ -290,9 +289,6 @@ public class RemotingTest {
                             function(
                                 DefaultCurveNodeConverterFn.class,
                                 argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
-                            function(
-                                DefaultHistoricalMarketDataFn.class,
-                                argument("dataSource", "BLOOMBERG")),
                             function(
                                 DefaultDiscountingMulticurveBundleResolverFn.class,
                                 argument("curveConfig", curveConstructionConfiguration)),

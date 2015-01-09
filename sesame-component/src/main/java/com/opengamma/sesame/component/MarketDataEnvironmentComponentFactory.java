@@ -138,9 +138,6 @@ public class MarketDataEnvironmentComponentFactory extends AbstractComponentFact
                     argument("toleranceRel", 1e-9),
                     argument("stepMaximum", 1000)),
                 function(
-                    DefaultHistoricalMarketDataFn.class,
-                    argument("currencyMatrix", ConfigLink.resolvable(_currencyMatrixName, CurrencyMatrix.class))),
-                function(
                     ConfigDBCurveSpecificationBuilder.class,
                     argument("versionCorrection", VersionCorrection.LATEST))),
             implementations(
@@ -181,9 +178,6 @@ public class MarketDataEnvironmentComponentFactory extends AbstractComponentFact
                 function(
                     DefaultCurveNodeConverterFn.class,
                     argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
-                function(
-                    DefaultHistoricalMarketDataFn.class,
-                    argument("currencyMatrix", ConfigLink.resolvable(_currencyMatrixName, CurrencyMatrix.class))),
                 function(
                     IssuerDiscountBuildingRepository.class,
                     argument("toleranceAbs", 1e-9),

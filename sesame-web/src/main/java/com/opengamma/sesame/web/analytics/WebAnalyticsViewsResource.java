@@ -88,7 +88,6 @@ import com.opengamma.sesame.fxforward.FXForwardCalculatorFn;
 import com.opengamma.sesame.fxforward.FXForwardDiscountingCalculatorFn;
 import com.opengamma.sesame.fxforward.FXForwardPVFn;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
-import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.pnl.DefaultHistoricalPnLFXConverterFn;
 import com.opengamma.sesame.pnl.PnLPeriodBound;
@@ -309,19 +308,11 @@ public class WebAnalyticsViewsResource extends AbstractWebAnalyticsResource {
                         CurrencyPair.of(GBP, USD)))),
             function(DefaultCurveNodeConverterFn.class,
                 argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
-            function(DefaultHistoricalMarketDataFn.class,
-                argument("dataSource", "BLOOMBERG")),
             function(
                 DefaultDiscountingMulticurveBundleFn.class,
                 argument("impliedCurveNames", StringSet.of("Implied Deposit Curve EUR"))),
             function(DefaultHistoricalPnLFXConverterFn.class,
-                argument("periodBound", PnLPeriodBound.START)),
-            function(
-                DefaultHistoricalMarketDataFn.class,
-                argument("dataSource", "BLOOMBERG"),
-                argument("currencyMatrix", currencyMatrixLink)),
-            function(DefaultMarketDataFn.class,
-                argument("currencyMatrix", currencyMatrixLink))),
+                argument("periodBound", PnLPeriodBound.START))),
         implementations(
             CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
             CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
