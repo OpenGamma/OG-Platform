@@ -7,7 +7,10 @@ package com.opengamma.sesame.function.scenarios.curvedata;
 
 /**
  * Performs a parallel shift on a set of curve data if the curve matches the {@link CurveSpecificationMatcher matcher}.
+ *
+ * @deprecated use the new scenario framework
  */
+@Deprecated
 public class CurveDataParallelShift extends CurveDataShift {
 
   /**

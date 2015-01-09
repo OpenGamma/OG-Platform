@@ -5,10 +5,7 @@
  */
 package com.opengamma.sesame.function.scenarios.marketdata;
 
-import static com.opengamma.sesame.config.ConfigBuilder.argument;
-import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
-import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
@@ -17,7 +14,6 @@ import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.security.Security;
-import com.opengamma.financial.currency.SimpleCurrencyMatrix;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.Environment;
@@ -47,9 +43,7 @@ public class MarketDataShockDecoratorTest {
   private static final Security SEC1 = createSecurity(SCHEME, VALUE1);
   private static final Security SEC2 = createSecurity(SCHEME, VALUE2);
   private static final FunctionModelConfig CONFIG =
-      config(implementations(Fn.class, Impl.class,
-                             MarketDataFn.class, DefaultMarketDataFn.class),
-             arguments(function(DefaultMarketDataFn.class, argument("currencyMatrix", new SimpleCurrencyMatrix()))));
+      config(implementations(Fn.class, Impl.class, MarketDataFn.class, DefaultMarketDataFn.class));
   private static final MarketDataMatcher MATCHER1 = MarketDataMatcher.idEquals(SCHEME, VALUE1);
   private static final MarketDataMatcher MATCHER2 = MarketDataMatcher.idEquals(SCHEME, VALUE2);
   private static final FunctionModelConfig DECORATED_CONFIG = CONFIG.decoratedWith(MarketDataShockDecorator.class);

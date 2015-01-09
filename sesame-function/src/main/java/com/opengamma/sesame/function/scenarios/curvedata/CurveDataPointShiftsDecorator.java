@@ -20,7 +20,10 @@ import com.opengamma.util.result.Result;
 /**
  * Function that decorates {@link CurveSpecificationMarketDataFn} and applies shifts to the underlying data.
  * The points to shift are specified by tenor.
+ *
+ * @deprecated use the new scenario framework
  */
+@Deprecated
 public class CurveDataPointShiftsDecorator
     implements CurveSpecificationMarketDataFn, ScenarioFunction<CurveDataPointShifts, CurveDataPointShiftsDecorator> {
 

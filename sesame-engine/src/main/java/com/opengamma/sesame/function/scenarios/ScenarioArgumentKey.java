@@ -26,7 +26,10 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Key for {@link ScenarioArgument} instances used in {@link ScenarioDefinition}.
+ *
+ * @deprecated use the new scenario framework
  */
+@Deprecated
 @BeanDefinition
 public final class ScenarioArgumentKey implements ImmutableBean {
 

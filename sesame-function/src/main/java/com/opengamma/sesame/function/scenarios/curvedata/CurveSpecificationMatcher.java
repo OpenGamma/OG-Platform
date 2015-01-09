@@ -19,7 +19,10 @@ import com.opengamma.util.RegexUtils;
  * Tests if a {@link CurveSpecification} matches a rule.
  * Used for deciding whether a curve should be affected by a scenario.
  * TODO rename CurveMatcher?
+ *
+ * @deprecated use the new scenario framework
  */
+@Deprecated
 public abstract class CurveSpecificationMatcher {
 
   /**
