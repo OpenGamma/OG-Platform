@@ -33,7 +33,7 @@ public class MarketDataUtilsTest {
   @Test
   public void cartesianProductOneItem() {
     List<Integer> list = ImmutableList.of(1);
-    List<List<Integer>> expected = ImmutableList.<List<Integer>>builder().add(ImmutableList.of(1)).build();
+    List<List<Integer>> expected = ImmutableList.<List<Integer>>of(ImmutableList.of(1));
     assertEquals(expected, MarketDataUtils.cartesianProduct(list));
   }
 
