@@ -42,7 +42,6 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.config.FunctionModelConfig;
-import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.credit.DefaultIsdaCompliantYieldCurveFn;
 import com.opengamma.sesame.credit.IsdaCompliantCreditCurveFn;
@@ -71,9 +70,9 @@ import com.opengamma.sesame.credit.snapshot.YieldCurveDataProviderFn;
 import com.opengamma.util.money.Currency;
 
 /**
- * Utility class for remote views
+ * Utility class for credit views
  */
-public final class RemoteViewCreditUtils {
+public final class CreditViewUtils {
 
   private static final String SHORT_NAME = "Pepsico Inc";
   private static final SeniorityLevel SNRFOR = SeniorityLevel.SNRFOR;
@@ -84,12 +83,12 @@ public final class RemoteViewCreditUtils {
   private static final ExternalId REF_ID = ExternalId.of("SHORT-NAME", SHORT_NAME);
   private static final Set<ExternalId> USNY = Sets.newHashSet(ExternalId.of(ExternalSchemes.ISDA_HOLIDAY, "USNY"));
 
-  private RemoteViewCreditUtils() { /* private constructor */ }
+  private CreditViewUtils() { /* private constructor */ }
 
   /** List of Credit inputs */
   public static final List<Object> INPUTS =
       ImmutableList.<Object>of(createStandardCDSSecurity(),
-                               createLegacyCDSSecurity());
+                          createLegacyCDSSecurity());
 
   /**
    * Utility for creating a credit specific view column
@@ -161,7 +160,7 @@ public final class RemoteViewCreditUtils {
    */
   public static StandardCDSSecurity createStandardCDSSecurity() {
     return new StandardCDSSecurity(SCDS_BUNDLE,
-                                   SHORT_NAME,
+                                   "Standard CDS " + SHORT_NAME,
                                    LocalDate.of(2014, 9, 20),
                                    LocalDate.of(2019, 12, 20),
                                    REF_ID,
@@ -178,6 +177,7 @@ public final class RemoteViewCreditUtils {
    */
   public static LegacyCDSSecurity createLegacyCDSSecurity() {
     return new LegacyCDSSecurity(LCDS_BUNDLE,
+                                 "Legacy CDS " + SHORT_NAME,
                                  LocalDate.of(2014, 9, 20),
                                  LocalDate.of(2014, 6, 20),
                                  LocalDate.of(2019, 12, 20),

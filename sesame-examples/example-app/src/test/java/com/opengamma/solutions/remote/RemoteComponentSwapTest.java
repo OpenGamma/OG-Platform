@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.solutions;
+package com.opengamma.solutions.remote;
 
 import static com.opengamma.sesame.config.ConfigBuilder.argument;
 import static com.opengamma.sesame.config.ConfigBuilder.arguments;
@@ -76,7 +76,7 @@ import com.opengamma.sesame.marketdata.SnapshotMarketDataFactory;
 import com.opengamma.sesame.marketdata.builders.MarketDataBuilder;
 import com.opengamma.sesame.marketdata.builders.MarketDataBuilders;
 import com.opengamma.sesame.marketdata.builders.MarketDataEnvironmentFactory;
-import com.opengamma.solutions.util.RemoteViewSwapUtils;
+import com.opengamma.solutions.util.SwapViewUtils;
 import com.opengamma.util.function.Function;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
@@ -154,7 +154,7 @@ public class RemoteComponentSwapTest {
 
   @Test(enabled = true)
   public void testSwapPV() {
-    final InterestRateSwapSecurity irs = (InterestRateSwapSecurity) RemoteViewSwapUtils.VANILLA_INPUTS.get(0);
+    final InterestRateSwapSecurity irs = (InterestRateSwapSecurity) SwapViewUtils.VANILLA_INPUTS.get(0);
 
     RemoteServer server = RemoteServer.create(_url);
     MarketDataSnapshotSource snapshotSource = server.getMarketDataSnapshotSource();

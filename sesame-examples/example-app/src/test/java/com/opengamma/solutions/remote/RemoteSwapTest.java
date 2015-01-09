@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.solutions;
+package com.opengamma.solutions.remote;
 
 import static com.opengamma.sesame.config.ConfigBuilder.configureView;
 import static com.opengamma.util.result.ResultTestUtils.assertSuccess;
@@ -36,7 +36,7 @@ import com.opengamma.sesame.engine.ResultRow;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
-import com.opengamma.solutions.util.RemoteViewSwapUtils;
+import com.opengamma.solutions.util.SwapViewUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -93,35 +93,35 @@ public class RemoteSwapTest {
     // don't want to provide any data, let the server source it
     MarketDataEnvironment env = MarketDataEnvironmentBuilder.empty();
 
-    _vanillaResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.VANILLA_INPUTS);
-    _spreadResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.SPREAD_INPUTS);
-    _fixingResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.FIXING_INPUTS);
-    _compoundingResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.COMPOUNDING_INPUTS);
-    _stubResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.STUB_INPUTS);
-    _xccyResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.XCCY_INPUTS);
-    _feesResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.FEES_INPUT);
-    _singleLegResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.SINGLE_LEG_INPUT);
-    _zeroCouponResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.ZERO_COUPON_COMPOUNDING_INPUT);
-    _iborCompoundingResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.IBOR_COMPOUNDING_INPUT);
-    _notionalExchangeResults = engine.runView(viewConfig, args, env, RemoteViewSwapUtils.NOTIONAL_EXCHANGE_INPUT);
+    _vanillaResults = engine.runView(viewConfig, args, env, SwapViewUtils.VANILLA_INPUTS);
+    _spreadResults = engine.runView(viewConfig, args, env, SwapViewUtils.SPREAD_INPUTS);
+    _fixingResults = engine.runView(viewConfig, args, env, SwapViewUtils.FIXING_INPUTS);
+    _compoundingResults = engine.runView(viewConfig, args, env, SwapViewUtils.COMPOUNDING_INPUTS);
+    _stubResults = engine.runView(viewConfig, args, env, SwapViewUtils.STUB_INPUTS);
+    _xccyResults = engine.runView(viewConfig, args, env, SwapViewUtils.XCCY_INPUTS);
+    _feesResults = engine.runView(viewConfig, args, env, SwapViewUtils.FEES_INPUT);
+    _singleLegResults = engine.runView(viewConfig, args, env, SwapViewUtils.SINGLE_LEG_INPUT);
+    _zeroCouponResults = engine.runView(viewConfig, args, env, SwapViewUtils.ZERO_COUPON_COMPOUNDING_INPUT);
+    _iborCompoundingResults = engine.runView(viewConfig, args, env, SwapViewUtils.IBOR_COMPOUNDING_INPUT);
+    _notionalExchangeResults = engine.runView(viewConfig, args, env, SwapViewUtils.NOTIONAL_EXCHANGE_INPUT);
   }
 
   private ViewConfig createViewConfig() {
     return
         configureView(
             "IRS Remote view",
-            RemoteViewSwapUtils.createInterestRateSwapViewColumn(OutputNames.PRESENT_VALUE,
-                                                                 _exposureConfig,
-                                                                 _currencyMatrixLink),
-            RemoteViewSwapUtils.createInterestRateSwapViewColumn(OutputNames.BUCKETED_PV01,
-                                                                 _exposureConfig,
-                                                                 _currencyMatrixLink),
-            RemoteViewSwapUtils.createInterestRateSwapViewColumn(OutputNames.PAY_LEG_CASH_FLOWS,
-                                                                 _exposureConfig,
-                                                                 _currencyMatrixLink),
-            RemoteViewSwapUtils.createInterestRateSwapViewColumn(OutputNames.RECEIVE_LEG_CASH_FLOWS,
-                                                                 _exposureConfig,
-                                                                 _currencyMatrixLink));
+            SwapViewUtils.createInterestRateSwapViewColumn(OutputNames.PRESENT_VALUE,
+                                                           _exposureConfig,
+                                                           _currencyMatrixLink),
+            SwapViewUtils.createInterestRateSwapViewColumn(OutputNames.BUCKETED_PV01,
+                                                           _exposureConfig,
+                                                           _currencyMatrixLink),
+            SwapViewUtils.createInterestRateSwapViewColumn(OutputNames.PAY_LEG_CASH_FLOWS,
+                                                           _exposureConfig,
+                                                           _currencyMatrixLink),
+            SwapViewUtils.createInterestRateSwapViewColumn(OutputNames.RECEIVE_LEG_CASH_FLOWS,
+                                                           _exposureConfig,
+                                                           _currencyMatrixLink));
   }
 
   /* Single Leg - start */

@@ -7,27 +7,26 @@ The best place to start exploring the functionality covered in this project is i
 RemoteBondTest
 ==============
 
-This integration test validates Present Value against a remote server. The view definition and bond inputs are defined in **RemoteViewBondUtils**.
+This integration test validates Present Value against a remote server. The view definition and bond inputs are defined in **BondViewUtils**.
 
 RemoteFraTest
 ==============
 
-This integration test validates Present Value against a remote server. The view definition and FRA inputs are defined in **RemoteViewFraUtils**
+This integration test validates Present Value against a remote server. The view definition and FRA inputs are defined in **FraViewUtils**
 
 RemoteSwapTest
 ==============
 
-This integration test validates Present Value, Bucketed PV01 and cash flows against a remote server. The view definition and swap inputs are defined in **RemoteViewSwapUtils**
+This integration test validates Present Value, Bucketed PV01 and cash flows against a remote server. The view definition and swap inputs are defined in **SwapViewUtils**
 
 Examples include swaps with fixed, float, spread, fixing, compounding, stubs, fees, single leg, zero coupon, cross currency and notional exchange.
 
-RemoteCreditTest
-================
+RemoteCreditTest and LibraryCreditTest
+======================================
 
-This integration test validates Present Value and CS01 against a remote server. The view definition and credit inputs are defined in **RemoteViewCreditUtils**
+These integration tests validates Present Value and CS01 against a remote server and as a library. The view definition and credit inputs are defined in **CreditViewUtils**
 
 Examples include legacy and standard credit default swaps.
-
 
 RemoteComponentSwapTest
 =======================
