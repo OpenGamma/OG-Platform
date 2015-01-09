@@ -142,6 +142,40 @@ functions to provide market data: ``MarketDataFn`` (single values) and ``Histori
 values). A function that requires market data should declare a constructor parameter taking one of the market data
 functions and the engine will provide it.
 
+These functions should be used in preference to ``MarketDataBundle`` which is available from the environment.
+``MarketDataBundle`` is a lower-level API not intended to be used by regular functions. The standard market data
+functions were specifically created to provide a higher-level, easier to use API.
+
+Requesting market data in a function
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+When a function requests market data it receives a ``Result`` which can be a success or failure depending on
+whether the data is available. If a piece of market data is unavailable the obvious thing for the function
+to do is return a failure itself:
+
+.. code-block:: java
+
+    Result<Double> marketDataResult = marketDataFn.getMarketValue(...);
+
+    if (!marketDataResult.isSuccess()) {
+      return Result.failure(marketDataResult);
+    }
+    Double marketData = marketDataResult.getValue();
+    // perform calculations using the data
+    ...
+
+However, if the function requires multiple pieces of market data it is extremely important that the it
+requests all of the data before returning, even if the first failure means the function cannot complete its
+calculations.
+
+This is necessary because of the way the calculation engine works. When running a view, the engine executes
+the functions twice. During the first calculation cycle there is no market data available. The functions are invoked
+and the engine records the market data they request. Then the engine builds or looks up the required market
+data and executes the functions a second time, passing in the data.
+
+It is expected that the functions will return failures during the first calculation cycle and complete their
+calculations successfully in the second cycle. However, if a function returns without requesting all its
+data in the first calculation cycle the required data won't be available during the second cycle.
+
 Caching of calculated values
 ----------------------------
 Arguably the most important service provided by the calculation engine is the caching of calculated values.
