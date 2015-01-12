@@ -5,16 +5,6 @@
  */
 package com.opengamma.solutions.remote.client;
 
-import static com.opengamma.sesame.config.ConfigBuilder.configureView;
-
-import java.net.URI;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.ZonedDateTime;
-
 import com.google.common.collect.ImmutableList;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.link.ConfigLink;
@@ -36,9 +26,18 @@ import com.opengamma.sesame.server.FunctionServer;
 import com.opengamma.sesame.server.FunctionServerRequest;
 import com.opengamma.sesame.server.IndividualCycleOptions;
 import com.opengamma.sesame.server.RemoteFunctionServer;
+import com.opengamma.sesame.trade.InterestRateSwapTrade;
 import com.opengamma.solutions.util.SwapViewUtils;
-import com.opengamma.solutions.util.ViewUtils;
 import com.opengamma.util.time.DateUtils;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
+
+import java.net.URI;
+
+import static com.opengamma.sesame.config.ConfigBuilder.configureView;
 
 /** The entry point for running an example remote view. */
 @Scriptable
@@ -139,11 +138,15 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
     Results results = functionServer.executeSingleCycle(request);
 
     for (ResultRow row : results.getRows()) {
-      InterestRateSwapSecurity irs =  (InterestRateSwapSecurity) row.getInput();
-      // Output PV
-      ViewUtils.outputMultipleCurrencyAmount(irs.getName(), row.get(0).getResult());
-      // Output Bucketed PV01
-      ViewUtils.outputBucketedCurveSensitivities(irs.getName(), row.get(1).getResult());
+      Object input = row.getInput();
+      String name = "Security";
+      if (input instanceof InterestRateSwapTrade) {
+        name = ((InterestRateSwapTrade) input).getTradeBundle().getSecurity().getName();
+      } else if (input instanceof InterestRateSwapSecurity) {
+        name = ((InterestRateSwapSecurity) input).getName();
+      } else {
+        System.out.println("Unsupported Output");
+      }
     }
     System.exit(0);
   }
