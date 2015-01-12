@@ -104,4 +104,25 @@ public class TimeSquareInterpolator1DTest {
     }
   }
 
+  /**
+   * Test first derivative values at end points
+   */
+  @Test
+  public void firstDerivativeEndpointsTest() {
+    double eps = 1.0e-5;
+    double[][] xValues = new double[][] { {1., 2., 3., 4., 5., 6. }, {2., 3.6, 5., 5.1, 7.12, 8.8 } };
+    double[][] yValues = new double[][] { {1., 1.1, 3., 4., 6.9, 9. }, {1., 1.6, 4., 1.1, 5.32, 7.8 } };
+    int dim = xValues.length;
+    Interpolator1D interp = new TimeSquareInterpolator1D();
+    for (int j = 0; j < dim; ++j) {
+      int nData = xValues[j].length;
+      Interpolator1DDataBundle data = interp.getDataBundleFromSortedArrays(xValues[j], yValues[j]);
+      double xMin = xValues[j][0];
+      double xMax = xValues[j][nData - 1];
+      double minFirst = (interp.interpolate(data, xMin + eps) - interp.interpolate(data, xMin)) / eps;
+      double maxFirst = (interp.interpolate(data, xMax) - interp.interpolate(data, xMax - eps)) / eps;
+      assertEquals("firstDerivativeInterpolatorsTest", minFirst, interp.firstDerivative(data, xMin), eps);
+      assertEquals("firstDerivativeInterpolatorsTest", maxFirst, interp.firstDerivative(data, xMax), eps);
+    }
+  }
 }

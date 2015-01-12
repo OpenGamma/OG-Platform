@@ -144,6 +144,9 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
       index = -(index + 1);
       index--;
     }
+    if (value == -0. && index < _n - 1 && _keys[index + 1] == 0.) {
+      ++index;
+    }
     return index;
   }
 
