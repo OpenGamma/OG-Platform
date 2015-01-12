@@ -18,14 +18,12 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class AllCurvesMulticurveFilterTest {
 
-  @Test
   public void bundle() {
     AllCurvesMulticurveFilter filter = AllCurvesMulticurveFilter.INSTANCE;
     Set<MulticurveMatchDetails> matches = filter.apply(MulticurveId.of("not used"), MulticurveFilterTestUtils.bundle());
     assertEquals(MulticurveFilterTestUtils.CURVE_NAMES, curveNames(matches));
   }
 
-  @Test
   public void config() {
     MulticurveFilterTestUtils.initializeServiceContext();
     MulticurveId multicurveId = MulticurveId.of(MulticurveFilterTestUtils.CURVE_CONFIG_NAME);
