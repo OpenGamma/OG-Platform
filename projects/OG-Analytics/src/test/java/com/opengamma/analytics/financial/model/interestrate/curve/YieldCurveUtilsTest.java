@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.analytics.ShiftType;
 import com.opengamma.analytics.math.curve.AddCurveSpreadFunction;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
@@ -49,8 +50,10 @@ public class YieldCurveUtilsTest {
   private static final double[] Y = new double[] {0.01, 0.015, 0.017, 0.02, 0.025, 0.035, 0.05};
   /** The original interpolated curve */
   private static final DoublesCurve INTERPOLATED_CURVE = InterpolatedDoublesCurve.fromSorted(T, Y, INTERPOLATOR);
+  /** Name of the original curve */
+  private static final String ORIGINAL_NAME = "ORIGINAL";
   /** The original yield curve */
-  private static final YieldCurve ORIGINAL_CURVE = new YieldCurve("ORIGINAL", INTERPOLATED_CURVE);
+  private static final YieldCurve ORIGINAL_CURVE = new YieldCurve(ORIGINAL_NAME, INTERPOLATED_CURVE);
 
 
   /**
@@ -227,7 +230,11 @@ public class YieldCurveUtilsTest {
   public void testEmptyBucketedAbsoluteShifts() {
     final List<DoublesPair> buckets = new ArrayList<>();
     final List<Double> shifts = new ArrayList<>();
-    final YieldCurve shiftedCurve = YieldCurveUtils.withBucketedShifts(ORIGINAL_CURVE, buckets, shifts, ShiftType.ABSOLUTE);
+    final YieldCurve shiftedCurve = YieldCurveUtils.withBucketedShifts(
+        ORIGINAL_CURVE,
+        buckets,
+        shifts,
+        ShiftType.ABSOLUTE);
     assertEquals("ORIGINAL_WithBucketedShifts", shiftedCurve.getName());
     assertFalse(ORIGINAL_CURVE.equals(shiftedCurve));
     assertCurveEquals(ORIGINAL_CURVE.getCurve(), shiftedCurve.getCurve(), 1e-15);
@@ -313,8 +320,14 @@ public class YieldCurveUtilsTest {
     final List<DoublesPair> buckets = Arrays.asList(DoublesPair.of(1., 5.), DoublesPair.of(5., 7.5), DoublesPair.of(7.5, 10));
     final List<Double> shifts = Arrays.asList(3., 4., 5.);
     final List<Double> inverseShifts = Arrays.asList(-3., -4., -5.);
-    final DoublesCurve expectedSpreadCurve = InterpolatedDoublesCurve.from(new double[] {0, 1, 5, 7.5, 10}, new double[] {0, 3., 4., 5., 0.}, STEP_INTERPOLATOR);
-    final DoublesCurve expectedCurve = SpreadDoublesCurve.from(ADD_CURVE_FUNCTION, ORIGINAL_CURVE.getCurve(), expectedSpreadCurve);
+    final DoublesCurve expectedSpreadCurve = InterpolatedDoublesCurve.from(
+        new double[]{0, 1, 5, 7.5, 10},
+        new double[]{0, 3., 4., 5., 0.},
+        STEP_INTERPOLATOR);
+    final DoublesCurve expectedCurve = SpreadDoublesCurve.from(
+        ADD_CURVE_FUNCTION,
+        ORIGINAL_CURVE.getCurve(),
+        expectedSpreadCurve);
     YieldCurve shiftedCurve = YieldCurveUtils.withBucketedShifts(ORIGINAL_CURVE, buckets, shifts, ShiftType.ABSOLUTE);
     assertCurveEquals(expectedCurve, shiftedCurve.getCurve(), 1e-9);
     shiftedCurve = YieldCurveUtils.withBucketedShifts(shiftedCurve, buckets, inverseShifts, ShiftType.ABSOLUTE);
@@ -501,6 +514,46 @@ public class YieldCurveUtilsTest {
     newY = new double[] {0.01, INTERPOLATED_CURVE.getYValue(1.1), 0.015, INTERPOLATED_CURVE.getYValue(2.1), 0.017, INTERPOLATED_CURVE.getYValue(3.1), 0.02, INTERPOLATED_CURVE.getYValue(4.1), 0.025, 0.035, 0.05};
     expectedCurve = InterpolatedDoublesCurve.from(newT, newY, INTERPOLATOR);
     assertCurveEquals(expectedCurve, YieldCurveUtils.withPointShifts(shiftedCurve, points, inverseShifts, ShiftType.RELATIVE).getCurve(), 1e-9);
+  }
+
+  /**
+   * Tests the curve name suffix can be specified when shifting a curve.
+   */
+  @Test
+  public void testCurveNameSuffix() {
+    List<Double> points = ImmutableList.of();
+    final List<Double> shifts = ImmutableList.of();
+
+    YieldCurve shiftedCurve1 = YieldCurveUtils.withPointShifts(ORIGINAL_CURVE, points, shifts, ShiftType.RELATIVE, "");
+    assertEquals(ORIGINAL_NAME, shiftedCurve1.getName());
+
+    String suffix = "suffix";
+    YieldCurve shiftedCurve2 = YieldCurveUtils.withPointShifts(ORIGINAL_CURVE, points, shifts, ShiftType.RELATIVE, suffix);
+    assertEquals(ORIGINAL_NAME + suffix, shiftedCurve2.getName());
+
+    YieldCurve shiftedCurve3 = YieldCurveUtils.withParallelShift(ORIGINAL_CURVE, 0d, ShiftType.RELATIVE, "");
+    assertEquals(ORIGINAL_NAME, shiftedCurve3.getName());
+
+    YieldCurve shiftedCurve4 = YieldCurveUtils.withParallelShift(ORIGINAL_CURVE, 0d, ShiftType.RELATIVE, suffix);
+    assertEquals(ORIGINAL_NAME + suffix, shiftedCurve4.getName());
+
+    YieldCurve shiftedCurve5 =
+        YieldCurveUtils.withBucketedShifts(
+            ORIGINAL_CURVE,
+            ImmutableList.<DoublesPair>of(),
+            ImmutableList.<Double>of(),
+            ShiftType.RELATIVE,
+            "");
+    assertEquals(ORIGINAL_NAME, shiftedCurve5.getName());
+
+    YieldCurve shiftedCurve6 =
+        YieldCurveUtils.withBucketedShifts(
+            ORIGINAL_CURVE,
+            ImmutableList.<DoublesPair>of(),
+            ImmutableList.<Double>of(),
+            ShiftType.RELATIVE,
+            suffix);
+    assertEquals(ORIGINAL_NAME + suffix, shiftedCurve6.getName());
   }
 
   /**
