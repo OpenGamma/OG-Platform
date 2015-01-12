@@ -36,7 +36,7 @@ public class EngineModule extends AbstractModule {
   protected void configure() {
     // force componentMap and hence the threadLocal ServiceContext to be set now
     // (Some modules assume ServiceContext is set without declaring a dependency)
-    bind(ComponentMap.class).toProvider(ComponentMapProvider.class);/*.asEagerSingleton();*/
+    bind(ComponentMap.class).toProvider(ComponentMapProvider.class).asEagerSingleton();
     bind(ViewFactory.class).toProvider(ViewFactoryProvider.class);
     bind(CreditPricer.class);
   }
