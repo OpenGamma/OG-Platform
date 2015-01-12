@@ -121,6 +121,21 @@ public class MarketDataEnvironmentBuilder {
   }
 
   /**
+   * Adds a single value to the builder.
+   *
+   * @param requirement the requirement for the value
+   * @param value the value
+   * @return this builder
+   */
+  public MarketDataEnvironmentBuilder add(SingleValueRequirement requirement, Object value) {
+    ArgumentChecker.notNull(requirement, "requirement");
+    ArgumentChecker.notNull(value, "value");
+
+    _marketData.put(requirement, value);
+    return this;
+  }
+
+  /**
    * Adds single values to the builder in bulk.
    *
    * @param items the data
@@ -142,6 +157,7 @@ public class MarketDataEnvironmentBuilder {
       Map<MarketDataId<?>, ? extends DateTimeSeries<LocalDate, ?>> timeSeries) {
 
     ArgumentChecker.notNull(timeSeries, "timeSeries");
+
     _timeSeries.putAll(timeSeries);
     return this;
   }
