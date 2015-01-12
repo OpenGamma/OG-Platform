@@ -46,26 +46,26 @@ public final class CurveNameMulticurveFilter implements MarketDataFilter, Immuta
     _curveName = ArgumentChecker.notEmpty(curveName, "curveName");
   }
 
-  private Set<MulticurveMatchDetails> apply(MulticurveMetadata metadata) {
-    if (metadata.getCurveNames().contains(_curveName)) {
-      return ImmutableSet.of(StandardMatchDetails.multicurve(_curveName));
-    } else {
-      return ImmutableSet.of();
-    }
-  }
-
   @Override
   public Set<MulticurveMatchDetails> apply(MarketDataId<?> marketDataId) {
     MulticurveId id = (MulticurveId) marketDataId;
-    MulticurveMetadata metadata = new MulticurveMetadata(id.getConfig());
+    MulticurveMetadata metadata = MulticurveMetadata.forConfiguration(id.getConfig());
     return apply(metadata);
   }
 
   @Override
   public Set<MulticurveMatchDetails> apply(MarketDataId<?> marketDataId, Object marketData) {
     MulticurveBundle multicurve = (MulticurveBundle) marketData;
-    MulticurveMetadata metadata = new MulticurveMetadata(multicurve);
+    MulticurveMetadata metadata = MulticurveMetadata.forMulticurve(multicurve);
     return apply(metadata);
+  }
+
+  private Set<MulticurveMatchDetails> apply(MulticurveMetadata metadata) {
+    if (metadata.getCurveNames().contains(_curveName)) {
+      return ImmutableSet.of(StandardMatchDetails.multicurve(_curveName));
+    } else {
+      return ImmutableSet.of();
+    }
   }
 
   @Override

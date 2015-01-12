@@ -57,12 +57,22 @@ public final class MulticurveMetadata {
   private final Map<IndexDeposit, String> _curveNamesByIndex;
   private final Map<String, String> _curveNamesByIndexName;
 
+  private MulticurveMetadata(Set<String> curveNames,
+                             SetMultimap<Currency, String> curveNamesByCurrency,
+                             Map<IndexDeposit, String> curveNamesByIndex,
+                             Map<String, String> curveNamesByIndexName) {
+    _curveNames = curveNames;
+    _curveNamesByCurrency = curveNamesByCurrency;
+    _curveNamesByIndex = curveNamesByIndex;
+    _curveNamesByIndexName = curveNamesByIndexName;
+  }
+
   /**
    * Creates multicurve metadata from the configuration used to build the multicurve bundle.
    *
    * @param config the configuration for building the multicurve bundle
    */
-  public MulticurveMetadata(CurveConstructionConfiguration config) {
+  public static MulticurveMetadata forConfiguration(CurveConstructionConfiguration config) {
     ArgumentChecker.notNull(config, "config");
 
     ImmutableSetMultimap.Builder<Currency, String> currencyBuilder = ImmutableSetMultimap.builder();
@@ -88,10 +98,11 @@ public final class MulticurveMetadata {
         }
       }
     }
-    _curveNames = nameBuilder.build();
-    _curveNamesByCurrency = currencyBuilder.build();
-    _curveNamesByIndex = indexBuilder.build();
-    _curveNamesByIndexName = indexNameBuilder.build();
+    return new MulticurveMetadata(
+        nameBuilder.build(),
+        currencyBuilder.build(),
+        indexBuilder.build(),
+        indexNameBuilder.build());
   }
 
   /**
@@ -99,7 +110,7 @@ public final class MulticurveMetadata {
    *
    * @param multicurve a multicurve bundle
    */
-  public MulticurveMetadata(MulticurveBundle multicurve) {
+  public static MulticurveMetadata forMulticurve(MulticurveBundle multicurve) {
     ArgumentChecker.notNull(multicurve, "multicurve");
 
     MulticurveProviderDiscount curves = multicurve.getMulticurveProvider();
@@ -124,10 +135,11 @@ public final class MulticurveMetadata {
       indexBuilder.put(index, curveName);
       indexNameBuilder.put(index.getName(), curveName);
     }
-    _curveNames = ImmutableSet.copyOf(curves.getAllNames());
-    _curveNamesByCurrency = currencyBuilder.build();
-    _curveNamesByIndex = indexBuilder.build();
-    _curveNamesByIndexName = indexNameBuilder.build();
+    return new MulticurveMetadata(
+        ImmutableSet.copyOf(curves.getAllNames()),
+        currencyBuilder.build(),
+        indexBuilder.build(),
+        indexNameBuilder.build());
   }
 
   /**
@@ -135,10 +147,8 @@ public final class MulticurveMetadata {
    *
    * @param curveConfigs curve type configurations
    * @return all currencies in the curve type configurations
-   *
-   * TODO why can a single curve have multiple configs? can they have different currencies? if not simplify
    */
-  private Set<Currency> currenciesForConfigs(List<? extends CurveTypeConfiguration> curveConfigs) {
+  private static Set<Currency> currenciesForConfigs(List<? extends CurveTypeConfiguration> curveConfigs) {
     Set<Currency> currencies = new HashSet<>();
 
     for (CurveTypeConfiguration curveConfig : curveConfigs) {
@@ -172,7 +182,7 @@ public final class MulticurveMetadata {
   }
 
   // it doesn't make sense for one curve to have multiple indices but the object model allows it
-  private Set<IndexDeposit> indicesForConfigs(List<? extends CurveTypeConfiguration> curveConfigs) {
+  private static Set<IndexDeposit> indicesForConfigs(List<? extends CurveTypeConfiguration> curveConfigs) {
     Set<IndexDeposit> indices = new HashSet<>();
 
     for (CurveTypeConfiguration curveConfig : curveConfigs) {
@@ -197,14 +207,14 @@ public final class MulticurveMetadata {
     return indices;
   }
 
-  private IndexON createOvernightIndex(OvernightCurveTypeConfiguration type) {
-    OvernightIndex index  = SecurityLink.resolvable(type.getConvention().toBundle(), OvernightIndex.class).resolve();
+  private static IndexON createOvernightIndex(OvernightCurveTypeConfiguration type) {
+    OvernightIndex index = SecurityLink.resolvable(type.getConvention().toBundle(), OvernightIndex.class).resolve();
     OvernightIndexConvention indexConvention =
         ConventionLink.resolvable(index.getConventionId(), OvernightIndexConvention.class).resolve();
     return ConverterUtils.indexON(index.getName(), indexConvention);
   }
 
-  private IborIndex createIborIndex(IborCurveTypeConfiguration type) {
+  private static IborIndex createIborIndex(IborCurveTypeConfiguration type) {
     com.opengamma.financial.security.index.IborIndex indexSecurity =
         SecurityLink.resolvable(type.getConvention(), com.opengamma.financial.security.index.IborIndex.class).resolve();
 

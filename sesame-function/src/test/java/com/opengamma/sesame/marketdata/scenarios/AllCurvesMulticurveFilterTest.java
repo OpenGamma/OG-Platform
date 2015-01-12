@@ -20,7 +20,7 @@ public class AllCurvesMulticurveFilterTest {
 
   @Test
   public void bundle() {
-    AllCurvesMulticurveFilter filter = new AllCurvesMulticurveFilter();
+    AllCurvesMulticurveFilter filter = AllCurvesMulticurveFilter.INSTANCE;
     Set<MulticurveMatchDetails> matches = filter.apply(MulticurveId.of("not used"), MulticurveFilterTestUtils.bundle());
     assertEquals(MulticurveFilterTestUtils.CURVE_NAMES, curveNames(matches));
   }
@@ -29,7 +29,7 @@ public class AllCurvesMulticurveFilterTest {
   public void config() {
     MulticurveFilterTestUtils.initializeServiceContext();
     MulticurveId multicurveId = MulticurveId.of(MulticurveFilterTestUtils.CURVE_CONFIG_NAME);
-    AllCurvesMulticurveFilter filter = new AllCurvesMulticurveFilter();
+    AllCurvesMulticurveFilter filter = AllCurvesMulticurveFilter.INSTANCE;
     Set<MulticurveMatchDetails> matches = filter.apply(multicurveId);
     assertEquals(MulticurveFilterTestUtils.CURVE_NAMES, curveNames(matches));
   }

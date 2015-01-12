@@ -47,6 +47,20 @@ public final class CurrencyMulticurveFilter implements MarketDataFilter, Immutab
     _currency = ArgumentChecker.notNull(currency, "currency");
   }
 
+  @Override
+  public Set<MulticurveMatchDetails> apply(MarketDataId<?> marketDataId) {
+    MulticurveId id = (MulticurveId) marketDataId;
+    MulticurveMetadata metadata = MulticurveMetadata.forConfiguration(id.getConfig());
+    return apply(metadata);
+  }
+
+  @Override
+  public Set<MulticurveMatchDetails> apply(MarketDataId<?> marketDataId, Object marketData) {
+    MulticurveBundle multicurve = (MulticurveBundle) marketData;
+    MulticurveMetadata metadata = MulticurveMetadata.forMulticurve(multicurve);
+    return apply(metadata);
+  }
+
   private Set<MulticurveMatchDetails> apply(MulticurveMetadata metadata) {
     Set<String> curveNames = metadata.getCurveNamesByCurrency().get(_currency);
     ImmutableSet.Builder<MulticurveMatchDetails> builder = ImmutableSet.builder();
@@ -55,20 +69,6 @@ public final class CurrencyMulticurveFilter implements MarketDataFilter, Immutab
       builder.add(StandardMatchDetails.multicurve(curveName));
     }
     return builder.build();
-  }
-
-  @Override
-  public Set<MulticurveMatchDetails> apply(MarketDataId<?> marketDataId) {
-    MulticurveId id = (MulticurveId) marketDataId;
-    MulticurveMetadata metadata = new MulticurveMetadata(id.getConfig());
-    return apply(metadata);
-  }
-
-  @Override
-  public Set<MulticurveMatchDetails> apply(MarketDataId<?> marketDataId, Object marketData) {
-    MulticurveBundle multicurve = (MulticurveBundle) marketData;
-    MulticurveMetadata metadata = new MulticurveMetadata(multicurve);
-    return apply(metadata);
   }
 
   @Override

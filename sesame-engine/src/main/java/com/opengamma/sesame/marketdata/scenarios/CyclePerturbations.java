@@ -127,11 +127,9 @@ public class CyclePerturbations {
     Map<MatchDetails, FilteredPerturbation> matches = new HashMap<>();
 
     for (SinglePerturbationMapping mapping : mappings) {
-      // TODO this would be more efficient if the mappings were supplied in a multimap keyed by market data type
+      // this would be more efficient if the mappings were supplied in a multimap keyed by market data type
       // not worth the complication yet
       MarketDataFilter filter = mapping.getFilter();
-      // TODO is the data type really the most important thing here? e.g. can be double for security and raw IDs
-      // TODO double-check this logic
       Class<?> filterDataType = filter.getMarketDataType();
       Class<?> requirementDataType = requirement.getMarketDataId().getMarketDataType();
       Class<?> marketDataIdType = filter.getMarketDataIdType();

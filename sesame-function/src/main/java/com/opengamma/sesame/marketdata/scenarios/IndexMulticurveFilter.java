@@ -62,14 +62,14 @@ public final class IndexMulticurveFilter implements MarketDataFilter, ImmutableB
   @Override
   public Set<MulticurveMatchDetails> apply(MarketDataId<?> marketDataId) {
     MulticurveId id = (MulticurveId) marketDataId;
-    MulticurveMetadata metadata = new MulticurveMetadata(id.getConfig());
+    MulticurveMetadata metadata = MulticurveMetadata.forConfiguration(id.getConfig());
     return apply(metadata);
   }
 
   @Override
   public Set<MulticurveMatchDetails> apply(MarketDataId<?> marketDataId, Object marketData) {
     MulticurveBundle multicurve = (MulticurveBundle) marketData;
-    MulticurveMetadata metadata = new MulticurveMetadata(multicurve);
+    MulticurveMetadata metadata = MulticurveMetadata.forMulticurve(multicurve);
     return apply(metadata);
   }
 

@@ -29,8 +29,8 @@ import com.opengamma.sesame.marketdata.MulticurveId;
 @BeanDefinition
 public final class AllCurvesMulticurveFilter implements MarketDataFilter, ImmutableBean {
 
-  public AllCurvesMulticurveFilter() {
-  }
+  /** Single instance of this filter. It has no state so there is no need to create multiple instances. */
+  public static final AllCurvesMulticurveFilter INSTANCE = new AllCurvesMulticurveFilter();
 
   private Set<MulticurveMatchDetails> apply(MulticurveMetadata metadata) {
     Set<String> curveNames = metadata.getCurveNames();
@@ -45,14 +45,14 @@ public final class AllCurvesMulticurveFilter implements MarketDataFilter, Immuta
   @Override
   public Set<MulticurveMatchDetails> apply(MarketDataId<?> marketDataId) {
     MulticurveId id = (MulticurveId) marketDataId;
-    MulticurveMetadata metadata = new MulticurveMetadata(id.getConfig());
+    MulticurveMetadata metadata = MulticurveMetadata.forConfiguration(id.getConfig());
     return apply(metadata);
   }
 
   @Override
   public Set<MulticurveMatchDetails> apply(MarketDataId<?> marketDataId, Object marketData) {
     MulticurveBundle multicurve = (MulticurveBundle) marketData;
-    MulticurveMetadata metadata = new MulticurveMetadata(multicurve);
+    MulticurveMetadata metadata = MulticurveMetadata.forMulticurve(multicurve);
     return apply(metadata);
   }
 
@@ -86,6 +86,9 @@ public final class AllCurvesMulticurveFilter implements MarketDataFilter, Immuta
    */
   public static AllCurvesMulticurveFilter.Builder builder() {
     return new AllCurvesMulticurveFilter.Builder();
+  }
+
+  private AllCurvesMulticurveFilter() {
   }
 
   @Override
