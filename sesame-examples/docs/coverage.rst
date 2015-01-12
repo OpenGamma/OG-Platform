@@ -37,3 +37,8 @@ RemoteViewConfigTest
 ====================
 
 This integration test creates, persists and accesses a view config
+
+LibraryCurveBundleProviderTest
+==============================
+
+This integration test tests the creation of a MulticurveBundle for a given valuation time, curve configuration, currency matrix and snapshot.

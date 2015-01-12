@@ -71,6 +71,14 @@ public class CurveBundleProvider {
   }
 
 
+  /**
+   * Return a curve bundle
+   * @param bundleName the name of the curve construction configuration
+   * @param snapshotName the name of the data snapshot
+   * @param currencyMatrixName the name of the currency matrix
+   * @param valuationTime zone data time valuation time
+   * @return MulticurveBundle
+   */
   public MulticurveBundle buildMulticurve(String bundleName,
                                           String snapshotName,
                                           String currencyMatrixName,
@@ -93,19 +101,21 @@ public class CurveBundleProvider {
         MarketDataBuilders.fxMatrix());
 
 
+    // Get the snapshot
     SnapshotMarketDataFactory snapshotMarketDataFactory = new SnapshotMarketDataFactory(_snapshotSource);
     MarketDataEnvironmentFactory environmentFactory = new MarketDataEnvironmentFactory(snapshotMarketDataFactory, builders);
-
     ManageableMarketDataSnapshot snapshot = _snapshotSource.getSingle(ManageableMarketDataSnapshot.class,
                                                                                 snapshotName,
                                                                                 VersionCorrection.LATEST);
     MarketDataSpecification marketDataSpec = UserMarketDataSpecification.of(snapshot.getUniqueId());
 
+    //Build the MarketDataEnvironment
     MarketDataEnvironment suppliedData = MarketDataEnvironmentBuilder.empty();
     MulticurveId multicurveId = MulticurveId.of(bundleName);
     SingleValueRequirement requirement = SingleValueRequirement.of(multicurveId);
     Set<MarketDataRequirement> requirements = ImmutableSet.<MarketDataRequirement>of(requirement);
     MarketDataEnvironment marketData = environmentFactory.build(suppliedData, requirements, marketDataSpec, valuationTime);
+
     return (MulticurveBundle) marketData.getData().get(requirement);
   }
 
