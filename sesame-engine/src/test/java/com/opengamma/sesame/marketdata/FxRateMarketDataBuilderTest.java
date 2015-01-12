@@ -17,6 +17,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.core.link.ConfigLink;
@@ -28,6 +29,8 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.SimpleCurrencyMatrix;
 import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.marketdata.builders.FxRateMarketDataBuilder;
+import com.opengamma.sesame.marketdata.scenarios.CyclePerturbations;
+import com.opengamma.sesame.marketdata.scenarios.SinglePerturbationMapping;
 import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
@@ -45,6 +48,8 @@ public class FxRateMarketDataBuilderTest {
   private static final double GBPUSD_RATE = 1.61;
   private static final double USDCHF_RATE = 0.91;
   private static final double EURUSD_RATE = 1.35;
+  private static final CyclePerturbations EMPTY_PERTURBATIONS =
+      new CyclePerturbations(ImmutableSet.<MarketDataRequirement>of(), ImmutableList.<SinglePerturbationMapping>of());
 
   private static SingleValueRequirement singleValueRequirement(String currencyPair) {
     return SingleValueRequirement.of(FxRateId.of(CurrencyPair.parse(currencyPair)));
@@ -54,7 +59,6 @@ public class FxRateMarketDataBuilderTest {
     return TimeSeriesRequirement.of(FxRateId.of(CurrencyPair.parse(currencyPair)), dateRange);
   }
 
-  @Test
   public void fixedRate() {
     SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
     matrix.setFixedConversion(Currency.GBP, Currency.USD, GBPUSD_RATE);
@@ -66,7 +70,7 @@ public class FxRateMarketDataBuilderTest {
     Set<SingleValueRequirement> requirements = ImmutableSet.of(gbpUsd, usdGbp);
     MarketDataSource marketDataSource = mock(MarketDataSource.class);
     Map<SingleValueRequirement, Result<?>> values =
-        builder.buildSingleValues(emptyBundle, ZonedDateTime.now(), requirements, marketDataSource);
+        builder.buildSingleValues(emptyBundle, ZonedDateTime.now(), requirements, marketDataSource, EMPTY_PERTURBATIONS);
 
     Result<?> gbpUsdResult = values.get(gbpUsd);
     assertSuccess(gbpUsdResult);
@@ -77,7 +81,6 @@ public class FxRateMarketDataBuilderTest {
     assertEquals(1 / GBPUSD_RATE, (Double) usdGbpResult.getValue(), DELTA);
   }
 
-  @Test
   public void lookUpRate() {
     SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
     ExternalId rateId = ExternalId.of("x", "GBPUSD");
@@ -96,7 +99,7 @@ public class FxRateMarketDataBuilderTest {
     SingleValueRequirement usdGbp = singleValueRequirement("USD/GBP");
     Set<SingleValueRequirement> requirements = ImmutableSet.of(gbpUsd, usdGbp);
     Map<SingleValueRequirement, Result<?>> values =
-        builder.buildSingleValues(bundle, ZonedDateTime.now(), requirements, marketDataSource);
+        builder.buildSingleValues(bundle, ZonedDateTime.now(), requirements, marketDataSource, EMPTY_PERTURBATIONS);
 
     Result<?> gbpUsdResult = values.get(gbpUsd);
     assertSuccess(gbpUsdResult);
@@ -107,7 +110,6 @@ public class FxRateMarketDataBuilderTest {
     assertEquals(1 / GBPUSD_RATE, (Double) usdGbpResult.getValue(), DELTA);
   }
 
-  @Test
   public void crossFixed() {
     SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
     matrix.setFixedConversion(Currency.USD, Currency.CHF, USDCHF_RATE);
@@ -121,7 +123,7 @@ public class FxRateMarketDataBuilderTest {
     MarketDataBundle bundle = MarketDataEnvironmentBuilder.empty().toBundle();
     MarketDataSource marketDataSource = mock(MarketDataSource.class);
     Map<SingleValueRequirement, Result<?>> values =
-        builder.buildSingleValues(bundle, ZonedDateTime.now(), requirements, marketDataSource);
+        builder.buildSingleValues(bundle, ZonedDateTime.now(), requirements, marketDataSource, EMPTY_PERTURBATIONS);
 
     Result<?> eurChfResult = values.get(eurChf);
     assertSuccess(eurChfResult);
@@ -132,7 +134,6 @@ public class FxRateMarketDataBuilderTest {
     assertEquals(1 / (USDCHF_RATE * EURUSD_RATE), (Double) chfEurResult.getValue(), DELTA);
   }
 
-  @Test
   public void crossLookup() {
     SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
 
@@ -163,7 +164,7 @@ public class FxRateMarketDataBuilderTest {
 
     MarketDataSource marketDataSource = mock(MarketDataSource.class);
     Map<SingleValueRequirement, Result<?>> values =
-        builder.buildSingleValues(bundle, ZonedDateTime.now(), requirements, marketDataSource);
+        builder.buildSingleValues(bundle, ZonedDateTime.now(), requirements, marketDataSource, EMPTY_PERTURBATIONS);
 
     Result<?> eurChfResult = values.get(eurChf);
     assertSuccess(eurChfResult);
@@ -176,7 +177,6 @@ public class FxRateMarketDataBuilderTest {
 
   // TODO test time series data
 
-  @Test
   public void getTimeSeriesRequirements() {
     SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
     ExternalId rateId = ExternalId.of("x", "GBPUSD");
@@ -215,7 +215,6 @@ public class FxRateMarketDataBuilderTest {
    * checks that no requirements are returned if the supplied data contains the inverse rate over the required
    * date range
    */
-  @Test
   public void getTimeSeriesRequirementsInverseRateSupplied() {
     SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
     ExternalId rateId = ExternalId.of("x", "GBPUSD");
@@ -242,7 +241,6 @@ public class FxRateMarketDataBuilderTest {
    * checks that no requirements are returned if the supplied data contains the inverse rate but not over the required
    * date range
    */
-  @Test
   public void getTimeSeriesRequirementsInverseRateSuppliedWrongRange() {
     SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
     ExternalId rateId = ExternalId.of("x", "GBPUSD");
@@ -271,7 +269,6 @@ public class FxRateMarketDataBuilderTest {
     assertEquals(dateRange, rawReq.getMarketDataTime().getDateRange());
   }
 
-  @Test
   public void lookUpTimeSeries() {
     LocalDateDoubleTimeSeriesBuilder timeSeriesBuilder = ImmutableLocalDateDoubleTimeSeries.builder();
     LocalDate date1 = LocalDate.of(2010, 5, 17);
@@ -299,7 +296,11 @@ public class FxRateMarketDataBuilderTest {
     TimeSeriesRequirement requirement = TimeSeriesRequirement.of(fxRateId, dateRange);
     Set<TimeSeriesRequirement> requirements = ImmutableSet.of(requirement);
     Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> timeSeriesMap =
-        builder.buildTimeSeries(marketData.toBundle(), requirements, new EmptyMarketDataFactory.DataSource());
+        builder.buildTimeSeries(
+            marketData.toBundle(),
+            requirements,
+            new EmptyMarketDataFactory.DataSource(),
+            EMPTY_PERTURBATIONS);
     Result<? extends DateTimeSeries<LocalDate, ?>> timeSeriesResult = timeSeriesMap.get(requirement);
     assertSuccess(timeSeriesResult);
     DateTimeSeries<LocalDate, ?> rateTimeSeries = timeSeriesResult.getValue();
@@ -308,7 +309,6 @@ public class FxRateMarketDataBuilderTest {
     assertEquals(3d, rateTimeSeries.getValue(date3));
   }
 
-  @Test
   public void lookUpTimeSeriesInverse() {
     LocalDate date1 = LocalDate.of(2010, 5, 17);
     LocalDate date2 = LocalDate.of(2011, 5, 17);
@@ -339,7 +339,11 @@ public class FxRateMarketDataBuilderTest {
     TimeSeriesRequirement requirement = TimeSeriesRequirement.of(fxRateId, dateRange);
     Set<TimeSeriesRequirement> requirements = ImmutableSet.of(requirement);
     Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> timeSeriesMap =
-        builder.buildTimeSeries(marketData.toBundle(), requirements, new EmptyMarketDataFactory.DataSource());
+        builder.buildTimeSeries(
+            marketData.toBundle(),
+            requirements,
+            new EmptyMarketDataFactory.DataSource(),
+            EMPTY_PERTURBATIONS);
     Result<? extends DateTimeSeries<LocalDate, ?>> timeSeriesResult = timeSeriesMap.get(requirement);
     assertSuccess(timeSeriesResult);
     DateTimeSeries<LocalDate, ?> rateTimeSeries = timeSeriesResult.getValue();
@@ -348,7 +352,6 @@ public class FxRateMarketDataBuilderTest {
     assertEquals(1 / 3d, rateTimeSeries.getValue(date3));
   }
 
-  @Test
   public void crossTimeSeries() {
     LocalDate date1 = LocalDate.of(2010, 5, 17);
     LocalDate date2 = LocalDate.of(2011, 5, 17);
@@ -364,11 +367,13 @@ public class FxRateMarketDataBuilderTest {
     SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
 
     ExternalId usdChfId = ExternalId.of("x", "USDCHF");
-    ValueRequirement usdChfValueReq = new ValueRequirement(MARKET_VALUE.getName(), ComputationTargetType.PRIMITIVE, usdChfId);
+    ValueRequirement usdChfValueReq =
+        new ValueRequirement(MARKET_VALUE.getName(), ComputationTargetType.PRIMITIVE, usdChfId);
     matrix.setLiveData(Currency.USD, Currency.CHF, usdChfValueReq);
 
     ExternalId eurUsdId = ExternalId.of("x", "EURUSD");
-    ValueRequirement eurUsdValueReq = new ValueRequirement(MARKET_VALUE.getName(), ComputationTargetType.PRIMITIVE, eurUsdId);
+    ValueRequirement eurUsdValueReq =
+        new ValueRequirement(MARKET_VALUE.getName(), ComputationTargetType.PRIMITIVE, eurUsdId);
     matrix.setLiveData(Currency.EUR, Currency.USD, eurUsdValueReq);
 
     matrix.setCrossConversion(Currency.EUR, Currency.CHF, Currency.USD);
@@ -388,7 +393,7 @@ public class FxRateMarketDataBuilderTest {
             .toBundle();
     MarketDataSource marketDataSource = mock(MarketDataSource.class);
     Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> values =
-        builder.buildTimeSeries(bundle, requirements, marketDataSource);
+        builder.buildTimeSeries(bundle, requirements, marketDataSource, EMPTY_PERTURBATIONS);
 
     Result<? extends DateTimeSeries<LocalDate, ?>> eurChfResult = values.get(eurChf);
     assertSuccess(eurChfResult);

@@ -28,6 +28,7 @@ import com.opengamma.sesame.CurveNodeConverterFn;
 import com.opengamma.sesame.CurveNodeInstrumentDefinitionFactory;
 import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.marketdata.builders.MarketDataBuilder;
+import com.opengamma.sesame.marketdata.scenarios.CyclePerturbations;
 import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -76,13 +77,15 @@ public class MulticurveMarketDataBuilder
   public Map<SingleValueRequirement, Result<?>> buildSingleValues(MarketDataBundle marketDataBundle,
                                                                   ZonedDateTime valuationTime,
                                                                   Set<SingleValueRequirement> requirements,
-                                                                  MarketDataSource marketDataSource) {
+                                                                  MarketDataSource marketDataSource,
+                                                                  CyclePerturbations cyclePerturbations) {
     ImmutableMap.Builder<SingleValueRequirement, Result<?>> results = ImmutableMap.builder();
 
     for (SingleValueRequirement requirement : requirements) {
       MulticurveId marketDataId = (MulticurveId) requirement.getMarketDataId();
       CurveConstructionConfiguration curveConfig = marketDataId.getConfig();
-      MulticurveBundle bundle = buildBundle(marketDataBundle, valuationTime, curveConfig, requirement);
+      MulticurveBundle bundle =
+          buildBundle(marketDataBundle, valuationTime, curveConfig, requirement, cyclePerturbations);
       results.put(requirement, Result.success(bundle));
     }
     return results.build();
@@ -92,7 +95,8 @@ public class MulticurveMarketDataBuilder
   public Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
       MarketDataBundle marketDataBundle,
       Set<TimeSeriesRequirement> requirements,
-      MarketDataSource marketDataSource) {
+      MarketDataSource marketDataSource,
+      CyclePerturbations cyclePerturbations) {
 
     // TODO implement this
     return Collections.emptyMap();
@@ -128,13 +132,15 @@ public class MulticurveMarketDataBuilder
    * @param marketDataBundle the market data
    * @param valuationTime the valuation time for which the curve bundle should be built
    * @param bundleConfig the configuration for the multicurve bundle
+   * @param cyclePerturbations the perturbations that should be applied to the market data for this calculation cycle
    * @return a multicurve bundle built from the configuration
    */
   @SuppressWarnings("unchecked")
   private MulticurveBundle buildBundle(MarketDataBundle marketDataBundle,
                                        ZonedDateTime valuationTime,
                                        CurveConstructionConfiguration bundleConfig,
-                                       MarketDataRequirement bundleRequirement) {
+                                       MarketDataRequirement bundleRequirement,
+                                       CyclePerturbations cyclePerturbations) {
 
     Set<Currency> currencies = getCurrencies(bundleConfig, valuationTime);
     FxMatrixId fxMatrixKey = FxMatrixId.of(currencies);
@@ -144,7 +150,8 @@ public class MulticurveMarketDataBuilder
     IntermediateResults intermediateResults = buildIntermediateResults(marketDataBundle,
                                                                        valuationTime,
                                                                        bundleConfig,
-                                                                       bundleRequirement);
+                                                                       bundleRequirement,
+                                                                       cyclePerturbations);
 
     Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> calibratedCurves =
         _curveBuilder.makeCurvesFromDerivatives(intermediateResults.getCurveBundles(),

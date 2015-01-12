@@ -35,6 +35,8 @@ import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.sesame.marketdata.SingleValueRequirement;
 import com.opengamma.sesame.marketdata.TimeSeriesRequirement;
+import com.opengamma.sesame.marketdata.scenarios.CyclePerturbations;
+import com.opengamma.sesame.marketdata.scenarios.SinglePerturbationMapping;
 import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateObjectTimeSeries;
@@ -87,38 +89,51 @@ public class MarketDataEnvironmentFactory {
   /**
    * Builds a bundle of market data to satisfy a set of requirements.
    * <p>
+   * The return value includes the supplied data as well as the data built by the factory.
+   * <p>
    * If {@code requirements} contains a requirement that can't be satisfied by {@code suppliedData} then this
    * method will attempt to build it by delegating to the {@link MarketDataBuilder} instances.
    *
    * @param suppliedData existing market data
-   * @param requirements requirements for the market data that should be in the returned bundle
+   * @param requirements requirements for the market data that the factory should build
    * @param marketDataSpec specifies which low-level market data providers should be used to source the raw
    *   data for building the market data
    * @param valuationTime the valuation time used when building market data
-   * @return a bundle of market data
+   * @return a bundle of market data including the supplied data and the data built by the factory
    */
   public MarketDataEnvironment build(MarketDataEnvironment suppliedData,
                                      Set<MarketDataRequirement> requirements,
+                                     List<SinglePerturbationMapping> perturbations,
                                      MarketDataSpecification marketDataSpec,
                                      ZonedDateTime valuationTime) {
 
     // create a data source to provide low-level data from market data providers
     @SuppressWarnings("unchecked")
     MarketDataSource marketDataSource = _marketDataFactory.create(marketDataSpec);
+
+    // figure out which perturbations should be applied to the market data for this calculation cycle
+    CyclePerturbations cyclePerturbations = new CyclePerturbations(requirements, perturbations);
+
     // build the data
-    MarketDataEnvironment builtData = buildEnvironment(suppliedData, requirements, valuationTime, marketDataSource);
+    MarketDataEnvironment builtData = buildEnvironment(suppliedData,
+                                                       requirements,
+                                                       cyclePerturbations,
+                                                       valuationTime,
+                                                       marketDataSource);
     // filter the single values to only include the ones in the requirements, not the intermediate values that
     // were only used to build other values
     Map<SingleValueRequirement, Object> singleValues = requestedSingleValues(requirements, builtData);
     // filter the time series to only include the ones in the requirements, not the intermediate values that
     // were only used to build other values
     Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> timeSeries = requestedTimeSeries(requirements, builtData);
-    return
-        new MarketDataEnvironmentBuilder()
-            .addSingleValues(singleValues)
-            .addTimeSeries(timeSeries)
-            .valuationTime(valuationTime)
-            .build();
+
+    MarketDataEnvironment filteredData = new MarketDataEnvironmentBuilder()
+        .addSingleValues(singleValues)
+        .addTimeSeries(timeSeries)
+        .valuationTime(valuationTime)
+        .build();
+    MarketDataEnvironment mergedData = MarketDataEnvironmentBuilder.merge(suppliedData, filteredData);
+    return cyclePerturbations.apply(mergedData);
   }
 
   /**
@@ -182,13 +197,14 @@ public class MarketDataEnvironmentFactory {
    *
    * @param suppliedData the market data that was supplied by the user. The engine won't attempt to build market
    *   data if it was supplied
-   * @param requirements requirements for the market data needed to perform the calculations
+   * @param requirements requirements for the market data that the factory should build
    * @param valuationTime the valuation time used for building the market data
    * @param marketDataSource source of raw market data
    * @return a market data environment containing the data specified by the requirements
    */
   private MarketDataEnvironment buildEnvironment(MarketDataEnvironment suppliedData,
                                                  Set<MarketDataRequirement> requirements,
+                                                 CyclePerturbations cyclePerturbations,
                                                  ZonedDateTime valuationTime,
                                                  MarketDataSource marketDataSource) {
     // the data built so far, including data that isn't in the requirements but is needed to build the required data
@@ -196,6 +212,18 @@ public class MarketDataEnvironmentFactory {
 
     // build a tree representing the market data and the data required to build it
     MarketDataNode root = buildDependencyRoot(requirements, valuationTime, suppliedData);
+    // this is where the scenario framework needs to decide which perturbations to apply
+    // it has access to the whole tree of market data so it can tell when data has already been perturbed
+    // does the decision have to be made here? or can it be deferred for shocks that are applied after the data
+    // has been built?
+    // interesting question - if input shocks are considered separately from output shocks, they've implicitly got
+    // a higher priority. is that behaviour we want? if not, we have to decide up from which output shocks to apply
+    // without having access to the output data. is that a problem?
+    // for this to be a problem we would need an output shock predicated on the data that is higher priority than
+    // an input shock that matched the same piece of data. there's no way to know whether the output shock will
+    // apply until the data is built, and then it's too late to apply the input shock. unless we go back and
+    // build the data again with the input shock applied. that's nasty
+
     // market data is built in multiple passes over the dependency tree
     // in each iteration the leaves are removed from the tree and market data is built to satisfy the leaf dependencies
     // the built market data is accumulated and passed to the builders each iteration
@@ -204,7 +232,12 @@ public class MarketDataEnvironmentFactory {
       Set<MarketDataRequirement> leafRequirements = new HashSet<>();
       removeLeaves(root, leafRequirements);
       List<PartitionedRequirements> partitionedRequirements = PartitionedRequirements.partition(leafRequirements);
-      builtData = buildMarketData(suppliedData, builtData, partitionedRequirements, marketDataSource, valuationTime);
+      builtData = buildMarketData(suppliedData,
+                                  builtData,
+                                  partitionedRequirements,
+                                  marketDataSource,
+                                  valuationTime,
+                                  cyclePerturbations);
     }
     return builtData;
   }
@@ -239,13 +272,15 @@ public class MarketDataEnvironmentFactory {
    * @param partitionedRequirements market data requirements, partitioned by the type of their {@link MarketDataId}
    * @param marketDataSource provider of low-level market data used for building the market data
    * @param valuationTime the valuation time used when building market data
+   * @param cyclePerturbations the perturbations that should be applied to the market data for this calculation cycle
    * @return the market data for the requirements, including all the data in {@code builtData}
    */
   private MarketDataEnvironment buildMarketData(MarketDataEnvironment suppliedData,
                                                 MarketDataEnvironment builtData,
                                                 List<PartitionedRequirements> partitionedRequirements,
                                                 MarketDataSource marketDataSource,
-                                                ZonedDateTime valuationTime) {
+                                                ZonedDateTime valuationTime,
+                                                CyclePerturbations cyclePerturbations) {
 
     MarketDataEnvironmentBuilder environmentBuilder = builtData.toBuilder();
 
@@ -261,14 +296,18 @@ public class MarketDataEnvironmentFactory {
 
       // build the data
       Map<SingleValueRequirement, Result<?>> singleValueData =
-          dataBuilder.buildSingleValues(marketDataBundle, valuationTime, singleValueReqsForKey, marketDataSource);
+          dataBuilder.buildSingleValues(marketDataBundle,
+                                        valuationTime,
+                                        singleValueReqsForKey,
+                                        marketDataSource,
+                                        cyclePerturbations);
 
-      // TODO it would be an optimisation to pass in existing time series in case there are requirements for
-      //   overlapping series for the same ID. as things stand the overlapping values would be built twice.
-      //   but if the builder can see the existing series it can avoid rebuilding duplicate data.
-      //   the merging logic below will ensure the correct data is created anyway, at the cost of some efficiency
+      // it would be an optimisation to pass in existing time series in case there are requirements for
+      // overlapping series for the same ID. as things stand the overlapping values would be built twice.
+      // but if the builder can see the existing series it can avoid rebuilding duplicate data.
+      // the merging logic below will ensure the correct data is created anyway, at the cost of some efficiency
       Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> timeSeriesData =
-          dataBuilder.buildTimeSeries(marketDataBundle, timeSeriesReqsForKey, marketDataSource);
+          dataBuilder.buildTimeSeries(marketDataBundle, timeSeriesReqsForKey, marketDataSource, cyclePerturbations);
 
       // the single values that were successfully built
       Map<SingleValueRequirement, Object> singleValues = successfulSingleValues(singleValueData);

@@ -36,7 +36,7 @@ import com.opengamma.util.ArgumentChecker;
  * @param <S> the type of the security
  */
 @BeanDefinition(builderScope = "private")
-public final class SecurityId<T, S extends Security> implements MarketDataId, ImmutableBean {
+public final class SecurityId<T, S extends Security> implements MarketDataId<T>, ImmutableBean {
 
   /** ID of the security. */
   @PropertyDefinition(validate = "notNull")
@@ -110,6 +110,13 @@ public final class SecurityId<T, S extends Security> implements MarketDataId, Im
                             SecurityLink.resolved(security),
                             Double.class,
                             MarketDataUtils.MARKET_VALUE);
+  }
+
+  /**
+   * @return the security identified by this ID
+   */
+  public Security getSecurity() {
+    return _securityLink.resolve();
   }
 
   @Override

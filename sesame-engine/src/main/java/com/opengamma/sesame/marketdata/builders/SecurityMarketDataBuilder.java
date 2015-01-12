@@ -21,6 +21,7 @@ import com.opengamma.sesame.marketdata.RawId;
 import com.opengamma.sesame.marketdata.SecurityId;
 import com.opengamma.sesame.marketdata.SingleValueRequirement;
 import com.opengamma.sesame.marketdata.TimeSeriesRequirement;
+import com.opengamma.sesame.marketdata.scenarios.CyclePerturbations;
 import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.time.LocalDateRange;
@@ -54,7 +55,8 @@ public class SecurityMarketDataBuilder implements MarketDataBuilder {
   public Map<SingleValueRequirement, Result<?>> buildSingleValues(MarketDataBundle marketDataBundle,
                                                                   ZonedDateTime valuationTime,
                                                                   Set<SingleValueRequirement> requirements,
-                                                                  MarketDataSource marketDataSource) {
+                                                                  MarketDataSource marketDataSource,
+                                                                  CyclePerturbations cyclePerturbations) {
     ImmutableMap.Builder<SingleValueRequirement, Result<?>> results = ImmutableMap.builder();
 
     for (SingleValueRequirement requirement : requirements) {
@@ -68,7 +70,8 @@ public class SecurityMarketDataBuilder implements MarketDataBuilder {
   public Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
       MarketDataBundle marketDataBundle,
       Set<TimeSeriesRequirement> requirements,
-      MarketDataSource marketDataSource) {
+      MarketDataSource marketDataSource,
+      CyclePerturbations cyclePerturbations) {
 
     ImmutableMap.Builder<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> results =
         ImmutableMap.builder();

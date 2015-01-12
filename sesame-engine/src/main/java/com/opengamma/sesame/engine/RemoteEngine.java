@@ -11,6 +11,7 @@ import java.util.List;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.ScenarioMarketDataEnvironment;
+import com.opengamma.sesame.marketdata.scenarios.ScenarioDefinition;
 import com.opengamma.util.rest.AbstractRemoteClient;
 
 /**
@@ -40,11 +41,32 @@ public class RemoteEngine extends AbstractRemoteClient implements Engine {
                                       ScenarioCalculationArguments calculationArguments,
                                       ScenarioMarketDataEnvironment marketDataEnvironment,
                                       List<?> portfolio) {
-    URI uri = DataEngineResource.uriRunScenarios(getBaseUri());
-    EngineRunScenariosArguments args = new EngineRunScenariosArguments(viewConfig,
-                                                                       calculationArguments,
-                                                                       marketDataEnvironment,
-                                                                       portfolio);
+    URI uri = DataEngineResource.uriRunScenarios1(getBaseUri());
+    EngineRunScenariosArguments1 args =
+        EngineRunScenariosArguments1.builder()
+            .viewConfig(viewConfig)
+            .calculationArguments(calculationArguments)
+            .marketData(marketDataEnvironment)
+            .portfolio(portfolio)
+            .build();
+    return accessRemote(uri).post(ScenarioResults.class, args);
+  }
+
+  @Override
+  public ScenarioResults runScenarios(ViewConfig viewConfig,
+                                      CalculationArguments calculationArguments,
+                                      MarketDataEnvironment baseMarketData,
+                                      ScenarioDefinition scenarioDefinition,
+                                      List<?> portfolio) {
+    URI uri = DataEngineResource.uriRunScenarios2(getBaseUri());
+    EngineRunScenariosArguments2 args =
+        EngineRunScenariosArguments2.builder()
+            .viewConfig(viewConfig)
+            .calculationArguments(calculationArguments)
+            .marketData(baseMarketData)
+            .scenarioDefinition(scenarioDefinition)
+            .portfolio(portfolio)
+            .build();
     return accessRemote(uri).post(ScenarioResults.class, args);
   }
 }

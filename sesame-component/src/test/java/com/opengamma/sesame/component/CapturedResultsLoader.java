@@ -138,7 +138,8 @@ public class CapturedResultsLoader {
         new HistoricalMarketDataFactory(timeSeriesSource, "dataSource", null);
     CompositeMarketDataFactory marketDataFactory = new CompositeMarketDataFactory(historicalMarketDataFactory);
     RawMarketDataBuilder rawMarketDataBuilder = new RawMarketDataBuilder(timeSeriesSource, "dataSource", null);
-    Engine engine = new DefaultEngine(viewFactory, new MarketDataEnvironmentFactory(marketDataFactory, rawMarketDataBuilder));
+    Engine engine = new DefaultEngine(viewFactory, new MarketDataEnvironmentFactory(marketDataFactory,
+                                                                                    rawMarketDataBuilder));
     CalculationArguments calculationArguments = CalculationArguments.builder().valuationTime(valTime).build();
     ViewConfig viewConfig = _viewInputs.getViewConfig();
     List<Object> trades = _viewInputs.getTradeInputs();

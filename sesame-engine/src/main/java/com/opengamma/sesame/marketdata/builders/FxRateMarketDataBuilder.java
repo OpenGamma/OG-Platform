@@ -32,6 +32,7 @@ import com.opengamma.sesame.marketdata.MarketDataTime;
 import com.opengamma.sesame.marketdata.RawId;
 import com.opengamma.sesame.marketdata.SingleValueRequirement;
 import com.opengamma.sesame.marketdata.TimeSeriesRequirement;
+import com.opengamma.sesame.marketdata.scenarios.CyclePerturbations;
 import com.opengamma.timeseries.date.DateEntryIterator;
 import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
@@ -143,7 +144,8 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
   public Map<SingleValueRequirement, Result<?>> buildSingleValues(MarketDataBundle marketDataBundle,
                                                                   ZonedDateTime valuationTime,
                                                                   Set<SingleValueRequirement> requirements,
-                                                                  MarketDataSource marketDataSource) {
+                                                                  MarketDataSource marketDataSource,
+                                                                  CyclePerturbations cyclePerturbations) {
     ImmutableMap.Builder<SingleValueRequirement, Result<?>> resultsBuilder = ImmutableMap.builder();
 
     for (SingleValueRequirement requirement : requirements) {
@@ -169,7 +171,8 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
   public Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
       MarketDataBundle marketDataBundle,
       Set<TimeSeriesRequirement> requirements,
-      MarketDataSource marketDataSource) {
+      MarketDataSource marketDataSource,
+      CyclePerturbations cyclePerturbations) {
 
     ImmutableMap.Builder<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> resultsBuilder =
         ImmutableMap.builder();
@@ -394,4 +397,5 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
     CurrencyMatrixValue value = _currencyMatrixLink.resolve().getConversion(base, counter);
     return value.accept(visitor);
   }
+
 }
