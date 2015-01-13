@@ -26,11 +26,11 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.sesame.config.ViewConfig;
-import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.ScenarioMarketDataEnvironment;
 
 /**
- * Encapsulates the arguments to {@link Engine#runView(ViewConfig, CalculationArguments, MarketDataEnvironment, List)}
+ * Encapsulates the arguments to
+ * {@link Engine#runScenarios(ViewConfig, ScenarioCalculationArguments, ScenarioMarketDataEnvironment, List)}
  * so it can be invoked via REST.
  */
 @BeanDefinition

@@ -80,7 +80,7 @@ public class DefaultEngine implements Engine {
     List<ListenableFuture<Pair<String, Results>>> resultFutures = new ArrayList<>(scenarioData.size());
 
     for (Map.Entry<String, MarketDataEnvironment> entry : scenarioData.entrySet()) {
-      final String scenarioName = entry.getKey();
+      String scenarioName = entry.getKey();
       MarketDataEnvironment scenarioMarketData = entry.getValue();
       CalculationArguments calcArgs = calculationArguments.argumentsForScenario(scenarioName);
       // the future represents the results for a single scenario, which might not have finished calculating yet
@@ -116,7 +116,8 @@ public class DefaultEngine implements Engine {
 
     for (List<SinglePerturbationMapping> scenario : scenarios) {
       // TODO need a better strategy for the scenario name. should the ScenarioDefinition do it?
-      String scenarioName = Integer.toString(scenarioNum++);
+      String scenarioName = Integer.toString(scenarioNum);
+      scenarioNum += 1;
       ListenableFuture<Results> resultsFuture = runAsync(view, calculationArguments, baseMarketData, scenario, portfolio);
       futures.add(futureWithScenarioName(resultsFuture, scenarioName));
     }

@@ -83,7 +83,7 @@ public class MulticurveMarketDataBuilder
 
     for (SingleValueRequirement requirement : requirements) {
       MulticurveId marketDataId = (MulticurveId) requirement.getMarketDataId();
-      CurveConstructionConfiguration curveConfig = marketDataId.getConfig();
+      CurveConstructionConfiguration curveConfig = marketDataId.resolveConfig();
       MulticurveBundle bundle =
           buildBundle(marketDataBundle, valuationTime, curveConfig, requirement, cyclePerturbations);
       results.put(requirement, Result.success(bundle));
@@ -110,7 +110,7 @@ public class MulticurveMarketDataBuilder
   @Override
   CurveConstructionConfiguration getCurveConfig(SingleValueRequirement requirement) {
     MulticurveId marketDataId = (MulticurveId) requirement.getMarketDataId();
-    return marketDataId.getConfig();
+    return marketDataId.resolveConfig();
   }
 
   @Override

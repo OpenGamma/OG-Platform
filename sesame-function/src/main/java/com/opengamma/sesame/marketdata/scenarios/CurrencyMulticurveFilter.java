@@ -50,7 +50,7 @@ public final class CurrencyMulticurveFilter implements MarketDataFilter, Immutab
   @Override
   public Set<MulticurveMatchDetails> apply(MarketDataId<?> marketDataId) {
     MulticurveId id = (MulticurveId) marketDataId;
-    MulticurveMetadata metadata = MulticurveMetadata.forConfiguration(id.getConfig());
+    MulticurveMetadata metadata = MulticurveMetadata.forConfiguration(id.resolveConfig());
     return apply(metadata);
   }
 

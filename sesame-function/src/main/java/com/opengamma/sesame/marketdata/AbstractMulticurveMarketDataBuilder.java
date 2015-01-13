@@ -273,15 +273,7 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
         Set<CurveNodeWithIdentifier> curveNodes = getCurveNodes(curveDefinition, valuationTime);
         SnapshotDataBundle dataBundle = createDataBundle(marketDataBundle, bundleRequirement, curveNodes);
         String curveName = curveDefinition.getName();
-        FilteredPerturbation perturbation = perturbationForCurve(curveName, dataBundlePerturbations);
-        SnapshotDataBundle perturbedData;
-
-        if (perturbation != null) {
-          CurveInputs curveInputs = new CurveInputs(curveNodes, dataBundle);
-          perturbedData = ((CurveInputs) perturbation.apply(curveInputs)).getNodeData();
-        } else {
-          perturbedData = dataBundle;
-        }
+        SnapshotDataBundle perturbedData = perturbCurveData(curveNodes, dataBundle, curveName, dataBundlePerturbations);
         List<InstrumentDerivative> derivatives =
             createInstrumentDerivatives(marketDataBundle, perturbedData, fxMatrix, valuationTime, curveNodes);
         configTypes.putAll(curveName, curveConfigTypes);
@@ -305,6 +297,30 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
                                    onIndexByCurveName,
                                    configTypes,
                                    curveBundles);
+  }
+
+  /**
+   * Applies perturbations to the data used to build a curve. If none of the perturbations match the curve
+   * then the input data is returned unchanged.
+   *
+   * @param curveNodes the curve nodes
+   * @param dataBundle the market data at each of the curve nodes
+   * @param curveName the curve name
+   * @param dataBundlePerturbations perturbations that apply to {@code SnapshotDataBundle}
+   * @return the market data for building the curve, possibly with a perturbation applied
+   */
+  private SnapshotDataBundle perturbCurveData(Set<CurveNodeWithIdentifier> curveNodes,
+                                              SnapshotDataBundle dataBundle,
+                                              String curveName,
+                                              Collection<FilteredPerturbation> dataBundlePerturbations) {
+
+    FilteredPerturbation perturbation = perturbationForCurve(curveName, dataBundlePerturbations);
+
+    if (perturbation == null) {
+      return dataBundle;
+    }
+    CurveInputs curveInputs = new CurveInputs(curveNodes, dataBundle);
+    return ((CurveInputs) perturbation.apply(curveInputs)).getNodeData();
   }
 
   // TODO Java 8 - use Optional
@@ -460,9 +476,10 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
         IborIndexConvention indexConvention =
             ConventionLink.resolvable(indexSecurity.getConventionId(), IborIndexConvention.class).resolve();
 
-        IborIndex iborIndex = ConverterUtils.indexIbor(indexSecurity.getName(),
-                                                       indexConvention,
-                                                       indexSecurity.getTenor());
+        IborIndex iborIndex = ConverterUtils.indexIbor(
+            indexSecurity.getName(),
+            indexConvention,
+            indexSecurity.getTenor());
         indices.add(iborIndex);
       }
     }

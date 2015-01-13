@@ -22,6 +22,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
@@ -229,8 +230,7 @@ public class MarketDataEnvironmentFactory {
     // the built market data is accumulated and passed to the builders each iteration
     // the process ends when only the root node remains
     while (!root.isLeaf()) {
-      Set<MarketDataRequirement> leafRequirements = new HashSet<>();
-      removeLeaves(root, leafRequirements);
+      Set<MarketDataRequirement> leafRequirements =  removeLeaves(root);
       List<PartitionedRequirements> partitionedRequirements = PartitionedRequirements.partition(leafRequirements);
       builtData = buildMarketData(suppliedData,
                                   builtData,
@@ -243,25 +243,27 @@ public class MarketDataEnvironmentFactory {
   }
 
   /**
-   * Recursively removes the leaf nodes from a node and all nodes below it in the tree, adding their
-   * requirements to {@code requirementAccumulator}.
+   * Recursively removes the leaf nodes from a node and all nodes below it in the tree. This method mutates the node
+   * and its children.
    *
    * @param node a node
-   * @param requirementAccumulator mutable set to which requirements are added from leaf nodes
+   * @return the leaf requirements removed from the requirements tree
    */
-  static void removeLeaves(MarketDataNode node, Set<MarketDataRequirement> requirementAccumulator) {
+  static Set<MarketDataRequirement> removeLeaves(MarketDataNode node) {
     List<MarketDataNode> children = node.getChildren();
+    ImmutableSet.Builder<MarketDataRequirement> builder = ImmutableSet.builder();
 
     for (Iterator<MarketDataNode> it = children.iterator(); it.hasNext(); ) {
       MarketDataNode childNode = it.next();
 
       if (childNode.isLeaf()) {
         it.remove();
-        requirementAccumulator.add(childNode.getRequirement());
+        builder.add(childNode.getRequirement());
       } else {
-        removeLeaves(childNode, requirementAccumulator);
+        builder.addAll(removeLeaves(childNode));
       }
     }
+    return builder.build();
   }
 
   /**

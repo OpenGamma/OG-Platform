@@ -100,7 +100,7 @@ public class RemoteEngineTest {
     ScenarioMarketDataEnvironment marketData = new ScenarioDataBuilder().build();
     CalculationArguments calculationArguments = CalculationArguments.builder().build();
     ScenarioCalculationArguments scenarioArgs = ScenarioCalculationArguments.of(calculationArguments);
-    ScenarioResults results = _remoteEngine.runScenarios(_viewConfig, scenarioArgs, marketData, Collections.emptyList());
+    ScenarioResults results = _remoteEngine.runScenarios(_viewConfig, scenarioArgs, marketData, ImmutableList.of());
     Results scenarioResults = results.getResults().get("scenarioName");
     assertEquals("runScenarios successfully invoked", scenarioResults.get(0, 0).getResult().getValue());
   }
@@ -115,7 +115,7 @@ public class RemoteEngineTest {
             calculationArgs,
             marketData,
             scenarioDefinition,
-            Collections.emptyList());
+            ImmutableList.of());
     Results scenarioResults = results.getResults().get("scenarioName");
     assertEquals("runScenarios successfully invoked", scenarioResults.get(0, 0).getResult().getValue());
   }

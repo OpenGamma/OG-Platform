@@ -113,9 +113,9 @@ public final class SecurityId<T, S extends Security> implements MarketDataId<T>,
   }
 
   /**
-   * @return the security identified by this ID
+   * @return the security identified by this ID, potentially loading it from a database
    */
-  public Security getSecurity() {
+  public Security resolveSecurity() {
     return _securityLink.resolve();
   }
 

@@ -83,7 +83,7 @@ public final class MulticurveId implements MarketDataId<MulticurveBundle>, Immut
    *
    * @return the configuration for the curve
    */
-  public CurveConstructionConfiguration getConfig() {
+  public CurveConstructionConfiguration resolveConfig() {
     return _curveConfigLink.resolve();
   }
 

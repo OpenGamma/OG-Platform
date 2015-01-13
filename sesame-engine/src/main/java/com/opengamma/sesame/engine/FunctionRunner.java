@@ -85,12 +85,9 @@ public class FunctionRunner {
     ZonedDateTime valuationTime = valuationTime(calculationArguments, suppliedData);
     GatheringMarketDataEnvironment gatheringEnvironment = new GatheringMarketDataEnvironment(gatheringBundle,
                                                                                              valuationTime);
-    Environment env1 = new SimpleEnvironment(valuationTime,
-                                             gatheringEnvironment.toBundle(),
-                                             FilteredScenarioDefinition.EMPTY);
     // The purpose of the first run is gathering market data requirements and no market data is provided.
     // Therefore the results of the first run are likely to be all failures and are ignored
-    fn.apply(env1);
+    fn.apply(new SimpleEnvironment(valuationTime, gatheringEnvironment.toBundle(), FilteredScenarioDefinition.EMPTY));
     Set<MarketDataRequirement> requirements = gatheringBundle.getRequirements();
     MarketDataEnvironment marketData =
         _environmentFactory.build(suppliedData,
@@ -98,11 +95,8 @@ public class FunctionRunner {
                                   ImmutableList.<SinglePerturbationMapping>of(),
                                   calculationArguments.getMarketDataSpecification(),
                                   valuationTime);
-    Environment env2 = new SimpleEnvironment(valuationTime,
-                                             marketData.toBundle(),
-                                             FilteredScenarioDefinition.EMPTY);
 
-    return fn.apply(env2);
+    return fn.apply(new SimpleEnvironment(valuationTime, marketData.toBundle(), FilteredScenarioDefinition.EMPTY));
   }
 
   private static ZonedDateTime valuationTime(CalculationArguments calcArgs, MarketDataEnvironment marketData) {

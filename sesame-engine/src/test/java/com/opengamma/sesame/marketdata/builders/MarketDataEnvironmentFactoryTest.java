@@ -13,7 +13,6 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -63,8 +62,7 @@ public class MarketDataEnvironmentFactoryTest {
                                 seriesNode(new RawId("4"), dateRange(2011, 3, 8, 2012, 3, 7)))),
             valueNode(new SecurityId("sec", "1")));
 
-    Set<MarketDataRequirement> reqs1 = new HashSet<>();
-    MarketDataEnvironmentFactory.removeLeaves(root, reqs1);
+    Set<MarketDataRequirement> reqs1 = MarketDataEnvironmentFactory.removeLeaves(root);
 
     Set<MarketDataRequirement> expectedReqs1 =
         ImmutableSet.<MarketDataRequirement>of(
@@ -82,8 +80,7 @@ public class MarketDataEnvironmentFactoryTest {
     assertEquals(expectedReqs1, reqs1);
     assertEquals(expectedDependencies1, root);
 
-    Set<MarketDataRequirement> reqs2 = new HashSet<>();
-    MarketDataEnvironmentFactory.removeLeaves(root, reqs2);
+    Set<MarketDataRequirement> reqs2 = MarketDataEnvironmentFactory.removeLeaves(root);
     Set<MarketDataRequirement> expectedReqs2 =
         ImmutableSet.<MarketDataRequirement>of(SingleValueRequirement.of(new CurveId("curve2")));
     MarketDataNode expectedDependencies2 = rootNode(valueNode(new CurveId("curve1")));
@@ -91,8 +88,7 @@ public class MarketDataEnvironmentFactoryTest {
     assertEquals(expectedReqs2, reqs2);
     assertEquals(expectedDependencies2, root);
 
-    Set<MarketDataRequirement> reqs3 = new HashSet<>();
-    MarketDataEnvironmentFactory.removeLeaves(root, reqs3);
+    Set<MarketDataRequirement> reqs3 = MarketDataEnvironmentFactory.removeLeaves(root);
     Set<MarketDataRequirement> expectedReqs3 =
         ImmutableSet.<MarketDataRequirement>of(SingleValueRequirement.of(new CurveId("curve1")));
     MarketDataNode expectedDependencies3 = rootNode();
@@ -509,7 +505,8 @@ class RawBuilder implements MarketDataBuilder {
   public Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
       MarketDataBundle marketDataBundle,
       Set<TimeSeriesRequirement> requirements,
-      MarketDataSource marketDataSource, CyclePerturbations cyclePerturbations) {
+      MarketDataSource marketDataSource,
+      CyclePerturbations cyclePerturbations) {
 
     Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> results = new HashMap<>();
 
@@ -614,7 +611,8 @@ class CurveBuilder implements MarketDataBuilder {
   public Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
       MarketDataBundle marketDataBundle,
       Set<TimeSeriesRequirement> requirements,
-      MarketDataSource marketDataSource, CyclePerturbations cyclePerturbations) {
+      MarketDataSource marketDataSource,
+      CyclePerturbations cyclePerturbations) {
 
     return Collections.emptyMap();
   }
@@ -664,7 +662,8 @@ class SecurityBuilder implements MarketDataBuilder {
   public Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
       MarketDataBundle marketDataBundle,
       Set<TimeSeriesRequirement> requirements,
-      MarketDataSource marketDataSource, CyclePerturbations cyclePerturbations) {
+      MarketDataSource marketDataSource,
+      CyclePerturbations cyclePerturbations) {
 
     return Collections.emptyMap();
   }
