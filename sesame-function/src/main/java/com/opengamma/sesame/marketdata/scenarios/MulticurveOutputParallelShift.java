@@ -7,13 +7,9 @@ package com.opengamma.sesame.marketdata.scenarios;
 
 import com.opengamma.analytics.ShiftType;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurveUtils;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.math.curve.AddCurveSpreadFunction;
-import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
-import com.opengamma.analytics.math.curve.DoublesCurve;
-import com.opengamma.analytics.math.curve.MultiplyCurveSpreadFunction;
-import com.opengamma.analytics.math.curve.SpreadDoublesCurve;
 import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.marketdata.MarketDataUtils;
 import com.opengamma.util.ArgumentChecker;
@@ -69,7 +65,7 @@ public class MulticurveOutputParallelShift implements Perturbation {
     // As part of that an equivalent of YieldCurveUtils.withParallelShift will be required for discount curves
     MulticurveProviderDiscount multicurve = bundle.getMulticurveProvider();
     YieldCurve curve = (YieldCurve) multicurve.getCurve(curveName);
-    YieldCurve shiftedCurve = parallelShift(curve, _shiftAmount, _shiftType);
+    YieldCurve shiftedCurve = YieldCurveUtils.withParallelShift(curve, _shiftAmount, _shiftType, "");
     MulticurveProviderDiscount shiftedMulticurve = MarketDataUtils.replaceCurve(multicurve, shiftedCurve);
     // If the original block bundle were reused, any sensitivity calcs using the curve would be wrong because
     // they would be relative to the unshifted curve. Deriving a new block bundle from the shifted curve
@@ -88,51 +84,5 @@ public class MulticurveOutputParallelShift implements Perturbation {
   @Override
   public Class<? extends MatchDetails> getMatchDetailsType() {
     return MulticurveMatchDetails.class;
-  }
-
-  // TODO this was copy-pasted from YieldCurveUtils because that renames the curve. unify
-  /**
-   * Shifts a curve by a constant amount over all tenors. If the {@link ShiftType} is
-   * absolute, the shift is added to the curve i.e. a shift of 0.0001 results in all
-   * yields on the curve having one basis point added. If it is relative, then all yields on
-   * are the curve are multiplied by the shift amount i.e. a relative shift of 0.01 will
-   * result in all points on the curve being shifted upwards by 1% of the yield.
-   * <p>
-   * The original curve is unchanged and a new curve is returned.
-   *
-   * @param curve the original curve
-   * @param shift the shift
-   * @param shiftType the shift type
-   * @return a new curve with all values shifted by a constant amount
-   */
-  private static YieldCurve parallelShift(YieldCurve curve, double shift, ShiftType shiftType) {
-    ArgumentChecker.notNull(curve, "curve");
-    ArgumentChecker.notNull(shiftType, "shift type");
-
-    DoublesCurve underlyingCurve = curve.getCurve();
-    String name = curve.getName();
-
-    switch (shiftType) {
-      case ABSOLUTE:
-        ConstantDoublesCurve constantCurve = ConstantDoublesCurve.from(shift);
-        SpreadDoublesCurve absShiftedCurve =
-            SpreadDoublesCurve.from(
-                AddCurveSpreadFunction.getInstance(),
-                name,
-                underlyingCurve,
-                constantCurve);
-        return new YieldCurve(name, absShiftedCurve);
-      case RELATIVE:
-        ConstantDoublesCurve constantDoublesCurve = ConstantDoublesCurve.from(1 + shift);
-        SpreadDoublesCurve relShiftedCurve =
-            SpreadDoublesCurve.from(
-                MultiplyCurveSpreadFunction.getInstance(),
-                name,
-                underlyingCurve,
-                constantDoublesCurve);
-        return new YieldCurve(name, relShiftedCurve);
-      default:
-        throw new IllegalArgumentException("Cannot handle curve shift type " + shiftType + " for parallel shifts");
-    }
   }
 }

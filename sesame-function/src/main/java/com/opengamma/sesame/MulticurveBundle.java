@@ -497,8 +497,7 @@ public final class MulticurveBundle implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("MulticurveBundle.Builder{");
-      buf.append("multicurveProvider").append('=').append(JodaBeanUtils.toString(_multicurveProvider)).append(',').append(
-          ' ');
+      buf.append("multicurveProvider").append('=').append(JodaBeanUtils.toString(_multicurveProvider)).append(',').append(' ');
       buf.append("curveBuildingBlockBundle").append('=').append(JodaBeanUtils.toString(_curveBuildingBlockBundle)).append(',').append(' ');
       buf.append("curveNodeIndices").append('=').append(JodaBeanUtils.toString(_curveNodeIndices));
       buf.append('}');
