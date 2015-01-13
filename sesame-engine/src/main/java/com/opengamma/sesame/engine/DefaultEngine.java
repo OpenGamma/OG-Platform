@@ -69,7 +69,17 @@ public class DefaultEngine implements Engine {
     }
   }
 
-  @Override
+  /**
+   * Performs the calculations defined in a view multiple times, using data from a different scenario each time.
+   *
+   * @param viewConfig configuration of the view that performs the calculations
+   * @param calculationArguments arguments used when performing the calculations for the scenarios
+   * @param suppliedData contains the market data for the scenarios
+   * @param portfolio the items in the portfolio
+   * @return the results of running the calculations in the view for every item in the portfolio and every scenario
+   * @deprecated this is here for backwards compatibility. It will be removed after v2.9
+   */
+  @Deprecated
   public ScenarioResults runScenarios(ViewConfig viewConfig,
                                       ScenarioCalculationArguments calculationArguments,
                                       ScenarioMarketDataEnvironment suppliedData,

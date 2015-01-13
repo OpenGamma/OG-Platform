@@ -37,8 +37,6 @@ import com.opengamma.component.rest.ComponentRepositoryServletContextListener;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
-import com.opengamma.sesame.marketdata.ScenarioDataBuilder;
-import com.opengamma.sesame.marketdata.ScenarioMarketDataEnvironment;
 import com.opengamma.sesame.marketdata.scenarios.PerturbationMapping;
 import com.opengamma.sesame.marketdata.scenarios.ScenarioDefinition;
 import com.opengamma.transport.jaxrs.FudgeObjectBinaryConsumer;
@@ -87,25 +85,17 @@ public class RemoteEngineTest {
     }
   }
 
-  @Test
   public void runView() {
-    Results results = _remoteEngine.runView(_viewConfig,
-                                            CalculationArguments.builder().build(),
-                                            MarketDataEnvironmentBuilder.empty(),
-                                            Collections.emptyList());
+    Results results =
+        _remoteEngine.runView(
+            _viewConfig,
+            CalculationArguments.builder().build(),
+            MarketDataEnvironmentBuilder.empty(),
+            Collections.emptyList());
     assertEquals("runView successfully invoked", results.get(0, 0).getResult().getValue());
   }
 
-  public void runScenarios1() {
-    ScenarioMarketDataEnvironment marketData = new ScenarioDataBuilder().build();
-    CalculationArguments calculationArguments = CalculationArguments.builder().build();
-    ScenarioCalculationArguments scenarioArgs = ScenarioCalculationArguments.of(calculationArguments);
-    ScenarioResults results = _remoteEngine.runScenarios(_viewConfig, scenarioArgs, marketData, ImmutableList.of());
-    Results scenarioResults = results.getResults().get("scenarioName");
-    assertEquals("runScenarios successfully invoked", scenarioResults.get(0, 0).getResult().getValue());
-  }
-
-  public void runScenarios2() {
+  public void runScenarios() {
     MarketDataEnvironment marketData = MarketDataEnvironmentBuilder.empty();
     CalculationArguments calculationArgs = CalculationArguments.builder().build();
     ScenarioDefinition scenarioDefinition = new ScenarioDefinition(ImmutableList.<PerturbationMapping>of());
@@ -130,18 +120,6 @@ public class RemoteEngineTest {
       ResultBuilder builder = new ResultBuilder(ImmutableList.of("foo"), ImmutableList.of("col"));
       builder.add(0, 0, Result.success("runView successfully invoked"), null);
       return builder.build(Instant.EPOCH, 0, 0, 0);
-    }
-
-    @Override
-    public ScenarioResults runScenarios(ViewConfig viewConfig,
-                                        ScenarioCalculationArguments calculationArguments,
-                                        ScenarioMarketDataEnvironment marketDataEnvironment,
-                                        List<?> portfolio) {
-      ResultBuilder builder = new ResultBuilder(ImmutableList.of("foo"), ImmutableList.of("col"));
-      builder.add(0, 0, Result.success("runScenarios successfully invoked"), null);
-      Results results = builder.build(Instant.EPOCH, 0, 0, 0);
-      Map<String, Results> resultsMap = ImmutableMap.of("scenarioName", results);
-      return new ScenarioResults(resultsMap);
     }
 
     @Override

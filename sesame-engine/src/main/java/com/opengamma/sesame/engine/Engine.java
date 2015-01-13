@@ -9,7 +9,6 @@ import java.util.List;
 
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.marketdata.MarketDataEnvironment;
-import com.opengamma.sesame.marketdata.ScenarioMarketDataEnvironment;
 import com.opengamma.sesame.marketdata.scenarios.ScenarioDefinition;
 
 /**
@@ -42,27 +41,12 @@ public interface Engine {
                   MarketDataEnvironment suppliedData,
                   List<?> portfolio);
 
-  /**
-   * Performs the calculations defined in a view multiple times, using data from a different scenario each time.
-   *
-   * @param viewConfig configuration of the view that performs the calculations
-   * @param calculationArguments arguments used when performing the calculations for the scenarios
-   * @param marketDataEnvironment contains the market data for the scenarios
-   * @param portfolio the items in the portfolio
-   * @return the results of running the calculations in the view for every item in the portfolio and every scenario
-   */
-  ScenarioResults runScenarios(ViewConfig viewConfig,
-                               ScenarioCalculationArguments calculationArguments,
-                               ScenarioMarketDataEnvironment marketDataEnvironment,
-                               List<?> portfolio);
-
   // TODO should this take a list of measure names and rely on the default config? that's what the spec says
   //   or should there be another, similar method that takes measure names instead of a ViewConfig
   // TODO Using CalculationArguments means there is a single valuation time for all scenarios
   //   Is this a problem for now? Could use ScenarioCalculationArguments but would need to know the scenario names
   //   in advance. But currently the scenario names are generated in the engine.
   // Could use a source of CalculationArguments that is queries by scenario index
-  //
 
   /**
    * Performs the calculations defined in a view multiple times, using data from a different scenario each time.

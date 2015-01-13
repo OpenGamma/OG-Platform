@@ -14,7 +14,6 @@ import javax.ws.rs.core.UriBuilder;
 
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.marketdata.MarketDataEnvironment;
-import com.opengamma.sesame.marketdata.ScenarioMarketDataEnvironment;
 import com.opengamma.sesame.marketdata.scenarios.ScenarioDefinition;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
@@ -32,14 +31,7 @@ public class DataEngineResource extends AbstractDataResource {
    * REST path for executing multiple calculation cycles on a view for different scenarios.
    * In this version the user provides all the market data for each scenario.
    */
-  public static final String RUN_SCENARIOS1_PATH = "runScenarios1";
-
-  /**
-   * REST path for executing multiple calculation cycles on a view for different scenarios.
-   * In this version the user provides a set of base market data and a scenario definition which describes
-   * how to derive the data for the individual scenarios.
-   */
-  public static final String RUN_SCENARIOS2_PATH = "runScenarios2";
+  public static final String RUN_SCENARIOS_PATH = "runScenarios";
 
   /** The engine that handle the remote requests. */
   private final Engine _engine;
@@ -62,23 +54,13 @@ public class DataEngineResource extends AbstractDataResource {
   }
 
   /**
-   * Retrieve the URI for the {@link #runScenarios(EngineRunScenariosArguments1)} method.
+   * Retrieve the URI for the {@link #runScenarios(EngineRunScenariosArguments)} method.
    *
    * @param baseUri the base URI for all requests
    * @return the URI for the method
    */
-  public static URI uriRunScenarios1(URI baseUri) {
-    return createUri(baseUri, RUN_SCENARIOS1_PATH);
-  }
-
-  /**
-   * Retrieve the URI for the {@link #runScenarios(EngineRunScenariosArguments2)} method.
-   *
-   * @param baseUri the base URI for all requests
-   * @return the URI for the method
-   */
-  public static URI uriRunScenarios2(URI baseUri) {
-    return createUri(baseUri, RUN_SCENARIOS2_PATH);
+  public static URI uriRunScenarios(URI baseUri) {
+    return createUri(baseUri, RUN_SCENARIOS_PATH);
   }
 
   private static URI createUri(URI baseUri, String path) {
@@ -103,24 +85,6 @@ public class DataEngineResource extends AbstractDataResource {
   }
 
   /**
-   * Exposes {@link Engine#runScenarios(ViewConfig, ScenarioCalculationArguments, ScenarioMarketDataEnvironment, List)}
-   * via REST.
-   *
-   * @param arguments arguments to the method call
-   * @return the result of calling
-   *   {@link Engine#runScenarios(ViewConfig, ScenarioCalculationArguments, ScenarioMarketDataEnvironment, List)}
-   */
-  @POST
-  @Path(RUN_SCENARIOS1_PATH)
-  public ScenarioResults runScenarios(EngineRunScenariosArguments1 arguments) {
-    return _engine.runScenarios(
-        arguments.getViewConfig(),
-        arguments.getCalculationArguments(),
-        arguments.getMarketData(),
-        arguments.getPortfolio());
-  }
-
-  /**
    * Exposes
    * {@link Engine#runScenarios(ViewConfig, CalculationArguments, MarketDataEnvironment, ScenarioDefinition, List)}
    * via REST.
@@ -130,8 +94,8 @@ public class DataEngineResource extends AbstractDataResource {
    *   {@link Engine#runScenarios(ViewConfig, CalculationArguments, MarketDataEnvironment, ScenarioDefinition, List)}
    */
   @POST
-  @Path(RUN_SCENARIOS2_PATH)
-  public ScenarioResults runScenarios(EngineRunScenariosArguments2 arguments) {
+  @Path(RUN_SCENARIOS_PATH)
+  public ScenarioResults runScenarios(EngineRunScenariosArguments arguments) {
     return _engine.runScenarios(
         arguments.getViewConfig(),
         arguments.getCalculationArguments(),
