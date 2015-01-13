@@ -90,7 +90,7 @@ public class DiscountingBondFn implements BondFn {
     _cache = ArgumentChecker.notNull(cache, "cache");
   }
 
-  // TODO convert to Result.flatMap() after Java 8
+  // TODO Java 8 - convert to Result.flatMap()
 
   @Override
   public Result<MultipleCurrencyAmount> calculatePresentValueFromCurves(Environment env, BondTrade trade) {

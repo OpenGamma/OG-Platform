@@ -22,7 +22,7 @@ public abstract class MarketDataRequirement {
   /**
    * @return the ID of the data
    */
-  public abstract MarketDataId getMarketDataId();
+  public abstract MarketDataId<?> getMarketDataId();
 
   /**
    * @return the time for which the data is valid

@@ -17,6 +17,7 @@ import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.sesame.marketdata.SingleValueRequirement;
 import com.opengamma.sesame.marketdata.TimeSeriesRequirement;
+import com.opengamma.sesame.marketdata.scenarios.CyclePerturbations;
 import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.util.result.Result;
 
@@ -88,13 +89,15 @@ public interface MarketDataBuilder {
    * @param valuationTime the valuation time used when building the market data
    * @param requirements identifies the market data that should be built
    * @param marketDataSource source of raw market data
+   * @param cyclePerturbations the perturbations that should be applied to the market data for this calculation cycle
    * @return a map of market data values keyed by requirement. If a value can't be built the map will contain
    *   an entry with a failure result.
    */
   Map<SingleValueRequirement, Result<?>> buildSingleValues(MarketDataBundle marketDataBundle,
                                                            ZonedDateTime valuationTime,
                                                            Set<SingleValueRequirement> requirements,
-                                                           MarketDataSource marketDataSource);
+                                                           MarketDataSource marketDataSource,
+                                                           CyclePerturbations cyclePerturbations);
 
   /**
    * Builds time series of market data.
@@ -105,13 +108,15 @@ public interface MarketDataBuilder {
    * @param marketDataBundle bundle containing the market data required to build the values
    * @param requirements identifies the market data that should be built
    * @param marketDataSource source of raw market data
+   * @param cyclePerturbations the perturbations that should be applied to the market data for this calculation cycle
    * @return a map of market data values keyed by ID. If a value can't be built the map will contain
    *   an entry with a failure result.
    */
   Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
       MarketDataBundle marketDataBundle,
       Set<TimeSeriesRequirement> requirements,
-      MarketDataSource marketDataSource);
+      MarketDataSource marketDataSource,
+      CyclePerturbations cyclePerturbations);
 
   /**
    * Returns the type of market data ID this builder can handle.

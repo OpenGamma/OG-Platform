@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.sesame.marketdata.builders.MarketDataBuilder;
+import com.opengamma.sesame.marketdata.scenarios.CyclePerturbations;
 import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
@@ -67,7 +68,8 @@ public class FxMatrixMarketDataBuilder implements MarketDataBuilder {
   public Map<SingleValueRequirement, Result<?>> buildSingleValues(MarketDataBundle marketDataBundle,
                                                                   ZonedDateTime valuationTime,
                                                                   Set<SingleValueRequirement> requirements,
-                                                                  MarketDataSource marketDataSource) {
+                                                                  MarketDataSource marketDataSource,
+                                                                  CyclePerturbations cyclePerturbations) {
     Map<SingleValueRequirement, Result<?>> results = new HashMap<>();
 
     for (SingleValueRequirement requirement : requirements) {
@@ -82,7 +84,8 @@ public class FxMatrixMarketDataBuilder implements MarketDataBuilder {
   public Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
       MarketDataBundle marketDataBundle,
       Set<TimeSeriesRequirement> requirements,
-      MarketDataSource marketDataSource) {
+      MarketDataSource marketDataSource,
+      CyclePerturbations cyclePerturbations) {
 
     // TODO implement
     return Collections.emptyMap();

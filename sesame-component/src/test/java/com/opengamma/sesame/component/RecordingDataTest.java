@@ -42,7 +42,6 @@ import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposu
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
-import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.SimpleCurrencyMatrix;
 import com.opengamma.financial.security.irs.FixedInterestRateSwapLeg;
 import com.opengamma.financial.security.irs.FloatingInterestRateSwapLeg;
@@ -119,10 +118,6 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class RecordingDataTest {
 
-  private ConfigLink<CurrencyMatrix> _currencyMatrixLink =
-      ConfigLink.resolvable("EmptyCurrencyMatrix", CurrencyMatrix.class);
-
-  @Test
   public void testCurveViewCanBeSavedAndRead() {
 
     AvailableOutputs availableOutputs = createAvailableOutputs();
@@ -190,7 +185,6 @@ public class RecordingDataTest {
     assertThat(view2Outputs, is(viewOutputs));
   }
 
-  @Test
   public void testPricingMethodCanBeCaptured() {
 
     // Test that we can capture results when we have trades/securities involved
@@ -385,14 +379,15 @@ public class RecordingDataTest {
    */
   protected AvailableOutputs createAvailableOutputs() {
     AvailableOutputs available = new AvailableOutputsImpl();
-    available.register(DiscountingMulticurveBundleResolverFn.class,
-                       EquityPresentValueFn.class,
-                       FRAFn.class,
-                       InterestRateSwapFn.class,
-                       FXForwardPnLSeriesFn.class,
-                       FXForwardPVFn.class,
-                       FXForwardYCNSPnLSeriesFn.class,
-                       FXForwardYieldCurveNodeSensitivitiesFn.class);
+    available.register(
+        DiscountingMulticurveBundleResolverFn.class,
+        EquityPresentValueFn.class,
+        FRAFn.class,
+        InterestRateSwapFn.class,
+        FXForwardPnLSeriesFn.class,
+        FXForwardPVFn.class,
+        FXForwardYCNSPnLSeriesFn.class,
+        FXForwardYieldCurveNodeSensitivitiesFn.class);
     return available;
   }
 

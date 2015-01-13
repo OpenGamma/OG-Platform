@@ -10,9 +10,11 @@ import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
+import static com.opengamma.util.result.ResultTestUtils.assertSuccess;
 import static org.mockito.Mockito.mock;
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.List;
 import java.util.Map;
 
 import org.testng.annotations.Test;
@@ -20,8 +22,10 @@ import org.threeten.bp.Instant;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.curve.multicurve.MulticurveDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.core.link.ConfigLink;
@@ -60,6 +64,11 @@ import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.interestrate.InterestRateMockSources;
+import com.opengamma.sesame.marketdata.builders.MarketDataBuilder;
+import com.opengamma.sesame.marketdata.scenarios.CurveNameMulticurveFilter;
+import com.opengamma.sesame.marketdata.scenarios.CyclePerturbations;
+import com.opengamma.sesame.marketdata.scenarios.MulticurveInputParallelShift;
+import com.opengamma.sesame.marketdata.scenarios.SinglePerturbationMapping;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
@@ -68,12 +77,7 @@ import com.opengamma.util.time.DateUtils;
 @Test(groups = TestGroup.UNIT)
 public class MulticurveMarketDataBuilderTest {
 
-  /**
-   * Compares a curve built by {@link MulticurveMarketDataBuilder} to one built by
-   * {@link DefaultDiscountingMulticurveBundleResolverFn}
-   */
-  @Test
-  public void buildSingleCurveBundle() {
+  private static MarketDataBuilder curveBuilder() {
     FunctionModelConfig curveBuilderConfig =
         config(
             arguments(
@@ -98,9 +102,25 @@ public class MulticurveMarketDataBuilderTest {
     ServiceContext serviceContext = ServiceContext.of(components).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
     ComponentMap componentMap = ComponentMap.of(components);
-    MulticurveMarketDataBuilder curveBuilder = FunctionModel.build(MulticurveMarketDataBuilder.class,
-                                                                   curveBuilderConfig,
-                                                                   componentMap);
+    return FunctionModel.build(MulticurveMarketDataBuilder.class, curveBuilderConfig, componentMap);
+  }
+
+  private static MarketDataBundle createMarketDataBundle() {
+    MarketDataEnvironmentBuilder builder = InterestRateMockSources.createMarketDataEnvironment().toBuilder();
+    RawId liborId = RawId.of(InterestRateMockSources.LIBOR_INDEX_ID.toBundle());
+    builder.add(liborId, InterestRateMockSources.FLAT_TIME_SERIES);
+    return new MapMarketDataBundle(builder.build());
+  }
+
+  /**
+   * Compares a curve built by {@link MulticurveMarketDataBuilder} to one built by
+   * {@link DefaultDiscountingMulticurveBundleResolverFn}
+   */
+  public void buildSingleCurveBundle() {
+    MarketDataBuilder curveBuilder = curveBuilder();
+    CyclePerturbations cyclePerturbations = new CyclePerturbations(ImmutableSet.<MarketDataRequirement>of(),
+                                                                   ImmutableList.<SinglePerturbationMapping>of());
+
     MarketDataEnvironment baseMarketData = InterestRateMockSources.createMarketDataEnvironment();
     FXMatrix fxMatrix = new FXMatrix();
     MarketDataEnvironment marketData = baseMarketData.toBuilder().add(FxMatrixId.of(Currency.USD), fxMatrix).build();
@@ -109,7 +129,8 @@ public class MulticurveMarketDataBuilderTest {
         curveBuilder.buildSingleValues(marketData.toBundle(),
                                        marketData.getValuationTime(),
                                        ImmutableSet.of(curveReq),
-                                       mock(MarketDataSource.class));
+                                       mock(MarketDataSource.class),
+                                       cyclePerturbations);
 
     MulticurveBundle curveBundle1 = (MulticurveBundle) results.get(curveReq).getValue();
 
@@ -139,6 +160,7 @@ public class MulticurveMarketDataBuilderTest {
                 CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
                 MarketDataFn.class, DefaultMarketDataFn.class));
 
+    Map<Class<?>, Object> components = InterestRateMockSources.generateBaseComponents();
     DefaultDiscountingMulticurveBundleResolverFn fn =
         FunctionModel.build(DefaultDiscountingMulticurveBundleResolverFn.class, config, ComponentMap.of(components));
     CurveConstructionConfiguration curveConfig =
@@ -158,10 +180,54 @@ public class MulticurveMarketDataBuilderTest {
     assertEquals(multicurveProvider1.getAllCurveNames(), multicurveProvider2.getAllCurveNames());
   }
 
-  private static MarketDataBundle createMarketDataBundle() {
-    MarketDataEnvironmentBuilder builder = InterestRateMockSources.createMarketDataEnvironment().toBuilder();
-    RawId liborId = RawId.of(InterestRateMockSources.LIBOR_INDEX_ID.toBundle());
-    builder.add(liborId, InterestRateMockSources.FLAT_TIME_SERIES);
-    return new MapMarketDataBundle(builder.build());
+  public void parallelShiftInputs() {
+    MarketDataBuilder curveBuilder = curveBuilder();
+    CyclePerturbations emptyPerturbations = new CyclePerturbations(ImmutableSet.<MarketDataRequirement>of(),
+                                                                   ImmutableList.<SinglePerturbationMapping>of());
+
+    MarketDataEnvironment baseMarketData = InterestRateMockSources.createMarketDataEnvironment();
+    FXMatrix fxMatrix = new FXMatrix();
+    MarketDataEnvironment marketData = baseMarketData.toBuilder().add(FxMatrixId.of(Currency.USD), fxMatrix).build();
+    SingleValueRequirement curveReq = SingleValueRequirement.of(MulticurveId.of("USD_ON-OIS_LIBOR3M-FRAIRS_1U"));
+    Map<SingleValueRequirement, Result<?>> unshiftedResults =
+        curveBuilder.buildSingleValues(marketData.toBundle(),
+                                       marketData.getValuationTime(),
+                                       ImmutableSet.of(curveReq),
+                                       new EmptyMarketDataFactory.DataSource(),
+                                       emptyPerturbations);
+    // discounting: USD-ON-OIS, forwardON: USD-ON-OIS, forwardIbor: USD-LIBOR3M-FRAIRS
+    String curveName = "USD-ON-OIS";
+    double shiftAmount = 0.01;
+
+    SinglePerturbationMapping mapping =
+        SinglePerturbationMapping.builder()
+            .filter(new CurveNameMulticurveFilter(curveName))
+            .perturbation(MulticurveInputParallelShift.absolute(shiftAmount))
+            .build();
+
+    List<SinglePerturbationMapping> mappings = ImmutableList.of(mapping);
+    ImmutableSet<MarketDataRequirement> requirements = ImmutableSet.<MarketDataRequirement>of(curveReq);
+    CyclePerturbations shiftPerturbations = new CyclePerturbations(requirements, mappings);
+    Map<SingleValueRequirement, Result<?>> shiftedResults =
+        curveBuilder.buildSingleValues(marketData.toBundle(),
+                                       marketData.getValuationTime(),
+                                       ImmutableSet.of(curveReq),
+                                       new EmptyMarketDataFactory.DataSource(),
+                                       shiftPerturbations);
+
+    Result<?> unshiftedResult = unshiftedResults.get(curveReq);
+    assertSuccess(unshiftedResult);
+    MulticurveBundle unshiftedBundle = (MulticurveBundle) unshiftedResult.getValue();
+    YieldAndDiscountCurve unshiftedDiscountCurve = unshiftedBundle.getMulticurveProvider().getCurve(curveName);
+
+    Result<?> shiftedResult = shiftedResults.get(curveReq);
+    assertSuccess(shiftedResult);
+    MulticurveBundle shiftedBundle = (MulticurveBundle) shiftedResult.getValue();
+    YieldAndDiscountCurve shiftedDiscountCurve = shiftedBundle.getMulticurveProvider().getCurve(curveName);
+
+    double unshiftedRate = unshiftedDiscountCurve.getForwardRate(2);
+    double shiftedRate = shiftedDiscountCurve.getForwardRate(2);
+    // TODO confirm this is close enough
+    assertEquals(unshiftedRate + shiftAmount, shiftedRate, 1e-4);
   }
 }

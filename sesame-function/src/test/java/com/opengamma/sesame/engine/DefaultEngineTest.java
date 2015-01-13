@@ -85,23 +85,22 @@ public class DefaultEngineTest {
                   TestFn.class, TestImpl.class)),
           column("col1", "Foo"));
 
-  // TODO tests that include building market data
-
   @BeforeMethod
   public void setUp() {
     ThreadLocalServiceContext.init(ServiceContext.of(ImmutableMap.<Class<?>, Object>of()));
   }
 
-  @Test
   public void runViewDataProvided() {
     ViewFactory viewFactory = createViewFactory();
-    MarketDataEnvironmentFactory environmentFactory = new MarketDataEnvironmentFactory(new EmptyMarketDataFactory());
+    MarketDataEnvironmentFactory environmentFactory =
+        new MarketDataEnvironmentFactory(new EmptyMarketDataFactory());
     DefaultEngine engine = new DefaultEngine(viewFactory, environmentFactory);
-    MarketDataEnvironment marketDataEnvironment = new MarketDataEnvironmentBuilder()
-        .add(MulticurveId.of(BUNDLE1), createMulticurve(Currency.USD, 1))
-        .add(MulticurveId.of(BUNDLE2), createMulticurve(Currency.EUR, 2))
-        .valuationTime(ZonedDateTime.now())
-        .build();
+    MarketDataEnvironment marketDataEnvironment =
+        new MarketDataEnvironmentBuilder()
+            .add(MulticurveId.of(BUNDLE1), createMulticurve(Currency.USD, 1))
+            .add(MulticurveId.of(BUNDLE2), createMulticurve(Currency.EUR, 2))
+            .valuationTime(ZonedDateTime.now())
+            .build();
     List<?> trades = ImmutableList.of(createTrade());
     CalculationArguments calculationArguments = CalculationArguments.builder().build();
     Results results = engine.runView(CONFIG, calculationArguments, marketDataEnvironment, trades);
@@ -111,18 +110,18 @@ public class DefaultEngineTest {
     assertEquals(Pairs.of(1.0, 2.0), results.get(0, 0).getResult().getValue());
   }
 
-  @Test
   public void runOneScenarioDataProvided() {
     ViewFactory viewFactory = createViewFactory();
-    MarketDataEnvironmentFactory environmentFactory = new MarketDataEnvironmentFactory(new EmptyMarketDataFactory());
+    MarketDataEnvironmentFactory environmentFactory =
+        new MarketDataEnvironmentFactory(new EmptyMarketDataFactory());
     DefaultEngine engine = new DefaultEngine(viewFactory, environmentFactory);
-    ScenarioDataBuilder builder = new ScenarioDataBuilder();
     ZonedDateTime valuationTime = ZonedDateTime.now();
     ScenarioMarketDataEnvironment marketDataEnvironment =
-        builder.addMulticurve("base", BUNDLE1, createMulticurve(Currency.USD, 1))
-               .addMulticurve("base", BUNDLE2, createMulticurve(Currency.EUR, 2))
-               .valuationTime("base", valuationTime)
-               .build();
+        new ScenarioDataBuilder()
+            .addMulticurve("base", BUNDLE1, createMulticurve(Currency.USD, 1))
+            .addMulticurve("base", BUNDLE2, createMulticurve(Currency.EUR, 2))
+            .valuationTime("base", valuationTime)
+            .build();
     List<?> trades = ImmutableList.of(createTrade());
     CalculationArguments calcArgs = CalculationArguments.builder().build();
     ScenarioCalculationArguments scenarioCalcArgs = ScenarioCalculationArguments.of(calcArgs);
@@ -137,24 +136,24 @@ public class DefaultEngineTest {
     assertEquals(Pairs.of(1.0, 2.0), results.get(0, 0).getResult().getValue());
   }
 
-  @Test
   public void runMultipleScenariosDataProvided() {
     ViewFactory viewFactory = createViewFactory();
-    MarketDataEnvironmentFactory environmentFactory = new MarketDataEnvironmentFactory(new EmptyMarketDataFactory());
+    MarketDataEnvironmentFactory environmentFactory =
+        new MarketDataEnvironmentFactory(new EmptyMarketDataFactory());
     DefaultEngine engine = new DefaultEngine(viewFactory, environmentFactory);
-    ScenarioDataBuilder builder = new ScenarioDataBuilder();
     ZonedDateTime valuationTime = ZonedDateTime.now();
     ScenarioMarketDataEnvironment marketDataEnvironment =
-        builder.addMulticurve("base", BUNDLE1, createMulticurve(Currency.USD, 1))
-               .addMulticurve("base", BUNDLE2, createMulticurve(Currency.EUR, 2))
-               .valuationTime("base", valuationTime)
+        new ScenarioDataBuilder()
+            .addMulticurve("base", BUNDLE1, createMulticurve(Currency.USD, 1))
+            .addMulticurve("base", BUNDLE2, createMulticurve(Currency.EUR, 2))
+            .valuationTime("base", valuationTime)
             .addMulticurve("s1", BUNDLE1, createMulticurve(Currency.USD, 3))
-               .addMulticurve("s1", BUNDLE2, createMulticurve(Currency.EUR, 4))
-               .valuationTime("s1", valuationTime)
+            .addMulticurve("s1", BUNDLE2, createMulticurve(Currency.EUR, 4))
+            .valuationTime("s1", valuationTime)
             .addMulticurve("s2", BUNDLE1, createMulticurve(Currency.USD, 5))
             .addMulticurve("s2", BUNDLE2, createMulticurve(Currency.EUR, 6))
-               .valuationTime("s2", valuationTime)
-               .build();
+            .valuationTime("s2", valuationTime)
+            .build();
     List<?> trades = ImmutableList.of(createTrade());
     CalculationArguments calcArgs = CalculationArguments.builder().build();
     ScenarioCalculationArguments scenarioCalcArgs = ScenarioCalculationArguments.of(calcArgs);

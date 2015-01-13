@@ -7,6 +7,7 @@ package com.opengamma.sesame.marketdata;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -63,6 +64,11 @@ import com.opengamma.sesame.CurveNodeConverterFn;
 import com.opengamma.sesame.CurveNodeInstrumentDefinitionFactory;
 import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.marketdata.builders.MarketDataBuilder;
+import com.opengamma.sesame.marketdata.scenarios.CurveInputs;
+import com.opengamma.sesame.marketdata.scenarios.CyclePerturbations;
+import com.opengamma.sesame.marketdata.scenarios.FilteredPerturbation;
+import com.opengamma.sesame.marketdata.scenarios.MulticurveMatchDetails;
+import com.opengamma.sesame.marketdata.scenarios.StandardMatchDetails;
 import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -148,7 +154,8 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
   public Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
       MarketDataBundle marketDataBundle,
       Set<TimeSeriesRequirement> requirements,
-      MarketDataSource marketDataSource) {
+      MarketDataSource marketDataSource,
+      CyclePerturbations cyclePerturbations) {
 
     // TODO implement this
     return Collections.emptyMap();
@@ -184,7 +191,7 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
    * @return nodes for all curves in the bundle
    */
   private Set<CurveNodeWithIdentifier> getCurveNodes(AbstractCurveDefinition curveDef, ZonedDateTime valuationTime) {
-    // TODO how do we know this cast is safe? the original code has it
+    // the original platform code has this cast so assume it's safe
     CurveSpecification curveSpec =
         (CurveSpecification) _curveSpecBuilder.buildSpecification(valuationTime.toInstant(),
                                                                   valuationTime.toLocalDate(),
@@ -230,7 +237,8 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
   IntermediateResults buildIntermediateResults(MarketDataBundle marketDataBundle,
                                                ZonedDateTime valuationTime,
                                                CurveConstructionConfiguration bundleConfig,
-                                               MarketDataRequirement bundleRequirement) {
+                                               MarketDataRequirement bundleRequirement,
+                                               CyclePerturbations cyclePerturbations) {
 
     Set<Currency> currencies = getCurrencies(bundleConfig, valuationTime);
     FxMatrixId fxMatrixKey = FxMatrixId.of(currencies);
@@ -242,10 +250,21 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
     Multimap<String, IborIndex> iborIndexByCurveName = ArrayListMultimap.create();
     Multimap<String, IndexON> onIndexByCurveName = ArrayListMultimap.create();
     List<MultiCurveBundle<GeneratorYDCurve>> curveBundles = new ArrayList<>();
+    Multimap<MarketDataRequirement, FilteredPerturbation> perturbations = cyclePerturbations.getInputPerturbations();
+    // the market data perturbations that apply to this curve bundle
+    Collection<FilteredPerturbation> filteredPerturbations = perturbations.get(bundleRequirement);
+    // market data perturbations that perturb the data in a SnapshotDataBundle
+    Collection<FilteredPerturbation> dataBundlePerturbations =
+        MarketDataUtils.filterPerturbations(
+            filteredPerturbations,
+            CurveInputs.class,
+            MulticurveMatchDetails.class);
 
+    // loop over the curve groups in the bundle
     for (CurveGroupConfiguration groupConfig : bundleConfig.getCurveGroups()) {
       List<SingleCurveBundle<GeneratorYDCurve>> singleCurveBundles = new ArrayList<>();
 
+      // loop over the individual curves in the curve group
       for (Map.Entry<AbstractCurveDefinition, List<? extends CurveTypeConfiguration>> entry :
           groupConfig.resolveTypesForCurves().entrySet()) {
 
@@ -253,9 +272,10 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
         List<? extends CurveTypeConfiguration> curveConfigTypes = entry.getValue();
         Set<CurveNodeWithIdentifier> curveNodes = getCurveNodes(curveDefinition, valuationTime);
         SnapshotDataBundle dataBundle = createDataBundle(marketDataBundle, bundleRequirement, curveNodes);
-        List<InstrumentDerivative> derivatives =
-            createInstrumentDerivatives(marketDataBundle, dataBundle, fxMatrix, valuationTime, curveNodes);
         String curveName = curveDefinition.getName();
+        SnapshotDataBundle perturbedData = perturbCurveData(curveNodes, dataBundle, curveName, dataBundlePerturbations);
+        List<InstrumentDerivative> derivatives =
+            createInstrumentDerivatives(marketDataBundle, perturbedData, fxMatrix, valuationTime, curveNodes);
         configTypes.putAll(curveName, curveConfigTypes);
 
         iborIndexByCurveName.putAll(curveName, createIborIndices(curveConfigTypes));
@@ -275,8 +295,49 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
     return new IntermediateResults(currenciesByCurveName,
                                    iborIndexByCurveName,
                                    onIndexByCurveName,
-                                   configTypes, curveBundles
-    );
+                                   configTypes,
+                                   curveBundles);
+  }
+
+  /**
+   * Applies perturbations to the data used to build a curve. If none of the perturbations match the curve
+   * then the input data is returned unchanged.
+   *
+   * @param curveNodes the curve nodes
+   * @param dataBundle the market data at each of the curve nodes
+   * @param curveName the curve name
+   * @param dataBundlePerturbations perturbations that apply to {@code SnapshotDataBundle}
+   * @return the market data for building the curve, possibly with a perturbation applied
+   */
+  private SnapshotDataBundle perturbCurveData(Set<CurveNodeWithIdentifier> curveNodes,
+                                              SnapshotDataBundle dataBundle,
+                                              String curveName,
+                                              Collection<FilteredPerturbation> dataBundlePerturbations) {
+
+    FilteredPerturbation perturbation = perturbationForCurve(curveName, dataBundlePerturbations);
+
+    if (perturbation == null) {
+      return dataBundle;
+    }
+    CurveInputs curveInputs = new CurveInputs(curveNodes, dataBundle);
+    return ((CurveInputs) perturbation.apply(curveInputs)).getNodeData();
+  }
+
+  // TODO Java 8 - use Optional
+  @SuppressWarnings("unchecked")
+  @Nullable
+  private static FilteredPerturbation perturbationForCurve(
+      String curveName,
+      Collection<FilteredPerturbation> perturbations) {
+
+    MulticurveMatchDetails matchDetails = StandardMatchDetails.multicurve(curveName);
+
+    for (FilteredPerturbation perturbation : perturbations) {
+      if (perturbation.detailsMatch(matchDetails)) {
+        return perturbation;
+      }
+    }
+    return null;
   }
 
   /**
@@ -300,10 +361,9 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
     return new SingleCurveBundle<>(curveDefinition.getName(), derivativeArray, startingPoint, curveGenerator);
   }
 
+  // TODO this is required by the legacy curve code but should be replaced when the curves are overhauled
   /**
-   * Creates a {@link SnapshotDataBundle} containing the market data for all nodes in the curve bundle.
-   *
-   * TODO this is required by the legacy curve code but should be replaced when the curves are overhauled
+   * Creates a {@link SnapshotDataBundle} containing the market data for a set of curve nodes.
    *
    * @param marketDataBundle the market data
    * @return a bundle of market data for the curve nodes
@@ -416,9 +476,10 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
         IborIndexConvention indexConvention =
             ConventionLink.resolvable(indexSecurity.getConventionId(), IborIndexConvention.class).resolve();
 
-        IborIndex iborIndex = ConverterUtils.indexIbor(indexSecurity.getName(),
-                                                       indexConvention,
-                                                       indexSecurity.getTenor());
+        IborIndex iborIndex = ConverterUtils.indexIbor(
+            indexSecurity.getName(),
+            indexConvention,
+            indexSecurity.getTenor());
         indices.add(iborIndex);
       }
     }

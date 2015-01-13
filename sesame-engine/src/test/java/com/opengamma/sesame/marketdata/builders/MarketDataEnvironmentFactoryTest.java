@@ -13,7 +13,6 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -22,6 +21,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -38,6 +38,8 @@ import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.sesame.marketdata.SingleValueRequirement;
 import com.opengamma.sesame.marketdata.TimeSeriesRequirement;
 import com.opengamma.sesame.marketdata.builders.MarketDataEnvironmentFactory.MarketDataNode;
+import com.opengamma.sesame.marketdata.scenarios.CyclePerturbations;
+import com.opengamma.sesame.marketdata.scenarios.SinglePerturbationMapping;
 import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
@@ -49,7 +51,6 @@ import com.opengamma.util.time.LocalDateRange;
 @Test(groups = TestGroup.UNIT)
 public class MarketDataEnvironmentFactoryTest {
 
-  @Test
   public void removeLeaves() {
     MarketDataNode root =
         rootNode(
@@ -61,8 +62,7 @@ public class MarketDataEnvironmentFactoryTest {
                                 seriesNode(new RawId("4"), dateRange(2011, 3, 8, 2012, 3, 7)))),
             valueNode(new SecurityId("sec", "1")));
 
-    Set<MarketDataRequirement> reqs1 = new HashSet<>();
-    MarketDataEnvironmentFactory.removeLeaves(root, reqs1);
+    Set<MarketDataRequirement> reqs1 = MarketDataEnvironmentFactory.removeLeaves(root);
 
     Set<MarketDataRequirement> expectedReqs1 =
         ImmutableSet.<MarketDataRequirement>of(
@@ -80,8 +80,7 @@ public class MarketDataEnvironmentFactoryTest {
     assertEquals(expectedReqs1, reqs1);
     assertEquals(expectedDependencies1, root);
 
-    Set<MarketDataRequirement> reqs2 = new HashSet<>();
-    MarketDataEnvironmentFactory.removeLeaves(root, reqs2);
+    Set<MarketDataRequirement> reqs2 = MarketDataEnvironmentFactory.removeLeaves(root);
     Set<MarketDataRequirement> expectedReqs2 =
         ImmutableSet.<MarketDataRequirement>of(SingleValueRequirement.of(new CurveId("curve2")));
     MarketDataNode expectedDependencies2 = rootNode(valueNode(new CurveId("curve1")));
@@ -89,8 +88,7 @@ public class MarketDataEnvironmentFactoryTest {
     assertEquals(expectedReqs2, reqs2);
     assertEquals(expectedDependencies2, root);
 
-    Set<MarketDataRequirement> reqs3 = new HashSet<>();
-    MarketDataEnvironmentFactory.removeLeaves(root, reqs3);
+    Set<MarketDataRequirement> reqs3 = MarketDataEnvironmentFactory.removeLeaves(root);
     Set<MarketDataRequirement> expectedReqs3 =
         ImmutableSet.<MarketDataRequirement>of(SingleValueRequirement.of(new CurveId("curve1")));
     MarketDataNode expectedDependencies3 = rootNode();
@@ -103,7 +101,6 @@ public class MarketDataEnvironmentFactoryTest {
     return LocalDateRange.of(LocalDate.of(year1, month1, date1), LocalDate.of(year2, month2, date2), true);
   }
 
-  @Test
   public void buildDependencyRoot() {
     Set<MarketDataRequirement> reqs =
         ImmutableSet.<MarketDataRequirement>of(SingleValueRequirement.of(new RawId("1")),
@@ -127,7 +124,6 @@ public class MarketDataEnvironmentFactoryTest {
     assertEquals(expectedRoot, root);
   }
 
-  @Test
   public void buildSingleValues() {
     Set<MarketDataRequirement> reqs =
         ImmutableSet.<MarketDataRequirement>of(SingleValueRequirement.of(new RawId("1")),
@@ -138,7 +134,11 @@ public class MarketDataEnvironmentFactoryTest {
                                                                             new RawBuilder(),
                                                                             new SecurityBuilder());
     MarketDataEnvironment env = new MarketDataEnvironmentBuilder().valuationTime(ZonedDateTime.now()).build();
-    MarketDataBundle builtBundle = builder.build(env, reqs, EmptyMarketDataSpec.INSTANCE, ZonedDateTime.now()).toBundle();
+    MarketDataBundle builtBundle = builder.build(env,
+                                                 reqs,
+                                                 ImmutableList.<SinglePerturbationMapping>of(),
+                                                 EmptyMarketDataSpec.INSTANCE,
+                                                 ZonedDateTime.now()).toBundle();
 
     assertEquals(1d, builtBundle.get(new RawId("1"), Double.class).getValue());
     assertEquals(1d, builtBundle.get(new SecurityId("sec", "1"), Double.class).getValue());
@@ -155,7 +155,6 @@ public class MarketDataEnvironmentFactoryTest {
     assertFalse(raw4Result.isSuccess());
   }
 
-  @Test
   public void buildSingleTimeSeries() {
     MarketDataEnvironmentFactory builder = new MarketDataEnvironmentFactory(new CompositeMarketDataFactory(),
                                                                             new CurveBuilder(),
@@ -167,6 +166,7 @@ public class MarketDataEnvironmentFactoryTest {
     MarketDataEnvironment empty = MarketDataEnvironmentBuilder.empty();
     MarketDataEnvironment env = builder.build(empty,
                                               ImmutableSet.<MarketDataRequirement>of(req),
+                                              ImmutableList.<SinglePerturbationMapping>of(),
                                               EmptyMarketDataSpec.INSTANCE,
                                               ZonedDateTime.now());
     DateTimeSeries<LocalDate, ?> timeSeries = env.getTimeSeries().get(req.getMarketDataId());
@@ -184,7 +184,6 @@ public class MarketDataEnvironmentFactoryTest {
    * tests that two time series for the same ID are correctly merged when they overlap
    * TODO need to test this works when they're built in different phases (which hasn't been implemented yet)
    */
-  @Test
   public void buildOverlappingTimeSeries() {
     LocalDate start1 = LocalDate.of(2010, 6, 17);
     LocalDate end1 = LocalDate.of(2012, 4, 18);
@@ -201,7 +200,11 @@ public class MarketDataEnvironmentFactoryTest {
                                                                             new SecurityBuilder());
     Set<MarketDataRequirement> reqs = ImmutableSet.<MarketDataRequirement>of(req1, req2);
     MarketDataEnvironment empty = MarketDataEnvironmentBuilder.empty();
-    MarketDataEnvironment env = builder.build(empty, reqs, EmptyMarketDataSpec.INSTANCE, empty.getValuationTime());
+    MarketDataEnvironment env = builder.build(empty,
+                                              reqs,
+                                              ImmutableList.<SinglePerturbationMapping>of(),
+                                              EmptyMarketDataSpec.INSTANCE,
+                                              empty.getValuationTime());
     DateTimeSeries<LocalDate, ?> timeSeries = env.getTimeSeries().get(id);
     assertNotNull(timeSeries);
     assertEquals(start1, timeSeries.getEarliestTime());
@@ -216,7 +219,6 @@ public class MarketDataEnvironmentFactoryTest {
   /**
    * tests that two time series for the same ID are correctly merged when they don't overlap
    */
-  @Test
   public void buildDisjointTimeSeries() {
     LocalDate start1 = LocalDate.of(2010, 6, 17);
     LocalDate end1 = LocalDate.of(2011, 4, 18);
@@ -233,7 +235,11 @@ public class MarketDataEnvironmentFactoryTest {
                                                                             new SecurityBuilder());
     Set<MarketDataRequirement> reqs = ImmutableSet.<MarketDataRequirement>of(req1, req2);
     MarketDataEnvironment empty = MarketDataEnvironmentBuilder.empty();
-    MarketDataEnvironment env = builder.build(empty, reqs, EmptyMarketDataSpec.INSTANCE, ZonedDateTime.now());
+    MarketDataEnvironment env = builder.build(empty,
+                                              reqs,
+                                              ImmutableList.<SinglePerturbationMapping>of(),
+                                              EmptyMarketDataSpec.INSTANCE,
+                                              ZonedDateTime.now());
     DateTimeSeries<LocalDate, ?> timeSeries = env.getTimeSeries().get(id);
     assertNotNull(timeSeries);
     assertEquals(start1, timeSeries.getEarliestTime());
@@ -258,7 +264,6 @@ public class MarketDataEnvironmentFactoryTest {
    * are recorded, they are ignored if the data is in the supplied data. therefore there should never be
    * a requirement for supplied data as the direct child of the root node in the tree.
    */
-  @Test
   public void suppliedDataNotInRequirementTree() {
     // date range is greater than the required data, shouldn't be a requirement in the tree
     // required range: 2010-6-3 to 2011-6-3
@@ -470,7 +475,8 @@ class RawBuilder implements MarketDataBuilder {
   public Map<SingleValueRequirement, Result<?>> buildSingleValues(MarketDataBundle marketDataBundle,
                                                                   ZonedDateTime valuationTime,
                                                                   Set<SingleValueRequirement> requirements,
-                                                                  MarketDataSource marketDataSource) {
+                                                                  MarketDataSource marketDataSource,
+                                                                  CyclePerturbations cyclePerturbations) {
     Map<SingleValueRequirement, Result<?>> results = new HashMap<>();
 
     for (SingleValueRequirement requirement : requirements) {
@@ -499,7 +505,8 @@ class RawBuilder implements MarketDataBuilder {
   public Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
       MarketDataBundle marketDataBundle,
       Set<TimeSeriesRequirement> requirements,
-      MarketDataSource marketDataSource) {
+      MarketDataSource marketDataSource,
+      CyclePerturbations cyclePerturbations) {
 
     Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> results = new HashMap<>();
 
@@ -569,7 +576,8 @@ class CurveBuilder implements MarketDataBuilder {
   public Map<SingleValueRequirement, Result<?>> buildSingleValues(MarketDataBundle marketDataBundle,
                                                                   ZonedDateTime valuationTime,
                                                                   Set<SingleValueRequirement> requirements,
-                                                                  MarketDataSource marketDataSource) {
+                                                                  MarketDataSource marketDataSource,
+                                                                  CyclePerturbations cyclePerturbations) {
     Map<SingleValueRequirement, Result<?>> results = new HashMap<>();
 
     for (SingleValueRequirement requirement : requirements) {
@@ -603,7 +611,8 @@ class CurveBuilder implements MarketDataBuilder {
   public Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
       MarketDataBundle marketDataBundle,
       Set<TimeSeriesRequirement> requirements,
-      MarketDataSource marketDataSource) {
+      MarketDataSource marketDataSource,
+      CyclePerturbations cyclePerturbations) {
 
     return Collections.emptyMap();
   }
@@ -634,7 +643,8 @@ class SecurityBuilder implements MarketDataBuilder {
   public Map<SingleValueRequirement, Result<?>> buildSingleValues(MarketDataBundle marketDataBundle,
                                                                   ZonedDateTime valuationTime,
                                                                   Set<SingleValueRequirement> requirements,
-                                                                  MarketDataSource marketDataSource) {
+                                                                  MarketDataSource marketDataSource,
+                                                                  CyclePerturbations cyclePerturbations) {
     Map<SingleValueRequirement, Result<?>> results = new HashMap<>();
 
     for (SingleValueRequirement requirement : requirements) {
@@ -652,7 +662,8 @@ class SecurityBuilder implements MarketDataBuilder {
   public Map<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> buildTimeSeries(
       MarketDataBundle marketDataBundle,
       Set<TimeSeriesRequirement> requirements,
-      MarketDataSource marketDataSource) {
+      MarketDataSource marketDataSource,
+      CyclePerturbations cyclePerturbations) {
 
     return Collections.emptyMap();
   }
