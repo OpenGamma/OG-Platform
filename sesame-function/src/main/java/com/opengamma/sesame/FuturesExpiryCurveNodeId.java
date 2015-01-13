@@ -24,7 +24,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.YearMonth;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * A curve node ID for a futures node.
@@ -49,20 +48,17 @@ public final class FuturesExpiryCurveNodeId implements CurveNodeId, ImmutableBea
     return new FuturesExpiryCurveNodeId(YearMonth.of(year, month));
   }
 
+  // TODO Java 8 - use stream().map()
   /**
-   * Returns IDs for curve nodes for futures with the specified expiries.
+   * Returns a list of IDs for futures with the specified expiries.
    *
-   * @param expiry the expiry of the first curve node
-   * @param otherExpiries expiries of the other curve nodes
+   * @param expiries expiries of the other curve nodes
    * @return IDs for curve nodes for futures with the specified expiries
    */
-  public static List<FuturesExpiryCurveNodeId> of(YearMonth expiry, YearMonth... otherExpiries) {
-    ArgumentChecker.notNull(expiry, "expiry");
-
+  public static List<FuturesExpiryCurveNodeId> listOf(YearMonth... expiries) {
     ImmutableList.Builder<FuturesExpiryCurveNodeId> builder = ImmutableList.builder();
-    builder.add(new FuturesExpiryCurveNodeId(expiry));
 
-    for (YearMonth otherExpiry : otherExpiries) {
+    for (YearMonth otherExpiry : expiries) {
       builder.add(new FuturesExpiryCurveNodeId(otherExpiry));
     }
     return builder.build();

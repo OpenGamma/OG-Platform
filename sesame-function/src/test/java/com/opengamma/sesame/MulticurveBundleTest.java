@@ -45,9 +45,9 @@ public class MulticurveBundleTest {
     multicurve.setCurve(Currency.EUR, eurDiscountingYieldCurve);
     multicurve.setCurve(Currency.GBP, gbpDiscountingYieldCurve);
     List<TenorCurveNodeId> usdTenors =
-        TenorCurveNodeId.of(Tenor.ONE_MONTH, Tenor.ONE_YEAR, Tenor.TWO_YEARS, Tenor.FIVE_YEARS);
+        TenorCurveNodeId.listOf(Tenor.ONE_MONTH, Tenor.ONE_YEAR, Tenor.TWO_YEARS, Tenor.FIVE_YEARS);
     List<FuturesExpiryCurveNodeId> eurExpiries =
-        FuturesExpiryCurveNodeId.of(YearMonth.of(2015, 3), YearMonth.of(2015, 6), YearMonth.of(2015, 9));
+        FuturesExpiryCurveNodeId.listOf(YearMonth.of(2015, 3), YearMonth.of(2015, 6), YearMonth.of(2015, 9));
     List<CurveNodeId> gbpExpiries =
         ImmutableList.<CurveNodeId>builder()
             .add(TenorCurveNodeId.of(Tenor.ONE_MONTH))
@@ -85,7 +85,7 @@ public class MulticurveBundleTest {
     MulticurveProviderDiscount multicurve = new MulticurveProviderDiscount();
     multicurve.setCurve(Currency.USD, usdDiscountingYieldCurve);
     List<? extends CurveNodeId> usdTenors =
-        TenorCurveNodeId.of(Tenor.ONE_MONTH, Tenor.ONE_YEAR, Tenor.ONE_YEAR, Tenor.FIVE_YEARS);
+        TenorCurveNodeId.listOf(Tenor.ONE_MONTH, Tenor.ONE_YEAR, Tenor.ONE_YEAR, Tenor.FIVE_YEARS);
     Map<String, List<? extends CurveNodeId>> curveNodeIds =
         ImmutableMap.<String, List<? extends CurveNodeId>>of(usdDiscounting, usdTenors);
     new MulticurveBundle(multicurve, curveNodeIds, new CurveBuildingBlockBundle());

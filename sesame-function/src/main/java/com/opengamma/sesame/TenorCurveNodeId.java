@@ -23,7 +23,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -48,23 +47,15 @@ public final class TenorCurveNodeId implements CurveNodeId, ImmutableBean {
 
   // TODO Java 8 - use stream().map()
   /**
-   * Returns an ordered set of IDs for multiple tenors. The order of the items in the set is the same as
-   * the order of the arguments.
+   * Returns a list of IDs for multiple tenors.
    * 
-   * @param tenor1 a tenor
-   * @param tenor2 a tenor
-   * @param otherTenors more tenors
-   * @return a set containing the tenors in the same order as they appear in the arguments
-   * @throws IllegalArgumentException if there are duplicate tenors in the arguments
+   * @param tenors the tenors
+   * @return a list of IDs for the tenors
    */
-  public static List<TenorCurveNodeId> of(Tenor tenor1, Tenor tenor2, Tenor... otherTenors) {
-    ArgumentChecker.notNull(tenor1, "tenor1");
-    ArgumentChecker.notNull(tenor2, "tenor2");
-
+  public static List<TenorCurveNodeId> listOf(Tenor... tenors) {
     ImmutableList.Builder<TenorCurveNodeId> ids = ImmutableList.builder();
-    ids.add(of(tenor1)).add(of(tenor2));
 
-    for (Tenor tenor : otherTenors) {
+    for (Tenor tenor : tenors) {
       ids.add(of(tenor));
     }
     return ids.build();
