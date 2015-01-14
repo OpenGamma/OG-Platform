@@ -162,6 +162,7 @@ public class MulticurveMarketDataBuilder
                                                 DISCOUNTING_CALCULATOR,
                                                 CURVE_SENSITIVITY_CALCULATOR);
 
+    // TODO include curve node IDs - PLT-591
     return new MulticurveBundle(calibratedCurves.getFirst(), calibratedCurves.getSecond());
   }
 
