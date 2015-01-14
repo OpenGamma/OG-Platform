@@ -17,11 +17,12 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesExpSimpleMoneynessProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesExpStrikeProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesProviderInterface;
-import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesSmileProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -66,9 +67,14 @@ public class NormalSTIRFuturesSensitivityFDCalculator {
    */
   public MultipleCurrencyParameterSensitivity calculateSensitivity(final InstrumentDerivative instrument,
       final NormalSTIRFuturesProviderInterface normal) {
-    ArgumentChecker.isTrue((normal instanceof NormalSTIRFuturesSmileProviderDiscount ||
-        normal instanceof NormalSTIRFuturesExpSimpleMoneynessProviderDiscount),
-        "normal should contain MulticurveProviderDiscount");
+    Surface<Double, Double, Double> normalParameters;
+    if (normal instanceof NormalSTIRFuturesExpStrikeProviderDiscount) {
+      normalParameters = ((NormalSTIRFuturesExpStrikeProviderDiscount) normal).getNormalParameters();
+    } else if (normal instanceof NormalSTIRFuturesExpSimpleMoneynessProviderDiscount) {
+      normalParameters = ((NormalSTIRFuturesExpSimpleMoneynessProviderDiscount) normal).getNormalParameters();
+    } else {
+      throw new IllegalArgumentException("normal should contain MulticurveProviderDiscount");
+    }
     
     MultipleCurrencyParameterSensitivity result = new MultipleCurrencyParameterSensitivity();
     final MultipleCurrencyAmount pvInit = instrument.accept(_valueCalculator, normal);
@@ -91,17 +97,17 @@ public class NormalSTIRFuturesSensitivityFDCalculator {
         final double[] yieldBumpedPlus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedPlus[loopnode] += _shift;
         final YieldAndDiscountCurve dscBumpedPlus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedPlus, curveInt.getInterpolator(), true));
-        final NormalSTIRFuturesSmileProviderDiscount marketDscBumpedPlus = new NormalSTIRFuturesSmileProviderDiscount(
+        final NormalSTIRFuturesExpStrikeProviderDiscount marketDscBumpedPlus = new NormalSTIRFuturesExpStrikeProviderDiscount(
             ((MulticurveProviderDiscount) normal.getMulticurveProvider()).withDiscountFactor(ccy, dscBumpedPlus),
-            normal.getNormalParameters(), normal.getFuturesIndex());
+            normalParameters, normal.getFuturesIndex());
         final MultipleCurrencyAmount pvBumpedPlus = instrument.accept(_valueCalculator, marketDscBumpedPlus);
         final double[] yieldBumpedMinus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedMinus[loopnode] -= _shift;
         final YieldAndDiscountCurve dscBumpedMinus = new YieldCurve(curveInt.getName(),
             new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus, curveInt.getInterpolator(), true));
-        final NormalSTIRFuturesSmileProviderDiscount marketDscBumpedMinus = new NormalSTIRFuturesSmileProviderDiscount(
+        final NormalSTIRFuturesExpStrikeProviderDiscount marketDscBumpedMinus = new NormalSTIRFuturesExpStrikeProviderDiscount(
             ((MulticurveProviderDiscount) normal.getMulticurveProvider()).withDiscountFactor(ccy, dscBumpedMinus),
-            normal.getNormalParameters(), normal.getFuturesIndex());
+            normalParameters, normal.getFuturesIndex());
         final MultipleCurrencyAmount pvBumpedMinus = instrument.accept(_valueCalculator, marketDscBumpedMinus);
         final MultipleCurrencyAmount pvDiff = pvBumpedPlus.plus(pvBumpedMinus.multipliedBy(-1.0));
         for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
@@ -127,17 +133,17 @@ public class NormalSTIRFuturesSensitivityFDCalculator {
         final double[] yieldBumpedPlus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedPlus[loopnode] += _shift;
         final YieldAndDiscountCurve dscBumpedPlus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedPlus, curveInt.getInterpolator(), true));
-        final NormalSTIRFuturesSmileProviderDiscount marketFwdBumpedPlus = new NormalSTIRFuturesSmileProviderDiscount(
+        final NormalSTIRFuturesExpStrikeProviderDiscount marketFwdBumpedPlus = new NormalSTIRFuturesExpStrikeProviderDiscount(
             ((MulticurveProviderDiscount) normal.getMulticurveProvider()).withForward(index, dscBumpedPlus),
-            normal.getNormalParameters(), normal.getFuturesIndex());
+            normalParameters, normal.getFuturesIndex());
         final MultipleCurrencyAmount pvBumpedPlus = instrument.accept(_valueCalculator, marketFwdBumpedPlus);
         final double[] yieldBumpedMinus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedMinus[loopnode] -= _shift;
         final YieldAndDiscountCurve dscBumpedMinus = new YieldCurve(curveInt.getName(),
             new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus, curveInt.getInterpolator(), true));
-        final NormalSTIRFuturesSmileProviderDiscount marketFwdBumpedMinus = new NormalSTIRFuturesSmileProviderDiscount(
+        final NormalSTIRFuturesExpStrikeProviderDiscount marketFwdBumpedMinus = new NormalSTIRFuturesExpStrikeProviderDiscount(
             ((MulticurveProviderDiscount) normal.getMulticurveProvider()).withForward(index, dscBumpedMinus),
-            normal.getNormalParameters(), normal.getFuturesIndex());
+            normalParameters, normal.getFuturesIndex());
         final MultipleCurrencyAmount pvBumpedMinus = instrument.accept(_valueCalculator, marketFwdBumpedMinus);
         final MultipleCurrencyAmount pvDiff = pvBumpedPlus.plus(pvBumpedMinus.multipliedBy(-1.0));
         for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
@@ -163,17 +169,17 @@ public class NormalSTIRFuturesSensitivityFDCalculator {
         final double[] yieldBumpedPlus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedPlus[loopnode] += _shift;
         final YieldAndDiscountCurve dscBumpedPlus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedPlus, curveInt.getInterpolator(), true));
-        final NormalSTIRFuturesSmileProviderDiscount marketFwdBumpedPlus = new NormalSTIRFuturesSmileProviderDiscount(
+        final NormalSTIRFuturesExpStrikeProviderDiscount marketFwdBumpedPlus = new NormalSTIRFuturesExpStrikeProviderDiscount(
             ((MulticurveProviderDiscount) normal.getMulticurveProvider()).withForward(index, dscBumpedPlus),
-            normal.getNormalParameters(), normal.getFuturesIndex());
+            normalParameters, normal.getFuturesIndex());
         final MultipleCurrencyAmount pvBumpedPlus = instrument.accept(_valueCalculator, marketFwdBumpedPlus);
         final double[] yieldBumpedMinus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedMinus[loopnode] -= _shift;
         final YieldAndDiscountCurve dscBumpedMinus = new YieldCurve(curveInt.getName(),
             new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus, curveInt.getInterpolator(), true));
-        final NormalSTIRFuturesSmileProviderDiscount marketFwdBumpedMinus = new NormalSTIRFuturesSmileProviderDiscount(
+        final NormalSTIRFuturesExpStrikeProviderDiscount marketFwdBumpedMinus = new NormalSTIRFuturesExpStrikeProviderDiscount(
             ((MulticurveProviderDiscount) normal.getMulticurveProvider()).withForward(index, dscBumpedMinus),
-            normal.getNormalParameters(), normal.getFuturesIndex());
+            normalParameters, normal.getFuturesIndex());
         final MultipleCurrencyAmount pvBumpedMinus = instrument.accept(_valueCalculator, marketFwdBumpedMinus);
         final MultipleCurrencyAmount pvDiff = pvBumpedPlus.plus(pvBumpedMinus.multipliedBy(-1.0));
         for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {

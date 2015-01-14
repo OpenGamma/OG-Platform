@@ -22,8 +22,8 @@ import com.opengamma.analytics.financial.provider.description.MulticurveProvider
 import com.opengamma.analytics.financial.provider.description.NormalDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesExpSimpleMoneynessProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesExpStrikeProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesProviderInterface;
-import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesSmileProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.normalstirfutures.NormalSTIRFuturesSensitivityFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
@@ -104,7 +104,7 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
    * Tests below use NormalSTIRFuturesSmileProviderDiscount 
    */
   private static final InterpolatedDoublesSurface NORMAL_PARAMETERS = NormalDataSets.createNormalSurfaceFuturesPrices();
-  private static final NormalSTIRFuturesSmileProviderDiscount NORMAL_MULTICURVES = new NormalSTIRFuturesSmileProviderDiscount(
+  private static final NormalSTIRFuturesExpStrikeProviderDiscount NORMAL_MULTICURVES = new NormalSTIRFuturesExpStrikeProviderDiscount(
       MULTICURVES, NORMAL_PARAMETERS, EURIBOR3M);
 
   /**
@@ -155,8 +155,10 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
   public void priceNormalSensitivity() {
     final InterpolatedDoublesSurface normalParameterPlus = NormalDataSets.createNormalSurfaceFuturesPricesShift(VOL_SHIFT);
     final InterpolatedDoublesSurface NormalParameterMinus = NormalDataSets.createNormalSurfaceFuturesPricesShift(-VOL_SHIFT);
-    final NormalSTIRFuturesSmileProviderDiscount blackPlus = new NormalSTIRFuturesSmileProviderDiscount(MULTICURVES, normalParameterPlus, EURIBOR3M);
-    final NormalSTIRFuturesSmileProviderDiscount blackMinus = new NormalSTIRFuturesSmileProviderDiscount(MULTICURVES, NormalParameterMinus, EURIBOR3M);
+    final NormalSTIRFuturesExpStrikeProviderDiscount blackPlus = new NormalSTIRFuturesExpStrikeProviderDiscount(
+        MULTICURVES, normalParameterPlus, EURIBOR3M);
+    final NormalSTIRFuturesExpStrikeProviderDiscount blackMinus = new NormalSTIRFuturesExpStrikeProviderDiscount(
+        MULTICURVES, NormalParameterMinus, EURIBOR3M);
     final double pricePlus = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, blackPlus);
     final double priceMinus = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, blackMinus);
     final double priceSensiExpected = (pricePlus - priceMinus) / (2 * VOL_SHIFT);
