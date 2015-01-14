@@ -17,8 +17,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Implementation of a provider of normal volatility (Bachelier model) smile for options on STIR futures. The volatility is time to expiration/strike/delay dependent.
- * The "delay" is the time between expiration of the option and last trading date of the underlying futures.
+ * Implementation of a provider of normal volatility (Bachelier model) smile for options on STIR futures. The volatility is time to expiration/strike dependent.
+ * The simple moneyness is computed as the difference between the strikePrice and the futuresPrice.
  */
 public class NormalSTIRFuturesExpSimpleMoneynessProvider implements NormalSTIRFuturesProviderInterface {
   /**
@@ -56,9 +56,10 @@ public class NormalSTIRFuturesExpSimpleMoneynessProvider implements NormalSTIRFu
   }
 
   @Override
-  public double getVolatility(final double expiry, final double delay, final double strike, final double futuresPrice) {
-    //TODO: delay is not used.
-    double simpleMoneyness = strike - futuresPrice;
+  public double getVolatility(final double expiry, final double delay, final double strikePrice,
+      final double futuresPrice) {
+    // delay is not used.
+    double simpleMoneyness = futuresPrice - strikePrice; // rateStrike - rateFuture
     return _parameters.getZValue(expiry, simpleMoneyness);
   }
 
@@ -72,7 +73,10 @@ public class NormalSTIRFuturesExpSimpleMoneynessProvider implements NormalSTIRFu
     return _multicurveProvider;
   }
 
-  @Override
+  /**
+   * Returns the Normal parameters.
+   * @return The parameters.
+   */
   public Surface<Double, Double, Double> getNormalParameters() {
     return _parameters;
   }

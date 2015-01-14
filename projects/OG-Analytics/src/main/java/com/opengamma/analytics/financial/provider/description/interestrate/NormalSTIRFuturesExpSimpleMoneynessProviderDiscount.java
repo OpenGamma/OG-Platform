@@ -10,7 +10,7 @@ import com.opengamma.analytics.math.surface.Surface;
 
 
 /**
- * Implementation of a provider of normal volatility (Bachelier model) smile for options on STIR futures. The volatility is time to expiration/strike/delay dependent. 
+ * Implementation of a provider of normal volatility (Bachelier model) smile for options on STIR futures. The volatility is time to expiration/strike dependent. 
  */
 public class NormalSTIRFuturesExpSimpleMoneynessProviderDiscount extends NormalSTIRFuturesExpSimpleMoneynessProvider {
 

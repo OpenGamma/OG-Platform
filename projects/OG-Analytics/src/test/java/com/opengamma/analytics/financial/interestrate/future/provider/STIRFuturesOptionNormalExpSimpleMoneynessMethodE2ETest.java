@@ -179,44 +179,48 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessMethodE2ETest {
   public void E2ETest() {
     double tol = 1.0e-10;
     MultipleCurrencyAmount pv = TRANSACTION_1.accept(PVNFC, NORMAL_MULTICURVES);
-    assertRelative("E2ETest, pv", 1189734.293087415, pv.getAmount(EUR), tol);
+    assertRelative("E2ETest, pv", 861850.4996823109, pv.getAmount(EUR), tol);
 
     MultipleCurrencyParameterSensitivity bucketedPv01 = MQSBC.fromInstrument(TRANSACTION_1, NORMAL_MULTICURVES, BLOCK)
         .multipliedBy(BP1);
     // market quote sensitivity, thus nonzero values for discounting curve
-    final double[] deltaDsc = {-6.681814910274873E-5, -6.68179124557889E-5, 1.1067675326995871E-10,
-        -3.659004831944792E-9, -0.002559069255796561, -0.004543248930118119, -0.006070174362465463,
-        0.17856627277034381, -0.36866395741657765, 0.026433808708683, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-    final double[] deltaFwd = {-0.07822247297545455, 0.0016343368260916407, 7.181272105755398E-4, 0.016110904890595773,
-        212.0118812690386, -360.23071541957376, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity = new LinkedHashMap<>();
+     double[] deltaDsc = new double [] {-6.699625499005507E-5, -6.699601771230529E-5, 1.1097176565222359E-10,
+        -3.668758024917107E-9, -0.0025658905357422443, -0.004555359103668548, -0.006086354603993385,
+        0.17904224681155592, -0.3696466428416493, 0.026504268860874675, -7.840654172613281E-14, 9.633192325368143E-14,
+        3.080721153798044E-13, 2.4989987634531895E-13, 1.479886424366408E-13, 1.6993761653354066E-13 };
+    double[] deltaFwd = new double[] {-0.07843097744832121, 0.0016386932025324356, 7.200414013419107E-4,
+        0.016153849016546293, 212.57700563629456, -361.1909217716853, -2.2771335549327615E-11, 2.63862064877223E-12,
+        7.0640044230169935E-12, 1.4665415911199027E-12, 6.039106742059584E-12, 4.3654232078987675E-12,
+        3.962055990473498E-12, 4.319049695483522E-12, 3.0470051651095408E-12, 2.605778031824316E-12,
+        1.6592159214426629E-12 };
+     LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity = new LinkedHashMap<>();
     sensitivity.put(ObjectsPair.of(MULTICURVES.getName(EUR), EUR), new DoubleMatrix1D(deltaDsc));
     sensitivity.put(ObjectsPair.of(MULTICURVES.getName(EURIBOR3M), EUR), new DoubleMatrix1D(deltaFwd));
-    final MultipleCurrencyParameterSensitivity expectedbucket = new MultipleCurrencyParameterSensitivity(sensitivity);
+     MultipleCurrencyParameterSensitivity expectedbucket = new MultipleCurrencyParameterSensitivity(sensitivity);
     AssertSensitivityObjects.assertEquals("E2ETest, bucketed pv01", expectedbucket, bucketedPv01, tol);
 
     ReferenceAmount<Pair<String, Currency>> pv01 = TRANSACTION_1.accept(PV01CPC, NORMAL_MULTICURVES);
     // parameter sensitivity, thus null for discounting curve
-    assertRelative("E2ETest, positionDelta", -148.81208160968453,
+    assertRelative("E2ETest, pv01", -149.20874491438397,
         pv01.getMap().get(Pairs.of(MULTICURVES.getName(EURIBOR3M), EUR)), tol);
 
     Double positionDelta = TRANSACTION_1.accept(PDNFOC, NORMAL_MULTICURVES);
     Double positionGamma = TRANSACTION_1.accept(PGNFOC, NORMAL_MULTICURVES);
     Double positionTheta = TRANSACTION_1.accept(PTNFOC, NORMAL_MULTICURVES);
     Double positionVega = TRANSACTION_1.accept(PVNFOC, NORMAL_MULTICURVES);
-    assertRelative("E2ETest, positionDelta", 1510514.3880131498, positionDelta, tol);
-    assertRelative("E2ETest, positionGamma", 1209592.5342508554, positionGamma, tol);
-    assertRelative("E2ETest, positionTheta", -548474.7901402897, positionTheta, tol);
-    assertRelative("E2ETest, positionVega", 1243415.3926702284, positionVega, tol);
+    assertRelative("E2ETest, positionDelta", 1514540.7118335292, positionDelta, tol);
+    assertRelative("E2ETest, positionGamma", 1672748.1927204835, positionGamma, tol);
+    assertRelative("E2ETest, positionTheta", -396583.47181617195, positionTheta, tol);
+    assertRelative("E2ETest, positionVega", 1243371.6048490028, positionVega, tol);
 
     Double delta = TRANSACTION_1.accept(DNFOC, NORMAL_MULTICURVES);
     Double gamma = TRANSACTION_1.accept(GNFOC, NORMAL_MULTICURVES);
     Double theta = TRANSACTION_1.accept(TNFOC, NORMAL_MULTICURVES);
     Double vega = TRANSACTION_1.accept(VNFOC, NORMAL_MULTICURVES);
-    assertRelative("E2ETest, delta", 0.5035047960043832, delta, tol);
-    assertRelative("E2ETest, gamma", 0.40319751141695176, gamma, tol);
-    assertRelative("E2ETest, theta", -0.18282493004676323, theta, tol);
-    assertRelative("E2ETest, vega", 0.4144717975567428, vega, tol);
+    assertRelative("E2ETest, delta", 0.5048469039445097, delta, tol);
+    assertRelative("E2ETest, gamma", 0.5575827309068279, gamma, tol);
+    assertRelative("E2ETest, theta", -0.13219449060539065, theta, tol);
+    assertRelative("E2ETest, vega", 0.4144572016163343, vega, tol);
   }
 
   /**
