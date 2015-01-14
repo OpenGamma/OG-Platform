@@ -12,6 +12,18 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Builder which provides a fluent API for creating instances of {@link MulticurvePointShift}.
+ * <p>
+ * This provides a natural way to add multiple shifts without having to create a map containing the shifts.
+ * <p>
+ * Example usage:
+ * <pre>
+ *    MulticurvePointShift shift =
+ *      MulticurvePointShiftBuilder.absolute()
+ *        .shift(TenorCurveNodeId.of(Tenor.ONE_YEAR), 0.001)
+ *        .shift(TenorCurveNodeId.of(Tenor.TWO_YEARS), 0.002)
+ *        .shift(TenorCurveNodeId.of(Tenor.FIVE_YEARS), 0.002)
+ *        .build();
+ * </pre>
  */
 public class MulticurvePointShiftBuilder {
 
@@ -45,7 +57,15 @@ public class MulticurvePointShiftBuilder {
   }
 
   /**
-   * Adds a shift to the builder.
+   * Adds a shift to the builder. This method can be invoked multiple times to add multiple shifts:
+   * <pre>
+   *    MulticurvePointShift shift =
+   *      MulticurvePointShiftBuilder.absolute()
+   *        .shift(TenorCurveNodeId.of(Tenor.ONE_YEAR), 0.001)
+   *        .shift(TenorCurveNodeId.of(Tenor.TWO_YEARS), 0.002)
+   *        .shift(TenorCurveNodeId.of(Tenor.FIVE_YEARS), 0.002)
+   *        .build();
+   * </pre>
    *
    * @param curveNodeId the ID of the curve node to which the shift should be applied
    * @param shiftAmount the amount to shift the node's value

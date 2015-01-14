@@ -84,4 +84,52 @@ public class MulticurvePointShiftTest {
     assertEquals(3d, shiftedCurve.getInterestRate(2d));
     assertEquals(4.8, shiftedCurve.getInterestRate(5d));
   }
+
+  public void applyNoAbsoluteShifts() {
+    double[] xData = {0.1, 1, 2, 5};
+    double[] yData = {1, 2, 3, 4};
+    InterpolatedDoublesCurve doublesCurve = InterpolatedDoublesCurve.from(xData, yData, new LinearInterpolator1D());
+    String curveName = "curveName";
+    YieldCurve yieldCurve = new YieldCurve(curveName, doublesCurve);
+    MulticurveProviderDiscount multicurve = new MulticurveProviderDiscount();
+    multicurve.setCurve(Currency.USD, yieldCurve);
+    List<TenorCurveNodeId> tenors =
+        TenorCurveNodeId.listOf(Tenor.ONE_MONTH, Tenor.ONE_YEAR, Tenor.TWO_YEARS, Tenor.FIVE_YEARS);
+    Map<String, List<? extends CurveNodeId>> curveNodeIds = ImmutableMap.of();
+        ImmutableMap.<String, List<? extends CurveNodeId>>of(curveName, tenors);
+    MulticurveBundle bundle = new MulticurveBundle(multicurve, curveNodeIds, new CurveBuildingBlockBundle());
+    MulticurvePointShift shift = MulticurvePointShiftBuilder.absolute().build();
+
+    MulticurveBundle shiftedBundle = (MulticurveBundle) shift.apply(bundle, StandardMatchDetails.multicurve(curveName));
+    YieldAndDiscountCurve shiftedCurve = shiftedBundle.getMulticurveProvider().getDiscountingCurves().get(Currency.USD);
+    assertEquals(curveName, shiftedCurve.getName());
+    assertEquals(1d, shiftedCurve.getInterestRate(0.1));
+    assertEquals(2d, shiftedCurve.getInterestRate(1d));
+    assertEquals(3d, shiftedCurve.getInterestRate(2d));
+    assertEquals(4d, shiftedCurve.getInterestRate(5d));
+  }
+
+  public void applyNoRelativeShifts() {
+    double[] xData = {0.1, 1, 2, 5};
+    double[] yData = {1, 2, 3, 4};
+    InterpolatedDoublesCurve doublesCurve = InterpolatedDoublesCurve.from(xData, yData, new LinearInterpolator1D());
+    String curveName = "curveName";
+    YieldCurve yieldCurve = new YieldCurve(curveName, doublesCurve);
+    MulticurveProviderDiscount multicurve = new MulticurveProviderDiscount();
+    multicurve.setCurve(Currency.USD, yieldCurve);
+    List<TenorCurveNodeId> tenors =
+        TenorCurveNodeId.listOf(Tenor.ONE_MONTH, Tenor.ONE_YEAR, Tenor.TWO_YEARS, Tenor.FIVE_YEARS);
+    Map<String, List<? extends CurveNodeId>> curveNodeIds = ImmutableMap.of();
+        ImmutableMap.<String, List<? extends CurveNodeId>>of(curveName, tenors);
+    MulticurveBundle bundle = new MulticurveBundle(multicurve, curveNodeIds, new CurveBuildingBlockBundle());
+    MulticurvePointShift shift = MulticurvePointShiftBuilder.relative().build();
+
+    MulticurveBundle shiftedBundle = (MulticurveBundle) shift.apply(bundle, StandardMatchDetails.multicurve(curveName));
+    YieldAndDiscountCurve shiftedCurve = shiftedBundle.getMulticurveProvider().getDiscountingCurves().get(Currency.USD);
+    assertEquals(curveName, shiftedCurve.getName());
+    assertEquals(1d, shiftedCurve.getInterestRate(0.1));
+    assertEquals(2d, shiftedCurve.getInterestRate(1d));
+    assertEquals(3d, shiftedCurve.getInterestRate(2d));
+    assertEquals(4d, shiftedCurve.getInterestRate(5d));
+  }
 }
