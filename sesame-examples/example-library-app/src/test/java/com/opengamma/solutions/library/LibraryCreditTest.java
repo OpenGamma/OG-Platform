@@ -7,44 +7,25 @@ package com.opengamma.solutions.library;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.closeTo;
 
-import java.net.URI;
 import java.net.URL;
-import java.util.List;
 import java.util.Set;
 
-import org.hamcrest.core.Is;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.Sets;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
-import com.opengamma.sesame.config.ViewConfig;
-import com.opengamma.sesame.engine.CalculationArguments;
-import com.opengamma.sesame.engine.Engine;
-import com.opengamma.sesame.engine.RemoteEngine;
 import com.opengamma.sesame.engine.Results;
-import com.opengamma.sesame.marketdata.EmptyMarketDataSpec;
-import com.opengamma.sesame.marketdata.MarketDataEnvironment;
-import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.solutions.library.engine.EngineModule;
 import com.opengamma.solutions.library.storage.DataLoadModule;
 import com.opengamma.solutions.library.storage.InMemoryStorageModule;
 import com.opengamma.solutions.library.storage.SourcesModule;
 import com.opengamma.solutions.library.tool.CreditPricer;
-import com.opengamma.solutions.remote.RemoteTestUtils;
-import com.opengamma.solutions.util.CreditViewUtils;
-import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.time.DateUtils;
 
 /**
  * Integration tests using OG as a library

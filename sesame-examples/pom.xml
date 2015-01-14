@@ -19,7 +19,8 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>example-app</module>
+    <module>example-remote-app</module>
+    <module>example-library-app</module>
     <module>example-server</module>
     <module>example-data</module>
   </modules>

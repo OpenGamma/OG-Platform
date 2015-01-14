@@ -11,7 +11,7 @@
     <relativePath></relativePath>
   </parent>
   <groupId>com.opengamma.solutions</groupId>
-  <artifactId>example-app</artifactId>
+  <artifactId>example-library-app</artifactId>
   <version>0.6</version>
 
   <dependencies>
@@ -35,13 +35,6 @@
       <groupId>com.opengamma.solutions</groupId>
       <artifactId>example-data</artifactId>
       <version>0.6</version>
-    </dependency>
-
-    <!-- Database -->
-    <dependency>
-      <groupId>postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <version>9.1-901-1.jdbc4</version>
     </dependency>
 
     <!-- Guava -->
@@ -124,6 +117,8 @@
         <artifactId>joda-beans-maven-plugin</artifactId>
         <version>0.7.3</version>
       </plugin>
+
+
     </plugins>
   </build>
 

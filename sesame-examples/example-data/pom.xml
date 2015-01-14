@@ -14,6 +14,31 @@
   <artifactId>example-data</artifactId>
   <version>0.6</version>
 
+  <dependencies>
+    <!-- OG Platform -->
+    <dependency>
+      <groupId>com.opengamma.platform</groupId>
+      <artifactId>og-server</artifactId>
+      <version>${og.version}</version>
+      <type>pom</type>
+    </dependency>
+
+    <!-- New engine -->
+    <dependency>
+      <groupId>com.opengamma.platform</groupId>
+      <artifactId>sesame-component</artifactId>
+      <version>${og.version}</version>
+    </dependency>
+
+    <!-- Guava -->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>14.0.1</version>
+    </dependency>
+
+  </dependencies>
+
   <build>
     <resources>
       <resource>
@@ -45,5 +70,10 @@
 
     </plugins>
   </build>
+
+  <properties>
+    <og.version>2.9.0-SNAPSHOT</og.version>
+    <guice.version>3.0</guice.version>
+  </properties>
 
 </project>
