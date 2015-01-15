@@ -64,7 +64,7 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessExamplesData {
    * @return EXPIRY
    */
   public double[] getExpiry() {
-    return EXPIRY;
+    return EXPIRY.clone();
   }
 
   /**
@@ -72,7 +72,7 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessExamplesData {
    * @return SIMPLEMONEY
    */
   public double[] getSimpleMoneyness() {
-    return SIMPLEMONEY;
+    return SIMPLEMONEY.clone();
   }
 
   /**
@@ -80,7 +80,7 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessExamplesData {
    * @return VOL
    */
   public double[] getVolatility() {
-    return VOL;
+    return VOL.clone();
   }
 
   /**
@@ -88,7 +88,7 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessExamplesData {
    * @return TIME_GBP
    */
   public double[] getTimeGBP() {
-    return TIME_GBP;
+    return TIME_GBP.clone();
   }
 
   /**
@@ -96,7 +96,7 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessExamplesData {
    * @return RATE_GBP
    */
   public double[] getRateGBP() {
-    return RATE_GBP;
+    return RATE_GBP.clone();
   }
 
   /**
@@ -104,7 +104,7 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessExamplesData {
    * @return TIME_EUR
    */
   public double[] getTimeEUR() {
-    return TIME_EUR;
+    return TIME_EUR.clone();
   }
 
   /**
@@ -112,7 +112,7 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessExamplesData {
    * @return RATE_EUR
    */
   public double[] getRateEUR() {
-    return RATE_EUR;
+    return RATE_EUR.clone();
   }
 
   /**
