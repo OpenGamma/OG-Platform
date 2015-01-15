@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nullable;
+
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -131,14 +133,25 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
    */
   public void setName(String name) {
     _name = name;
+    _namePattern = createPattern(name);
+  }
 
+  /**
+   * Creates a pattern for matching document names using wildcards. Returns null if name is null or doesn't
+   * contain any wildcard characters.
+   *
+   * @param name the name to match against document names
+   * @return a pattern for matching documents by name or null if name is null or doesn't contain wildcard characters
+   */
+  @Nullable
+  private static Pattern createPattern(@Nullable String name) {
     if (name == null || !containsWildcards(name)) {
       // If the name doesn't contain wildcards there's no point creating a pattern.
       // This can slow things down unnecessarily when performing a large number of matches where the names
       // don't contains wildcards. This is common when using links.
-      _namePattern = null;
+      return null;
     } else {
-      _namePattern = RegexUtils.wildcardsToPattern(name);
+      return RegexUtils.wildcardsToPattern(name);
     }
   }
 
