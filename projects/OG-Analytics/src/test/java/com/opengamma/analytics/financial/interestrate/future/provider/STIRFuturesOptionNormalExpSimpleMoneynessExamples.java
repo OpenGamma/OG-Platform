@@ -247,10 +247,10 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessExamples {
   }
 
   /**
-   * Print volatility surface.
+   * Test volatility surface interpolation.
    */
   @Test
-  public void volatilitySurfaceSamplingPrintTest() {
+  public void volatilitySurfaceSamplingTest() {
     double expiry1 = 17.0 / 365.0;
     double moneyness1 = -0.0063;
     double interpolatedVol1 = VOL_SURFACE_SIMPLEMONEY.getZValue(expiry1, moneyness1);
@@ -260,6 +260,11 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessExamples {
     double moneyness2 = 0.0036;
     double interpolatedVol2 = VOL_SURFACE_SIMPLEMONEY.getZValue(expiry2, moneyness2);
     assertRelative("volatilitySurfaceSamplingPrintTest", 0.7228061226912788, interpolatedVol2, TOL);
+
+    double expiry3 = 25.0 / 365.0;
+    double moneyness3 = 0.005;
+    double interpolatedVol3 = VOL_SURFACE_SIMPLEMONEY.getZValue(expiry3, moneyness3);
+    assertRelative("volatilitySurfaceSamplingPrintTest", 0.8395130870530448, interpolatedVol3, TOL);
   }
 
   private void assertRelative(String message, double expected, double obtained, double relativeTol) {
