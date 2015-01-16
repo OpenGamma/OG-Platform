@@ -83,12 +83,10 @@
   </dependencies>
 
   <build>
+
     <resources>
       <resource>
-        <directory>config</directory>
-      </resource>
-      <resource>
-        <directory>resource</directory>
+        <directory>resources</directory>
       </resource>
     </resources>
 

@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fudgeEnvelope>
+   <uniqueId type="string">MemSnap~3</uniqueId>
+   <name type="string">Sample Credit Curve</name>
+   <creditCurves type="message">
+      <fudgeField1 ordinal="1" type="message">
+         <curveName type="string">Alcoa Inc</curveName>
+         <currency type="string">USD</currency>
+         <seniority type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.core.legalentity.SeniorityLevel</fudgeField0>
+            <fudgeField1 ordinal="1" type="string">SNRFOR</fudgeField1>
+         </seniority>
+         <restructuring type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.analytics.financial.credit.RestructuringClause</fudgeField0>
+            <fudgeField1 ordinal="1" type="string">XR</fudgeField1>
+         </restructuring>
+      </fudgeField1>
+      <fudgeField2 ordinal="2" type="message">
+         <curveConventionLink type="message">
+            <convention type="message">
+               <externalIdBundle type="message"/>
+               <attributes type="message"/>
+               <name type="string">USD Isda Credit Curve Convention</name>
+               <stepIn type="byte">1</stepIn>
+               <cashSettle type="byte">3</cashSettle>
+               <payAccOnDefault type="boolean">true</payAccOnDefault>
+               <couponInterval type="string">P3M</couponInterval>
+               <stubType type="message">
+                  <fudgeField0 ordinal="0" type="string">com.opengamma.analytics.financial.credit.isdastandardmodel.StubType</fudgeField0>
+                  <fudgeField1 ordinal="1" type="string">FRONTSHORT</fudgeField1>
+               </stubType>
+               <protectFromStartOfDay type="boolean">true</protectFromStartOfDay>
+               <businessDayConvention type="string">Following</businessDayConvention>
+               <regionId type="string">FINANCIAL_REGION~US</regionId>
+               <accrualDayCount type="string">Actual/360</accrualDayCount>
+               <curveDayCount type="string">Actual/365</curveDayCount>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.convention.IsdaCreditCurveConvention</fudgeField0>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.master.convention.ManageableConvention</fudgeField0>
+            </convention>
+            <fudgeField0 ordinal="0" type="string">com.opengamma.core.link.ResolvedConventionLink</fudgeField0>
+         </curveConventionLink>
+         <cdsQuotes type="message">
+            <fudgeField1 ordinal="1" type="string">P6M</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.002</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P1Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.004</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P2Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.006</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P3Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.008</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P4Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.01</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P5Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.012</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P7Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.014</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P10Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.016</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P20Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.018</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P30Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.02</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+         </cdsQuotes>
+         <recoveryRate type="double">0.4</recoveryRate>
+      </fudgeField2>
+      <fudgeField1 ordinal="1" type="message">
+         <curveName type="string">CocaCola Co</curveName>
+         <currency type="string">USD</currency>
+         <seniority type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.core.legalentity.SeniorityLevel</fudgeField0>
+            <fudgeField1 ordinal="1" type="string">SNRFOR</fudgeField1>
+         </seniority>
+         <restructuring type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.analytics.financial.credit.RestructuringClause</fudgeField0>
+            <fudgeField1 ordinal="1" type="string">XR</fudgeField1>
+         </restructuring>
+      </fudgeField1>
+      <fudgeField2 ordinal="2" type="message">
+         <curveConventionLink type="message">
+            <convention type="message">
+               <externalIdBundle type="message"/>
+               <attributes type="message"/>
+               <name type="string">USD Isda Credit Curve Convention</name>
+               <stepIn type="byte">1</stepIn>
+               <cashSettle type="byte">3</cashSettle>
+               <payAccOnDefault type="boolean">true</payAccOnDefault>
+               <couponInterval type="string">P3M</couponInterval>
+               <stubType type="message">
+                  <fudgeField0 ordinal="0" type="string">com.opengamma.analytics.financial.credit.isdastandardmodel.StubType</fudgeField0>
+                  <fudgeField1 ordinal="1" type="string">FRONTSHORT</fudgeField1>
+               </stubType>
+               <protectFromStartOfDay type="boolean">true</protectFromStartOfDay>
+               <businessDayConvention type="string">Following</businessDayConvention>
+               <regionId type="string">FINANCIAL_REGION~US</regionId>
+               <accrualDayCount type="string">Actual/360</accrualDayCount>
+               <curveDayCount type="string">Actual/365</curveDayCount>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.convention.IsdaCreditCurveConvention</fudgeField0>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.master.convention.ManageableConvention</fudgeField0>
+            </convention>
+            <fudgeField0 ordinal="0" type="string">com.opengamma.core.link.ResolvedConventionLink</fudgeField0>
+         </curveConventionLink>
+         <cdsQuotes type="message">
+            <fudgeField1 ordinal="1" type="string">P6M</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.002</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P1Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.004</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P2Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.006</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P3Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.008</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P4Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.01</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P5Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.012</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P7Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.014</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P10Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.016</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P20Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.018</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P30Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.02</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+         </cdsQuotes>
+         <recoveryRate type="double">0.4</recoveryRate>
+      </fudgeField2>
+      <fudgeField1 ordinal="1" type="message">
+         <curveName type="string">Pepsico Inc</curveName>
+         <currency type="string">USD</currency>
+         <seniority type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.core.legalentity.SeniorityLevel</fudgeField0>
+            <fudgeField1 ordinal="1" type="string">SNRFOR</fudgeField1>
+         </seniority>
+         <restructuring type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.analytics.financial.credit.RestructuringClause</fudgeField0>
+            <fudgeField1 ordinal="1" type="string">XR</fudgeField1>
+         </restructuring>
+      </fudgeField1>
+      <fudgeField2 ordinal="2" type="message">
+         <curveConventionLink type="message">
+            <convention type="message">
+               <externalIdBundle type="message"/>
+               <attributes type="message"/>
+               <name type="string">USD Isda Credit Curve Convention</name>
+               <stepIn type="byte">1</stepIn>
+               <cashSettle type="byte">3</cashSettle>
+               <payAccOnDefault type="boolean">true</payAccOnDefault>
+               <couponInterval type="string">P3M</couponInterval>
+               <stubType type="message">
+                  <fudgeField0 ordinal="0" type="string">com.opengamma.analytics.financial.credit.isdastandardmodel.StubType</fudgeField0>
+                  <fudgeField1 ordinal="1" type="string">FRONTSHORT</fudgeField1>
+               </stubType>
+               <protectFromStartOfDay type="boolean">true</protectFromStartOfDay>
+               <businessDayConvention type="string">Following</businessDayConvention>
+               <regionId type="string">FINANCIAL_REGION~US</regionId>
+               <accrualDayCount type="string">Actual/360</accrualDayCount>
+               <curveDayCount type="string">Actual/365</curveDayCount>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.convention.IsdaCreditCurveConvention</fudgeField0>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.master.convention.ManageableConvention</fudgeField0>
+            </convention>
+            <fudgeField0 ordinal="0" type="string">com.opengamma.core.link.ResolvedConventionLink</fudgeField0>
+         </curveConventionLink>
+         <cdsQuotes type="message">
+            <fudgeField1 ordinal="1" type="string">P6M</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.002</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P1Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.004</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P2Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.006</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P3Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.008</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P4Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.01</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P5Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.012</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P7Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.014</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P10Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.016</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P20Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.018</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P30Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.02</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+         </cdsQuotes>
+         <recoveryRate type="double">0.4</recoveryRate>
+      </fudgeField2>
+      <fudgeField1 ordinal="1" type="message">
+         <curveName type="string">Hess Corp</curveName>
+         <currency type="string">USD</currency>
+         <seniority type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.core.legalentity.SeniorityLevel</fudgeField0>
+            <fudgeField1 ordinal="1" type="string">SNRFOR</fudgeField1>
+         </seniority>
+         <restructuring type="message">
+            <fudgeField0 ordinal="0" type="string">com.opengamma.analytics.financial.credit.RestructuringClause</fudgeField0>
+            <fudgeField1 ordinal="1" type="string">XR</fudgeField1>
+         </restructuring>
+      </fudgeField1>
+      <fudgeField2 ordinal="2" type="message">
+         <curveConventionLink type="message">
+            <convention type="message">
+               <externalIdBundle type="message"/>
+               <attributes type="message"/>
+               <name type="string">USD Isda Credit Curve Convention</name>
+               <stepIn type="byte">1</stepIn>
+               <cashSettle type="byte">3</cashSettle>
+               <payAccOnDefault type="boolean">true</payAccOnDefault>
+               <couponInterval type="string">P3M</couponInterval>
+               <stubType type="message">
+                  <fudgeField0 ordinal="0" type="string">com.opengamma.analytics.financial.credit.isdastandardmodel.StubType</fudgeField0>
+                  <fudgeField1 ordinal="1" type="string">FRONTSHORT</fudgeField1>
+               </stubType>
+               <protectFromStartOfDay type="boolean">true</protectFromStartOfDay>
+               <businessDayConvention type="string">Following</businessDayConvention>
+               <regionId type="string">FINANCIAL_REGION~US</regionId>
+               <accrualDayCount type="string">Actual/360</accrualDayCount>
+               <curveDayCount type="string">Actual/365</curveDayCount>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.convention.IsdaCreditCurveConvention</fudgeField0>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.master.convention.ManageableConvention</fudgeField0>
+            </convention>
+            <fudgeField0 ordinal="0" type="string">com.opengamma.core.link.ResolvedConventionLink</fudgeField0>
+         </curveConventionLink>
+         <cdsQuotes type="message">
+            <fudgeField1 ordinal="1" type="string">P6M</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.002</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P1Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.004</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P2Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.006</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P3Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.008</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P4Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.01</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P5Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.012</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P7Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.014</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P10Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.016</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P20Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.018</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+            <fudgeField1 ordinal="1" type="string">P30Y</fudgeField1>
+            <fudgeField2 ordinal="2" type="message">
+               <parSpread type="double">0.02</parSpread>
+               <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.ParSpreadQuote</fudgeField0>
+            </fudgeField2>
+         </cdsQuotes>
+         <recoveryRate type="double">0.4</recoveryRate>
+      </fudgeField2>
+   </creditCurves>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.CreditCurveDataSnapshot</fudgeField0>
+</fudgeEnvelope>

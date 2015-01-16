@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fudgeEnvelope>
+   <uniqueId type="string">MemSec~1</uniqueId>
+   <externalIdBundle type="message">
+      <ID type="message">
+         <Scheme type="string">BLOOMBERG_BUID</Scheme>
+         <Value type="string">NI332078</Value>
+      </ID>
+      <ID type="message">
+         <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+         <Value type="string">FEDL01 Index</Value>
+      </ID>
+      <ID type="message">
+         <Scheme type="string">OG_TICKER</Scheme>
+         <Value type="string">USDFEDFUNDS</Value>
+      </ID>
+   </externalIdBundle>
+   <name type="string">USDFEDFUNDS</name>
+   <securityType type="string">OVERNIGHT_INDEX</securityType>
+   <attributes type="message"/>
+   <requiredPermissions type="message"/>
+   <indexFamilyId type="string">INDEX_FAMILY~USDFEDFUNDS</indexFamilyId>
+   <conventionId type="string">CONVENTION~USDFEDFUNDS</conventionId>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.security.index.OvernightIndex</fudgeField0>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.security.index.Index</fudgeField0>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.master.security.ManageableSecurity</fudgeField0>
+   <fudgeField0 ordinal="0" type="string">org.joda.beans.impl.direct.DirectBean</fudgeField0>
+</fudgeEnvelope>

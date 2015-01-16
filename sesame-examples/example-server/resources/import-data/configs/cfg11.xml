@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fudgeEnvelope>
+   <type type="string">com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition</type>
+   <name type="string">USD-OIS-FFS-LIN</name>
+   <uniqueId type="string">MemCfg~2~2</uniqueId>
+   <value type="message">
+      <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition</fudgeField0>
+      <uniqueId type="string">MemCfg~2~2</uniqueId>
+      <name type="string">USD-OIS-FFS-LIN</name>
+      <node type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.CashNode</fudgeField0>
+         <startTenor type="string">P0D</startTenor>
+         <maturityTenor type="string">OVERNIGHT</maturityTenor>
+         <convention type="string">CONVENTION~USDDepoON</convention>
+         <curveNodeIdMapper type="string">USD-Depo-BBG</curveNodeIdMapper>
+      </node>
+      <node type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.CashNode</fudgeField0>
+         <startTenor type="string">OVERNIGHT</startTenor>
+         <maturityTenor type="string">OVERNIGHT</maturityTenor>
+         <convention type="string">CONVENTION~USDDepoON</convention>
+         <curveNodeIdMapper type="string">USD-Depo-T+1-BBG</curveNodeIdMapper>
+      </node>
+      <node type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
+         <startTenor type="string">P0D</startTenor>
+         <maturityTenor type="string">P1M</maturityTenor>
+         <payLegConvention type="string">CONVENTION~USDFixed1Y_PayLag</payLegConvention>
+         <receiveLegConvention type="string">CONVENTION~USDFEDFUNDSCmp1Y</receiveLegConvention>
+         <curveNodeIdMapper type="string">USD-OIS-BBG</curveNodeIdMapper>
+         <useFixings type="boolean">true</useFixings>
+      </node>
+      <node type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
+         <startTenor type="string">P0D</startTenor>
+         <maturityTenor type="string">P2M</maturityTenor>
+         <payLegConvention type="string">CONVENTION~USDFixed1Y_PayLag</payLegConvention>
+         <receiveLegConvention type="string">CONVENTION~USDFEDFUNDSCmp1Y</receiveLegConvention>
+         <curveNodeIdMapper type="string">USD-OIS-BBG</curveNodeIdMapper>
+         <useFixings type="boolean">true</useFixings>
+      </node>
+      <node type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
+         <startTenor type="string">P0D</startTenor>
+         <maturityTenor type="string">P3M</maturityTenor>
+         <payLegConvention type="string">CONVENTION~USDFixed1Y_PayLag</payLegConvention>
+         <receiveLegConvention type="string">CONVENTION~USDFEDFUNDSCmp1Y</receiveLegConvention>
+         <curveNodeIdMapper type="string">USD-OIS-BBG</curveNodeIdMapper>
+         <useFixings type="boolean">true</useFixings>
+      </node>
+      <node type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
+         <startTenor type="string">P0D</startTenor>
+         <maturityTenor type="string">P6M</maturityTenor>
+         <payLegConvention type="string">CONVENTION~USDFixed1Y_PayLag</payLegConvention>
+         <receiveLegConvention type="string">CONVENTION~USDFEDFUNDSCmp1Y</receiveLegConvention>
+         <curveNodeIdMapper type="string">USD-OIS-BBG</curveNodeIdMapper>
+         <useFixings type="boolean">true</useFixings>
+      </node>
+      <node type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
+         <startTenor type="string">P0D</startTenor>
+         <maturityTenor type="string">P1Y</maturityTenor>
+         <payLegConvention type="string">CONVENTION~USDFixed1Y_PayLag</payLegConvention>
+         <receiveLegConvention type="string">CONVENTION~USDFEDFUNDSCmp1Y</receiveLegConvention>
+         <curveNodeIdMapper type="string">USD-OIS-BBG</curveNodeIdMapper>
+         <useFixings type="boolean">true</useFixings>
+      </node>
+      <node type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
+         <startTenor type="string">P0D</startTenor>
+         <maturityTenor type="string">P2Y</maturityTenor>
+         <payLegConvention type="string">CONVENTION~USDFEDFUNDSAA3M</payLegConvention>
+         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M_PayLag</receiveLegConvention>
+         <curveNodeIdMapper type="string">USD FFS-FFF BBG Mapper</curveNodeIdMapper>
+         <useFixings type="boolean">true</useFixings>
+      </node>
+      <node type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
+         <startTenor type="string">P0D</startTenor>
+         <maturityTenor type="string">P3Y</maturityTenor>
+         <payLegConvention type="string">CONVENTION~USDFEDFUNDSAA3M</payLegConvention>
+         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M</receiveLegConvention>
+         <curveNodeIdMapper type="string">USD FFS-FFF BBG Mapper</curveNodeIdMapper>
+         <useFixings type="boolean">true</useFixings>
+      </node>
+      <node type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
+         <startTenor type="string">P0D</startTenor>
+         <maturityTenor type="string">P4Y</maturityTenor>
+         <payLegConvention type="string">CONVENTION~USDFEDFUNDSAA3M</payLegConvention>
+         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M</receiveLegConvention>
+         <curveNodeIdMapper type="string">USD FFS-FFF BBG Mapper</curveNodeIdMapper>
+         <useFixings type="boolean">true</useFixings>
+      </node>
+      <node type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
+         <startTenor type="string">P0D</startTenor>
+         <maturityTenor type="string">P5Y</maturityTenor>
+         <payLegConvention type="string">CONVENTION~USDFEDFUNDSAA3M</payLegConvention>
+         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M</receiveLegConvention>
+         <curveNodeIdMapper type="string">USD FFS-FFF BBG Mapper</curveNodeIdMapper>
+         <useFixings type="boolean">true</useFixings>
+      </node>
+      <node type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
+         <startTenor type="string">P0D</startTenor>
+         <maturityTenor type="string">P6Y</maturityTenor>
+         <payLegConvention type="string">CONVENTION~USDFEDFUNDSAA3M</payLegConvention>
+         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M</receiveLegConvention>
+         <curveNodeIdMapper type="string">USD FFS-FFF BBG Mapper</curveNodeIdMapper>
+         <useFixings type="boolean">true</useFixings>
+      </node>
+      <node type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
+         <startTenor type="string">P0D</startTenor>
+         <maturityTenor type="string">P7Y</maturityTenor>
+         <payLegConvention type="string">CONVENTION~USDFEDFUNDSAA3M</payLegConvention>
+         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M</receiveLegConvention>
+         <curveNodeIdMapper type="string">USD FFS-FFF BBG Mapper</curveNodeIdMapper>
+         <useFixings type="boolean">true</useFixings>
+      </node>
+      <node type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
+         <startTenor type="string">P0D</startTenor>
+         <maturityTenor type="string">P8Y</maturityTenor>
+         <payLegConvention type="string">CONVENTION~USDFEDFUNDSAA3M</payLegConvention>
+         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M</receiveLegConvention>
+         <curveNodeIdMapper type="string">USD FFS-FFF BBG Mapper</curveNodeIdMapper>
+         <useFixings type="boolean">true</useFixings>
+      </node>
+      <node type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
+         <startTenor type="string">P0D</startTenor>
+         <maturityTenor type="string">P9Y</maturityTenor>
+         <payLegConvention type="string">CONVENTION~USDFEDFUNDSAA3M</payLegConvention>
+         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M</receiveLegConvention>
+         <curveNodeIdMapper type="string">USD FFS-FFF BBG Mapper</curveNodeIdMapper>
+         <useFixings type="boolean">true</useFixings>
+      </node>
+      <node type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
+         <startTenor type="string">P0D</startTenor>
+         <maturityTenor type="string">P10Y</maturityTenor>
+         <payLegConvention type="string">CONVENTION~USDFEDFUNDSAA3M</payLegConvention>
+         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M</receiveLegConvention>
+         <curveNodeIdMapper type="string">USD FFS-FFF BBG Mapper</curveNodeIdMapper>
+         <useFixings type="boolean">true</useFixings>
+      </node>
+      <node type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
+         <startTenor type="string">P0D</startTenor>
+         <maturityTenor type="string">P12Y</maturityTenor>
+         <payLegConvention type="string">CONVENTION~USDFEDFUNDSAA3M</payLegConvention>
+         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M</receiveLegConvention>
+         <curveNodeIdMapper type="string">USD FFS-FFF BBG Mapper</curveNodeIdMapper>
+         <useFixings type="boolean">true</useFixings>
+      </node>
+      <node type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
+         <startTenor type="string">P0D</startTenor>
+         <maturityTenor type="string">P15Y</maturityTenor>
+         <payLegConvention type="string">CONVENTION~USDFEDFUNDSAA3M</payLegConvention>
+         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M</receiveLegConvention>
+         <curveNodeIdMapper type="string">USD FFS-FFF BBG Mapper</curveNodeIdMapper>
+         <useFixings type="boolean">true</useFixings>
+      </node>
+      <node type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
+         <startTenor type="string">P0D</startTenor>
+         <maturityTenor type="string">P20Y</maturityTenor>
+         <payLegConvention type="string">CONVENTION~USDFEDFUNDSAA3M</payLegConvention>
+         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M</receiveLegConvention>
+         <curveNodeIdMapper type="string">USD FFS-FFF BBG Mapper</curveNodeIdMapper>
+         <useFixings type="boolean">true</useFixings>
+      </node>
+      <node type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
+         <startTenor type="string">P0D</startTenor>
+         <maturityTenor type="string">P25Y</maturityTenor>
+         <payLegConvention type="string">CONVENTION~USDFEDFUNDSAA3M</payLegConvention>
+         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M</receiveLegConvention>
+         <curveNodeIdMapper type="string">USD FFS-FFF BBG Mapper</curveNodeIdMapper>
+         <useFixings type="boolean">true</useFixings>
+      </node>
+      <node type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.strips.SwapNode</fudgeField0>
+         <startTenor type="string">P0D</startTenor>
+         <maturityTenor type="string">P30Y</maturityTenor>
+         <payLegConvention type="string">CONVENTION~USDFEDFUNDSAA3M</payLegConvention>
+         <receiveLegConvention type="string">CONVENTION~USDLIBOR3M</receiveLegConvention>
+         <curveNodeIdMapper type="string">USD FFS-FFF BBG Mapper</curveNodeIdMapper>
+         <useFixings type="boolean">true</useFixings>
+      </node>
+      <interpolatorName type="string">Linear</interpolatorName>
+      <rightExtrapolatorName type="string">FlatExtrapolator</rightExtrapolatorName>
+      <leftExtrapolatorName type="string">FlatExtrapolator</leftExtrapolatorName>
+   </value>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.core.config.impl.ConfigItem</fudgeField0>
+   <fudgeField0 ordinal="0" type="string">org.joda.beans.impl.direct.DirectBean</fudgeField0>
+</fudgeEnvelope>

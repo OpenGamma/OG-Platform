@@ -31,8 +31,8 @@ public class CurveBundleProviderTool {
   private static final Logger s_logger = LoggerFactory.getLogger(CurveBundleProviderTool.class);
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 10, 16);
   private static final String CURVE_CONSTRUCTION_CONFIGURATION = "USD_FF_DSCON-OISFFS_L3M-FRAIRS_L1M-BS_L6M-BS";
-  private static final String SNAPSHOT_NAME = "USD_GBP_XCcy_Integration";
-  private static final String CURRENCY_MATRIX_NAME = "BBG-Matrix";
+  private static final String SNAPSHOT_NAME = "USDSnapshot";
+  private static final String CURRENCY_MATRIX_NAME = "CurrencyMatrix";
 
   /**
    * Entry point to running the Curve Bundle Provider.
@@ -40,7 +40,7 @@ public class CurveBundleProviderTool {
    */
   public static void main(String[] args) {
 
-    URL systemResource = ClassLoader.getSystemResource("import-data");
+    URL systemResource = ClassLoader.getSystemResource("curve-import-data");
 
     Set<Module> modules = Sets.newHashSet();
     modules.add(new InMemoryStorageModule());

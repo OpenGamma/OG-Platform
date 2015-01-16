@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fudgeEnvelope>
+   <uniqueId type="message">
+      <Scheme type="string">MemSec</Scheme>
+      <Value type="string">9</Value>
+   </uniqueId>
+   <name type="string">UKT 1 1/4 07/22/18</name>
+   <securityType type="string">BOND</securityType>
+   <identifiers type="message">
+      <ID type="message">
+         <Scheme type="string">BLOOMBERG_BUID</Scheme>
+         <Value type="string">COEJ5457266</Value>
+      </ID>
+      <ID type="message">
+         <Scheme type="string">BLOOMBERG_TCM</Scheme>
+         <Value type="string">UKT 1.25 2018-07-22 Govt</Value>
+      </ID>
+      <ID type="message">
+         <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+         <Value type="string">UKT 1.25 07/22/18 Govt</Value>
+      </ID>
+      <ID type="message">
+         <Scheme type="string">CUSIP</Scheme>
+         <Value type="string">EJ5457266</Value>
+      </ID>
+      <ID type="message">
+         <Scheme type="string">ISIN</Scheme>
+         <Value type="string">GB00B8KP6M44</Value>
+      </ID>
+      <ID type="message">
+         <Scheme type="string">SEDOL1</Scheme>
+         <Value type="string">B8KP6M4</Value>
+      </ID>
+   </identifiers>
+   <attributes type="message">
+      <fudgeField-1 ordinal="-1" type="string">java.lang.CharSequence</fudgeField-1>
+      <fudgeField-2 ordinal="-2" type="string">java.lang.CharSequence</fudgeField-2>
+      <fudgeField1 ordinal="1" type="string">IndustrySector</fudgeField1>
+      <fudgeField2 ordinal="2" type="string">Government</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">Bullet</fudgeField1>
+      <fudgeField2 ordinal="2" type="string">Y</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">LegalEntityId</fudgeField1>
+      <fudgeField2 ordinal="2" type="string">OG_TICKER~UKGOVT</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">Perpetual</fudgeField1>
+      <fudgeField2 ordinal="2" type="string">N</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">RatingComposite</fudgeField1>
+      <fudgeField2 ordinal="2" type="string">AA+</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">EOM</fudgeField1>
+      <fudgeField2 ordinal="2" type="string">Y</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">RatingMoody</fudgeField1>
+      <fudgeField2 ordinal="2" type="string">Aa1u</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">RatingFitch</fudgeField1>
+      <fudgeField2 ordinal="2" type="string">AA+</fudgeField2>
+      <fudgeField1 ordinal="1" type="string">Callable</fudgeField1>
+      <fudgeField2 ordinal="2" type="string">N</fudgeField2>
+   </attributes>
+   <issuerName type="string">UK TSY</issuerName>
+   <issuerType type="string">Sovereign</issuerType>
+   <issuerDomicile type="string">GB</issuerDomicile>
+   <market type="string">UK GILT STOCK</market>
+   <currency type="string">GBP</currency>
+   <yieldConvention type="string">UK:BUMP/DMO METHOD</yieldConvention>
+   <lastTradeDate type="message">
+      <datetime type="datetime">2018-07-22T00:00Z</datetime>
+      <timezone type="string">Z</timezone>
+   </lastTradeDate>
+   <couponType type="string">FIXED</couponType>
+   <couponRate type="double">1.25</couponRate>
+   <couponFrequency type="string">Semi-annual</couponFrequency>
+   <dayCountConvention type="string">Actual/Actual ICMA</dayCountConvention>
+   <announcementDate type="message">
+      <datetime type="datetime">2013-02-05T17:00Z</datetime>
+      <zone type="string">Z</zone>
+   </announcementDate>
+   <interestAccrualDate type="message">
+      <datetime type="datetime">2013-02-15T17:00Z</datetime>
+      <zone type="string">Z</zone>
+   </interestAccrualDate>
+   <settlementDate type="message">
+      <datetime type="datetime">2013-05-14T17:00Z</datetime>
+      <zone type="string">Z</zone>
+   </settlementDate>
+   <firstCouponDate type="message">
+      <datetime type="datetime">2013-07-22T17:00Z</datetime>
+      <zone type="string">Z</zone>
+   </firstCouponDate>
+   <issuancePrice type="double">99.86</issuancePrice>
+   <totalAmountIssued type="double">8.799461E9</totalAmountIssued>
+   <minimumAmount type="double">0.01</minimumAmount>
+   <minimumIncrement type="double">0.01</minimumIncrement>
+   <parAmount type="double">100.0</parAmount>
+   <redemptionValue type="double">100.0</redemptionValue>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.security.bond.GovernmentBondSecurity</fudgeField0>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.security.bond.BondSecurity</fudgeField0>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.security.FinancialSecurity</fudgeField0>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.master.security.ManageableSecurity</fudgeField0>
+   <fudgeField0 ordinal="0" type="string">org.joda.beans.impl.direct.DirectBean</fudgeField0>
+</fudgeEnvelope>

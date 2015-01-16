@@ -39,7 +39,7 @@ public class LibraryCreditTest {
 
   @BeforeClass
   public void setUp() {
-    URL systemResource = ClassLoader.getSystemResource("import-data");
+    URL systemResource = ClassLoader.getSystemResource("credit-import-data");
 
     Set<Module> modules = Sets.newHashSet();
     modules.add(new InMemoryStorageModule());

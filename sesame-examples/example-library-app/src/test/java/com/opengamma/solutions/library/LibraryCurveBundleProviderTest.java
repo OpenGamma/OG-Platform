@@ -42,12 +42,12 @@ public class LibraryCurveBundleProviderTest {
   private MulticurveBundle _bundle;
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 10, 16);
   private static final String CURVE_CONSTRUCTION_CONFIGURATION = "USD_FF_DSCON-OISFFS_L3M-FRAIRS_L1M-BS_L6M-BS";
-  private static final String SNAPSHOT_NAME = "USD_GBP_XCcy_Integration";
-  private static final String CURRENCY_MATRIX_NAME = "BBG-Matrix";
+  private static final String SNAPSHOT_NAME = "USDSnapshot";
+  private static final String CURRENCY_MATRIX_NAME = "CurrencyMatrix";
 
   @BeforeClass
   public void setUp() {
-    URL systemResource = ClassLoader.getSystemResource("import-data");
+    URL systemResource = ClassLoader.getSystemResource("curve-import-data");
 
     Set<Module> modules = Sets.newHashSet();
     modules.add(new InMemoryStorageModule());

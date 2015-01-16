@@ -36,7 +36,7 @@ public class CreditPricerTool {
    */
   public static void main(String[] args) {
 
-    URL systemResource = ClassLoader.getSystemResource("import-data");
+    URL systemResource = ClassLoader.getSystemResource("credit-import-data");
 
     Set<Module> modules = Sets.newHashSet();
     modules.add(new InMemoryStorageModule());

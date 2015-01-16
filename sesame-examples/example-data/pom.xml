@@ -42,7 +42,7 @@
   <build>
     <resources>
       <resource>
-        <directory>resources</directory>
+        <directory>../example-server/resources</directory>
       </resource>
     </resources>
 

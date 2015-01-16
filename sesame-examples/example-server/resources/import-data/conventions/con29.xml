@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fudgeEnvelope>
+   <uniqueId type="string">MemCnv~7</uniqueId>
+   <externalIdBundle type="message">
+      <ID type="message">
+         <Scheme type="string">CONVENTION</Scheme>
+         <Value type="string">EURGBPFXSwap</Value>
+      </ID>
+   </externalIdBundle>
+   <attributes type="message"/>
+   <name type="string">EURGBPFXSwap</name>
+   <spotConvention type="string">CONVENTION~EURGBPFXSpot</spotConvention>
+   <businessDayConvention type="string">Modified Following</businessDayConvention>
+   <isEOM type="boolean">false</isEOM>
+   <settlementRegion type="string">FINANCIAL_REGION~EU+GB</settlementRegion>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.convention.FXForwardAndSwapConvention</fudgeField0>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.convention.FinancialConvention</fudgeField0>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.master.convention.ManageableConvention</fudgeField0>
+</fudgeEnvelope>
