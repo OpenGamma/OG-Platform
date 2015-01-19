@@ -115,9 +115,8 @@
         <artifactId>joda-beans-maven-plugin</artifactId>
         <version>0.7.3</version>
       </plugin>
-
-
     </plugins>
+
   </build>
 
   <properties>

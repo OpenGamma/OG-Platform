@@ -40,11 +40,6 @@
   </dependencies>
 
   <build>
-    <resources>
-      <resource>
-        <directory>../example-server/resources</directory>
-      </resource>
-    </resources>
 
     <plugins>
       <plugin>

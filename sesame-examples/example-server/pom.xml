@@ -30,13 +30,6 @@
       <version>${og.version}</version>
     </dependency>
 
-    <!-- Example Data -->
-    <dependency>
-      <groupId>com.opengamma.solutions</groupId>
-      <artifactId>example-data</artifactId>
-      <version>0.6</version>
-    </dependency>
-
     <!-- Database -->
     <dependency>
       <groupId>postgresql</groupId>

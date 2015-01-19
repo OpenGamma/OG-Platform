@@ -156,7 +156,7 @@
       <id>Brooklyn Tests</id>
       <activation>
         <property>
-          <name>arthur</name>
+          <name>brooklyn</name>
         </property>
       </activation>
       <build>
