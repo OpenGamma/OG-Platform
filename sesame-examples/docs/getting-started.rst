@@ -28,8 +28,8 @@ You will now be able to run the **ExampleRemoteClientTool** or the remote integr
 OpenGamma as a library
 ======================
 
-Run **CreditPricingTool** from the example-library-app in your IDE.
+Run **CreditPricingTool** or **CurveBundleProviderTool** from the example-library-app in your IDE.
 
-This creates and populates all the in-memory components needed to run the calculation and outputs the resulting PV and CS01 to the console
-
-
+The in-memory components needed to run the calculation are created and populated.
+The credit example loads the credit-import-data and outputs the resulting PV and CS01 to the console.
+The curve bundle example loads the curve-import-data and outputs the resulting bundle to the console.
