@@ -83,7 +83,7 @@ public final class InterestRateFutureOptionMarginTransactionNormalSmileMethod ex
 
   /**
    * Computes the present value gamma of a transaction.
-   * This is with respect to futures rate
+   * This is with respect to futures price
    * @param transaction The future option transaction.
    * @param normalData The normal volatility and multi-curves provider.
    * @return The present value gamma.

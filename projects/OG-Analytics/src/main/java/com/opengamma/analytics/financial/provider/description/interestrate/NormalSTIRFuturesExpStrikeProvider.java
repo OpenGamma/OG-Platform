@@ -17,7 +17,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Implementation of a provider of normal volatility (Bachelier model) smile for options on STIR futures. The volatility is time to expiration/strike dependent.
+ * Implementation of a provider of normal volatility (Bachelier model) smile for options on STIR futures. 
+ * The volatility is time to expiration/strike dependent.
  */
 public class NormalSTIRFuturesExpStrikeProvider implements NormalSTIRFuturesProviderInterface {
 
@@ -40,7 +41,8 @@ public class NormalSTIRFuturesExpStrikeProvider implements NormalSTIRFuturesProv
    * @param parameters The normal volatility parameters.
    * @param index The cap/floor index.
    */
-  public NormalSTIRFuturesExpStrikeProvider(final MulticurveProviderInterface multicurveProvider, final Surface<Double, Double, Double> parameters, final IborIndex index) {
+  public NormalSTIRFuturesExpStrikeProvider(final MulticurveProviderInterface multicurveProvider,
+      final Surface<Double, Double, Double> parameters, final IborIndex index) {
     ArgumentChecker.notNull(multicurveProvider, "multicurveProvider");
     ArgumentChecker.notNull(parameters, "parameters");
     ArgumentChecker.notNull(index, "index");
@@ -95,6 +97,11 @@ public class NormalSTIRFuturesExpStrikeProvider implements NormalSTIRFuturesProv
   }
 
   @Override
+  public NormalSTIRFuturesProviderInterface withMulticurve(MulticurveProviderInterface multicurveProvider) {
+    return new NormalSTIRFuturesExpStrikeProvider(multicurveProvider, _parameters, _index);
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
@@ -124,5 +131,4 @@ public class NormalSTIRFuturesExpStrikeProvider implements NormalSTIRFuturesProv
     }
     return true;
   }
-
 }
