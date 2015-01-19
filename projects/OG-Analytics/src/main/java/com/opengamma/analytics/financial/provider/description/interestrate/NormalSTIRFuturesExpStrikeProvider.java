@@ -27,8 +27,7 @@ public class NormalSTIRFuturesExpStrikeProvider implements NormalSTIRFuturesProv
    */
   private final MulticurveProviderInterface _multicurveProvider;
   /**
-   * The Black volatility cube. Not null.
-   * TODO: Change to a cube (with the delay dimension).
+   * The normal volatility surface. Not null.
    */
   private final Surface<Double, Double, Double> _parameters;
   /**
