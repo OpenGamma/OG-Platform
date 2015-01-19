@@ -78,6 +78,13 @@
 
   <build>
 
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <filtering>true</filtering>
+      </testResource>
+    </testResources>
+
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -119,6 +126,7 @@
       <!-- TODO only include integration tests-->
       <plugin>
         <artifactId>maven-failsafe-plugin</artifactId>
+        <version>2.18.1</version>
         <configuration>
           <enableAssertions>true</enableAssertions>
           <includes>
@@ -134,6 +142,7 @@
             <id>integration-tests</id>
             <goals>
               <goal>integration-test</goal>
+              <goal>verify</goal>
             </goals>
           </execution>
         </executions>
@@ -229,7 +238,9 @@
     <!--<og.version>2.8.1</og.version>-->
     <guice.version>3.0</guice.version>
     <server>http://127.0.0.1:8081</server>
-    <blueprint>${project.basedir}/src/test/resources/blueprints/fullstack.yaml</blueprint>
+    <blueprint>${project.build.testOutputDirectory}/blueprints/fullstack.yaml</blueprint>
+    <!-- maven.build.timestamp is not expanded by resource filtering: http://jira.codehaus.org/browse/MRESOURCES-99 -->
+    <buildTime>${maven.build.timestamp}</buildTime>
   </properties>
 
 </project>

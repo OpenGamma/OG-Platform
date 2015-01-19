@@ -29,7 +29,7 @@ services:
     postLaunchActions:
     - obtain:
         resources:
-        - source: "/home/ian/og/OG-Solutions/example-data/resources/import-data"
+        - source: "${project.basedir}/../example-data/resources/import-data"
           destination: "" # relative to run directory
     - runTool:
         tool: "database-restore-tool.sh"
