@@ -28,6 +28,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
@@ -94,7 +95,7 @@ public class DefaultEngineTest {
     ViewFactory viewFactory = createViewFactory();
     MarketDataEnvironmentFactory environmentFactory =
         new MarketDataEnvironmentFactory(new EmptyMarketDataFactory());
-    DefaultEngine engine = new DefaultEngine(viewFactory, environmentFactory);
+    DefaultEngine engine = new DefaultEngine(viewFactory, environmentFactory, MoreExecutors.sameThreadExecutor());
     MarketDataEnvironment marketDataEnvironment =
         new MarketDataEnvironmentBuilder()
             .add(MulticurveId.of(BUNDLE1), createMulticurve(Currency.USD, 1))
@@ -114,7 +115,7 @@ public class DefaultEngineTest {
     ViewFactory viewFactory = createViewFactory();
     MarketDataEnvironmentFactory environmentFactory =
         new MarketDataEnvironmentFactory(new EmptyMarketDataFactory());
-    DefaultEngine engine = new DefaultEngine(viewFactory, environmentFactory);
+    DefaultEngine engine = new DefaultEngine(viewFactory, environmentFactory, MoreExecutors.sameThreadExecutor());
     ZonedDateTime valuationTime = ZonedDateTime.now();
     ScenarioMarketDataEnvironment marketDataEnvironment =
         new ScenarioDataBuilder()
@@ -140,7 +141,7 @@ public class DefaultEngineTest {
     ViewFactory viewFactory = createViewFactory();
     MarketDataEnvironmentFactory environmentFactory =
         new MarketDataEnvironmentFactory(new EmptyMarketDataFactory());
-    DefaultEngine engine = new DefaultEngine(viewFactory, environmentFactory);
+    DefaultEngine engine = new DefaultEngine(viewFactory, environmentFactory, MoreExecutors.sameThreadExecutor());
     ZonedDateTime valuationTime = ZonedDateTime.now();
     ScenarioMarketDataEnvironment marketDataEnvironment =
         new ScenarioDataBuilder()

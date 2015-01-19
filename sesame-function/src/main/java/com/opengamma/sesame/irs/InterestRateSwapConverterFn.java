@@ -10,7 +10,6 @@ import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.cache.Cacheable;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
 
@@ -26,6 +25,5 @@ public interface InterestRateSwapConverterFn {
    * @param security the security
    * @return swap definition and instrument derivative created from the security
    */
-  @Cacheable
   Result<Pair<SwapDefinition, InstrumentDerivative>> convert(Environment env, InterestRateSwapSecurity security);
 }

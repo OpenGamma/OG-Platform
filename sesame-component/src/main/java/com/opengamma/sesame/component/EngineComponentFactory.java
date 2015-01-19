@@ -7,6 +7,7 @@ package com.opengamma.sesame.component;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -45,9 +46,13 @@ public class EngineComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition(validate = "notNull")
   private MarketDataEnvironmentFactory _marketDataEnvironmentFactory;
 
+  /** Executor for running concurrent tasks. */
+  @PropertyDefinition(validate = "notNull")
+  private ExecutorService _executor;
+
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    DefaultEngine engine = new DefaultEngine(_viewFactory, _marketDataEnvironmentFactory);
+    DefaultEngine engine = new DefaultEngine(_viewFactory, _marketDataEnvironmentFactory, _executor);
     repo.registerComponent(Engine.class, _classifier, engine);
     DataEngineResource engineResource = new DataEngineResource(engine);
     repo.getRestComponents().publishResource(engineResource);
@@ -151,6 +156,32 @@ public class EngineComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets executor for running concurrent tasks.
+   * @return the value of the property, not null
+   */
+  public ExecutorService getExecutor() {
+    return _executor;
+  }
+
+  /**
+   * Sets executor for running concurrent tasks.
+   * @param executor  the new value of the property, not null
+   */
+  public void setExecutor(ExecutorService executor) {
+    JodaBeanUtils.notNull(executor, "executor");
+    this._executor = executor;
+  }
+
+  /**
+   * Gets the the {@code executor} property.
+   * @return the property, not null
+   */
+  public final Property<ExecutorService> executor() {
+    return metaBean().executor().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public EngineComponentFactory clone() {
     return JodaBeanUtils.cloneAlways(this);
@@ -166,6 +197,7 @@ public class EngineComponentFactory extends AbstractComponentFactory {
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(getViewFactory(), other.getViewFactory()) &&
           JodaBeanUtils.equal(getMarketDataEnvironmentFactory(), other.getMarketDataEnvironmentFactory()) &&
+          JodaBeanUtils.equal(getExecutor(), other.getExecutor()) &&
           super.equals(obj);
     }
     return false;
@@ -177,12 +209,13 @@ public class EngineComponentFactory extends AbstractComponentFactory {
     hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash = hash * 31 + JodaBeanUtils.hashCode(getViewFactory());
     hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataEnvironmentFactory());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExecutor());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("EngineComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -199,6 +232,7 @@ public class EngineComponentFactory extends AbstractComponentFactory {
     buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
     buf.append("viewFactory").append('=').append(JodaBeanUtils.toString(getViewFactory())).append(',').append(' ');
     buf.append("marketDataEnvironmentFactory").append('=').append(JodaBeanUtils.toString(getMarketDataEnvironmentFactory())).append(',').append(' ');
+    buf.append("executor").append('=').append(JodaBeanUtils.toString(getExecutor())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -227,13 +261,19 @@ public class EngineComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<MarketDataEnvironmentFactory> _marketDataEnvironmentFactory = DirectMetaProperty.ofReadWrite(
         this, "marketDataEnvironmentFactory", EngineComponentFactory.class, MarketDataEnvironmentFactory.class);
     /**
+     * The meta-property for the {@code executor} property.
+     */
+    private final MetaProperty<ExecutorService> _executor = DirectMetaProperty.ofReadWrite(
+        this, "executor", EngineComponentFactory.class, ExecutorService.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "viewFactory",
-        "marketDataEnvironmentFactory");
+        "marketDataEnvironmentFactory",
+        "executor");
 
     /**
      * Restricted constructor.
@@ -250,6 +290,8 @@ public class EngineComponentFactory extends AbstractComponentFactory {
           return _viewFactory;
         case 964996125:  // marketDataEnvironmentFactory
           return _marketDataEnvironmentFactory;
+        case 2043017427:  // executor
+          return _executor;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -294,6 +336,14 @@ public class EngineComponentFactory extends AbstractComponentFactory {
       return _marketDataEnvironmentFactory;
     }
 
+    /**
+     * The meta-property for the {@code executor} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExecutorService> executor() {
+      return _executor;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -304,6 +354,8 @@ public class EngineComponentFactory extends AbstractComponentFactory {
           return ((EngineComponentFactory) bean).getViewFactory();
         case 964996125:  // marketDataEnvironmentFactory
           return ((EngineComponentFactory) bean).getMarketDataEnvironmentFactory();
+        case 2043017427:  // executor
+          return ((EngineComponentFactory) bean).getExecutor();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -320,6 +372,9 @@ public class EngineComponentFactory extends AbstractComponentFactory {
         case 964996125:  // marketDataEnvironmentFactory
           ((EngineComponentFactory) bean).setMarketDataEnvironmentFactory((MarketDataEnvironmentFactory) newValue);
           return;
+        case 2043017427:  // executor
+          ((EngineComponentFactory) bean).setExecutor((ExecutorService) newValue);
+          return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
     }
@@ -329,6 +384,7 @@ public class EngineComponentFactory extends AbstractComponentFactory {
       JodaBeanUtils.notEmpty(((EngineComponentFactory) bean)._classifier, "classifier");
       JodaBeanUtils.notNull(((EngineComponentFactory) bean)._viewFactory, "viewFactory");
       JodaBeanUtils.notNull(((EngineComponentFactory) bean)._marketDataEnvironmentFactory, "marketDataEnvironmentFactory");
+      JodaBeanUtils.notNull(((EngineComponentFactory) bean)._executor, "executor");
       super.validate(bean);
     }
 

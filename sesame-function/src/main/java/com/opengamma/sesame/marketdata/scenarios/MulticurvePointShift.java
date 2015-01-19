@@ -163,6 +163,11 @@ public class MulticurvePointShift implements Perturbation, ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets how the shift should be applied to the node values.
+   * <p>
+   * A relative shift of 0.1 (+10%) scales the point value by 1.1, a relative shift of -0.2 (-20%) scales the
+   * point value by 0.8.
+   * <p>
+   * An absolute shift adds the shift amount to the curve value at the nodal point.
    * @return the value of the property, not null
    */
   public ShiftType getShiftType() {
