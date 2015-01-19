@@ -137,19 +137,21 @@ The OpenGamma calculation engine provides a number of higher level services to f
 
 Market Data
 -----------
-Provision of market data is obviously a key feature of a risk system. The OpenGamma platform includes
-functions to provide market data: ``MarketDataFn`` (single values) and ``HistoricalMarketDataFn`` (time series of
-values). A function that requires market data should declare a constructor parameter taking one of the market data
-functions and the engine will provide it.
+Provision of market data is obviously a key feature of a risk system. The market data provided by the system
+includes raw data such as quotes and time series of quotes, and also higher-level structures derived from them. 
+This includes, but is not limited to, curves, surfaces, FX rates and FX matrices. Functions should not need 
+to build these structures themselves, they should be built by the engine and requested by the functions 
+when the calculations are performed.
+
+The OpenGamma platform includes functions to provide low-level market data quotes: ``MarketDataFn`` (single values) and
+``HistoricalMarketDataFn`` (time series of values). Functions are also provided for requesting high-level data,
+for example ``DiscountingMulticurveCombinerFn`` should be used for requesting curve bundles. A function that
+requires market data should declare a constructor parameter taking one of the market data functions and the
+engine will provide it.
 
 These functions should be used in preference to ``MarketDataBundle`` which is available from the environment.
 ``MarketDataBundle`` is a lower-level API not intended to be used by regular functions. The standard market data
 functions were specifically created to provide a higher-level, easier to use API.
-
-Market data includes raw data such as quotes and time series of quotes, and also any higher-level structures derived 
-from them. This includes, but is not limited to, curves, surfaces, FX rates and FX matrices. Functions should not 
-need to build these structures themselves, they should be built by the engine and supplied to the functions when 
-the calculations are performed.
 
 Requesting market data in a function
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
