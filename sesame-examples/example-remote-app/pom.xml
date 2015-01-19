@@ -174,7 +174,7 @@
                 <goal>deploy</goal>
               </goals>
               <configuration>
-                <server>${server}</server>
+                <server>${brooklyn.location}</server>
                 <blueprint>${blueprint}</blueprint>
                 <propertyName>appId</propertyName>
               </configuration>
@@ -186,7 +186,7 @@
                 <goal>sensor</goal>
               </goals>
               <configuration>
-                <server>${server}</server>
+                <server>${brooklyn.location}</server>
                 <application>${appId}</application>
                 <sensor>main.uri</sensor>
                 <typeRegex>.*Fullstack.*</typeRegex>
@@ -200,7 +200,7 @@
                 <goal>stop</goal>
               </goals>
               <configuration>
-                <server>${server}</server>
+                <server>${brooklyn.location}</server>
                 <application>${appId}</application>
               </configuration>
             </execution>
@@ -235,12 +235,19 @@
 
   <properties>
     <og.version>2.9.0-SNAPSHOT</og.version>
-    <!--<og.version>2.8.1</og.version>-->
     <guice.version>3.0</guice.version>
-    <server>http://127.0.0.1:8081</server>
+    <brooklyn.location>http://127.0.0.1:8081</brooklyn.location>
     <blueprint>${project.build.testOutputDirectory}/blueprints/fullstack.yaml</blueprint>
     <!-- maven.build.timestamp is not expanded by resource filtering: http://jira.codehaus.org/browse/MRESOURCES-99 -->
     <buildTime>${maven.build.timestamp}</buildTime>
+    <deployment.location>localhost</deployment.location>
   </properties>
+
+  <!-- example brooklyn usage
+       mvn clean install -Dbrooklyn
+                         -Ddeployment.location=integration-lx-1
+                         -Dbrooklyn.location=http://integration-lx-1:8081
+                         -blueprint=path/to/blueprint
+  -->
 
 </project>

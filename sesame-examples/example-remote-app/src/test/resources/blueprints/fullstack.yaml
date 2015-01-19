@@ -1,6 +1,6 @@
 name: OpenGamma Sesame minimal
 
-location: localhost
+location: ${deployment.location}
 
 description: >
   Deploys a minimal OpenGamma Sesame server. The deployment has no broker, database
@@ -29,8 +29,9 @@ services:
     postLaunchActions:
     - obtain:
         resources:
-        - source: "${project.basedir}/../example-data/resources/import-data"
+        - source: /home/brooklyn/import-data.zip
           destination: "" # relative to run directory
+          explode: true
     - runTool:
         tool: "database-restore-tool.sh"
         arguments:
