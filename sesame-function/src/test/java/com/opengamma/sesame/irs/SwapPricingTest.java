@@ -89,6 +89,8 @@ import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.FixingsFn;
 import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.TestMarketDataFactory;
+import com.opengamma.sesame.cache.FunctionCache;
+import com.opengamma.sesame.cache.NoOpFunctionCache;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.CalculationArguments;
 import com.opengamma.sesame.engine.ComponentMap;
@@ -236,6 +238,7 @@ public class SwapPricingTest {
                 FixingsFn.class, DefaultFixingsFn.class,
                 InterestRateSwapConverterFn.class, DefaultInterestRateSwapConverterFn.class,
                 HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
+                FunctionCache.class, NoOpFunctionCache.class,
                 DiscountingMulticurveCombinerFn.class, CurveSelectorMulticurveBundleFn.class));
 
     ImmutableMap<Class<?>, Object> components = InterestRateMockSources.generateBaseComponents();

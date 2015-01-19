@@ -8,6 +8,7 @@ package com.opengamma.sesame;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.sesame.cache.Cacheable;
 import com.opengamma.util.result.Result;
 
 /**
@@ -31,5 +32,6 @@ public interface CurveLabellingFn {
    * @return a result containing a map with a curve labeller for
    *   each of the requested curves, a failure result otherwise
    */
+  @Cacheable
   Result<Map<String, CurveMatrixLabeller>> getCurveLabellers(Set<String> curveNames);
 }

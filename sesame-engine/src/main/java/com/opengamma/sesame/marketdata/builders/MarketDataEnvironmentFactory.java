@@ -23,7 +23,6 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
@@ -42,8 +41,7 @@ import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateObjectTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
-import com.opengamma.timeseries.date.localdate.LocalDateObjectTimeSeriesBuilder;
+import com.opengamma.timeseries.date.localdate.LocalDateObjectTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.time.LocalDateRange;
@@ -116,14 +114,13 @@ public class MarketDataEnvironmentFactory {
     CyclePerturbations cyclePerturbations = new CyclePerturbations(requirements, perturbations);
 
     // build the data
-    MarketDataEnvironment builtData = buildEnvironment(suppliedData,
-                                                       requirements,
-                                                       cyclePerturbations,
-                                                       valuationTime,
-                                                       marketDataSource);
+    MarketDataEnvironment builtData =
+        buildEnvironment(suppliedData, requirements, cyclePerturbations, valuationTime, marketDataSource);
+
     // filter the single values to only include the ones in the requirements, not the intermediate values that
     // were only used to build other values
     Map<SingleValueRequirement, Object> singleValues = requestedSingleValues(requirements, builtData);
+
     // filter the time series to only include the ones in the requirements, not the intermediate values that
     // were only used to build other values
     Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> timeSeries = requestedTimeSeries(requirements, builtData);
@@ -383,6 +380,7 @@ public class MarketDataEnvironmentFactory {
    * @throws IllegalArgumentException if the time series have different types. This should never happen unless
    *   there's a bug in the {@code MarketDataBuilder} that created them
    */
+  @SuppressWarnings("unchecked") // LocalDateObjectTimeSeriesBuilder.putAll has a baffling signature that needs this
   private static DateTimeSeries<LocalDate, ?> mergeTimeSeries(
       MarketDataId<?> marketDataId,
       Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> builtData,
@@ -397,31 +395,23 @@ public class MarketDataEnvironmentFactory {
     // ID which would definitely be a bug
     if (existingTimeSeries.getClass() != timeSeries.getClass()) {
       throw new IllegalArgumentException("Time series must be of the same type. ID: " + marketDataId +
-                                             ", type1: " + existingTimeSeries.getClass().getName() +
-                                             ", type2: " + timeSeries.getClass().getName());
+          ", type1: " + existingTimeSeries.getClass().getName() +
+          ", type2: " + timeSeries.getClass().getName());
     }
-    Iterable<Map.Entry<LocalDate, ?>> mergedIterable = Iterables.concat(existingTimeSeries, timeSeries);
-    // TODO this is really grubby but there's no way to do this without knowing the concrete types
-    //   would only be possible if the time series interface supported merging
-
+    // the time series each have data not present in the other. Merge into a single time series
     // only LocalDate time series are supported but there isn't a common supertype for the LocalDate time series impls
     if (existingTimeSeries instanceof LocalDateDoubleTimeSeries) {
-      LocalDateDoubleTimeSeriesBuilder timeSeriesBuilder = ImmutableLocalDateDoubleTimeSeries.builder();
-
-      for (Map.Entry<LocalDate, ?> entry : mergedIterable) {
-        timeSeriesBuilder.put(entry.getKey(), (Double) entry.getValue());
-      }
-      return timeSeriesBuilder.build();
+      return ImmutableLocalDateDoubleTimeSeries.builder()
+          .putAll((LocalDateDoubleTimeSeries) existingTimeSeries)
+          .putAll((LocalDateDoubleTimeSeries) timeSeries)
+          .build();
     } else {
-      LocalDateObjectTimeSeriesBuilder<Object> timeSeriesBuilder = ImmutableLocalDateObjectTimeSeries.builder();
-
-      for (Map.Entry<LocalDate, ?> entry : mergedIterable) {
-        timeSeriesBuilder.put(entry.getKey(), entry.getValue());
-      }
-      return timeSeriesBuilder.build();
+      return ImmutableLocalDateObjectTimeSeries.builder()
+          .putAll((LocalDateObjectTimeSeries) existingTimeSeries)
+          .putAll((LocalDateObjectTimeSeries) timeSeries)
+          .build();
     }
   }
-
   /**
    * Extracts the time series market data IDs from a set of requirements
    *

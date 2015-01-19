@@ -21,6 +21,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.convention.ConventionSource;
@@ -138,8 +139,11 @@ public class CapturedResultsLoader {
         new HistoricalMarketDataFactory(timeSeriesSource, "dataSource", null);
     CompositeMarketDataFactory marketDataFactory = new CompositeMarketDataFactory(historicalMarketDataFactory);
     RawMarketDataBuilder rawMarketDataBuilder = new RawMarketDataBuilder(timeSeriesSource, "dataSource", null);
-    Engine engine = new DefaultEngine(viewFactory, new MarketDataEnvironmentFactory(marketDataFactory,
-                                                                                    rawMarketDataBuilder));
+    Engine engine =
+        new DefaultEngine(
+            viewFactory,
+            new MarketDataEnvironmentFactory(marketDataFactory, rawMarketDataBuilder),
+            MoreExecutors.sameThreadExecutor());
     CalculationArguments calculationArguments = CalculationArguments.builder().valuationTime(valTime).build();
     ViewConfig viewConfig = _viewInputs.getViewConfig();
     List<Object> trades = _viewInputs.getTradeInputs();
