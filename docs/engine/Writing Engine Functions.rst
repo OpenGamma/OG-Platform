@@ -145,7 +145,7 @@ when the calculations are performed.
 
 The OpenGamma platform includes functions to provide low-level market data quotes: ``MarketDataFn`` (single values) and
 ``HistoricalMarketDataFn`` (time series of values). Functions are also provided for requesting high-level data,
-for example ``DiscountingMulticurveCombinerFn`` should be used for requesting curve bundles. A function that
+for example ``DiscountingMulticurveCombinerFn`` can be used for requesting curve bundles. A function that
 requires market data should declare a constructor parameter taking one of the market data functions and the
 engine will provide it.
 
