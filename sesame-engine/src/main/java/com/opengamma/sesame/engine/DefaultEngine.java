@@ -297,8 +297,9 @@ public class DefaultEngine implements Engine {
    * @param suppliedData market data supplied by the user
    * @param requirements requirements for data needed to perform the calculations but not supplied by the user
    * @param perturbations perturbations to apply to the market data in the current scenario
-   *@param marketDataSpec specifies which market data providers should be used to look up the underlying market data
-   * @param valuationTime valuation time for the calculations   @return a futures for building the market data required to perform some calculations.
+   * @param marketDataSpec specifies which market data providers should be used to look up the underlying market data
+   * @param valuationTime valuation time for the calculations
+   * @return a futures for building the market data required to perform some calculations.
    */
   private ListenableFuture<MarketDataEnvironment> marketDataFuture(final MarketDataEnvironment suppliedData,
                                                                    final Set<MarketDataRequirement> requirements,
