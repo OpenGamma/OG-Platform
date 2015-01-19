@@ -146,6 +146,11 @@ These functions should be used in preference to ``MarketDataBundle`` which is av
 ``MarketDataBundle`` is a lower-level API not intended to be used by regular functions. The standard market data
 functions were specifically created to provide a higher-level, easier to use API.
 
+Market data includes raw data such as quotes and time series of quotes, and also any higher-level structures derived 
+from them. This includes, but is not limited to, curves, surfaces, FX rates and FX matrices. Functions should not 
+need to build these structures themselves, they should be built by the engine and supplied to the functions when 
+the calculations are performed.
+
 Requesting market data in a function
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 When a function requests market data it receives a ``Result`` which can be a success or failure depending on
