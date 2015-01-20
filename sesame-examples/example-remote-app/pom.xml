@@ -123,13 +123,14 @@
       </plugin>
 
       <!-- Enable failsafe - include Test.java-->
-      <!-- TODO only include integration tests-->
+      <!-- TODO only include integration tests via annotation -->
       <plugin>
         <artifactId>maven-failsafe-plugin</artifactId>
         <version>2.18.1</version>
         <configuration>
           <enableAssertions>true</enableAssertions>
           <includes>
+            <!-- if unset will default to *IT.java -->
             <include>**/*Test.java</include>
           </includes>
           <printSummary>true</printSummary>
