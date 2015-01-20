@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalPriceFunction;
-import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.normalstirfutures.PresentValueCurveSensitivityNormalSTIRFuturesCalculator;
 import com.opengamma.analytics.financial.provider.calculator.normalstirfutures.PresentValueNormalSTIRFuturesCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
@@ -28,10 +28,8 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Norma
 import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.normalstirfutures.NormalSTIRFuturesSensitivityFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
-import com.opengamma.analytics.financial.provider.sensitivity.parameter.SimpleParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
@@ -298,15 +296,13 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
     double volatilityFutUp = NORMAL_MULTICURVES_MONEYNESS.getVolatility(time, 0.0, STRIKE, priceFuture + SHIFT);
     double volatilityFutDw = NORMAL_MULTICURVES_MONEYNESS.getVolatility(time, 0.0, STRIKE, priceFuture - SHIFT);
     double grad = 0.5 * (volatilityFutUp - volatilityFutDw) / SHIFT;
-    ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator calc = ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator
-        .getInstance();
     InterestRateFutureTransaction transFut = new InterestRateFutureTransaction(ERU2, 0.0, QUANTITY);
-    SimpleParameterSensitivityParameterCalculator<ParameterProviderInterface> calcSense = new SimpleParameterSensitivityParameterCalculator<>(
-        calc);
-    SimpleParameterSensitivity sense = calcSense.calculateSensitivity(transFut, MULTICURVES,
-        MULTICURVES.getMulticurveProvider().getAllNames());
-    MultipleCurrencyParameterSensitivity senseCurr = MultipleCurrencyParameterSensitivity.of(sense, EUR);
-    senseCurr = senseCurr.multipliedBy(-QUANTITY * NOTIONAL * FUTURE_FACTOR * computedVega * grad);
+    PresentValueCurveSensitivityDiscountingCalculator pvCal = PresentValueCurveSensitivityDiscountingCalculator
+        .getInstance();
+    ParameterSensitivityParameterCalculator<ParameterProviderInterface> sensCal = new ParameterSensitivityParameterCalculator<>(
+        pvCal);
+    MultipleCurrencyParameterSensitivity senseCurr = sensCal.calculateSensitivity(transFut, MULTICURVES);
+    senseCurr = senseCurr.multipliedBy(-computedVega * grad);
     pvpsDepositFD = pvpsDepositFD.plus(senseCurr);
 
     AssertSensitivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ",

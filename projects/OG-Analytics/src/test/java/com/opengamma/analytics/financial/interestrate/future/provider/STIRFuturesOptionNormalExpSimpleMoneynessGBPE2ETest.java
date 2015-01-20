@@ -53,7 +53,7 @@ import com.opengamma.util.tuple.Pairs;
 /**
  * 
  */
-public class STIRFuturesOptionNormalExpSimpleMoneynessExamples {
+public class STIRFuturesOptionNormalExpSimpleMoneynessGBPE2ETest {
   private static final IndexIborMaster INDEX_MASTER = IndexIborMaster.getInstance();
   private static final ZonedDateTime VALUATION_DATE = DateUtils.getUTCDate(2014, 2, 17, 9, 0);
   private static final STIRFuturesOptionNormalExpSimpleMoneynessExamplesData DATA = new STIRFuturesOptionNormalExpSimpleMoneynessExamplesData();
