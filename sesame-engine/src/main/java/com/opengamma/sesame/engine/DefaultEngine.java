@@ -261,7 +261,7 @@ public class DefaultEngine implements Engine {
                                                                List<?> portfolio) {
     GatheringMarketDataBundle gatheringBundle = GatheringMarketDataBundle.create(baseData.toBundle());
     ZonedDateTime valuationTime = valuationTime(calculationArguments, baseData);
-    view.runAsync(calculationArguments, new GatheringMarketDataEnvironment(gatheringBundle, valuationTime), portfolio);
+    view.run(calculationArguments, new GatheringMarketDataEnvironment(gatheringBundle, valuationTime), portfolio);
     return gatheringBundle.getRequirements();
   }
 
