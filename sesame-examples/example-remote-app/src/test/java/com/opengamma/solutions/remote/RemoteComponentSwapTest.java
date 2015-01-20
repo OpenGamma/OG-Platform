@@ -88,7 +88,7 @@ import com.opengamma.util.time.DateUtils;
  * Output: Present Value
  */
 
-@Test(groups = TestGroup.INTEGRATION, enabled = false)
+@Test(groups = TestGroup.INTEGRATION, enabled = false) //TODO enable after project moves off OG release 2.8.1
 public class RemoteComponentSwapTest {
 
   private ConfigLink<ExposureFunctions> _exposureConfig;
@@ -152,7 +152,7 @@ public class RemoteComponentSwapTest {
                 MarketDataFn.class, DefaultMarketDataFn.class));
   }
 
-  @Test(enabled = false)
+  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.1
   public void testSwapPV() {
     final InterestRateSwapSecurity irs = (InterestRateSwapSecurity) SwapViewUtils.VANILLA_INPUTS.get(0);
 

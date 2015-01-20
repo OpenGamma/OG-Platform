@@ -5,13 +5,13 @@ Extending OpenGamma
 Custom Analytics
 ================
 
-A simple example of calculating your own PV on an interest rate swap via an *InterestRateSwapCalculator* implementation can be seen in *ThirdPartyInterestRateSwapCalculator*
+A simple example of calculating your own PV on an interest rate swap via an ``InterestRateSwapCalculator`` implementation can be seen in ``ThirdPartyInterestRateSwapCalculator``
 
-Here a *MultipleCurrencyAmount* of $42 is returned for all PV calculations.
+Here a ``MultipleCurrencyAmount`` of $42 is returned for all PV calculations.
 
-The *ThirdPartyRemoteTest* class shows how this third party implementation is fed into the *ViewConfig* rather than the OG specific *InterestRateSwapCalculatorFactory* class
+The ``ThirdPartyRemoteTest`` class shows how this third party implementation is fed into the ``ViewConfig`` rather than the OG specific ``InterestRateSwapCalculatorFactory`` class
 
-With the marketdata and fullstack servers running in your IDE the *ThirdPartyRemoteTest* can be run against the 'remote' fullstack server.
+With the marketdata and fullstack servers running in your IDE the ``ThirdPartyRemoteTest`` can be run against the 'remote' fullstack server.
 
 Adding custom code to an OG server
 ==================================
