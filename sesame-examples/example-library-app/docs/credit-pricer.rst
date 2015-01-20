@@ -22,7 +22,6 @@ The example class ``CreditPricerTool`` demonstrates how to initialize the OpenGa
 
   #. Create the ``CalculationArguments`` based on an ``EmptyMarketDataSpec`` (the engine will source the data) and the valuation time.
 
-  #. Create a ``ViewConfig``. The example config is created in the ``CreditViewUtils`` utility class.
-  The view specifies which configuration and market data snapshots to use in the pricing as well specifying the outputs and analytic methodologies.
+  #. Create a ``ViewConfig`` The example config is created in the ``CreditViewUtils`` utility class. The view specifies which configuration and market data snapshots to use in the pricing as well specifying the outputs and analytic methodologies.
 
   #. Run the view, providing the ``ViewConfig``, the ``CalculationArguments``, the empty ``MarketDataEnvironment`` and the list of sample trades provided by the credit utility class.
