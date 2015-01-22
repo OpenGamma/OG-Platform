@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.conversion;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
-import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -117,8 +117,8 @@ public class BillTotalReturnSwapSecurityConverter extends FinancialSecurityVisit
                                                                        bill.getYieldConvention(), bill.getDayCount(),
                                                                        legalEntity);
 
-    ZonedDateTime startDateTime = startDate.atTime(LocalTime.MIN).atZone(ZoneId.systemDefault());
-    ZonedDateTime endDateTime = endDate.atTime(LocalTime.MIN).atZone(ZoneId.systemDefault());
+    ZonedDateTime startDateTime = startDate.atTime(LocalTime.MIN).atZone(ZoneOffset.UTC);
+    ZonedDateTime endDateTime = endDate.atTime(LocalTime.MIN).atZone(ZoneOffset.UTC);
     return new BillTotalReturnSwapDefinition(startDateTime, endDateTime, annuityDefinition, billDefinition, notional);
   }
 }

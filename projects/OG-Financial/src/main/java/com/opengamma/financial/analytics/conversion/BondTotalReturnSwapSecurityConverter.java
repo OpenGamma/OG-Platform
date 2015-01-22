@@ -11,6 +11,7 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -130,8 +131,8 @@ public class BondTotalReturnSwapSecurityConverter extends FinancialSecurityVisit
     final BondFixedSecurityDefinition bondDefinition = BondFixedSecurityDefinition.from(currency, firstAccrualDate, firstCouponDate,
         maturityDate, paymentPeriod, rate, settlementDays, 1.0d, exDividendDays, calendar, dayCount, businessDay,
         yieldConvention, isEOM, legalEntity);
-    final ZonedDateTime startDateTime = startDate.atTime(LocalTime.MIN).atZone(ZoneId.systemDefault());
-    final ZonedDateTime endDateTime = endDate.atTime(LocalTime.MIN).atZone(ZoneId.systemDefault());
+    final ZonedDateTime startDateTime = startDate.atTime(LocalTime.MIN).atZone(ZoneOffset.UTC);
+    final ZonedDateTime endDateTime = endDate.atTime(LocalTime.MIN).atZone(ZoneOffset.UTC);
     return new BondTotalReturnSwapDefinition(startDateTime, endDateTime, annuityDefinition, bondDefinition, notional);
   }
 

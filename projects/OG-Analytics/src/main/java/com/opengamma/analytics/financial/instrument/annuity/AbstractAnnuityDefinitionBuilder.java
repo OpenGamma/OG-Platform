@@ -11,6 +11,7 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -239,8 +240,7 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
    * @return the unadjusted start date of the annuity.
    */
   protected ZonedDateTime getStartDate() {
-    ZonedDateTime startDate = _startDate.atTime(LocalTime.MIN).atZone(ZoneId.systemDefault());
-    return startDate;
+    return _startDate.atTime(LocalTime.MIN).atZone(ZoneOffset.UTC);
   }
   
   /**
@@ -248,8 +248,7 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
    * @return the unadjusted end date of the annuity.
    */
   protected ZonedDateTime getEndDate() {
-    ZonedDateTime endDate = _endDate.atTime(LocalTime.MIN).atZone(ZoneId.systemDefault());
-    return endDate;
+    return _endDate.atTime(LocalTime.MIN).atZone(ZoneOffset.UTC);
   }
   
   protected CouponStub getStartStub() {

@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
-import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
@@ -59,9 +59,9 @@ public class CouponTenorVisitorTest {
   
   private static final InstrumentDefinitionVisitor<Void, Set<Tenor>> INSTANCE = CouponTenorVisitor.getInstance();
   
-  private static final ZonedDateTime START_DATE = ZonedDateTime.of(LocalDate.of(2014, 1, 18), LocalTime.NOON, ZoneId.systemDefault());
+  private static final ZonedDateTime START_DATE = ZonedDateTime.of(LocalDate.of(2014, 1, 18), LocalTime.NOON, ZoneOffset.UTC);
   
-  private static final ZonedDateTime END_DATE = ZonedDateTime.of(LocalDate.of(2014, 3, 18), LocalTime.NOON, ZoneId.systemDefault());
+  private static final ZonedDateTime END_DATE = ZonedDateTime.of(LocalDate.of(2014, 3, 18), LocalTime.NOON, ZoneOffset.UTC);
   
   private static final IborIndex USD_LIBOR_3M = new IborIndex(Currency.USD,
                                                               Period.ofMonths(3),
