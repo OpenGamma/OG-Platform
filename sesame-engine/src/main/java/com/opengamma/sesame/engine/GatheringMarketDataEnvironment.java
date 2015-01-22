@@ -8,6 +8,7 @@ package com.opengamma.sesame.engine;
 import java.util.Map;
 
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.sesame.marketdata.GatheringMarketDataBundle;
@@ -30,7 +31,7 @@ class GatheringMarketDataEnvironment implements MarketDataEnvironment {
 
   GatheringMarketDataEnvironment(GatheringMarketDataBundle bundle, ZonedDateTime valuationTime) {
     _bundle = bundle;
-    _valuationTime = valuationTime;
+    _valuationTime = valuationTime.withZoneSameInstant(ZoneOffset.UTC);
   }
 
   @Override

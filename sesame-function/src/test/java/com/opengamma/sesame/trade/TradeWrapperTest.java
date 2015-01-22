@@ -13,7 +13,6 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.OffsetTime;
-import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
@@ -36,7 +35,7 @@ public class TradeWrapperTest {
    * Tests if the validation check for the security type is working correctly.
    */
   public void testInstanceOf() {
-    Expiry expiry = new Expiry(ZonedDateTime.of(LocalDate.of(2014, 6, 18), LocalTime.of(0, 0), ZoneId.systemDefault()));
+    Expiry expiry = new Expiry(ZonedDateTime.of(LocalDate.of(2014, 6, 18), LocalTime.of(0, 0), ZoneOffset.UTC));
     String tradingExchange = "";
     String settlementExchange = "";
     Currency currency = Currency.USD;
