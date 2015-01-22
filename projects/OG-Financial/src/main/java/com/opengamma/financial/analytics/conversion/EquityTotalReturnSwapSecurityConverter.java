@@ -11,7 +11,7 @@ import java.util.Map;
 import org.joda.beans.impl.flexi.FlexiBean;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
-import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -80,8 +80,8 @@ public class EquityTotalReturnSwapSecurityConverter extends FinancialSecurityVis
     final EquitySecurity equity = (EquitySecurity) underlying;
     final LegalEntity legalEntity = getLegalEntityForEquity(equity);
     final EquityDefinition equityDefinition = new EquityDefinition(legalEntity, equity.getCurrency(), security.getNumberOfShares());
-    final ZonedDateTime startDateTime = startDate.atTime(LocalTime.MIN).atZone(ZoneId.systemDefault());
-    final ZonedDateTime endDateTime = endDate.atTime(LocalTime.MIN).atZone(ZoneId.systemDefault());
+    final ZonedDateTime startDateTime = startDate.atTime(LocalTime.MIN).atZone(ZoneOffset.UTC);
+    final ZonedDateTime endDateTime = endDate.atTime(LocalTime.MIN).atZone(ZoneOffset.UTC);
     return new EquityTotalReturnSwapDefinition(startDateTime, endDateTime, annuityDefinition, equityDefinition, security.getNotionalAmount(), 
         security.getNotionalCurrency(), security.getDividendPercentage() / 100.);
   }

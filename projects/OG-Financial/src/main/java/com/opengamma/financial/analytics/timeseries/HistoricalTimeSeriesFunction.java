@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.OffsetDateTime;
-import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -36,7 +35,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.id.UniqueId;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 
 /**
@@ -51,7 +49,7 @@ public class HistoricalTimeSeriesFunction extends AbstractFunction {
     final LocalDate startDate = DateConstraint.evaluate(executionContext, desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY));
     final boolean includeStart = HistoricalTimeSeriesFunctionUtils.parseBoolean(desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY));
     
-    LocalDate valuationDate = executionContext.getValuationTime().atZone(ZoneId.systemDefault()).toLocalDate();
+    LocalDate valuationDate = executionContext.getValuationTime().atZone(ZoneOffset.UTC).toLocalDate();
     if (startDate != null && (includeStart && valuationDate.isBefore(startDate) || !(valuationDate.isAfter(startDate)))) {
       return new SimpleHistoricalTimeSeries(targetSpec.getUniqueId(), ImmutableLocalDateDoubleTimeSeries.builder().build());
     }

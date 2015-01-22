@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
-import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.temporal.ChronoUnit;
 
@@ -214,7 +214,7 @@ public class ViewProcessMXBeanImpl implements ViewProcessMXBean {
   }
 
   private String convertInstant(Instant instant) {
-    return instant != null ? ZonedDateTime.ofInstant(instant, ZoneId.systemDefault()).toString() : null;
+    return instant != null ? ZonedDateTime.ofInstant(instant, ZoneOffset.UTC).toString() : null;
   }
 
   @Override

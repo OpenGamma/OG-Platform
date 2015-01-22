@@ -10,12 +10,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import javax.swing.AbstractListModel;
-import javax.swing.ComboBoxModel;
-import javax.swing.SwingWorker;
+import javax.swing.*;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.FormatStyle;
 
@@ -65,13 +63,13 @@ public class SnapshotMarketDataSpecificationVersionListModel extends AbstractLis
         }
         if (doc.getVersionFromInstant() != null || doc.getVersionToInstant() != null) {
           if (doc.getVersionFromInstant() != null) {
-            sb.append(_formatter.format(doc.getVersionFromInstant().atZone(ZoneId.systemDefault())));
+            sb.append(_formatter.format(doc.getVersionFromInstant().atZone(ZoneOffset.UTC)));
           } else {
             sb.append("Start-of-time");
           }
           sb.append(" - ");
           if (doc.getVersionToInstant() != null) {
-            sb.append(_formatter.format(doc.getVersionFromInstant().atZone(ZoneId.systemDefault())));
+            sb.append(_formatter.format(doc.getVersionFromInstant().atZone(ZoneOffset.UTC)));
           } else {
             sb.append("End-of-time");
           }
@@ -81,13 +79,13 @@ public class SnapshotMarketDataSpecificationVersionListModel extends AbstractLis
         if ((doc.getCorrectionFromInstant() != null || doc.getCorrectionToInstant() != null) && !vcEqual) {
           sb.append(", Correction Validity:");
           if (doc.getCorrectionFromInstant() != null) {
-            sb.append(_formatter.format(doc.getVersionFromInstant().atZone(ZoneId.systemDefault())));
+            sb.append(_formatter.format(doc.getVersionFromInstant().atZone(ZoneOffset.UTC)));
           } else {
             sb.append("Start-of-time");
           }
           sb.append(" - ");
           if (doc.getCorrectionToInstant() != null) {
-            sb.append(_formatter.format(doc.getVersionFromInstant().atZone(ZoneId.systemDefault())));
+            sb.append(_formatter.format(doc.getVersionFromInstant().atZone(ZoneOffset.UTC)));
           } else {
             sb.append("End-of-time");
           }

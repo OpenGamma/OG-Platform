@@ -467,9 +467,9 @@ public static final Swap<? extends Payment, ? extends Payment> IRS_STUB6 =
   private static final double FIXED_RATE_AM = 0.0160;
   private static final NotionalProvider NOTIONAL_PROVIDER_AM_FLOATING;
   static {
-    //    ZonedDateTime startDate = SPOT_DATE_AM.atTime(LocalTime.MIN).atZone(ZoneId.systemDefault());
+    //    ZonedDateTime startDate = SPOT_DATE_AM.atTime(LocalTime.MIN).atZone(ZoneOffset.UTC);
     //    ZonedDateTime[] accrualEndDates = ScheduleCalculator.getAdjustedDateSchedule(startDate,
-    //        END_DATE_AM.atTime(LocalTime.MIN).atZone(ZoneId.systemDefault()), P3M, StubType.NONE,
+    //        END_DATE_AM.atTime(LocalTime.MIN).atZone(ZoneOffset.UTC), P3M, StubType.NONE,
     //        ADJUSTED_DATE_USDLIBOR.getBusinessDayConvention(), ADJUSTED_DATE_USDLIBOR.getCalendar(), null);
     //    ZonedDateTime[] accrualStartDates = ScheduleCalculator.getStartDates(startDate, accrualEndDates);
     //    int nDates = accrualStartDates.length;

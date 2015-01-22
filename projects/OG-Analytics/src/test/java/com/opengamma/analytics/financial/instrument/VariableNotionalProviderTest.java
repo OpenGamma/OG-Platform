@@ -15,6 +15,7 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.test.TestGroup;
@@ -64,7 +65,7 @@ public class VariableNotionalProviderTest {
 
     ArrayList<ZonedDateTime> list = new ArrayList<>();
     for (int i = 0; i < nDates; ++i) {
-      list.add(dates[i].atTime(LocalTime.MIN).atZone(ZoneId.systemDefault()));
+      list.add(dates[i].atTime(LocalTime.MIN).atZone(ZoneOffset.UTC));
     }
     VariableNotionalProvider provider2 = provider1.withZonedDateTime(list);
     for (int i = 0; i < nDates; ++i) {

@@ -5,32 +5,32 @@
    */
   package com.opengamma.analytics.financial.interestrate.payments.method;
 
-  
-import org.testng.Assert;
-import org.testng.annotations.Test;
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.ZoneId;
-import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageIndexDefinition;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
-import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborAverageDiscountingMethod;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
-import com.opengamma.analytics.math.interpolation.Interpolator1D;
-import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.time.DateUtils;
+  import org.testng.Assert;
+  import org.testng.annotations.Test;
+  import org.threeten.bp.LocalDateTime;
+  import org.threeten.bp.ZoneOffset;
+  import org.threeten.bp.ZonedDateTime;
+
+  import com.opengamma.analytics.financial.instrument.index.IborIndex;
+  import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
+  import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageIndexDefinition;
+  import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
+  import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborAverageDiscountingMethod;
+  import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+  import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+  import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
+  import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+  import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+  import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+  import com.opengamma.analytics.math.interpolation.Interpolator1D;
+  import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+  import com.opengamma.financial.convention.calendar.Calendar;
+  import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+  import com.opengamma.util.money.Currency;
+  import com.opengamma.util.money.MultipleCurrencyAmount;
+  import com.opengamma.util.test.TestGroup;
+  import com.opengamma.util.time.DateUtils;
 
   /**
    * Tests the methods related to Ibor Averaging coupons - utilised for interpolated stubs.
@@ -48,11 +48,11 @@ import com.opengamma.util.time.DateUtils;
     private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2014, 5, 15);
 
     private static final double NOTIONAL = 1.0;
-    private static final ZonedDateTime PAYMENT_DATE = ZonedDateTime.of(LocalDateTime.of(2014, 6, 18, 0, 0), ZoneId.systemDefault());
-    private static final ZonedDateTime ACCRUAL_START_DATE = ZonedDateTime.of(LocalDateTime.of(2014, 5, 18, 0, 0), ZoneId.systemDefault());
-    private static final ZonedDateTime ACCRUAL_END_DATE = ZonedDateTime.of(LocalDateTime.of(2014, 6, 18, 0, 0), ZoneId.systemDefault());
+    private static final ZonedDateTime PAYMENT_DATE = ZonedDateTime.of(LocalDateTime.of(2014, 6, 18, 0, 0), ZoneOffset.UTC);
+    private static final ZonedDateTime ACCRUAL_START_DATE = ZonedDateTime.of(LocalDateTime.of(2014, 5, 18, 0, 0), ZoneOffset.UTC);
+    private static final ZonedDateTime ACCRUAL_END_DATE = ZonedDateTime.of(LocalDateTime.of(2014, 6, 18, 0, 0), ZoneOffset.UTC);
     private static final double ACCRUAL_YF = 0.08611111111111111;
-    private static final ZonedDateTime FIXING_DATE = ZonedDateTime.of(LocalDateTime.of(2014, 05, 15, 0, 0), ZoneId.systemDefault());
+    private static final ZonedDateTime FIXING_DATE = ZonedDateTime.of(LocalDateTime.of(2014, 05, 15, 0, 0), ZoneOffset.UTC);
     
     private static final IborIndex INDEX1 = IBOR_INDICES[0];
     private static final IborIndex INDEX2 = IBOR_INDICES[1];
