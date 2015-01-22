@@ -93,7 +93,7 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessGBPE2ETest {
   private static final InterestRateFutureSecurityDefinition RATE_FUTURE_S; // Serial
   private static final InterestRateFutureSecurityDefinition RATE_FUTURE_M; // Mid-curve
   private static final ZonedDateTime LAST_TRADING_DATE_Q = DateUtils.getUTCDate(2014, 6, 19, 0, 0);
-  private static final ZonedDateTime LAST_TRADING_DATE_S = DateUtils.getUTCDate(2014, 5, 21, 0, 0);
+  private static final ZonedDateTime LAST_TRADING_DATE_S = DateUtils.getUTCDate(2014, 6, 19, 0, 0);
   private static final ZonedDateTime LAST_TRADING_DATE_M = DateUtils.getUTCDate(2015, 6, 17, 0, 0);
   private static final double NOTIONAL = 5000.0;
   private static final String FUTURE_NAME = "20140300";
@@ -110,6 +110,7 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessGBPE2ETest {
 
   /* Rate futures option */
   private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2014, 6, 19, 0, 0);
+  private static final ZonedDateTime EXPIRATION_DATE_S = DateUtils.getUTCDate(2014, 5, 21, 0, 0);
   private static final double STRIKE = 0.995;
   private static final boolean IS_CALL = false;
   private static final double STRIKE_S = 0.925;
@@ -117,7 +118,7 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessGBPE2ETest {
   private static final InterestRateFutureOptionMarginSecurityDefinition RATE_FUTURE_OPTION_Q = new InterestRateFutureOptionMarginSecurityDefinition(
       RATE_FUTURE_Q, EXPIRATION_DATE, STRIKE, IS_CALL);
   private static final InterestRateFutureOptionMarginSecurityDefinition RATE_FUTURE_OPTION_S = new InterestRateFutureOptionMarginSecurityDefinition(
-      RATE_FUTURE_S, EXPIRATION_DATE, STRIKE_S, IS_CALL_S);
+      RATE_FUTURE_S, EXPIRATION_DATE_S, STRIKE_S, IS_CALL_S);
   private static final InterestRateFutureOptionMarginSecurityDefinition RATE_FUTURE_OPTION_M = new InterestRateFutureOptionMarginSecurityDefinition(
       RATE_FUTURE_M, EXPIRATION_DATE, STRIKE, IS_CALL);
 
@@ -203,7 +204,7 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessGBPE2ETest {
     sensitivityQ.put(ObjectsPair.of(MULTICURVES.getName(GBPLIBOR3M), GBP), new DoubleMatrix1D(bucketedPv01ExpectedQ));
     MultipleCurrencyParameterSensitivity expectedbucketQ = new MultipleCurrencyParameterSensitivity(sensitivityQ);
 
-    double[] bucketedPv01ExpectedS = new double[] {0.07004397495871625, -0.13678218055157662, -0.003891598745941903,
+    double[] bucketedPv01ExpectedS = new double[] {0.0629242351204289, -0.07700577929588694, -0.057458072861900376,
         0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
     LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivityS = new LinkedHashMap<>();
     sensitivityS.put(ObjectsPair.of(MULTICURVES.getName(GBPLIBOR3M), GBP), new DoubleMatrix1D(bucketedPv01ExpectedS));
@@ -225,15 +226,15 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessGBPE2ETest {
     assertRelative("testGBP, Quarterly, theta", -327.37192184568823, thetaQ, TOL);
     assertRelative("testGBP, Quarterly, vega", 288.3056023589055, vegaQ, TOL);
 
-    assertRelative("testGBP, Serial, option price", 20.07579815761958, optionPriceS, TOL);
-    assertRelative("testGBP, Serial, PV", 245.94747697024476, pvS.getAmount(GBP), TOL);
+    assertRelative("testGBP, Serial, option price", 18.407490643468012, optionPriceS, TOL);
+    assertRelative("testGBP, Serial, PV", 225.09363304335017, pvS.getAmount(GBP), TOL);
     AssertSensitivityObjects.assertEquals("testGBP, Serial, bucketed pv01", expectedbucketS, bucketedPv01S, TOL);
-    assertRelative("testGBP, Serial, pv01", -0.07062980433880227,
+    assertRelative("testGBP, Serial, pv01", -0.07153961703735841,
         pv01S.getMap().get(Pairs.of(MULTICURVES.getName(GBPLIBOR3M), GBP)), TOL);
-    assertRelative("testGBP, Serial, delta", 709.1737394035389, deltaS, TOL);
-    assertRelative("testGBP, Serial, gamma", 1198.465050194628, gammaS, TOL);
-    assertRelative("testGBP, Serial, theta", -301.5957376051417, thetaS, TOL);
-    assertRelative("testGBP, Serial, vega", 284.18899131701204, vegaS, TOL);
+    assertRelative("testGBP, Serial, delta", 718.4250454344859, deltaS, TOL);
+    assertRelative("testGBP, Serial, gamma", 1331.3307281718564, gammaS, TOL);
+    assertRelative("testGBP, Serial, theta", -353.7610514224842, thetaS, TOL);
+    assertRelative("testGBP, Serial, vega", 247.2880146963564, vegaS, TOL);
 
     assertRelative("testGBP, Mid-curve, option price", 21.609363997913587, optionPriceM, TOL);
     assertRelative("testGBP, Mid-curve, PV", 265.11704997391985, pvM.getAmount(GBP), TOL);
