@@ -20,7 +20,7 @@ import com.opengamma.util.time.Tenor;
 @Test(groups = TestGroup.UNIT)
 public class FutureMonthCodeCurveInstrumentProviderTest {
 
-  private static final LocalDate NOW = LocalDate.of(2014, 1, 1);
+  private static final LocalDate NOW = LocalDate.of(2013, 1, 1);
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testNonFuture1() throws Exception {
@@ -47,25 +47,25 @@ public class FutureMonthCodeCurveInstrumentProviderTest {
     FutureMonthCodeCurveInstrumentProvider provider = new FutureMonthCodeCurveInstrumentProvider("AB", "CD",
         ExternalSchemes.OG_SYNTHETIC_TICKER);
     ExternalId returnedId = provider.getInstrument(NOW, Tenor.ONE_DAY, Tenor.THREE_MONTHS, 2);
-    assertEquals(returnedId, ExternalSchemes.syntheticSecurityId("ABM4CD"));
+    assertEquals(returnedId, ExternalSchemes.syntheticSecurityId("ABM13CD"));
     ExternalId returnedId2 = provider.getInstrument(NOW, Tenor.ONE_DAY, Tenor.THREE_MONTHS, 3);
-    assertEquals(returnedId2, ExternalSchemes.syntheticSecurityId("ABU4CD"));
+    assertEquals(returnedId2, ExternalSchemes.syntheticSecurityId("ABU13CD"));
   }
 
   public void testMonthlyFuture() throws Exception {
     FutureMonthCodeCurveInstrumentProvider provider = new FutureMonthCodeCurveInstrumentProvider("AB", "CD",
         ExternalSchemes.OG_SYNTHETIC_TICKER);
     ExternalId returnedId = provider.getInstrument(NOW, Tenor.ONE_DAY, Tenor.ONE_MONTH, 2);
-    assertEquals(returnedId, ExternalSchemes.syntheticSecurityId("ABG4CD"));
+    assertEquals(returnedId, ExternalSchemes.syntheticSecurityId("ABG13CD"));
     ExternalId returnedId2 = provider.getInstrument(NOW, Tenor.ONE_DAY, Tenor.ONE_MONTH, 3);
-    assertEquals(returnedId2, ExternalSchemes.syntheticSecurityId("ABH4CD"));
+    assertEquals(returnedId2, ExternalSchemes.syntheticSecurityId("ABH13CD"));
   }
 
   public void testGetInstrumentSpaces() throws Exception {
     FutureMonthCodeCurveInstrumentProvider provider = new FutureMonthCodeCurveInstrumentProvider("AB", " CD",
         ExternalSchemes.OG_SYNTHETIC_TICKER);
     ExternalId returnedId = provider.getInstrument(NOW, Tenor.ONE_DAY, Tenor.THREE_MONTHS, 2);
-    assertEquals(ExternalSchemes.syntheticSecurityId("ABM4 CD"), returnedId);
+    assertEquals(ExternalSchemes.syntheticSecurityId("ABM13 CD"), returnedId);
   }
 
 }
