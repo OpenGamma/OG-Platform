@@ -10,7 +10,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.E
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalPriceFunction;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
-import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesSmileProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.util.ArgumentChecker;
@@ -18,10 +18,11 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Method for the pricing of interest rate future options with daily margining. The pricing is done with a Normal approach on the future price.
- * The normal parameters are represented by (expiration-strike-delay) surfaces. The "delay" is the time between option expiration and future last trading date,
+ * The normal parameters are represented by (expiration-delay-strike-futures price) surfaces. The "delay" is the time between option expiration and future last trading date,
  * i.e. 0 for quarterly options and x for x-year mid-curve options. The future prices are computed without convexity adjustments.
  */
-public final class InterestRateFutureOptionMarginSecurityNormalSmileMethod extends InterestRateFutureOptionMarginSecurityGenericMethod<NormalSTIRFuturesSmileProviderInterface> {
+public final class InterestRateFutureOptionMarginSecurityNormalSmileMethod extends
+    InterestRateFutureOptionMarginSecurityGenericMethod<NormalSTIRFuturesProviderInterface> {
 
   /**
    * Creates the method unique instance.
@@ -59,12 +60,13 @@ public final class InterestRateFutureOptionMarginSecurityNormalSmileMethod exten
    * @param priceFuture The price of the underlying future.
    * @return The security price.
    */
-  public double priceFromFuturePrice(final InterestRateFutureOptionMarginSecurity security, final NormalSTIRFuturesSmileProviderInterface normalData, final double priceFuture) {
+  public double priceFromFuturePrice(final InterestRateFutureOptionMarginSecurity security,
+      final NormalSTIRFuturesProviderInterface normalData, final double priceFuture) {
     ArgumentChecker.notNull(security, "Option security");
     ArgumentChecker.notNull(normalData, "Normal data");
     final EuropeanVanillaOption option = new EuropeanVanillaOption(security.getStrike(), security.getExpirationTime(), security.isCall());
     final double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
-    final double volatility = normalData.getVolatility(security.getExpirationTime(), security.getStrike(), delay);
+    double volatility = normalData.getVolatility(security.getExpirationTime(), delay, security.getStrike(), priceFuture);
     final NormalFunctionData normalPoint = new NormalFunctionData(priceFuture, 1.0, volatility);
     final double priceSecurity = NORMAL_FUNCTION.getPriceFunction(option).evaluate(normalPoint);
     return priceSecurity;
@@ -77,7 +79,8 @@ public final class InterestRateFutureOptionMarginSecurityNormalSmileMethod exten
    * @return The security price.
    */
   @Override
-  public double price(final InterestRateFutureOptionMarginSecurity security, final NormalSTIRFuturesSmileProviderInterface normalData) {
+  public double price(final InterestRateFutureOptionMarginSecurity security,
+      final NormalSTIRFuturesProviderInterface normalData) {
     ArgumentChecker.notNull(security, "Option security");
     ArgumentChecker.notNull(normalData, "Normal data");
     final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), normalData.getMulticurveProvider());
@@ -92,14 +95,15 @@ public final class InterestRateFutureOptionMarginSecurityNormalSmileMethod exten
    * @return The security price curve sensitivity.
    */
   @Override
-  public MulticurveSensitivity priceCurveSensitivity(final InterestRateFutureOptionMarginSecurity security, final NormalSTIRFuturesSmileProviderInterface normalData) {
+  public MulticurveSensitivity priceCurveSensitivity(final InterestRateFutureOptionMarginSecurity security,
+      final NormalSTIRFuturesProviderInterface normalData) {
     ArgumentChecker.notNull(security, "Option security");
     ArgumentChecker.notNull(normalData, "Normal data");
     // Forward sweep
     final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), normalData.getMulticurveProvider());
     final EuropeanVanillaOption option = new EuropeanVanillaOption(security.getStrike(), security.getExpirationTime(), security.isCall());
     final double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
-    final double volatility = normalData.getVolatility(security.getExpirationTime(), security.getStrike(), delay);
+    double volatility = normalData.getVolatility(security.getExpirationTime(), delay, security.getStrike(), priceFuture);
     final NormalFunctionData normalPoint = new NormalFunctionData(priceFuture, 1.0, volatility);
     // Backward sweep
     final double[] priceAdjoint = new double[3];
@@ -116,7 +120,8 @@ public final class InterestRateFutureOptionMarginSecurityNormalSmileMethod exten
    * @param normalData The normal volatility and multi-curves provider.
    * @return The security price Black volatility sensitivity.
    */
-  public SurfaceValue priceNormalSensitivity(final InterestRateFutureOptionMarginSecurity security, final NormalSTIRFuturesSmileProviderInterface normalData) {
+  public SurfaceValue priceNormalSensitivity(final InterestRateFutureOptionMarginSecurity security,
+      final NormalSTIRFuturesProviderInterface normalData) {
     ArgumentChecker.notNull(security, "Option security");
     ArgumentChecker.notNull(normalData, "Normal data");
     // Forward sweep
@@ -124,7 +129,7 @@ public final class InterestRateFutureOptionMarginSecurityNormalSmileMethod exten
     final double strike = security.getStrike();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, security.getExpirationTime(), security.isCall());
     final double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
-    final double volatility = normalData.getVolatility(security.getExpirationTime(), security.getStrike(), delay);
+    double volatility = normalData.getVolatility(security.getExpirationTime(), delay, security.getStrike(), priceFuture);
     final NormalFunctionData normalPoint = new NormalFunctionData(priceFuture, 1.0, volatility);
     // Backward sweep
     final double[] priceAdjoint = new double[3];
@@ -143,11 +148,13 @@ public final class InterestRateFutureOptionMarginSecurityNormalSmileMethod exten
    * @param normalData The normal volatility and multi-curves provider.
    * @return Lognormal Implied Volatility.
    */
-  public double impliedVolatility(final InterestRateFutureOptionMarginSecurity security, final NormalSTIRFuturesSmileProviderInterface normalData) {
+  public double impliedVolatility(final InterestRateFutureOptionMarginSecurity security,
+      final NormalSTIRFuturesProviderInterface normalData) {
     ArgumentChecker.notNull(security, "Option security");
     ArgumentChecker.notNull(normalData, "Normal data");
+    double priceFutures = METHOD_FUTURE.price(security.getUnderlyingFuture(), normalData);
     final double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
-    return normalData.getVolatility(security.getExpirationTime(), security.getStrike(), delay);
+    return normalData.getVolatility(security.getExpirationTime(), delay, security.getStrike(), priceFutures);
   }
 
   /**
@@ -161,4 +168,142 @@ public final class InterestRateFutureOptionMarginSecurityNormalSmileMethod exten
     return METHOD_FUTURE.price(security.getUnderlyingFuture(), multicurves);
   }
 
+  /**
+   * Computes the option security price delta, wrt the futures price dV/df. The futures price is computed without convexity adjustment.
+   * It is supposed that for a given strike the volatility does not change with the curves.
+   * @param security The future option security.
+   * @param normalData The curve and normal volatility data.
+   * @return The delta.
+   */
+  public double priceDelta(InterestRateFutureOptionMarginSecurity security,
+      NormalSTIRFuturesProviderInterface normalData) {
+    ArgumentChecker.notNull(security, "Option security");
+    ArgumentChecker.notNull(normalData, "Normal data");
+    double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), normalData.getMulticurveProvider());
+    return priceDeltaFromFuturePrice(security, normalData, priceFuture);
+  }
+
+  /**
+   * Computes the option security price delta, wrt the futures price dV/df. 
+   * It is supposed that for a given strike the volatility does not change with the curves.
+   * @param security The future option security.
+   * @param normalData The curve and normal volatility data.
+   * @param priceFuture The price of the underlying future.
+   * @return The delta.
+   */
+  public double priceDeltaFromFuturePrice(final InterestRateFutureOptionMarginSecurity security,
+      final NormalSTIRFuturesProviderInterface normalData, final double priceFuture) {
+    ArgumentChecker.notNull(security, "Option security");
+    ArgumentChecker.notNull(normalData, "Normal data");
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(security.getStrike(), security.getExpirationTime(),
+        security.isCall());
+    final double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
+    double volatility = normalData
+        .getVolatility(security.getExpirationTime(), delay, security.getStrike(), priceFuture);
+    final NormalFunctionData normalPoint = new NormalFunctionData(priceFuture, 1.0, volatility);
+    return NORMAL_FUNCTION.getDelta(option, normalPoint);
+  }
+
+  /**
+   * Computes the option's value gamma, the second derivative of the security price wrt underlying futures rate.
+   * The future price is computed without convexity adjustment.
+   * @param security The future option security.
+   * @param normalData The curve and normal volatility data.
+   * @return The gamma.
+   */
+  public double priceGamma(InterestRateFutureOptionMarginSecurity security,
+      NormalSTIRFuturesProviderInterface normalData) {
+    ArgumentChecker.notNull(security, "Option security");
+    ArgumentChecker.notNull(normalData, "Normal data");
+    double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), normalData.getMulticurveProvider());
+    return priceGammaFromFuturePrice(security, normalData, priceFuture);
+  }
+
+  /**
+   * Computes the option's value gamma, the second derivative of the security price wrt underlying futures rate.
+   * @param security The future option security.
+   * @param normalData The curve and normal volatility data.
+   * @param priceFuture The price of the underlying future.
+   * @return The gamma.
+   */
+  public double priceGammaFromFuturePrice(final InterestRateFutureOptionMarginSecurity security,
+      final NormalSTIRFuturesProviderInterface normalData, final double priceFuture) {
+    ArgumentChecker.notNull(security, "Option security");
+    ArgumentChecker.notNull(normalData, "Normal data");
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(security.getStrike(), security.getExpirationTime(),
+        security.isCall());
+    final double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
+    double volatility = normalData
+        .getVolatility(security.getExpirationTime(), delay, security.getStrike(), priceFuture);
+    final NormalFunctionData normalPoint = new NormalFunctionData(priceFuture, 1.0, volatility);
+    return NORMAL_FUNCTION.getGamma(option, normalPoint);
+  }
+
+  /**
+   * Computes the option security vega. The future price is computed without convexity adjustment.
+   * @param security The future option security.
+   * @param normalData The curve and normal volatility data.
+   * @return The vega.
+   */
+  public double priceVega(InterestRateFutureOptionMarginSecurity security,
+      NormalSTIRFuturesProviderInterface normalData) {
+    ArgumentChecker.notNull(security, "Option security");
+    ArgumentChecker.notNull(normalData, "Normal data");
+    double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), normalData.getMulticurveProvider());
+    return priceVegaFromFuturePrice(security, normalData, priceFuture);
+  }
+
+  /**
+   * Computes the option security vega. 
+   * @param security The future option security.
+   * @param normalData The curve and normal volatility data.
+   * @param priceFuture The price of the underlying future.
+   * @return The vega.
+   */
+  public double priceVegaFromFuturePrice(final InterestRateFutureOptionMarginSecurity security,
+      final NormalSTIRFuturesProviderInterface normalData, final double priceFuture) {
+    ArgumentChecker.notNull(security, "Option security");
+    ArgumentChecker.notNull(normalData, "Normal data");
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(security.getStrike(), security.getExpirationTime(),
+        security.isCall());
+    final double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
+    double volatility = normalData
+        .getVolatility(security.getExpirationTime(), delay, security.getStrike(), priceFuture);
+    final NormalFunctionData normalPoint = new NormalFunctionData(priceFuture, 1.0, volatility);
+    return NORMAL_FUNCTION.getVega(option, normalPoint);
+  }
+
+  /**
+   * Computes the option security theta. The future price is computed without convexity adjustment.
+   * @param security The future option security.
+   * @param normalData The curve and normal volatility data.
+   * @return The theta.
+   */
+  public double priceTheta(InterestRateFutureOptionMarginSecurity security,
+      NormalSTIRFuturesProviderInterface normalData) {
+    ArgumentChecker.notNull(security, "Option security");
+    ArgumentChecker.notNull(normalData, "Normal data");
+    double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), normalData.getMulticurveProvider());
+    return priceThetaFromFuturePrice(security, normalData, priceFuture);
+  }
+
+  /**
+   * Computes the option security theta.
+   * @param security The future option security.
+   * @param normalData The curve and normal volatility data.
+   * @param priceFuture The price of the underlying future.
+   * @return The theta.
+   */
+  public double priceThetaFromFuturePrice(final InterestRateFutureOptionMarginSecurity security,
+      final NormalSTIRFuturesProviderInterface normalData, final double priceFuture) {
+    ArgumentChecker.notNull(security, "Option security");
+    ArgumentChecker.notNull(normalData, "Normal data");
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(security.getStrike(), security.getExpirationTime(),
+        security.isCall());
+    final double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
+    double volatility = normalData
+        .getVolatility(security.getExpirationTime(), delay, security.getStrike(), priceFuture);
+    final NormalFunctionData normalPoint = new NormalFunctionData(priceFuture, 1.0, volatility);
+    return NORMAL_FUNCTION.getTheta(option, normalPoint);
+  }
 }

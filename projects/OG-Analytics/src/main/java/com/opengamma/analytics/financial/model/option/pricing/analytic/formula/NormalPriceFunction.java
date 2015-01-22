@@ -99,4 +99,112 @@ public class NormalPriceFunction implements OptionPriceFunction<NormalFunctionDa
     }
     return price;
   }
+
+  /**
+   * Computes forward delta of an option in the normally distributed assets hypothesis (Bachelier model). 
+   * @param option The option description.
+   * @param data The model data.
+   * @return The Delta.
+   */
+  public double getDelta(EuropeanVanillaOption option, NormalFunctionData data) {
+    Validate.notNull(option, "option");
+    Validate.notNull(data, "data");
+    double strike = option.getStrike();
+    double t = option.getTimeToExpiry();
+    double forward = data.getForward();
+    double numeraire = data.getNumeraire();
+    double sigma = data.getNormalVolatility();
+    int sign = option.isCall() ? 1 : -1;
+    double sigmaRootT = sigma * Math.sqrt(t);
+    if (sigmaRootT < 1e-16) {
+      double x = sign * (forward - strike);
+      if (Math.abs(x) <= 1e-16) {
+        return sign * 0.5 * numeraire; // ambiguous if x and sigmaRootT are tiny, then reference number is returned
+      }
+      return x > 0 ? sign * numeraire : 0.0;
+    }
+    double arg = sign * (forward - strike) / sigmaRootT;
+    double nCDF = NORMAL.getCDF(arg);
+    return numeraire * sign * nCDF;
+  }
+
+  /**
+   * Computes forward gamma of an option in the normally distributed assets hypothesis (Bachelier model). 
+   * @param option The option description.
+   * @param data The model data.
+   * @return The gamma.
+   */
+  public double getGamma(EuropeanVanillaOption option, NormalFunctionData data) {
+    Validate.notNull(option, "option");
+    Validate.notNull(data, "data");
+    double strike = option.getStrike();
+    double t = option.getTimeToExpiry();
+    double forward = data.getForward();
+    double numeraire = data.getNumeraire();
+    double sigma = data.getNormalVolatility();
+    int sign = option.isCall() ? 1 : -1;
+    double sigmaRootT = sigma * Math.sqrt(t);
+    if (sigmaRootT < 1e-16) {
+      double x = sign * (forward - strike);
+      // ambiguous (tend to be infinite) if x and sigmaRootT are tiny, then reference number is returned
+      return Math.abs(x) > 1e-16 ? 0.0 : numeraire / Math.sqrt(2.0 * Math.PI) / sigmaRootT;
+    }
+    double arg = (forward - strike) / sigmaRootT;
+    double nPDF = NORMAL.getPDF(arg);
+    return numeraire * nPDF / sigmaRootT;
+  }
+
+  /**
+   * Computes vega of an option in the normally distributed assets hypothesis (Bachelier model). 
+   * @param option The option description.
+   * @param data The model data.
+   * @return The vega.
+   */
+  public double getVega(EuropeanVanillaOption option, NormalFunctionData data) {
+    Validate.notNull(option, "option");
+    Validate.notNull(data, "data");
+    double strike = option.getStrike();
+    double t = option.getTimeToExpiry();
+    double forward = data.getForward();
+    double numeraire = data.getNumeraire();
+    double sigma = data.getNormalVolatility();
+    int sign = option.isCall() ? 1 : -1;
+    double rootT = Math.sqrt(t);
+    double sigmaRootT = sigma * rootT;
+    if (sigmaRootT < 1e-16) {
+      double x = sign * (forward - strike);
+      // ambiguous if x and sigmaRootT are tiny, then reference number is returned
+      return Math.abs(x) > 1e-16 ? 0.0 : numeraire * rootT / Math.sqrt(2.0 * Math.PI);
+    }
+    double arg = (forward - strike) / sigmaRootT;
+    double nPDF = NORMAL.getPDF(arg);
+    return numeraire * nPDF * rootT;
+  }
+
+  /**
+   * Computes theta of an option in the normally distributed assets hypothesis (Bachelier model). 
+   * @param option The option description.
+   * @param data The model data.
+   * @return The theta.
+   */
+  public double getTheta(EuropeanVanillaOption option, NormalFunctionData data) {
+    Validate.notNull(option, "option");
+    Validate.notNull(data, "data");
+    double strike = option.getStrike();
+    double t = option.getTimeToExpiry();
+    double forward = data.getForward();
+    double numeraire = data.getNumeraire();
+    double sigma = data.getNormalVolatility();
+    int sign = option.isCall() ? 1 : -1;
+    double rootT = Math.sqrt(t);
+    double sigmaRootT = sigma * rootT;
+    if (sigmaRootT < 1e-16) {
+      double x = sign * (forward - strike);
+      // ambiguous if x and sigmaRootT are tiny, then reference number is returned
+      return Math.abs(x) > 1e-16 ? 0.0 : -0.5 * numeraire * sigma / rootT / Math.sqrt(2.0 * Math.PI);
+    }
+    double arg = (forward - strike) / sigmaRootT;
+    double nPDF = NORMAL.getPDF(arg);
+    return -0.5 * numeraire * nPDF * sigma / rootT;
+  }
 }
