@@ -18,18 +18,19 @@ public class NormalSTIRFuturesExpSimpleMoneynessProviderDiscount extends NormalS
   /**
    * @param multicurveProvider The multicurve provider.
    * @param parameters The normal volatility parameters.
-   * @param index The cap/floor index.
+   * @param index The index underlying the futures for which the date is valid.
+   * @param moneynessOnPrice Flag indicating if the moneyness is on the price (true) or on the rate (false).
    */
   public NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(MulticurveProviderDiscount multicurveProvider,
-      Surface<Double, Double, Double> parameters, IborIndex index) {
-    super(multicurveProvider, parameters, index);
+      Surface<Double, Double, Double> parameters, IborIndex index, boolean moneynessOnPrice)  {
+    super(multicurveProvider, parameters, index, moneynessOnPrice);
   }
 
   @Override
   public NormalSTIRFuturesExpSimpleMoneynessProviderDiscount copy() {
     MulticurveProviderDiscount multicurveProvider = getMulticurveProvider().copy();
     return new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(multicurveProvider, getNormalParameters(),
-        getFuturesIndex());
+        getFuturesIndex(), isMoneynessOnPrice());
   }
 
   @Override
@@ -42,6 +43,7 @@ public class NormalSTIRFuturesExpSimpleMoneynessProviderDiscount extends NormalS
     ArgumentChecker.isTrue(multicurve instanceof MulticurveProviderDiscount,
         "multicurve should be MulticurveProviderDiscount");
     MulticurveProviderDiscount casted = (MulticurveProviderDiscount) multicurve;
-    return new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(casted, getNormalParameters(), getFuturesIndex());
+    return new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(casted, getNormalParameters(), getFuturesIndex(),
+        isMoneynessOnPrice());
   }
 }
