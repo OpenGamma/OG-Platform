@@ -8,7 +8,8 @@ package com.opengamma.analytics.financial.provider.description.interestrate;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 
 /**
- * Provider of normal volatility (Bachelier model) smile for options on STIR futures. The volatility is time to expiration/delay/strike/futures price dependent. 
+ * Provider of normal volatility (Bachelier model) smile for options on STIR futures. 
+ * The volatility is time to expiration/delay/strike/futures price dependent. 
  * The "delay" is the time between expiration of the option and last trading date of the underlying futures.
  */
 public interface NormalSTIRFuturesProviderInterface extends ParameterProviderInterface {

@@ -56,7 +56,8 @@ import com.opengamma.util.tuple.Pairs;
 public class STIRFuturesOptionNormalExpSimpleMoneynessGBPE2ETest {
   private static final IndexIborMaster INDEX_MASTER = IndexIborMaster.getInstance();
   private static final ZonedDateTime VALUATION_DATE = DateUtils.getUTCDate(2014, 2, 17, 9, 0);
-  private static final STIRFuturesOptionNormalExpSimpleMoneynessExamplesData DATA = new STIRFuturesOptionNormalExpSimpleMoneynessExamplesData();
+  private static final STIRFuturesOptionNormalExpSimpleMoneynessExamplesData DATA = 
+      new STIRFuturesOptionNormalExpSimpleMoneynessExamplesData();
 
   /* curve and surface */
   private static final IborIndex GBPLIBOR3M = INDEX_MASTER.getIndex("GBPLIBOR3M");
@@ -85,8 +86,8 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessGBPE2ETest {
     VOL_SURFACE_SIMPLEMONEY = InterpolatedDoublesSurface.from(DATA.getExpiry(), DATA.getSimpleMoneyness(),
         DATA.getVolatility(), INTERPOLATOR_2D);
   }
-  private static final NormalSTIRFuturesExpSimpleMoneynessProviderDiscount NORMAL_MULTICURVES = new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(
-      MULTICURVES, VOL_SURFACE_SIMPLEMONEY, GBPLIBOR3M);
+  private static final NormalSTIRFuturesExpSimpleMoneynessProviderDiscount NORMAL_MULTICURVES = 
+      new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(MULTICURVES, VOL_SURFACE_SIMPLEMONEY, GBPLIBOR3M, false);
   
   /* Rate futures */
   private static final InterestRateFutureSecurityDefinition RATE_FUTURE_Q; // Quarterly
