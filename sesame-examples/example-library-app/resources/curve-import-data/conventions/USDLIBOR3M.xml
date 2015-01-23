@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.convention.VanillaIborLegConvention">
+ <externalIdBundle>
+  <externalIds>
+   <item>CONVENTION~USDLIBOR3M</item>
+  </externalIds>
+ </externalIdBundle>
+ <attributes/>
+ <name>USDLIBOR3M</name>
+ <iborIndexConvention>OG_TICKER~USDLIBOR3M</iborIndexConvention>
+ <isAdvanceFixing>true</isAdvanceFixing>
+ <interpolationMethod>Linear</interpolationMethod>
+ <resetTenor>P3M</resetTenor>
+ <settlementDays>2</settlementDays>
+ <isEOM>true</isEOM>
+ <stubType>SHORT_START</stubType>
+ <isExchangeNotional>false</isExchangeNotional>
+ <paymentLag>0</paymentLag>
+</bean>

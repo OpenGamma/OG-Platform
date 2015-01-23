@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.opengamma</groupId>
+    <artifactId>corporate-parent</artifactId>
+    <version>1.1.8</version>
+    <relativePath></relativePath>
+  </parent>
+  <groupId>com.opengamma.solutions</groupId>
+  <artifactId>example-remote-app</artifactId>
+  <version>0.7-SNAPSHOT</version>
+
+  <dependencies>
+    <!-- OG Platform -->
+    <dependency>
+      <groupId>com.opengamma.platform</groupId>
+      <artifactId>og-server</artifactId>
+      <version>${og.version}</version>
+      <type>pom</type>
+    </dependency>
+
+    <!-- New engine -->
+    <dependency>
+      <groupId>com.opengamma.platform</groupId>
+      <artifactId>sesame-component</artifactId>
+      <version>${og.version}</version>
+    </dependency>
+
+    <!-- Example Data -->
+    <dependency>
+      <groupId>com.opengamma.solutions</groupId>
+      <artifactId>example-data</artifactId>
+      <version>0.7-SNAPSHOT</version>
+    </dependency>
+
+    <!-- Database -->
+    <dependency>
+      <groupId>postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>9.1-901-1.jdbc4</version>
+    </dependency>
+
+    <!-- Guava -->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>14.0.1</version>
+    </dependency>
+
+    <!-- Test-->
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <version>6.3.1</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-library</artifactId>
+      <version>1.3</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.opengamma.platform</groupId>
+      <artifactId>og-util</artifactId>
+      <version>${og.version}</version>
+      <scope>test</scope>
+      <type>test-jar</type>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <filtering>true</filtering>
+      </testResource>
+    </testResources>
+
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.7</source>
+          <target>1.7</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.joda</groupId>
+        <artifactId>joda-beans-maven-plugin</artifactId>
+        <version>0.7.3</version>
+      </plugin>
+
+      <!-- Disable surefire - exclude Test.java-->
+      <!-- TODO only exclude integration tests-->
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/*Test.java</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+
+      <!-- Enable failsafe - include Test.java-->
+      <!-- TODO only include integration tests via annotation -->
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>2.18.1</version>
+        <configuration>
+          <enableAssertions>true</enableAssertions>
+          <includes>
+            <!-- if unset will default to *IT.java -->
+            <include>**/*Test.java</include>
+          </includes>
+          <printSummary>true</printSummary>
+          <systemPropertyVariables>
+            <verbose>-1</verbose>
+          </systemPropertyVariables>
+        </configuration>
+        <executions>
+          <execution>
+            <id>integration-tests</id>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>Brooklyn Tests</id>
+      <activation>
+        <property>
+          <name>brooklyn</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+        <!-- Brooklyn plugin  -->
+        <plugin>
+          <groupId>io.brooklyn.maven</groupId>
+          <artifactId>brooklyn-maven-plugin</artifactId>
+          <version>0.1.0-SNAPSHOT</version>
+          <executions>
+            <execution>
+              <id>Deploy blueprint</id>
+              <phase>pre-integration-test</phase>
+              <goals>
+                <goal>deploy</goal>
+              </goals>
+              <configuration>
+                <server>${brooklyn.location}</server>
+                <blueprint>${blueprint}</blueprint>
+                <propertyName>appId</propertyName>
+              </configuration>
+            </execution>
+            <execution>
+              <id>Query sensor value</id>
+              <phase>pre-integration-test</phase>
+              <goals>
+                <goal>sensor</goal>
+              </goals>
+              <configuration>
+                <server>${brooklyn.location}</server>
+                <application>${appId}</application>
+                <sensor>main.uri</sensor>
+                <typeRegex>.*Fullstack.*</typeRegex>
+                <!-- passed to failsafe -->
+                <propertyName>server.url</propertyName>
+              </configuration>
+            </execution>
+            <execution>
+              <id>Stop the application</id>
+              <goals>
+                <goal>stop</goal>
+              </goals>
+              <configuration>
+                <server>${brooklyn.location}</server>
+                <application>${appId}</application>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+          <plugin>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+              <systemPropertyVariables>
+                <server.url>${server.url}</server.url>
+              </systemPropertyVariables>
+            </configuration>
+          </plugin>
+      </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>sonatype-nexus-snapshots</id>
+      <name>Sonatype Nexus Snapshots</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <properties>
+    <og.version>2.8.6</og.version>
+    <guice.version>3.0</guice.version>
+    <brooklyn.location>http://127.0.0.1:8081</brooklyn.location>
+    <blueprint>${project.build.testOutputDirectory}/blueprints/fullstack.yaml</blueprint>
+    <!-- maven.build.timestamp is not expanded by resource filtering: http://jira.codehaus.org/browse/MRESOURCES-99 -->
+    <buildTime>${maven.build.timestamp}</buildTime>
+    <deployment.location>localhost</deployment.location>
+  </properties>
+
+  <!-- example brooklyn usage
+       mvn clean install -Dbrooklyn
+                         -Ddeployment.location=integration-lx-1
+                         -Dbrooklyn.location=http://integration-lx-1:8081
+                         -blueprint=path/to/blueprint
+  -->
+
+</project>

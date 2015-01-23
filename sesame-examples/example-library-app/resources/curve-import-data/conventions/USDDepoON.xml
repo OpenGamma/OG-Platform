@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.convention.DepositConvention">
+ <externalIdBundle>
+  <externalIds>
+   <item>CONVENTION~USDDepoON</item>
+  </externalIds>
+ </externalIdBundle>
+ <attributes/>
+ <name>USDDepoON</name>
+ <dayCount>Actual/360</dayCount>
+ <businessDayConvention>Modified Following</businessDayConvention>
+ <settlementDays>0</settlementDays>
+ <isEOM>true</isEOM>
+ <currency>USD</currency>
+ <regionCalendar>FINANCIAL_REGION~US</regionCalendar>
+</bean>

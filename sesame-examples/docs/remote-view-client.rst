@@ -7,9 +7,10 @@ Once you have set up the OpenGamma marketdata and fullstack servers, and added t
 Running in the IDE
 ==================
 
-The **ExampleRemoteClientTool** is an example of a client application that can be run against a remote server. This tool is set up to output Present Value and Bucketed PV01 into the console for a number of example interest rate swaps defined in **RemoteViewUtils**
+The ``ExampleRemoteClientTool`` is an example of a client application that can be run against a remote server.
+This tool is set up to output Present Value and Bucketed PV01 into the console for a number of example interest rate swaps defined in ``SwapViewUtils``
 
-You can run this in your IDE **ExampleRemoteClientTool** with the following example arguments:
+You can run this in your IDE ``ExampleRemoteClientTool`` with the following example arguments:
 
 + -c http://your-server-ip:8080
 + -l com/opengamma/util/warn-logback.xml 

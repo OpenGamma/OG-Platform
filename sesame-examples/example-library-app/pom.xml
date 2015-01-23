@@ -11,7 +11,7 @@
     <relativePath></relativePath>
   </parent>
   <groupId>com.opengamma.solutions</groupId>
-  <artifactId>example-server</artifactId>
+  <artifactId>example-library-app</artifactId>
   <version>0.7-SNAPSHOT</version>
 
   <dependencies>
@@ -30,11 +30,11 @@
       <version>${og.version}</version>
     </dependency>
 
-    <!-- Database -->
+    <!-- Example Data -->
     <dependency>
-      <groupId>postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <version>9.1-901-1.jdbc4</version>
+      <groupId>com.opengamma.solutions</groupId>
+      <artifactId>example-data</artifactId>
+      <version>0.7-SNAPSHOT</version>
     </dependency>
 
     <!-- Guava -->
@@ -42,6 +42,19 @@
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>14.0.1</version>
+    </dependency>
+
+    <!-- Guice -->
+    <dependency>
+      <groupId>com.google.inject</groupId>
+      <artifactId>guice</artifactId>
+      <version>${guice.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.inject.extensions</groupId>
+      <artifactId>guice-multibindings</artifactId>
+      <version>${guice.version}</version>
     </dependency>
 
     <!-- Test-->
@@ -59,13 +72,19 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>com.opengamma.platform</groupId>
+      <artifactId>og-util</artifactId>
+      <version>${og.version}</version>
+      <scope>test</scope>
+      <type>test-jar</type>
+    </dependency>
+
   </dependencies>
 
   <build>
+
     <resources>
-      <resource>
-        <directory>config</directory>
-      </resource>
       <resource>
         <directory>resources</directory>
       </resource>
@@ -79,7 +98,6 @@
           <target>1.7</target>
         </configuration>
       </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
@@ -92,37 +110,18 @@
           </execution>
         </executions>
       </plugin>
-
-      <!-- Unpack for dev environment -->
       <plugin>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>com.opengamma.platform</groupId>
-                  <artifactId>og-web</artifactId>
-                  <version>${og.version}</version>
-                  <type>zip</type>
-                  <classifier>web-engine</classifier>
-                  <outputDirectory>web-engine</outputDirectory>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-        </executions>
+        <groupId>org.joda</groupId>
+        <artifactId>joda-beans-maven-plugin</artifactId>
+        <version>0.7.3</version>
       </plugin>
-
     </plugins>
+
   </build>
 
   <properties>
     <og.version>2.8.6</og.version>
+    <guice.version>3.0</guice.version>
   </properties>
 
 </project>

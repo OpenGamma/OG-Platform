@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition">
+ <name>USD-FRAL3M-IRSL3M-NCS</name>
+ <nodes>
+  <item type="com.opengamma.financial.analytics.ircurve.strips.CashNode">
+   <curveNodeIdMapperName>USD-LIBOR3M-BBG</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P3M</maturityTenor>
+   <convention>OG_TICKER~USDLIBOR3M</convention>
+  </item>
+  <item type="com.opengamma.financial.analytics.ircurve.strips.FRANode">
+   <curveNodeIdMapperName>USD-LIBOR3M-BBG</curveNodeIdMapperName>
+   <fixingStart>P3M</fixingStart>
+   <fixingEnd>P6M</fixingEnd>
+   <convention>OG_TICKER~USDLIBOR3M</convention>
+  </item>
+  <item type="FRANode">
+   <curveNodeIdMapperName>USD-LIBOR3M-BBG</curveNodeIdMapperName>
+   <fixingStart>P6M</fixingStart>
+   <fixingEnd>P9M</fixingEnd>
+   <convention>OG_TICKER~USDLIBOR3M</convention>
+  </item>
+  <item type="com.opengamma.financial.analytics.ircurve.strips.SwapNode">
+   <curveNodeIdMapperName>USD-LIBOR3M-BBG</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P1Y</maturityTenor>
+   <payLegConvention>CONVENTION~USDFixed6M</payLegConvention>
+   <receiveLegConvention>CONVENTION~USDLIBOR3M</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>USD-LIBOR3M-BBG</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P2Y</maturityTenor>
+   <payLegConvention>CONVENTION~USDFixed6M</payLegConvention>
+   <receiveLegConvention>CONVENTION~USDLIBOR3M</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>USD-LIBOR3M-BBG</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P3Y</maturityTenor>
+   <payLegConvention>CONVENTION~USDFixed6M</payLegConvention>
+   <receiveLegConvention>CONVENTION~USDLIBOR3M</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>USD-LIBOR3M-BBG</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P4Y</maturityTenor>
+   <payLegConvention>CONVENTION~USDFixed6M</payLegConvention>
+   <receiveLegConvention>CONVENTION~USDLIBOR3M</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>USD-LIBOR3M-BBG</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P5Y</maturityTenor>
+   <payLegConvention>CONVENTION~USDFixed6M</payLegConvention>
+   <receiveLegConvention>CONVENTION~USDLIBOR3M</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>USD-LIBOR3M-BBG</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P7Y</maturityTenor>
+   <payLegConvention>CONVENTION~USDFixed6M</payLegConvention>
+   <receiveLegConvention>CONVENTION~USDLIBOR3M</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>USD-LIBOR3M-BBG</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P10Y</maturityTenor>
+   <payLegConvention>CONVENTION~USDFixed6M</payLegConvention>
+   <receiveLegConvention>CONVENTION~USDLIBOR3M</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>USD-LIBOR3M-BBG</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P12Y</maturityTenor>
+   <payLegConvention>CONVENTION~USDFixed6M</payLegConvention>
+   <receiveLegConvention>CONVENTION~USDLIBOR3M</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>USD-LIBOR3M-BBG</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P15Y</maturityTenor>
+   <payLegConvention>CONVENTION~USDFixed6M</payLegConvention>
+   <receiveLegConvention>CONVENTION~USDLIBOR3M</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>USD-LIBOR3M-BBG</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P20Y</maturityTenor>
+   <payLegConvention>CONVENTION~USDFixed6M</payLegConvention>
+   <receiveLegConvention>CONVENTION~USDLIBOR3M</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>USD-LIBOR3M-BBG</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P25Y</maturityTenor>
+   <payLegConvention>CONVENTION~USDFixed6M</payLegConvention>
+   <receiveLegConvention>CONVENTION~USDLIBOR3M</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>USD-LIBOR3M-BBG</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P30Y</maturityTenor>
+   <payLegConvention>CONVENTION~USDFixed6M</payLegConvention>
+   <receiveLegConvention>CONVENTION~USDLIBOR3M</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+ </nodes>
+ <interpolatorName>NaturalCubicSpline</interpolatorName>
+ <rightExtrapolatorName>FlatExtrapolator</rightExtrapolatorName>
+ <leftExtrapolatorName>FlatExtrapolator</leftExtrapolatorName>
+</bean>

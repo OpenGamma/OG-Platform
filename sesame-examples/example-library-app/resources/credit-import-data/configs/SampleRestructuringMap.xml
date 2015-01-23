@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.sesame.credit.config.RestructuringSettings">
+   <restructuringMappings>
+      <entry key="EUR">MM</entry>
+      <entry key="USD">XR</entry>
+   </restructuringMappings>
+</bean>

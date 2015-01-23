@@ -5,6 +5,7 @@
  */
 package com.opengamma.solutions.component;
 
+import java.io.File;
 import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -23,6 +24,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.integration.regression.DatabaseRestore;
+import com.opengamma.integration.regression.FudgeXMLFormat;
+import com.opengamma.integration.regression.RegressionIO;
+import com.opengamma.integration.regression.ZipFileRegressionIO;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.convention.ConventionMaster;
 import com.opengamma.master.exchange.ExchangeMaster;
@@ -78,7 +82,9 @@ public class FullDatabaseRestoreComponentFactory extends AbstractComponentFactor
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
 
     URL systemResource = ClassLoader.getSystemResource(getPath());
-    DatabaseRestore databaseRestore = new DatabaseRestore(systemResource.getPath(),
+    File zip = new File(systemResource.getPath());
+    RegressionIO io = ZipFileRegressionIO.createReader(zip, new FudgeXMLFormat());
+    DatabaseRestore databaseRestore = new DatabaseRestore(io,
                                                           getSecurityMaster(),
                                                           getPositionMaster(),
                                                           getPortfolioMaster(),
