@@ -42,7 +42,8 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Test.
+ * Test the pricing of STIR futures options in a normal model with smile. The smile is describe by a surface on expiry
+ * and simple moneyness on rate.
  */
 @Test(groups = TestGroup.UNIT)
 public class InterestRateFutureOptionMarginNormalSmileMethodTest {
@@ -194,9 +195,9 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
     InterpolatedDoublesSurface surfaceUp = NormalDataSets.createNormalSurfaceFuturesPricesShift(eps);
     InterpolatedDoublesSurface surfacedw = NormalDataSets.createNormalSurfaceFuturesPricesShift(-eps);
     NormalSTIRFuturesExpSimpleMoneynessProviderDiscount normalUp = new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(
-        MULTICURVES, surfaceUp, EURIBOR3M);
+        MULTICURVES, surfaceUp, EURIBOR3M, false);
     NormalSTIRFuturesExpSimpleMoneynessProviderDiscount normalDw = new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(
-        MULTICURVES, surfacedw, EURIBOR3M);
+        MULTICURVES, surfacedw, EURIBOR3M, false);
     double priceVolUp = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, normalUp);
     double priceVolDw = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, normalDw);
     double expectedVega = 0.5 * (priceVolUp - priceVolDw) / eps;
@@ -239,8 +240,8 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
    */
   private static final InterpolatedDoublesSurface NORMAL_PARAMETERS_MONEYNESS = NormalDataSets
       .createNormalSurfaceFuturesPricesSimpleMoneyness();
-  private static final NormalSTIRFuturesExpSimpleMoneynessProviderDiscount NORMAL_MULTICURVES_MONEYNESS = new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(
-      MULTICURVES, NORMAL_PARAMETERS_MONEYNESS, EURIBOR3M);
+  private static final NormalSTIRFuturesExpSimpleMoneynessProviderDiscount NORMAL_MULTICURVES_MONEYNESS = 
+      new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(MULTICURVES, NORMAL_PARAMETERS_MONEYNESS, EURIBOR3M, false);
 
   /**
    * Test the option price.
@@ -319,9 +320,9 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
     InterpolatedDoublesSurface NormalParameterMinus = NormalDataSets
         .createNormalSurfaceFuturesPricesSimpleMoneynessShift(-VOL_SHIFT);
     NormalSTIRFuturesExpSimpleMoneynessProviderDiscount normalPlus = new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(
-        MULTICURVES, normalParameterPlus, EURIBOR3M);
+        MULTICURVES, normalParameterPlus, EURIBOR3M, false);
     NormalSTIRFuturesExpSimpleMoneynessProviderDiscount normalMinus = new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(
-        MULTICURVES, NormalParameterMinus, EURIBOR3M);
+        MULTICURVES, NormalParameterMinus, EURIBOR3M, false);
     double pricePlus = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, normalPlus);
     double priceMinus = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, normalMinus);
     double priceSensiExpected = (pricePlus - priceMinus) / (2 * VOL_SHIFT);
@@ -360,9 +361,9 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
     InterpolatedDoublesSurface surfaceUp = NormalDataSets.createNormalSurfaceFuturesPricesSimpleMoneynessShift(eps);
     InterpolatedDoublesSurface surfacedw = NormalDataSets.createNormalSurfaceFuturesPricesSimpleMoneynessShift(-eps);
     NormalSTIRFuturesExpSimpleMoneynessProviderDiscount normalUp = new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(
-        MULTICURVES, surfaceUp, EURIBOR3M);
+        MULTICURVES, surfaceUp, EURIBOR3M, false);
     NormalSTIRFuturesExpSimpleMoneynessProviderDiscount normalDw = new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(
-        MULTICURVES, surfacedw, EURIBOR3M);
+        MULTICURVES, surfacedw, EURIBOR3M, false);
     double priceVolUp = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, normalUp);
     double priceVolDw = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, normalDw);
     double expectedVega = 0.5 * (priceVolUp - priceVolDw) / eps;

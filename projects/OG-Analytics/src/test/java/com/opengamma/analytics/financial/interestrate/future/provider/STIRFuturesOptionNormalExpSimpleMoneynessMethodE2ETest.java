@@ -56,7 +56,7 @@ import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
 /**
- * E2E test for STIR futures option using volatility surface with simple moneyness. 
+ * E2E test for STIR futures option using volatility surface with simple moneyness on rate. 
  */
 public class STIRFuturesOptionNormalExpSimpleMoneynessMethodE2ETest {
   private static final STIRFuturesOptionNormalExpSimpleMoneynessExamplesData DATA = new STIRFuturesOptionNormalExpSimpleMoneynessExamplesData();
@@ -86,8 +86,8 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessMethodE2ETest {
   private static final Currency EUR = EURIBOR3M.getCurrency();
   final private static InterpolatedDoublesSurface VOL_SURFACE_SIMPLEMONEY = InterpolatedDoublesSurface.from(EXPIRY,
       SIMPLEMONEY, VOL, INTERPOLATOR_2D);
-  final private static NormalSTIRFuturesExpSimpleMoneynessProviderDiscount NORMAL_MULTICURVES = new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(
-      MULTICURVES, VOL_SURFACE_SIMPLEMONEY, EURIBOR3M);
+  final private static NormalSTIRFuturesExpSimpleMoneynessProviderDiscount NORMAL_MULTICURVES = 
+      new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(MULTICURVES, VOL_SURFACE_SIMPLEMONEY, EURIBOR3M, false);
 
   /* Option */
   private static final Calendar TARGET = MulticurveProviderDiscountDataSets.getEURCalendar();
