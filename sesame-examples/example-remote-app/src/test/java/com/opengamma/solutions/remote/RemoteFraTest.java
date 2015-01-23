@@ -97,7 +97,7 @@ public class RemoteFraTest {
                 _currencyMatrixLink));
   }
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.1
+  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
   public void testForwardRateAgreementPV() {
 
     Result result = _results.get(0, 0).getResult();

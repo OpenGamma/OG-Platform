@@ -16,7 +16,7 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Provide the DatabaseRestore utility to populateMulticurveData data in the various masters
+ * Provide the DataLoader utility to populateMulticurveData data in the various masters
  */
 public class DataLoadModule extends AbstractModule {
 
@@ -33,10 +33,10 @@ public class DataLoadModule extends AbstractModule {
   @Provides
   @Singleton
   public DataLoader createDatabaseRestore(SecurityMaster securityMaster,
-                                               ConfigMaster configMaster,
-                                               HolidayMaster holidayMaster,
-                                               MarketDataSnapshotMaster marketDataSnapshotMaster,
-                                               ConventionMaster conventionMaster) {
+                                          ConfigMaster configMaster,
+                                          HolidayMaster holidayMaster,
+                                          MarketDataSnapshotMaster marketDataSnapshotMaster,
+                                          ConventionMaster conventionMaster) {
 
     return new DataLoader(_path,
                           securityMaster,

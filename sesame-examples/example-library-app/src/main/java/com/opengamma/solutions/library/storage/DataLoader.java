@@ -78,6 +78,9 @@ public class DataLoader {
     _conventionMaster = ArgumentChecker.notNull(conventionMaster, "conventionMaster");
   }
 
+  /**
+   * Load sample credit data
+   */
   public void populateCreditData() {
 
     _configMaster.add(loadConfig(RestructuringSettings.class, "SampleRestructuringMap.xml", false));
@@ -85,6 +88,9 @@ public class DataLoader {
     _snapshotMaster.add(loadSnapshots(YieldCurveDataSnapshot.class, "SampleYieldCurve.xml", false));
   }
 
+  /**
+   * Load sample multicurve data
+   */
   public void populateMulticurveData() {
 
     _holidayMaster.add(loadHoliday(ManageableHoliday.class, "USNY.xml", false));

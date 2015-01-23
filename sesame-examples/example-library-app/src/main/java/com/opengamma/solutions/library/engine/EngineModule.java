@@ -63,8 +63,8 @@ public class EngineModule extends AbstractModule {
    */
   @Provides
   @Singleton
-  public Engine createEngine(ViewFactory viewFactory, MarketDataEnvironmentFactory marketData) {
-    return new DefaultEngine(viewFactory, marketData);
+  public Engine createEngine(ViewFactory viewFactory, MarketDataEnvironmentFactory marketData, ExecutorService service) {
+    return new DefaultEngine(viewFactory, marketData, service);
   }
 
   /**
