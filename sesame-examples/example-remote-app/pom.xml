@@ -116,6 +116,7 @@
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <skipTests>true</skipTests>
           <excludes>
             <exclude>**/*Test.java</exclude>
           </excludes>
@@ -128,6 +129,7 @@
         <artifactId>maven-failsafe-plugin</artifactId>
         <version>2.18.1</version>
         <configuration>
+          <skipTests>true</skipTests>
           <enableAssertions>true</enableAssertions>
           <includes>
             <!-- if unset will default to *IT.java -->
