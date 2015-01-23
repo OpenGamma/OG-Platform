@@ -5,7 +5,6 @@
  */
 package com.opengamma.solutions.library.tool;
 
-import java.net.URL;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -24,11 +23,11 @@ import com.opengamma.solutions.library.storage.SourcesModule;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * Curve Bundle Provider Tool
+ * Curve Bundle Provider example
  */
-public class CurveBundleProviderTool {
+public class CurveBundleProviderExample {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(CurveBundleProviderTool.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(CurveBundleProviderExample.class);
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 10, 16);
   private static final String CURVE_CONSTRUCTION_CONFIGURATION = "USD_FF_DSCON-OISFFS_L3M-FRAIRS_L1M-BS_L6M-BS";
   private static final String SNAPSHOT_NAME = "USDSnapshot";

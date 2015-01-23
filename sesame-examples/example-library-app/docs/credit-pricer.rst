@@ -1,8 +1,8 @@
 
-Example Credit Pricer Tool
---------------------------
+Example Credit Pricer
+---------------------
 
-The example class ``CreditPricerTool`` demonstrates how to initialize the OpenGamma market risk environment and request **PV** and **CS01** for a CDS.
+The example class ``CreditPricerExample`` demonstrates how to initialize the OpenGamma market risk environment and request **PV** and **CS01** for a CDS.
 
 #. **Initialise the market risk environment**
 

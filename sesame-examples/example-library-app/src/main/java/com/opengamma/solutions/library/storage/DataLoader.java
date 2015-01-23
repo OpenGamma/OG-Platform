@@ -39,7 +39,8 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.sesame.credit.config.RestructuringSettings;
-import com.opengamma.solutions.library.tool.CreditPricerTool;
+import com.opengamma.solutions.library.tool.CreditPricerExample;
+import com.opengamma.solutions.library.tool.CurveBundleProviderExample;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.JodaBeanSerialization;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
@@ -80,7 +81,7 @@ public class DataLoader {
   }
 
   /**
-   * Load sample credit data for use in the CreditPricerTool example and LibraryCreditTest
+   * Load sample credit data for use in the {@link CreditPricerExample} example
    */
   public void populateCreditData() {
 
@@ -90,7 +91,7 @@ public class DataLoader {
   }
 
   /**
-   * Load sample multicurve data for use in the CurveBundleProviderTool example and LibraryCurveBundleProviderTest
+   * Load sample multicurve data for use in the {@link CurveBundleProviderExample} example
    */
   public void populateMulticurveData() {
 

@@ -5,7 +5,6 @@
  */
 package com.opengamma.solutions.library.tool;
 
-import java.net.URL;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -23,11 +22,11 @@ import com.opengamma.solutions.library.storage.SourcesModule;
 import com.opengamma.solutions.util.ViewUtils;
 
 /**
- * Credit pricer tool
+ * Credit pricer example
  */
-public class CreditPricerTool {
+public class CreditPricerExample {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(CreditPricerTool.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(CreditPricerExample.class);
 
   /**
    * Entry point to running the Credit Pricer.

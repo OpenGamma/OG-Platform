@@ -1,8 +1,8 @@
 
-Example Curve Bundle Provider Tool
-----------------------------------
+Example Curve Bundle Provider
+-----------------------------
 
-The example class ``CurveBundleProviderTool`` demonstrates how to initialize the OpenGamma market risk environment and request a ``MulticurveBundle``.
+The example class ``CurveBundleProviderExample`` demonstrates how to initialize the OpenGamma market risk environment and request a ``MulticurveBundle``.
 
 #. **Initialise the market risk environment**
 
