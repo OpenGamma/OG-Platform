@@ -11,12 +11,12 @@ The example class ``CurveBundleProviderTool`` demonstrates how to initialize the
 
 #. **Populate configuration and market data**
 
-   The ``DataLoadModule`` utilizes the ``DatabaseRestore`` class to populate the in-memory masters from the example configuration provided in **curve-import-data**.
+   The ``DataLoadModule`` utilizes the ``DataLoader`` class to populate the in-memory masters from the example configuration provided in **curve-import-data**.
    The call to populate the data is evoked when the ``CurveBundleProvider`` builds the multicurve.
 
 #. **The curve configuration**
 
-   The ``CurveConstructionConfiguration`` is the entry point for specifying the multicurve curve bundle.
+   The ``CurveConstructionConfiguration``, named ''USD_FF_DSCON-OISFFS_L3M-FRAIRS_L1M-BS_L6M-BS', is the entry point for specifying the multicurve curve bundle.
    The example included in curve-import-data makes reference to the following ``InterpolatedCurveDefinition`` curves
 
    #. 'USD-OIS-FFS-NCS' - USD curve built from Overnight and Fed Fund Swaps.

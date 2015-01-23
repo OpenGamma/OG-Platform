@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fudgeEnvelope>
-   <uniqueId type="string">MemSnap~1</uniqueId>
    <name type="string">USDSnapshot</name>
    <basisViewName type="string"></basisViewName>
    <globalValues type="message">

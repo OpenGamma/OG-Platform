@@ -112,7 +112,7 @@ public final class CreditViewUtils {
     SnapshotLink<YieldCurveDataSnapshot> yieldCurve =
         SnapshotLink.resolvable(yieldCurveName, YieldCurveDataSnapshot.class);
     ConfigLink<RestructuringSettings> restructuringSettings =
-        ConfigLink.resolvable("Sample Restructuring Map", RestructuringSettings.class);
+        ConfigLink.resolvable("SampleRestructuringMap", RestructuringSettings.class);
 
     CreditCurveDataKeyMap configKeyMap = CreditCurveDataKeyMap.builder()
         .securityCurveMappings(ImmutableMap.<CreditCurveDataKey, CreditCurveDataKey>of())

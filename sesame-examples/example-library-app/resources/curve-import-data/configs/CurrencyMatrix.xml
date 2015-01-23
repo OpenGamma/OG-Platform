@@ -1,58 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fudgeEnvelope>
-   <type type="string">com.opengamma.financial.currency.CurrencyMatrix</type>
-   <name type="string">CurrencyMatrix</name>
-   <uniqueId type="string">MemCfg~22~22</uniqueId>
-   <value type="message">
-      <fudgeField0 ordinal="0" type="string">com.opengamma.financial.currency.CurrencyMatrix</fudgeField0>
-      <valueReq type="message">
-         <JPY type="message">
-            <USD type="message">
-               <valueName type="string">Market_Value</valueName>
-               <computationTargetType type="string">PRIMITIVE</computationTargetType>
-               <computationTargetIdentifier type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">JPY Curncy</Value>
-                  </ID>
-               </computationTargetIdentifier>
-               <reciprocal type="boolean">false</reciprocal>
-            </USD>
-         </JPY>
-         <EUR type="message">
-            <USD type="message">
-               <valueName type="string">Market_Value</valueName>
-               <computationTargetType type="string">PRIMITIVE</computationTargetType>
-               <computationTargetIdentifier type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">EUR Curncy</Value>
-                  </ID>
-               </computationTargetIdentifier>
-               <reciprocal type="boolean">true</reciprocal>
-            </USD>
-         </EUR>
-         <GBP type="message">
-            <USD type="message">
-               <valueName type="string">Market_Value</valueName>
-               <computationTargetType type="string">PRIMITIVE</computationTargetType>
-               <computationTargetIdentifier type="message">
-                  <ID type="message">
-                     <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-                     <Value type="string">GBP Curncy</Value>
-                  </ID>
-               </computationTargetIdentifier>
-               <reciprocal type="boolean">true</reciprocal>
-            </USD>
-         </GBP>
-      </valueReq>
-      <crossConvert type="message">
+   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.currency.CurrencyMatrix</fudgeField0>
+   <valueReq type="message">
+      <JPY type="message">
          <USD type="message">
-            <EUR type="string">GBP</EUR>
+            <valueName type="string">Market_Value</valueName>
+            <computationTargetType type="string">PRIMITIVE</computationTargetType>
+            <computationTargetIdentifier type="message">
+               <ID type="message">
+                  <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                  <Value type="string">JPY Curncy</Value>
+               </ID>
+            </computationTargetIdentifier>
+            <reciprocal type="boolean">false</reciprocal>
          </USD>
-      </crossConvert>
-      <uniqueId type="string">MemCfg~22~22</uniqueId>
-   </value>
-   <fudgeField0 ordinal="0" type="string">com.opengamma.core.config.impl.ConfigItem</fudgeField0>
-   <fudgeField0 ordinal="0" type="string">org.joda.beans.impl.direct.DirectBean</fudgeField0>
+      </JPY>
+      <EUR type="message">
+         <USD type="message">
+            <valueName type="string">Market_Value</valueName>
+            <computationTargetType type="string">PRIMITIVE</computationTargetType>
+            <computationTargetIdentifier type="message">
+               <ID type="message">
+                  <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                  <Value type="string">EUR Curncy</Value>
+               </ID>
+            </computationTargetIdentifier>
+            <reciprocal type="boolean">true</reciprocal>
+         </USD>
+      </EUR>
+      <GBP type="message">
+         <USD type="message">
+            <valueName type="string">Market_Value</valueName>
+            <computationTargetType type="string">PRIMITIVE</computationTargetType>
+            <computationTargetIdentifier type="message">
+               <ID type="message">
+                  <Scheme type="string">BLOOMBERG_TICKER</Scheme>
+                  <Value type="string">GBP Curncy</Value>
+               </ID>
+            </computationTargetIdentifier>
+            <reciprocal type="boolean">true</reciprocal>
+         </USD>
+      </GBP>
+   </valueReq>
+   <crossConvert type="message">
+      <USD type="message">
+         <EUR type="string">GBP</EUR>
+      </USD>
+   </crossConvert>
 </fudgeEnvelope>

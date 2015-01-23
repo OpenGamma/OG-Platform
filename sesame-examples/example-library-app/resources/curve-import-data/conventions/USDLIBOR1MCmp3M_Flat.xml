@@ -1,34 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<fudgeEnvelope>
-   <uniqueId type="string">MemCnv~23</uniqueId>
-   <externalIdBundle type="message">
-      <ID type="message">
-         <Scheme type="string">CONVENTION</Scheme>
-         <Value type="string">USDLIBOR1MCmp3M_Flat</Value>
-      </ID>
-   </externalIdBundle>
-   <attributes type="message"/>
-   <name type="string">USDLIBOR1MCmp3M_Flat</name>
-   <iborIndexConvention type="string">OG_TICKER~USDLIBOR1M</iborIndexConvention>
-   <paymentTenor type="string">P3M</paymentTenor>
-   <compoundingType type="message">
-      <fudgeField0 ordinal="0" type="string">com.opengamma.analytics.financial.interestrate.CompoundingType</fudgeField0>
-      <fudgeField1 ordinal="1" type="string">FLAT_COMPOUNDING</fudgeField1>
-   </compoundingType>
-   <compositionTenor type="string">P1M</compositionTenor>
-   <stubTypeCompound type="message">
-      <fudgeField0 ordinal="0" type="string">com.opengamma.financial.convention.StubType</fudgeField0>
-      <fudgeField1 ordinal="1" type="string">SHORT_START</fudgeField1>
-   </stubTypeCompound>
-   <isExchangeNotional type="boolean">false</isExchangeNotional>
-   <settlementDays type="byte">2</settlementDays>
-   <isEOM type="boolean">false</isEOM>
-   <stubTypeLeg type="message">
-      <fudgeField0 ordinal="0" type="string">com.opengamma.financial.convention.StubType</fudgeField0>
-      <fudgeField1 ordinal="1" type="string">LONG_START</fudgeField1>
-   </stubTypeLeg>
-   <paymentLag type="byte">0</paymentLag>
-   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.convention.CompoundingIborLegConvention</fudgeField0>
-   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.convention.FinancialConvention</fudgeField0>
-   <fudgeField0 ordinal="0" type="string">com.opengamma.master.convention.ManageableConvention</fudgeField0>
-</fudgeEnvelope>
+<bean type="com.opengamma.financial.convention.CompoundingIborLegConvention">
+ <externalIdBundle>
+  <externalIds>
+   <item>CONVENTION~USDLIBOR1MCmp3M_Flat</item>
+  </externalIds>
+ </externalIdBundle>
+ <attributes/>
+ <name>USDLIBOR1MCmp3M_Flat</name>
+ <iborIndexConvention>OG_TICKER~USDLIBOR1M</iborIndexConvention>
+ <paymentTenor>P3M</paymentTenor>
+ <compoundingType>FLAT_COMPOUNDING</compoundingType>
+ <compositionTenor>P1M</compositionTenor>
+ <stubTypeCompound>SHORT_START</stubTypeCompound>
+ <isExchangeNotional>false</isExchangeNotional>
+ <settlementDays>2</settlementDays>
+ <isEOM>false</isEOM>
+ <stubTypeLeg>LONG_START</stubTypeLeg>
+ <paymentLag>0</paymentLag>
+</bean>

@@ -13,7 +13,6 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.inject.Inject;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.integration.regression.DatabaseRestore;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.impl.RegionFileReader;
 import com.opengamma.service.ServiceContext;
@@ -27,6 +26,7 @@ import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.marketdata.EmptyMarketDataSpec;
 import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
+import com.opengamma.solutions.library.storage.DataLoader;
 import com.opengamma.solutions.util.CreditViewUtils;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtils;
@@ -38,17 +38,17 @@ public class CreditPricer {
 
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 10, 16);
   private final Engine _engine;
-  private final DatabaseRestore _databaseRestore;
+  private final DataLoader _databaseRestore;
   private final RegionMaster _regionMaster;
 
   /**
    * Create an instance of the Credit Pricer
    * @param engine the calculation engine.
-   * @param databaseRestore utility to populate data into the in memory masters
+   * @param databaseRestore utility to populateMulticurveData data into the in memory masters
    * @param regionMaster regions master
    */
   @Inject
-  public CreditPricer(Engine engine, DatabaseRestore databaseRestore, RegionMaster regionMaster) {
+  public CreditPricer(Engine engine, DataLoader databaseRestore, RegionMaster regionMaster) {
     _databaseRestore =  ArgumentChecker.notNull(databaseRestore, "databaseRestore");
     _regionMaster =  ArgumentChecker.notNull(regionMaster, "regionMaster");
     _engine = ArgumentChecker.notNull(engine, "engine");
@@ -60,7 +60,7 @@ public class CreditPricer {
    */
   public Results price() {
     // Add sample data to the masters
-    _databaseRestore.restoreDatabase();
+    _databaseRestore.populateCreditData();
     // initialize the RegionMaster with data
     RegionFileReader.createPopulated(_regionMaster);
 

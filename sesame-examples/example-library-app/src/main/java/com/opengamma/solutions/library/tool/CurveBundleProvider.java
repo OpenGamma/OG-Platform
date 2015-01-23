@@ -21,7 +21,6 @@ import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.integration.regression.DatabaseRestore;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.impl.RegionFileReader;
 import com.opengamma.service.ServiceContext;
@@ -39,6 +38,7 @@ import com.opengamma.sesame.marketdata.SnapshotMarketDataFactory;
 import com.opengamma.sesame.marketdata.builders.MarketDataBuilder;
 import com.opengamma.sesame.marketdata.builders.MarketDataBuilders;
 import com.opengamma.sesame.marketdata.builders.MarketDataEnvironmentFactory;
+import com.opengamma.solutions.library.storage.DataLoader;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -46,25 +46,25 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CurveBundleProvider {
 
-  private final DatabaseRestore _databaseRestore;
+  private final DataLoader _dataload;
   private final RegionMaster _regionMaster;
   private final ComponentMap _componentMap;
   private final MarketDataSnapshotSource _snapshotSource;
 
   /**
    * Create an instance of the Curve Bundle Provider
-   * @param databaseRestore utility to populate data into the in memory masters
+   * @param dataload utility to populateMulticurveData data into the in memory masters
    * @param regionMaster regions master
    * @param snapshotSource market data snapshot source
    * @param componentMap component map to build the MarketDataEnvironment
    *
    */
   @Inject
-  public CurveBundleProvider(DatabaseRestore databaseRestore,
+  public CurveBundleProvider(DataLoader dataload,
                              RegionMaster regionMaster,
                              MarketDataSnapshotSource snapshotSource,
                              ComponentMap componentMap) {
-    _databaseRestore =  ArgumentChecker.notNull(databaseRestore, "databaseRestore");
+    _dataload =  ArgumentChecker.notNull(dataload, "dataload");
     _regionMaster = ArgumentChecker.notNull(regionMaster, "regionMaster");
     _componentMap = ArgumentChecker.notNull(componentMap, "componentMap");
     _snapshotSource = ArgumentChecker.notNull(snapshotSource, "snapshotSource");
@@ -83,7 +83,7 @@ public class CurveBundleProvider {
                                           String snapshotName,
                                           String currencyMatrixName,
                                           ZonedDateTime valuationTime) {
-    _databaseRestore.restoreDatabase();
+    _dataload.populateMulticurveData();
     RegionFileReader.createPopulated(_regionMaster);
 
     // This is needed to ensure that the version correction provided is after the population of the masters

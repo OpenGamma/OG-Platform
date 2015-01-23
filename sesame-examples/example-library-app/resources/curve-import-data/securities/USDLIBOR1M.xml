@@ -1,29 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<fudgeEnvelope>
-   <uniqueId type="string">MemSec~5</uniqueId>
-   <externalIdBundle type="message">
-      <ID type="message">
-         <Scheme type="string">BLOOMBERG_BUID</Scheme>
-         <Value type="string">NI373113</Value>
-      </ID>
-      <ID type="message">
-         <Scheme type="string">BLOOMBERG_TICKER</Scheme>
-         <Value type="string">US0001M Index</Value>
-      </ID>
-      <ID type="message">
-         <Scheme type="string">OG_TICKER</Scheme>
-         <Value type="string">USDLIBOR1M</Value>
-      </ID>
-   </externalIdBundle>
-   <name type="string">USDLIBOR1M</name>
-   <securityType type="string">IBOR_INDEX</securityType>
-   <attributes type="message"/>
-   <requiredPermissions type="message"/>
-   <indexFamilyId type="string">INDEX_FAMILY~USDLIBOR</indexFamilyId>
-   <tenor type="string">P1M</tenor>
-   <conventionId type="string">CONVENTION~USDLIBOR</conventionId>
-   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.security.index.IborIndex</fudgeField0>
-   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.security.index.Index</fudgeField0>
-   <fudgeField0 ordinal="0" type="string">com.opengamma.master.security.ManageableSecurity</fudgeField0>
-   <fudgeField0 ordinal="0" type="string">org.joda.beans.impl.direct.DirectBean</fudgeField0>
-</fudgeEnvelope>
+<bean type="com.opengamma.financial.security.index.IborIndex">
+ <externalIdBundle>
+  <externalIds>
+   <item>BLOOMBERG_BUID~NI373113</item>
+   <item>BLOOMBERG_TICKER~US0001M Index</item>
+   <item>OG_TICKER~USDLIBOR1M</item>
+  </externalIds>
+ </externalIdBundle>
+ <name>USDLIBOR1M</name>
+ <securityType>IBOR_INDEX</securityType>
+ <attributes/>
+ <requiredPermissions/>
+ <indexFamilyId>INDEX_FAMILY~USDLIBOR</indexFamilyId>
+ <tenor>P1M</tenor>
+ <conventionId>CONVENTION~USDLIBOR</conventionId>
+</bean>

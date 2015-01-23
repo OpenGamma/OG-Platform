@@ -11,7 +11,7 @@ The example class ``CreditPricerTool`` demonstrates how to initialize the OpenGa
 
 #. **Populate configuration and market data**
 
-   The ``DataLoadModule`` utilizes the ``DatabaseRestore`` class to populate the in-memory masters from the example configuration provided in **credit-import-data**.
+   The ``DataLoadModule`` uses the ``DataLoader`` class to populate the in-memory masters from the example configuration provided in **credit-import-data**.
    The call to populate the data is invoked when the ``CreditPricer`` prices the CDS.
 
 #. **Request a Credit PV and CS01 result**

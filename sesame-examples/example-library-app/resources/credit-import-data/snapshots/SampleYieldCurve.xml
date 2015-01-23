@@ -1,61 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<fudgeEnvelope>
-   <uniqueId type="string">MemSnap~4</uniqueId>
-   <name type="string">Sample Yield Curve</name>
-   <yieldCurves type="message">
-      <fudgeField1 ordinal="1" type="string">USD</fudgeField1>
-      <fudgeField2 ordinal="2" type="message">
-         <currency type="string">USD</currency>
-         <curveDayCount type="string">Actual/365</curveDayCount>
-         <curveBusinessDayConvention type="string">Modified Following</curveBusinessDayConvention>
-         <cashDayCount type="string">Actual/360</cashDayCount>
-         <swapDayCount type="string">30U/360</swapDayCount>
-         <spotDate type="date">2014-08-19</spotDate>
-         <regionId type="string">FINANCIAL_REGION~US</regionId>
-         <swapFixedLegInterval type="string">P6M</swapFixedLegInterval>
-         <cashData type="message">
-            <fudgeField1 ordinal="1" type="string">P1M</fudgeField1>
-            <fudgeField2 ordinal="2" type="double">0.00156</fudgeField2>
-            <fudgeField1 ordinal="1" type="string">P2M</fudgeField1>
-            <fudgeField2 ordinal="2" type="double">0.001948</fudgeField2>
-            <fudgeField1 ordinal="1" type="string">P3M</fudgeField1>
-            <fudgeField2 ordinal="2" type="double">0.002351</fudgeField2>
-            <fudgeField1 ordinal="1" type="string">P6M</fudgeField1>
-            <fudgeField2 ordinal="2" type="double">0.003289</fudgeField2>
-            <fudgeField1 ordinal="1" type="string">P1Y</fudgeField1>
-            <fudgeField2 ordinal="2" type="double">0.00554</fudgeField2>
+<bean type="com.opengamma.financial.analytics.isda.credit.YieldCurveDataSnapshot">
+   <name>Sample Yield Curve</name>
+   <yieldCurves>
+      <entry key="USD">
+         <currency>USD</currency>
+         <curveDayCount>Actual/365</curveDayCount>
+         <curveBusinessDayConvention>Modified Following</curveBusinessDayConvention>
+         <cashDayCount>Actual/360</cashDayCount>
+         <swapDayCount>30U/360</swapDayCount>
+         <spotDate>2014-08-19</spotDate>
+         <regionId>FINANCIAL_REGION~US</regionId>
+         <swapFixedLegInterval>P6M</swapFixedLegInterval>
+         <cashData>
+            <entry key="P1M">0.00156</entry>
+            <entry key="P2M">0.001948</entry>
+            <entry key="P3M">0.002351</entry>
+            <entry key="P6M">0.003289</entry>
+            <entry key="P1Y">0.00554</entry>
          </cashData>
-         <swapData type="message">
-            <fudgeField1 ordinal="1" type="string">P2Y</fudgeField1>
-            <fudgeField2 ordinal="2" type="double">0.006785</fudgeField2>
-            <fudgeField1 ordinal="1" type="string">P3Y</fudgeField1>
-            <fudgeField2 ordinal="2" type="double">0.0112</fudgeField2>
-            <fudgeField1 ordinal="1" type="string">P4Y</fudgeField1>
-            <fudgeField2 ordinal="2" type="double">0.01495</fudgeField2>
-            <fudgeField1 ordinal="1" type="string">P5Y</fudgeField1>
-            <fudgeField2 ordinal="2" type="double">0.01785</fudgeField2>
-            <fudgeField1 ordinal="1" type="string">P6Y</fudgeField1>
-            <fudgeField2 ordinal="2" type="double">0.02008</fudgeField2>
-            <fudgeField1 ordinal="1" type="string">P7Y</fudgeField1>
-            <fudgeField2 ordinal="2" type="double">0.021905</fudgeField2>
-            <fudgeField1 ordinal="1" type="string">P8Y</fudgeField1>
-            <fudgeField2 ordinal="2" type="double">0.02343</fudgeField2>
-            <fudgeField1 ordinal="1" type="string">P9Y</fudgeField1>
-            <fudgeField2 ordinal="2" type="double">0.0247</fudgeField2>
-            <fudgeField1 ordinal="1" type="string">P10Y</fudgeField1>
-            <fudgeField2 ordinal="2" type="double">0.025805</fudgeField2>
-            <fudgeField1 ordinal="1" type="string">P12Y</fudgeField1>
-            <fudgeField2 ordinal="2" type="double">0.02753</fudgeField2>
-            <fudgeField1 ordinal="1" type="string">P15Y</fudgeField1>
-            <fudgeField2 ordinal="2" type="double">0.029425</fudgeField2>
-            <fudgeField1 ordinal="1" type="string">P20Y</fudgeField1>
-            <fudgeField2 ordinal="2" type="double">0.03103</fudgeField2>
-            <fudgeField1 ordinal="1" type="string">P25Y</fudgeField1>
-            <fudgeField2 ordinal="2" type="double">0.0317</fudgeField2>
-            <fudgeField1 ordinal="1" type="string">P30Y</fudgeField1>
-            <fudgeField2 ordinal="2" type="double">0.032025</fudgeField2>
+         <swapData>
+            <entry key="P2Y">0.006785</entry>
+            <entry key="P3Y">0.0112</entry>
+            <entry key="P4Y">0.01495</entry>
+            <entry key="P5Y">0.01785</entry>
+            <entry key="P6Y">0.02008</entry>
+            <entry key="P7Y">0.021905</entry>
+            <entry key="P8Y">0.02343</entry>
+            <entry key="P9Y">0.0247</entry>
+            <entry key="P10Y">0.025805</entry>
+            <entry key="P12Y">0.02753</entry>
+            <entry key="P15Y">0.029425</entry>
+            <entry key="P20Y">0.03103</entry>
+            <entry key="P25Y">0.0317</entry>
+            <entry key="P30Y">0.032025</entry>
          </swapData>
-      </fudgeField2>
+      </entry>
    </yieldCurves>
-   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.isda.credit.YieldCurveDataSnapshot</fudgeField0>
-</fudgeEnvelope>
+</bean>

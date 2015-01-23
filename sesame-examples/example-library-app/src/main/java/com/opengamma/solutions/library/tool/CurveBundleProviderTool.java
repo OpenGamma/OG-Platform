@@ -40,12 +40,10 @@ public class CurveBundleProviderTool {
    */
   public static void main(String[] args) {
 
-    URL systemResource = ClassLoader.getSystemResource("curve-import-data");
-
     Set<Module> modules = Sets.newHashSet();
     modules.add(new InMemoryStorageModule());
     modules.add(new SourcesModule());
-    modules.add(new DataLoadModule(systemResource.getPath()));
+    modules.add(new DataLoadModule("curve-import-data"));
     modules.add(new EngineModule());
     Injector injector = Guice.createInjector(modules);
 
