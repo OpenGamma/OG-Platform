@@ -11,7 +11,7 @@ To compute the risk measures, we need a multi-curve provider. In this example we
     Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR = 
       StandardDataSetsMulticurveEUR.getCurvesEurOisL3();
 
-This load in a multi-curve provider and the building block of the Jacobian matrices. The second object is required for sensitivity to market quote computation.
+This loads in a multi-curve provider and the building block of the Jacobian matrices. The second object is required for sensitivity to market quote computation.
 
 The provider consists of two curves: a EUR discounting curve - calibrated on EUR EONIA swaps - and a EUR EURIBOR 3M forward curve.
 
@@ -22,7 +22,7 @@ We create a STIR futures security with data stored in the example::
     InterestRateFutureSecurityDefinition ERZ4_SEC_DEFINITION =
       new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, EUREURIBOR3M, NOTIONAL, FUTURE_FACTOR, NAME, CALENDAR);
 
-This is the "security" version of the instrumnet, i.e. the description of the fungible futures. 
+This is the "security" version of the instrument, i.e. the description of the fungible futures. 
 
 We create a transaction on the above security with data stored in the file::
 
@@ -41,12 +41,12 @@ The definition version is converted to the *derivative* version::
 In this transformation, the dates are replaced by time between the valuation date and the different cash flow dates. Moreover the last priced used in the margining is stored. This is used to compute the present value which is the difference between the current price and the last margin price.
 
 
-In this examples all the computation are done with a *projection and discounting* model, that we simply call *discounting*. No convexity adjustment for the daily margining is computed in this implementation. Another wroket out example deal with convexity adjustment; **STIRFuturesTransactionHullWhiteMethodE2ETest**.
+In this examples all the computation are done with a *projection and discounting* model, that we simply call *discounting*. No convexity adjustment for the daily margining is computed in this implementation. Another worked out example deal with convexity adjustment; **STIRFuturesTransactionHullWhiteMethodE2ETest**.
 
 Price
 -----
 
-The first output we produce is the *price of the security. The *futures price* is obtained by computing the forward rate for the Euribor rate underlying the futures, denoted *F*. The price is *P = 1 - F*. This is the current price of the futures.
+The first output we produce is the *price of the security*. The *futures price* is obtained by computing the forward rate for the Euribor rate underlying the futures, denoted *F*. The price is *P = 1 - F*. This is the current price of the futures.
 
 The code to compute the price is::
 
@@ -56,7 +56,7 @@ The code to compute the price is::
 Present value
 -------------
 
-The nextoutput we produce is the *present value* of the instrument. The *futures price*s, denoted *F*, was computed in the previous section. The present value is computed as the current price minus the last margin price multiplied by the notional, the accrual factor and the quantity.
+The next output we produce is the *present value* of the instrument. The *futures price*, denoted *F*, was computed in the previous section. The present value is computed as the current price minus the last margin price multiplied by the notional, the accrual factor and the quantity.
 
 The code to compute the present value simply read as::
 
@@ -99,7 +99,7 @@ In practice, to compute the sensitivity to market quotes, only one of them is en
     double BP1 = 1.0E-4;
     MultipleCurrencyParameterSensitivity pvmqsComputed = MQSBC.fromInstrument(FRA, MULTICURVE, BLOCK).multipliedBy(BP1);
 
-The **MQSBC** compute the sensitiviy to the market quotes. The computation is not scaled, i.e. it is for a movement of 1. The last part of the code (**multipliedBy**) multiply it by one basis point to match the market standard. In general, the OG-Analytics library uses absolute numbers (not percent or basis point) everywhere and provide the tools to rescale the output easily.
+The **MQSBC** compute the sensitivity to the market quotes. The computation is not scaled, i.e. it is for a movement of 1. The last part of the code (**multipliedBy**) multiply it by one basis point to match the market standard. In general, the OG-Analytics library uses absolute numbers (not percent or basis point) everywhere and provide the tools to rescale the output easily.
 
 The format of the output is a *MultipleCurrencyParameterSensitivity* object which can be represented by::
 
@@ -125,9 +125,9 @@ The second step consists in projecting the above sensitivity to the internal par
 
     [EUR-EURIBOR3M-FRAIRS, EUR]= (0.0, 0.0, -7312.09396, 9480.9079, 915.4560, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
 
-The third step consist in multiplying the sensitivity to the parameters by the Jacobian matrix to obtain the market quote sensitivity.
+The third step consists in multiplying the sensitivity to the parameters by the Jacobian matrix to obtain the market quote sensitivity.
 
-The (generalised) Jacobian matrices are stored in the **CurveBuildingBlockBundle**. It contains, fore each curve, the curve on which it depends and the transistion matrix between market quotes and curves parameters. In the above example the object look like::
+The (generalised) Jacobian matrices are stored in the **CurveBuildingBlockBundle**. It contains, for each curve, the curve on which it depends and the transition matrix between market quotes and curves parameters. In the above example the object look like::
 
     EUR-DSCON-OIS=[
     {EUR-DSCON-OIS=[0, 16]}
@@ -142,4 +142,4 @@ The (generalised) Jacobian matrices are stored in the **CurveBuildingBlockBundle
     0.0000, 0.0000, 0.0000, ..., 0.0000, 0.3352, 0.3390, 0.3390, ...
     ...]
 
-The first matrix is of dimension 16x16 (it has been cut to fit in the table). It contains the sensitivity of the EUR-DSCON-OIS curve parameters to the input (market quotes) of the EUR-DSCON-OIS curve. The sensitivitires appear mainly on the diagonal but not only there. There are small sensitivities off-diagonal. The second matrix is of dimension 17x(16+17). It contains the sensitivity of the EUR-EURIBOR3M-FRAIRS curve parameters to the EUR-DSCON-OIS and EUR-EURIBOR3M-FRAIRS market data. Sensitivity are mainly on the diagonal of the second 17x17 block, but there are sensitivities everywhere: parameters of the EUR-EURIBOR3M-FRAIRS are not only dependent on the market quote of the same curve but also on the market quote of the previous curve EUR-DSCON-OIS.
+The first matrix is of dimension 16x16 (it has been cut to fit in the table). It contains the sensitivity of the EUR-DSCON-OIS curve parameters to the input (market quotes) of the EUR-DSCON-OIS curve. The sensitivities appear mainly on the diagonal but not only there. There are small sensitivities off-diagonal. The second matrix is of dimension 17x(16+17). It contains the sensitivity of the EUR-EURIBOR3M-FRAIRS curve parameters to the EUR-DSCON-OIS and EUR-EURIBOR3M-FRAIRS market data. Sensitivity are mainly on the diagonal of the second 17x17 block, but there are sensitivities everywhere: parameters of the EUR-EURIBOR3M-FRAIRS are not only dependent on the market quote of the same curve but also on the market quote of the previous curve EUR-DSCON-OIS.
