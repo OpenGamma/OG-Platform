@@ -55,7 +55,7 @@ public class STIRFuturesOptionMarginTransactionBlackExpLogMoneynessMethodE2ETest
   private static final Currency EUR = EUREURIBOR3M.getCurrency();
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2014, 2, 18);
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR = 
-      StandardDataSetsMulticurveEUR.getCurvesUSDOisL3();
+      StandardDataSetsMulticurveEUR.getCurvesEurOisE3();
   private static final MulticurveProviderDiscount MULTICURVE = MULTICURVE_PAIR.getFirst();
   private static final CurveBuildingBlockBundle BLOCK = MULTICURVE_PAIR.getSecond();
   final private static InterpolatedDoublesSurface BLACK_SURFACE_LOGMONEY = 
