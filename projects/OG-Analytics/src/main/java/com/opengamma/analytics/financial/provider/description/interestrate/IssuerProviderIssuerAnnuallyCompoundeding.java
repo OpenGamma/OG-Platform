@@ -28,7 +28,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Class describing a issuer provider created from a issuer provider, where underlying curves should be based on 
  * zero-coupon annually compounded rates being described by {@link YieldAndDiscountCurve}. 
- * The discounting curve for issuers can be shifted by a parallel spread (in the annually compounded rate), where 
+ * The discounting curve for issuer can be shifted by a parallel spread (in the annually compounded rate), where 
  * the underlying curve is {@link YieldPeriodicAddZeroFixedCurve}. 
  */
 public class IssuerProviderIssuerAnnuallyCompoundeding implements IssuerProviderInterface {
@@ -62,10 +62,14 @@ public class IssuerProviderIssuerAnnuallyCompoundeding implements IssuerProvider
   public IssuerProviderIssuerAnnuallyCompoundeding(IssuerProviderIssuerAnnuallyCompoundeding issuerProvider,
       LegalEntity issuer, double spread) {
     ArgumentChecker.notNull(issuerProvider, "issuerProvider");
-    ArgumentChecker.notNull(issuer, "issuer");
-    _issuer = issuer;
-    _issuerProvider = spread == 0.0 ? issuerProvider.getIssuerProvider() : addSpread(
-        issuerProvider.getIssuerProvider(), spread);
+    if (spread == 0.0) {
+      _issuer = null;
+      _issuerProvider = issuerProvider.getIssuerProvider();
+    } else {
+      ArgumentChecker.notNull(issuer, "issuer");
+      _issuer = issuer;
+      _issuerProvider = addSpread(issuerProvider.getIssuerProvider(), spread);
+    }
   }
 
   /**
@@ -77,10 +81,15 @@ public class IssuerProviderIssuerAnnuallyCompoundeding implements IssuerProvider
   public IssuerProviderIssuerAnnuallyCompoundeding(IssuerProviderDiscount issuerProvider, LegalEntity issuer,
       double spread) {
     ArgumentChecker.notNull(issuerProvider, "issuerProvider");
-    ArgumentChecker.notNull(issuer, "issuer");
     checkUnderlyingCurve(issuerProvider);
-    _issuer = issuer;
-    _issuerProvider = spread == 0.0 ? issuerProvider : addSpread(issuerProvider, spread);
+    if (spread == 0.0) {
+      _issuer = null;
+      _issuerProvider = issuerProvider.getIssuerProvider();
+    } else {
+      ArgumentChecker.notNull(issuer, "issuer");
+      _issuer = issuer;
+      _issuerProvider = addSpread(issuerProvider.getIssuerProvider(), spread);
+    }
   }
 
   private void checkUnderlyingCurve(IssuerProviderDiscount issuerProvider) {
@@ -189,7 +198,7 @@ public class IssuerProviderIssuerAnnuallyCompoundeding implements IssuerProvider
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + _issuer.hashCode();
+    result = prime * result + ((_issuer == null) ? 0 : _issuer.hashCode());
     result = prime * result + _issuerProvider.hashCode();
     return result;
   }
@@ -202,8 +211,12 @@ public class IssuerProviderIssuerAnnuallyCompoundeding implements IssuerProvider
     if (!(obj instanceof IssuerProviderIssuerAnnuallyCompoundeding)) {
       return false;
     }
-    final IssuerProviderIssuerAnnuallyCompoundeding other = (IssuerProviderIssuerAnnuallyCompoundeding) obj;
-    if (!ObjectUtils.equals(_issuer, other._issuer)) {
+    IssuerProviderIssuerAnnuallyCompoundeding other = (IssuerProviderIssuerAnnuallyCompoundeding) obj;
+    if (_issuer == null) {
+      if (other._issuer != null) {
+        return false;
+      }
+    } else if (!ObjectUtils.equals(_issuer, other._issuer)) {
       return false;
     }
     if (!ObjectUtils.equals(_issuerProvider, other._issuerProvider)) {

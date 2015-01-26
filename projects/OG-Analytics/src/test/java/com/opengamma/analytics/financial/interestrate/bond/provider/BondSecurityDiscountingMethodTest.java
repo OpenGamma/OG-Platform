@@ -797,6 +797,9 @@ public class BondSecurityDiscountingMethodTest {
   private static final double REL_TOL = 1.0e-7;
   private static final double REL_TOL_ID = 1.0e-13;
 
+  /**
+   * Test for IssuerProviderIssuerAnnuallyCompoundeding where curves are based on annually compounded rates. 
+   */
   @Test
   public void annualyCompoundedRateTest() {
     String issuerName = ISSUER_SPECIFIC_MULTICURVES.getIssuerProvider().getName(ISSUER);
@@ -809,8 +812,9 @@ public class BondSecurityDiscountingMethodTest {
     LegalEntityFilter<LegalEntity> filter = new LegalEntityShortName();
     IssuerProviderDiscount issuerProvider = new IssuerProviderDiscount();
     issuerProvider.setCurve(Pairs.of((Object) ISSUER.getShortName(), filter), baseIssuerCurve);
-    //    issuerProvider.setCurve(CUR, baseDiscountCurve);
+    issuerProvider.setCurve(CUR, baseDiscountCurve);
 
+    /* PV */
     MultipleCurrencyAmount pvAnnual = METHOD_BOND_SECURITY.presentValue(BOND_FIXED_SECURITY_FULL_ENTITY_1,
         issuerProvider);
     MultipleCurrencyAmount pvContinuous = METHOD_BOND_SECURITY.presentValue(BOND_FIXED_SECURITY_FULL_ENTITY_1,
@@ -844,7 +848,7 @@ public class BondSecurityDiscountingMethodTest {
     MultipleCurrencyMulticurveSensitivity senseTinySpread = METHOD_BOND_SECURITY.presentValueCurveSensitivity(
         BOND_FIXED_SECURITY_FULL_ENTITY_1, issuerTinySpread);
     MultipleCurrencyMulticurveSensitivity senseZeroSpread = METHOD_BOND_SECURITY.presentValueCurveSensitivity(
-        BOND_FIXED_SECURITY_FULL_ENTITY_1, issuerProvider);
+        BOND_FIXED_SECURITY_FULL_ENTITY_1, issuerWithoutSpread);
     AssertSensitivityObjects.assertEquals("annualyCompoundedRateTest", senseZeroSpread, senseTinySpread,
         pvAnnual.getAmount(CUR) * REL_TOL);
 
@@ -854,7 +858,22 @@ public class BondSecurityDiscountingMethodTest {
     assertRelative("annualyCompoundedRateTest", 0.0, computedSpread, REL_TOL);
     computedSpread = METHOD_BOND_SECURITY.zSpreadFromCurvesAndPV(BOND_FIXED_SECURITY_FULL_ENTITY_1,
         issuerWithoutSpread, pvAnnualSpread1);
-    assertRelative("annualyCompoundedRateTest", 0.5, computedSpread, REL_TOL);
+    assertRelative("annualyCompoundedRateTest", spread, computedSpread, REL_TOL);
+
+    /* check ccy based discounting is not affected by the spread  */
+    double dirtySpread1 = METHOD_BOND_SECURITY.dirtyPriceFromCurves(BOND_FIXED_SECURITY_FULL_ENTITY_1, issuerSpread);
+    double dirtyAnnual = METHOD_BOND_SECURITY.dirtyPriceFromCurves(BOND_FIXED_SECURITY_FULL_ENTITY_1,
+        issuerWithoutSpread);
+    double factorSpread = pvAnnualSpread1.getAmount(CUR) / dirtySpread1;
+    double factorNoSpread = pvAnnual.getAmount(CUR) / dirtyAnnual;
+    assertRelative("annualyCompoundedRateTest", factorNoSpread, factorSpread, REL_TOL);
+
+    /* spread calculation from clean price */
+    double cleanSpread1 = METHOD_BOND_SECURITY.cleanPriceFromCurves(BOND_FIXED_SECURITY_FULL_ENTITY_1,
+        issuerSpread);
+    double spreadFromClean = METHOD_BOND_SECURITY.zSpreadFromCurvesAndClean(BOND_FIXED_SECURITY_FULL_ENTITY_1,
+        issuerWithoutSpread, cleanSpread1);
+    assertRelative("annualyCompoundedRateTest", spread, spreadFromClean, REL_TOL);
   }
 
   private static void assertRelative(String message, double expected, double obtained, double relativeTol) {
