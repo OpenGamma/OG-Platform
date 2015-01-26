@@ -12,7 +12,7 @@ import com.opengamma.timeseries.date.DateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 
 /**
- * Operator to obtain the difference or absolute return of a time series.
+ * Operator to obtain the difference or absolute return of a time series: difference = V(end) - V(start)
  * The difference is taken between elements in the time series with a certain lag. 
  * The default lag is 1 element, which means that the difference is between consecutive entries in the series.
  * The series returned has less element than the input series by the lag.
@@ -43,7 +43,7 @@ public class TimeSeriesDifferenceOperator extends Function1D<DateDoubleTimeSerie
   @Override
   public DateDoubleTimeSeries<?> evaluate(final DateDoubleTimeSeries<?> ts) {
     Validate.notNull(ts, "time series");
-    Validate.isTrue(ts.size() > 1, "time series length must be > 1");
+    Validate.isTrue(ts.size() > _lag, "time series length must be > _lag");
     final int[] times = ts.timesArrayFast();
     final double[] values = ts.valuesArrayFast();
     final int n = times.length;
