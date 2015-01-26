@@ -42,10 +42,10 @@ public class TimeSeriesPercentageChangeOperatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void zeroValue() {
-    LocalDateDoubleTimeSeries tooShortTs = ImmutableLocalDateDoubleTimeSeries.of(
+    LocalDateDoubleTimeSeries zeroValueTs = ImmutableLocalDateDoubleTimeSeries.of(
         new LocalDate[] {LocalDate.of(2014, 1, 2), LocalDate.of(2014, 1, 3), LocalDate.of(2014, 1, 4) }, 
         new Double[] {1.0, 0.0, 1.0 });
-    OP_REL_1.evaluate(tooShortTs);
+    OP_REL_1.evaluate(zeroValueTs);
   }
 
   /** Test the relative change operator for a standard lag of 1 element. */
