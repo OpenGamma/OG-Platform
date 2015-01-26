@@ -98,7 +98,7 @@ public class TimeSeriesWeightedVolatilityOperatorTest {
     }
   }
 
-  /** Test the EWMA for a relative change with 1 period lag and seed period of length 1. Should be equal to no seed. */
+  /** Test the EWMA for a relative change with 1 period lag and seed period of length 10. */
   @Test
   public void ewmaRelative1Seed10() {
     int seedLength = 10;
@@ -128,7 +128,7 @@ public class TimeSeriesWeightedVolatilityOperatorTest {
     }
   }
 
-  /** Test the EWMA for a relative change with 2 period lag and seed period of length 1. Should be equal to no seed. */
+  /** Test the EWMA for a relative change with 2 period lag and seed period of length 10. */
   @Test
   public void ewmaRelative2Seed10() {
     int seedLength = 10;
