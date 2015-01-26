@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -11,6 +11,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.timeseries.date.DateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
@@ -25,6 +26,18 @@ public class TimeSeriesDifferenceOperatorTest {
   private static final TimeSeriesDifferenceOperator OP_DIF_2 = new TimeSeriesDifferenceOperator(2);
   
   private static final double TOLERANCE_DIFF = 1.0E-10;
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullTsException() {
+    OP_DIF_1.evaluate((LocalDateDoubleTimeSeries) null);
+  }
+  
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void tooShortTimeSeriesException() {
+    LocalDateDoubleTimeSeries tooShortTs = ImmutableLocalDateDoubleTimeSeries.of(
+        new LocalDate[] {LocalDate.of(2014, 1, 2)}, new Double[] {1.0});
+    OP_DIF_1.evaluate(tooShortTs);
+  }
   
   /**
    * Test the difference operator for a standard lag of 1 element.
