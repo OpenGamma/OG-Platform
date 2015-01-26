@@ -5,29 +5,53 @@
  */
 package com.opengamma.analytics.financial.timeseries.util;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.timeseries.date.DateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Calculates a one-day percentage change series from a series of absolute changes.
+ * Operator to calculate the ratio or relative return of a time series: ratio = (V(end) - V(start)) / V(start)
+ * The ratio is taken between elements in the time series with a certain lag. 
+ * The default lag is 1 element, which means that the difference is between consecutive entries in the series.
+ * The series returned has less element than the input series by the lag.
+ * The dates of the returned time series are the dates of the end of the period on which the difference is computed.
  */
 public class TimeSeriesPercentageChangeOperator extends Function1D<DateDoubleTimeSeries<?>, DateDoubleTimeSeries<?>> {
+  
+  /** The default lag: 1 time series element. */
+  private static final int DEFAULT_LAG = 1;
+  /** The lag between the element of the times series on which the difference is taken. */
+  private final int _lag;
+  
+  /**
+   * Constructor with the default lag of 1 element.
+   */
+  public TimeSeriesPercentageChangeOperator() {
+    this._lag = DEFAULT_LAG;
+  }
+
+  /**
+   * Constructor with a specified lag.
+   * @param lag The lag between element to compute the difference.
+   */
+  public TimeSeriesPercentageChangeOperator(int lag) {
+    this._lag = lag;
+  }
 
   @Override
   public DateDoubleTimeSeries<?> evaluate(DateDoubleTimeSeries<?> ts) {
-    Validate.notNull(ts, "time series");
-    Validate.isTrue(ts.size() > 1, "time series length must be > 1");
+    ArgumentChecker.notNull(ts, "time series");
+    ArgumentChecker.isTrue(ts.size() > _lag, "time series length must be > lag");
     final int[] times = ts.timesArrayFast();
     final double[] values = ts.valuesArrayFast();
     final int n = times.length;
-    final int[] resultTimes = new int[n - 1];
-    final double[] percentageChanges = new double[n - 1];
-    for (int i = 1; i < n; i++) {
-      resultTimes[i - 1] = times[i];
-      percentageChanges[i - 1] = (values[i] - values[i - 1]) / values[i - 1];
+    final int[] resultTimes = new int[n - _lag];
+    final double[] percentageChanges = new double[n - _lag];
+    for (int i = _lag; i < n; i++) {
+      ArgumentChecker.isTrue(values[i - _lag] != 0.0d, "value equal to 0, no relative change can be computed");
+      resultTimes[i - _lag] = times[i];
+      percentageChanges[i - _lag] = (values[i] - values[i - _lag]) / values[i - _lag];
     }
     return ImmutableLocalDateDoubleTimeSeries.of(resultTimes, percentageChanges);
   }
