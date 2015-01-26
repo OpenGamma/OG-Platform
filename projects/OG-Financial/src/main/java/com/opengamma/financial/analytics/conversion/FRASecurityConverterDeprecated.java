@@ -6,7 +6,7 @@
 package com.opengamma.financial.analytics.conversion;
 
 import org.threeten.bp.Period;
-import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -69,8 +69,8 @@ public class FRASecurityConverterDeprecated extends FinancialSecurityVisitorAdap
     ArgumentChecker.notNull(security, "security");
     final Currency currency = security.getCurrency();
     final Period period = PeriodFrequency.of(security.getIndexFrequency().getName()).getPeriod();
-    final ZonedDateTime accrualStartDate = security.getStartDate().atStartOfDay(ZoneId.systemDefault());
-    final ZonedDateTime accrualEndDate = security.getEndDate().atStartOfDay(ZoneId.systemDefault());
+    final ZonedDateTime accrualStartDate = security.getStartDate().atStartOfDay(ZoneOffset.UTC);
+    final ZonedDateTime accrualEndDate = security.getEndDate().atStartOfDay(ZoneOffset.UTC);
     final double notional = security.getAmount();
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCalendars().toArray(new ExternalId[security.getCalendars().size()]));
     final IborIndex iborIndex = new IborIndex(currency, period, security.getFixingLag(), security.getDayCount(), security.getFixingBusinessDayConvention(), false);

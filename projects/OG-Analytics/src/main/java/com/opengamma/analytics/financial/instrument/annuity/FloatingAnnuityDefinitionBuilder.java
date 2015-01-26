@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.instrument.annuity;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -522,7 +523,7 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
       if (couponStub != null) {
         if (!couponStub.isInterpolated() && isFirstCoupon) {
           if (couponStub.getEffectiveDate() != null) {
-            compoundingFixingEndDates[0] = ZonedDateTime.of(couponStub.getEffectiveDate(), LocalTime.MAX, ZoneId.systemDefault());
+            compoundingFixingEndDates[0] = ZonedDateTime.of(couponStub.getEffectiveDate(), LocalTime.MAX, ZoneOffset.UTC);
           } else if (couponStub.getFirstIborIndex() != null) {
             compoundingFixingEndDates[0] = ScheduleCalculator.getAdjustedDate(
                 compoundingFixingStartDates[0],

@@ -17,18 +17,17 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Implementation of a provider of normal volatility (Bachelier model) smile for options on STIR futures. The volatility is time to expiration/strike/delay dependent.
- * The "delay" is the time between expiration of the option and last trading date of the underlying futures.
+ * Implementation of a provider of normal volatility (Bachelier model) smile for options on STIR futures. 
+ * The volatility is time to expiration/strike dependent.
  */
-public class NormalSTIRFuturesSmileProvider implements NormalSTIRFuturesProviderInterface {
+public class NormalSTIRFuturesExpStrikeProvider implements NormalSTIRFuturesProviderInterface {
 
   /**
    * The multicurve provider.
    */
   private final MulticurveProviderInterface _multicurveProvider;
   /**
-   * The Black volatility cube. Not null.
-   * TODO: Change to a cube (with the delay dimension).
+   * The normal volatility surface. Not null.
    */
   private final Surface<Double, Double, Double> _parameters;
   /**
@@ -41,7 +40,8 @@ public class NormalSTIRFuturesSmileProvider implements NormalSTIRFuturesProvider
    * @param parameters The normal volatility parameters.
    * @param index The cap/floor index.
    */
-  public NormalSTIRFuturesSmileProvider(final MulticurveProviderInterface multicurveProvider, final Surface<Double, Double, Double> parameters, final IborIndex index) {
+  public NormalSTIRFuturesExpStrikeProvider(final MulticurveProviderInterface multicurveProvider,
+      final Surface<Double, Double, Double> parameters, final IborIndex index) {
     ArgumentChecker.notNull(multicurveProvider, "multicurveProvider");
     ArgumentChecker.notNull(parameters, "parameters");
     ArgumentChecker.notNull(index, "index");
@@ -51,14 +51,14 @@ public class NormalSTIRFuturesSmileProvider implements NormalSTIRFuturesProvider
   }
 
   @Override
-  public NormalSTIRFuturesSmileProvider copy() {
+  public NormalSTIRFuturesExpStrikeProvider copy() {
     final MulticurveProviderInterface multicurveProvider = _multicurveProvider.copy();
-    return new NormalSTIRFuturesSmileProvider(multicurveProvider, _parameters, _index);
+    return new NormalSTIRFuturesExpStrikeProvider(multicurveProvider, _parameters, _index);
   }
 
   @Override
   public double getVolatility(final double expiry, final double delay, final double strike, final double priceFutures) {
-    //TODO: delay is not used.
+    // delay is not used.
     return _parameters.getZValue(expiry, strike);
   }
 
@@ -72,7 +72,10 @@ public class NormalSTIRFuturesSmileProvider implements NormalSTIRFuturesProvider
     return _multicurveProvider;
   }
 
-  @Override
+  /**
+   * Returns the Normal parameters.
+   * @return The parameters.
+   */
   public Surface<Double, Double, Double> getNormalParameters() {
     return _parameters;
   }
@@ -93,6 +96,11 @@ public class NormalSTIRFuturesSmileProvider implements NormalSTIRFuturesProvider
   }
 
   @Override
+  public NormalSTIRFuturesProviderInterface withMulticurve(MulticurveProviderInterface multicurveProvider) {
+    return new NormalSTIRFuturesExpStrikeProvider(multicurveProvider, _parameters, _index);
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
@@ -107,10 +115,10 @@ public class NormalSTIRFuturesSmileProvider implements NormalSTIRFuturesProvider
     if (this == obj) {
       return true;
     }
-    if (!(obj instanceof NormalSTIRFuturesSmileProvider)) {
+    if (!(obj instanceof NormalSTIRFuturesExpStrikeProvider)) {
       return false;
     }
-    final NormalSTIRFuturesSmileProvider other = (NormalSTIRFuturesSmileProvider) obj;
+    final NormalSTIRFuturesExpStrikeProvider other = (NormalSTIRFuturesExpStrikeProvider) obj;
     if (!ObjectUtils.equals(_index, other._index)) {
       return false;
     }
@@ -122,5 +130,4 @@ public class NormalSTIRFuturesSmileProvider implements NormalSTIRFuturesProvider
     }
     return true;
   }
-
 }

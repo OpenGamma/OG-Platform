@@ -6,10 +6,10 @@
 package com.opengamma.analytics.financial.provider.description.interestrate;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.math.surface.Surface;
 
 /**
- * Provider of normal volatility (Bachelier model) smile for options on STIR futures. The volatility is time to expiration/strike/delay dependent. 
+ * Provider of normal volatility (Bachelier model) smile for options on STIR futures. 
+ * The volatility is time to expiration/delay/strike/futures price dependent. 
  * The "delay" is the time between expiration of the option and last trading date of the underlying futures.
  */
 public interface NormalSTIRFuturesProviderInterface extends ParameterProviderInterface {
@@ -22,10 +22,10 @@ public interface NormalSTIRFuturesProviderInterface extends ParameterProviderInt
   NormalSTIRFuturesProviderInterface copy();
 
   /**
-   * Gets the normal volatility at a given expiry-strike-delay point.
+   * Gets the normal volatility at a given expiry-delay-strike-futures price point.
    * @param expiry The time to expiration.
    * @param delay The delay between expiration of the option and last trading date of the underlying futures.
-   * @param strike The strike.
+   * @param strike The strike price.
    * @param futuresPrice The price of the underlying futures. Used for relative moneyness smile description.
    * @return The volatility.
    */
@@ -38,9 +38,9 @@ public interface NormalSTIRFuturesProviderInterface extends ParameterProviderInt
   IborIndex getFuturesIndex();
 
   /**
-   * Returns the Normal parameters.
-   * @return The parameters.
+   * Create a new NormalSTIRFuturesProviderInterface from multicurveProvider.
+   * @param multicurve  The multicurve provider.
+   * @return NormalSTIRFuturesProviderInterface.
    */
-  Surface<Double, Double, Double> getNormalParameters();
-
+  NormalSTIRFuturesProviderInterface withMulticurve(MulticurveProviderInterface multicurve);
 }

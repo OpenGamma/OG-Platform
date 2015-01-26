@@ -13,17 +13,20 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalPriceFunction;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.normalstirfutures.PresentValueCurveSensitivityNormalSTIRFuturesCalculator;
 import com.opengamma.analytics.financial.provider.calculator.normalstirfutures.PresentValueNormalSTIRFuturesCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.NormalDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesExpSimpleMoneynessProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesExpStrikeProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesProviderInterface;
-import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesSmileProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.normalstirfutures.NormalSTIRFuturesSensitivityFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
@@ -39,7 +42,8 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Test.
+ * Test the pricing of STIR futures options in a normal model with smile. The smile is describe by a surface on expiry
+ * and simple moneyness on rate.
  */
 @Test(groups = TestGroup.UNIT)
 public class InterestRateFutureOptionMarginNormalSmileMethodTest {
@@ -104,7 +108,7 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
    * Tests below use NormalSTIRFuturesSmileProviderDiscount 
    */
   private static final InterpolatedDoublesSurface NORMAL_PARAMETERS = NormalDataSets.createNormalSurfaceFuturesPrices();
-  private static final NormalSTIRFuturesSmileProviderDiscount NORMAL_MULTICURVES = new NormalSTIRFuturesSmileProviderDiscount(
+  private static final NormalSTIRFuturesExpStrikeProviderDiscount NORMAL_MULTICURVES = new NormalSTIRFuturesExpStrikeProviderDiscount(
       MULTICURVES, NORMAL_PARAMETERS, EURIBOR3M);
 
   /**
@@ -145,7 +149,8 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
   public void presentValueCurveSensitivity() {
     final MultipleCurrencyParameterSensitivity pvpsDepositExact = PSNFC.calculateSensitivity(TRANSACTION_1, NORMAL_MULTICURVES, NORMAL_MULTICURVES.getMulticurveProvider().getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsDepositFD = PSNFC_FD.calculateSensitivity(TRANSACTION_1, NORMAL_MULTICURVES);
-    AssertSensitivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ",
+        pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA * 10.0);
   }
 
   /**
@@ -155,8 +160,10 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
   public void priceNormalSensitivity() {
     final InterpolatedDoublesSurface normalParameterPlus = NormalDataSets.createNormalSurfaceFuturesPricesShift(VOL_SHIFT);
     final InterpolatedDoublesSurface NormalParameterMinus = NormalDataSets.createNormalSurfaceFuturesPricesShift(-VOL_SHIFT);
-    final NormalSTIRFuturesSmileProviderDiscount blackPlus = new NormalSTIRFuturesSmileProviderDiscount(MULTICURVES, normalParameterPlus, EURIBOR3M);
-    final NormalSTIRFuturesSmileProviderDiscount blackMinus = new NormalSTIRFuturesSmileProviderDiscount(MULTICURVES, NormalParameterMinus, EURIBOR3M);
+    final NormalSTIRFuturesExpStrikeProviderDiscount blackPlus = new NormalSTIRFuturesExpStrikeProviderDiscount(
+        MULTICURVES, normalParameterPlus, EURIBOR3M);
+    final NormalSTIRFuturesExpStrikeProviderDiscount blackMinus = new NormalSTIRFuturesExpStrikeProviderDiscount(
+        MULTICURVES, NormalParameterMinus, EURIBOR3M);
     final double pricePlus = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, blackPlus);
     final double priceMinus = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, blackMinus);
     final double priceSensiExpected = (pricePlus - priceMinus) / (2 * VOL_SHIFT);
@@ -183,6 +190,19 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
   @Test
   public void greeksTest() {
     double eps = 1.0e-5;
+
+    double computedVega = METHOD_SECURITY_OPTION_NORMAL.priceVega(OPTION_ERU2, NORMAL_MULTICURVES);
+    InterpolatedDoublesSurface surfaceUp = NormalDataSets.createNormalSurfaceFuturesPricesShift(eps);
+    InterpolatedDoublesSurface surfacedw = NormalDataSets.createNormalSurfaceFuturesPricesShift(-eps);
+    NormalSTIRFuturesExpSimpleMoneynessProviderDiscount normalUp = new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(
+        MULTICURVES, surfaceUp, EURIBOR3M, false);
+    NormalSTIRFuturesExpSimpleMoneynessProviderDiscount normalDw = new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(
+        MULTICURVES, surfacedw, EURIBOR3M, false);
+    double priceVolUp = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, normalUp);
+    double priceVolDw = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, normalDw);
+    double expectedVega = 0.5 * (priceVolUp - priceVolDw) / eps;
+    assertEquals("Future option with volatilities, Greeks", expectedVega, computedVega, eps * 10.0);
+
     double computedDelta = METHOD_SECURITY_OPTION_NORMAL.priceDelta(OPTION_ERU2, NORMAL_MULTICURVES);
     double priceFuture = METHOD_FUTURES.price(ERU2, NORMAL_MULTICURVES);
     double priceFutUp = METHOD_SECURITY_OPTION_NORMAL.priceFromFuturePrice(OPTION_ERU2, NORMAL_MULTICURVES,
@@ -191,18 +211,6 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
         priceFuture - eps);
     double expectedDelta = 0.5 * (priceFutUp - priceFutDw) / eps;
     assertEquals("Future option with volatilities, Greeks", expectedDelta, computedDelta, eps);
-
-    double computedVega = METHOD_SECURITY_OPTION_NORMAL.priceVega(OPTION_ERU2, NORMAL_MULTICURVES);
-    InterpolatedDoublesSurface surfaceUp = NormalDataSets.createNormalSurfaceFuturesPricesShift(eps);
-    InterpolatedDoublesSurface surfacedw = NormalDataSets.createNormalSurfaceFuturesPricesShift(-eps);
-    NormalSTIRFuturesExpSimpleMoneynessProviderDiscount normalUp = new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(
-        MULTICURVES, surfaceUp, EURIBOR3M);
-    NormalSTIRFuturesExpSimpleMoneynessProviderDiscount normalDw = new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(
-        MULTICURVES, surfacedw, EURIBOR3M);
-    double priceVolUp = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, normalUp);
-    double priceVolDw = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, normalDw);
-    double expectedVega = 0.5 * (priceVolUp - priceVolDw) / eps;
-    assertEquals("Future option with volatilities, Greeks", expectedVega, computedVega, eps);
 
     double computedGamma = METHOD_SECURITY_OPTION_NORMAL.priceGamma(OPTION_ERU2, NORMAL_MULTICURVES);
     double deltaFutUp = METHOD_SECURITY_OPTION_NORMAL.priceDeltaFromFuturePrice(OPTION_ERU2,
@@ -232,18 +240,18 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
    */
   private static final InterpolatedDoublesSurface NORMAL_PARAMETERS_MONEYNESS = NormalDataSets
       .createNormalSurfaceFuturesPricesSimpleMoneyness();
-  private static final NormalSTIRFuturesExpSimpleMoneynessProviderDiscount NORMAL_MULTICURVES_MONEYNESS = new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(
-      MULTICURVES, NORMAL_PARAMETERS_MONEYNESS, EURIBOR3M);
+  private static final NormalSTIRFuturesExpSimpleMoneynessProviderDiscount NORMAL_MULTICURVES_MONEYNESS = 
+      new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(MULTICURVES, NORMAL_PARAMETERS_MONEYNESS, EURIBOR3M, false);
 
   /**
-   * Test the option price from the future price.
+   * Test the option price.
    */
   @Test
   public void priceMoneyness() {
     double expiry = OPTION_ERU2.getExpirationTime();
     EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKE, expiry, IS_CALL);
     double priceFuture = METHOD_FUTURES.price(ERU2, MULTICURVES);
-    double volatility = NORMAL_PARAMETERS_MONEYNESS.getZValue(expiry, STRIKE);
+    double volatility = NORMAL_PARAMETERS_MONEYNESS.getZValue(expiry, priceFuture - STRIKE);
     NormalFunctionData dataNormal = new NormalFunctionData(priceFuture, 1.0, volatility);
     double priceExpected = NORMAL_FUNCTION.getPriceFunction(option).evaluate(dataNormal);
     double priceComputed = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, NORMAL_MULTICURVES_MONEYNESS);
@@ -281,6 +289,23 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
         NORMAL_MULTICURVES_MONEYNESS, NORMAL_MULTICURVES_MONEYNESS.getMulticurveProvider().getAllNames());
      MultipleCurrencyParameterSensitivity pvpsDepositFD = PSNFC_FD.calculateSensitivity(TRANSACTION_1,
         NORMAL_MULTICURVES_MONEYNESS);
+
+    // bump and reprice method involves the change in moneyness
+    double computedVega = METHOD_SECURITY_OPTION_NORMAL.priceVega(OPTION_ERU2, NORMAL_MULTICURVES_MONEYNESS);
+    double time = OPTION_ERU2.getExpirationTime();
+    double priceFuture = METHOD_FUTURES.price(ERU2, NORMAL_MULTICURVES_MONEYNESS);
+    double volatilityFutUp = NORMAL_MULTICURVES_MONEYNESS.getVolatility(time, 0.0, STRIKE, priceFuture + SHIFT);
+    double volatilityFutDw = NORMAL_MULTICURVES_MONEYNESS.getVolatility(time, 0.0, STRIKE, priceFuture - SHIFT);
+    double grad = 0.5 * (volatilityFutUp - volatilityFutDw) / SHIFT;
+    InterestRateFutureTransaction transFut = new InterestRateFutureTransaction(ERU2, 0.0, QUANTITY);
+    PresentValueCurveSensitivityDiscountingCalculator pvCal = PresentValueCurveSensitivityDiscountingCalculator
+        .getInstance();
+    ParameterSensitivityParameterCalculator<ParameterProviderInterface> sensCal = new ParameterSensitivityParameterCalculator<>(
+        pvCal);
+    MultipleCurrencyParameterSensitivity senseCurr = sensCal.calculateSensitivity(transFut, MULTICURVES);
+    senseCurr = senseCurr.multipliedBy(-computedVega * grad);
+    pvpsDepositFD = pvpsDepositFD.plus(senseCurr);
+
     AssertSensitivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ",
         pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
   }
@@ -295,9 +320,9 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
     InterpolatedDoublesSurface NormalParameterMinus = NormalDataSets
         .createNormalSurfaceFuturesPricesSimpleMoneynessShift(-VOL_SHIFT);
     NormalSTIRFuturesExpSimpleMoneynessProviderDiscount normalPlus = new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(
-        MULTICURVES, normalParameterPlus, EURIBOR3M);
+        MULTICURVES, normalParameterPlus, EURIBOR3M, false);
     NormalSTIRFuturesExpSimpleMoneynessProviderDiscount normalMinus = new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(
-        MULTICURVES, NormalParameterMinus, EURIBOR3M);
+        MULTICURVES, NormalParameterMinus, EURIBOR3M, false);
     double pricePlus = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, normalPlus);
     double priceMinus = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, normalMinus);
     double priceSensiExpected = (pricePlus - priceMinus) / (2 * VOL_SHIFT);
@@ -305,7 +330,7 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
         NORMAL_MULTICURVES_MONEYNESS);
     DoublesPair point = DoublesPair.of(OPTION_ERU2.getExpirationTime(), STRIKE);
     assertEquals("Future option with volatilities: option security vol sensi", priceSensiExpected,
-        priceSensiComputed.getMap().get(point), TOLERANCE_PRICE_DELTA);
+        priceSensiComputed.getMap().get(point), TOLERANCE_PRICE_DELTA * 10.0);
     assertEquals("Future option with volatilities: option security vol sensi", 1, priceSensiComputed.getMap()
         .size());
   }
@@ -330,38 +355,47 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
    */
   @Test
   public void greeksMoneynessTest() {
-    double eps = 1.0e-5;
+    double eps = 1.0e-4;
+
+    double computedVega = METHOD_SECURITY_OPTION_NORMAL.priceVega(OPTION_ERU2, NORMAL_MULTICURVES_MONEYNESS);
+    InterpolatedDoublesSurface surfaceUp = NormalDataSets.createNormalSurfaceFuturesPricesSimpleMoneynessShift(eps);
+    InterpolatedDoublesSurface surfacedw = NormalDataSets.createNormalSurfaceFuturesPricesSimpleMoneynessShift(-eps);
+    NormalSTIRFuturesExpSimpleMoneynessProviderDiscount normalUp = new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(
+        MULTICURVES, surfaceUp, EURIBOR3M, false);
+    NormalSTIRFuturesExpSimpleMoneynessProviderDiscount normalDw = new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(
+        MULTICURVES, surfacedw, EURIBOR3M, false);
+    double priceVolUp = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, normalUp);
+    double priceVolDw = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, normalDw);
+    double expectedVega = 0.5 * (priceVolUp - priceVolDw) / eps;
+    assertEquals("Future option with volatilities, Greeks", expectedVega, computedVega, eps * 10.0);
+
     double computedDelta = METHOD_SECURITY_OPTION_NORMAL.priceDelta(OPTION_ERU2, NORMAL_MULTICURVES_MONEYNESS);
     double priceFuture = METHOD_FUTURES.price(ERU2, NORMAL_MULTICURVES_MONEYNESS);
     double priceFutUp = METHOD_SECURITY_OPTION_NORMAL.priceFromFuturePrice(OPTION_ERU2, NORMAL_MULTICURVES_MONEYNESS,
         priceFuture + eps);
     double priceFutDw = METHOD_SECURITY_OPTION_NORMAL.priceFromFuturePrice(OPTION_ERU2, NORMAL_MULTICURVES_MONEYNESS,
         priceFuture - eps);
-    double expectedDelta = 0.5 * (priceFutUp - priceFutDw) / eps;
+    double time = OPTION_ERU2.getExpirationTime();
+    double volatilityFutUp = NORMAL_MULTICURVES_MONEYNESS.getVolatility(time, 0.0, STRIKE, priceFuture + eps);
+    double volatilityFutDw = NORMAL_MULTICURVES_MONEYNESS.getVolatility(time, 0.0, STRIKE, priceFuture - eps);
+    double expectedDelta = 0.5 * (priceFutUp - priceFutDw) / eps - 0.5 * computedVega *
+        (volatilityFutUp - volatilityFutDw) / eps;
     assertEquals("Future option with volatilities, Greeks", expectedDelta, computedDelta, eps);
-
-    double computedVega = METHOD_SECURITY_OPTION_NORMAL.priceVega(OPTION_ERU2, NORMAL_MULTICURVES_MONEYNESS);
-    InterpolatedDoublesSurface surfaceUp = NormalDataSets.createNormalSurfaceFuturesPricesSimpleMoneynessShift(eps);
-    InterpolatedDoublesSurface surfacedw = NormalDataSets.createNormalSurfaceFuturesPricesSimpleMoneynessShift(-eps);
-    NormalSTIRFuturesExpSimpleMoneynessProviderDiscount normalUp = new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(
-        MULTICURVES, surfaceUp, EURIBOR3M);
-    NormalSTIRFuturesExpSimpleMoneynessProviderDiscount normalDw = new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(
-        MULTICURVES, surfacedw, EURIBOR3M);
-    double priceVolUp = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, normalUp);
-    double priceVolDw = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, normalDw);
-    double expectedVega = 0.5 * (priceVolUp - priceVolDw) / eps;
-    assertEquals("Future option with volatilities, Greeks", expectedVega, computedVega, eps);
 
     double computedGamma = METHOD_SECURITY_OPTION_NORMAL.priceGamma(OPTION_ERU2, NORMAL_MULTICURVES_MONEYNESS);
     double deltaFutUp = METHOD_SECURITY_OPTION_NORMAL.priceDeltaFromFuturePrice(OPTION_ERU2,
         NORMAL_MULTICURVES_MONEYNESS, priceFuture + eps);
     double deltaFutDw = METHOD_SECURITY_OPTION_NORMAL.priceDeltaFromFuturePrice(OPTION_ERU2,
         NORMAL_MULTICURVES_MONEYNESS, priceFuture - eps);
-    double expectedGamma = 0.5 * (deltaFutUp - deltaFutDw) / eps;
+    double deltaVolUp = METHOD_SECURITY_OPTION_NORMAL.priceDeltaFromFuturePrice(OPTION_ERU2,
+        normalUp, priceFuture);
+    double deltaVOlDw = METHOD_SECURITY_OPTION_NORMAL.priceDeltaFromFuturePrice(OPTION_ERU2,
+        normalDw, priceFuture);
+    double expectedGamma = 0.5 * (deltaFutUp - deltaFutDw) / eps - 0.25 * (deltaVolUp - deltaVOlDw) / eps *
+        (volatilityFutUp - volatilityFutDw) / eps;
     assertEquals("Future option with volatilities, Greeks", expectedGamma, computedGamma, eps);
 
     double computedTheta = METHOD_SECURITY_OPTION_NORMAL.priceTheta(OPTION_ERU2, NORMAL_MULTICURVES_MONEYNESS);
-    double time = OPTION_ERU2.getExpirationTime();
     InterestRateFutureOptionMarginSecurity OptionUp = new InterestRateFutureOptionMarginSecurity(ERU2, time + eps,
         STRIKE, IS_CALL);
     InterestRateFutureOptionMarginSecurity OptionDw = new InterestRateFutureOptionMarginSecurity(ERU2, time - eps,

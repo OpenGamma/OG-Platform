@@ -56,9 +56,10 @@ import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
 /**
- * E2E test for STIR futures option using volatility surface with simple moneyness. 
+ * E2E test for STIR futures option using volatility surface with simple moneyness on rate. 
  */
 public class STIRFuturesOptionNormalExpSimpleMoneynessMethodE2ETest {
+  private static final STIRFuturesOptionNormalExpSimpleMoneynessExamplesData DATA = new STIRFuturesOptionNormalExpSimpleMoneynessExamplesData();
 
   /* Interpolators */
   private static final Interpolator1D SQUARE_FLAT =
@@ -71,39 +72,13 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessMethodE2ETest {
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(TIME_SQUARE_FLAT, SQUARE_FLAT);
 
   /* Volatility surface */
-  private static final double[] EXPIRY;
-  private static final double[] SIMPLEMONEY;
-  private static final double[] VOL = new double[] {
-      1.0623, 1.0623, 1.0623, 1.0623, 1.0623, 0.9517, 0.8098, 0.6903, 0.6519, 0.6872, 0.7490, 0.8161, 0.8823,
-      1.0623, 1.0623, 1.0623, 1.0623, 1.0623, 0.9517, 0.8098, 0.6903, 0.6519, 0.6872, 0.7490, 0.8161, 0.8823,
-      1.0623, 1.0623, 1.0623, 1.0623, 1.0623, 0.9517, 0.8098, 0.6903, 0.6519, 0.6872, 0.7490, 0.8161, 0.8823,
-      1.1414, 1.0815, 1.0316, 0.9926, 0.9638, 0.8791, 0.7843, 0.7094, 0.6817, 0.6948, 0.7252, 0.7617, 0.8002,
-      1.1278, 1.0412, 0.9654, 0.9021, 0.8511, 0.8108, 0.7794, 0.7551, 0.7369, 0.7240, 0.7160, 0.7128, 0.7144,
-      0.9697, 0.9412, 0.9130, 0.8854, 0.8585, 0.8327, 0.8084, 0.7861, 0.7664, 0.7502, 0.7383, 0.7318, 0.7317,
-      0.9611, 0.9265, 0.8938, 0.8630, 0.8347, 0.8089, 0.7859, 0.7659, 0.7489, 0.7351, 0.7242, 0.7161, 0.7105,
-      0.9523, 0.9116, 0.8741, 0.8401, 0.8101, 0.7843, 0.7626, 0.7451, 0.7310, 0.7197, 0.7098, 0.7000, 0.6886
-  };
-  private static final double[] EXPIRY_SET = new double[] {7.0 / 365.0, 14.0 / 365.0, 21.0 / 365.0, 30.0 / 365.0,
-      60.0 / 365.0, 90.0 / 365.0, 120.0 / 365.0, 180.0 / 365.0 };
-  private static final double[] MONEYNESS_SET = new double[] {-8.0E-3, -7.0E-3, -6.0E-3, -5.0E-3, -4.0E-3, -3.0E-3,
-      -2.0E-3, -1.0E-3, 0.0, 1.0E-3, 2.0E-3, 3.0E-3, 4.0E-3 };
-  private static final int NUM_EXPIRY = EXPIRY_SET.length;
-  private static final int NUM_MONEY = MONEYNESS_SET.length;
-  static {
-    int nTotal = NUM_EXPIRY * NUM_MONEY;
-    EXPIRY = new double[nTotal];
-    SIMPLEMONEY = new double[nTotal];
-    for (int i = 0; i < NUM_EXPIRY; ++i) {
-      for (int j = 0; j < NUM_MONEY; ++j) {
-        EXPIRY[i * NUM_MONEY + j] = EXPIRY_SET[i];
-        SIMPLEMONEY[i * NUM_MONEY + j] = MONEYNESS_SET[j];
-      }
-    }
-  }
+  private static final double[] EXPIRY = DATA.getExpiry();
+  private static final double[] SIMPLEMONEY = DATA.getSimpleMoneyness();
+  private static final double[] VOL = DATA.getVolatility();
 
   /* Curve */
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR =
-      StandardDataSetsMulticurveEUR.getCurvesUSDOisL3();
+      StandardDataSetsMulticurveEUR.getCurvesEurOisE3();
   private static final MulticurveProviderDiscount MULTICURVES = MULTICURVE_PAIR.getFirst();
   private static final CurveBuildingBlockBundle BLOCK = MULTICURVE_PAIR.getSecond();
   private static final IborIndex[] IBOR_INDEXES = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd();
@@ -111,8 +86,8 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessMethodE2ETest {
   private static final Currency EUR = EURIBOR3M.getCurrency();
   final private static InterpolatedDoublesSurface VOL_SURFACE_SIMPLEMONEY = InterpolatedDoublesSurface.from(EXPIRY,
       SIMPLEMONEY, VOL, INTERPOLATOR_2D);
-  final private static NormalSTIRFuturesExpSimpleMoneynessProviderDiscount NORMAL_MULTICURVES = new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(
-      MULTICURVES, VOL_SURFACE_SIMPLEMONEY, EURIBOR3M);
+  final private static NormalSTIRFuturesExpSimpleMoneynessProviderDiscount NORMAL_MULTICURVES = 
+      new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(MULTICURVES, VOL_SURFACE_SIMPLEMONEY, EURIBOR3M, false);
 
   /* Option */
   private static final Calendar TARGET = MulticurveProviderDiscountDataSets.getEURCalendar();
@@ -179,44 +154,48 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessMethodE2ETest {
   public void E2ETest() {
     double tol = 1.0e-10;
     MultipleCurrencyAmount pv = TRANSACTION_1.accept(PVNFC, NORMAL_MULTICURVES);
-    assertRelative("E2ETest, pv", 1189734.293087415, pv.getAmount(EUR), tol);
+    assertRelative("E2ETest, pv", 861850.4996823109, pv.getAmount(EUR), tol);
 
     MultipleCurrencyParameterSensitivity bucketedPv01 = MQSBC.fromInstrument(TRANSACTION_1, NORMAL_MULTICURVES, BLOCK)
         .multipliedBy(BP1);
     // market quote sensitivity, thus nonzero values for discounting curve
-    final double[] deltaDsc = {-6.681814910274873E-5, -6.68179124557889E-5, 1.1067675326995871E-10,
-        -3.659004831944792E-9, -0.002559069255796561, -0.004543248930118119, -0.006070174362465463,
-        0.17856627277034381, -0.36866395741657765, 0.026433808708683, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-    final double[] deltaFwd = {-0.07822247297545455, 0.0016343368260916407, 7.181272105755398E-4, 0.016110904890595773,
-        212.0118812690386, -360.23071541957376, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity = new LinkedHashMap<>();
+     double[] deltaDsc = new double [] {-6.699625499005507E-5, -6.699601771230529E-5, 1.1097176565222359E-10,
+        -3.668758024917107E-9, -0.0025658905357422443, -0.004555359103668548, -0.006086354603993385,
+        0.17904224681155592, -0.3696466428416493, 0.026504268860874675, -7.840654172613281E-14, 9.633192325368143E-14,
+        3.080721153798044E-13, 2.4989987634531895E-13, 1.479886424366408E-13, 1.6993761653354066E-13 };
+    double[] deltaFwd = new double[] {-0.07843097744832121, 0.0016386932025324356, 7.200414013419107E-4,
+        0.016153849016546293, 212.57700563629456, -361.1909217716853, -2.2771335549327615E-11, 2.63862064877223E-12,
+        7.0640044230169935E-12, 1.4665415911199027E-12, 6.039106742059584E-12, 4.3654232078987675E-12,
+        3.962055990473498E-12, 4.319049695483522E-12, 3.0470051651095408E-12, 2.605778031824316E-12,
+        1.6592159214426629E-12 };
+     LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity = new LinkedHashMap<>();
     sensitivity.put(ObjectsPair.of(MULTICURVES.getName(EUR), EUR), new DoubleMatrix1D(deltaDsc));
     sensitivity.put(ObjectsPair.of(MULTICURVES.getName(EURIBOR3M), EUR), new DoubleMatrix1D(deltaFwd));
-    final MultipleCurrencyParameterSensitivity expectedbucket = new MultipleCurrencyParameterSensitivity(sensitivity);
+     MultipleCurrencyParameterSensitivity expectedbucket = new MultipleCurrencyParameterSensitivity(sensitivity);
     AssertSensitivityObjects.assertEquals("E2ETest, bucketed pv01", expectedbucket, bucketedPv01, tol);
 
     ReferenceAmount<Pair<String, Currency>> pv01 = TRANSACTION_1.accept(PV01CPC, NORMAL_MULTICURVES);
     // parameter sensitivity, thus null for discounting curve
-    assertRelative("E2ETest, positionDelta", -148.81208160968453,
+    assertRelative("E2ETest, pv01", -149.20874491438397,
         pv01.getMap().get(Pairs.of(MULTICURVES.getName(EURIBOR3M), EUR)), tol);
 
     Double positionDelta = TRANSACTION_1.accept(PDNFOC, NORMAL_MULTICURVES);
     Double positionGamma = TRANSACTION_1.accept(PGNFOC, NORMAL_MULTICURVES);
     Double positionTheta = TRANSACTION_1.accept(PTNFOC, NORMAL_MULTICURVES);
     Double positionVega = TRANSACTION_1.accept(PVNFOC, NORMAL_MULTICURVES);
-    assertRelative("E2ETest, positionDelta", 1510514.3880131498, positionDelta, tol);
-    assertRelative("E2ETest, positionGamma", 1209592.5342508554, positionGamma, tol);
-    assertRelative("E2ETest, positionTheta", -548474.7901402897, positionTheta, tol);
-    assertRelative("E2ETest, positionVega", 1243415.3926702284, positionVega, tol);
+    assertRelative("E2ETest, positionDelta", 1514540.7118335292, positionDelta, tol);
+    assertRelative("E2ETest, positionGamma", 1672748.1927204835, positionGamma, tol);
+    assertRelative("E2ETest, positionTheta", -396583.47181617195, positionTheta, tol);
+    assertRelative("E2ETest, positionVega", 1243371.6048490028, positionVega, tol);
 
     Double delta = TRANSACTION_1.accept(DNFOC, NORMAL_MULTICURVES);
     Double gamma = TRANSACTION_1.accept(GNFOC, NORMAL_MULTICURVES);
     Double theta = TRANSACTION_1.accept(TNFOC, NORMAL_MULTICURVES);
     Double vega = TRANSACTION_1.accept(VNFOC, NORMAL_MULTICURVES);
-    assertRelative("E2ETest, delta", 0.5035047960043832, delta, tol);
-    assertRelative("E2ETest, gamma", 0.40319751141695176, gamma, tol);
-    assertRelative("E2ETest, theta", -0.18282493004676323, theta, tol);
-    assertRelative("E2ETest, vega", 0.4144717975567428, vega, tol);
+    assertRelative("E2ETest, delta", 0.5048469039445097, delta, tol);
+    assertRelative("E2ETest, gamma", 0.5575827309068279, gamma, tol);
+    assertRelative("E2ETest, theta", -0.13219449060539065, theta, tol);
+    assertRelative("E2ETest, vega", 0.4144572016163343, vega, tol);
   }
 
   /**
@@ -296,12 +275,12 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessMethodE2ETest {
   @Test(enabled = false)
   public void volatilitySurfacePrintTest() {
     int nSample = 100;
-    double minExpiry = EXPIRY_SET[0] * 0.8;
-    double maxExpiry = EXPIRY_SET[NUM_EXPIRY - 1] * 1.2;
+    double minExpiry = EXPIRY[0] * 0.8;
+    double maxExpiry = EXPIRY[EXPIRY.length - 1] * 1.2;
     double intervalExpiry = (maxExpiry - minExpiry) / (nSample - 1.0);
 
-    double minMoney = MONEYNESS_SET[0] * 1.2;
-    double maxMoney = MONEYNESS_SET[NUM_MONEY - 1] * 1.2;
+    double minMoney = SIMPLEMONEY[0] * 1.2;
+    double maxMoney = SIMPLEMONEY[SIMPLEMONEY.length - 1] * 1.2;
     double intervalMoney = (maxMoney - minMoney) / (nSample - 1.0);
 
     for (int j = 0; j < nSample; ++j) {
@@ -319,6 +298,7 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessMethodE2ETest {
       System.out.print("\n");
     }
   }
+
 
   private void assertRelative(String message, double expected, double obtained, double relativeTol) {
     double ref = Math.max(Math.abs(expected), 1.0);

@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
-import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.datasets.CalendarUSD;
@@ -132,9 +132,9 @@ public class FixedAnnuityDefinitionBuilderTest {
     /*
      * Construct annuity from individual coupon payments
      */
-    ZonedDateTime startDateBare = EFFECTIVE_DATE_1.atTime(LocalTime.MIN).atZone(ZoneId.systemDefault());
+    ZonedDateTime startDateBare = EFFECTIVE_DATE_1.atTime(LocalTime.MIN).atZone(ZoneOffset.UTC);
     ZonedDateTime[] accrualEndDatesBare = ScheduleCalculator.getAdjustedDateSchedule(startDateBare,
-        MATURITY_DATE_1.atTime(LocalTime.MIN).atZone(ZoneId.systemDefault()), period, StubType.NONE,
+        MATURITY_DATE_1.atTime(LocalTime.MIN).atZone(ZoneOffset.UTC), period, StubType.NONE,
         ADJUSTED_DATE_LIBOR.getBusinessDayConvention(), ADJUSTED_DATE_LIBOR.getCalendar(), null);
     ZonedDateTime[] accrualStartDatesBare = ScheduleCalculator.getStartDates(startDateBare, accrualEndDatesBare);
     int nCoupons = accrualEndDatesBare.length;

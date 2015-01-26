@@ -5,7 +5,10 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
-import static com.opengamma.integration.marketdata.manipulator.dsl.MarketDataDelegate.MarketDataType.*;
+import static com.opengamma.integration.marketdata.manipulator.dsl.MarketDataDelegate.MarketDataType.FIXED_HISTORICAL;
+import static com.opengamma.integration.marketdata.manipulator.dsl.MarketDataDelegate.MarketDataType.LATEST_HISTORICAL;
+import static com.opengamma.integration.marketdata.manipulator.dsl.MarketDataDelegate.MarketDataType.LIVE;
+import static com.opengamma.integration.marketdata.manipulator.dsl.MarketDataDelegate.MarketDataType.SNAPSHOT;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
