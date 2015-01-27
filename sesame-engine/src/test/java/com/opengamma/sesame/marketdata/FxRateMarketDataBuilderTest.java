@@ -8,8 +8,10 @@ package com.opengamma.sesame.marketdata;
 import static com.opengamma.util.result.ResultTestUtils.assertSuccess;
 import static org.mockito.Mockito.mock;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,7 +31,11 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.SimpleCurrencyMatrix;
 import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.marketdata.builders.FxRateMarketDataBuilder;
+import com.opengamma.sesame.marketdata.scenarios.CurrencyPairFilter;
 import com.opengamma.sesame.marketdata.scenarios.CyclePerturbations;
+import com.opengamma.sesame.marketdata.scenarios.FxRateShift;
+import com.opengamma.sesame.marketdata.scenarios.MarketDataFilter;
+import com.opengamma.sesame.marketdata.scenarios.Perturbation;
 import com.opengamma.sesame.marketdata.scenarios.SinglePerturbationMapping;
 import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
@@ -408,5 +414,173 @@ public class FxRateMarketDataBuilderTest {
     assertEquals(1 / 2d, (Double) chfEurSeries.getValue(date1), DELTA);
     assertEquals(1 / 8d, (Double) chfEurSeries.getValue(date2), DELTA);
     assertEquals(1 / 18d, (Double) chfEurSeries.getValue(date3), DELTA);
+  }
+
+  public void shiftFixed() {
+    SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
+    matrix.setFixedConversion(Currency.GBP, Currency.USD, GBPUSD_RATE);
+    FxRateMarketDataBuilder builder = new FxRateMarketDataBuilder(ConfigLink.<CurrencyMatrix>resolved(matrix));
+
+    MarketDataBundle emptyBundle = MarketDataEnvironmentBuilder.empty().toBundle();
+    SingleValueRequirement gbpUsd = singleValueRequirement("GBP/USD");
+    SingleValueRequirement usdGbp = singleValueRequirement("USD/GBP");
+    Set<SingleValueRequirement> requirements = ImmutableSet.of(gbpUsd, usdGbp);
+    ImmutableSet<MarketDataRequirement> marketDataRequirements = ImmutableSet.<MarketDataRequirement>of(gbpUsd, usdGbp);
+    MarketDataFilter filter = new CurrencyPairFilter(Currency.GBP, Currency.USD);
+    Perturbation perturbation = FxRateShift.absolute(0.1);
+    SinglePerturbationMapping mapping =
+        SinglePerturbationMapping.builder()
+            .filter(filter)
+            .perturbation(perturbation)
+            .build();
+    List<SinglePerturbationMapping> mappings = ImmutableList.of(mapping);
+    CyclePerturbations perturbations = new CyclePerturbations(marketDataRequirements, mappings);
+    MarketDataSource marketDataSource = mock(MarketDataSource.class);
+    Map<SingleValueRequirement, Result<?>> values =
+        builder.buildSingleValues(emptyBundle, ZonedDateTime.now(), requirements, marketDataSource, perturbations);
+
+    Result<?> gbpUsdResult = values.get(gbpUsd);
+    assertSuccess(gbpUsdResult);
+    assertEquals(GBPUSD_RATE + 0.1, (Double) gbpUsdResult.getValue(), DELTA);
+
+    Result<?> usdGbpResult = values.get(usdGbp);
+    assertSuccess(usdGbpResult);
+    assertEquals(1 / (GBPUSD_RATE + 0.1), (Double) usdGbpResult.getValue(), DELTA);
+  }
+
+  public void shiftLookup() {
+    SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
+    ExternalId rateId = ExternalId.of("x", "GBPUSD");
+    ValueRequirement valueReq = new ValueRequirement(MARKET_VALUE.getName(), ComputationTargetType.PRIMITIVE, rateId);
+    matrix.setLiveData(Currency.GBP, Currency.USD, valueReq);
+    FxRateMarketDataBuilder builder = new FxRateMarketDataBuilder(ConfigLink.<CurrencyMatrix>resolved(matrix));
+    MarketDataSource marketDataSource = mock(MarketDataSource.class);
+    MarketDataBundle bundle =
+        new MarketDataEnvironmentBuilder()
+            .add(RawId.of(rateId.toBundle()), GBPUSD_RATE)
+            .valuationTime(ZonedDateTime.now())
+            .build()
+            .toBundle();
+
+    SingleValueRequirement gbpUsd = singleValueRequirement("GBP/USD");
+    SingleValueRequirement usdGbp = singleValueRequirement("USD/GBP");
+    Set<SingleValueRequirement> requirements = ImmutableSet.of(gbpUsd, usdGbp);
+    Set<MarketDataRequirement> marketDataRequirements = ImmutableSet.<MarketDataRequirement>of(gbpUsd, usdGbp);
+    MarketDataFilter filter = new CurrencyPairFilter(Currency.GBP, Currency.USD);
+    Perturbation perturbation = FxRateShift.absolute(0.1);
+    SinglePerturbationMapping mapping =
+        SinglePerturbationMapping.builder()
+            .filter(filter)
+            .perturbation(perturbation)
+            .build();
+    List<SinglePerturbationMapping> mappings = ImmutableList.of(mapping);
+    CyclePerturbations perturbations = new CyclePerturbations(marketDataRequirements, mappings);
+    Map<SingleValueRequirement, Result<?>> values =
+        builder.buildSingleValues(bundle, ZonedDateTime.now(), requirements, marketDataSource, perturbations);
+
+    Result<?> gbpUsdResult = values.get(gbpUsd);
+    assertSuccess(gbpUsdResult);
+    assertEquals(GBPUSD_RATE + 0.1, (Double) gbpUsdResult.getValue(), DELTA);
+
+    Result<?> usdGbpResult = values.get(usdGbp);
+    assertSuccess(usdGbpResult);
+    assertEquals(1 / (GBPUSD_RATE + 0.1), (Double) usdGbpResult.getValue(), DELTA);
+  }
+
+  /**
+   * Tests that applying a shift to a cross rate returns a failure. Shifting cross rates isn't supported because
+   * it would introduce inconsistent rates. The underlying observable rates should be shifted.
+   */
+  public void shiftCross() {
+    SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
+
+    ExternalId usdchfRateId = ExternalId.of("x", "USDCHF");
+    ValueRequirement usdchfReq = new ValueRequirement(MARKET_VALUE.getName(), ComputationTargetType.PRIMITIVE, usdchfRateId);
+    matrix.setLiveData(Currency.USD, Currency.CHF, usdchfReq);
+    double usdchfValue = USDCHF_RATE;
+
+    ExternalId eurusdRateId = ExternalId.of("x", "EURUSD");
+    ValueRequirement eurusdReq = new ValueRequirement(MARKET_VALUE.getName(), ComputationTargetType.PRIMITIVE, eurusdRateId);
+    matrix.setLiveData(Currency.EUR, Currency.USD, eurusdReq);
+    double eurusdValue = EURUSD_RATE;
+
+    matrix.setCrossConversion(Currency.EUR, Currency.CHF, Currency.USD);
+    FxRateMarketDataBuilder builder = new FxRateMarketDataBuilder(ConfigLink.<CurrencyMatrix>resolved(matrix));
+
+    MarketDataBundle bundle =
+        new MarketDataEnvironmentBuilder()
+            .add(RawId.of(usdchfRateId.toBundle()), usdchfValue)
+            .add(RawId.of(eurusdRateId.toBundle()), eurusdValue)
+            .valuationTime(ZonedDateTime.now())
+            .build()
+            .toBundle();
+
+    SingleValueRequirement eurChf = singleValueRequirement("EUR/CHF");
+    SingleValueRequirement chfEur = singleValueRequirement("CHF/EUR");
+    Set<SingleValueRequirement> requirements = ImmutableSet.of(eurChf, chfEur);
+    ImmutableSet<MarketDataRequirement> marketDataRequirements = ImmutableSet.<MarketDataRequirement>of(eurChf, chfEur);
+    MarketDataFilter filter = new CurrencyPairFilter(Currency.EUR, Currency.CHF);
+    Perturbation perturbation = FxRateShift.absolute(0.1);
+    SinglePerturbationMapping mapping =
+        SinglePerturbationMapping.builder()
+            .filter(filter)
+            .perturbation(perturbation)
+            .build();
+    List<SinglePerturbationMapping> mappings = ImmutableList.of(mapping);
+    CyclePerturbations perturbations = new CyclePerturbations(marketDataRequirements, mappings);
+
+    MarketDataSource marketDataSource = mock(MarketDataSource.class);
+    Map<SingleValueRequirement, Result<?>> values =
+        builder.buildSingleValues(bundle, ZonedDateTime.now(), requirements, marketDataSource, perturbations);
+
+    Result<?> eurChfResult = values.get(eurChf);
+    assertFalse(eurChfResult.isSuccess());
+
+    Result<?> chfEurResult = values.get(chfEur);
+    assertFalse(chfEurResult.isSuccess());
+  }
+
+  /**
+   * Tests applying a shift defined using an inverse currency pair compared to the market data.
+   * The underlying market data is the rate for GBP/USD and the shift is defined to apply to USD/GBP
+   */
+  public void shiftInverse() {
+    SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
+    ExternalId rateId = ExternalId.of("x", "GBPUSD");
+    ValueRequirement valueReq = new ValueRequirement(MARKET_VALUE.getName(), ComputationTargetType.PRIMITIVE, rateId);
+    matrix.setLiveData(Currency.GBP, Currency.USD, valueReq);
+    FxRateMarketDataBuilder builder = new FxRateMarketDataBuilder(ConfigLink.<CurrencyMatrix>resolved(matrix));
+    MarketDataSource marketDataSource = mock(MarketDataSource.class);
+    MarketDataBundle bundle =
+        new MarketDataEnvironmentBuilder()
+            .add(RawId.of(rateId.toBundle()), GBPUSD_RATE)
+            .valuationTime(ZonedDateTime.now())
+            .build()
+            .toBundle();
+
+    SingleValueRequirement gbpUsd = singleValueRequirement("GBP/USD");
+    SingleValueRequirement usdGbp = singleValueRequirement("USD/GBP");
+    Set<SingleValueRequirement> requirements = ImmutableSet.of(gbpUsd, usdGbp);
+    Set<MarketDataRequirement> marketDataRequirements = ImmutableSet.<MarketDataRequirement>of(gbpUsd, usdGbp);
+    // the shift is defined for the inverse pair of the raw market data
+    MarketDataFilter filter = new CurrencyPairFilter(Currency.USD, Currency.GBP);
+    Perturbation perturbation = FxRateShift.absolute(0.1);
+    SinglePerturbationMapping mapping =
+        SinglePerturbationMapping.builder()
+            .filter(filter)
+            .perturbation(perturbation)
+            .build();
+    List<SinglePerturbationMapping> mappings = ImmutableList.of(mapping);
+    CyclePerturbations perturbations = new CyclePerturbations(marketDataRequirements, mappings);
+    Map<SingleValueRequirement, Result<?>> values =
+        builder.buildSingleValues(bundle, ZonedDateTime.now(), requirements, marketDataSource, perturbations);
+
+    Result<?> gbpUsdResult = values.get(gbpUsd);
+    assertSuccess(gbpUsdResult);
+    assertEquals(1 / ((1 / GBPUSD_RATE) + 0.1), (Double) gbpUsdResult.getValue(), DELTA);
+
+    Result<?> usdGbpResult = values.get(usdGbp);
+    assertSuccess(usdGbpResult);
+    assertEquals((1 / GBPUSD_RATE) + 0.1, (Double) usdGbpResult.getValue(), DELTA);
   }
 }

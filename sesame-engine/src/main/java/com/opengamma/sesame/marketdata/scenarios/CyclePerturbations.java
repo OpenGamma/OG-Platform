@@ -71,7 +71,7 @@ public class CyclePerturbations {
     List<SinglePerturbationMapping> outputs = new ArrayList<>();
 
     for (SinglePerturbationMapping mapping : mappings) {
-      switch (mapping.getTargetType()) {
+      switch (mapping.getPerturbation().getTargetType()) {
         case INPUT:
           inputs.add(mapping);
           break;
@@ -104,6 +104,8 @@ public class CyclePerturbations {
     return builder.build();
   }
 
+  // TODO the only difference between this and the method below is the arguments to filter.apply()
+  // TODO Java 8 - combine this with the method below and use a lambda to apply the filter
   /**
    * Returns all perturbations that should be applied to a piece of market data.
    * <p>
@@ -131,11 +133,12 @@ public class CyclePerturbations {
       // not worth the complication yet
       MarketDataFilter filter = mapping.getFilter();
       Class<?> filterDataType = filter.getMarketDataType();
+      Class<?> filterMarketDataIdType = filter.getMarketDataIdType();
+
       Class<?> requirementDataType = requirement.getMarketDataId().getMarketDataType();
-      Class<?> marketDataIdType = filter.getMarketDataIdType();
       MarketDataId marketDataId = requirement.getMarketDataId();
 
-      if (filterDataType == requirementDataType && marketDataIdType == marketDataId.getClass()) {
+      if (filterDataType == requirementDataType && filterMarketDataIdType == marketDataId.getClass()) {
         // Assumes input metadata can always be derived from the market data ID (i.e. from config).
         // But isn't that a given anyway because they're inputs so the data is getting built from config?
         // Would need to duplicate the logic that creates the metadata in every filter acting on the same market
@@ -160,20 +163,26 @@ public class CyclePerturbations {
    * @param mappings a list of mappings to search for perturbations that apply to the data
    * @return a collection of output perturbations that apply to a piece of market data
    */
-  private Collection<FilteredPerturbation> perturbationsForMarketData(MarketDataRequirement requirement,
-                                                                      Object marketDataValue,
-                                                                      List<SinglePerturbationMapping> mappings) {
-    Map<Object, FilteredPerturbation> matches = new HashMap<>();
+  private Collection<FilteredPerturbation> perturbationsForMarketData(
+      MarketDataRequirement requirement,
+      Object marketDataValue,
+      List<SinglePerturbationMapping> mappings) {
+
+    // it is possible for multiple perturbations to apply to values where different parts of the value can
+    // be perturbed independently. e.g. the individual curves inside a curve bundle.
+    // the keys in this map are the match details returned by the filter. the details identify the part of
+    // the value that was matched
+    Map<MatchDetails, FilteredPerturbation> matches = new HashMap<>();
 
     for (SinglePerturbationMapping mapping : mappings) {
       MarketDataFilter filter = mapping.getFilter();
-      // TODO is the data type really the most important thing here? e.g. can be double for security and raw IDs
       Class<?> filterDataType = filter.getMarketDataType();
+      Class<?> filterMarketDataIdType = filter.getMarketDataIdType();
+
       Class<?> requirementDataType = requirement.getMarketDataId().getMarketDataType();
-      Class<?> marketDataIdType = filter.getMarketDataIdType();
       MarketDataId marketDataId = requirement.getMarketDataId();
 
-      if (filterDataType == requirementDataType && marketDataIdType == marketDataId.getClass()) {
+      if (filterDataType == requirementDataType && filterMarketDataIdType == marketDataId.getClass()) {
         Set<? extends MatchDetails> matchDetails = filter.apply(marketDataId, marketDataValue);
 
         for (MatchDetails match : matchDetails) {

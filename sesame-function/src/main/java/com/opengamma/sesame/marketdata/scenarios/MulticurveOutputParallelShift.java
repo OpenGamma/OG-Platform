@@ -85,4 +85,9 @@ public class MulticurveOutputParallelShift implements Perturbation {
   public Class<? extends MatchDetails> getMatchDetailsType() {
     return MulticurveMatchDetails.class;
   }
+
+  @Override
+  public Target getTargetType() {
+    return Target.OUTPUT;
+  }
 }

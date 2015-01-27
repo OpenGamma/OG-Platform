@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.marketdata.builders;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.core.link.ConfigLink;
@@ -33,6 +35,7 @@ import com.opengamma.sesame.marketdata.RawId;
 import com.opengamma.sesame.marketdata.SingleValueRequirement;
 import com.opengamma.sesame.marketdata.TimeSeriesRequirement;
 import com.opengamma.sesame.marketdata.scenarios.CyclePerturbations;
+import com.opengamma.sesame.marketdata.scenarios.FilteredPerturbation;
 import com.opengamma.timeseries.date.DateEntryIterator;
 import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
@@ -149,6 +152,15 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
     ImmutableMap.Builder<SingleValueRequirement, Result<?>> resultsBuilder = ImmutableMap.builder();
 
     for (SingleValueRequirement requirement : requirements) {
+      // there will always be zero or one perturbations for an FX rate requirement
+      Collection<FilteredPerturbation> perturbations = cyclePerturbations.getInputPerturbations().get(requirement);
+      Optional<FilteredPerturbation> perturbation;
+
+      if (perturbations.isEmpty()) {
+        perturbation = Optional.absent();
+      } else {
+        perturbation = Optional.of(perturbations.iterator().next());
+      }
       FxRateId rateId = (FxRateId) requirement.getMarketDataId();
       CurrencyPair currencyPair = rateId.getCurrencyPair();
       // if the supplied data contains the inverse rate we can use that
@@ -159,7 +171,8 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
         Double inverseRate = inverseResult.getValue();
         resultsBuilder.put(requirement, Result.success(1 / inverseRate));
       } else {
-        resultsBuilder.put(requirement, getRate(marketDataBundle, currencyPair.getBase(), currencyPair.getCounter()));
+        Result<Double> rate = getRate(marketDataBundle, currencyPair.getBase(), currencyPair.getCounter(), perturbation);
+        resultsBuilder.put(requirement, rate);
       }
     }
     Map<SingleValueRequirement, Result<?>> results = resultsBuilder.build();
@@ -222,11 +235,38 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
     return FxRateId.class;
   }
 
-  private Result<Double> getRate(final MarketDataBundle marketDataBundle, final Currency base, final Currency counter) {
+  // TODO Java 8 - use JDK optional and lambdas for applying the perturbation
+
+  /**
+   * Returns the FX rate for a pair of currencies, using the currency matrix to determine how to find the data.
+   * An optional perturbation is applied to the rate before returning it.
+   * <p>
+   * If the rate is derived from two other rates (a cross rate) and a perturbation is provided, the result will be
+   * a failure. Applying perturbations to cross rates isn't supported as it introduces inconsistencies in the
+   * set of market data.
+   *
+   * @param marketDataBundle market data for the calculation cycle
+   * @param base base currency of the pair
+   * @param counter counter currency of the pair
+   * @param perturbation perturbation to apply to the rate
+   * @return a result containing the rate
+   */
+  private Result<Double> getRate(
+      final MarketDataBundle marketDataBundle,
+      final Currency base,
+      final Currency counter,
+      final Optional<FilteredPerturbation> perturbation) {
+
     CurrencyMatrixValueVisitor<Result<Double>> visitor = new CurrencyMatrixValueVisitor<Result<Double>>() {
       @Override
       public Result<Double> visitFixed(CurrencyMatrixValue.CurrencyMatrixFixed fixedValue) {
-        return Result.success(fixedValue.getFixedValue());
+        double fixedRate = fixedValue.getFixedValue();
+
+        if (perturbation.isPresent()) {
+          return Result.success(((Double) perturbation.get().apply(fixedRate)));
+        } else {
+          return Result.success(fixedRate);
+        }
       }
 
       @SuppressWarnings("unchecked")
@@ -240,7 +280,13 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
 
         if (result.isSuccess()) {
           Double spotRate = result.getValue();
-          return Result.success(req.isReciprocal() ? 1 / spotRate : spotRate);
+          double rate = req.isReciprocal() ? 1 / spotRate : spotRate;
+
+          if (perturbation.isPresent()) {
+            return Result.success(((Double) perturbation.get().apply(rate)));
+          } else {
+            return Result.success(rate);
+          }
         } else {
           return Result.failure(result);
         }
@@ -248,9 +294,18 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
 
       @Override
       public Result<Double> visitCross(CurrencyMatrixValue.CurrencyMatrixCross cross) {
-        Result<Double> baseCrossRate = getRate(marketDataBundle, base, cross.getCrossCurrency());
-        Result<Double> crossCounterRate = getRate(marketDataBundle, cross.getCrossCurrency(), counter);
+        // perturbations aren't allowed for cross rates because they introduce inconsistencies
+        if (perturbation.isPresent()) {
+          return Result.failure(
+              FailureStatus.INVALID_INPUT,
+              "Perturbation defined for cross rate {}/{}. Perturbations are not supported for cross rates",
+              base.getCode(),
+              counter.getCode());
+        }
+        Result<Double> baseCrossRate = getRate(marketDataBundle, base, cross.getCrossCurrency(), perturbation);
+        Result<Double> crossCounterRate = getRate(marketDataBundle, cross.getCrossCurrency(), counter, perturbation);
 
+        // TODO Java 8 - replace with lambda
         return baseCrossRate.combineWith(crossCounterRate, new Function2<Double, Double, Result<Double>>() {
           @Override
           public Result<Double> apply(Double rate1, Double rate2) {
