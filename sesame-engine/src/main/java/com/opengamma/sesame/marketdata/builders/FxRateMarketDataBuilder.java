@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.core.link.ConfigLink;
@@ -152,15 +151,6 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
     ImmutableMap.Builder<SingleValueRequirement, Result<?>> resultsBuilder = ImmutableMap.builder();
 
     for (SingleValueRequirement requirement : requirements) {
-      // there will always be zero or one perturbations for an FX rate requirement
-      Collection<FilteredPerturbation> perturbations = cyclePerturbations.getInputPerturbations().get(requirement);
-      Optional<FilteredPerturbation> perturbation;
-
-      if (perturbations.isEmpty()) {
-        perturbation = Optional.absent();
-      } else {
-        perturbation = Optional.of(perturbations.iterator().next());
-      }
       FxRateId rateId = (FxRateId) requirement.getMarketDataId();
       CurrencyPair currencyPair = rateId.getCurrencyPair();
       // if the supplied data contains the inverse rate we can use that
@@ -171,7 +161,8 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
         Double inverseRate = inverseResult.getValue();
         resultsBuilder.put(requirement, Result.success(1 / inverseRate));
       } else {
-        Result<Double> rate = getRate(marketDataBundle, currencyPair.getBase(), currencyPair.getCounter(), perturbation);
+        Result<Double> rate =
+            getRate(marketDataBundle, currencyPair.getBase(), currencyPair.getCounter(), cyclePerturbations);
         resultsBuilder.put(requirement, rate);
       }
     }
@@ -248,24 +239,29 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
    * @param marketDataBundle market data for the calculation cycle
    * @param base base currency of the pair
    * @param counter counter currency of the pair
-   * @param perturbation perturbation to apply to the rate
+   * @param cyclePerturbations perturbations to apply to the market data in the calculation cycle
    * @return a result containing the rate
    */
   private Result<Double> getRate(
       final MarketDataBundle marketDataBundle,
       final Currency base,
       final Currency counter,
-      final Optional<FilteredPerturbation> perturbation) {
+      final CyclePerturbations cyclePerturbations) {
 
     CurrencyMatrixValueVisitor<Result<Double>> visitor = new CurrencyMatrixValueVisitor<Result<Double>>() {
       @Override
       public Result<Double> visitFixed(CurrencyMatrixValue.CurrencyMatrixFixed fixedValue) {
         double fixedRate = fixedValue.getFixedValue();
+        FxRateId rateId = FxRateId.of(base, counter);
+        SingleValueRequirement requirement = SingleValueRequirement.of(rateId);
+        Collection<FilteredPerturbation> perturbations = cyclePerturbations.getPerturbations(requirement);
 
-        if (perturbation.isPresent()) {
-          return Result.success(((Double) perturbation.get().apply(fixedRate)));
-        } else {
+        if (perturbations.isEmpty()) {
           return Result.success(fixedRate);
+        } else {
+          // there is always zero or one perturbations for an FX rate
+          FilteredPerturbation perturbation = perturbations.iterator().next();
+          return Result.success(((Double) perturbation.apply(fixedRate)));
         }
       }
 
@@ -281,11 +277,16 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
         if (result.isSuccess()) {
           Double spotRate = result.getValue();
           double rate = req.isReciprocal() ? 1 / spotRate : spotRate;
+          FxRateId rateId = FxRateId.of(base, counter);
+          SingleValueRequirement requirement = SingleValueRequirement.of(rateId);
+          Collection<FilteredPerturbation> perturbations = cyclePerturbations.getPerturbations(requirement);
 
-          if (perturbation.isPresent()) {
-            return Result.success(((Double) perturbation.get().apply(rate)));
-          } else {
+          if (perturbations.isEmpty()) {
             return Result.success(rate);
+          } else {
+            // there is always zero or one perturbations for an FX rate
+            FilteredPerturbation perturbation = perturbations.iterator().next();
+            return Result.success(((Double) perturbation.apply(rate)));
           }
         } else {
           return Result.failure(result);
@@ -294,16 +295,20 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
 
       @Override
       public Result<Double> visitCross(CurrencyMatrixValue.CurrencyMatrixCross cross) {
+        FxRateId rateId = FxRateId.of(base, counter);
+        SingleValueRequirement requirement = SingleValueRequirement.of(rateId);
+        Collection<FilteredPerturbation> perturbations = cyclePerturbations.getPerturbations(requirement);
+
         // perturbations aren't allowed for cross rates because they introduce inconsistencies
-        if (perturbation.isPresent()) {
+        if (!perturbations.isEmpty()) {
           return Result.failure(
               FailureStatus.INVALID_INPUT,
               "Perturbation defined for cross rate {}/{}. Perturbations are not supported for cross rates",
               base.getCode(),
               counter.getCode());
         }
-        Result<Double> baseCrossRate = getRate(marketDataBundle, base, cross.getCrossCurrency(), perturbation);
-        Result<Double> crossCounterRate = getRate(marketDataBundle, cross.getCrossCurrency(), counter, perturbation);
+        Result<Double> baseCrossRate = getRate(marketDataBundle, base, cross.getCrossCurrency(), cyclePerturbations);
+        Result<Double> crossCounterRate = getRate(marketDataBundle, cross.getCrossCurrency(), counter, cyclePerturbations);
 
         // TODO Java 8 - replace with lambda
         return baseCrossRate.combineWith(crossCounterRate, new Function2<Double, Double, Result<Double>>() {

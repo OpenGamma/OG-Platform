@@ -488,6 +488,53 @@ public class FxRateMarketDataBuilderTest {
   }
 
   /**
+   * Tests that shifting the rates underlying a cross rate has the expected effect on the derived cross rate
+   */
+  public void shiftCrossUnderlying() {
+    SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
+    matrix.setFixedConversion(Currency.USD, Currency.CHF, USDCHF_RATE);
+    matrix.setFixedConversion(Currency.EUR, Currency.USD, EURUSD_RATE);
+    matrix.setCrossConversion(Currency.EUR, Currency.CHF, Currency.USD);
+    FxRateMarketDataBuilder builder = new FxRateMarketDataBuilder(ConfigLink.<CurrencyMatrix>resolved(matrix));
+
+    SingleValueRequirement eurChf = singleValueRequirement("EUR/CHF");
+    SingleValueRequirement chfEur = singleValueRequirement("CHF/EUR");
+    Set<SingleValueRequirement> requirements = ImmutableSet.of(eurChf, chfEur);
+    ImmutableSet<MarketDataRequirement> marketDataRequirements = ImmutableSet.<MarketDataRequirement>of(eurChf, chfEur);
+
+    MarketDataFilter usdChfFilter = new CurrencyPairFilter(Currency.USD, Currency.CHF);
+    Perturbation usdChfPerturbation = FxRateShift.relative(0.1);
+    SinglePerturbationMapping usdChfMapping =
+        SinglePerturbationMapping.builder()
+            .filter(usdChfFilter)
+            .perturbation(usdChfPerturbation)
+            .build();
+
+    MarketDataFilter eurUsdFilter = new CurrencyPairFilter(Currency.EUR, Currency.USD);
+    Perturbation eurUsdPerturbation = FxRateShift.relative(0.2);
+    SinglePerturbationMapping eurUsdMapping =
+        SinglePerturbationMapping.builder()
+            .filter(eurUsdFilter)
+            .perturbation(eurUsdPerturbation)
+            .build();
+
+    List<SinglePerturbationMapping> mappings = ImmutableList.of(usdChfMapping, eurUsdMapping);
+    CyclePerturbations perturbations = new CyclePerturbations(marketDataRequirements, mappings);
+    MarketDataBundle bundle = MarketDataEnvironmentBuilder.empty().toBundle();
+    MarketDataSource marketDataSource = mock(MarketDataSource.class);
+    Map<SingleValueRequirement, Result<?>> values =
+        builder.buildSingleValues(bundle, ZonedDateTime.now(), requirements, marketDataSource, perturbations);
+
+    Result<?> eurChfResult = values.get(eurChf);
+    assertSuccess(eurChfResult);
+    assertEquals(USDCHF_RATE * 1.1 * EURUSD_RATE * 1.2, (Double) eurChfResult.getValue(), DELTA);
+
+    Result<?> chfEurResult = values.get(chfEur);
+    assertSuccess(chfEurResult);
+    assertEquals(1 / (USDCHF_RATE * 1.1 * EURUSD_RATE * 1.2), (Double) chfEurResult.getValue(), DELTA);
+  }
+
+  /**
    * Tests that applying a shift to a cross rate returns a failure. Shifting cross rates isn't supported because
    * it would introduce inconsistent rates. The underlying observable rates should be shifted.
    */
