@@ -56,8 +56,7 @@ import com.opengamma.util.tuple.Pairs;
 public class STIRFuturesOptionNormalExpSimpleMoneynessGBPE2ETest {
   private static final IndexIborMaster INDEX_MASTER = IndexIborMaster.getInstance();
   private static final ZonedDateTime VALUATION_DATE = DateUtils.getUTCDate(2014, 2, 17, 9, 0);
-  private static final STIRFuturesOptionNormalExpSimpleMoneynessExamplesData DATA = 
-      new STIRFuturesOptionNormalExpSimpleMoneynessExamplesData();
+  private static final BondAndSTIRFuturesE2EExamplesData DATA = new BondAndSTIRFuturesE2EExamplesData();
 
   /* curve and surface */
   private static final IborIndex GBPLIBOR3M = INDEX_MASTER.getIndex("GBPLIBOR3M");

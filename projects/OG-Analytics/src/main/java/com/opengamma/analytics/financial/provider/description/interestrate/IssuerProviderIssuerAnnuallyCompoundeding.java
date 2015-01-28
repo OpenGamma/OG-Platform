@@ -166,7 +166,7 @@ public class IssuerProviderIssuerAnnuallyCompoundeding implements IssuerProvider
 
   @Override
   public double[] parameterSensitivity(final String name, final List<DoublesPair> pointSensitivity) {
-    throw new UnsupportedOperationException("parameterSensitivity not supported");
+    return _issuerProvider.parameterSensitivity(name, pointSensitivity);
   }
 
   @Override

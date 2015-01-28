@@ -79,10 +79,15 @@ public class IssuerProviderIssuerAnnuallyCompoundedingTest {
   }
 
   /* Variables used for testing */
-  private static final List<ForwardSensitivity> SENSITIVITY_LIST = new ArrayList<>();
+  private static final List<ForwardSensitivity> FWD_SENSITIVITY_LIST = new ArrayList<>();
   static {
     ForwardSensitivity fwdSense = new SimplyCompoundedForwardSensitivity(0.75, 1.0, 0.25, 124.0);
-    SENSITIVITY_LIST.add(fwdSense);
+    FWD_SENSITIVITY_LIST.add(fwdSense);
+  }
+  private static final List<DoublesPair> POINT_SENSITIVITY_LIST = new ArrayList<>();
+  static {
+    DoublesPair pair = DoublesPair.of(0.4, 350.0);
+    POINT_SENSITIVITY_LIST.add(pair);
   }
   private static final LegalEntity ISSUER_ANN = new LegalEntity(null, ISSUER_NAME_ANN, null, null, null);
   private static final LegalEntity ISSUER_QUA = new LegalEntity(null, ISSUER_NAME_QUA, null, null, null);
@@ -118,10 +123,16 @@ public class IssuerProviderIssuerAnnuallyCompoundedingTest {
     assertEquals("accesserTest", CURVE_NAME_QUA, wrapper.getName(Pairs.of((Object) ISSUER_NAME_QUA, filter)));
     assertEquals("accesserTest", ISSUER_PROVIDER.getAllNames(), wrapper.getAllNames());
 
-    assertArrayRelative("accesserTest", ISSUER_PROVIDER.parameterForwardSensitivity(CURVE_NAME_ANN, SENSITIVITY_LIST),
-        wrapper.parameterForwardSensitivity(CURVE_NAME_ANN, SENSITIVITY_LIST), tol);
-    assertArrayRelative("accesserTest", ISSUER_PROVIDER.parameterForwardSensitivity(CURVE_NAME_QUA, SENSITIVITY_LIST),
-        wrapper.parameterForwardSensitivity(CURVE_NAME_QUA, SENSITIVITY_LIST), tol);
+    assertArrayRelative("accesserTest",
+        ISSUER_PROVIDER.parameterForwardSensitivity(CURVE_NAME_ANN, FWD_SENSITIVITY_LIST),
+        wrapper.parameterForwardSensitivity(CURVE_NAME_ANN, FWD_SENSITIVITY_LIST), tol);
+    assertArrayRelative("accesserTest",
+        ISSUER_PROVIDER.parameterForwardSensitivity(CURVE_NAME_QUA, FWD_SENSITIVITY_LIST),
+        wrapper.parameterForwardSensitivity(CURVE_NAME_QUA, FWD_SENSITIVITY_LIST), tol);
+    assertArrayRelative("accesserTest", ISSUER_PROVIDER.parameterSensitivity(CURVE_NAME_ANN, POINT_SENSITIVITY_LIST),
+        wrapper.parameterSensitivity(CURVE_NAME_ANN, POINT_SENSITIVITY_LIST), tol);
+    assertArrayRelative("accesserTest", ISSUER_PROVIDER.parameterSensitivity(CURVE_NAME_QUA, POINT_SENSITIVITY_LIST),
+        wrapper.parameterSensitivity(CURVE_NAME_QUA, POINT_SENSITIVITY_LIST), tol);
 
     assertEquals("accesserTest", TIME_ANN.length, wrapper.getNumberOfParameters(CURVE_NAME_ANN).intValue());
     assertEquals("accesserTest", TIME_QUA.length, wrapper.getNumberOfParameters(CURVE_NAME_QUA).intValue());
@@ -166,14 +177,18 @@ public class IssuerProviderIssuerAnnuallyCompoundedingTest {
 
     assertTrue(noSpreadProvider.equals(zeroSpreadProvider));
     assertTrue(noSpreadProvider.equals(zeroSpreadProviderRe));
-    assertArrayRelative("spreadTest", noSpreadProvider.parameterForwardSensitivity(CURVE_NAME_QUA, SENSITIVITY_LIST),
-        withSpreadProvider.parameterForwardSensitivity(CURVE_NAME_QUA, SENSITIVITY_LIST), tol);
-    assertArrayRelative("spreadTest", noSpreadProvider.parameterForwardSensitivity(CURVE_NAME_ANN, SENSITIVITY_LIST),
-        withSpreadProvider.parameterForwardSensitivity(CURVE_NAME_ANN, SENSITIVITY_LIST), tol);
-    assertArrayRelative("spreadTest", withSpreadProvider.parameterForwardSensitivity(CURVE_NAME_QUA, SENSITIVITY_LIST),
-        withSpreadProviderRe.parameterForwardSensitivity(CURVE_NAME_QUA, SENSITIVITY_LIST), tol);
-    assertArrayRelative("spreadTest", withSpreadProvider.parameterForwardSensitivity(CURVE_NAME_ANN, SENSITIVITY_LIST),
-        withSpreadProviderRe.parameterForwardSensitivity(CURVE_NAME_ANN, SENSITIVITY_LIST), tol);
+    assertArrayRelative("spreadTest",
+        noSpreadProvider.parameterForwardSensitivity(CURVE_NAME_QUA, FWD_SENSITIVITY_LIST),
+        withSpreadProvider.parameterForwardSensitivity(CURVE_NAME_QUA, FWD_SENSITIVITY_LIST), tol);
+    assertArrayRelative("spreadTest",
+        noSpreadProvider.parameterForwardSensitivity(CURVE_NAME_ANN, FWD_SENSITIVITY_LIST),
+        withSpreadProvider.parameterForwardSensitivity(CURVE_NAME_ANN, FWD_SENSITIVITY_LIST), tol);
+    assertArrayRelative("spreadTest",
+        withSpreadProvider.parameterForwardSensitivity(CURVE_NAME_QUA, FWD_SENSITIVITY_LIST),
+        withSpreadProviderRe.parameterForwardSensitivity(CURVE_NAME_QUA, FWD_SENSITIVITY_LIST), tol);
+    assertArrayRelative("spreadTest",
+        withSpreadProvider.parameterForwardSensitivity(CURVE_NAME_ANN, FWD_SENSITIVITY_LIST),
+        withSpreadProviderRe.parameterForwardSensitivity(CURVE_NAME_ANN, FWD_SENSITIVITY_LIST), tol);
     for (int i = 0; i < NUM_KEYS; ++i) {
       double disExpected1 = Math.pow((1.0 + YIELD_CURVE_ANN.getCurve().getYValue(KEYS[i]) + spread), -KEYS[i]);
       double disComputed1 = withSpreadProvider.getDiscountFactor(ISSUER_ANN, KEYS[i]);
@@ -206,17 +221,6 @@ public class IssuerProviderIssuerAnnuallyCompoundedingTest {
         ISSUER_PROVIDER, ISSUER_QUA, spread);
     assertFalse("spreadTest", withSpreadProviderOther.hashCode() == withSpreadProvider.hashCode());
     assertFalse("spreadTest", withSpreadProviderOther.equals(withSpreadProvider));
-  }
-
-  /**
-   * parameterSensitivity is not supported. 
-   */
-  @Test(expectedExceptions = UnsupportedOperationException.class)
-  public void sensitivityFailTest() {
-    IssuerProviderIssuerAnnuallyCompoundeding wrapper = new IssuerProviderIssuerAnnuallyCompoundeding(ISSUER_PROVIDER);
-    List<DoublesPair> pointSensitivity = new ArrayList<>();
-    pointSensitivity.add(DoublesPair.of(0.1, 0.1));
-    wrapper.parameterSensitivity(CURVE_NAME_ANN, pointSensitivity);
   }
 
   /**
