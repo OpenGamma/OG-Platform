@@ -84,7 +84,8 @@ public final class TimeSeriesWeightedVolatilityOperator
   }
   
   /**
-   * Calculates weighted volatilities using the relative difference series and the default lag of 1 period.
+   * Calculates weighted volatilities using the relative difference series and the default lag of 1 period in the 
+   * return computation and no seed period (seed length = 0).
    * @param lambda lambda value to apply
    * @return a TimeSeriesWeightedVolatilityOperator instance
    */
@@ -93,7 +94,8 @@ public final class TimeSeriesWeightedVolatilityOperator
   }
 
   /**
-   * Calculates weighted volatilities using the absolute difference series and the default lag of 1 period.
+   * Calculates weighted volatilities using the absolute difference series and the default lag of 1 period in the 
+   * return computation and no seed period (seed length = 0).
    * @param lambda lambda value to apply
    * @return a TimeSeriesWeightedVolatilityOperator instance
    */
