@@ -9,7 +9,7 @@ package com.opengamma.sesame.marketdata.scenarios;
  * Match details for a currency pair. It records whether the match was for the pair in the filter
  * or its reciprocal pair.
  */
-public class CurrencyPairMatchDetails implements MatchDetails {
+public final class CurrencyPairMatchDetails implements MatchDetails {
 
   /** False if the currency pair in the filter was matched, true if its reciprocal pair was matched. */
   private final boolean _inverse;

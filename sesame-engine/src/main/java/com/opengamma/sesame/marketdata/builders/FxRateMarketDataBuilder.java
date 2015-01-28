@@ -251,18 +251,7 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
     CurrencyMatrixValueVisitor<Result<Double>> visitor = new CurrencyMatrixValueVisitor<Result<Double>>() {
       @Override
       public Result<Double> visitFixed(CurrencyMatrixValue.CurrencyMatrixFixed fixedValue) {
-        double fixedRate = fixedValue.getFixedValue();
-        FxRateId rateId = FxRateId.of(base, counter);
-        SingleValueRequirement requirement = SingleValueRequirement.of(rateId);
-        Collection<FilteredPerturbation> perturbations = cyclePerturbations.getPerturbations(requirement);
-
-        if (perturbations.isEmpty()) {
-          return Result.success(fixedRate);
-        } else {
-          // there is always zero or one perturbations for an FX rate
-          FilteredPerturbation perturbation = perturbations.iterator().next();
-          return Result.success(((Double) perturbation.apply(fixedRate)));
-        }
+        return perturbedRate(fixedValue.getFixedValue(), base, counter, cyclePerturbations);
       }
 
       @SuppressWarnings("unchecked")
@@ -277,17 +266,7 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
         if (result.isSuccess()) {
           Double spotRate = result.getValue();
           double rate = req.isReciprocal() ? 1 / spotRate : spotRate;
-          FxRateId rateId = FxRateId.of(base, counter);
-          SingleValueRequirement requirement = SingleValueRequirement.of(rateId);
-          Collection<FilteredPerturbation> perturbations = cyclePerturbations.getPerturbations(requirement);
-
-          if (perturbations.isEmpty()) {
-            return Result.success(rate);
-          } else {
-            // there is always zero or one perturbations for an FX rate
-            FilteredPerturbation perturbation = perturbations.iterator().next();
-            return Result.success(((Double) perturbation.apply(rate)));
-          }
+          return perturbedRate(rate, base, counter, cyclePerturbations);
         } else {
           return Result.failure(result);
         }
@@ -327,6 +306,34 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
                             CurrencyPair.of(base, counter));
     }
     return value.accept(visitor);
+  }
+
+  /**
+   * Returns the rate, possibly with a perturbation applied.
+   *
+   * @param rate an FX rate
+   * @param base the base currency of the currency pair
+   * @param counter the counter currency of the currency pair
+   * @param cyclePerturbations the perturbations for the current calculation cycle
+   * @return the rate, possibly with a perturbation applied
+   */
+  private static Result<Double> perturbedRate(
+      double rate,
+      Currency base,
+      Currency counter,
+      CyclePerturbations cyclePerturbations) {
+
+    FxRateId rateId = FxRateId.of(base, counter);
+    SingleValueRequirement requirement = SingleValueRequirement.of(rateId);
+    Collection<FilteredPerturbation> perturbations = cyclePerturbations.getPerturbations(requirement);
+
+    if (perturbations.isEmpty()) {
+      return Result.success(rate);
+    } else {
+      // there is always zero or one perturbations for an FX rate
+      FilteredPerturbation perturbation = perturbations.iterator().next();
+      return Result.success((Double) perturbation.apply(rate));
+    }
   }
 
   private Result<DateTimeSeries<LocalDate, Double>> getRate(final MarketDataBundle marketDataBundle,

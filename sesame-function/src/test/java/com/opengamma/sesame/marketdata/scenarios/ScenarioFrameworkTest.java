@@ -119,6 +119,7 @@ public class ScenarioFrameworkTest {
     List<SinglePerturbationMapping> emptyMappings = ImmutableList.of();
     MarketDataEnvironmentFactory environmentFactory =
         new MarketDataEnvironmentFactory(new EmptyMarketDataFactory(), builder);
+    ZonedDateTime valuationTime = ZonedDateTime.now();
 
     MarketDataEnvironment perturbedData =
         environmentFactory.build(
@@ -126,7 +127,7 @@ public class ScenarioFrameworkTest {
             ImmutableSet.<MarketDataRequirement>of(curveReq),
             mappings,
             EmptyMarketDataSpec.INSTANCE,
-            ZonedDateTime.now());
+            valuationTime);
 
     MarketDataEnvironment unperturbedData =
         environmentFactory.build(
@@ -134,7 +135,7 @@ public class ScenarioFrameworkTest {
             ImmutableSet.<MarketDataRequirement>of(curveReq),
             emptyMappings,
             EmptyMarketDataSpec.INSTANCE,
-            ZonedDateTime.now());
+            valuationTime);
 
     MulticurveBundle unperturbedBundle = (MulticurveBundle) unperturbedData.getData().get(curveReq);
     YieldAndDiscountCurve unperturbedCurve = unperturbedBundle.getMulticurveProvider().getCurve(curveName);
@@ -157,10 +158,11 @@ public class ScenarioFrameworkTest {
     multicurve.setCurve(Currency.USD, yieldCurve);
     LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> emptyMap = new LinkedHashMap<>();
     MulticurveBundle bundle = new MulticurveBundle(multicurve, new CurveBuildingBlockBundle(emptyMap));
+    ZonedDateTime valuationTime = ZonedDateTime.now();
     MarketDataEnvironment suppliedData =
         new MarketDataEnvironmentBuilder()
             .add(multicurveId, bundle)
-            .valuationTime(ZonedDateTime.now())
+            .valuationTime(valuationTime)
             .build();
 
     MarketDataEnvironmentFactory environmentFactory = new MarketDataEnvironmentFactory(new EmptyMarketDataFactory());
@@ -178,7 +180,7 @@ public class ScenarioFrameworkTest {
             ImmutableSet.<MarketDataRequirement>of(),
             mappings,
             EmptyMarketDataSpec.INSTANCE,
-            ZonedDateTime.now());
+            valuationTime);
 
     SingleValueRequirement bundleRequirement = SingleValueRequirement.of(multicurveId);
     MulticurveBundle perturbedBundle = (MulticurveBundle) perturbedMarketData.getData().get(bundleRequirement);
@@ -213,7 +215,7 @@ public class ScenarioFrameworkTest {
 
     SingleValueRequirement bundleRequirement = SingleValueRequirement.of(multicurveId);
     List<SinglePerturbationMapping> mappings = ImmutableList.of(mapping);
-    ImmutableSet<MarketDataRequirement> requirements = ImmutableSet.<MarketDataRequirement>of(bundleRequirement);
+    ImmutableSet<SingleValueRequirement> requirements = ImmutableSet.of(bundleRequirement);
     CyclePerturbations cyclePerturbations = new CyclePerturbations(requirements, mappings);
 
     MarketDataEnvironment perturbedData = cyclePerturbations.apply(marketData);

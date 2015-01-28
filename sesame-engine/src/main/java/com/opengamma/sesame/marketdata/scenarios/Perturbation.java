@@ -22,26 +22,6 @@ import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 public interface Perturbation {
 
   /**
-   * The type of the data affected by this perturbation - raw input data used for building market data,
-   * or the market data itself
-   */
-  enum Target {
-    /**
-     * The perturbation transforms raw input data used to build market data, for example the quotes used
-     * when calibrating a curve.
-     * <p>
-     * For this target type, the market data type of the filter is not the same as the data type of the perturbation.
-     */
-    INPUT,
-
-    /**
-     * The perturbation build market data, for example applying a parallel shift to a curve.
-     * <p>
-     * For this target type, the market data type of the filter is the same as the data type of the perturbation.
-     */
-    OUTPUT
-  }
-  /**
    * Applies the perturbation to some market data, returning a new, modified instance of the data.
    * <p>
    * The match details are required for complex market data values where different parts of the object can
@@ -80,8 +60,10 @@ public interface Perturbation {
   Class<? extends MatchDetails> getMatchDetailsType();
 
   /**
-   * @return the type of the data affected by this perturbation - raw data used for building market data, or
+   * Returns the type of the data affected by this perturbation - raw data used for building market data, or
    *   the market data itself
+   *
+   * @return the type of the data affected by this perturbation
    */
-  Target getTargetType();
+  PerturbationTarget getTargetType();
 }

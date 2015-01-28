@@ -206,7 +206,7 @@ public class MulticurveMarketDataBuilderTest {
             .build();
 
     List<SinglePerturbationMapping> mappings = ImmutableList.of(mapping);
-    ImmutableSet<MarketDataRequirement> requirements = ImmutableSet.<MarketDataRequirement>of(curveReq);
+    ImmutableSet<SingleValueRequirement> requirements = ImmutableSet.of(curveReq);
     CyclePerturbations shiftPerturbations = new CyclePerturbations(requirements, mappings);
     Map<SingleValueRequirement, Result<?>> shiftedResults =
         curveBuilder.buildSingleValues(marketData.toBundle(),

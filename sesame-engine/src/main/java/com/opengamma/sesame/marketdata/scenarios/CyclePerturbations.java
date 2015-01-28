@@ -42,7 +42,7 @@ public class CyclePerturbations {
    * @param requirements requirements for a set of market data
    * @param mappings perturbations to apply to market data as part of a single calculation cycle in a scenario
    */
-  public CyclePerturbations(Set<MarketDataRequirement> requirements, List<SinglePerturbationMapping> mappings) {
+  public CyclePerturbations(Set<? extends MarketDataRequirement> requirements, List<SinglePerturbationMapping> mappings) {
     ArgumentChecker.notNull(requirements, "requirements");
     ArgumentChecker.notNull(mappings, "mappings");
 
