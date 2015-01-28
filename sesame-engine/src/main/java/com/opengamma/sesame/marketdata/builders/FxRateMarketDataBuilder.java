@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.marketdata.builders;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,6 +34,7 @@ import com.opengamma.sesame.marketdata.RawId;
 import com.opengamma.sesame.marketdata.SingleValueRequirement;
 import com.opengamma.sesame.marketdata.TimeSeriesRequirement;
 import com.opengamma.sesame.marketdata.scenarios.CyclePerturbations;
+import com.opengamma.sesame.marketdata.scenarios.FilteredPerturbation;
 import com.opengamma.timeseries.date.DateEntryIterator;
 import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
@@ -159,7 +161,9 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
         Double inverseRate = inverseResult.getValue();
         resultsBuilder.put(requirement, Result.success(1 / inverseRate));
       } else {
-        resultsBuilder.put(requirement, getRate(marketDataBundle, currencyPair.getBase(), currencyPair.getCounter()));
+        Result<Double> rate =
+            getRate(marketDataBundle, currencyPair.getBase(), currencyPair.getCounter(), cyclePerturbations);
+        resultsBuilder.put(requirement, rate);
       }
     }
     Map<SingleValueRequirement, Result<?>> results = resultsBuilder.build();
@@ -222,11 +226,32 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
     return FxRateId.class;
   }
 
-  private Result<Double> getRate(final MarketDataBundle marketDataBundle, final Currency base, final Currency counter) {
+  // TODO Java 8 - use JDK optional and lambdas for applying the perturbation
+
+  /**
+   * Returns the FX rate for a pair of currencies, using the currency matrix to determine how to find the data.
+   * An optional perturbation is applied to the rate before returning it.
+   * <p>
+   * If the rate is derived from two other rates (a cross rate) and a perturbation is provided, the result will be
+   * a failure. Applying perturbations to cross rates isn't supported as it introduces inconsistencies in the
+   * set of market data.
+   *
+   * @param marketDataBundle market data for the calculation cycle
+   * @param base base currency of the pair
+   * @param counter counter currency of the pair
+   * @param cyclePerturbations perturbations to apply to the market data in the calculation cycle
+   * @return a result containing the rate
+   */
+  private Result<Double> getRate(
+      final MarketDataBundle marketDataBundle,
+      final Currency base,
+      final Currency counter,
+      final CyclePerturbations cyclePerturbations) {
+
     CurrencyMatrixValueVisitor<Result<Double>> visitor = new CurrencyMatrixValueVisitor<Result<Double>>() {
       @Override
       public Result<Double> visitFixed(CurrencyMatrixValue.CurrencyMatrixFixed fixedValue) {
-        return Result.success(fixedValue.getFixedValue());
+        return perturbedRate(fixedValue.getFixedValue(), base, counter, cyclePerturbations);
       }
 
       @SuppressWarnings("unchecked")
@@ -240,7 +265,8 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
 
         if (result.isSuccess()) {
           Double spotRate = result.getValue();
-          return Result.success(req.isReciprocal() ? 1 / spotRate : spotRate);
+          double rate = req.isReciprocal() ? 1 / spotRate : spotRate;
+          return perturbedRate(rate, base, counter, cyclePerturbations);
         } else {
           return Result.failure(result);
         }
@@ -248,9 +274,22 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
 
       @Override
       public Result<Double> visitCross(CurrencyMatrixValue.CurrencyMatrixCross cross) {
-        Result<Double> baseCrossRate = getRate(marketDataBundle, base, cross.getCrossCurrency());
-        Result<Double> crossCounterRate = getRate(marketDataBundle, cross.getCrossCurrency(), counter);
+        FxRateId rateId = FxRateId.of(base, counter);
+        SingleValueRequirement requirement = SingleValueRequirement.of(rateId);
+        Collection<FilteredPerturbation> perturbations = cyclePerturbations.getPerturbations(requirement);
 
+        // perturbations aren't allowed for cross rates because they introduce inconsistencies
+        if (!perturbations.isEmpty()) {
+          return Result.failure(
+              FailureStatus.INVALID_INPUT,
+              "Perturbation defined for cross rate {}/{}. Perturbations are not supported for cross rates",
+              base.getCode(),
+              counter.getCode());
+        }
+        Result<Double> baseCrossRate = getRate(marketDataBundle, base, cross.getCrossCurrency(), cyclePerturbations);
+        Result<Double> crossCounterRate = getRate(marketDataBundle, cross.getCrossCurrency(), counter, cyclePerturbations);
+
+        // TODO Java 8 - replace with lambda
         return baseCrossRate.combineWith(crossCounterRate, new Function2<Double, Double, Result<Double>>() {
           @Override
           public Result<Double> apply(Double rate1, Double rate2) {
@@ -267,6 +306,34 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
                             CurrencyPair.of(base, counter));
     }
     return value.accept(visitor);
+  }
+
+  /**
+   * Returns the rate, possibly with a perturbation applied.
+   *
+   * @param rate an FX rate
+   * @param base the base currency of the currency pair
+   * @param counter the counter currency of the currency pair
+   * @param cyclePerturbations the perturbations for the current calculation cycle
+   * @return the rate, possibly with a perturbation applied
+   */
+  private static Result<Double> perturbedRate(
+      double rate,
+      Currency base,
+      Currency counter,
+      CyclePerturbations cyclePerturbations) {
+
+    FxRateId rateId = FxRateId.of(base, counter);
+    SingleValueRequirement requirement = SingleValueRequirement.of(rateId);
+    Collection<FilteredPerturbation> perturbations = cyclePerturbations.getPerturbations(requirement);
+
+    if (perturbations.isEmpty()) {
+      return Result.success(rate);
+    } else {
+      // there is always zero or one perturbations for an FX rate
+      FilteredPerturbation perturbation = perturbations.iterator().next();
+      return Result.success((Double) perturbation.apply(rate));
+    }
   }
 
   private Result<DateTimeSeries<LocalDate, Double>> getRate(final MarketDataBundle marketDataBundle,

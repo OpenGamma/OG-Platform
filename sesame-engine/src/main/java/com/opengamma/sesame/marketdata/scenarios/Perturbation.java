@@ -58,4 +58,12 @@ public interface Perturbation {
    * @return the type of data this perturbation operates on
    */
   Class<? extends MatchDetails> getMatchDetailsType();
+
+  /**
+   * Returns the type of the data affected by this perturbation - raw data used for building market data, or
+   *   the market data itself
+   *
+   * @return the type of the data affected by this perturbation
+   */
+  PerturbationTarget getTargetType();
 }

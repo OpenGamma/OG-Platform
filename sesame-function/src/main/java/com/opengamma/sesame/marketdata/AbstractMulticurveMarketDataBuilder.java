@@ -250,9 +250,8 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
     Multimap<String, IborIndex> iborIndexByCurveName = ArrayListMultimap.create();
     Multimap<String, IndexON> onIndexByCurveName = ArrayListMultimap.create();
     List<MultiCurveBundle<GeneratorYDCurve>> curveBundles = new ArrayList<>();
-    Multimap<MarketDataRequirement, FilteredPerturbation> perturbations = cyclePerturbations.getInputPerturbations();
     // the market data perturbations that apply to this curve bundle
-    Collection<FilteredPerturbation> filteredPerturbations = perturbations.get(bundleRequirement);
+    Collection<FilteredPerturbation> filteredPerturbations = cyclePerturbations.getPerturbations(bundleRequirement);
     // market data perturbations that perturb the data in a SnapshotDataBundle
     Collection<FilteredPerturbation> dataBundlePerturbations =
         MarketDataUtils.filterPerturbations(

@@ -112,4 +112,9 @@ public class MulticurveInputParallelShift implements Perturbation {
   public Class<? extends MatchDetails> getMatchDetailsType() {
     return MulticurveMatchDetails.class;
   }
+
+  @Override
+  public PerturbationTarget getTargetType() {
+    return PerturbationTarget.INPUT;
+  }
 }

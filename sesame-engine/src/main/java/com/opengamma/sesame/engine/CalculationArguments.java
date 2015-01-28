@@ -146,8 +146,6 @@ public final class CalculationArguments implements ImmutableBean {
     return new CalculationArguments.Builder();
   }
 
-
-
   @Override
   public CalculationArguments.Meta metaBean() {
     return CalculationArguments.Meta.INSTANCE;

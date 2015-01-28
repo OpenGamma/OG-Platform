@@ -12,9 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.Multimap;
 import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.sesame.marketdata.MarketDataId;
@@ -36,7 +33,7 @@ import com.opengamma.util.tuple.Pairs;
  */
 public class CyclePerturbations {
 
-  private final ImmutableMultimap<MarketDataRequirement, FilteredPerturbation> _inputPerturbations;
+  private final List<SinglePerturbationMapping> _inputMappings;
   private final List<SinglePerturbationMapping> _outputMappings;
 
   /**
@@ -45,14 +42,13 @@ public class CyclePerturbations {
    * @param requirements requirements for a set of market data
    * @param mappings perturbations to apply to market data as part of a single calculation cycle in a scenario
    */
-  public CyclePerturbations(Set<MarketDataRequirement> requirements, List<SinglePerturbationMapping> mappings) {
+  public CyclePerturbations(Set<? extends MarketDataRequirement> requirements, List<SinglePerturbationMapping> mappings) {
     ArgumentChecker.notNull(requirements, "requirements");
     ArgumentChecker.notNull(mappings, "mappings");
 
     Pair<List<SinglePerturbationMapping>, List<SinglePerturbationMapping>> pair = partitionMappings(mappings);
-    List<SinglePerturbationMapping> inputMappings = pair.getFirst();
+    _inputMappings = pair.getFirst();
     _outputMappings = pair.getSecond();
-    _inputPerturbations = buildInputPerturbationMap(requirements, inputMappings);
   }
 
   // TODO Java 8 - replace with a stream and groupingBy or partitioningBy
@@ -71,7 +67,7 @@ public class CyclePerturbations {
     List<SinglePerturbationMapping> outputs = new ArrayList<>();
 
     for (SinglePerturbationMapping mapping : mappings) {
-      switch (mapping.getTargetType()) {
+      switch (mapping.getPerturbation().getTargetType()) {
         case INPUT:
           inputs.add(mapping);
           break;
@@ -83,27 +79,8 @@ public class CyclePerturbations {
     return Pairs.of(inputs, outputs);
   }
 
-  /**
-   * Builds a map of market data requirements to the input perturbations that apply to the market data.
-   *
-   * @param requirements market data requirements
-   * @param mappings market data perturbations and a filter that decides what data they apply to
-   * @return a map of market data requirements to the perturbations that apply to the market data
-   */
-  private ImmutableMultimap<MarketDataRequirement, FilteredPerturbation> buildInputPerturbationMap(
-      Set<MarketDataRequirement> requirements,
-      List<SinglePerturbationMapping> mappings) {
-
-    ImmutableListMultimap.Builder<MarketDataRequirement, FilteredPerturbation> builder =
-        ImmutableListMultimap.builder();
-
-    for (MarketDataRequirement requirement : requirements) {
-      Collection<FilteredPerturbation> matches = perturbationsForInputs(requirement, mappings);
-      builder.putAll(requirement, matches);
-    }
-    return builder.build();
-  }
-
+  // TODO the only difference between this and the method below is the arguments to filter.apply()
+  // TODO Java 8 - combine this with the method below and use a lambda to apply the filter
   /**
    * Returns all perturbations that should be applied to a piece of market data.
    * <p>
@@ -113,29 +90,26 @@ public class CyclePerturbations {
    * perturbed.
    *
    * @param requirement the requirement for a piece of market data
-   * @param mappings the perturbation mappings for the current scenario
    * @return the perturbations that should be applied to the market data and the details of the filter matches
    */
-  private Collection<FilteredPerturbation> perturbationsForInputs(
-      MarketDataRequirement requirement,
-      List<SinglePerturbationMapping> mappings) {
-
+  public Collection<FilteredPerturbation> getPerturbations(MarketDataRequirement requirement) {
     // it is possible for multiple perturbations to apply to values where different parts of the value can
     // be perturbed independently. e.g. the individual curves inside a curve bundle.
     // the keys in this map are the match details returned by the filter. the details identify the part of
     // the value that was matched
     Map<MatchDetails, FilteredPerturbation> matches = new HashMap<>();
 
-    for (SinglePerturbationMapping mapping : mappings) {
+    for (SinglePerturbationMapping mapping : _inputMappings) {
       // this would be more efficient if the mappings were supplied in a multimap keyed by market data type
       // not worth the complication yet
       MarketDataFilter filter = mapping.getFilter();
       Class<?> filterDataType = filter.getMarketDataType();
+      Class<?> filterMarketDataIdType = filter.getMarketDataIdType();
+
       Class<?> requirementDataType = requirement.getMarketDataId().getMarketDataType();
-      Class<?> marketDataIdType = filter.getMarketDataIdType();
       MarketDataId marketDataId = requirement.getMarketDataId();
 
-      if (filterDataType == requirementDataType && marketDataIdType == marketDataId.getClass()) {
+      if (filterDataType == requirementDataType && filterMarketDataIdType == marketDataId.getClass()) {
         // Assumes input metadata can always be derived from the market data ID (i.e. from config).
         // But isn't that a given anyway because they're inputs so the data is getting built from config?
         // Would need to duplicate the logic that creates the metadata in every filter acting on the same market
@@ -160,20 +134,26 @@ public class CyclePerturbations {
    * @param mappings a list of mappings to search for perturbations that apply to the data
    * @return a collection of output perturbations that apply to a piece of market data
    */
-  private Collection<FilteredPerturbation> perturbationsForMarketData(MarketDataRequirement requirement,
-                                                                      Object marketDataValue,
-                                                                      List<SinglePerturbationMapping> mappings) {
-    Map<Object, FilteredPerturbation> matches = new HashMap<>();
+  private Collection<FilteredPerturbation> perturbationsForMarketData(
+      MarketDataRequirement requirement,
+      Object marketDataValue,
+      List<SinglePerturbationMapping> mappings) {
+
+    // it is possible for multiple perturbations to apply to values where different parts of the value can
+    // be perturbed independently. e.g. the individual curves inside a curve bundle.
+    // the keys in this map are the match details returned by the filter. the details identify the part of
+    // the value that was matched
+    Map<MatchDetails, FilteredPerturbation> matches = new HashMap<>();
 
     for (SinglePerturbationMapping mapping : mappings) {
       MarketDataFilter filter = mapping.getFilter();
-      // TODO is the data type really the most important thing here? e.g. can be double for security and raw IDs
       Class<?> filterDataType = filter.getMarketDataType();
+      Class<?> filterMarketDataIdType = filter.getMarketDataIdType();
+
       Class<?> requirementDataType = requirement.getMarketDataId().getMarketDataType();
-      Class<?> marketDataIdType = filter.getMarketDataIdType();
       MarketDataId marketDataId = requirement.getMarketDataId();
 
-      if (filterDataType == requirementDataType && marketDataIdType == marketDataId.getClass()) {
+      if (filterDataType == requirementDataType && filterMarketDataIdType == marketDataId.getClass()) {
         Set<? extends MatchDetails> matchDetails = filter.apply(marketDataId, marketDataValue);
 
         for (MatchDetails match : matchDetails) {
@@ -184,14 +164,6 @@ public class CyclePerturbations {
       }
     }
     return matches.values();
-  }
-
-  /**
-   * @return perturbations that apply to input data used to build market data, keyed by the requirements for
-   *   the market data
-   */
-  public Multimap<MarketDataRequirement, FilteredPerturbation> getInputPerturbations() {
-    return _inputPerturbations;
   }
 
   /**
