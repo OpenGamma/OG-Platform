@@ -196,6 +196,7 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     repo.registerComponent(AvailableOutputs.class, getClassifier(), availableOutputs);
     repo.registerComponent(AvailableImplementations.class, getClassifier(), availableImplementations);
     repo.registerComponent(ComponentMap.class, getClassifier(), componentMap);
+    repo.registerComponent(ExecutorService.class, getClassifier(), executor);
   }
 
   private Map<Class<?>, Object> getComponents(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
