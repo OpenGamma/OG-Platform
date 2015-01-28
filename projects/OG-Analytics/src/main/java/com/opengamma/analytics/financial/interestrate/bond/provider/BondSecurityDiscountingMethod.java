@@ -26,6 +26,7 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.Present
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueParallelCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderIssuerAnnuallyCompoundeding;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderIssuerDecoratedSpread;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscountingDecoratedIssuer;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
@@ -143,7 +144,13 @@ public final class BondSecurityDiscountingMethod {
    * @return The present value.
    */
   public MultipleCurrencyAmount presentValueFromZSpread(final BondSecurity<? extends Payment, ? extends Coupon> bond, final IssuerProviderInterface issuerMulticurves, final double zSpread) {
-    final IssuerProviderInterface issuerShifted = new IssuerProviderIssuerDecoratedSpread(issuerMulticurves, bond.getIssuerEntity(), zSpread);
+    IssuerProviderInterface issuerShifted;
+    if (issuerMulticurves instanceof IssuerProviderIssuerAnnuallyCompoundeding) {
+      IssuerProviderIssuerAnnuallyCompoundeding casted = (IssuerProviderIssuerAnnuallyCompoundeding) issuerMulticurves;
+      issuerShifted = new IssuerProviderIssuerAnnuallyCompoundeding(casted, bond.getIssuerEntity(), zSpread);
+    } else {
+      issuerShifted = new IssuerProviderIssuerDecoratedSpread(issuerMulticurves, bond.getIssuerEntity(), zSpread);
+    }
     return presentValue(bond, issuerShifted);
   }
 

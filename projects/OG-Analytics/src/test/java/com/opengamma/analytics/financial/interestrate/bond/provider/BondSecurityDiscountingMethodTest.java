@@ -28,7 +28,11 @@ import com.opengamma.analytics.financial.interestrate.bond.calculator.YieldFromC
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.legalentity.CreditRating;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
+import com.opengamma.analytics.financial.legalentity.LegalEntityShortName;
 import com.opengamma.analytics.financial.legalentity.Region;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldPeriodicCurve;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.CleanPriceFromCurvesCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.ConvexityFromCurvesCalculator;
@@ -40,11 +44,15 @@ import com.opengamma.analytics.financial.provider.calculator.issuer.YieldFromCur
 import com.opengamma.analytics.financial.provider.description.IssuerProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderIssuerAnnuallyCompoundeding;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderIssuerDecoratedSpread;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscountingDecoratedIssuer;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
@@ -59,6 +67,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Tests related to the discounting method for bond security.
@@ -785,4 +794,105 @@ public class BondSecurityDiscountingMethodTest {
     assertEquals("bond Security: discounting method - clean price", method, calculator / 100, 1e-9);
   }
 
+  private static final double REL_TOL = 1.0e-7;
+  private static final double REL_TOL_ID = 1.0e-13;
+
+  /**
+   * Test for IssuerProviderIssuerAnnuallyCompoundeding where curves are based on annually compounded rates. 
+   */
+  @Test
+  public void annualyCompoundedRateTest() {
+    String issuerName = ISSUER_SPECIFIC_MULTICURVES.getIssuerProvider().getName(ISSUER);
+    YieldCurve originalIssuerCurve = (YieldCurve) ISSUER_SPECIFIC_MULTICURVES.getIssuerCurve(issuerName);
+    YieldPeriodicCurve baseIssuerCurve = getAnnuallyCompoundedRates(originalIssuerCurve);
+    String discountName = ISSUER_SPECIFIC_MULTICURVES.getMulticurveProvider().getName(CUR);
+    YieldCurve originalDiscountingCurve = (YieldCurve) ISSUER_SPECIFIC_MULTICURVES.getCurve(discountName);
+    YieldPeriodicCurve baseDiscountCurve = getAnnuallyCompoundedRates(originalDiscountingCurve);
+
+    LegalEntityFilter<LegalEntity> filter = new LegalEntityShortName();
+    IssuerProviderDiscount issuerProvider = new IssuerProviderDiscount();
+    issuerProvider.setCurve(Pairs.of((Object) ISSUER.getShortName(), filter), baseIssuerCurve);
+    issuerProvider.setCurve(CUR, baseDiscountCurve);
+
+    /* PV */
+    MultipleCurrencyAmount pvAnnual = METHOD_BOND_SECURITY.presentValue(BOND_FIXED_SECURITY_FULL_ENTITY_1,
+        issuerProvider);
+    MultipleCurrencyAmount pvContinuous = METHOD_BOND_SECURITY.presentValue(BOND_FIXED_SECURITY_FULL_ENTITY_1,
+        ISSUER_SPECIFIC_MULTICURVES);
+    // interpolation on cont compounded rates vs interpolation on ann compounded rates, 
+    // thus resulting values are close but necessarily different. 
+    assertRelative("annualyCompoundedRateTest", pvContinuous.getAmount(CUR), pvAnnual.getAmount(CUR), REL_TOL);
+
+    /* PV via calculator */
+    PresentValueIssuerCalculator calc = PresentValueIssuerCalculator.getInstance();
+    MultipleCurrencyAmount pvAnnualVisit = BOND_FIXED_SECURITY_FULL_ENTITY_1.accept(calc, issuerProvider);
+    assertRelative("annualyCompoundedRateTest", pvAnnual.getAmount(CUR), pvAnnualVisit.getAmount(CUR), REL_TOL_ID);
+
+    /* With spread */
+    double spread = 0.05;
+    IssuerProviderIssuerAnnuallyCompoundeding issuerSpread = new IssuerProviderIssuerAnnuallyCompoundeding(
+        issuerProvider, BOND_FIXED_SECURITY_FULL_ENTITY_1.getIssuerEntity(), spread);
+    MultipleCurrencyAmount pvAnnualSpread1 = METHOD_BOND_SECURITY.presentValue(BOND_FIXED_SECURITY_FULL_ENTITY_1,
+        issuerSpread);
+    IssuerProviderIssuerAnnuallyCompoundeding issuerWithoutSpread =
+        new IssuerProviderIssuerAnnuallyCompoundeding(issuerProvider);
+    MultipleCurrencyAmount pvAnnualSpread2 = METHOD_BOND_SECURITY.presentValueFromZSpread(
+        BOND_FIXED_SECURITY_FULL_ENTITY_1, issuerWithoutSpread, spread);
+    assertRelative("annualyCompoundedRateTest", pvAnnualSpread1.getAmount(CUR), pvAnnualSpread2.getAmount(CUR),
+        REL_TOL_ID);
+
+    /* sensitivity -- check sensitivity to the spread curve is not taken into account */
+    double tinySpread = 1.0e-10;
+    IssuerProviderIssuerAnnuallyCompoundeding issuerTinySpread = new IssuerProviderIssuerAnnuallyCompoundeding(
+        issuerProvider, BOND_FIXED_SECURITY_FULL_ENTITY_1.getIssuerEntity(), tinySpread);
+    MultipleCurrencyMulticurveSensitivity senseTinySpread = METHOD_BOND_SECURITY.presentValueCurveSensitivity(
+        BOND_FIXED_SECURITY_FULL_ENTITY_1, issuerTinySpread);
+    MultipleCurrencyMulticurveSensitivity senseZeroSpread = METHOD_BOND_SECURITY.presentValueCurveSensitivity(
+        BOND_FIXED_SECURITY_FULL_ENTITY_1, issuerWithoutSpread);
+    AssertSensitivityObjects.assertEquals("annualyCompoundedRateTest", senseZeroSpread, senseTinySpread,
+        pvAnnual.getAmount(CUR) * REL_TOL);
+
+    /* spread finder -- round trip test */
+    double computedSpread = METHOD_BOND_SECURITY.zSpreadFromCurvesAndPV(BOND_FIXED_SECURITY_FULL_ENTITY_1,
+        issuerWithoutSpread, pvAnnual);
+    assertRelative("annualyCompoundedRateTest", 0.0, computedSpread, REL_TOL);
+    computedSpread = METHOD_BOND_SECURITY.zSpreadFromCurvesAndPV(BOND_FIXED_SECURITY_FULL_ENTITY_1,
+        issuerWithoutSpread, pvAnnualSpread1);
+    assertRelative("annualyCompoundedRateTest", spread, computedSpread, REL_TOL);
+
+    /* check ccy based discounting is not affected by the spread  */
+    double dirtySpread1 = METHOD_BOND_SECURITY.dirtyPriceFromCurves(BOND_FIXED_SECURITY_FULL_ENTITY_1, issuerSpread);
+    double dirtyAnnual = METHOD_BOND_SECURITY.dirtyPriceFromCurves(BOND_FIXED_SECURITY_FULL_ENTITY_1,
+        issuerWithoutSpread);
+    double factorSpread = pvAnnualSpread1.getAmount(CUR) / dirtySpread1;
+    double factorNoSpread = pvAnnual.getAmount(CUR) / dirtyAnnual;
+    assertRelative("annualyCompoundedRateTest", factorNoSpread, factorSpread, REL_TOL);
+
+    /* spread calculation from clean price */
+    double cleanSpread1 = METHOD_BOND_SECURITY.cleanPriceFromCurves(BOND_FIXED_SECURITY_FULL_ENTITY_1,
+        issuerSpread);
+    double spreadFromClean = METHOD_BOND_SECURITY.zSpreadFromCurvesAndClean(BOND_FIXED_SECURITY_FULL_ENTITY_1,
+        issuerWithoutSpread, cleanSpread1);
+    assertRelative("annualyCompoundedRateTest", spread, spreadFromClean, REL_TOL);
+  }
+
+  private static void assertRelative(String message, double expected, double obtained, double relativeTol) {
+    double ref = Math.max(Math.abs(expected), 1.0);
+    assertEquals(message, expected, obtained, ref * relativeTol);
+  }
+
+  private YieldPeriodicCurve getAnnuallyCompoundedRates(YieldCurve originalCurve) {
+    InterpolatedDoublesCurve interpCurve = (InterpolatedDoublesCurve) originalCurve.getCurve();
+    Double[] time = interpCurve.getXData();
+    Double[] rateCont = interpCurve.getYData();
+    int nData = time.length;
+    Double[] rateAnn = new Double[nData];
+    int nPeriods = 1;
+    for (int i = 0; i < nData; ++i) {
+      rateAnn[i] = nPeriods * (Math.exp(rateCont[i] / nPeriods) - 1.0);
+    }
+    InterpolatedDoublesCurve curveAnn = InterpolatedDoublesCurve.fromSorted(time, rateAnn,
+        interpCurve.getInterpolator(), interpCurve.getName());
+    return YieldPeriodicCurve.from(nPeriods, curveAnn);
+  }
 }

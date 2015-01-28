@@ -59,7 +59,7 @@ import com.opengamma.util.tuple.Pairs;
  * E2E test for STIR futures option using volatility surface with simple moneyness on rate. 
  */
 public class STIRFuturesOptionNormalExpSimpleMoneynessMethodE2ETest {
-  private static final STIRFuturesOptionNormalExpSimpleMoneynessExamplesData DATA = new STIRFuturesOptionNormalExpSimpleMoneynessExamplesData();
+  private static final BondAndSTIRFuturesE2EExamplesData DATA = new BondAndSTIRFuturesE2EExamplesData();
 
   /* Interpolators */
   private static final Interpolator1D SQUARE_FLAT =

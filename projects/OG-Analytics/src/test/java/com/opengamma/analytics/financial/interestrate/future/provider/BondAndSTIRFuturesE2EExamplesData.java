@@ -13,8 +13,9 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 /**
  * 
  */
-public class STIRFuturesOptionNormalExpSimpleMoneynessExamplesData {
+public class BondAndSTIRFuturesE2EExamplesData {
 
+  /* volatility surface */
   private static final double[] EXPIRY;
   private static final double[] SIMPLEMONEY;
   private static final double[] VOL = new double[] {
@@ -45,19 +46,141 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessExamplesData {
     }
   }
 
+  /* curves for STIR futures */
   private static final double[] TIME_GBP = new double[] {0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75,
       3.0, 3.25, 3.5, 3.75, 4.0, 4.25, 4.5, 4.75, 5.0, 5.25, 5.5, 5.75, 6.0 };
   private static final double[] RATE_GBP = new double[] {0.00521959, 0.00532545, 0.00563185, 0.00612656, 0.00673759,
       0.00749054, 0.0083361, 0.00925553, 0.01019582, 0.01117409, 0.01215662, 0.01313694, 0.01406237, 0.01499585,
       0.01589558, 0.01676373, 0.01757357, 0.01838094, 0.01915775, 0.01990575, 0.02060564, 0.02130964, 0.02197014,
       0.02257627 };
-
   private static final double[] TIME_EUR = new double[] {0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75,
       3.0, 3.25, 3.5, 3.75, 4.0, 4.25, 4.5, 4.75, 5.0, 5.25, 5.5, 5.75, 6.0 };
   private static final double[] RATE_EUR = new double[] {0.00291306, 0.00262997, 0.00257961, 0.00260046, 0.00265988,
       0.00276551, 0.00292218, 0.00313445, 0.00340066, 0.00372969, 0.00411252, 0.00455144, 0.00502192, 0.00553942,
       0.00608475, 0.00665035, 0.00720504, 0.00778156, 0.00835624, 0.00893305, 0.00949244, 0.01007358, 0.01065724,
       0.01124195 };
+
+  /* curves for bond futures */
+  private static final double[] TIME_ISSUER_LGT = new double[] {0.0027397260273972603, 0.019178082191780823,
+      0.0821917808219178, 0.2465753424657534, 0.4931506849315068, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0,
+      15.0, 20.0, 30.0 };
+  private static final double[] RATE_ISSUER_LGT = new double[] {0.0039, 0.0039, 0.0039, 0.0039, 0.00368, 0.00432,
+      0.00659, 0.01068, 0.01554, 0.019, 0.02166, 0.02388, 0.02611, 0.02824, 0.02956, 0.03376, 0.03603, 0.03824 };
+  private static final double REPO_RATE_LGT = 0.0017;
+  private static final double[] TIME_ISSUER_SCH = new double[] {0.0027397260273972603, 0.019178082191780823,
+      0.0821917808219178, 0.2465753424657534, 0.4931506849315068, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0,
+      15.0, 20.0, 30.0 };
+  private static final double[] RATE_ISSUER_SCH = new double[] {6.8E-4, 6.8E-4, 6.8E-4, 6.8E-4, 8.8E-4, 8.3E-4,
+      0.00109, 0.00212, 0.00414, 0.00674, 0.00838, 0.01075, 0.01311, 0.01547, 0.0174, 0.02289, 0.02577, 0.02693 };
+  private static final double REPO_RATE_SCH = -2.0E-4;
+  private static final double[] TIME_ISSUER_BUN = new double[] {0.0027397260273972603, 0.019178082191780823,
+      0.0821917808219178, 0.2465753424657534, 0.4931506849315068, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0,
+      15.0, 20.0, 30.0 };
+  private static final double[] RATE_ISSUER_BUN = new double[] {6.8E-4, 6.8E-4, 6.8E-4, 6.8E-4, 8.8E-4, 8.3E-4,
+      0.00109, 0.00212, 0.00414, 0.00674, 0.00838, 0.01075, 0.01311, 0.01547, 0.0174, 0.02289, 0.02577, 0.02693 };
+  private static final double REPO_RATE_BUN = 9.0E-4;
+  private static final double[] TIME_ISSUER_BOB = new double[] {0.0027397260273972603, 0.019178082191780823,
+      0.0821917808219178, 0.2465753424657534, 0.4931506849315068, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0,
+      15.0, 20.0, 30.0 };
+  private static final double[] RATE_ISSUER_BOB = new double[] {6.8E-4, 6.8E-4, 6.8E-4, 6.8E-4, 8.8E-4, 8.3E-4,
+      0.00109, 0.00212, 0.00414, 0.00674, 0.00838, 0.01075, 0.01311, 0.01547, 0.0174, 0.02289, 0.02577, 0.02693 };
+  private static final double REPO_RATE_BOB = -0.0013;
+
+  /**
+   * Access TIME_ISSUER_LGT
+   * @return TIME_ISSUER_LGT
+   */
+  public double[] getTimeLGT() {
+    return TIME_ISSUER_LGT.clone();
+  }
+
+  /**
+   * Access RATE_ISSUER_LGT
+   * @return RATE_ISSUER_LGT
+   */
+  public double[] getRateLGT() {
+    return RATE_ISSUER_LGT.clone();
+  }
+
+  /**
+   * Access REPO_RATE_LGT
+   * @return REPO_RATE_LGT
+   */
+  public double getRepoLGT() {
+    return REPO_RATE_LGT;
+  }
+
+  /**
+   * Access TIME_ISSUER_SCH
+   * @return TIME_ISSUER_SCH
+   */
+  public double[] getTimeSCH() {
+    return TIME_ISSUER_SCH.clone();
+  }
+
+  /**
+   * Access RATE_ISSUER_SCH
+   * @return RATE_ISSUER_SCH
+   */
+  public double[] getRateSCH() {
+    return RATE_ISSUER_SCH.clone();
+  }
+
+  /**
+   * Access REPO_RATE_SCH
+   * @return REPO_RATE_SCH
+   */
+  public double getRepoSCH() {
+    return REPO_RATE_SCH;
+  }
+
+  /**
+   * Access TIME_ISSUER_BUN
+   * @return TIME_ISSUER_BUN
+   */
+  public double[] getTimeBUN() {
+    return TIME_ISSUER_BUN.clone();
+  }
+
+  /**
+   * Access RATE_ISSUER_BUN
+   * @return RATE_ISSUER_BUN
+   */
+  public double[] getRateBUN() {
+    return RATE_ISSUER_BUN.clone();
+  }
+
+  /**
+   * Access REPO_RATE_BUN
+   * @return REPO_RATE_BUN
+   */
+  public double getRepoBUN() {
+    return REPO_RATE_BUN;
+  }
+
+  /**
+   * Access TIME_ISSUER_BOB
+   * @return TIME_ISSUER_BOB
+   */
+  public double[] getTimeBOB() {
+    return TIME_ISSUER_BOB.clone();
+  }
+
+  /**
+   * Access RATE_ISSUER_BOB
+   * @return RATE_ISSUER_BOB
+   */
+  public double[] getRateBOB() {
+    return RATE_ISSUER_BOB.clone();
+  }
+
+  /**
+   * Access REPO_RATE_BOB
+   * @return REPO_RATE_BOB
+   */
+  public double getRepoBOB() {
+    return REPO_RATE_BOB;
+  }
 
   /**
    * access EXPIRY
