@@ -5,18 +5,6 @@
  */
 package com.opengamma.solutions.remote;
 
-import static com.opengamma.sesame.config.ConfigBuilder.configureView;
-import static com.opengamma.util.result.ResultTestUtils.assertSuccess;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.closeTo;
-
-import java.net.URI;
-
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
 import com.google.common.base.Objects;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
@@ -29,11 +17,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.integration.server.RemoteServer;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.config.ViewConfig;
-import com.opengamma.sesame.engine.CalculationArguments;
-import com.opengamma.sesame.engine.Engine;
-import com.opengamma.sesame.engine.RemoteEngine;
-import com.opengamma.sesame.engine.ResultRow;
-import com.opengamma.sesame.engine.Results;
+import com.opengamma.sesame.engine.*;
 import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.solutions.util.SwapViewUtils;
@@ -42,6 +26,17 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import java.net.URI;
+
+import static com.opengamma.sesame.config.ConfigBuilder.configureView;
+import static com.opengamma.util.result.ResultTestUtils.assertSuccess;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
 
 /**
  * Integration tests run against a remote server
@@ -126,7 +121,7 @@ public class RemoteSwapTest {
 
   /* Single Leg - start */
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
+  @Test(enabled = true) 
   public void testSingleLegSwapPV() {
     Result fixedResult = _singleLegResults.get(0, 0).getResult();
     assertSuccess(fixedResult);
@@ -148,7 +143,7 @@ public class RemoteSwapTest {
 
   /* Zero Coupon - start */
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
+  @Test(enabled = true) 
   public void testZeroCouponSwapPV() {
     Result fixedResult = _zeroCouponResults.get(0, 0).getResult();
     assertSuccess(fixedResult);
@@ -161,7 +156,7 @@ public class RemoteSwapTest {
 
   /* Ibor Compounding - start */
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
+  @Test(enabled = false) 
   public void testIborCompoundingSwapPV() {
     Result fixedResult = _iborCompoundingResults.get(0, 0).getResult();
     assertSuccess(fixedResult);
@@ -176,7 +171,7 @@ public class RemoteSwapTest {
 
   /* Fees - start */
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
+  @Test(enabled = true) 
   public void testFeesFixedVsLiborSwapPV() {
     // Note: not tested v Analytics
     Result result = _feesResults.get(0, 0).getResult();
@@ -190,7 +185,7 @@ public class RemoteSwapTest {
 
   /* Vanilla - start */
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
+  @Test(enabled = true) 
   public void testVanillaFixedVsLiborSwapPV() {
     Result result = _vanillaResults.get(0, 0).getResult();
     assertSuccess(result);
@@ -203,7 +198,7 @@ public class RemoteSwapTest {
 
   /* Compounding -start */
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
+  @Test(enabled = true) 
   public void testCompoundingFixedVsONSwapPV() {
     Result result = _compoundingResults.get(0, 0).getResult();
     assertSuccess(result);
@@ -212,7 +207,7 @@ public class RemoteSwapTest {
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-5969.7908, STD_TOLERANCE_PV)));
   }
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
+  @Test(enabled = true) 
   public void testCompoundingFFAAVsLiborSwapPV() {
     Result result = _compoundingResults.get(1, 0).getResult();
     assertSuccess(result);
@@ -221,7 +216,7 @@ public class RemoteSwapTest {
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-1304207.7900, STD_TOLERANCE_PV)));
   }
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
+  @Test(enabled = true) 
   public void testCompoundingLiborVsLiborSwapPV() {
     //TODO PLAT-6743 + Check with analytics
     Result result = _compoundingResults.get(2, 0).getResult();
@@ -235,7 +230,7 @@ public class RemoteSwapTest {
 
   /* Spread - start */
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
+  @Test(enabled = true) 
   public void testSpreadLiborVsLiborSwapPV() {
     //TODO PLAT-6743 + check with Analytics
     Result result = _spreadResults.get(0, 0).getResult();
@@ -245,7 +240,7 @@ public class RemoteSwapTest {
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(80166.8297495842, STD_TOLERANCE_PV)));
   }
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
+  @Test(enabled = true) 
   public void testSpreadFFAAVsLiborSwapPV() {
     //TODO PLAT-6794
     Result result = _spreadResults.get(1, 0).getResult();
@@ -260,7 +255,7 @@ public class RemoteSwapTest {
 
   /* Fixing - start */
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
+  @Test(enabled = true) 
   public void testFixingFixedVsLiborSwapPV() {
     Result result = _fixingResults.get(0, 0).getResult();
     assertSuccess(result);
@@ -269,7 +264,7 @@ public class RemoteSwapTest {
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(3194260.3186, STD_TOLERANCE_PV)));
   }
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
+  @Test(enabled = true) 
   public void testFixingFixedVsONSwapPV() {
     Result result = _fixingResults.get(1, 0).getResult();
     assertSuccess(result);
@@ -282,7 +277,7 @@ public class RemoteSwapTest {
 
   /* Stubs - start */
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
+  @Test(enabled = true) 
   public void testFixedVsLibor3mStub3MSwapPV() {
     Result result = _stubResults.get(0, 0).getResult();
     assertSuccess(result);
@@ -291,7 +286,7 @@ public class RemoteSwapTest {
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-181665.9361, STD_TOLERANCE_PV)));
   }
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
+  @Test(enabled = true) 
   public void testFixedVsLibor3mStub1MSwapPV() {
     Result result = _stubResults.get(1, 0).getResult();
     assertSuccess(result);
@@ -300,7 +295,7 @@ public class RemoteSwapTest {
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-262948.9316, STD_TOLERANCE_PV)));
   }
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
+  @Test(enabled = true) 
   public void testFixedVsLibor6mStub3MSwapPV() {
     Result result = _stubResults.get(2, 0).getResult();
     assertSuccess(result);
@@ -309,7 +304,7 @@ public class RemoteSwapTest {
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-318570.8721, 10*STD_TOLERANCE_PV))); // <- ???
   }
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
+  @Test(enabled = true) 
   public void testFixedVsLibor6mStub4MSwapPV() {
     Result result = _stubResults.get(3, 0).getResult();
     assertSuccess(result);
@@ -318,7 +313,7 @@ public class RemoteSwapTest {
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-406168.2802, 10*STD_TOLERANCE_PV))); // <- ???
   }
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
+  @Test(enabled = true) 
   public void testFixedVsLibor3mLongStartStub6MSwapPV() {
     //TODO PLAT-6777
     Result result = _stubResults.get(4, 0).getResult();
@@ -326,7 +321,7 @@ public class RemoteSwapTest {
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
   }
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
+  @Test(enabled = true) 
   public void testFixedVsLibor6mShortEndStub2MSwapPV() {
     //TODO PLAT-6777
     Result result = _stubResults.get(5, 0).getResult();
@@ -337,7 +332,7 @@ public class RemoteSwapTest {
 
   /* XCCY - start */
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
+  @Test(enabled = true) 
   public void testLiborUS3mVsLiborBP3mSwapPV() {
     //TODO PLAT-6782
     Result result = _xccyResults.get(0, 0).getResult();
@@ -348,7 +343,7 @@ public class RemoteSwapTest {
     assertThat(mca.getCurrencyAmount(Currency.GBP).getAmount(), is(closeTo(-8303201.9931, 50.0)));
   }
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
+  @Test(enabled = true) 
   public void testFixedUSVsLiborBP3mSwapPV() {
     //TODO PLAT-6782
     Result result = _xccyResults.get(1, 0).getResult();
@@ -363,7 +358,7 @@ public class RemoteSwapTest {
 
   /* Notional Exchange - start */
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
+  @Test(enabled = true) 
   public void testInitialNotionalExchangeSwapPV() {
     //TODO PLAT-6807
     Result result = _notionalExchangeResults.get(0, 0).getResult();
@@ -374,7 +369,7 @@ public class RemoteSwapTest {
     assertThat(mca.getCurrencyAmount(Currency.GBP).getAmount(), is(closeTo(-53295535.6962, STD_TOLERANCE_PV)));
   }
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
+  @Test(enabled = true) 
   public void testFinalNotionalExchangeSwapPV() {
     //TODO PLAT-6807
     Result result = _notionalExchangeResults.get(1, 0).getResult();
@@ -385,7 +380,7 @@ public class RemoteSwapTest {
     assertThat(mca.getCurrencyAmount(Currency.GBP).getAmount(), is(closeTo(62611433.5861, STD_TOLERANCE_PV)));
   }
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
+  @Test(enabled = true) 
   public void testInitialFinalNotionalExchangeSwapPV() {
     Result result = _notionalExchangeResults.get(2, 0).getResult();
     assertSuccess(result);
@@ -397,7 +392,7 @@ public class RemoteSwapTest {
 
   /* Notional Exchange - end */
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
+  @Test(enabled = true) 
   public void testBuckedPV01() {
     // TODO: test results value
     for (ResultRow result : _vanillaResults.getRows()) {
@@ -435,7 +430,7 @@ public class RemoteSwapTest {
     }
   }
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
+  @Test(enabled = true) 
   public void testPayLegCashFlows() {
     for (ResultRow result : _vanillaResults.getRows()) {
       assertSuccess(result.get(2).getResult());
@@ -472,7 +467,7 @@ public class RemoteSwapTest {
     }
   }
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
+  @Test(enabled = true) 
   public void testReceiveLegCashFlows() {
     for (ResultRow result : _vanillaResults.getRows()) {
       assertSuccess(result.get(3).getResult());

@@ -1,24 +1,5 @@
 package com.third.party;
 
-import static com.opengamma.sesame.config.ConfigBuilder.argument;
-import static com.opengamma.sesame.config.ConfigBuilder.arguments;
-import static com.opengamma.sesame.config.ConfigBuilder.column;
-import static com.opengamma.sesame.config.ConfigBuilder.config;
-import static com.opengamma.sesame.config.ConfigBuilder.configureView;
-import static com.opengamma.sesame.config.ConfigBuilder.function;
-import static com.opengamma.sesame.config.ConfigBuilder.implementations;
-import static com.opengamma.sesame.config.ConfigBuilder.nonPortfolioOutput;
-import static com.opengamma.sesame.config.ConfigBuilder.output;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-
-import java.net.URI;
-import java.util.List;
-
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-import org.threeten.bp.Period;
-
 import com.google.common.collect.ImmutableList;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
@@ -27,25 +8,12 @@ import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
-import com.opengamma.sesame.CurveSelector;
-import com.opengamma.sesame.CurveSelectorMulticurveBundleFn;
-import com.opengamma.sesame.DefaultCurveNodeConverterFn;
-import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
-import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
-import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
-import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
-import com.opengamma.sesame.MarketExposureSelector;
-import com.opengamma.sesame.OutputNames;
-import com.opengamma.sesame.RootFinderConfiguration;
+import com.opengamma.sesame.*;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.Results;
-import com.opengamma.sesame.irs.DefaultInterestRateSwapConverterFn;
-import com.opengamma.sesame.irs.DiscountingInterestRateSwapFn;
-import com.opengamma.sesame.irs.InterestRateSwapCalculatorFactory;
-import com.opengamma.sesame.irs.InterestRateSwapConverterFn;
-import com.opengamma.sesame.irs.InterestRateSwapFn;
+import com.opengamma.sesame.irs.*;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.server.FunctionServer;
@@ -56,6 +24,16 @@ import com.opengamma.solutions.util.SwapViewUtils;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+
+import java.net.URI;
+import java.util.List;
+
+import static com.opengamma.sesame.config.ConfigBuilder.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
 /**
  * Tests that a view can be run against a remote server.
