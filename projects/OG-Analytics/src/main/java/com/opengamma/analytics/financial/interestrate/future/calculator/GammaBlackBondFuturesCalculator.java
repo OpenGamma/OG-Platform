@@ -40,11 +40,11 @@ public final class GammaBlackBondFuturesCalculator extends InstrumentDerivativeV
   
   @Override
   public Double visitBondFuturesOptionMarginSecurity(BondFuturesOptionMarginSecurity option, BlackBondFuturesProviderInterface data) {
-    return METHOD_FUTURE_OPTION.gammaUnderlyingPrice(option, data);
+    return METHOD_FUTURE_OPTION.gamma(option, data);
   }
   
   @Override
   public Double visitBondFuturesOptionMarginTransaction(BondFuturesOptionMarginTransaction option, BlackBondFuturesProviderInterface data) {
-    return METHOD_FUTURE_OPTION.gammaUnderlyingPrice(option.getUnderlyingSecurity(), data);
+    return METHOD_FUTURE_OPTION.gamma(option.getUnderlyingSecurity(), data);
   }
 }

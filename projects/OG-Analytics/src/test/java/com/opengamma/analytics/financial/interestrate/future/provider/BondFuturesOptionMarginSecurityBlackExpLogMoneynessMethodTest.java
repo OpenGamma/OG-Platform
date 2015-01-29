@@ -97,13 +97,13 @@ public class BondFuturesOptionMarginSecurityBlackExpLogMoneynessMethodTest {
     final double volatility = BLACK_SURFACE.getZValue(expiry, logmoney);
     final BlackFunctionData dataBlack = new BlackFunctionData(price, 1.0, volatility);
     final double priceExpected = BLACK_FUNCTION.getPriceFunction(option).evaluate(dataBlack);
-    final double priceComputed = METHOD_OPT.price(CALL_BOBL_116, BLACK_FLAT_BNDFUT, price);
+    final double priceComputed = METHOD_OPT.priceFromUnderlyingPrice(CALL_BOBL_116, BLACK_FLAT_BNDFUT, price);
     assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: underlying futures price", priceExpected, priceComputed, TOLERANCE_RATE);
   }
 
   public void priceFromCurves() {
     final double priceFutures = METHOD_FUTURE.price(CALL_BOBL_116.getUnderlyingFuture(), ISSUER_SPECIFIC_MULTICURVES);
-    final double priceExpected = METHOD_OPT.price(CALL_BOBL_116, BLACK_FLAT_BNDFUT, priceFutures);
+    final double priceExpected = METHOD_OPT.priceFromUnderlyingPrice(CALL_BOBL_116, BLACK_FLAT_BNDFUT, priceFutures);
     final double priceComputed = METHOD_OPT.price(CALL_BOBL_116, BLACK_FLAT_BNDFUT);
     assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: underlying futures price", priceExpected, priceComputed, TOLERANCE_RATE);
   }
@@ -143,10 +143,10 @@ public class BondFuturesOptionMarginSecurityBlackExpLogMoneynessMethodTest {
     final BlackFunctionData dataBlack = new BlackFunctionData(priceFutures, 1.0, volatility);
     final double[] priceAD = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
     final double deltaCallExpected = priceAD[1];
-    final double deltaCallComputed = METHOD_OPT.deltaUnderlyingPrice(CALL_BOBL_116, BLACK_FLAT_BNDFUT);
+    final double deltaCallComputed = METHOD_OPT.delta(CALL_BOBL_116, BLACK_FLAT_BNDFUT);
     assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: delta", deltaCallExpected, deltaCallComputed, TOLERANCE_DELTA);
     assertTrue("BondFuturesOptionMarginSecurityBlackFlatMethod: delta", (0.0d < deltaCallComputed) && (deltaCallComputed < 1.0d));
-    final double deltaPutComputed = METHOD_OPT.deltaUnderlyingPrice(PUT_BOBL_116, BLACK_FLAT_BNDFUT);
+    final double deltaPutComputed = METHOD_OPT.delta(PUT_BOBL_116, BLACK_FLAT_BNDFUT);
     assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: delta", deltaCallExpected - 1.0d, deltaPutComputed, TOLERANCE_DELTA);
   }
 
@@ -161,7 +161,7 @@ public class BondFuturesOptionMarginSecurityBlackExpLogMoneynessMethodTest {
     final double[][] secondDerivs = new double[3][3];
     BLACK_FUNCTION.getPriceAdjoint2(option, dataBlack, firstDerivs, secondDerivs);
     final double gammaCallExpected = secondDerivs[0][0];
-    final double gammaCallComputed = METHOD_OPT.gammaUnderlyingPrice(CALL_BOBL_116, BLACK_FLAT_BNDFUT);
+    final double gammaCallComputed = METHOD_OPT.gamma(CALL_BOBL_116, BLACK_FLAT_BNDFUT);
     assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: gamma", gammaCallExpected, gammaCallComputed, TOLERANCE_DELTA);
     assertTrue("BondFuturesOptionMarginSecurityBlackFlatMethod: gamma", 0.0d < gammaCallComputed);
   }
@@ -175,7 +175,7 @@ public class BondFuturesOptionMarginSecurityBlackExpLogMoneynessMethodTest {
     final BlackFunctionData dataBlack = new BlackFunctionData(priceFutures, 1.0, volatility);
     final double[] priceAD = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
     final double vegaCallExpected = priceAD[2];
-    final double vegaCallComputed = METHOD_OPT.vegaUnderlyingPrice(CALL_BOBL_116, BLACK_FLAT_BNDFUT);
+    final double vegaCallComputed = METHOD_OPT.vega(CALL_BOBL_116, BLACK_FLAT_BNDFUT);
     assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: vega", vegaCallExpected, vegaCallComputed, TOLERANCE_DELTA);
     assertTrue("BondFuturesOptionMarginSecurityBlackFlatMethod: vega", (0.0d < vegaCallComputed) && (vegaCallComputed < 1.0d));
   }

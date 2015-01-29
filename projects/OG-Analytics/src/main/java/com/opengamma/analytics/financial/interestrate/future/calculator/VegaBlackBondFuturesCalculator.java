@@ -40,11 +40,11 @@ public final class VegaBlackBondFuturesCalculator extends InstrumentDerivativeVi
   
   @Override
   public Double visitBondFuturesOptionMarginSecurity(BondFuturesOptionMarginSecurity option, BlackBondFuturesProviderInterface data) {
-    return METHOD_FUTURE_OPTION.vegaUnderlyingPrice(option, data);
+    return METHOD_FUTURE_OPTION.vega(option, data);
   }
   
   @Override
   public Double visitBondFuturesOptionMarginTransaction(BondFuturesOptionMarginTransaction option, BlackBondFuturesProviderInterface data) {
-    return METHOD_FUTURE_OPTION.vegaUnderlyingPrice(option.getUnderlyingSecurity(), data);
+    return METHOD_FUTURE_OPTION.vega(option.getUnderlyingSecurity(), data);
   }
 }

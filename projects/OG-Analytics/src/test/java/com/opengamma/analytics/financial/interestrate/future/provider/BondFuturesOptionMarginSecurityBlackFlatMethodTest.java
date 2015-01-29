@@ -85,13 +85,13 @@ public class BondFuturesOptionMarginSecurityBlackFlatMethodTest {
     final double volatility = METHOD_OPT.impliedVolatility(CALL_BOBL_125, BLACK_FLAT_BNDFUT);
     final BlackFunctionData dataBlack = new BlackFunctionData(price, 1.0, volatility);
     final double priceExpected = BLACK_FUNCTION.getPriceFunction(option).evaluate(dataBlack);
-    final double priceComputed = METHOD_OPT.price(CALL_BOBL_125, BLACK_FLAT_BNDFUT, price);
+    final double priceComputed = METHOD_OPT.priceFromUnderlyingPrice(CALL_BOBL_125, BLACK_FLAT_BNDFUT, price);
     assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: underlying futures price", priceExpected, priceComputed, TOLERANCE_RATE);
   }
 
   public void priceFromCurves() {
     final double priceFutures = METHOD_FUTURE.price(CALL_BOBL_125.getUnderlyingFuture(), ISSUER_SPECIFIC_MULTICURVES);
-    final double priceExpected = METHOD_OPT.price(CALL_BOBL_125, BLACK_FLAT_BNDFUT, priceFutures);
+    final double priceExpected = METHOD_OPT.priceFromUnderlyingPrice(CALL_BOBL_125, BLACK_FLAT_BNDFUT, priceFutures);
     final double priceComputed = METHOD_OPT.price(CALL_BOBL_125, BLACK_FLAT_BNDFUT);
     assertEquals("BondFuturesOptionMarginSecurityBlackFlatMethod: underlying futures price", priceExpected, priceComputed, TOLERANCE_RATE);
   }

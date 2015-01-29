@@ -43,13 +43,13 @@ public final class DeltaBlackBondFuturesCalculator extends InstrumentDerivativeV
   public Double visitBondFuturesOptionMarginSecurity(BondFuturesOptionMarginSecurity option, BlackBondFuturesProviderInterface data) {
     ArgumentChecker.notNull(option, "security");
     ArgumentChecker.notNull(data, "data");
-    return METHOD_FUTURE_OPTION.deltaUnderlyingPrice(option, data);
+    return METHOD_FUTURE_OPTION.delta(option, data);
   }
   
   @Override
   public Double visitBondFuturesOptionMarginTransaction(BondFuturesOptionMarginTransaction option, BlackBondFuturesProviderInterface data) {
     ArgumentChecker.notNull(option, "security");
     ArgumentChecker.notNull(data, "data");
-    return METHOD_FUTURE_OPTION.deltaUnderlyingPrice(option.getUnderlyingSecurity(), data);
+    return METHOD_FUTURE_OPTION.delta(option.getUnderlyingSecurity(), data);
   }
 }
