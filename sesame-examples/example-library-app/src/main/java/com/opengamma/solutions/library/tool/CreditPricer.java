@@ -29,14 +29,12 @@ import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.solutions.library.storage.DataLoader;
 import com.opengamma.solutions.util.CreditViewUtils;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.time.DateUtils;
 
 /**
  * Sample Credit pricing method
  */
 public class CreditPricer {
 
-  private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 10, 16);
   private final Engine _engine;
   private final DataLoader _databaseRestore;
   private final RegionMaster _regionMaster;
@@ -57,8 +55,11 @@ public class CreditPricer {
   /**
    * Calculate PV and CS01
    * @return Results containing PV and CS01 for a legacy and standard CS01
+   * @param valuationTime ZoneDateTime valuation time
+   * @param creditCurveName the name of the credit curve
+   * @param yieldCurveName the name of the yield curve
    */
-  public Results price() {
+  public Results price(ZonedDateTime valuationTime, String creditCurveName, String yieldCurveName) {
     // Add sample data to the masters
     _databaseRestore.populateCreditData();
     // initialize the RegionMaster with data
@@ -67,13 +68,13 @@ public class CreditPricer {
     MarketDataSpecification marketDataSpec = EmptyMarketDataSpec.INSTANCE;
     CalculationArguments calculationArguments =
         CalculationArguments.builder()
-            .valuationTime(VALUATION_TIME)
+            .valuationTime(valuationTime)
             .marketDataSpecification(marketDataSpec)
             .configVersionCorrection(VersionCorrection.ofVersionAsOf(Instant.now()))
             .build();
     List<Object> trades = CreditViewUtils.INPUTS;
     MarketDataEnvironment marketDataEnvironment = MarketDataEnvironmentBuilder.empty();
-    ViewConfig viewConfig = CreditViewUtils.createViewConfig("Sample Credit Curve", "Sample Yield Curve");
+    ViewConfig viewConfig = CreditViewUtils.createViewConfig(creditCurveName, yieldCurveName);
 
     // This is needed to ensure that the version correction provided is after the population of the masters
     ServiceContext serviceContext =  ThreadLocalServiceContext.getInstance().with(VersionCorrectionProvider.class, new FixedInstantVersionCorrectionProvider(Instant.now()));

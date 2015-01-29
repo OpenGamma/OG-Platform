@@ -8,11 +8,11 @@ package com.opengamma.solutions.library;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import java.net.URL;
 import java.util.Set;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.google.inject.Guice;
@@ -26,6 +26,7 @@ import com.opengamma.solutions.library.storage.SourcesModule;
 import com.opengamma.solutions.library.tool.CreditPricer;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Integration tests using OG as a library
@@ -36,6 +37,9 @@ import com.opengamma.util.test.TestGroup;
 public class LibraryCreditTest {
 
   private Results _results;
+  private static final String CREDIT_CURVE_NAME = "Sample Credit Curve";
+  private static final String YIELD_CURVE_NAME = "Sample Yield Curve";
+  private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 10, 16);
 
   @BeforeClass
   public void setUp() {
@@ -48,7 +52,7 @@ public class LibraryCreditTest {
     Injector injector = Guice.createInjector(modules);
 
     CreditPricer pricer = injector.getInstance(CreditPricer.class);
-    _results= pricer.price();
+    _results= pricer.price(VALUATION_TIME, CREDIT_CURVE_NAME, YIELD_CURVE_NAME);
 
   }
 

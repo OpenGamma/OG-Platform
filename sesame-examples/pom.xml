@@ -13,7 +13,7 @@
   </parent>
   <groupId>com.opengamma.solutions</groupId>
   <artifactId>og-solutions</artifactId>
-  <version>0.7-SNAPSHOT</version>
+  <version>0.7.1</version>
   <name>OG-Solution</name>
   <description>OpenGamma Solutions project</description>
   <packaging>pom</packaging>
