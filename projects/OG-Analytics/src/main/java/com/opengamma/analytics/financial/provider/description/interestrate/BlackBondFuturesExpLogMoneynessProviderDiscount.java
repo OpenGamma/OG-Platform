@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.provider.description.interestrate;
 
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Implementation for Black parameters provider for one underlying when multi-curves are described by a MulticurveProviderDiscount.
@@ -18,24 +19,26 @@ public class BlackBondFuturesExpLogMoneynessProviderDiscount extends BlackBondFu
    * @param parameters The Black parameters.
    * @param legalEntity The legal entity of the bonds underlying the futures for which the volatility data is valid.
    */
-  public BlackBondFuturesExpLogMoneynessProviderDiscount(final IssuerProviderDiscount issuerProvider, final Surface<Double, Double, Double> parameters, final LegalEntity legalEntity) {
+  public BlackBondFuturesExpLogMoneynessProviderDiscount(final IssuerProviderInterface issuerProvider,
+      final Surface<Double, Double, Double> parameters, final LegalEntity legalEntity) {
     super(issuerProvider, parameters, legalEntity);
+    ArgumentChecker.isTrue(issuerProvider instanceof IssuerProviderDiscount ||
+        issuerProvider instanceof IssuerProviderIssuerAnnuallyCompoundeding,
+        "issuerProvider should be IssuerProviderDiscount or contain IssuerProviderDiscount");
   }
 
   @Override
   public BlackBondFuturesExpLogMoneynessProviderDiscount copy() {
-    final IssuerProviderDiscount issuerProvider = getIssuerProvider().copy();
+    IssuerProviderInterface issuerProvider = getIssuerProvider().copy();
     return new BlackBondFuturesExpLogMoneynessProviderDiscount(issuerProvider, getBlackParameters(), getLegalEntity());
   }
 
   @Override
   public MulticurveProviderDiscount getMulticurveProvider() {
-    return getIssuerProvider().getMulticurveProvider();
+    IssuerProviderInterface issuerProvider = getIssuerProvider();
+    if (issuerProvider instanceof IssuerProviderDiscount) {
+      return ((IssuerProviderDiscount) issuerProvider).getMulticurveProvider();
+    }
+    return ((IssuerProviderIssuerAnnuallyCompoundeding) issuerProvider).getMulticurveProvider();
   }
-
-  @Override
-  public IssuerProviderDiscount getIssuerProvider() {
-    return (IssuerProviderDiscount) super.getIssuerProvider();
-  }
-
 }

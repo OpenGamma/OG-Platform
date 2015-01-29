@@ -130,7 +130,7 @@ public class IssuerProviderIssuerAnnuallyCompoundeding implements IssuerProvider
   }
 
   @Override
-  public MulticurveProviderInterface getMulticurveProvider() {
+  public MulticurveProviderDiscount getMulticurveProvider() {
     return _issuerProvider.getMulticurveProvider();
   }
 
