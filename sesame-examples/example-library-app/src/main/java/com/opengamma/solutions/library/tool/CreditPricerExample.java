@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.google.inject.Guice;
@@ -20,6 +21,7 @@ import com.opengamma.solutions.library.storage.DataLoadModule;
 import com.opengamma.solutions.library.storage.InMemoryStorageModule;
 import com.opengamma.solutions.library.storage.SourcesModule;
 import com.opengamma.solutions.util.ViewUtils;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Credit pricer example
@@ -27,6 +29,10 @@ import com.opengamma.solutions.util.ViewUtils;
 public class CreditPricerExample {
 
   private static final Logger s_logger = LoggerFactory.getLogger(CreditPricerExample.class);
+  private static final String CREDIT_CURVE_NAME = "Sample Credit Curve";
+  private static final String YIELD_CURVE_NAME = "Sample Yield Curve";
+  private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 10, 16);
+
 
   /**
    * Entry point to running the Credit Pricer.
@@ -43,7 +49,7 @@ public class CreditPricerExample {
     Injector injector = Guice.createInjector(modules);
 
     CreditPricer pricer = injector.getInstance(CreditPricer.class);
-    Results results = pricer.price();
+    Results results = pricer.price(VALUATION_TIME, CREDIT_CURVE_NAME, YIELD_CURVE_NAME);
     s_logger.info("Got results:\n" + ViewUtils.format(results));
 
   }

@@ -38,7 +38,6 @@ public class EngineModule extends AbstractModule {
     // (Some modules assume ServiceContext is set without declaring a dependency)
     bind(ComponentMap.class).toProvider(ComponentMapProvider.class).asEagerSingleton();
     bind(ViewFactory.class).toProvider(ViewFactoryProvider.class);
-    bind(CreditPricer.class);
   }
   
   /**
