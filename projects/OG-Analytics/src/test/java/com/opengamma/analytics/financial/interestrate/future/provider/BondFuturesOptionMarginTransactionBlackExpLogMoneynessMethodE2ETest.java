@@ -177,7 +177,7 @@ public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodE2ETest
     BondFixedSecurityDefinition bondFixed = BondFixedSecurityDefinition.from(EUR, firstAccrualDate, firstCouponDate,
         maturityDate, paymentPeriod, fixedRate, settlementDays, EUR_CALENDAR, DAY_COUNT, BUSINESS_DAY, yieldConvention,
         isEOM, LEGAL_ENTITY_SCH);
-    BondFixedSecurityDefinition[] deliveryBusket = new BondFixedSecurityDefinition[] {bondFixed };
+    BondFixedSecurityDefinition[] deliveryBasket = new BondFixedSecurityDefinition[] {bondFixed };
     double[] conversionFactor = new double[] {0.695531 };
     BondFuturesSecurityDefinition bondFuturesDefinition = new BondFuturesSecurityDefinition(tradingLastDate,
         noticeFirstDate, noticeLastDate, deliveryFirstDate, deliveryLastDate, NOTIONAL, deliveryBusket,
@@ -213,7 +213,7 @@ public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodE2ETest
     BondFixedSecurityDefinition bondFixed = BondFixedSecurityDefinition.from(EUR, firstAccrualDate, firstCouponDate,
         maturityDate, paymentPeriod, fixedRate, settlementDays, EUR_CALENDAR, DAY_COUNT, BUSINESS_DAY, yieldConvention,
         isEOM, LEGAL_ENTITY_BUN);
-    BondFixedSecurityDefinition[] deliveryBusket = new BondFixedSecurityDefinition[] {bondFixed };
+    BondFixedSecurityDefinition[] deliveryBasket = new BondFixedSecurityDefinition[] {bondFixed };
     double[] conversionFactor = new double[] {0.702055 };
     BondFuturesSecurityDefinition bondFuturesDefinition = new BondFuturesSecurityDefinition(tradingLastDate,
         noticeFirstDate, noticeLastDate, deliveryFirstDate, deliveryLastDate, NOTIONAL, deliveryBusket,
@@ -249,7 +249,7 @@ public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodE2ETest
     BondFixedSecurityDefinition bondFixed = BondFixedSecurityDefinition.from(EUR, firstAccrualDate, firstCouponDate,
         maturityDate, paymentPeriod, fixedRate, settlementDays, EUR_CALENDAR, DAY_COUNT, BUSINESS_DAY, yieldConvention,
         isEOM, LEGAL_ENTITY_BOB);
-    BondFixedSecurityDefinition[] deliveryBusket = new BondFixedSecurityDefinition[] {bondFixed };
+    BondFixedSecurityDefinition[] deliveryBasket = new BondFixedSecurityDefinition[] {bondFixed };
     double[] conversionFactor = new double[] {0.907986 };
     BondFuturesSecurityDefinition bondFuturesDefinition = new BondFuturesSecurityDefinition(tradingLastDate,
         noticeFirstDate, noticeLastDate, deliveryFirstDate, deliveryLastDate, NOTIONAL, deliveryBusket,

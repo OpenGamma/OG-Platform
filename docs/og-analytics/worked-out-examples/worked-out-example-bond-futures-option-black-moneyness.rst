@@ -86,18 +86,18 @@ The calculators used for curve sensitivity calculation are::
 The **PSSFC** computes the sensitivity to the curve parameters (*bucketed PV01*), in the present case they are annually compounded zero rates.  The computation is not scaled, i.e. it is for a movement of 1. The last part of the code (**multipliedBy**) multiply it by one basis point to match the market standard. In general, the OG-Analytics library uses absolute numbers (not percent or basis point) everywhere and provide the tools to rescale the output easily.
 
 Here we look at the sensitivity to the issuer curve rather than the repo curve (in the present case the repo curve is a flat curve). 
-The format of the output is a *DoubleMatrix1D* object which can be represented by::
+The format of the output is a **DoubleMatrix1D** object which can be represented by::
 
     (0.0, 0.0, 0.0, 0.0, 0.0, -0.0019, -0.0039, -0.0058, -0.0076, -0.0092, -0.0110, -0.0124, -0.0192, -1.0044, 0.0, 0.0, 0.0, 0.0)
 
-Another way of expressing curve sensitivity is *PV01*, total amount of the curve sensitivity, which is computed by::
+Another way of expressing the curve sensitivity is *PV01*, total amount of the curve sensitivity, which is computed by::
 
     PV01CurveParametersCalculator<BlackBondFuturesProviderInterface> PV01PC = new PV01CurveParametersCalculator<>(PVCSBFC);
     double pv01 = TRANSACTION_SCH.accept(PV01PC, blackNew).getMap().get(Pairs.of(CURVE_NAME_SCH, EUR));
 
 Again we focus on the sensitivity to the issuer curve. 
 
-Note that we compute the sensitivity to curve parameters here. An alternative definition to the curve sensitivities is the market quote sensitivity. For more about the relation between market quote sensitivity and curve parameter sensitivity, See the documentation, worked-out-examples/worked-out-example-stir-futures-discounting.rst.
+Note that we compute the sensitivity to curve parameters here. An alternative definition to the curve sensitivities is the market quote sensitivity. For more about the relation between market quote sensitivity and curve parameter sensitivity, see the documentation, worked-out-examples/worked-out-example-stir-futures-discounting.rst.
 
 Option Greeks
 -----------------
