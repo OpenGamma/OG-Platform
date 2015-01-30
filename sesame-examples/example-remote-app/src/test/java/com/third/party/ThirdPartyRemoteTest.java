@@ -1,33 +1,44 @@
 package com.third.party;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.core.link.ConfigLink;
-import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
+import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
+import com.opengamma.core.position.Counterparty;
+import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.currency.CurrencyMatrix;
-import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.integration.server.RemoteServer;
 import com.opengamma.sesame.*;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.component.StringSet;
+import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewConfig;
+import com.opengamma.sesame.engine.CalculationArguments;
+import com.opengamma.sesame.engine.Engine;
+import com.opengamma.sesame.engine.RemoteEngine;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.irs.*;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
-import com.opengamma.sesame.server.FunctionServer;
-import com.opengamma.sesame.server.FunctionServerRequest;
-import com.opengamma.sesame.server.IndividualCycleOptions;
-import com.opengamma.sesame.server.RemoteFunctionServer;
+import com.opengamma.sesame.marketdata.MarketDataEnvironment;
+import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
+import com.opengamma.sesame.trade.InterestRateSwapTrade;
+import com.opengamma.solutions.remote.RemoteTestUtils;
 import com.opengamma.solutions.util.SwapViewUtils;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.threeten.bp.Period;
+import org.threeten.bp.*;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
 
@@ -46,169 +57,199 @@ public class ThirdPartyRemoteTest {
 
     private static final String URL = "http://localhost:8080/jax";
     private static final String CURVE_RESULT = "Curve Bundle";
-    private FunctionServer _functionServer;
-    private IndividualCycleOptions _cycleOptions;
     private ConfigLink<ExposureFunctions> _exposureConfig;
     private ConfigLink<CurrencyMatrix> _currencyMatrixLink;
     private ConfigLink<CurveConstructionConfiguration> _curveConstructionConfiguration;
     /* A single Fixed vs Libor 3m Swap ManageableSecurity list */
     private List<Object> _inputs = SwapViewUtils.VANILLA_INPUTS;
+    private Engine _engine;
+    private CalculationArguments _calculationArguments;
+    private MarketDataEnvironment _marketDataEnvironment;
+    private RemoteServer _remoteServer;
+    private List<InterestRateSwapTrade> _inputTrades;
 
 
     @BeforeClass
     public void setUp() {
 
-        /* Create a RemoteFunctionServer to executes view requests RESTfully.*/
-        _functionServer = new RemoteFunctionServer(URI.create(URL));
+      _engine = new RemoteEngine(URI.create(URL));
 
-        /* Single cycle options containing the market data specification and valuation time */
-      MarketDataSpecification marketDataSpecification = LiveMarketDataSpecification.of("Bloomberg");
+      _remoteServer = RemoteServer.create(URL);
 
-      _cycleOptions = IndividualCycleOptions.builder()
-                .valuationTime(DateUtils.getUTCDate(2014, 1, 22))
-                .marketDataSpecs(ImmutableList.of(marketDataSpecification))
-                .build();
+      MarketDataSnapshotSource snapshotSource = _remoteServer.getMarketDataSnapshotSource();
+      ManageableMarketDataSnapshot snapshot = snapshotSource.getSingle(ManageableMarketDataSnapshot.class,
+          RemoteTestUtils.USD_GBP_SNAPSHOT,
+          VersionCorrection.LATEST);
 
-        /* Configuration links matching the curve exposure function, currency matrix and curve bundle
-           as named on the remote server. These are needed as specific arguments in the creation
-           of the ViewConfig. */
-        _exposureConfig = ConfigLink.resolvable("USD CSA Exposure Functions", ExposureFunctions.class);
-        _currencyMatrixLink = ConfigLink.resolvable("BloombergLiveData", CurrencyMatrix.class);
-        _curveConstructionConfiguration = ConfigLink.resolvable("USD TO GBP CSA USD Curve Construction Configuration",
-                CurveConstructionConfiguration.class);
+      MarketDataSpecification marketDataSpec = UserMarketDataSpecification.of(snapshot.getUniqueId());
 
+      _calculationArguments =
+          CalculationArguments.builder()
+              .valuationTime(DateUtils.getUTCDate(2014, 1, 22))
+              .marketDataSpecification(marketDataSpec)
+              .configVersionCorrection(VersionCorrection.ofVersionAsOf(Instant.now()))
+              .build();
+
+      _marketDataEnvironment = MarketDataEnvironmentBuilder.empty();
+
+      _exposureConfig = ConfigLink.resolvable("USD-GBP-FF-1", ExposureFunctions.class);
+      _currencyMatrixLink = ConfigLink.resolvable("BBG-Matrix", CurrencyMatrix.class);
+      _curveConstructionConfiguration = ConfigLink.resolvable("USD TO GBP CSA USD Curve Construction Configuration",
+          CurveConstructionConfiguration.class);
+
+
+      Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
+      BigDecimal tradeQuantity = BigDecimal.valueOf(1);
+      LocalDate tradeDate = LocalDate.of(2014, 1, 22);
+      OffsetTime tradeTime = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
+      //SimpleTrade trade = new SimpleTrade(_inputs, tradeQuantity, counterparty, tradeDate, tradeTime);
+////      trade.setPremium(0.0);
+////      trade.setPremiumDate(tradeDate);
+////      trade.setPremiumCurrency(Currency.GBP);
+////
+////      InterestRateSwapTrade interestRateSwapTrade = new InterestRateSwapTrade(trade);
+//
+//      _inputTrades.add(interestRateSwapTrade);
 
     }
 
     @Test(enabled = false)
     public void testSingleSwapPVExecution() {
 
-        /* Building the output specific request, based on a the view config, the single cycle options
-           and the List<ManageableSecurity> containing a single swap */
-        FunctionServerRequest<IndividualCycleOptions> request =
-                FunctionServerRequest.<IndividualCycleOptions>builder()
-                        .viewConfig(createViewConfig(OutputNames.PRESENT_VALUE))
-                        .inputs(_inputs)
-                        .cycleOptions(_cycleOptions)
-                        .build();
 
-        /* Execute the engine cycle and extract the result */
-        Results results = _functionServer.executeSingleCycle(request);
-        Result result = results.get(0,0).getResult();
+      ViewConfig viewConfig = createViewConfig();
+
+      Results results = _engine.runView(viewConfig,_calculationArguments,_marketDataEnvironment,_inputTrades);
+      Result result = results.get(0,0).getResult();
         assertThat(result.isSuccess(), is(true));
 
     }
 
-    @Test(enabled = false)
-    public void testSingleSwapReceiveLegCashFlowsExecution() {
-
-        FunctionServerRequest<IndividualCycleOptions> request =
-                FunctionServerRequest.<IndividualCycleOptions>builder()
-                        .viewConfig(createViewConfig(OutputNames.RECEIVE_LEG_CASH_FLOWS))
-                        .inputs(_inputs)
-                        .cycleOptions(_cycleOptions)
-                        .build();
-
-        Results results = _functionServer.executeSingleCycle(request);
-        Result result = results.get(0,0).getResult();
-        assertThat(result.isSuccess(), is(true));
-
-    }
-
-    @Test(enabled = false)
-    public void testSingleSwapPayLegCashFlowsExecution() {
-
-        FunctionServerRequest<IndividualCycleOptions> request =
-                FunctionServerRequest.<IndividualCycleOptions>builder()
-                        .viewConfig(createViewConfig(OutputNames.PAY_LEG_CASH_FLOWS))
-                        .inputs(_inputs)
-                        .cycleOptions(_cycleOptions)
-                        .build();
-
-        Results results = _functionServer.executeSingleCycle(request);
-        Result result = results.get(0,0).getResult();
-        assertThat(result.isSuccess(), is(true));
-
-    }
-
-    @Test(enabled = false)
-    public void testSingleSwapBucketedPV01Execution() {
-
-        FunctionServerRequest<IndividualCycleOptions> request =
-                FunctionServerRequest.<IndividualCycleOptions>builder()
-                        .viewConfig(createViewConfig(OutputNames.BUCKETED_PV01))
-                        .inputs(_inputs)
-                        .cycleOptions(_cycleOptions)
-                        .build();
-
-        Results results = _functionServer.executeSingleCycle(request);
-        Result result = results.get(0,0).getResult();
-        assertThat(result.isSuccess(), is(true));
-
-    }
-
-    @Test(enabled = false)
-    public void testSingleSwapPV01Execution() {
-
-        FunctionServerRequest<IndividualCycleOptions> request =
-                FunctionServerRequest.<IndividualCycleOptions>builder()
-                        .viewConfig(createViewConfig(OutputNames.PV01))
-                        .inputs(_inputs)
-                        .cycleOptions(_cycleOptions)
-                        .build();
-
-        Results results = _functionServer.executeSingleCycle(request);
-        Result result = results.get(0,0).getResult();
-        assertThat(result.isSuccess(), is(true));
-
-    }
-
-    @Test(enabled = false)
-    public void testCurveBundleExecution() {
-
-        FunctionServerRequest<IndividualCycleOptions> request =
-                FunctionServerRequest.<IndividualCycleOptions>builder()
-                        .viewConfig(createCurveBundleConfig())
-                        .cycleOptions(_cycleOptions)
-                        .build();
-
-        Results results = _functionServer.executeSingleCycle(request);
-        Result result = results.getNonPortfolioResults().get(CURVE_RESULT).getResult();
-        assertThat(result.isSuccess(), is(true));
-
-    }
+//    @Test(enabled = false)
+//    public void testSingleSwapReceiveLegCashFlowsExecution() {
+//
+//        FunctionServerRequest<IndividualCycleOptions> request =
+//                FunctionServerRequest.<IndividualCycleOptions>builder()
+//                        .viewConfig(createViewConfig(OutputNames.RECEIVE_LEG_CASH_FLOWS))
+//                        .inputs(_inputs)
+//                        .cycleOptions(_cycleOptions)
+//                        .build();
+//
+//        Results results = _functionServer.executeSingleCycle(request);
+//        Result result = results.get(0,0).getResult();
+//        assertThat(result.isSuccess(), is(true));
+//
+//    }
+//
+//    @Test(enabled = false)
+//    public void testSingleSwapPayLegCashFlowsExecution() {
+//
+//        FunctionServerRequest<IndividualCycleOptions> request =
+//                FunctionServerRequest.<IndividualCycleOptions>builder()
+//                        .viewConfig(createViewConfig(OutputNames.PAY_LEG_CASH_FLOWS))
+//                        .inputs(_inputs)
+//                        .cycleOptions(_cycleOptions)
+//                        .build();
+//
+//        Results results = _functionServer.executeSingleCycle(request);
+//        Result result = results.get(0,0).getResult();
+//        assertThat(result.isSuccess(), is(true));
+//
+//    }
+//
+//    @Test(enabled = false)
+//    public void testSingleSwapBucketedPV01Execution() {
+//
+//        FunctionServerRequest<IndividualCycleOptions> request =
+//                FunctionServerRequest.<IndividualCycleOptions>builder()
+//                        .viewConfig(createViewConfig(OutputNames.BUCKETED_PV01))
+//                        .inputs(_inputs)
+//                        .cycleOptions(_cycleOptions)
+//                        .build();
+//
+//        Results results = _functionServer.executeSingleCycle(request);
+//        Result result = results.get(0,0).getResult();
+//        assertThat(result.isSuccess(), is(true));
+//
+//    }
+//
+//    @Test(enabled = false)
+//    public void testSingleSwapPV01Execution() {
+//
+//        FunctionServerRequest<IndividualCycleOptions> request =
+//                FunctionServerRequest.<IndividualCycleOptions>builder()
+//                        .viewConfig(createViewConfig(OutputNames.PV01))
+//                        .inputs(_inputs)
+//                        .cycleOptions(_cycleOptions)
+//                        .build();
+//
+//        Results results = _functionServer.executeSingleCycle(request);
+//        Result result = results.get(0,0).getResult();
+//        assertThat(result.isSuccess(), is(true));
+//
+//    }
+//
+//    @Test(enabled = false)
+//    public void testCurveBundleExecution() {
+//
+//        FunctionServerRequest<IndividualCycleOptions> request =
+//                FunctionServerRequest.<IndividualCycleOptions>builder()
+//                        .viewConfig(createCurveBundleConfig())
+//                        .cycleOptions(_cycleOptions)
+//                        .build();
+//
+//        Results results = _functionServer.executeSingleCycle(request);
+//        Result result = results.getNonPortfolioResults().get(CURVE_RESULT).getResult();
+//        assertThat(result.isSuccess(), is(true));
+//
+//    }
 
     /* Output specific view configuration for interest rate swaps */
-    private ViewConfig createViewConfig(String output) {
-
+    private ViewConfig createViewConfig() {
       return
           configureView(
               "IRS Remote view",
-              column(OutputNames.PRESENT_VALUE,
-                     config(
-                         arguments(
-                             function(
-                                 MarketExposureSelector.class,
-                                 argument("exposureFunctions", _exposureConfig)),
-                             function(
-                                 DefaultHistoricalMarketDataFn.class,
-                                 argument("dataSource", "BLOOMBERG"),
-                                 argument("currencyMatrix", _currencyMatrixLink)),
-                             function(
-                                 DefaultMarketDataFn.class,
-                                 argument("dataSource", "BLOOMBERG"))),
-                         implementations(
-                             CurveSelector.class, MarketExposureSelector.class,
-                             DiscountingMulticurveCombinerFn.class, CurveSelectorMulticurveBundleFn.class,
-                             InterestRateSwapFn.class, DiscountingInterestRateSwapFn.class,
-                             InterestRateSwapConverterFn.class, DefaultInterestRateSwapConverterFn.class,
-                             InterestRateSwapFn.class, DiscountingInterestRateSwapFn.class,
-                             InterestRateSwapCalculatorFactory.class, ThirdPartyInterestRateSwapCalculatorFactory.class)
-                     ),
-                     output(output, InterestRateSwapSecurity.class)
-              )
-          );
+              createThirdPartyInterestRateSwapViewColumn(OutputNames.PRESENT_VALUE,
+                  _exposureConfig,
+                  _currencyMatrixLink));
+//              createThirdPartyInterestRateSwapViewColumn(OutputNames.BUCKETED_PV01,
+//                  _exposureConfig,
+//                  _currencyMatrixLink),
+//              createThirdPartyInterestRateSwapViewColumn(OutputNames.PAY_LEG_CASH_FLOWS,
+//                  _exposureConfig,
+//                  _currencyMatrixLink),
+//              createThirdPartyInterestRateSwapViewColumn(OutputNames.RECEIVE_LEG_CASH_FLOWS,
+//                  _exposureConfig,
+//                  _currencyMatrixLink));
     }
+
+
+  public static ViewColumn createThirdPartyInterestRateSwapViewColumn(String output,
+                                                                      ConfigLink<ExposureFunctions> exposureConfig,
+                                                                      ConfigLink<CurrencyMatrix> currencyMatrixLink) {
+    ArgumentChecker.notNull(output, "output");
+    ArgumentChecker.notNull(exposureConfig, "exposureConfig");
+    ArgumentChecker.notNull(currencyMatrixLink, "currencyMatrixLink");
+
+    return
+        column(
+            output,
+            config(
+                arguments(
+                    function(
+                        MarketExposureSelector.class,
+                        argument("exposureFunctions", exposureConfig)),
+                    function(
+                        DefaultHistoricalMarketDataFn.class,
+                        argument("currencyMatrix", currencyMatrixLink))),
+                implementations(
+                    CurveSelector.class, MarketExposureSelector.class,
+                    DiscountingMulticurveCombinerFn.class, CurveSelectorMulticurveBundleFn.class,
+                    InterestRateSwapFn.class, DiscountingInterestRateSwapFn.class,
+                    InterestRateSwapConverterFn.class, DefaultInterestRateSwapConverterFn.class,
+                    InterestRateSwapCalculatorFactory.class, ThirdPartyInterestRateSwapCalculatorFactory.class)));
+                    //InterestRateSwapCalculatorFactory.class, DiscountingInterestRateSwapCalculatorFactory.class)));
+  }
 
     /* A non portfolio output view configuration to capture the build curves */
     private ViewConfig createCurveBundleConfig() {

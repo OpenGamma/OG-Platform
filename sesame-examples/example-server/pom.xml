@@ -59,6 +59,12 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>com.opengamma.solutions</groupId>
+      <artifactId>example-remote-app</artifactId>
+      <version>0.8-SNAPSHOT</version>
+    </dependency>
+
   </dependencies>
 
   <build>

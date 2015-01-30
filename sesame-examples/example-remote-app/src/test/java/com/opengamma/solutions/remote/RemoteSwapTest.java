@@ -156,7 +156,7 @@ public class RemoteSwapTest {
 
   /* Ibor Compounding - start */
 
-  @Test(enabled = false) 
+  @Test(enabled = true)
   public void testIborCompoundingSwapPV() {
     Result fixedResult = _iborCompoundingResults.get(0, 0).getResult();
     assertSuccess(fixedResult);

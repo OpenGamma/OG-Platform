@@ -5,23 +5,6 @@
  */
 package com.opengamma.solutions.util;
 
-import static com.opengamma.sesame.config.ConfigBuilder.argument;
-import static com.opengamma.sesame.config.ConfigBuilder.arguments;
-import static com.opengamma.sesame.config.ConfigBuilder.column;
-import static com.opengamma.sesame.config.ConfigBuilder.config;
-import static com.opengamma.sesame.config.ConfigBuilder.function;
-import static com.opengamma.sesame.config.ConfigBuilder.implementations;
-
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Set;
-
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalTime;
-import org.threeten.bp.OffsetTime;
-import org.threeten.bp.Period;
-import org.threeten.bp.ZoneOffset;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod;
@@ -37,15 +20,7 @@ import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.rolldate.RollConvention;
 import com.opengamma.financial.currency.CurrencyMatrix;
-import com.opengamma.financial.security.irs.FixedInterestRateSwapLeg;
-import com.opengamma.financial.security.irs.FloatingInterestRateSwapLeg;
-import com.opengamma.financial.security.irs.InterestRateSwapLeg;
-import com.opengamma.financial.security.irs.InterestRateSwapNotional;
-import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
-import com.opengamma.financial.security.irs.NotionalExchange;
-import com.opengamma.financial.security.irs.PayReceiveType;
-import com.opengamma.financial.security.irs.Rate;
-import com.opengamma.financial.security.irs.StubCalculationMethod;
+import com.opengamma.financial.security.irs.*;
 import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -54,17 +29,19 @@ import com.opengamma.sesame.CurveSelectorMulticurveBundleFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.config.ViewColumn;
-import com.opengamma.sesame.irs.DefaultInterestRateSwapConverterFn;
-import com.opengamma.sesame.irs.DiscountingInterestRateSwapCalculatorFactory;
-import com.opengamma.sesame.irs.DiscountingInterestRateSwapFn;
-import com.opengamma.sesame.irs.InterestRateSwapCalculatorFactory;
-import com.opengamma.sesame.irs.InterestRateSwapConverterFn;
-import com.opengamma.sesame.irs.InterestRateSwapFn;
+import com.opengamma.sesame.irs.*;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.trade.InterestRateSwapTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.money.Currency;
+import org.threeten.bp.*;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Set;
+
+import static com.opengamma.sesame.config.ConfigBuilder.*;
 
 /**
  * Utility class for swap views
@@ -84,6 +61,10 @@ public final class SwapViewUtils {
   /** List of Vanilla IRS inputs */
   public static final List<Object> VANILLA_INPUTS = ImmutableList.<Object>of(
       createVanillaFixedVsLibor3mSwap());
+
+  /** List of Vanilla IRS inputs */
+  public static final List<Object> VANILLA_TRADES = ImmutableList.<Object>of(
+      createVanillaFixedVsLibor3mTrade());
 
   /** List of Compounding IRS inputs */
   public static final List<Object> COMPOUNDING_INPUTS = ImmutableList.<Object>of(
@@ -184,6 +165,7 @@ public final class SwapViewUtils {
                     InterestRateSwapConverterFn.class, DefaultInterestRateSwapConverterFn.class,
                     InterestRateSwapCalculatorFactory.class, DiscountingInterestRateSwapCalculatorFactory.class)));
   }
+
 
   /* Sample Interest Rate Swaps */
 
@@ -414,6 +396,23 @@ public final class SwapViewUtils {
     trade.addAttribute("FEE_2_CURRENCY", "USD");
     trade.addAttribute("FEE_2_AMOUNT", "1000");
     trade.addAttribute("FEE_2_DIRECTION", "RECEIVE");
+
+    /* A specific InterestRateSwapTrade object here is used to 'wrap' the underlying generic SimpleTrade */
+
+    return new InterestRateSwapTrade(trade);
+
+  }
+
+  private static InterestRateSwapTrade createVanillaFixedVsLibor3mTrade() {
+
+    Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
+    BigDecimal tradeQuantity = BigDecimal.valueOf(1);
+    LocalDate tradeDate = LocalDate.of(2014, 1, 22);
+    OffsetTime tradeTime = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
+    SimpleTrade trade = new SimpleTrade(createVanillaFixedVsLibor3mSwap(), tradeQuantity, counterparty, tradeDate, tradeTime);
+    trade.setPremium(0.0);
+    trade.setPremiumDate(tradeDate);
+    trade.setPremiumCurrency(Currency.USD);
 
     /* A specific InterestRateSwapTrade object here is used to 'wrap' the underlying generic SimpleTrade */
 

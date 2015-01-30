@@ -34,7 +34,7 @@
     <dependency>
       <groupId>com.opengamma.solutions</groupId>
       <artifactId>example-data</artifactId>
-      <version>0.7</version>
+      <version>0.8-SNAPSHOT</version>
     </dependency>
 
     <!-- Guava -->
