@@ -3,14 +3,11 @@ package com.third.party;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
-import com.opengamma.core.position.Counterparty;
-import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.currency.CurrencyMatrix;
-import com.opengamma.id.ExternalId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.integration.server.RemoteServer;
 import com.opengamma.sesame.*;
@@ -36,9 +33,9 @@ import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.threeten.bp.*;
+import org.threeten.bp.Instant;
+import org.threeten.bp.Period;
 
-import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
 
@@ -52,7 +49,7 @@ import static org.hamcrest.core.Is.is;
  * and a the curve bundle used to price the swap.
  */
 
-@Test(groups = TestGroup.INTEGRATION, enabled = false)
+@Test(groups = TestGroup.INTEGRATION, enabled = true)
 public class ThirdPartyRemoteTest {
 
     private static final String URL = "http://localhost:8080/jax";
@@ -61,7 +58,7 @@ public class ThirdPartyRemoteTest {
     private ConfigLink<CurrencyMatrix> _currencyMatrixLink;
     private ConfigLink<CurveConstructionConfiguration> _curveConstructionConfiguration;
     /* A single Fixed vs Libor 3m Swap ManageableSecurity list */
-    private List<Object> _inputs = SwapViewUtils.VANILLA_INPUTS;
+    private List<Object> _inputs = SwapViewUtils.VANILLA_TRADES;
     private Engine _engine;
     private CalculationArguments _calculationArguments;
     private MarketDataEnvironment _marketDataEnvironment;
@@ -97,97 +94,62 @@ public class ThirdPartyRemoteTest {
       _curveConstructionConfiguration = ConfigLink.resolvable("USD TO GBP CSA USD Curve Construction Configuration",
           CurveConstructionConfiguration.class);
 
-
-      Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
-      BigDecimal tradeQuantity = BigDecimal.valueOf(1);
-      LocalDate tradeDate = LocalDate.of(2014, 1, 22);
-      OffsetTime tradeTime = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
-      //SimpleTrade trade = new SimpleTrade(_inputs, tradeQuantity, counterparty, tradeDate, tradeTime);
-////      trade.setPremium(0.0);
-////      trade.setPremiumDate(tradeDate);
-////      trade.setPremiumCurrency(Currency.GBP);
-////
-////      InterestRateSwapTrade interestRateSwapTrade = new InterestRateSwapTrade(trade);
-//
-//      _inputTrades.add(interestRateSwapTrade);
-
     }
 
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testSingleSwapPVExecution() {
 
 
       ViewConfig viewConfig = createViewConfig();
 
-      Results results = _engine.runView(viewConfig,_calculationArguments,_marketDataEnvironment,_inputTrades);
-      Result result = results.get(0,0).getResult();
+      Results results = _engine.runView(viewConfig,_calculationArguments,_marketDataEnvironment,_inputs);
+      Result result = results.get(0,OutputNames.PRESENT_VALUE).getResult();
         assertThat(result.isSuccess(), is(true));
 
     }
 
-//    @Test(enabled = false)
-//    public void testSingleSwapReceiveLegCashFlowsExecution() {
-//
-//        FunctionServerRequest<IndividualCycleOptions> request =
-//                FunctionServerRequest.<IndividualCycleOptions>builder()
-//                        .viewConfig(createViewConfig(OutputNames.RECEIVE_LEG_CASH_FLOWS))
-//                        .inputs(_inputs)
-//                        .cycleOptions(_cycleOptions)
-//                        .build();
-//
-//        Results results = _functionServer.executeSingleCycle(request);
-//        Result result = results.get(0,0).getResult();
-//        assertThat(result.isSuccess(), is(true));
-//
-//    }
-//
-//    @Test(enabled = false)
-//    public void testSingleSwapPayLegCashFlowsExecution() {
-//
-//        FunctionServerRequest<IndividualCycleOptions> request =
-//                FunctionServerRequest.<IndividualCycleOptions>builder()
-//                        .viewConfig(createViewConfig(OutputNames.PAY_LEG_CASH_FLOWS))
-//                        .inputs(_inputs)
-//                        .cycleOptions(_cycleOptions)
-//                        .build();
-//
-//        Results results = _functionServer.executeSingleCycle(request);
-//        Result result = results.get(0,0).getResult();
-//        assertThat(result.isSuccess(), is(true));
-//
-//    }
-//
-//    @Test(enabled = false)
-//    public void testSingleSwapBucketedPV01Execution() {
-//
-//        FunctionServerRequest<IndividualCycleOptions> request =
-//                FunctionServerRequest.<IndividualCycleOptions>builder()
-//                        .viewConfig(createViewConfig(OutputNames.BUCKETED_PV01))
-//                        .inputs(_inputs)
-//                        .cycleOptions(_cycleOptions)
-//                        .build();
-//
-//        Results results = _functionServer.executeSingleCycle(request);
-//        Result result = results.get(0,0).getResult();
-//        assertThat(result.isSuccess(), is(true));
-//
-//    }
-//
-//    @Test(enabled = false)
-//    public void testSingleSwapPV01Execution() {
-//
-//        FunctionServerRequest<IndividualCycleOptions> request =
-//                FunctionServerRequest.<IndividualCycleOptions>builder()
-//                        .viewConfig(createViewConfig(OutputNames.PV01))
-//                        .inputs(_inputs)
-//                        .cycleOptions(_cycleOptions)
-//                        .build();
-//
-//        Results results = _functionServer.executeSingleCycle(request);
-//        Result result = results.get(0,0).getResult();
-//        assertThat(result.isSuccess(), is(true));
-//
-//    }
+    @Test(enabled = true)
+    public void testSingleSwapReceiveLegCashFlowsExecution() {
+
+      ViewConfig viewConfig = createViewConfig();
+
+      Results results = _engine.runView(viewConfig,_calculationArguments,_marketDataEnvironment,_inputs);
+      Result result = results.get(0,OutputNames.RECEIVE_LEG_CASH_FLOWS).getResult();
+      assertThat(result.isSuccess(), is(true));
+
+    }
+
+    @Test(enabled = false)
+    public void testSingleSwapPayLegCashFlowsExecution() {
+
+      ViewConfig viewConfig = createViewConfig();
+
+      Results results = _engine.runView(viewConfig, _calculationArguments, _marketDataEnvironment, _inputs);
+      Result result = results.get(0,OutputNames.PAY_LEG_CASH_FLOWS).getResult();
+      assertThat(result.isSuccess(), is(true));
+    }
+
+    @Test(enabled = false)
+    public void testSingleSwapBucketedPV01Execution() {
+
+      ViewConfig viewConfig = createViewConfig();
+
+      Results results = _engine.runView(viewConfig,_calculationArguments,_marketDataEnvironment,_inputs);
+      Result result = results.get(0,OutputNames.BUCKETED_PV01).getResult();
+      assertThat(result.isSuccess(), is(true));
+
+    }
+
+    @Test(enabled = false)
+    public void testSingleSwapPV01Execution() {
+
+      ViewConfig viewConfig = createViewConfig();
+
+      Results results = _engine.runView(viewConfig,_calculationArguments,_marketDataEnvironment,_inputs);
+      Result result = results.get(0,OutputNames.PV01).getResult();
+      assertThat(result.isSuccess(), is(true));
+
+    }
 //
 //    @Test(enabled = false)
 //    public void testCurveBundleExecution() {
@@ -211,16 +173,19 @@ public class ThirdPartyRemoteTest {
               "IRS Remote view",
               createThirdPartyInterestRateSwapViewColumn(OutputNames.PRESENT_VALUE,
                   _exposureConfig,
+                  _currencyMatrixLink),
+              createThirdPartyInterestRateSwapViewColumn(OutputNames.BUCKETED_PV01,
+                  _exposureConfig,
+                  _currencyMatrixLink),
+              createThirdPartyInterestRateSwapViewColumn(OutputNames.PAY_LEG_CASH_FLOWS,
+                  _exposureConfig,
+                  _currencyMatrixLink),
+              createThirdPartyInterestRateSwapViewColumn(OutputNames.RECEIVE_LEG_CASH_FLOWS,
+                  _exposureConfig,
+                  _currencyMatrixLink),
+              createThirdPartyInterestRateSwapViewColumn(OutputNames.PV01,
+                  _exposureConfig,
                   _currencyMatrixLink));
-//              createThirdPartyInterestRateSwapViewColumn(OutputNames.BUCKETED_PV01,
-//                  _exposureConfig,
-//                  _currencyMatrixLink),
-//              createThirdPartyInterestRateSwapViewColumn(OutputNames.PAY_LEG_CASH_FLOWS,
-//                  _exposureConfig,
-//                  _currencyMatrixLink),
-//              createThirdPartyInterestRateSwapViewColumn(OutputNames.RECEIVE_LEG_CASH_FLOWS,
-//                  _exposureConfig,
-//                  _currencyMatrixLink));
     }
 
 
