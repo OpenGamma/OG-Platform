@@ -165,10 +165,10 @@ public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
     BondFixedSecurityDefinition bondFixed = BondFixedSecurityDefinition.from(GBP, firstAccrualDate, firstCouponDate,
         maturityDate, paymentPeriod, fixedRate, settlementDays, GBP_CALENDAR, DAY_COUNT, BUSINESS_DAY, yieldConvention,
         isEOM, legalEntity);
-    BondFixedSecurityDefinition[] deliveryBusket = new BondFixedSecurityDefinition[] {bondFixed };
+    BondFixedSecurityDefinition[] deliveryBasket = new BondFixedSecurityDefinition[] {bondFixed };
     double[] conversionFactor = new double[] {1.088405 };
     BondFuturesSecurityDefinition bondFuturesDefinition = new BondFuturesSecurityDefinition(tradingLastDate,
-        noticeFirstDate, noticeLastDate, deliveryFirstDate, deliveryLastDate, NOTIONAL, deliveryBusket,
+        noticeFirstDate, noticeLastDate, deliveryFirstDate, deliveryLastDate, NOTIONAL, deliveryBasket,
         conversionFactor);
     BondFuturesTransactionDefinition transactionDefinition = new BondFuturesTransactionDefinition(
         bondFuturesDefinition, QUANTITY, TRADE_DATE, TRADE_PRICE);
@@ -197,10 +197,10 @@ public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
     BondFixedSecurityDefinition bondFixed = BondFixedSecurityDefinition.from(EUR, firstAccrualDate, firstCouponDate,
         maturityDate, paymentPeriod, fixedRate, settlementDays, EUR_CALENDAR, DAY_COUNT, BUSINESS_DAY, yieldConvention,
         isEOM, legalEntity);
-    BondFixedSecurityDefinition[] deliveryBusket = new BondFixedSecurityDefinition[] {bondFixed };
+    BondFixedSecurityDefinition[] deliveryBasket = new BondFixedSecurityDefinition[] {bondFixed };
     double[] conversionFactor = new double[] {0.966395 };
     BondFuturesSecurityDefinition bondFuturesDefinition = new BondFuturesSecurityDefinition(tradingLastDate,
-        noticeFirstDate, noticeLastDate, deliveryFirstDate, deliveryLastDate, NOTIONAL, deliveryBusket,
+        noticeFirstDate, noticeLastDate, deliveryFirstDate, deliveryLastDate, NOTIONAL, deliveryBasket,
         conversionFactor);
     BondFuturesTransactionDefinition transactionDefinition = new BondFuturesTransactionDefinition(
         bondFuturesDefinition, QUANTITY, TRADE_DATE, TRADE_PRICE);
@@ -229,10 +229,10 @@ public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
     BondFixedSecurityDefinition bondFixed = BondFixedSecurityDefinition.from(EUR, firstAccrualDate, firstCouponDate,
         maturityDate, paymentPeriod, fixedRate, settlementDays, EUR_CALENDAR, DAY_COUNT, BUSINESS_DAY, yieldConvention,
         isEOM, legalEntity);
-    BondFixedSecurityDefinition[] deliveryBusket = new BondFixedSecurityDefinition[] {bondFixed };
+    BondFixedSecurityDefinition[] deliveryBasket = new BondFixedSecurityDefinition[] {bondFixed };
     double[] conversionFactor = new double[] {0.729535 };
     BondFuturesSecurityDefinition bondFuturesDefinition = new BondFuturesSecurityDefinition(tradingLastDate,
-        noticeFirstDate, noticeLastDate, deliveryFirstDate, deliveryLastDate, NOTIONAL, deliveryBusket,
+        noticeFirstDate, noticeLastDate, deliveryFirstDate, deliveryLastDate, NOTIONAL, deliveryBasket,
         conversionFactor);
     BondFuturesTransactionDefinition transactionDefinition = new BondFuturesTransactionDefinition(
         bondFuturesDefinition, QUANTITY, TRADE_DATE, TRADE_PRICE);
@@ -261,11 +261,11 @@ public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
     BondFixedSecurityDefinition bondFixed = BondFixedSecurityDefinition.from(EUR, firstAccrualDate, firstCouponDate,
         maturityDate, paymentPeriod, fixedRate, settlementDays, EUR_CALENDAR, DAY_COUNT, BUSINESS_DAY, yieldConvention,
         isEOM, legalEntity);
-    BondFixedSecurityDefinition[] deliveryBusket = new BondFixedSecurityDefinition[] {bondFixed };
+    BondFixedSecurityDefinition[] deliveryBasket = new BondFixedSecurityDefinition[] {bondFixed };
     double[] conversionFactor = new double[] {0.912067 };
     BondFuturesSecurityDefinition bondFuturesDefinition = new BondFuturesSecurityDefinition(
         tradingLastDate, noticeFirstDate, noticeLastDate, deliveryFirstDate, deliveryLastDate, NOTIONAL,
-        deliveryBusket, conversionFactor);
+        deliveryBasket, conversionFactor);
     BondFuturesTransactionDefinition transactionDefinition = new BondFuturesTransactionDefinition(
         bondFuturesDefinition, QUANTITY, TRADE_DATE, TRADE_PRICE);
     TRANSACTION_BOB = transactionDefinition.toDerivative(VALUATION_DATE, LAST_MARGIN_PRICE);
