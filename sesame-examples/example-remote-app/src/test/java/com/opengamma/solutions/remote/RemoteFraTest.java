@@ -31,9 +31,9 @@ import com.opengamma.integration.server.RemoteServer;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.CalculationArguments;
-import com.opengamma.sesame.engine.Engine;
-import com.opengamma.sesame.engine.RemoteEngine;
+import com.opengamma.sesame.engine.RemoteViewRunner;
 import com.opengamma.sesame.engine.Results;
+import com.opengamma.sesame.engine.ViewRunner;
 import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.solutions.util.FraViewUtils;
@@ -67,7 +67,7 @@ public class RemoteFraTest {
                                                                      RemoteTestUtils.USD_GBP_SNAPSHOT,
                                                                      VersionCorrection.LATEST);
 
-    Engine engine = new RemoteEngine(URI.create(url));
+    ViewRunner viewRunner = new RemoteViewRunner(URI.create(url));
     MarketDataSpecification marketDataSpec = UserMarketDataSpecification.of(snapshot.getUniqueId());
 
     CalculationArguments calculationArguments =
@@ -84,7 +84,7 @@ public class RemoteFraTest {
     ViewConfig viewConfig = createViewConfig();
     List<Object> trades = FraViewUtils.INPUTS;
 
-    _results = engine.runView(viewConfig, calculationArguments, marketDataEnvironment, trades);
+    _results = viewRunner.runView(viewConfig, calculationArguments, marketDataEnvironment, trades);
   }
 
   private ViewConfig createViewConfig() {

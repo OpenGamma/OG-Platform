@@ -30,10 +30,10 @@ import com.opengamma.integration.server.RemoteServer;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.CalculationArguments;
-import com.opengamma.sesame.engine.Engine;
-import com.opengamma.sesame.engine.RemoteEngine;
+import com.opengamma.sesame.engine.RemoteViewRunner;
 import com.opengamma.sesame.engine.ResultRow;
 import com.opengamma.sesame.engine.Results;
+import com.opengamma.sesame.engine.ViewRunner;
 import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.solutions.util.SwapViewUtils;
@@ -78,7 +78,7 @@ public class RemoteSwapTest {
                                                                      RemoteTestUtils.USD_GBP_SNAPSHOT,
                                                                      VersionCorrection.LATEST);
 
-    Engine engine = new RemoteEngine(URI.create(url));
+    ViewRunner viewRunner = new RemoteViewRunner(URI.create(url));
     MarketDataSpecification marketDataSpec = UserMarketDataSpecification.of(snapshot.getUniqueId());
     CalculationArguments args =
         CalculationArguments.builder()
@@ -93,17 +93,17 @@ public class RemoteSwapTest {
     // don't want to provide any data, let the server source it
     MarketDataEnvironment env = MarketDataEnvironmentBuilder.empty();
 
-    _vanillaResults = engine.runView(viewConfig, args, env, SwapViewUtils.VANILLA_INPUTS);
-    _spreadResults = engine.runView(viewConfig, args, env, SwapViewUtils.SPREAD_INPUTS);
-    _fixingResults = engine.runView(viewConfig, args, env, SwapViewUtils.FIXING_INPUTS);
-    _compoundingResults = engine.runView(viewConfig, args, env, SwapViewUtils.COMPOUNDING_INPUTS);
-    _stubResults = engine.runView(viewConfig, args, env, SwapViewUtils.STUB_INPUTS);
-    _xccyResults = engine.runView(viewConfig, args, env, SwapViewUtils.XCCY_INPUTS);
-    _feesResults = engine.runView(viewConfig, args, env, SwapViewUtils.FEES_INPUT);
-    _singleLegResults = engine.runView(viewConfig, args, env, SwapViewUtils.SINGLE_LEG_INPUT);
-    _zeroCouponResults = engine.runView(viewConfig, args, env, SwapViewUtils.ZERO_COUPON_COMPOUNDING_INPUT);
-    _iborCompoundingResults = engine.runView(viewConfig, args, env, SwapViewUtils.IBOR_COMPOUNDING_INPUT);
-    _notionalExchangeResults = engine.runView(viewConfig, args, env, SwapViewUtils.NOTIONAL_EXCHANGE_INPUT);
+    _vanillaResults = viewRunner.runView(viewConfig, args, env, SwapViewUtils.VANILLA_INPUTS);
+    _spreadResults = viewRunner.runView(viewConfig, args, env, SwapViewUtils.SPREAD_INPUTS);
+    _fixingResults = viewRunner.runView(viewConfig, args, env, SwapViewUtils.FIXING_INPUTS);
+    _compoundingResults = viewRunner.runView(viewConfig, args, env, SwapViewUtils.COMPOUNDING_INPUTS);
+    _stubResults = viewRunner.runView(viewConfig, args, env, SwapViewUtils.STUB_INPUTS);
+    _xccyResults = viewRunner.runView(viewConfig, args, env, SwapViewUtils.XCCY_INPUTS);
+    _feesResults = viewRunner.runView(viewConfig, args, env, SwapViewUtils.FEES_INPUT);
+    _singleLegResults = viewRunner.runView(viewConfig, args, env, SwapViewUtils.SINGLE_LEG_INPUT);
+    _zeroCouponResults = viewRunner.runView(viewConfig, args, env, SwapViewUtils.ZERO_COUPON_COMPOUNDING_INPUT);
+    _iborCompoundingResults = viewRunner.runView(viewConfig, args, env, SwapViewUtils.IBOR_COMPOUNDING_INPUT);
+    _notionalExchangeResults = viewRunner.runView(viewConfig, args, env, SwapViewUtils.NOTIONAL_EXCHANGE_INPUT);
   }
 
   private ViewConfig createViewConfig() {
