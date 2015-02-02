@@ -78,15 +78,35 @@ public class MarketDataSpecificationRowComponent extends JPanel {
     add(statusLabel, "align right");
     _upButton = new JButton(UP_ARROW); // up arrow
     _upButton.setMaximumSize(BUTTON_SIZE);
-    _upButton.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) { fireMoveUp(); } });
+    _upButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        fireMoveUp();
+      }
+    });
     _downButton = new JButton(DOWN_ARROW); // down arrow
-    _downButton.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) { fireMoveDown(); } });
+    _downButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        fireMoveDown();
+      }
+    });
     _downButton.setMaximumSize(BUTTON_SIZE);
     _addButton = new JButton(HEAVY_PLUS); // heavy plus sign
-    _addButton.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) { fireAdd(); } });
+    _addButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        fireAdd();
+      }
+    });
     _addButton.setMaximumSize(BUTTON_SIZE);
     _removeButton = new JButton(HEAVY_MINUS); // heavy minus sign
-    _removeButton.addActionListener(new ActionListener() { @Override public void actionPerformed(ActionEvent e) { fireRemove(); } });
+    _removeButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        fireRemove();
+      }
+    });
     _removeButton.setMaximumSize(BUTTON_SIZE);
     add(_upButton, "align right");
     add(_downButton, "align right");
