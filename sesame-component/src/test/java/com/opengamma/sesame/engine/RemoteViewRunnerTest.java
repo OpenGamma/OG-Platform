@@ -124,7 +124,7 @@ public class RemoteViewRunnerTest {
       return builder.build(Instant.EPOCH, 0, 0, 0);
     }
 
-    //@Override
+    @Override
     public ScenarioResults runScenarios(
         ViewConfig viewConfig,
         CalculationArguments calculationArguments,
