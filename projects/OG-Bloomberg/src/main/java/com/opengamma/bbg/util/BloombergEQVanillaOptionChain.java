@@ -343,13 +343,17 @@ public class BloombergEQVanillaOptionChain {
           if (next != null) {
             targetValue = next;
             strikeOffset--;
-          } else { break; }
+          } else {
+            break;
+          }
         } else {
           next = strikes.lower(targetValue);
           if (next != null) {
             targetValue = next;
             strikeOffset++;
-          } else { break; }
+          } else {
+            break;
+          }
         }
       }
     }

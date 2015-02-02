@@ -345,7 +345,9 @@ public class CurveNodeIdMapper {
    * @return The builder
    */
   @SuppressWarnings("synthetic-access")
-  public static Builder builder() { return new Builder(); }
+  public static Builder builder() {
+    return new Builder();
+  }
 
   /**
    * @param name The name of this configuration
