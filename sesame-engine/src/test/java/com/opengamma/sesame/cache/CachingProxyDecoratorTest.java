@@ -404,28 +404,26 @@ public class CachingProxyDecoratorTest {
 
     MarketDataBundle marketDataBundle = new MarketDataBundle() {
       @Override
-      public <T> Result<T> get(MarketDataId<T> id, Class<T> dataType) {
-        // TODO implement get()
+      public <T, I extends MarketDataId<T>> Result<T> get(I id, Class<T> dataType) {
         throw new UnsupportedOperationException("get not implemented");
       }
 
       @Override
-      public <T> Result<DateTimeSeries<LocalDate, T>> get(MarketDataId<?> id,
-                                                          Class<T> dataType,
-                                                          LocalDateRange dateRange) {
-        // TODO implement get()
+      public <T, I extends MarketDataId<T>> Result<DateTimeSeries<LocalDate, T>> get(
+          I id,
+          Class<T> dataType,
+          LocalDateRange dateRange) {
+
         throw new UnsupportedOperationException("get not implemented");
       }
 
       @Override
       public MarketDataBundle withTime(ZonedDateTime time) {
-        // TODO implement withTime()
         throw new UnsupportedOperationException("withTime not implemented");
       }
 
       @Override
       public MarketDataBundle withDate(LocalDate date) {
-        // TODO implement withDate()
         throw new UnsupportedOperationException("withDate not implemented");
       }
     };

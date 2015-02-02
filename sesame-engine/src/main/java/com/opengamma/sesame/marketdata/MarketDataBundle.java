@@ -48,7 +48,7 @@ public interface MarketDataBundle {
    * @return a successful result containing the market data, or a failure result if it is unavailable or not
    *   compatible with the requested type
    */
-  <T> Result<T> get(MarketDataId<T> id, Class<T> dataType);
+  <T, I extends MarketDataId<T>> Result<T> get(I id, Class<T> dataType);
 
   /**
    * Returns a time series of market data values.
@@ -61,7 +61,7 @@ public interface MarketDataBundle {
    *
    * TODO separate version for double data that returns LocalDateDoubleTimeSeries?
    */
-  <T> Result<DateTimeSeries<LocalDate, T>> get(MarketDataId<?> id, Class<T> dataType, LocalDateRange dateRange);
+  <T, I extends MarketDataId<T>> Result<DateTimeSeries<LocalDate, T>> get(I id, Class<T> dataType, LocalDateRange dateRange);
 
   /**
    * Returns a market data bundle containing data for the specified time.

@@ -45,12 +45,12 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
-public class RemoteEngineTest {
+public class RemoteViewRunnerTest {
 
   private final ViewConfig _viewConfig = configureView("view name", column("col"));
 
   private Server _jettyServer;
-  private Engine _remoteEngine;
+  private ViewRunner _remoteViewRunner;
 
   @BeforeClass
   public void startServer() throws Exception {
@@ -63,19 +63,19 @@ public class RemoteEngineTest {
     ContextHandlerCollection contexts = new ContextHandlerCollection();
     HandlerCollection handlers = new HandlerCollection();
     handlers.addHandler(contexts);
-    WebAppContext ogWebAppContext = new WebAppContext("RemoteEngineTest", "/");
+    WebAppContext ogWebAppContext = new WebAppContext("RemoteViewRunnerTest", "/");
     org.springframework.core.io.Resource resource = new ClassPathResource("web-engine");
     ogWebAppContext.setBaseResource(Resource.newResource(resource.getFile()));
-    DataEngineResource engineResource = new DataEngineResource(new TestEngine());
+    DataViewRunnerResource viewRunnerResource = new DataViewRunnerResource(new TestViewRunner());
     ComponentRepository repo = new ComponentRepository(ComponentLogger.Console.VERBOSE);
-    repo.getRestComponents().publishResource(engineResource);
+    repo.getRestComponents().publishResource(viewRunnerResource);
     repo.getRestComponents().publishHelper(new FudgeObjectBinaryConsumer());
     repo.getRestComponents().publishHelper(new FudgeObjectBinaryProducer());
     ogWebAppContext.setEventListeners(new EventListener[]{new ComponentRepositoryServletContextListener(repo)});
     handlers.addHandler(ogWebAppContext);
     _jettyServer.setHandler(handlers);
     _jettyServer.start();
-    _remoteEngine = new RemoteEngine(URI.create(serverUrl));
+    _remoteViewRunner = new RemoteViewRunner(URI.create(serverUrl));
   }
 
   @AfterClass
@@ -87,7 +87,7 @@ public class RemoteEngineTest {
 
   public void runView() {
     Results results =
-        _remoteEngine.runView(
+        _remoteViewRunner.runView(
             _viewConfig,
             CalculationArguments.builder().build(),
             MarketDataEnvironmentBuilder.empty(),
@@ -100,7 +100,7 @@ public class RemoteEngineTest {
     CalculationArguments calculationArgs = CalculationArguments.builder().build();
     ScenarioDefinition scenarioDefinition = new ScenarioDefinition(ImmutableList.<PerturbationMapping>of());
     ScenarioResults results =
-        _remoteEngine.runScenarios(
+        _remoteViewRunner.runScenarios(
             _viewConfig,
             calculationArgs,
             marketData,
@@ -110,24 +110,28 @@ public class RemoteEngineTest {
     assertEquals("runScenarios successfully invoked", scenarioResults.get(0, 0).getResult().getValue());
   }
 
-  private static class TestEngine implements Engine {
+  private static class TestViewRunner implements ViewRunner {
 
     @Override
-    public Results runView(ViewConfig viewConfig,
-                           CalculationArguments calculationArguments,
-                           MarketDataEnvironment suppliedData,
-                           List<?> portfolio) {
+    public Results runView(
+        ViewConfig viewConfig,
+        CalculationArguments calculationArguments,
+        MarketDataEnvironment marketData,
+        List<?> portfolio) {
+
       ResultBuilder builder = new ResultBuilder(ImmutableList.of("foo"), ImmutableList.of("col"));
       builder.add(0, 0, Result.success("runView successfully invoked"), null);
       return builder.build(Instant.EPOCH, 0, 0, 0);
     }
 
-    @Override
-    public ScenarioResults runScenarios(ViewConfig viewConfig,
-                                        CalculationArguments calculationArguments,
-                                        MarketDataEnvironment baseMarketData,
-                                        ScenarioDefinition scenarioDefinition,
-                                        List<?> portfolio) {
+    //@Override
+    public ScenarioResults runScenarios(
+        ViewConfig viewConfig,
+        CalculationArguments calculationArguments,
+        MarketDataEnvironment baseMarketData,
+        ScenarioDefinition scenarioDefinition,
+        List<?> portfolio) {
+
       ResultBuilder builder = new ResultBuilder(ImmutableList.of("foo"), ImmutableList.of("col"));
       builder.add(0, 0, Result.success("runScenarios successfully invoked"), null);
       Results results = builder.build(Instant.EPOCH, 0, 0, 0);

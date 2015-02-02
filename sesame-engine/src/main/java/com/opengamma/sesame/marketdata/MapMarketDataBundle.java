@@ -54,7 +54,7 @@ public final class MapMarketDataBundle implements MarketDataBundle, ImmutableBea
   }
 
   @Override
-  public <T> Result<T> get(MarketDataId<T> id, Class<T> dataType) {
+  public <T, I extends MarketDataId<T>> Result<T> get(I id, Class<T> dataType) {
     ArgumentChecker.notNull(id, "id");
     ArgumentChecker.notNull(dataType, "dataType");
 
@@ -74,18 +74,41 @@ public final class MapMarketDataBundle implements MarketDataBundle, ImmutableBea
   }
 
   @Override
-  public <T> Result<DateTimeSeries<LocalDate, T>> get(MarketDataId<?> id,
-                                                      Class<T> dataType,
-                                                      LocalDateRange dateRange) {
+  public <T, I extends MarketDataId<T>> Result<DateTimeSeries<LocalDate, T>> get(
+      I id,
+      Class<T> dataType,
+      LocalDateRange dateRange) {
+
     DateTimeSeries<LocalDate, ?> timeSeries = _env.getTimeSeries().get(id);
 
     if (timeSeries != null && !timeSeries.isEmpty()) {
-      // TODO type check
       @SuppressWarnings("unchecked")
       DateTimeSeries<LocalDate, T> castTimeSeries = (DateTimeSeries<LocalDate, T>) timeSeries;
       LocalDate start = dateRange.getStartDateInclusive();
       LocalDate end = dateRange.getEndDateInclusive();
       return Result.success(castTimeSeries.subSeries(start, true, end, true));
+
+      // This code checks the time series has enough data available to satisfy the request.
+      // Unfortunately it breaks a lot of existing tests where the test provides a small amount of data,
+      // the function asks for a much greater range of data and then only uses the small amount provided by
+      // the test. If you believe the range in the request then there isn't enough data in the environment, but
+      // when the function runs there actually is. This code should be reinstated when PLT-633 is fixed
+      /*
+      DateTimeSeries<LocalDate, T> castTimeSeries = (DateTimeSeries<LocalDate, T>) timeSeries;
+      LocalDate start = timeSeries.getEarliestTime();
+      LocalDate end = timeSeries.getLatestTime();
+      LocalDate requestedStart = dateRange.getStartDateInclusive();
+      LocalDate requestedEnd = dateRange.getEndDateInclusive();
+
+      if (!start.isAfter(dateRange.getStartDateInclusive()) && !end.isBefore(dateRange.getEndDateInclusive())) {
+        return Result.success(castTimeSeries.subSeries(requestedStart, true, requestedEnd, true));
+      } else {
+        return Result.failure(
+            FailureStatus.MISSING_DATA,
+            "Time series {}/[{},{}] doesn't cover the requested range {}",
+            id, start, end, dateRange);
+      }
+      */
     } else {
       return Result.failure(FailureStatus.MISSING_DATA, "No time series data available for {}/{}", id, dateRange);
     }

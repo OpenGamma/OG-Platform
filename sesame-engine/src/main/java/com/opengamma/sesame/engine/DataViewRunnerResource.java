@@ -19,10 +19,10 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
- * RESTful resource for exposing a remote {@link Engine}.
+ * RESTful resource for exposing a remote {@link ViewRunner}.
  */
-@Path("engine")
-public class DataEngineResource extends AbstractDataResource {
+@Path("viewRunner")
+public class DataViewRunnerResource extends AbstractDataResource {
 
   /** REST path for running a calculation cycle on a view. */
   public static final String RUN_VIEW_PATH = "runView";
@@ -33,18 +33,18 @@ public class DataEngineResource extends AbstractDataResource {
    */
   public static final String RUN_SCENARIOS_PATH = "runScenarios";
 
-  /** The engine that handle the remote requests. */
-  private final Engine _engine;
+  /** The view runner that handle the remote requests. */
+  private final ViewRunner _viewRunner;
 
   /**
-   * @param engine the engine that handle the remote requests
+   * @param viewRunner the view runner that handle the remote requests
    */
-  public DataEngineResource(Engine engine) {
-    _engine = ArgumentChecker.notNull(engine, "engine");
+  public DataViewRunnerResource(ViewRunner viewRunner) {
+    _viewRunner = ArgumentChecker.notNull(viewRunner, "viewRunner");
   }
 
   /**
-   * Retrieve the URI for the {@link #runView(EngineRunViewArguments)} method.
+   * Retrieve the URI for the {@link #runView(RunViewArguments)} method.
    *
    * @param baseUri the base URI for all requests
    * @return the URI for the method
@@ -54,7 +54,7 @@ public class DataEngineResource extends AbstractDataResource {
   }
 
   /**
-   * Retrieve the URI for the {@link #runScenarios(EngineRunScenariosArguments)} method.
+   * Retrieve the URI for the {@link #runScenarios(RunScenariosArguments)} method.
    *
    * @param baseUri the base URI for all requests
    * @return the URI for the method
@@ -64,20 +64,20 @@ public class DataEngineResource extends AbstractDataResource {
   }
 
   private static URI createUri(URI baseUri, String path) {
-    final String fullPath = "/engine/" + path;
+    final String fullPath = "/viewRunner/" + path;
     return UriBuilder.fromUri(baseUri).path(fullPath).build();
   }
 
   /**
-   * Exposes {@link Engine#runView(ViewConfig, CalculationArguments, MarketDataEnvironment, List)} via REST.
+   * Exposes {@link ViewRunner#runView(ViewConfig, CalculationArguments, MarketDataEnvironment, List)} via REST.
    *
    * @param arguments arguments to the method call
    * @return the result of calling {@link Engine#runView(ViewConfig, CalculationArguments, MarketDataEnvironment, List)}
    */
   @POST
   @Path(RUN_VIEW_PATH)
-  public Results runView(EngineRunViewArguments arguments) {
-    return _engine.runView(
+  public Results runView(RunViewArguments arguments) {
+    return _viewRunner.runView(
         arguments.getViewConfig(),
         arguments.getCalculationArguments(),
         arguments.getSuppliedData(),
@@ -86,17 +86,17 @@ public class DataEngineResource extends AbstractDataResource {
 
   /**
    * Exposes
-   * {@link Engine#runScenarios(ViewConfig, CalculationArguments, MarketDataEnvironment, ScenarioDefinition, List)}
+   * {@link ViewRunner#runScenarios(ViewConfig, CalculationArguments, MarketDataEnvironment, ScenarioDefinition, List)}
    * via REST.
    *
    * @param arguments arguments to the method call
    * @return the result of calling
-   *   {@link Engine#runScenarios(ViewConfig, CalculationArguments, MarketDataEnvironment, ScenarioDefinition, List)}
+   *   {@link ViewRunner#runScenarios(ViewConfig, CalculationArguments, MarketDataEnvironment, ScenarioDefinition, List)}
    */
   @POST
   @Path(RUN_SCENARIOS_PATH)
-  public ScenarioResults runScenarios(EngineRunScenariosArguments arguments) {
-    return _engine.runScenarios(
+  public ScenarioResults runScenarios(RunScenariosArguments arguments) {
+    return _viewRunner.runScenarios(
         arguments.getViewConfig(),
         arguments.getCalculationArguments(),
         arguments.getMarketData(),

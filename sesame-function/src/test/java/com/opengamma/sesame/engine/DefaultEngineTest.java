@@ -125,8 +125,7 @@ public class DefaultEngineTest {
             .build();
     List<?> trades = ImmutableList.of(createTrade());
     CalculationArguments calcArgs = CalculationArguments.builder().build();
-    ScenarioCalculationArguments scenarioCalcArgs = ScenarioCalculationArguments.of(calcArgs);
-    ScenarioResults scenarioResults = engine.runScenarios(CONFIG, scenarioCalcArgs, marketDataEnvironment, trades);
+    ScenarioResults scenarioResults = engine.runScenarios(CONFIG, marketDataEnvironment, calcArgs, trades);
     Map<String, Results> resultsMap = scenarioResults.getResults();
     assertEquals(1, resultsMap.size());
     Results results = resultsMap.get("base");
@@ -157,8 +156,7 @@ public class DefaultEngineTest {
             .build();
     List<?> trades = ImmutableList.of(createTrade());
     CalculationArguments calcArgs = CalculationArguments.builder().build();
-    ScenarioCalculationArguments scenarioCalcArgs = ScenarioCalculationArguments.of(calcArgs);
-    ScenarioResults scenarioResults = engine.runScenarios(CONFIG, scenarioCalcArgs, marketDataEnvironment, trades);
+    ScenarioResults scenarioResults = engine.runScenarios(CONFIG, marketDataEnvironment, calcArgs, trades);
     Map<String, Results> resultsMap = scenarioResults.getResults();
     assertEquals(3, resultsMap.size());
     Results baseResults = resultsMap.get("base");

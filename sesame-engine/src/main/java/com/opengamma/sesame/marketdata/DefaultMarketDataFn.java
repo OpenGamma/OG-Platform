@@ -16,7 +16,6 @@ import com.opengamma.util.result.Result;
 /**
  * Function that return market data values.
  */
-@SuppressWarnings("unchecked")
 public class DefaultMarketDataFn implements MarketDataFn {
 
   @Override
