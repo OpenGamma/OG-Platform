@@ -178,7 +178,7 @@ public class SwapFuturesPriceDeliverableTransactionDiscountingMethodE2ETest {
   private static final double TRADE_PRICE = 0.0;
   private static final double LASTMARG_PRICE = 1.0;
   private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2008, 12, 26, 1, 0);
-  private static final double NOTIONAL = 1000.0;
+  private static final double NOTIONAL = 100000.0;
   private static final NotionalProvider NOTIONAL_PROV = new NotionalProvider() {
     @Override
     public double getAmount(final LocalDate date) {
@@ -218,9 +218,9 @@ public class SwapFuturesPriceDeliverableTransactionDiscountingMethodE2ETest {
     ZonedDateTime lastTradingDate = DateUtils.getUTCDate(2014, 6, 16, 0, 0);
     SwapFuturesPriceDeliverableSecurityDefinition underlyingSwapFuture = new SwapFuturesPriceDeliverableSecurityDefinition(
         lastTradingDate, swapDefinition, NOTIONAL);
-    SwapFuturesPriceDeliverableTransactionDefinition SwapFutureTransaction = new SwapFuturesPriceDeliverableTransactionDefinition(
+    SwapFuturesPriceDeliverableTransactionDefinition swapFutureTransaction = new SwapFuturesPriceDeliverableTransactionDefinition(
         underlyingSwapFuture, QUANTITY, TRADE_DATE, TRADE_PRICE);
-    TRANSACTION_EUR = SwapFutureTransaction.toDerivative(REFERENCE_DATE, LASTMARG_PRICE);
+    TRANSACTION_EUR = swapFutureTransaction.toDerivative(REFERENCE_DATE, LASTMARG_PRICE);
   }
 
   /* GBP */
@@ -255,9 +255,9 @@ public class SwapFuturesPriceDeliverableTransactionDiscountingMethodE2ETest {
     ZonedDateTime lastTradingDate = DateUtils.getUTCDate(2014, 6, 18, 0, 0);
     SwapFuturesPriceDeliverableSecurityDefinition underlyingSwapFuture = new SwapFuturesPriceDeliverableSecurityDefinition(
         lastTradingDate, swapDefinition, NOTIONAL);
-    SwapFuturesPriceDeliverableTransactionDefinition SwapFutureTransaction = new SwapFuturesPriceDeliverableTransactionDefinition(
+    SwapFuturesPriceDeliverableTransactionDefinition swapFutureTransaction = new SwapFuturesPriceDeliverableTransactionDefinition(
         underlyingSwapFuture, QUANTITY, TRADE_DATE, TRADE_PRICE);
-    TRANSACTION_GBP = SwapFutureTransaction.toDerivative(REFERENCE_DATE, LASTMARG_PRICE);
+    TRANSACTION_GBP = swapFutureTransaction.toDerivative(REFERENCE_DATE, LASTMARG_PRICE);
   }
 
   /* USD */
@@ -292,9 +292,9 @@ public class SwapFuturesPriceDeliverableTransactionDiscountingMethodE2ETest {
     ZonedDateTime lastTradingDate = DateUtils.getUTCDate(2014, 6, 16, 0, 0);
     SwapFuturesPriceDeliverableSecurityDefinition underlyingSwapFuture = new SwapFuturesPriceDeliverableSecurityDefinition(
         lastTradingDate, swapDefinition, NOTIONAL);
-    SwapFuturesPriceDeliverableTransactionDefinition SwapFutureTransaction = new SwapFuturesPriceDeliverableTransactionDefinition(
+    SwapFuturesPriceDeliverableTransactionDefinition swapFutureTransaction = new SwapFuturesPriceDeliverableTransactionDefinition(
         underlyingSwapFuture, QUANTITY, TRADE_DATE, TRADE_PRICE);
-    TRANSACTION_USD = SwapFutureTransaction.toDerivative(REFERENCE_DATE, LASTMARG_PRICE);
+    TRANSACTION_USD = swapFutureTransaction.toDerivative(REFERENCE_DATE, LASTMARG_PRICE);
   }
 
 
@@ -322,24 +322,23 @@ public class SwapFuturesPriceDeliverableTransactionDiscountingMethodE2ETest {
     MultipleCurrencyParameterSensitivity bucketedPv01 = PVSC.calculateSensitivity(TRANSACTION_EUR, MULTI_CURVE_EUR)
         .multipliedBy(BASIS_POINT);
 
-    double[] fwd = new double[] {0.0, 0.0, 0.0, 0.0, 0.02224004998051028, 0.010937729498611616, -2.4340263653380135E-5,
-        4.105708454738988E-5, 4.3345418351054834E-5, -5.201393984140168E-4, -0.0020521668056167758,
-        -0.004786375926813412, -0.35038664488799554, -0.1717520732853657, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-        0.0, 0.0, 0.0, 0.0 };
-    double[] dsc = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 5.763679246195801E-4, 0.0, 0.0, 0.0, 0.0, 0.0,
-        1.0619418938792514E-4, 0.0, 0.0, -0.0012090902010823748, -5.946345251224808E-4, 4.277998877591835E-4,
-        -0.0012089376949471905, -0.0012710288992082437, 2.6209100483393506E-4, 0.0014404291506708892,
-        -7.252746527971766E-4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    double[] fwd = new double[] {0.0, 0.0, 0.0, 0.0, 2.224004998051028, 1.0937729498611615, -0.0024340263653379224,
+        0.004105708454739943, 0.004334541835107666, -0.052013939841404504, -0.20521668056167838, -0.47863759268134165,
+        -35.038664488799554, -17.175207328536573, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    double[] dsc = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.05763679246195801, 0.0, 0.0, 0.0, 0.0, 0.0,
+        0.010619418938792513, 0.0, 0.0, -0.12090902010823751, -0.059463452512248084, 0.04277998877591835,
+        -0.12089376949471899, -0.12710288992082436, 0.026209100483393446, 0.14404291506708877, -0.07252746527971765,
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
     LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivityM = new LinkedHashMap<>();
     sensitivityM.put(ObjectsPair.of(MULTI_CURVE_EUR.getName(INDEX_EUR), EUR), new DoubleMatrix1D(fwd));
     sensitivityM.put(ObjectsPair.of(MULTI_CURVE_EUR.getName(EUR), EUR), new DoubleMatrix1D(dsc));
     MultipleCurrencyParameterSensitivity bucketedPv01Exp = new MultipleCurrencyParameterSensitivity(sensitivityM);
 
     assertRelative("EURTest", 101.73863051641443, price, TOL);
-    assertRelative("EURTest", 17.386305164144346, pv.getAmount(EUR), TOL);
-    assertRelative("EURTest", -0.4962595585858385,
+    assertRelative("EURTest", 1738.6305164144287, pv.getAmount(EUR), TOL);
+    assertRelative("EURTest", -49.62595585858386,
         pv01.getMap().get(Pairs.of(MULTI_CURVE_EUR.getName(INDEX_EUR), EUR)), TOL);
-    assertRelative("EURTest", -0.002196083815885953,
+    assertRelative("EURTest", -0.21960838158859544,
         pv01.getMap().get(Pairs.of(MULTI_CURVE_EUR.getName(EUR), EUR)), TOL);
     AssertSensitivityObjects.assertEquals("EURTest", bucketedPv01Exp, bucketedPv01, TOL);
   }
@@ -355,26 +354,25 @@ public class SwapFuturesPriceDeliverableTransactionDiscountingMethodE2ETest {
     MultipleCurrencyParameterSensitivity bucketedPv01 = PVSC.calculateSensitivity(TRANSACTION_GBP, MULTI_CURVE_GBP)
         .multipliedBy(BASIS_POINT);
 
-    double[] fwd = new double[] {0.0, 0.0, 0.0, 0.0, 0.022237292670953434, 0.010936373444731199, -1.164894526601529E-4,
-        -1.626355818429431E-4, -5.230461397269096E-4, -0.002092150188137771, -0.00571608484159226,
-        -0.009616739944033907, -0.013163009548242259, -0.016684009963556127, -0.020046842131565722,
-        -0.023349425008953813, -0.026253617944688903, -0.691945085767636, -0.134912151440719, 0.0, 0.0, 0.0, 0.0, 0.0,
-        0.0, 0.0, 0.0 };
-    double[] dsc = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.7408936602546343E-4, 0.0, 0.0, 0.0, 0.0, 0.0,
-        -0.00101026932966663, 0.0, 0.0, -9.458842302982505E-4, -4.651889657204522E-4, -9.324673654613515E-4,
-        -0.0015268987752566849, -0.001960429861494007, -3.86237138917636E-4, 0.0012773776691358198,
-        0.0028481019838588737, 0.0044090350106077494, 0.006015709062808674, 0.007272592335788852, 0.007948794223061722,
-        6.522225444788259E-4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    double[] fwd = new double[] {0.0, 0.0, 0.0, 0.0, 2.2237292670953432, 1.0936373444731198, -0.011648945266015653,
+        -0.016263558184294744, -0.05230461397269246, -0.20921501881377483, -0.5716084841592151, -0.9616739944033951,
+        -1.3163009548242264, -1.6684009963556077, -2.004684213156582, -2.334942500895381, -2.625361794468877,
+        -69.19450857676361, -13.4912151440719, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    double[] dsc = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01740893660254634, 0.0, 0.0, 0.0, 0.0, 0.0,
+        -0.10102693296666299, 0.0, 0.0, -0.09458842302982506, -0.04651889657204522, -0.09324673654613515,
+        -0.15268987752566845, -0.19604298614940063, -0.038623713891763646, 0.12773776691358166, 0.28481019838588767,
+        0.44090350106077525, 0.6015709062808676, 0.7272592335788854, 0.7948794223061727, 0.06522225444788256, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
     LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivityM = new LinkedHashMap<>();
     sensitivityM.put(ObjectsPair.of(MULTI_CURVE_GBP.getName(INDEX_GBP), GBP), new DoubleMatrix1D(fwd));
     sensitivityM.put(ObjectsPair.of(MULTI_CURVE_GBP.getName(GBP), GBP), new DoubleMatrix1D(dsc));
     MultipleCurrencyParameterSensitivity bucketedPv01Exp = new MultipleCurrencyParameterSensitivity(sensitivityM);
 
     assertRelative("GBPTest", 100.52514560825863, price, TOL);
-    assertRelative("GBPTest", 5.251456082586287, pv.getAmount(GBP), TOL);
-    assertRelative("GBPTest", -0.9114076218376711,
+    assertRelative("GBPTest", 525.1456082586228, pv.getAmount(GBP), TOL);
+    assertRelative("GBPTest", -91.14076218376711,
         pv01.getMap().get(Pairs.of(MULTI_CURVE_GBP.getName(INDEX_GBP), GBP)), TOL);
-    assertRelative("GBPTest", 0.02337054652895097,
+    assertRelative("GBPTest", 2.337054652895098,
         pv01.getMap().get(Pairs.of(MULTI_CURVE_GBP.getName(GBP), GBP)), TOL);
     AssertSensitivityObjects.assertEquals("GBPTest", bucketedPv01Exp, bucketedPv01, TOL);
 
@@ -391,28 +389,27 @@ public class SwapFuturesPriceDeliverableTransactionDiscountingMethodE2ETest {
     MultipleCurrencyParameterSensitivity bucketedPv01 = PVSC.calculateSensitivity(TRANSACTION_USD, MULTI_CURVE_USD)
         .multipliedBy(BASIS_POINT);
 
-    double[] fwd = new double[] {0.0, 0.0, 0.0, 0.0, 0.022341729563375753, 0.01124720796226138, -0.0021731877495047244,
-        0.0024729110752094415, -4.7372758957355075E-4, -0.0019570458495965625, -0.004941071910485945,
-        -0.009690918913055959, -0.014837857734369403, -0.019410959161646132, -0.023497600640013577,
-        -0.02720168442370931, -0.030261624004197747, -0.05210166215922652, -0.08877477030785445, -0.1612488760693649,
-        -0.206760964708722, -0.20061496843580034, -1.0667209531976187, -0.06994907297508755, 0.0, 0.0, 0.0 };
-    double[] dsc = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -3.4440238219189264E-5, -4.217549300573077E-7, 0.0,
-        3.36361384374415E-5, 6.468488161046461E-6, 0.0, -0.0013352862023619284, -2.0542864651721873E-4,
-        5.874469297784665E-5, -0.0014490518196124218, -7.409506555979266E-4, -0.001847183601434519,
-        -0.0032672257608405285, -0.005247792849123575, -0.003408063903707826, -0.0010909334281992778,
-        0.0010821518756012854, 0.002754266953339003, 0.004315221301355959, 0.0056040322375951425, 0.009841211062335271,
-        0.018871989329945896, 0.02963716706313854, 0.03281144948746717, 0.021657999502129734, 0.004591673632754511,
-        -4.468623577721324E-4, 0.0, 0.0, 0.0 };
+    double[] fwd = new double[] {0.0, 0.0, 0.0, 0.0, 2.2341729563375754, 1.1247207962261387, -0.21731877495047303,
+        0.24729110752094968, -0.04737275895735693, -0.1957045849596627, -0.4941071910486, -0.9690918913056125,
+        -1.483785773436915, -1.941095916164625, -2.349760064001363, -2.720168442370897, -3.0261624004197403,
+        -5.210166215922626, -8.877477030785501, -16.124887606936415, -20.676096470872203, -20.061496843580134,
+        -106.67209531976185, -6.994907297508757, 0.0, 0.0, 0.0 };
+    double[] dsc = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.003444023821918926, -4.217549300573078E-5, 0.0,
+        0.0033636138437441506, 6.468488161046462E-4, 0.0, -0.13352862023619286, -0.020542864651721875,
+        0.005874469297784665, -0.14490518196124216, -0.07409506555979266, -0.18471836014345192, -0.3267225760840528,
+        -0.5247792849123576, -0.3408063903707827, -0.10909334281992829, 0.1082151875601287, 0.2754266953339004,
+        0.4315221301355966, 0.5604032237595145, 0.984121106233526, 1.887198932994591, 2.9637167063138534,
+        3.2811449487467224, 2.1657999502129868, 0.45916736327544677, -0.04468623577721326, 0.0, 0.0, 0.0 };
     LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivityM = new LinkedHashMap<>();
     sensitivityM.put(ObjectsPair.of(MULTI_CURVE_USD.getName(INDEX_USD), USD), new DoubleMatrix1D(fwd));
     sensitivityM.put(ObjectsPair.of(MULTI_CURVE_USD.getName(USD), USD), new DoubleMatrix1D(dsc));
     MultipleCurrencyParameterSensitivity bucketedPv01Exp = new MultipleCurrencyParameterSensitivity(sensitivityM);
 
     assertRelative("USDTest", 99.91455744642417, price, TOL);
-    assertRelative("USDTest", -0.8544255357583097, pv.getAmount(USD), TOL);
-    assertRelative("USDTest", -1.9445550972289807,
+    assertRelative("USDTest", -85.44255357583461, pv.getAmount(USD), TOL);
+    assertRelative("USDTest", -194.45550972289809,
         pv01.getMap().get(Pairs.of(MULTI_CURVE_USD.getName(INDEX_USD), USD)), TOL);
-    assertRelative("USDTest", 0.11219237054692224,
+    assertRelative("USDTest", 11.21923705469224,
         pv01.getMap().get(Pairs.of(MULTI_CURVE_USD.getName(USD), USD)), TOL);
     AssertSensitivityObjects.assertEquals("USDTest", bucketedPv01Exp, bucketedPv01, TOL);
 
