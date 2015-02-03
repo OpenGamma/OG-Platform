@@ -74,6 +74,14 @@ public class YieldSimpleCurve extends YieldAndDiscountCurve {
   public List<String> getUnderlyingCurvesNames() {
     return new ArrayList<>();
   }
+  
+  /**
+   * Returns the DoublesCurve in which the continuously compounded zero-rates are stored.
+   * @return The doubles curve.
+   */
+  public DoublesCurve getCurve() {
+    return _curve;
+  }
 
   @Override
   public int hashCode() {

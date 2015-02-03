@@ -90,7 +90,9 @@ public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>
   public abstract int getNumberOfParameters();
 
   /**
-   * The list of underlying curves (up to one level).
+   * The list of underlying curves one level down. This is intended for curve that are build from other curves to avoid
+   * a double counting of sensitivities. For standard curves, this list will be empty. Only when the curve is build 
+   * with several layers will this method return a non-empty list.
    * @return The list.
    */
   public abstract List<String> getUnderlyingCurvesNames();
