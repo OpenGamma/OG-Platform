@@ -8,20 +8,17 @@ Curves
 ------
 
 To compute the risk measures, we need a curve provider represented by **IssuerProviderDiscount** in which issuer curves and **MulticurveProviderDiscount** are contained. 
-As the curves are based on annually compounded rates rather than continuously compounded rates (OpenGamma's default), we should wrap the issuer provider by **IssuerProviderIssuerAnnuallyCompoundeding**. 
-We first declare::
+We first instantiate::
 
-    IssuerProviderIssuerAnnuallyCompoundeding ISSUER_PROVIDER_LGT;
+    IssuerProviderDiscount ISSUER_PROVIDER_LGT = new IssuerProviderDiscount();
 
 then the underlying curves are created and plugged into the provider::
 
-    IssuerProviderDiscount issuerProvider = new IssuerProviderDiscount();
-    issuerProvider.setCurve(Pairs.of((Object) ISSUER_NAME_LGT, filter), yieldCurve);
-    issuerProvider.setCurve(GBP, repoCurve);
-    ISSUER_PROVIDER_LGT = new IssuerProviderIssuerAnnuallyCompoundeding(issuerProvider);
+    ISSUER_PROVIDER_LGT.setCurve(Pairs.of((Object) ISSUER_NAME_LGT, filter), yieldCurve);
+    ISSUER_PROVIDER_LGT.setCurve(GBP, repoCurve);
 
 In the present case the provider consists of two curves: a repo rate as a constant curve and a issuer curve for Long Guilt.
-Note that all of the curves should be created by **YieldPeriodicCurve** for annually compounded rates.
+Note that all of the curves here are created by **YieldPeriodicCurve** for annually compounded rates.
 
 Instrument
 ----------
@@ -61,15 +58,17 @@ Spread
 ------
 
 Generally the bond futures computed from the issuer curve does not agree with the bond market price. 
-Thus the issuer discount curve is adjusted with the spread::
+Thus the issuer discount curve is adjusted with the spread. 
+In particular we compute the spread added to the annually compounded rates::
 
-    ZSpreadIssuerCalculator ZSIC = ZSpreadIssuerCalculator.getInstance();
-    double spreadComputed = bondAtSpot.accept(ZSIC, pair);
+    double spreadComputed = BOND_METHOD.zSpreadFromCurvesAndClean(bondAtSpot, ISSUER_PROVIDER_LGT, BOND_MARKET_PRICE_LGT / HUNDRED, true, NUM_PERIODS) / BP1;
 
-The spread is expressed in basis point.
+The flag **true** is used for the periodic compounded spread. One uses **false** for a continuously compounded case. 
+In the code the spread is expressed in basis point.
 Then we create a new provider with the adjusted curve::
 
-     IssuerProviderIssuerAnnuallyCompoundeding curveWithSpread = new IssuerProviderIssuerAnnuallyCompoundeding(ISSUER_PROVIDER_LGT, legalEntity, spreadComputed * BP1);
+     IssuerProviderIssuerDecoratedSpreadPeriodic curveWithSpread = 
+         new IssuerProviderIssuerDecoratedSpreadPeriodic(ISSUER_PROVIDER_LGT, legalEntity, spreadComputed * BP1, NUM_PERIODS);
 
 
 Price and present value
