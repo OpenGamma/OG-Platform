@@ -26,7 +26,7 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.Present
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueParallelCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
-import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderIssuerDecoratedSpread;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderIssuerDecoratedSpreadContinous;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderIssuerDecoratedSpreadPeriodic;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscountingDecoratedIssuer;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
@@ -138,7 +138,7 @@ public final class BondSecurityDiscountingMethod {
 
   /**
    * Computes the present value of a bond security from z-spread. The z-spread is a parallel shift applied to the discounting curve associated to the bond (Issuer Entity).
-   * The parallel shift is done in the curve convention.
+   * The parallel shift is done in the curve convention in terms of continuously compounded rates.
    * @param bond The bond security.
    * @param issuerMulticurves The issuer and multi-curves provider.
    * @param zSpread The z-spread.
@@ -146,8 +146,7 @@ public final class BondSecurityDiscountingMethod {
    */
   public MultipleCurrencyAmount presentValueFromZSpread(final BondSecurity<? extends Payment, ? extends Coupon> bond,
       final IssuerProviderInterface issuerMulticurves, final double zSpread) {
-    IssuerProviderInterface issuerShifted = new IssuerProviderIssuerDecoratedSpread(issuerMulticurves,
-        bond.getIssuerEntity(), zSpread);
+    IssuerProviderInterface issuerShifted = new IssuerProviderIssuerDecoratedSpreadContinous(issuerMulticurves, bond.getIssuerEntity(), zSpread);
     return presentValue(bond, issuerShifted);
   }
 
@@ -178,7 +177,7 @@ public final class BondSecurityDiscountingMethod {
    * @return The Z spread sensitivity.
    */
   public double presentValueZSpreadSensitivity(final BondSecurity<? extends Payment, ? extends Coupon> bond, final IssuerProviderInterface issuerMulticurves, final double zSpread) {
-    final IssuerProviderInterface issuerShifted = new IssuerProviderIssuerDecoratedSpread(issuerMulticurves, bond.getIssuerEntity(), zSpread);
+    final IssuerProviderInterface issuerShifted = new IssuerProviderIssuerDecoratedSpreadContinous(issuerMulticurves, bond.getIssuerEntity(), zSpread);
     final StringAmount parallelSensi = presentValueParallelCurveSensitivity(bond, issuerShifted);
     return parallelSensi.getMap().get(issuerMulticurves.getName(bond.getIssuerEntity()));
   }
