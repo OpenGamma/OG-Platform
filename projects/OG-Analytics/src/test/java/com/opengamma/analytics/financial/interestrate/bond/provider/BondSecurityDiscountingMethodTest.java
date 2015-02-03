@@ -44,7 +44,7 @@ import com.opengamma.analytics.financial.provider.calculator.issuer.YieldFromCur
 import com.opengamma.analytics.financial.provider.description.IssuerProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
-import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderIssuerDecoratedSpreadContinous;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderIssuerDecoratedSpreadContinuous;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderIssuerDecoratedSpreadPeriodic;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscountingDecoratedIssuer;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
@@ -259,12 +259,12 @@ public class BondSecurityDiscountingMethodTest {
     double zSpread = 0.0;
     MultipleCurrencyAmount pvZ = METHOD_BOND_SECURITY.presentValueFromZSpread(BOND_FIXED_SECURITY_NO_ENTITY_1, ISSUER_SPECIFIC_MULTICURVES, zSpread);
     assertEquals("Fixed coupon bond security: present value from z-spread", pv.getAmount(CUR), pvZ.getAmount(CUR), TOLERANCE_PV);
-    IssuerProviderInterface issuerShifted = new IssuerProviderIssuerDecoratedSpreadContinous(
+    IssuerProviderInterface issuerShifted = new IssuerProviderIssuerDecoratedSpreadContinuous(
         ISSUER_SPECIFIC_MULTICURVES, BOND_FIXED_SECURITY_NO_ENTITY_1.getIssuerEntity(), zSpread);
     MultipleCurrencyAmount pvZExpected = METHOD_BOND_SECURITY.presentValue(BOND_FIXED_SECURITY_NO_ENTITY_1, issuerShifted);
     assertEquals("Fixed coupon bond security: present value from z-spread", pvZExpected.getAmount(CUR), pvZ.getAmount(CUR), TOLERANCE_PV);
     zSpread = 0.0010; // 10bps
-    issuerShifted = new IssuerProviderIssuerDecoratedSpreadContinous(ISSUER_SPECIFIC_MULTICURVES,
+    issuerShifted = new IssuerProviderIssuerDecoratedSpreadContinuous(ISSUER_SPECIFIC_MULTICURVES,
         BOND_FIXED_SECURITY_NO_ENTITY_1.getIssuerEntity(), zSpread);
     pvZ = METHOD_BOND_SECURITY.presentValueFromZSpread(BOND_FIXED_SECURITY_NO_ENTITY_1, ISSUER_SPECIFIC_MULTICURVES, zSpread);
     pvZExpected = METHOD_BOND_SECURITY.presentValue(BOND_FIXED_SECURITY_NO_ENTITY_1, issuerShifted);
@@ -331,7 +331,7 @@ public class BondSecurityDiscountingMethodTest {
    */
   public void zSpreadFromCleanPrice() {
     final double zSpreadExpected = 0.0025; // 25bps
-    final IssuerProviderInterface issuerShifted = new IssuerProviderIssuerDecoratedSpreadContinous(
+    final IssuerProviderInterface issuerShifted = new IssuerProviderIssuerDecoratedSpreadContinuous(
         ISSUER_SPECIFIC_MULTICURVES, BOND_FIXED_SECURITY_NO_ENTITY_1.getIssuerEntity(), zSpreadExpected);
     final double cleanZSpread = METHOD_BOND_SECURITY.cleanPriceFromCurves(BOND_FIXED_SECURITY_NO_ENTITY_1, issuerShifted);
     final double zSpread = METHOD_BOND_SECURITY.zSpreadFromCurvesAndClean(BOND_FIXED_SECURITY_NO_ENTITY_1, ISSUER_SPECIFIC_MULTICURVES, cleanZSpread);
@@ -344,7 +344,7 @@ public class BondSecurityDiscountingMethodTest {
    */
   public void zSpreadSensitivityFromCleanPrice() {
     final double zSpread = 0.0025; // 25bps
-    final IssuerProviderInterface issuerShifted = new IssuerProviderIssuerDecoratedSpreadContinous(
+    final IssuerProviderInterface issuerShifted = new IssuerProviderIssuerDecoratedSpreadContinuous(
         ISSUER_SPECIFIC_MULTICURVES, BOND_FIXED_SECURITY_NO_ENTITY_1.getIssuerEntity(), zSpread);
     final double cleanZSpread = METHOD_BOND_SECURITY.cleanPriceFromCurves(BOND_FIXED_SECURITY_NO_ENTITY_1, issuerShifted);
     final double zsComputed = METHOD_BOND_SECURITY.presentValueZSpreadSensitivityFromCurvesAndClean(BOND_FIXED_SECURITY_NO_ENTITY_1, ISSUER_SPECIFIC_MULTICURVES, cleanZSpread);
