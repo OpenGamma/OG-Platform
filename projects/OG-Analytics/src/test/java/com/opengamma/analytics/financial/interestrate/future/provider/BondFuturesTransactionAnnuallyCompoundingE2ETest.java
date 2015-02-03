@@ -30,9 +30,8 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.PV01Cur
 import com.opengamma.analytics.financial.provider.calculator.issuer.CleanPriceFromCurvesCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueCurveSensitivityIssuerCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueIssuerCalculator;
-import com.opengamma.analytics.financial.provider.calculator.issuer.ZSpreadIssuerCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderIssuerAnnuallyCompoundeding;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderIssuerDecoratedSpreadPeriodic;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
@@ -52,14 +51,12 @@ import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
 /**
  * 
  */
 @Test(groups = TestGroup.UNIT)
-@SuppressWarnings({"unchecked", "rawtypes" })
 public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
   private static final BondAndSTIRFuturesE2EExamplesData DATA = new BondAndSTIRFuturesE2EExamplesData();
   private static final Calendar EUR_CALENDAR = DATA.getEURCalendar();
@@ -81,57 +78,51 @@ public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
   /* issuer curves */
   private static final Interpolator1D INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
       Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
-  private static final IssuerProviderIssuerAnnuallyCompoundeding ISSUER_PROVIDER_LGT;
+  private static final int NUM_PERIODS = 1;
+  private static final IssuerProviderDiscount ISSUER_PROVIDER_LGT = new IssuerProviderDiscount();
   static {
-    IssuerProviderDiscount issuerProvider = new IssuerProviderDiscount();
     InterpolatedDoublesCurve interpolatedCurve = InterpolatedDoublesCurve.fromSorted(DATA.getTimeLGT(),
         DATA.getRateLGT(), INTERPOLATOR, CURVE_NAME_LGT);
-    YieldPeriodicCurve yieldCurve = YieldPeriodicCurve.from(1, interpolatedCurve);
+    YieldPeriodicCurve yieldCurve = YieldPeriodicCurve.from(NUM_PERIODS, interpolatedCurve);
     LegalEntityFilter<LegalEntity> filter = new LegalEntityShortName();
-    issuerProvider.setCurve(Pairs.of((Object) ISSUER_NAME_LGT, filter), yieldCurve);
+    ISSUER_PROVIDER_LGT.setCurve(Pairs.of((Object) ISSUER_NAME_LGT, filter), yieldCurve);
     ConstantDoublesCurve constantDoublesCurve = ConstantDoublesCurve.from(DATA.getRepoLGT());
-    YieldPeriodicCurve repoCurve = YieldPeriodicCurve.from(1, constantDoublesCurve);
-    issuerProvider.setCurve(GBP, repoCurve);
-    ISSUER_PROVIDER_LGT = new IssuerProviderIssuerAnnuallyCompoundeding(issuerProvider);
+    YieldPeriodicCurve repoCurve = YieldPeriodicCurve.from(NUM_PERIODS, constantDoublesCurve);
+    ISSUER_PROVIDER_LGT.setCurve(GBP, repoCurve);
   }
-  private static final IssuerProviderIssuerAnnuallyCompoundeding ISSUER_PROVIDER_SCH;
+  private static final IssuerProviderDiscount ISSUER_PROVIDER_SCH = new IssuerProviderDiscount();
   static {
-    IssuerProviderDiscount issuerProvider = new IssuerProviderDiscount();
-    InterpolatedDoublesCurve interpolatedCurve = InterpolatedDoublesCurve.fromSorted(DATA.getTimeSCH(),
-        DATA.getRateSCH(), INTERPOLATOR, CURVE_NAME_SCH);
-    YieldPeriodicCurve yieldCurve = YieldPeriodicCurve.from(1, interpolatedCurve);
+    InterpolatedDoublesCurve interpolatedCurve = InterpolatedDoublesCurve.fromSorted(DATA.getTimeGER(),
+        DATA.getRateGER(), INTERPOLATOR, CURVE_NAME_SCH);
+    YieldPeriodicCurve yieldCurve = YieldPeriodicCurve.from(NUM_PERIODS, interpolatedCurve);
     LegalEntityFilter<LegalEntity> filter = new LegalEntityShortName();
-    issuerProvider.setCurve(Pairs.of((Object) ISSUER_NAME_SCH, filter), yieldCurve);
+    ISSUER_PROVIDER_SCH.setCurve(Pairs.of((Object) ISSUER_NAME_SCH, filter), yieldCurve);
     ConstantDoublesCurve constantDoublesCurve = ConstantDoublesCurve.from(DATA.getRepoSCH());
-    YieldPeriodicCurve repoCurve = YieldPeriodicCurve.from(1, constantDoublesCurve);
-    issuerProvider.setCurve(EUR, repoCurve);
-    ISSUER_PROVIDER_SCH = new IssuerProviderIssuerAnnuallyCompoundeding(issuerProvider);
+    YieldPeriodicCurve repoCurve = YieldPeriodicCurve.from(NUM_PERIODS, constantDoublesCurve);
+    ISSUER_PROVIDER_SCH.setCurve(EUR, repoCurve);
   }
-  private static final IssuerProviderIssuerAnnuallyCompoundeding ISSUER_PROVIDER_BUN;
+
+  private static final IssuerProviderDiscount ISSUER_PROVIDER_BUN = new IssuerProviderDiscount();
   static {
-    IssuerProviderDiscount issuerProvider = new IssuerProviderDiscount();
-    InterpolatedDoublesCurve interpolatedCurve = InterpolatedDoublesCurve.fromSorted(DATA.getTimeBUN(),
-        DATA.getRateBUN(), INTERPOLATOR, CURVE_NAME_BUN);
-    YieldPeriodicCurve yieldCurve = YieldPeriodicCurve.from(1, interpolatedCurve);
+    InterpolatedDoublesCurve interpolatedCurve = InterpolatedDoublesCurve.fromSorted(DATA.getTimeGER(),
+        DATA.getRateGER(), INTERPOLATOR, CURVE_NAME_BUN);
+    YieldPeriodicCurve yieldCurve = YieldPeriodicCurve.from(NUM_PERIODS, interpolatedCurve);
     LegalEntityFilter<LegalEntity> filter = new LegalEntityShortName();
-    issuerProvider.setCurve(Pairs.of((Object) ISSUER_NAME_BUN, filter), yieldCurve);
+    ISSUER_PROVIDER_BUN.setCurve(Pairs.of((Object) ISSUER_NAME_BUN, filter), yieldCurve);
     ConstantDoublesCurve constantDoublesCurve = ConstantDoublesCurve.from(DATA.getRepoBUN());
-    YieldPeriodicCurve repoCurve = YieldPeriodicCurve.from(1, constantDoublesCurve);
-    issuerProvider.setCurve(EUR, repoCurve);
-    ISSUER_PROVIDER_BUN = new IssuerProviderIssuerAnnuallyCompoundeding(issuerProvider);
+    YieldPeriodicCurve repoCurve = YieldPeriodicCurve.from(NUM_PERIODS, constantDoublesCurve);
+    ISSUER_PROVIDER_BUN.setCurve(EUR, repoCurve);
   }
-  private static final IssuerProviderIssuerAnnuallyCompoundeding ISSUER_PROVIDER_BOB;
+  private static final IssuerProviderDiscount ISSUER_PROVIDER_BOB = new IssuerProviderDiscount();
   static {
-    IssuerProviderDiscount issuerProvider = new IssuerProviderDiscount();
-    InterpolatedDoublesCurve interpolatedCurve = InterpolatedDoublesCurve.fromSorted(DATA.getTimeBOB(),
-        DATA.getRateBOB(), INTERPOLATOR, CURVE_NAME_BOB);
-    YieldPeriodicCurve yieldCurve = YieldPeriodicCurve.from(1, interpolatedCurve);
+    InterpolatedDoublesCurve interpolatedCurve = InterpolatedDoublesCurve.fromSorted(DATA.getTimeGER(),
+        DATA.getRateGER(), INTERPOLATOR, CURVE_NAME_BOB);
+    YieldPeriodicCurve yieldCurve = YieldPeriodicCurve.from(NUM_PERIODS, interpolatedCurve);
     LegalEntityFilter<LegalEntity> filter = new LegalEntityShortName();
-    issuerProvider.setCurve(Pairs.of((Object) ISSUER_NAME_BOB, filter), yieldCurve);
+    ISSUER_PROVIDER_BOB.setCurve(Pairs.of((Object) ISSUER_NAME_BOB, filter), yieldCurve);
     ConstantDoublesCurve constantDoublesCurve = ConstantDoublesCurve.from(DATA.getRepoBOB());
-    YieldPeriodicCurve repoCurve = YieldPeriodicCurve.from(1, constantDoublesCurve);
-    issuerProvider.setCurve(EUR, repoCurve);
-    ISSUER_PROVIDER_BOB = new IssuerProviderIssuerAnnuallyCompoundeding(issuerProvider);
+    YieldPeriodicCurve repoCurve = YieldPeriodicCurve.from(NUM_PERIODS, constantDoublesCurve);
+    ISSUER_PROVIDER_BOB.setCurve(EUR, repoCurve);
   }
 
   /* Common setting */
@@ -278,7 +269,6 @@ public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
   private static final PresentValueIssuerCalculator PVIC = PresentValueIssuerCalculator.getInstance();
   private static final PresentValueCurveSensitivityIssuerCalculator PVCSIC = PresentValueCurveSensitivityIssuerCalculator
       .getInstance();
-  private static final ZSpreadIssuerCalculator ZSIC = ZSpreadIssuerCalculator.getInstance();
   private static final FuturesPriceIssuerCalculator FPIC = FuturesPriceIssuerCalculator.getInstance();
   private static final CleanPriceFromCurvesCalculator BCPCC = CleanPriceFromCurvesCalculator.getInstance();
   private static final ParameterSensitivityParameterCalculator<ParameterIssuerProviderInterface> PSSFC =
@@ -298,10 +288,10 @@ public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
     BondFuturesSecurity futures = TRANSACTION_LGT.getUnderlyingSecurity();
     BondFixedSecurity bondAtSpot = futures.getDeliveryBasketAtSpotDate()[0];
     LegalEntity legalEntity = bondAtSpot.getIssuerEntity();
-    Pair pair = Pairs.of(ISSUER_PROVIDER_LGT, BOND_MARKET_PRICE_LGT / HUNDRED);
-    double spreadComputed = bondAtSpot.accept(ZSIC, pair);
-    IssuerProviderIssuerAnnuallyCompoundeding curveWithSpread = new IssuerProviderIssuerAnnuallyCompoundeding(
-        ISSUER_PROVIDER_LGT, legalEntity, spreadComputed * BP1);
+    double spreadComputed = BOND_METHOD.zSpreadFromCurvesAndClean(bondAtSpot, ISSUER_PROVIDER_LGT,
+        BOND_MARKET_PRICE_LGT / HUNDRED, true, NUM_PERIODS) / BP1;
+    IssuerProviderIssuerDecoratedSpreadPeriodic curveWithSpread = new IssuerProviderIssuerDecoratedSpreadPeriodic(
+        ISSUER_PROVIDER_LGT, legalEntity, spreadComputed * BP1, NUM_PERIODS);
     double priceFuturesComputed = futures.accept(FPIC, curveWithSpread) * HUNDRED;
     MultipleCurrencyAmount pvTransactionComputed = TRANSACTION_LGT.accept(PVIC, curveWithSpread);
     DoubleMatrix1D bucketedTransactionComputed = PSSFC.calculateSensitivity(TRANSACTION_LGT,
@@ -328,10 +318,10 @@ public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
     BondFuturesSecurity futures = TRANSACTION_SCH.getUnderlyingSecurity();
     BondFixedSecurity bondAtSpot = futures.getDeliveryBasketAtSpotDate()[0];
     LegalEntity legalEntity = bondAtSpot.getIssuerEntity();
-    Pair pair = Pairs.of(ISSUER_PROVIDER_SCH, BOND_MARKET_PRICE_SCH / HUNDRED);
-    double spreadComputed = bondAtSpot.accept(ZSIC, pair);
-    IssuerProviderIssuerAnnuallyCompoundeding curveWithSpread = new IssuerProviderIssuerAnnuallyCompoundeding(
-        ISSUER_PROVIDER_SCH, legalEntity, spreadComputed * BP1);
+    double spreadComputed = BOND_METHOD.zSpreadFromCurvesAndClean(bondAtSpot, ISSUER_PROVIDER_SCH,
+        BOND_MARKET_PRICE_SCH / HUNDRED, true, NUM_PERIODS) / BP1;
+    IssuerProviderIssuerDecoratedSpreadPeriodic curveWithSpread = new IssuerProviderIssuerDecoratedSpreadPeriodic(
+        ISSUER_PROVIDER_SCH, legalEntity, spreadComputed * BP1, NUM_PERIODS);
     double priceFuturesComputed = futures.accept(FPIC, curveWithSpread) * HUNDRED;
     MultipleCurrencyAmount pvTransactionComputed = TRANSACTION_SCH.accept(PVIC, curveWithSpread);
     DoubleMatrix1D bucketedTransactionComputed = PSSFC.calculateSensitivity(TRANSACTION_SCH,
@@ -356,10 +346,10 @@ public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
     BondFuturesSecurity futures = TRANSACTION_BUN.getUnderlyingSecurity();
     BondFixedSecurity bondAtSpot = futures.getDeliveryBasketAtSpotDate()[0];
     LegalEntity legalEntity = bondAtSpot.getIssuerEntity();
-    Pair pair = Pairs.of(ISSUER_PROVIDER_BUN, BOND_MARKET_PRICE_BUN / HUNDRED);
-    double spreadComputed = bondAtSpot.accept(ZSIC, pair);
-    IssuerProviderIssuerAnnuallyCompoundeding curveWithSpread = new IssuerProviderIssuerAnnuallyCompoundeding(
-        ISSUER_PROVIDER_BUN, legalEntity, spreadComputed * BP1);
+    double spreadComputed = BOND_METHOD.zSpreadFromCurvesAndClean(bondAtSpot, ISSUER_PROVIDER_BUN,
+        BOND_MARKET_PRICE_BUN / HUNDRED, true, NUM_PERIODS) / BP1;
+    IssuerProviderIssuerDecoratedSpreadPeriodic curveWithSpread = new IssuerProviderIssuerDecoratedSpreadPeriodic(
+        ISSUER_PROVIDER_BUN, legalEntity, spreadComputed * BP1, NUM_PERIODS);
     double priceFuturesComputed = futures.accept(FPIC, curveWithSpread) * HUNDRED;
     MultipleCurrencyAmount pvTransactionComputed = TRANSACTION_BUN.accept(PVIC, curveWithSpread);
     DoubleMatrix1D bucketedTransactionComputed = PSSFC.calculateSensitivity(TRANSACTION_BUN,
@@ -386,10 +376,10 @@ public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
     BondFuturesSecurity futures = TRANSACTION_BOB.getUnderlyingSecurity();
     BondFixedSecurity bondAtSpot = futures.getDeliveryBasketAtSpotDate()[0];
     LegalEntity legalEntity = bondAtSpot.getIssuerEntity();
-    Pair pair = Pairs.of(ISSUER_PROVIDER_BOB, BOND_MARKET_PRICE_BOB / HUNDRED);
-    double spreadComputed = bondAtSpot.accept(ZSIC, pair);
-    IssuerProviderIssuerAnnuallyCompoundeding curveWithSpread = new IssuerProviderIssuerAnnuallyCompoundeding(
-        ISSUER_PROVIDER_BOB, legalEntity, spreadComputed * BP1);
+    double spreadComputed = BOND_METHOD.zSpreadFromCurvesAndClean(bondAtSpot, ISSUER_PROVIDER_BOB,
+        BOND_MARKET_PRICE_BOB / HUNDRED, true, NUM_PERIODS) / BP1;
+    IssuerProviderIssuerDecoratedSpreadPeriodic curveWithSpread = new IssuerProviderIssuerDecoratedSpreadPeriodic(
+        ISSUER_PROVIDER_BOB, legalEntity, spreadComputed * BP1, NUM_PERIODS);
     double priceFuturesComputed = futures.accept(FPIC, curveWithSpread) * HUNDRED;
     MultipleCurrencyAmount pvTransactionComputed = TRANSACTION_BOB.accept(PVIC, curveWithSpread);
     DoubleMatrix1D bucketedTransactionComputed = PSSFC.calculateSensitivity(TRANSACTION_BOB,
@@ -417,25 +407,25 @@ public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
     BondFixedSecurity bondAtDeliv = futures.getDeliveryBasketAtDeliveryDate()[0]; // future delivery
     BondFixedSecurity bondAtSpot = futures.getDeliveryBasketAtSpotDate()[0]; // spot
     LegalEntity legalEntity = bondAtDeliv.getIssuerEntity();
-    IssuerProviderIssuerAnnuallyCompoundeding curveWithSpread = new IssuerProviderIssuerAnnuallyCompoundeding(
-        ISSUER_PROVIDER_SCH, legalEntity, sampleSpread);
+    IssuerProviderIssuerDecoratedSpreadPeriodic curveWithSpread = new IssuerProviderIssuerDecoratedSpreadPeriodic(
+        ISSUER_PROVIDER_SCH, legalEntity, sampleSpread, NUM_PERIODS);
 
     /* bond clean price - including factor */
     MultipleCurrencyAmount pv = BOND_METHOD.presentValue(bondAtSpot, curveWithSpread);
     double cleanPriceFromPV = HUNDRED * (pv.getAmount(EUR) / curveWithSpread.getMulticurveProvider()
         .getDiscountFactor(EUR, bondAtSpot.getSettlementTime()) - bondAtSpot.getAccruedInterest());
     double cleanPriceExpected = BOND_METHOD.cleanPriceFromCurves(bondAtSpot, curveWithSpread) * HUNDRED;
-    double cleanPrice = bondAtSpot.accept(BCPCC, curveWithSpread); // *** use this
+    double cleanPrice = bondAtSpot.accept(BCPCC, curveWithSpread);
     assertRelative("calculatorTest", cleanPriceExpected, cleanPrice, TOL);
     assertRelative("calculatorTest", cleanPriceFromPV, cleanPrice, TOL);
 
     /* spread - including double factor, input should be un-factored */
-    Pair pair = Pairs.of(ISSUER_PROVIDER_SCH, cleanPrice / HUNDRED);
-    double computedSpread = bondAtSpot.accept(ZSIC, pair) / HUNDRED / HUNDRED; // *** use this
+    double computedSpread = BOND_METHOD.zSpreadFromCurvesAndClean(bondAtSpot, ISSUER_PROVIDER_SCH,
+        cleanPrice / HUNDRED, true, NUM_PERIODS);
     assertRelative("calculatorTest", sampleSpread, computedSpread, TOL);
 
     /* futures price -  excluding factor and notional */
-    double futuresPriceComputed = futures.accept(FPIC, curveWithSpread) * HUNDRED;  // *** use this
+    double futuresPriceComputed = futures.accept(FPIC, curveWithSpread) * HUNDRED;
     double futuresPriceExpected = bondAtDeliv.accept(BCPCC, curveWithSpread) /
         futures.getConversionFactor()[0];
     assertRelative("calculatorTest", futuresPriceExpected, futuresPriceComputed, TOL);
