@@ -416,8 +416,7 @@ public class View {
     ScenarioDefinition scenario = _viewConfig.getScenarioDefinition();
     tasks.addAll(portfolioTasks(calculationArguments, marketData, portfolio, graph, scenario, threadLocalWrapper));
     tasks.addAll(nonPortfolioTasks(calculationArguments, marketData, graph, scenario, threadLocalWrapper));
-    List<ListenableFuture<TaskResult>> resultFutures;
-    resultFutures = invokeTasks(tasks);
+    List<ListenableFuture<TaskResult>> resultFutures = invokeTasks(tasks);
     return Futures.allAsList(resultFutures);
   }
 

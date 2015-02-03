@@ -30,8 +30,8 @@ public interface Engine {
    * The valuation time in the market data is ignored, the valuation time from
    * {@code calculationArguments} is used. This will change in v3.0.
    *
-   * @param calculationArguments options used when performing calculations
    * @param viewConfig configuration defining the view that will perform the calculations
+   * @param calculationArguments options used when performing calculations
    * @param marketData market data to be used in the calculations
    * @param portfolio the trades, securities (or anything else) that are the inputs to the calculations
    * @return the calculation results
@@ -68,6 +68,7 @@ public interface Engine {
    * The valuation time in the supplied data is ignored, the valuation time from
    * {@code calculationArguments} is used. This will change in v3.0.
    *
+   * @param viewConfig configuration of the view that performs the calculations
    * @param suppliedData market data supplied by the caller
    * @param calculationArguments options used when performing calculations
    * @param portfolio the trades, securities (or anything else) that are the inputs to the calculations

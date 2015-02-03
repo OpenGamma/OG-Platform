@@ -314,6 +314,7 @@ public class DefaultEngine implements Engine {
    * <p>
    * The future's task will be executed using the engine's thread pool.
    *
+   * @param scenarioName the name of the scenario that will use the market data
    * @param suppliedData market data supplied by the user
    * @param requirements requirements for data needed to perform the calculations but not supplied by the user
    * @param marketDataSpec specifies which market data providers should be used to look up the underlying market data
