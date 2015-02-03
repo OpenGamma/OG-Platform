@@ -109,7 +109,7 @@ public class MarketDataShockDecorator
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> Result<T> get(MarketDataId<T> id, Class<T> dataType) {
+    public <T, I extends MarketDataId<T>> Result<T> get(I id, Class<T> dataType) {
       Result<T> result = _delegate.get(id, dataType);
 
       if (!result.isSuccess()) {
@@ -134,7 +134,11 @@ public class MarketDataShockDecorator
     }
 
     @Override
-    public <T> Result<DateTimeSeries<LocalDate, T>> get(MarketDataId<?> id, Class<T> dataType, LocalDateRange dateRange) {
+    public <T, I extends MarketDataId<T>> Result<DateTimeSeries<LocalDate, T>> get(
+        I id,
+        Class<T> dataType,
+        LocalDateRange dateRange) {
+
       return _delegate.get(id, dataType, dateRange);
     }
 

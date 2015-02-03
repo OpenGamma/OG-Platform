@@ -94,12 +94,15 @@ public class IsdaCurveSnapshotCalibrationTool extends AbstractTool<ToolContext> 
   private static final Logger s_logger = LoggerFactory.getLogger(IsdaCurveSnapshotCalibrationTool.class);
   private static final MarketDataBundle s_noOpMarketDataSource = new MarketDataBundle() {
     @Override
-    public <T> Result<T> get(MarketDataId<T> id, Class<T> dataType) {
+    public <T, I extends MarketDataId<T>> Result<T> get(I id, Class<T> dataType) {
       return Result.failure(FailureStatus.ERROR, "Not implemented");
     }
 
     @Override
-    public <T> Result<DateTimeSeries<LocalDate, T>> get(MarketDataId<?> id, Class<T> dataType, LocalDateRange dateRange) {
+    public <T, I extends MarketDataId<T>> Result<DateTimeSeries<LocalDate, T>> get(
+        I id,
+        Class<T> dataType,
+        LocalDateRange dateRange) {
       return Result.failure(FailureStatus.ERROR, "Not implemented");
     }
 

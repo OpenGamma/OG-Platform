@@ -72,9 +72,8 @@ public final class GatheringMarketDataBundle implements MarketDataBundle {
     return new GatheringMarketDataBundle(MarketDataTime.VALUATION_TIME, suppliedData);
   }
 
-  // TODO should probably store dataType somewhere. in the requirement? seems sensible
   @Override
-  public <T> Result<T> get(MarketDataId<T> id, Class<T> dataType) {
+  public <T, I extends MarketDataId<T>> Result<T> get(I id, Class<T> dataType) {
     // only gather requirements for data that hasn't been supplied
     if (_suppliedData.get(id, dataType).isSuccess()) {
       return failure();
@@ -85,7 +84,11 @@ public final class GatheringMarketDataBundle implements MarketDataBundle {
   }
 
   @Override
-  public <T> Result<DateTimeSeries<LocalDate, T>> get(MarketDataId<?> id, Class<T> dataType, LocalDateRange dateRange) {
+  public <T, I extends MarketDataId<T>> Result<DateTimeSeries<LocalDate, T>> get(
+      I id,
+      Class<T> dataType,
+      LocalDateRange dateRange) {
+
     // only gather requirements for data that hasn't been supplied
     if (_suppliedData.get(id, dataType, dateRange).isSuccess()) {
       return failure();

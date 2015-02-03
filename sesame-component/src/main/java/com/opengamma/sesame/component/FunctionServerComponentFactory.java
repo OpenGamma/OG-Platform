@@ -22,6 +22,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.sesame.engine.Engine;
+import com.opengamma.sesame.engine.ViewRunner;
 import com.opengamma.sesame.server.DataFunctionServerResource;
 import com.opengamma.sesame.server.DefaultFunctionServer;
 import com.opengamma.sesame.server.FunctionServer;
@@ -29,7 +30,7 @@ import com.opengamma.sesame.server.FunctionServer;
 /**
  * Component factory for the function server.
  *
- * @deprecated use {@link Engine} and {@link EngineComponentFactory}
+ * @deprecated use {@link ViewRunner} and {@link ViewRunnerComponentFactory}
  */
 @BeanDefinition
 public class FunctionServerComponentFactory extends AbstractComponentFactory {

@@ -14,7 +14,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 import javax.annotation.Nullable;
 
@@ -68,7 +67,9 @@ import com.opengamma.sesame.graph.Graph;
 import com.opengamma.sesame.graph.GraphBuilder;
 import com.opengamma.sesame.graph.GraphModel;
 import com.opengamma.sesame.graph.NodeDecorator;
+import com.opengamma.sesame.marketdata.GatheringMarketDataBundle;
 import com.opengamma.sesame.marketdata.MarketDataEnvironment;
+import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.proxy.ExceptionWrappingProxy;
 import com.opengamma.sesame.proxy.MetricsProxy;
 import com.opengamma.sesame.trace.CallGraph;
@@ -182,7 +183,6 @@ public class View {
   private NodeDecorator createNodeDecorator(EnumSet<FunctionService> services,
                                             CacheProvider cacheProvider,
                                             ExecutingMethodsThreadLocal executingMethods) {
-
 
     ImmutableList.Builder<NodeDecorator> decorators = new ImmutableList.Builder<>();
 
@@ -331,42 +331,101 @@ public class View {
      * the caching proxy to retrieve it. The tasks that perform the calculations set the thread local with
      * the cycle's cache before executing the calculations and clearing the thread local afterwards.
      */
-    Cache<Object, Object> cache = _cachingEnabled ? _cacheFactory.get() : new NoOpCache();
+    Cache<Object, Object> cache = getCache();
     VersionCorrectionProvider vcProvider = getVersionCorrectionProvider(calculationArguments);
-    ServiceContext originalContext = ThreadLocalServiceContext.getInstance();
-    if (originalContext == null) {
-      throw new IllegalStateException("ThreadLocalServiceContext not set");
-    }
+    ServiceContext originalContext = getThreadLocalServiceContext();
     ServiceContext context = originalContext.with(VersionCorrectionProvider.class, vcProvider);
 
     final CycleInitializer cycleInitializer = calculationArguments.isCaptureInputs() ?
         new CapturingCycleInitializer(context, _componentMap, calculationArguments,
-                                      marketData, _graphModel, _viewConfig, _cacheBuilder, inputs) :
+            marketData, _graphModel, _viewConfig, _cacheBuilder, inputs) :
         new StandardCycleInitializer(context, _graph, cache);
 
-    List<Task> tasks = new ArrayList<>();
-    Graph graph = cycleInitializer.getGraph();
-    ScenarioDefinition scenario = _viewConfig.getScenarioDefinition();
     ServiceContext cycleContext = cycleInitializer.getServiceContext();
+
     ThreadLocalWrapper threadLocalWrapper =
         new ThreadLocalWrapper(cycleContext, originalContext, cycleInitializer.getCache(), _cacheThreadLocal);
-    tasks.addAll(portfolioTasks(calculationArguments, marketData, inputs, graph, scenario, threadLocalWrapper));
-    tasks.addAll(nonPortfolioTasks(calculationArguments, marketData, graph, scenario, threadLocalWrapper));
-    final List<ListenableFuture<TaskResult>> resultFutures;
+
+    ListenableFuture<List<TaskResult>> tasksFuture =
+        runAsync(calculationArguments, marketData, cycleInitializer, threadLocalWrapper, inputs);
 
     startExecution = System.nanoTime();
-    resultFutures = invokeTasks(tasks);
-    ListenableFuture<List<TaskResult>> tasksFuture = Futures.allAsList(resultFutures);
 
     return Futures.transform(tasksFuture, new Function<List<TaskResult>, Results>() {
       @Nullable
       @Override
-      public Results apply(List<TaskResult> input) {
-        return buildResults(inputs, resultFutures, start, startInitialization, startExecution, cycleInitializer);
+      public Results apply(List<TaskResult> taskResults) {
+        return buildResults(inputs, taskResults, start, startInitialization, startExecution, cycleInitializer);
       }
     });
   }
 
+  /**
+   * Collects requirements for market data that must be provided for running the calculations in this view for
+   * a portfolio.
+   * <p>
+   * If the data is present in {@code suppliedData} it won't be included in the returned requirements.
+   *
+   * @param suppliedData market data that is already available and therefore doesn't need to be built or provided
+   * @param calculationArguments arguments specifying how the calculations should be performed
+   * @param portfolio the portfolio for which the calculations are being performed
+   * @return requirements for the market data needed to run the calculations in this view for the specified portfolio
+   */
+  public Set<MarketDataRequirement> gatherRequirements(MarketDataEnvironment suppliedData,
+                                                       CalculationArguments calculationArguments,
+                                                       List<?> portfolio) {
+    Cache<Object, Object> cache = getCache();
+    VersionCorrectionProvider vcProvider = getVersionCorrectionProvider(calculationArguments);
+    ServiceContext originalContext = getThreadLocalServiceContext();
+    ServiceContext context = originalContext.with(VersionCorrectionProvider.class, vcProvider);
+    CycleInitializer cycleInitializer = new StandardCycleInitializer(context, _graph, cache);
+    ThreadLocalWrapper threadLocalWrapper =
+        new ThreadLocalWrapper(context, originalContext, cycleInitializer.getCache(), _cacheThreadLocal);
+    ZonedDateTime valuationTime = calculationArguments.getValuationTime();
+    GatheringMarketDataBundle gatheringBundle = GatheringMarketDataBundle.create(suppliedData.toBundle());
+    MarketDataEnvironment marketData = new GatheringMarketDataEnvironment(gatheringBundle, valuationTime);
+    ListenableFuture<List<TaskResult>> tasksFuture =
+        runAsync(calculationArguments, marketData, cycleInitializer, threadLocalWrapper, portfolio);
+    try {
+      tasksFuture.get();
+    } catch (InterruptedException | ExecutionException e) {
+      // this will only happen if there is a bug, all exceptions should be caught and wrapped in a failure result
+      throw new OpenGammaRuntimeException("Failed to gather requirements", e);
+    }
+    return gatheringBundle.getRequirements();
+  }
+
+  /**
+   * Asynchronously runs the calculations in this view, returning a future representing the results.
+   *
+   * @param calculationArguments arguments specifying how the calculations should be performed
+   * @param marketData market data used by the calculations
+   * @param cycleInitializer for setting up the calculation cycle
+   * @param threadLocalWrapper for setting up and tearing down thread-local state in each task
+   * @param portfolio the portfolio for which the calculations should be run
+   * @return a future representing the results of the calculations
+   */
+  private ListenableFuture<List<TaskResult>> runAsync(CalculationArguments calculationArguments,
+                                                      MarketDataEnvironment marketData,
+                                                      CycleInitializer cycleInitializer,
+                                                      ThreadLocalWrapper threadLocalWrapper,
+                                                      List<?> portfolio) {
+
+    List<Task> tasks = new ArrayList<>();
+    Graph graph = cycleInitializer.getGraph();
+    ScenarioDefinition scenario = _viewConfig.getScenarioDefinition();
+    tasks.addAll(portfolioTasks(calculationArguments, marketData, portfolio, graph, scenario, threadLocalWrapper));
+    tasks.addAll(nonPortfolioTasks(calculationArguments, marketData, graph, scenario, threadLocalWrapper));
+    List<ListenableFuture<TaskResult>> resultFutures = invokeTasks(tasks);
+    return Futures.allAsList(resultFutures);
+  }
+
+  /**
+   * Creates a version correction provider based on the version correction in the arguments.
+   *
+   * @param calculationArguments arguments containing a version correction
+   * @return provider for the version correction in the arguments
+   */
   private VersionCorrectionProvider getVersionCorrectionProvider(CalculationArguments calculationArguments) {
     VersionCorrection correction = calculationArguments.getConfigVersionCorrection();
     return correction == null || correction.containsLatest() ?
@@ -375,10 +434,30 @@ public class View {
   }
 
   /**
+   * @return a cache, appropriate for the cache settings
+   */
+  private Cache<Object, Object> getCache() {
+    return _cachingEnabled ? _cacheFactory.get() : new NoOpCache();
+  }
+
+  /**
+   * @return the service context from {@link ThreadLocalServiceContext}
+   * @throws IllegalStateException if there is no thread-local service context
+   */
+  private static ServiceContext getThreadLocalServiceContext() {
+    ServiceContext originalContext = ThreadLocalServiceContext.getInstance();
+
+    if (originalContext == null) {
+      throw new IllegalStateException("ThreadLocalServiceContext not set");
+    }
+    return originalContext;
+  }
+
+  /**
    * Builds a set of results from a list of futures representing the individual pending calculation results.
    *
    * @param portfolio the inputs to the trade calculations, e.g. trades, securities
-   * @param futures futures representing the results of the individual calculations
+   * @param taskResults the results of the individual calculations
    * @param start the start time of the calculation cycle
    * @param startInitialization the start time of the cycle (system nano time)
    * @param startExecution the start time of the calculations (system nano time)
@@ -386,7 +465,7 @@ public class View {
    * @return the results of the calculations
    */
   private Results buildResults(List<?> portfolio,
-                               List<ListenableFuture<TaskResult>> futures,
+                               List<TaskResult> taskResults,
                                Instant start,
                                long startInitialization,
                                long startExecution,
@@ -394,13 +473,8 @@ public class View {
 
     ResultBuilder resultsBuilder = Results.builder(portfolio, _columnNames);
 
-    for (Future<TaskResult> future : futures) {
-      try {
-        TaskResult result = future.get();
-        result.addToResults(resultsBuilder);
-      } catch (InterruptedException | ExecutionException e) {
-        s_logger.warn("Failed to get result from task", e);
-      }
+    for (TaskResult result : taskResults) {
+      result.addToResults(resultsBuilder);
     }
     long startResultsBuild = System.nanoTime();
     Results results = resultsBuilder.build(start, startExecution, startInitialization, startResultsBuild);
