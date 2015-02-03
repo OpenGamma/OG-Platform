@@ -76,7 +76,8 @@ public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>
   }
 
   /**
-   * Returns the sensitivity (derivative) of the interest rate at a given time with respect to the parameters defining the curve.
+   * Returns the sensitivity (derivative) of the continuously compounded interest rate at a given time with respect 
+   * to the parameters defining the curve.
    * @param time The time.
    * @return The sensitivity.
    */
@@ -89,13 +90,16 @@ public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>
   public abstract int getNumberOfParameters();
 
   /**
-   * The list of underlying curves (up to one level).
+   * The list of underlying curves one level down. This is intended for curve that are build from other curves to avoid
+   * a double counting of sensitivities. For standard curves, this list will be empty. Only when the curve is build 
+   * with several layers will this method return a non-empty list.
    * @return The list.
    */
   public abstract List<String> getUnderlyingCurvesNames();
 
   /**
-   * Return the number of intrinsic parameters for the definition of the curve. Which is the total number of parameters minus the parameters of the curves in curvesNames (If they are in curves).
+   * Return the number of intrinsic parameters for the definition of the curve. Which is the total number of 
+   * parameters minus the parameters of the curves in curvesNames (If they are in curves).
    *  @param curvesNames The list of curves names.
    *  @return The number of parameters.
    */
@@ -111,7 +115,8 @@ public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>
    */
   @Deprecated
   public YieldAndDiscountCurve withParallelShift(final double shift) {
-    return new YieldAndDiscountAddZeroSpreadCurve(_name + "WithParallelShift", false, this, YieldCurve.from(ConstantDoublesCurve.from(shift)));
+    return new YieldAndDiscountAddZeroSpreadCurve(_name + "WithParallelShift", false, this, 
+        YieldCurve.from(ConstantDoublesCurve.from(shift)));
   }
 
   /**
