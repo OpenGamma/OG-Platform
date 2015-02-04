@@ -30,9 +30,8 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.PV01Cur
 import com.opengamma.analytics.financial.provider.calculator.issuer.CleanPriceFromCurvesCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueCurveSensitivityIssuerCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueIssuerCalculator;
-import com.opengamma.analytics.financial.provider.calculator.issuer.ZSpreadIssuerCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderIssuerAnnuallyCompoundeding;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderIssuerDecoratedSpreadPeriodic;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
@@ -52,14 +51,12 @@ import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
 /**
  * 
  */
 @Test(groups = TestGroup.UNIT)
-@SuppressWarnings({"unchecked", "rawtypes" })
 public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
   private static final BondAndSTIRFuturesE2EExamplesData DATA = new BondAndSTIRFuturesE2EExamplesData();
   private static final Calendar EUR_CALENDAR = DATA.getEURCalendar();
@@ -81,57 +78,51 @@ public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
   /* issuer curves */
   private static final Interpolator1D INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
       Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
-  private static final IssuerProviderIssuerAnnuallyCompoundeding ISSUER_PROVIDER_LGT;
+  private static final int NUM_PERIODS = 1;
+  private static final IssuerProviderDiscount ISSUER_PROVIDER_LGT = new IssuerProviderDiscount();
   static {
-    IssuerProviderDiscount issuerProvider = new IssuerProviderDiscount();
     InterpolatedDoublesCurve interpolatedCurve = InterpolatedDoublesCurve.fromSorted(DATA.getTimeLGT(),
         DATA.getRateLGT(), INTERPOLATOR, CURVE_NAME_LGT);
-    YieldPeriodicCurve yieldCurve = YieldPeriodicCurve.from(1, interpolatedCurve);
+    YieldPeriodicCurve yieldCurve = YieldPeriodicCurve.from(NUM_PERIODS, interpolatedCurve);
     LegalEntityFilter<LegalEntity> filter = new LegalEntityShortName();
-    issuerProvider.setCurve(Pairs.of((Object) ISSUER_NAME_LGT, filter), yieldCurve);
+    ISSUER_PROVIDER_LGT.setCurve(Pairs.of((Object) ISSUER_NAME_LGT, filter), yieldCurve);
     ConstantDoublesCurve constantDoublesCurve = ConstantDoublesCurve.from(DATA.getRepoLGT());
-    YieldPeriodicCurve repoCurve = YieldPeriodicCurve.from(1, constantDoublesCurve);
-    issuerProvider.setCurve(GBP, repoCurve);
-    ISSUER_PROVIDER_LGT = new IssuerProviderIssuerAnnuallyCompoundeding(issuerProvider);
+    YieldPeriodicCurve repoCurve = YieldPeriodicCurve.from(NUM_PERIODS, constantDoublesCurve);
+    ISSUER_PROVIDER_LGT.setCurve(GBP, repoCurve);
   }
-  private static final IssuerProviderIssuerAnnuallyCompoundeding ISSUER_PROVIDER_SCH;
+  private static final IssuerProviderDiscount ISSUER_PROVIDER_SCH = new IssuerProviderDiscount();
   static {
-    IssuerProviderDiscount issuerProvider = new IssuerProviderDiscount();
-    InterpolatedDoublesCurve interpolatedCurve = InterpolatedDoublesCurve.fromSorted(DATA.getTimeSCH(),
-        DATA.getRateSCH(), INTERPOLATOR, CURVE_NAME_SCH);
-    YieldPeriodicCurve yieldCurve = YieldPeriodicCurve.from(1, interpolatedCurve);
+    InterpolatedDoublesCurve interpolatedCurve = InterpolatedDoublesCurve.fromSorted(DATA.getTimeGER(),
+        DATA.getRateGER(), INTERPOLATOR, CURVE_NAME_SCH);
+    YieldPeriodicCurve yieldCurve = YieldPeriodicCurve.from(NUM_PERIODS, interpolatedCurve);
     LegalEntityFilter<LegalEntity> filter = new LegalEntityShortName();
-    issuerProvider.setCurve(Pairs.of((Object) ISSUER_NAME_SCH, filter), yieldCurve);
+    ISSUER_PROVIDER_SCH.setCurve(Pairs.of((Object) ISSUER_NAME_SCH, filter), yieldCurve);
     ConstantDoublesCurve constantDoublesCurve = ConstantDoublesCurve.from(DATA.getRepoSCH());
-    YieldPeriodicCurve repoCurve = YieldPeriodicCurve.from(1, constantDoublesCurve);
-    issuerProvider.setCurve(EUR, repoCurve);
-    ISSUER_PROVIDER_SCH = new IssuerProviderIssuerAnnuallyCompoundeding(issuerProvider);
+    YieldPeriodicCurve repoCurve = YieldPeriodicCurve.from(NUM_PERIODS, constantDoublesCurve);
+    ISSUER_PROVIDER_SCH.setCurve(EUR, repoCurve);
   }
-  private static final IssuerProviderIssuerAnnuallyCompoundeding ISSUER_PROVIDER_BUN;
+
+  private static final IssuerProviderDiscount ISSUER_PROVIDER_BUN = new IssuerProviderDiscount();
   static {
-    IssuerProviderDiscount issuerProvider = new IssuerProviderDiscount();
-    InterpolatedDoublesCurve interpolatedCurve = InterpolatedDoublesCurve.fromSorted(DATA.getTimeBUN(),
-        DATA.getRateBUN(), INTERPOLATOR, CURVE_NAME_BUN);
-    YieldPeriodicCurve yieldCurve = YieldPeriodicCurve.from(1, interpolatedCurve);
+    InterpolatedDoublesCurve interpolatedCurve = InterpolatedDoublesCurve.fromSorted(DATA.getTimeGER(),
+        DATA.getRateGER(), INTERPOLATOR, CURVE_NAME_BUN);
+    YieldPeriodicCurve yieldCurve = YieldPeriodicCurve.from(NUM_PERIODS, interpolatedCurve);
     LegalEntityFilter<LegalEntity> filter = new LegalEntityShortName();
-    issuerProvider.setCurve(Pairs.of((Object) ISSUER_NAME_BUN, filter), yieldCurve);
+    ISSUER_PROVIDER_BUN.setCurve(Pairs.of((Object) ISSUER_NAME_BUN, filter), yieldCurve);
     ConstantDoublesCurve constantDoublesCurve = ConstantDoublesCurve.from(DATA.getRepoBUN());
-    YieldPeriodicCurve repoCurve = YieldPeriodicCurve.from(1, constantDoublesCurve);
-    issuerProvider.setCurve(EUR, repoCurve);
-    ISSUER_PROVIDER_BUN = new IssuerProviderIssuerAnnuallyCompoundeding(issuerProvider);
+    YieldPeriodicCurve repoCurve = YieldPeriodicCurve.from(NUM_PERIODS, constantDoublesCurve);
+    ISSUER_PROVIDER_BUN.setCurve(EUR, repoCurve);
   }
-  private static final IssuerProviderIssuerAnnuallyCompoundeding ISSUER_PROVIDER_BOB;
+  private static final IssuerProviderDiscount ISSUER_PROVIDER_BOB = new IssuerProviderDiscount();
   static {
-    IssuerProviderDiscount issuerProvider = new IssuerProviderDiscount();
-    InterpolatedDoublesCurve interpolatedCurve = InterpolatedDoublesCurve.fromSorted(DATA.getTimeBOB(),
-        DATA.getRateBOB(), INTERPOLATOR, CURVE_NAME_BOB);
-    YieldPeriodicCurve yieldCurve = YieldPeriodicCurve.from(1, interpolatedCurve);
+    InterpolatedDoublesCurve interpolatedCurve = InterpolatedDoublesCurve.fromSorted(DATA.getTimeGER(),
+        DATA.getRateGER(), INTERPOLATOR, CURVE_NAME_BOB);
+    YieldPeriodicCurve yieldCurve = YieldPeriodicCurve.from(NUM_PERIODS, interpolatedCurve);
     LegalEntityFilter<LegalEntity> filter = new LegalEntityShortName();
-    issuerProvider.setCurve(Pairs.of((Object) ISSUER_NAME_BOB, filter), yieldCurve);
+    ISSUER_PROVIDER_BOB.setCurve(Pairs.of((Object) ISSUER_NAME_BOB, filter), yieldCurve);
     ConstantDoublesCurve constantDoublesCurve = ConstantDoublesCurve.from(DATA.getRepoBOB());
-    YieldPeriodicCurve repoCurve = YieldPeriodicCurve.from(1, constantDoublesCurve);
-    issuerProvider.setCurve(EUR, repoCurve);
-    ISSUER_PROVIDER_BOB = new IssuerProviderIssuerAnnuallyCompoundeding(issuerProvider);
+    YieldPeriodicCurve repoCurve = YieldPeriodicCurve.from(NUM_PERIODS, constantDoublesCurve);
+    ISSUER_PROVIDER_BOB.setCurve(EUR, repoCurve);
   }
 
   /* Common setting */
@@ -165,10 +156,10 @@ public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
     BondFixedSecurityDefinition bondFixed = BondFixedSecurityDefinition.from(GBP, firstAccrualDate, firstCouponDate,
         maturityDate, paymentPeriod, fixedRate, settlementDays, GBP_CALENDAR, DAY_COUNT, BUSINESS_DAY, yieldConvention,
         isEOM, legalEntity);
-    BondFixedSecurityDefinition[] deliveryBusket = new BondFixedSecurityDefinition[] {bondFixed };
+    BondFixedSecurityDefinition[] deliveryBasket = new BondFixedSecurityDefinition[] {bondFixed };
     double[] conversionFactor = new double[] {1.088405 };
     BondFuturesSecurityDefinition bondFuturesDefinition = new BondFuturesSecurityDefinition(tradingLastDate,
-        noticeFirstDate, noticeLastDate, deliveryFirstDate, deliveryLastDate, NOTIONAL, deliveryBusket,
+        noticeFirstDate, noticeLastDate, deliveryFirstDate, deliveryLastDate, NOTIONAL, deliveryBasket,
         conversionFactor);
     BondFuturesTransactionDefinition transactionDefinition = new BondFuturesTransactionDefinition(
         bondFuturesDefinition, QUANTITY, TRADE_DATE, TRADE_PRICE);
@@ -197,10 +188,10 @@ public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
     BondFixedSecurityDefinition bondFixed = BondFixedSecurityDefinition.from(EUR, firstAccrualDate, firstCouponDate,
         maturityDate, paymentPeriod, fixedRate, settlementDays, EUR_CALENDAR, DAY_COUNT, BUSINESS_DAY, yieldConvention,
         isEOM, legalEntity);
-    BondFixedSecurityDefinition[] deliveryBusket = new BondFixedSecurityDefinition[] {bondFixed };
+    BondFixedSecurityDefinition[] deliveryBasket = new BondFixedSecurityDefinition[] {bondFixed };
     double[] conversionFactor = new double[] {0.966395 };
     BondFuturesSecurityDefinition bondFuturesDefinition = new BondFuturesSecurityDefinition(tradingLastDate,
-        noticeFirstDate, noticeLastDate, deliveryFirstDate, deliveryLastDate, NOTIONAL, deliveryBusket,
+        noticeFirstDate, noticeLastDate, deliveryFirstDate, deliveryLastDate, NOTIONAL, deliveryBasket,
         conversionFactor);
     BondFuturesTransactionDefinition transactionDefinition = new BondFuturesTransactionDefinition(
         bondFuturesDefinition, QUANTITY, TRADE_DATE, TRADE_PRICE);
@@ -229,10 +220,10 @@ public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
     BondFixedSecurityDefinition bondFixed = BondFixedSecurityDefinition.from(EUR, firstAccrualDate, firstCouponDate,
         maturityDate, paymentPeriod, fixedRate, settlementDays, EUR_CALENDAR, DAY_COUNT, BUSINESS_DAY, yieldConvention,
         isEOM, legalEntity);
-    BondFixedSecurityDefinition[] deliveryBusket = new BondFixedSecurityDefinition[] {bondFixed };
+    BondFixedSecurityDefinition[] deliveryBasket = new BondFixedSecurityDefinition[] {bondFixed };
     double[] conversionFactor = new double[] {0.729535 };
     BondFuturesSecurityDefinition bondFuturesDefinition = new BondFuturesSecurityDefinition(tradingLastDate,
-        noticeFirstDate, noticeLastDate, deliveryFirstDate, deliveryLastDate, NOTIONAL, deliveryBusket,
+        noticeFirstDate, noticeLastDate, deliveryFirstDate, deliveryLastDate, NOTIONAL, deliveryBasket,
         conversionFactor);
     BondFuturesTransactionDefinition transactionDefinition = new BondFuturesTransactionDefinition(
         bondFuturesDefinition, QUANTITY, TRADE_DATE, TRADE_PRICE);
@@ -261,11 +252,11 @@ public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
     BondFixedSecurityDefinition bondFixed = BondFixedSecurityDefinition.from(EUR, firstAccrualDate, firstCouponDate,
         maturityDate, paymentPeriod, fixedRate, settlementDays, EUR_CALENDAR, DAY_COUNT, BUSINESS_DAY, yieldConvention,
         isEOM, legalEntity);
-    BondFixedSecurityDefinition[] deliveryBusket = new BondFixedSecurityDefinition[] {bondFixed };
+    BondFixedSecurityDefinition[] deliveryBasket = new BondFixedSecurityDefinition[] {bondFixed };
     double[] conversionFactor = new double[] {0.912067 };
     BondFuturesSecurityDefinition bondFuturesDefinition = new BondFuturesSecurityDefinition(
         tradingLastDate, noticeFirstDate, noticeLastDate, deliveryFirstDate, deliveryLastDate, NOTIONAL,
-        deliveryBusket, conversionFactor);
+        deliveryBasket, conversionFactor);
     BondFuturesTransactionDefinition transactionDefinition = new BondFuturesTransactionDefinition(
         bondFuturesDefinition, QUANTITY, TRADE_DATE, TRADE_PRICE);
     TRANSACTION_BOB = transactionDefinition.toDerivative(VALUATION_DATE, LAST_MARGIN_PRICE);
@@ -278,7 +269,6 @@ public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
   private static final PresentValueIssuerCalculator PVIC = PresentValueIssuerCalculator.getInstance();
   private static final PresentValueCurveSensitivityIssuerCalculator PVCSIC = PresentValueCurveSensitivityIssuerCalculator
       .getInstance();
-  private static final ZSpreadIssuerCalculator ZSIC = ZSpreadIssuerCalculator.getInstance();
   private static final FuturesPriceIssuerCalculator FPIC = FuturesPriceIssuerCalculator.getInstance();
   private static final CleanPriceFromCurvesCalculator BCPCC = CleanPriceFromCurvesCalculator.getInstance();
   private static final ParameterSensitivityParameterCalculator<ParameterIssuerProviderInterface> PSSFC =
@@ -298,10 +288,10 @@ public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
     BondFuturesSecurity futures = TRANSACTION_LGT.getUnderlyingSecurity();
     BondFixedSecurity bondAtSpot = futures.getDeliveryBasketAtSpotDate()[0];
     LegalEntity legalEntity = bondAtSpot.getIssuerEntity();
-    Pair pair = Pairs.of(ISSUER_PROVIDER_LGT, BOND_MARKET_PRICE_LGT / HUNDRED);
-    double spreadComputed = bondAtSpot.accept(ZSIC, pair);
-    IssuerProviderIssuerAnnuallyCompoundeding curveWithSpread = new IssuerProviderIssuerAnnuallyCompoundeding(
-        ISSUER_PROVIDER_LGT, legalEntity, spreadComputed * BP1);
+    double spreadComputed = BOND_METHOD.zSpreadFromCurvesAndClean(bondAtSpot, ISSUER_PROVIDER_LGT,
+        BOND_MARKET_PRICE_LGT / HUNDRED, true, NUM_PERIODS) / BP1;
+    IssuerProviderIssuerDecoratedSpreadPeriodic curveWithSpread = new IssuerProviderIssuerDecoratedSpreadPeriodic(
+        ISSUER_PROVIDER_LGT, legalEntity, spreadComputed * BP1, NUM_PERIODS);
     double priceFuturesComputed = futures.accept(FPIC, curveWithSpread) * HUNDRED;
     MultipleCurrencyAmount pvTransactionComputed = TRANSACTION_LGT.accept(PVIC, curveWithSpread);
     DoubleMatrix1D bucketedTransactionComputed = PSSFC.calculateSensitivity(TRANSACTION_LGT,
@@ -309,15 +299,15 @@ public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
     double pv01TransactionComputed = TRANSACTION_LGT.accept(PV01PC, curveWithSpread).getMap()
         .get(Pairs.of(CURVE_NAME_LGT, GBP));
     
-    double[] bucketedTransactionExpected = new double[] {0.0, 0.0, 0.0, 0.0, -0.0011122245888023643,
-        -0.003997854867319321, -0.008988291553698725, -0.013186926257806753, -0.016986996812854194,
-        -0.02042640862462137, -0.02365558027478078, -0.026633232407914608, -0.029110509385756628, -0.03125200300991818,
-        -0.6131706345490692, -0.1539265852345107, 0.0, 0.0 };
-    assertRelative("LGT", 2.1717086134868425, spreadComputed, TOL);
-    assertRelative("LGT", 109.7890588277471, priceFuturesComputed, TOL);
-    assertRelative("LGT", 1097.890588277471, pvTransactionComputed.getAmount(GBP), TOL);
+    double[] bucketedTransactionExpected = new double[] {0.0, 0.0, 0.0, 0.0, -0.0011119840027780888,
+        -0.003996991037022415, -0.008986353698034574, -0.013184094172271864, -0.016983364690368513,
+        -0.02042205605039133, -0.023650552902335198, -0.026627584708890897, -0.029104349648227185,
+        -0.031245403123803063, -0.6130414257392747, -0.15389415105453183, 0.0, 0.0 };
+    assertRelative("LGT", 2.1717086134866257, spreadComputed, TOL);
+    assertRelative("LGT", 109.78905882774708, priceFuturesComputed, TOL);
+    assertRelative("LGT", 1097.8905882774707, pvTransactionComputed.getAmount(GBP), TOL);
     assertArrayRelative("LGT", bucketedTransactionExpected, bucketedTransactionComputed.getData(), TOL);
-    assertRelative("LGT", -0.9424472475670528, pv01TransactionComputed, TOL);
+    assertRelative("LGT", -0.9422483108279297, pv01TransactionComputed, TOL);
   }
 
   /**
@@ -328,10 +318,10 @@ public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
     BondFuturesSecurity futures = TRANSACTION_SCH.getUnderlyingSecurity();
     BondFixedSecurity bondAtSpot = futures.getDeliveryBasketAtSpotDate()[0];
     LegalEntity legalEntity = bondAtSpot.getIssuerEntity();
-    Pair pair = Pairs.of(ISSUER_PROVIDER_SCH, BOND_MARKET_PRICE_SCH / HUNDRED);
-    double spreadComputed = bondAtSpot.accept(ZSIC, pair);
-    IssuerProviderIssuerAnnuallyCompoundeding curveWithSpread = new IssuerProviderIssuerAnnuallyCompoundeding(
-        ISSUER_PROVIDER_SCH, legalEntity, spreadComputed * BP1);
+    double spreadComputed = BOND_METHOD.zSpreadFromCurvesAndClean(bondAtSpot, ISSUER_PROVIDER_SCH,
+        BOND_MARKET_PRICE_SCH / HUNDRED, true, NUM_PERIODS) / BP1;
+    IssuerProviderIssuerDecoratedSpreadPeriodic curveWithSpread = new IssuerProviderIssuerDecoratedSpreadPeriodic(
+        ISSUER_PROVIDER_SCH, legalEntity, spreadComputed * BP1, NUM_PERIODS);
     double priceFuturesComputed = futures.accept(FPIC, curveWithSpread) * HUNDRED;
     MultipleCurrencyAmount pvTransactionComputed = TRANSACTION_SCH.accept(PVIC, curveWithSpread);
     DoubleMatrix1D bucketedTransactionComputed = PSSFC.calculateSensitivity(TRANSACTION_SCH,
@@ -339,13 +329,13 @@ public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
     double pv01TransactionComputed = TRANSACTION_SCH.accept(PV01PC, curveWithSpread).getMap()
         .get(Pairs.of(CURVE_NAME_SCH, EUR));
 
-    double[] bucketedTransactionExpected = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, -0.003532003180154463,
-        -0.16089239249709827, -0.09592358666007135, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-    assertRelative("SCH", -2.861164353150635, spreadComputed, TOL);
+    double[] bucketedTransactionExpected = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, -0.003533013095042371,
+        -0.16093837199377917, -0.09595099930211884, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    assertRelative("SCH", -2.861164353149736, spreadComputed, TOL);
     assertRelative("SCH", 110.66399796476674, priceFuturesComputed, TOL);
     assertRelative("SCH", 1106.6399796476674, pvTransactionComputed.getAmount(EUR), TOL);
     assertArrayRelative("SCH", bucketedTransactionExpected, bucketedTransactionComputed.getData(), TOL);
-    assertRelative("SCH", -0.2603479823373241, pv01TransactionComputed, TOL);
+    assertRelative("SCH", -0.26042238439094034, pv01TransactionComputed, TOL);
   }
 
   /**
@@ -356,10 +346,10 @@ public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
     BondFuturesSecurity futures = TRANSACTION_BUN.getUnderlyingSecurity();
     BondFixedSecurity bondAtSpot = futures.getDeliveryBasketAtSpotDate()[0];
     LegalEntity legalEntity = bondAtSpot.getIssuerEntity();
-    Pair pair = Pairs.of(ISSUER_PROVIDER_BUN, BOND_MARKET_PRICE_BUN / HUNDRED);
-    double spreadComputed = bondAtSpot.accept(ZSIC, pair);
-    IssuerProviderIssuerAnnuallyCompoundeding curveWithSpread = new IssuerProviderIssuerAnnuallyCompoundeding(
-        ISSUER_PROVIDER_BUN, legalEntity, spreadComputed * BP1);
+    double spreadComputed = BOND_METHOD.zSpreadFromCurvesAndClean(bondAtSpot, ISSUER_PROVIDER_BUN,
+        BOND_MARKET_PRICE_BUN / HUNDRED, true, NUM_PERIODS) / BP1;
+    IssuerProviderIssuerDecoratedSpreadPeriodic curveWithSpread = new IssuerProviderIssuerDecoratedSpreadPeriodic(
+        ISSUER_PROVIDER_BUN, legalEntity, spreadComputed * BP1, NUM_PERIODS);
     double priceFuturesComputed = futures.accept(FPIC, curveWithSpread) * HUNDRED;
     MultipleCurrencyAmount pvTransactionComputed = TRANSACTION_BUN.accept(PVIC, curveWithSpread);
     DoubleMatrix1D bucketedTransactionComputed = PSSFC.calculateSensitivity(TRANSACTION_BUN,
@@ -367,15 +357,15 @@ public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
     double pv01TransactionComputed = TRANSACTION_BUN.accept(PV01PC, curveWithSpread).getMap()
         .get(Pairs.of(CURVE_NAME_BUN, EUR));
 
-    double[] bucketedTransactionExpected = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, -0.002063178043659581,
-        -0.005484813614777467, -0.008148845219070796, -0.01071954339963743, -0.013167123470076732,
-        -0.01537421236987675, -0.017655933808399228, -0.01952754726336682, -0.5798346316930093, -0.5484111675709569,
+    double[] bucketedTransactionExpected = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, -0.0020630116900443086,
+        -0.0054843715526430095, -0.008148189182456278, -0.010718682062030957, -0.013166067751900188,
+        -0.015372982184702157, -0.017654524090719107, -0.019525991723930332, -0.5797885890116127, -0.5483676217067257,
         0.0, 0.0, 0.0 };
     assertRelative("BUN", 0.807136177649383, spreadComputed, TOL);
     assertRelative("BUN", 140.57600798338933, priceFuturesComputed, TOL);
-    assertRelative("BUN", 1405.7600798338933, pvTransactionComputed.getAmount(EUR), TOL);
+    assertRelative("BUN", 1405.760079833893, pvTransactionComputed.getAmount(EUR), TOL);
     assertArrayRelative("BUN", bucketedTransactionExpected, bucketedTransactionComputed.getData(), TOL);
-    assertRelative("BUN", -1.2203869964528309, pv01TransactionComputed, TOL);
+    assertRelative("BUN", -1.2202900309567646, pv01TransactionComputed, TOL);
   }
 
   /**
@@ -386,10 +376,10 @@ public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
     BondFuturesSecurity futures = TRANSACTION_BOB.getUnderlyingSecurity();
     BondFixedSecurity bondAtSpot = futures.getDeliveryBasketAtSpotDate()[0];
     LegalEntity legalEntity = bondAtSpot.getIssuerEntity();
-    Pair pair = Pairs.of(ISSUER_PROVIDER_BOB, BOND_MARKET_PRICE_BOB / HUNDRED);
-    double spreadComputed = bondAtSpot.accept(ZSIC, pair);
-    IssuerProviderIssuerAnnuallyCompoundeding curveWithSpread = new IssuerProviderIssuerAnnuallyCompoundeding(
-        ISSUER_PROVIDER_BOB, legalEntity, spreadComputed * BP1);
+    double spreadComputed = BOND_METHOD.zSpreadFromCurvesAndClean(bondAtSpot, ISSUER_PROVIDER_BOB,
+        BOND_MARKET_PRICE_BOB / HUNDRED, true, NUM_PERIODS) / BP1;
+    IssuerProviderIssuerDecoratedSpreadPeriodic curveWithSpread = new IssuerProviderIssuerDecoratedSpreadPeriodic(
+        ISSUER_PROVIDER_BOB, legalEntity, spreadComputed * BP1, NUM_PERIODS);
     double priceFuturesComputed = futures.accept(FPIC, curveWithSpread) * HUNDRED;
     MultipleCurrencyAmount pvTransactionComputed = TRANSACTION_BOB.accept(PVIC, curveWithSpread);
     DoubleMatrix1D bucketedTransactionComputed = PSSFC.calculateSensitivity(TRANSACTION_BOB,
@@ -397,14 +387,14 @@ public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
     double pv01TransactionComputed = TRANSACTION_BOB.accept(PV01PC, curveWithSpread).getMap()
         .get(Pairs.of(CURVE_NAME_BOB, EUR));
 
-    double[] bucketedTransactionExpected = new double[] {0.0, 0.0, 0.0, 0.0, -8.416957774922316E-4,
-        -0.003708734026681847, -0.008194588656256685, -0.012228161187586226, -0.07831615746868531, -0.4708218337870807,
-        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-    assertRelative("BOB", -4.008114404257235, spreadComputed, TOL);
-    assertRelative("BOB", 125.01222173864899, priceFuturesComputed, TOL);
-    assertRelative("BOB", 1250.1222173864899, pvTransactionComputed.getAmount(EUR), TOL);
+    double[] bucketedTransactionExpected = new double[] {0.0, 0.0, 0.0, 0.0, -8.420329901424389E-4,
+        -0.0037102197939933314, -0.008197870450731125, -0.01223305313780289, -0.07834737330655409,
+        -0.47100941424888865, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    assertRelative("BOB", -4.008114404255493, spreadComputed, TOL);
+    assertRelative("BOB", 125.01222173864888, priceFuturesComputed, TOL);
+    assertRelative("BOB", 1250.1222173864887, pvTransactionComputed.getAmount(EUR), TOL);
     assertArrayRelative("BOB", bucketedTransactionExpected, bucketedTransactionComputed.getData(), TOL);
-    assertRelative("BOB", -0.574111170903783, pv01TransactionComputed, TOL);
+    assertRelative("BOB", -0.5743399639281125, pv01TransactionComputed, TOL);
   }
 
   /**
@@ -417,25 +407,25 @@ public class BondFuturesTransactionAnnuallyCompoundingE2ETest {
     BondFixedSecurity bondAtDeliv = futures.getDeliveryBasketAtDeliveryDate()[0]; // future delivery
     BondFixedSecurity bondAtSpot = futures.getDeliveryBasketAtSpotDate()[0]; // spot
     LegalEntity legalEntity = bondAtDeliv.getIssuerEntity();
-    IssuerProviderIssuerAnnuallyCompoundeding curveWithSpread = new IssuerProviderIssuerAnnuallyCompoundeding(
-        ISSUER_PROVIDER_SCH, legalEntity, sampleSpread);
+    IssuerProviderIssuerDecoratedSpreadPeriodic curveWithSpread = new IssuerProviderIssuerDecoratedSpreadPeriodic(
+        ISSUER_PROVIDER_SCH, legalEntity, sampleSpread, NUM_PERIODS);
 
     /* bond clean price - including factor */
     MultipleCurrencyAmount pv = BOND_METHOD.presentValue(bondAtSpot, curveWithSpread);
     double cleanPriceFromPV = HUNDRED * (pv.getAmount(EUR) / curveWithSpread.getMulticurveProvider()
         .getDiscountFactor(EUR, bondAtSpot.getSettlementTime()) - bondAtSpot.getAccruedInterest());
     double cleanPriceExpected = BOND_METHOD.cleanPriceFromCurves(bondAtSpot, curveWithSpread) * HUNDRED;
-    double cleanPrice = bondAtSpot.accept(BCPCC, curveWithSpread); // *** use this
+    double cleanPrice = bondAtSpot.accept(BCPCC, curveWithSpread);
     assertRelative("calculatorTest", cleanPriceExpected, cleanPrice, TOL);
     assertRelative("calculatorTest", cleanPriceFromPV, cleanPrice, TOL);
 
     /* spread - including double factor, input should be un-factored */
-    Pair pair = Pairs.of(ISSUER_PROVIDER_SCH, cleanPrice / HUNDRED);
-    double computedSpread = bondAtSpot.accept(ZSIC, pair) / HUNDRED / HUNDRED; // *** use this
+    double computedSpread = BOND_METHOD.zSpreadFromCurvesAndClean(bondAtSpot, ISSUER_PROVIDER_SCH,
+        cleanPrice / HUNDRED, true, NUM_PERIODS);
     assertRelative("calculatorTest", sampleSpread, computedSpread, TOL);
 
     /* futures price -  excluding factor and notional */
-    double futuresPriceComputed = futures.accept(FPIC, curveWithSpread) * HUNDRED;  // *** use this
+    double futuresPriceComputed = futures.accept(FPIC, curveWithSpread) * HUNDRED;
     double futuresPriceExpected = bondAtDeliv.accept(BCPCC, curveWithSpread) /
         futures.getConversionFactor()[0];
     assertRelative("calculatorTest", futuresPriceExpected, futuresPriceComputed, TOL);

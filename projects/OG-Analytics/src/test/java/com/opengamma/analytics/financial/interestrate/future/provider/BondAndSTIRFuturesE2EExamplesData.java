@@ -67,25 +67,15 @@ public class BondAndSTIRFuturesE2EExamplesData {
   private static final double[] RATE_ISSUER_LGT = new double[] {0.0039, 0.0039, 0.0039, 0.0039, 0.00368, 0.00432,
       0.00659, 0.01068, 0.01554, 0.019, 0.02166, 0.02388, 0.02611, 0.02824, 0.02956, 0.03376, 0.03603, 0.03824 };
   private static final double REPO_RATE_LGT = 0.0017;
-  private static final double[] TIME_ISSUER_SCH = new double[] {0.0027397260273972603, 0.019178082191780823,
+  private static final double[] TIME_ISSUER_GER = new double[] {0.0027397260273972603, 0.019178082191780823,
       0.0821917808219178, 0.2465753424657534, 0.4931506849315068, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0,
       15.0, 20.0, 30.0 };
-  private static final double[] RATE_ISSUER_SCH = new double[] {6.8E-4, 6.8E-4, 6.8E-4, 6.8E-4, 8.8E-4, 8.3E-4,
+  private static final double[] RATE_ISSUER_GER = new double[] {6.8E-4, 6.8E-4, 6.8E-4, 6.8E-4, 8.8E-4, 8.3E-4,
       0.00109, 0.00212, 0.00414, 0.00674, 0.00838, 0.01075, 0.01311, 0.01547, 0.0174, 0.02289, 0.02577, 0.02693 };
   private static final double REPO_RATE_SCH = -2.0E-4;
   private static final double REPO_RATE_SCH_OP = 0.0017;
-  private static final double[] TIME_ISSUER_BUN = new double[] {0.0027397260273972603, 0.019178082191780823,
-      0.0821917808219178, 0.2465753424657534, 0.4931506849315068, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0,
-      15.0, 20.0, 30.0 };
-  private static final double[] RATE_ISSUER_BUN = new double[] {6.8E-4, 6.8E-4, 6.8E-4, 6.8E-4, 8.8E-4, 8.3E-4,
-      0.00109, 0.00212, 0.00414, 0.00674, 0.00838, 0.01075, 0.01311, 0.01547, 0.0174, 0.02289, 0.02577, 0.02693 };
   private static final double REPO_RATE_BUN = 9.0E-4;
   private static final double REPO_RATE_BUN_OP = 0.0;
-  private static final double[] TIME_ISSUER_BOB = new double[] {0.0027397260273972603, 0.019178082191780823,
-      0.0821917808219178, 0.2465753424657534, 0.4931506849315068, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0,
-      15.0, 20.0, 30.0 };
-  private static final double[] RATE_ISSUER_BOB = new double[] {6.8E-4, 6.8E-4, 6.8E-4, 6.8E-4, 8.8E-4, 8.3E-4,
-      0.00109, 0.00212, 0.00414, 0.00674, 0.00838, 0.01075, 0.01311, 0.01547, 0.0174, 0.02289, 0.02577, 0.02693 };
   private static final double REPO_RATE_BOB = -0.0013;
   private static final double REPO_RATE_BOB_OP = -6.0E-4;
 
@@ -114,19 +104,19 @@ public class BondAndSTIRFuturesE2EExamplesData {
   }
 
   /**
-   * Access TIME_ISSUER_SCH
-   * @return TIME_ISSUER_SCH
+   * Access TIME_ISSUER_GER
+   * @return TIME_ISSUER_GER
    */
-  public double[] getTimeSCH() {
-    return TIME_ISSUER_SCH.clone();
+  public double[] getTimeGER() {
+    return TIME_ISSUER_GER.clone();
   }
 
   /**
-   * Access RATE_ISSUER_SCH
-   * @return RATE_ISSUER_SCH
+   * Access RATE_ISSUER_GER
+   * @return RATE_ISSUER_GER
    */
-  public double[] getRateSCH() {
-    return RATE_ISSUER_SCH.clone();
+  public double[] getRateGER() {
+    return RATE_ISSUER_GER.clone();
   }
 
   /**
@@ -146,22 +136,6 @@ public class BondAndSTIRFuturesE2EExamplesData {
   }
 
   /**
-   * Access TIME_ISSUER_BUN
-   * @return TIME_ISSUER_BUN
-   */
-  public double[] getTimeBUN() {
-    return TIME_ISSUER_BUN.clone();
-  }
-
-  /**
-   * Access RATE_ISSUER_BUN
-   * @return RATE_ISSUER_BUN
-   */
-  public double[] getRateBUN() {
-    return RATE_ISSUER_BUN.clone();
-  }
-
-  /**
    * Access REPO_RATE_BUN
    * @return REPO_RATE_BUN
    */
@@ -175,22 +149,6 @@ public class BondAndSTIRFuturesE2EExamplesData {
    */
   public double getRepoBUNOp() {
     return REPO_RATE_BUN_OP;
-  }
-
-  /**
-   * Access TIME_ISSUER_BOB
-   * @return TIME_ISSUER_BOB
-   */
-  public double[] getTimeBOB() {
-    return TIME_ISSUER_BOB.clone();
-  }
-
-  /**
-   * Access RATE_ISSUER_BOB
-   * @return RATE_ISSUER_BOB
-   */
-  public double[] getRateBOB() {
-    return RATE_ISSUER_BOB.clone();
   }
 
   /**

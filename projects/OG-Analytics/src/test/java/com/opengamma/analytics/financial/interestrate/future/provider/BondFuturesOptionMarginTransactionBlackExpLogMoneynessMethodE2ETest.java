@@ -106,8 +106,8 @@ public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodE2ETest
   private static final BlackBondFuturesExpLogMoneynessProviderDiscount BLACK_PROVIDER_SCH;
   static {
     IssuerProviderDiscount issuerProvider = new IssuerProviderDiscount();
-    InterpolatedDoublesCurve interpolatedCurve = InterpolatedDoublesCurve.fromSorted(DATA.getTimeSCH(),
-        DATA.getRateSCH(), INTERPOLATOR, CURVE_NAME_SCH);
+    InterpolatedDoublesCurve interpolatedCurve = InterpolatedDoublesCurve.fromSorted(DATA.getTimeGER(),
+        DATA.getRateGER(), INTERPOLATOR, CURVE_NAME_SCH);
     YieldPeriodicCurve yieldCurve = YieldPeriodicCurve.from(1, interpolatedCurve);
     LegalEntityFilter<LegalEntity> filter = new LegalEntityShortName();
     issuerProvider.setCurve(Pairs.of((Object) ISSUER_NAME_SCH, filter), yieldCurve);
@@ -121,8 +121,8 @@ public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodE2ETest
   private static final BlackBondFuturesExpLogMoneynessProviderDiscount BLACK_PROVIDER_BUN;
   static {
     IssuerProviderDiscount issuerProvider = new IssuerProviderDiscount();
-    InterpolatedDoublesCurve interpolatedCurve = InterpolatedDoublesCurve.fromSorted(DATA.getTimeBUN(),
-        DATA.getRateBUN(), INTERPOLATOR, CURVE_NAME_BUN);
+    InterpolatedDoublesCurve interpolatedCurve = InterpolatedDoublesCurve.fromSorted(DATA.getTimeGER(),
+        DATA.getRateGER(), INTERPOLATOR, CURVE_NAME_BUN);
     YieldPeriodicCurve yieldCurve = YieldPeriodicCurve.from(1, interpolatedCurve);
     LegalEntityFilter<LegalEntity> filter = new LegalEntityShortName();
     issuerProvider.setCurve(Pairs.of((Object) ISSUER_NAME_BUN, filter), yieldCurve);
@@ -136,8 +136,8 @@ public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodE2ETest
   private static final BlackBondFuturesExpLogMoneynessProviderDiscount BLACK_PROVIDER_BOB;
   static {
     IssuerProviderDiscount issuerProvider = new IssuerProviderDiscount();
-    InterpolatedDoublesCurve interpolatedCurve = InterpolatedDoublesCurve.fromSorted(DATA.getTimeBOB(),
-        DATA.getRateBOB(), INTERPOLATOR, CURVE_NAME_BOB);
+    InterpolatedDoublesCurve interpolatedCurve = InterpolatedDoublesCurve.fromSorted(DATA.getTimeGER(),
+        DATA.getRateGER(), INTERPOLATOR, CURVE_NAME_BOB);
     YieldPeriodicCurve yieldCurve = YieldPeriodicCurve.from(1, interpolatedCurve);
     LegalEntityFilter<LegalEntity> filter = new LegalEntityShortName();
     issuerProvider.setCurve(Pairs.of((Object) ISSUER_NAME_BOB, filter), yieldCurve);

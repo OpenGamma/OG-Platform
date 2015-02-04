@@ -21,7 +21,7 @@ import com.opengamma.util.tuple.Pair;
  * Class describing a issuer provider created from a issuer provider where the discounting curve for one issuer is
  * shifted (decorated) by a a parallel spread (in the zero-coupon continuously compounded rate).
  */
-public class IssuerProviderIssuerDecoratedSpread implements IssuerProviderInterface {
+public class IssuerProviderIssuerDecoratedSpreadContinuous implements IssuerProviderInterface {
 
   /**
    * The underlying issuer provider on which the multi-curves provider is based.
@@ -42,7 +42,8 @@ public class IssuerProviderIssuerDecoratedSpread implements IssuerProviderInterf
    * @param issuer The issuer, not null
    * @param spread The spread
    */
-  public IssuerProviderIssuerDecoratedSpread(final IssuerProviderInterface issuerProvider, final LegalEntity issuer, final double spread) {
+  public IssuerProviderIssuerDecoratedSpreadContinuous(final IssuerProviderInterface issuerProvider,
+      final LegalEntity issuer, final double spread) {
     ArgumentChecker.notNull(issuerProvider, "issuerProvider");
     ArgumentChecker.notNull(issuer, "issuer");
     _issuerProvider = issuerProvider;
@@ -56,7 +57,7 @@ public class IssuerProviderIssuerDecoratedSpread implements IssuerProviderInterf
   }
 
   @Override
-  public IssuerProviderIssuerDecoratedSpread getIssuerProvider() {
+  public IssuerProviderIssuerDecoratedSpreadContinuous getIssuerProvider() {
     return this;
   }
 
@@ -136,10 +137,10 @@ public class IssuerProviderIssuerDecoratedSpread implements IssuerProviderInterf
     if (this == obj) {
       return true;
     }
-    if (!(obj instanceof IssuerProviderIssuerDecoratedSpread)) {
+    if (!(obj instanceof IssuerProviderIssuerDecoratedSpreadContinuous)) {
       return false;
     }
-    final IssuerProviderIssuerDecoratedSpread other = (IssuerProviderIssuerDecoratedSpread) obj;
+    final IssuerProviderIssuerDecoratedSpreadContinuous other = (IssuerProviderIssuerDecoratedSpreadContinuous) obj;
     if (Double.compare(_spread, other._spread) != 0) {
       return false;
     }
