@@ -105,7 +105,7 @@ The **PSSFC** computes the sensitivity to the curve parameters (*bucketed PV01*)
 Here we look at the sensitivity to the issuer curve rather than the repo curve (in the present case the repo curve is a flat curve).
 The format of the output is a **DoubleMatrix1D** object which can be represented by::
 
-(0.0, 0.0, 0.0, 0.0, -0.0011,-0.0040, -0.0090, -0.0132, -0.0170, -0.0204, -0.0237, -0.0266, -0.0291, -0.0313, -0.6132, -0.1539, 0.0, 0.0)
+(0.0, 0.0, 0.0, 0.0, -0.0011,-0.0040, -0.0090, -0.0132, -0.0170, -0.0204, -0.0237, -0.0266, -0.0291, -0.0312, -0.6130, -0.1539, 0.0, 0.0)
 
 Another way of expressing the curve sensitivity is *PV01*, total amount of the curve sensitivity, which is computed by::
 
