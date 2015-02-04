@@ -31,9 +31,9 @@ import com.opengamma.integration.server.RemoteServer;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.CalculationArguments;
-import com.opengamma.sesame.engine.Engine;
-import com.opengamma.sesame.engine.RemoteEngine;
+import com.opengamma.sesame.engine.RemoteViewRunner;
 import com.opengamma.sesame.engine.Results;
+import com.opengamma.sesame.engine.ViewRunner;
 import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.solutions.util.BondViewUtils;
@@ -71,7 +71,7 @@ public class RemoteBondTest {
                                                                      "GBP_Bond_Integration",
                                                                      VersionCorrection.LATEST);
 
-    Engine engine = new RemoteEngine(URI.create(url));
+    ViewRunner viewRunner = new RemoteViewRunner(URI.create(url));
     MarketDataSpecification marketDataSpec = UserMarketDataSpecification.of(snapshot.getUniqueId());
 
     CalculationArguments calculationArguments =
@@ -90,7 +90,7 @@ public class RemoteBondTest {
     List<Object> trades = BondViewUtils.BOND_INPUTS;
     ViewConfig viewConfig = createViewConfig();
 
-    _bondResults = engine.runView(viewConfig, calculationArguments, marketDataEnvironment, trades);
+    _bondResults = viewRunner.runView(viewConfig, calculationArguments, marketDataEnvironment, trades);
   }
 
   private ViewConfig createViewConfig() {

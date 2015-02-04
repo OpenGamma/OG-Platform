@@ -21,9 +21,9 @@ import com.google.common.base.Objects;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.CalculationArguments;
-import com.opengamma.sesame.engine.Engine;
-import com.opengamma.sesame.engine.RemoteEngine;
+import com.opengamma.sesame.engine.RemoteViewRunner;
 import com.opengamma.sesame.engine.Results;
+import com.opengamma.sesame.engine.ViewRunner;
 import com.opengamma.sesame.marketdata.EmptyMarketDataSpec;
 import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
@@ -53,7 +53,7 @@ public class RemoteCreditTest {
   public void setUp() {
     String url = Objects.firstNonNull(System.getProperty("server.url"), RemoteTestUtils.LOCALHOST);
 
-    Engine engine = new RemoteEngine(URI.create(url));
+    ViewRunner viewRunner = new RemoteViewRunner(URI.create(url));
     MarketDataSpecification marketDataSpec = EmptyMarketDataSpec.INSTANCE;
 
     CalculationArguments calculationArguments =
@@ -67,7 +67,7 @@ public class RemoteCreditTest {
     ViewConfig viewConfig = CreditViewUtils.createViewConfig("Sample Credit Curve", "Sample Yield Curve");
     List<Object> trades = CreditViewUtils.INPUTS;
 
-    _results = engine.runView(viewConfig, calculationArguments, marketDataEnvironment, trades);
+    _results = viewRunner.runView(viewConfig, calculationArguments, marketDataEnvironment, trades);
   }
 
   @Test

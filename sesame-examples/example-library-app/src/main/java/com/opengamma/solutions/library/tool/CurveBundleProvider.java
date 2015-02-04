@@ -110,8 +110,10 @@ public class CurveBundleProvider {
     MulticurveId multicurveId = MulticurveId.of(bundleName);
     SingleValueRequirement requirement = SingleValueRequirement.of(multicurveId);
     Set<MarketDataRequirement> requirements = ImmutableSet.<MarketDataRequirement>of(requirement);
-    List<SinglePerturbationMapping> perturbations = new ArrayList();
-    MarketDataEnvironment marketData = environmentFactory.build(suppliedData, requirements, perturbations, marketDataSpec, valuationTime);
+
+    List<SinglePerturbationMapping> perturbations = ImmutableList.of();
+    MarketDataEnvironment marketData =
+        environmentFactory.build(suppliedData, requirements, perturbations, marketDataSpec, valuationTime);
 
     return (MulticurveBundle) marketData.getData().get(requirement);
   }
