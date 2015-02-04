@@ -9,6 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -87,7 +88,7 @@ public class IssuerProviderIssuerDecoratedSpreadPeriodicTest {
   }
   private static final List<DoublesPair> POINT_SENSITIVITY_LIST = new ArrayList<>();
   static {
-    DoublesPair pair = DoublesPair.of(0.4, 350.0);
+    DoublesPair pair = DoublesPair.of(0.4, 1.0);
     POINT_SENSITIVITY_LIST.add(pair);
   }
   private static final LegalEntity ISSUER_DSC = new LegalEntity(null, ISSUER_NAME_DSC, null, null, null);
@@ -95,37 +96,35 @@ public class IssuerProviderIssuerDecoratedSpreadPeriodicTest {
   private static final double[] KEYS = new double[] {-1.0, 0.0, 1.35, 12.5, 30.0 };
   private static final double NUM_KEYS = KEYS.length;
 
+  private static final double TOL = 1.0e-12;
+
   /**
    * add spread
    */
   @Test
   public void spreadTest() {
-    double tol = 1.0e-12;
     double sampleSpread1 = 0.05;
     double sampleSpread2 = 0.025;
     IssuerProviderIssuerDecoratedSpreadPeriodic providerWithSpread1 = new IssuerProviderIssuerDecoratedSpreadPeriodic(
         ISSUER_PROVIDER, ISSUER_DSC, sampleSpread1, 1);
     IssuerProviderIssuerDecoratedSpreadPeriodic providerWithSpread2 = new IssuerProviderIssuerDecoratedSpreadPeriodic(
         providerWithSpread1.getIssuerProvider(), ISSUER_YLD, sampleSpread2, 2);
-    IssuerProviderIssuerDecoratedSpreadPeriodic providerWithZeroSpread = new IssuerProviderIssuerDecoratedSpreadPeriodic(
-        ISSUER_PROVIDER, ISSUER_DSC, 0.0, 1);
-    assertTrue(providerWithZeroSpread.getIssuerProvider().equals(ISSUER_PROVIDER));
 
     for (int i = 0; i < NUM_KEYS; ++i) {
       double zeroEquiv1 = Math.pow(ISSUER_PROVIDER.getDiscountFactor(ISSUER_DSC, KEYS[i]), -1.0 / KEYS[i]) - 1.0 +
           sampleSpread1;
       double disExpected1 = Math.pow(1.0 + zeroEquiv1, -KEYS[i]);
       double disComputed1 = providerWithSpread2.getDiscountFactor(ISSUER_DSC, KEYS[i]);
-      assertEquals("accesserTest", disExpected1, disComputed1, tol);
+      assertEquals("accesserTest", disExpected1, disComputed1, TOL);
 
       double zeroEquiv2 = 2.0 * Math.pow(ISSUER_PROVIDER.getDiscountFactor(ISSUER_YLD, KEYS[i]), -1.0 / 2.0 / KEYS[i]) -
           2.0 + sampleSpread2;
       double disExpected2 = Math.pow(1.0 + zeroEquiv2 / 2.0, -2.0 * KEYS[i]);
       double disComputed2 = providerWithSpread2.getDiscountFactor(ISSUER_YLD, KEYS[i]);
-      assertEquals("spreadTest", disExpected2, disComputed2, tol);
+      assertEquals("spreadTest", disExpected2, disComputed2, TOL);
       double disExpected3 = ISSUER_PROVIDER.getMulticurveProvider().getDiscountFactor(USD, KEYS[i]);
       double disComputed3 = providerWithSpread2.getMulticurveProvider().getDiscountFactor(USD, KEYS[i]);
-      assertEquals("spreadTest", disExpected3, disComputed3, tol);
+      assertEquals("spreadTest", disExpected3, disComputed3, TOL);
     }
 
     assertTrue(providerWithSpread2.getName(ISSUER_DSC).equals(ISSUER_PROVIDER.getName(ISSUER_DSC)));
@@ -141,9 +140,8 @@ public class IssuerProviderIssuerDecoratedSpreadPeriodicTest {
     assertEquals("spreadTest", providerWithSpread2.getNumberOfParameters(CURVE_NAME_PRD),
         ISSUER_PROVIDER.getNumberOfParameters(CURVE_NAME_PRD));
     
-    assertEquals("spreadTest", CURVE_NAME_DSC, providerWithSpread2.getUnderlyingCurvesNames(CURVE_NAME_DSC).get(0));
-    assertEquals("spreadTest", "spread", providerWithSpread2.getUnderlyingCurvesNames(CURVE_NAME_DSC).get(1));
-    assertEquals("spreadTest", new ArrayList<>(), providerWithSpread1.getUnderlyingCurvesNames(CURVE_NAME_YLD)); // due to implementation of YieldCurve
+    assertEquals("spreadTest", new ArrayList<>(), providerWithSpread2.getUnderlyingCurvesNames(CURVE_NAME_DSC));
+    assertEquals("spreadTest", new ArrayList<>(), providerWithSpread1.getUnderlyingCurvesNames(CURVE_NAME_YLD));
 
     LegalEntityFilter<LegalEntity> filter = new LegalEntityShortName();
     assertEquals("accesserTest", CURVE_NAME_DSC,
@@ -152,24 +150,111 @@ public class IssuerProviderIssuerDecoratedSpreadPeriodicTest {
         providerWithSpread2.getName(Pairs.of((Object) ISSUER_NAME_YLD, filter)));
     
     IssuerProviderIssuerDecoratedSpreadPeriodic providerWithTinySpread = new IssuerProviderIssuerDecoratedSpreadPeriodic(
-        ISSUER_PROVIDER, ISSUER_DSC, tol, 1);
+        ISSUER_PROVIDER, ISSUER_DSC, TOL, 1);
 
     assertArrayRelative("accesserTest",
         ISSUER_PROVIDER.parameterForwardSensitivity(CURVE_NAME_DSC, FWD_SENSITIVITY_LIST),
-        providerWithTinySpread.parameterForwardSensitivity(CURVE_NAME_DSC, FWD_SENSITIVITY_LIST), tol);
+        providerWithTinySpread.parameterForwardSensitivity(CURVE_NAME_DSC, FWD_SENSITIVITY_LIST), TOL);
     assertArrayRelative("accesserTest",
         ISSUER_PROVIDER.parameterForwardSensitivity(CURVE_NAME_YLD, FWD_SENSITIVITY_LIST),
-        providerWithTinySpread.parameterForwardSensitivity(CURVE_NAME_YLD, FWD_SENSITIVITY_LIST), tol);
+        providerWithTinySpread.parameterForwardSensitivity(CURVE_NAME_YLD, FWD_SENSITIVITY_LIST), TOL);
     assertArrayRelative("accesserTest",
         ISSUER_PROVIDER.parameterSensitivity(CURVE_NAME_DSC, POINT_SENSITIVITY_LIST),
-        providerWithTinySpread.parameterSensitivity(CURVE_NAME_DSC, POINT_SENSITIVITY_LIST), tol);
+        providerWithTinySpread.parameterSensitivity(CURVE_NAME_DSC, POINT_SENSITIVITY_LIST), TOL * 10.);
     assertArrayRelative("accesserTest",
         ISSUER_PROVIDER.parameterSensitivity(CURVE_NAME_YLD, POINT_SENSITIVITY_LIST),
-        providerWithTinySpread.parameterSensitivity(CURVE_NAME_YLD, POINT_SENSITIVITY_LIST), tol);
+        providerWithTinySpread.parameterSensitivity(CURVE_NAME_YLD, POINT_SENSITIVITY_LIST), TOL * 10.);
   }
 
   /**
-   * copy is not supported, although underlying IssuerProviderDiscount supports copy
+   * sensitivity test against finite difference approximation
+   */
+  @Test
+  public void sensitivityFiniteDifferenceTest() {
+    double eps = 1.0e-7;
+    double spreadSemiannual = -0.02;
+    int nPeriodS = 2;
+    double spreadQuarterly = 0.06;
+    int nPeriodQ = 4;
+    IssuerProviderIssuerDecoratedSpreadPeriodic providerWithSpread = new IssuerProviderIssuerDecoratedSpreadPeriodic(
+        ISSUER_PROVIDER, ISSUER_DSC, spreadSemiannual, nPeriodS);
+    IssuerProviderIssuerDecoratedSpreadPeriodic providerWithSpreadDouble = new IssuerProviderIssuerDecoratedSpreadPeriodic(
+        providerWithSpread, ISSUER_YLD, spreadQuarterly, nPeriodQ);
+    // discount curve
+    {
+      double[] senseComputed = providerWithSpreadDouble.parameterSensitivity(CURVE_NAME_DSC, POINT_SENSITIVITY_LIST);
+      int nParams = FACTOR_DSC.length;
+      double[] senseExpected = new double[nParams];
+      for (int i = 0; i < nParams; ++i) {
+        LegalEntityFilter<LegalEntity> filter = new LegalEntityShortName();
+        IssuerProviderDiscount issuerDiscountUp = new IssuerProviderDiscount();
+        IssuerProviderDiscount issuerDiscountDw = new IssuerProviderDiscount();
+        Double[] pramsUp = Arrays.copyOf(FACTOR_DSC, nParams);
+        Double[] pramsDw = Arrays.copyOf(FACTOR_DSC, nParams);
+        pramsUp[i] += eps;
+        pramsDw[i] -= eps;
+        InterpolatedDoublesCurve interpolatedCurveUp = InterpolatedDoublesCurve.fromSorted(TIME_DSC, pramsUp,
+            INTERPOLATOR, CURVE_NAME_DSC);
+        DiscountCurve discountCurveUp = new DiscountCurve(CURVE_NAME_DSC, interpolatedCurveUp);
+        issuerDiscountUp.setCurve(Pairs.of((Object) ISSUER_NAME_DSC, filter), discountCurveUp);
+        double up = issuerDiscountUp.getIssuerCurve(CURVE_NAME_DSC).getInterestRate(
+            POINT_SENSITIVITY_LIST.get(0).getFirst());
+        up = addShiftToPrdCmpRates(up, spreadSemiannual, nPeriodS);
+        InterpolatedDoublesCurve interpolatedCurveDw = InterpolatedDoublesCurve.fromSorted(TIME_DSC, pramsDw,
+            INTERPOLATOR, CURVE_NAME_DSC);
+        DiscountCurve discountCurveDw = new DiscountCurve(CURVE_NAME_DSC, interpolatedCurveDw);
+        issuerDiscountDw.setCurve(Pairs.of((Object) ISSUER_NAME_DSC, filter), discountCurveDw);
+        double dw = issuerDiscountDw.getIssuerCurve(CURVE_NAME_DSC).getInterestRate(
+            POINT_SENSITIVITY_LIST.get(0).getFirst());
+        dw = addShiftToPrdCmpRates(dw, spreadSemiannual, nPeriodS);
+        senseExpected[i] = 0.5 * (up - dw) * POINT_SENSITIVITY_LIST.get(0).getSecond() / eps;
+      }
+      assertArrayRelative("sensitivityFiniteDifferenceDiscountTest", senseExpected, senseComputed, eps);
+    }
+    // yield curve
+    {
+      double[] senseComputed = providerWithSpreadDouble.parameterSensitivity(CURVE_NAME_YLD, POINT_SENSITIVITY_LIST);
+      int nParams = RATE_YLD.length;
+      double[] senseExpected = new double[nParams];
+      for (int i = 0; i < nParams; ++i) {
+        LegalEntityFilter<LegalEntity> filter = new LegalEntityShortName();
+        IssuerProviderDiscount issuerDiscountUp = new IssuerProviderDiscount();
+        IssuerProviderDiscount issuerDiscountDw = new IssuerProviderDiscount();
+        Double[] pramsUp = Arrays.copyOf(RATE_YLD, nParams);
+        Double[] pramsDw = Arrays.copyOf(RATE_YLD, nParams);
+        pramsUp[i] += eps;
+        pramsDw[i] -= eps;
+        InterpolatedDoublesCurve interpolatedCurveUp = InterpolatedDoublesCurve.fromSorted(TIME_YLD, pramsUp,
+            INTERPOLATOR, CURVE_NAME_YLD);
+        YieldCurve discountCurveUp = new YieldCurve(CURVE_NAME_YLD, interpolatedCurveUp);
+        issuerDiscountUp.setCurve(Pairs.of((Object) ISSUER_NAME_YLD, filter), discountCurveUp);
+        double up = issuerDiscountUp.getIssuerCurve(CURVE_NAME_YLD).getInterestRate(
+            POINT_SENSITIVITY_LIST.get(0).getFirst());
+        up = addShiftToPrdCmpRates(up, spreadQuarterly, nPeriodQ);
+        InterpolatedDoublesCurve interpolatedCurveDw = InterpolatedDoublesCurve.fromSorted(TIME_YLD, pramsDw,
+            INTERPOLATOR, CURVE_NAME_YLD);
+        YieldCurve discountCurveDw = new YieldCurve(CURVE_NAME_YLD, interpolatedCurveDw);
+        issuerDiscountDw.setCurve(Pairs.of((Object) ISSUER_NAME_YLD, filter), discountCurveDw);
+        double dw = issuerDiscountDw.getIssuerCurve(CURVE_NAME_YLD).getInterestRate(
+            POINT_SENSITIVITY_LIST.get(0).getFirst());
+        dw = addShiftToPrdCmpRates(dw, spreadQuarterly, nPeriodQ);
+        senseExpected[i] = 0.5 * (up - dw) * POINT_SENSITIVITY_LIST.get(0).getSecond() / eps;
+      }
+      assertArrayRelative("sensitivityFiniteDifferenceDiscountTest", senseExpected, senseComputed, eps);
+    }
+    // currency-based curve is not affected
+    assertArrayRelative("sensitivityFiniteDifferenceDiscountTest",
+        ISSUER_PROVIDER.parameterSensitivity(CURVE_NAME_PRD, POINT_SENSITIVITY_LIST),
+        providerWithSpreadDouble.parameterSensitivity(CURVE_NAME_PRD, POINT_SENSITIVITY_LIST), TOL);
+  }
+
+
+  private double addShiftToPrdCmpRates(double interstRate, double spread, int nPeriod) {
+    return nPeriod * Math.log(Math.exp(interstRate / nPeriod) + spread / nPeriod);
+  }
+
+  /**
+   * copy is not supported, although underlying IssuerProviderDiscount may support copy
    */
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void copyFailTest() {

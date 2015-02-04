@@ -5,19 +5,15 @@
  */
 package com.opengamma.analytics.financial.provider.description.interestrate;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountAddPeriodicZeroFixedCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
-import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
@@ -31,11 +27,19 @@ public class IssuerProviderIssuerDecoratedSpreadPeriodic implements IssuerProvid
   /**
    * The underlying issuer provider on which the multi-curves provider is based.
    */
-  private final IssuerProviderDiscount _issuerProvider;
+  private final IssuerProviderInterface _issuerProvider;
   /**
    * The issuer/currency pair to be shifted.
    */
   private final LegalEntity _issuer;
+  /**
+   * The spread (shift).
+   */
+  private final double _spread;
+  /**
+   * The number of periods per year.
+   */
+  private final double _nPeriodsPerYear;
 
   /**
    * Constructor.
@@ -49,31 +53,10 @@ public class IssuerProviderIssuerDecoratedSpreadPeriodic implements IssuerProvid
     ArgumentChecker.notNull(issuerProvider, "issuerProvider");
     ArgumentChecker.notNull(issuer, "issuer");
     ArgumentChecker.isTrue(nPeriodsPerYear > 0, "nPeriodsParYear should be greater than 0");
-    ArgumentChecker
-        .isTrue(issuerProvider instanceof IssuerProviderDiscount, "issuerProvider should be IssuerProviderDiscount");
-    IssuerProviderDiscount casted = (IssuerProviderDiscount) issuerProvider;
     _issuer = issuer;
-    _issuerProvider = spread == 0.0 ? casted : addSpread(casted, spread, nPeriodsPerYear);
-  }
-
-  private IssuerProviderDiscount addSpread(IssuerProviderDiscount curve, double spread, int nPeriodsPerYear) {
-    IssuerProviderDiscount issuerDiscount = curve.copy();
-    boolean isSubtract = spread < 0.0;
-    ConstantDoublesCurve constantDoublesCurve = ConstantDoublesCurve.from(Math.abs(spread));
-    YieldCurve spreadCurve = new YieldCurve("spread", constantDoublesCurve);
-    for (Map.Entry<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> entry : issuerDiscount
-        .getIssuerCurves().entrySet()) {
-      if (entry.getKey().getFirst().equals(entry.getKey().getSecond().getFilteredData(_issuer))) {
-        ArgumentChecker.isFalse(entry.getValue() instanceof YieldAndDiscountAddPeriodicZeroFixedCurve,
-            "Underlying curve has spread");
-        // wrap base curve in spread curve
-        YieldAndDiscountCurve baseCurve = entry.getValue();
-        YieldAndDiscountAddPeriodicZeroFixedCurve wrappedCurve = new YieldAndDiscountAddPeriodicZeroFixedCurve(
-            baseCurve.getName(), isSubtract, baseCurve, spreadCurve, nPeriodsPerYear);
-        issuerDiscount.getIssuerCurves().put(entry.getKey(), wrappedCurve);
-      }
-    }
-    return issuerDiscount;
+    _spread = spread;
+    _nPeriodsPerYear = nPeriodsPerYear;
+    _issuerProvider = issuerProvider;
   }
 
   @Override
@@ -82,8 +65,8 @@ public class IssuerProviderIssuerDecoratedSpreadPeriodic implements IssuerProvid
   }
 
   @Override
-  public IssuerProviderDiscount getIssuerProvider() {
-    return _issuerProvider;
+  public IssuerProviderInterface getIssuerProvider() {
+    return this;
   }
 
   @Override
@@ -93,7 +76,15 @@ public class IssuerProviderIssuerDecoratedSpreadPeriodic implements IssuerProvid
 
   @Override
   public double getDiscountFactor(final LegalEntity issuer, final Double time) {
-    return _issuerProvider.getDiscountFactor(issuer, time);
+    double df = _issuerProvider.getDiscountFactor(issuer, time);
+    if (issuer.equals(_issuer)) {
+      if (Math.abs(time) < 1.0E-10) {
+        return 1.0;
+      }
+      double ratePeriodicAnnualPlusOne = Math.pow(df, -1.0 / _nPeriodsPerYear / time) + _spread / _nPeriodsPerYear;
+      return Math.pow(ratePeriodicAnnualPlusOne, -_nPeriodsPerYear * time);
+    }
+    return df;
   }
 
   @Override
@@ -113,6 +104,17 @@ public class IssuerProviderIssuerDecoratedSpreadPeriodic implements IssuerProvid
 
   @Override
   public double[] parameterSensitivity(final String name, final List<DoublesPair> pointSensitivity) {
+    if (name.equals(getName(_issuer))) {
+      int nPoints = pointSensitivity.size();
+      List<DoublesPair> pointSensitivityNew = new ArrayList<>(nPoints);
+      for (int i = 0; i < nPoints; ++i) {
+        double time = pointSensitivity.get(i).getFirst();
+        double eRovN = Math.pow(_issuerProvider.getDiscountFactor(_issuer, time), -1.0 / _nPeriodsPerYear / time);
+        double factor = eRovN / (eRovN + _spread / _nPeriodsPerYear);
+        pointSensitivityNew.add(DoublesPair.of(time, factor * pointSensitivity.get(i).getSecond()));
+      }
+      return _issuerProvider.parameterSensitivity(name, pointSensitivityNew);
+    }
     return _issuerProvider.parameterSensitivity(name, pointSensitivity);
   }
 
