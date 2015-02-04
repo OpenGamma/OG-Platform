@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionMarg
 import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionMarginTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesSecurityDefinition;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.calculator.DeltaBlackBondFuturesCalculator;
 import com.opengamma.analytics.financial.interestrate.future.calculator.FuturesPriceBlackBondFuturesCalculator;
 import com.opengamma.analytics.financial.interestrate.future.calculator.GammaBlackBondFuturesCalculator;
@@ -33,11 +34,10 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldPeriodicC
 import com.opengamma.analytics.financial.provider.calculator.blackbondfutures.PresentValueBlackBondFuturesOptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.blackbondfutures.PresentValueCurveSensitivityBlackBondFuturesOptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PV01CurveParametersCalculator;
-import com.opengamma.analytics.financial.provider.calculator.issuer.ZSpreadIssuerCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesExpLogMoneynessProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderIssuerAnnuallyCompoundeding;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderIssuerDecoratedSpreadPeriodic;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -58,7 +58,6 @@ import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
 /**
@@ -114,8 +113,7 @@ public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodE2ETest
     ConstantDoublesCurve constantDoublesCurve = ConstantDoublesCurve.from(DATA.getRepoSCHOp());
     YieldPeriodicCurve repoCurve = YieldPeriodicCurve.from(1, constantDoublesCurve);
     issuerProvider.setCurve(EUR, repoCurve);
-    IssuerProviderIssuerAnnuallyCompoundeding wrapper = new IssuerProviderIssuerAnnuallyCompoundeding(issuerProvider);
-    BLACK_PROVIDER_SCH = new BlackBondFuturesExpLogMoneynessProviderDiscount(wrapper, VOL_SURFACE_MONEYNESS,
+    BLACK_PROVIDER_SCH = new BlackBondFuturesExpLogMoneynessProviderDiscount(issuerProvider, VOL_SURFACE_MONEYNESS,
         LEGAL_ENTITY_SCH);
   }
   private static final BlackBondFuturesExpLogMoneynessProviderDiscount BLACK_PROVIDER_BUN;
@@ -129,8 +127,7 @@ public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodE2ETest
     ConstantDoublesCurve constantDoublesCurve = ConstantDoublesCurve.from(DATA.getRepoBUNOp());
     YieldPeriodicCurve repoCurve = YieldPeriodicCurve.from(1, constantDoublesCurve);
     issuerProvider.setCurve(EUR, repoCurve);
-    IssuerProviderIssuerAnnuallyCompoundeding wrapper = new IssuerProviderIssuerAnnuallyCompoundeding(issuerProvider);
-    BLACK_PROVIDER_BUN = new BlackBondFuturesExpLogMoneynessProviderDiscount(wrapper, VOL_SURFACE_MONEYNESS,
+    BLACK_PROVIDER_BUN = new BlackBondFuturesExpLogMoneynessProviderDiscount(issuerProvider, VOL_SURFACE_MONEYNESS,
         LEGAL_ENTITY_BUN);
   }
   private static final BlackBondFuturesExpLogMoneynessProviderDiscount BLACK_PROVIDER_BOB;
@@ -144,8 +141,7 @@ public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodE2ETest
     ConstantDoublesCurve constantDoublesCurve = ConstantDoublesCurve.from(DATA.getRepoBOBOp());
     YieldPeriodicCurve repoCurve = YieldPeriodicCurve.from(1, constantDoublesCurve);
     issuerProvider.setCurve(EUR, repoCurve);
-    IssuerProviderIssuerAnnuallyCompoundeding wrapper = new IssuerProviderIssuerAnnuallyCompoundeding(issuerProvider);
-    BLACK_PROVIDER_BOB = new BlackBondFuturesExpLogMoneynessProviderDiscount(wrapper, VOL_SURFACE_MONEYNESS,
+    BLACK_PROVIDER_BOB = new BlackBondFuturesExpLogMoneynessProviderDiscount(issuerProvider, VOL_SURFACE_MONEYNESS,
         LEGAL_ENTITY_BOB);
   }
   
@@ -265,8 +261,10 @@ public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodE2ETest
     TRANSACTION_BOB = transactionDefinition.toDerivative(VALUATION_DATE, LAST_MARGIN_PRICE);
   }
 
+  /* underlying method */
+  private static final BondSecurityDiscountingMethod BOND_METHOD = BondSecurityDiscountingMethod.getInstance();
+
   /* calculator */
-  private static final ZSpreadIssuerCalculator ZSIC = ZSpreadIssuerCalculator.getInstance();
   private static final FuturesPriceBlackBondFuturesCalculator FPBFC = FuturesPriceBlackBondFuturesCalculator
       .getInstance();
   private static final PresentValueBlackBondFuturesOptionCalculator PVBFC = PresentValueBlackBondFuturesOptionCalculator
@@ -294,11 +292,10 @@ public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodE2ETest
     BondFuturesSecurity futures = TRANSACTION_SCH.getUnderlyingSecurity().getUnderlyingFuture();
     BondFixedSecurity bondAtSpot = futures.getDeliveryBasketAtSpotDate()[0];
     LegalEntity legalEntity = bondAtSpot.getIssuerEntity();
-    Pair pair = Pairs.of((IssuerProviderIssuerAnnuallyCompoundeding) BLACK_PROVIDER_SCH.getIssuerProvider(),
-        BOND_MARKET_PRICE_SCH / HUNDRED);
-    double spread = bondAtSpot.accept(ZSIC, pair);
-    IssuerProviderIssuerAnnuallyCompoundeding curveWithSpread = new IssuerProviderIssuerAnnuallyCompoundeding(
-        (IssuerProviderIssuerAnnuallyCompoundeding) BLACK_PROVIDER_SCH.getIssuerProvider(), legalEntity, spread * BP1);
+    double spread = BOND_METHOD.zSpreadFromCurvesAndClean(bondAtSpot, BLACK_PROVIDER_SCH.getIssuerProvider(),
+        BOND_MARKET_PRICE_SCH / HUNDRED, true, 1) / BP1;
+    IssuerProviderIssuerDecoratedSpreadPeriodic curveWithSpread = new IssuerProviderIssuerDecoratedSpreadPeriodic(
+        BLACK_PROVIDER_SCH.getIssuerProvider(), legalEntity, spread * BP1, 1);
     BlackBondFuturesExpLogMoneynessProviderDiscount blackNew = new BlackBondFuturesExpLogMoneynessProviderDiscount(
         curveWithSpread, BLACK_PROVIDER_SCH.getBlackParameters(), BLACK_PROVIDER_SCH.getLegalEntity());
 
@@ -312,19 +309,19 @@ public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodE2ETest
     double theta = TRANSACTION_SCH.getUnderlyingSecurity().accept(TBFC, blackNew);
     double vega = TRANSACTION_SCH.getUnderlyingSecurity().accept(VBFC, blackNew);
 
-    double[] bucketExpected = new double[] {0.0, 0.0, 0.0, 0.0, -1.0425303352154139E-5, -0.0019406475278737731,
-        -0.0038589334744579236, -0.005760045132848445, -0.007585603291942061, -0.009240224129369862,
-        -0.011016975355809236, -0.012434155737048338, -0.019216928224809117, -1.0044100631419868, 0.0, 0.0, 0.0, 0.0 };
+    double[] bucketExpected = new double[] {0.0, 0.0, 0.0, 0.0, -1.0423326047608712E-5, -0.0019402794580315554,
+        -0.003858201768632529, -0.00575895407513098, -0.007584169326455068, -0.009238481853954652,
+        -0.011014901502395579, -0.012431820569196617, -0.01921332999829044, -1.0042223062140274, 0.0, 0.0, 0.0, 0.0 };
 
-    assertRelative("SCHTest", 1.8985746330408364, spread, TOL);
-    assertRelative("SCHTest", 35.183034488344354, price, TOL);
-    assertRelative("SCHTest", 351.83034488344356, pv.getAmount(EUR), TOL);
+    assertRelative("SCHTest", 1.8985746330408042, spread, TOL);
+    assertRelative("SCHTest", 35.183034488344134, price, TOL);
+    assertRelative("SCHTest", 351.83034488344134, pv.getAmount(EUR), TOL);
     assertArrayRelative("", bucketExpected, bucketedPv01.getData(), TOL);
-    assertRelative("SCHTest", -1.0754740013194977, pv01, TOL);
-    assertRelative("SCHTest", 0.898331709678049, delta, TOL);
-    assertRelative("SCHTest", 0.540194277796906, gamma, TOL);
-    assertRelative("SCHTest", -0.6264331723356397, theta, TOL);
-    assertRelative("SCHTest", 0.05498292195291558, vega, TOL);
+    assertRelative("SCHTest", -1.0752728680921624, pv01, TOL);
+    assertRelative("SCHTest", 0.8983317096780475, delta, TOL);
+    assertRelative("SCHTest", 0.5401942777969126, gamma, TOL);
+    assertRelative("SCHTest", -0.6264331723356449, theta, TOL);
+    assertRelative("SCHTest", 0.05498292195291605, vega, TOL);
   }
 
   /**
@@ -335,11 +332,10 @@ public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodE2ETest
     BondFuturesSecurity futures = TRANSACTION_BUN.getUnderlyingSecurity().getUnderlyingFuture();
     BondFixedSecurity bondAtSpot = futures.getDeliveryBasketAtSpotDate()[0];
     LegalEntity legalEntity = bondAtSpot.getIssuerEntity();
-    Pair pair = Pairs.of((IssuerProviderIssuerAnnuallyCompoundeding) BLACK_PROVIDER_BUN.getIssuerProvider(),
-        BOND_MARKET_PRICE_BUN / HUNDRED);
-    double spread = bondAtSpot.accept(ZSIC, pair);
-    IssuerProviderIssuerAnnuallyCompoundeding curveWithSpread = new IssuerProviderIssuerAnnuallyCompoundeding(
-        (IssuerProviderIssuerAnnuallyCompoundeding) BLACK_PROVIDER_BUN.getIssuerProvider(), legalEntity, spread * BP1);
+    double spread = BOND_METHOD.zSpreadFromCurvesAndClean(bondAtSpot, BLACK_PROVIDER_BUN.getIssuerProvider(),
+        BOND_MARKET_PRICE_BUN / HUNDRED, true, 1) / BP1;
+    IssuerProviderIssuerDecoratedSpreadPeriodic curveWithSpread = new IssuerProviderIssuerDecoratedSpreadPeriodic(
+        BLACK_PROVIDER_BUN.getIssuerProvider(), legalEntity, spread * BP1, 1);
     BlackBondFuturesExpLogMoneynessProviderDiscount blackNew = new BlackBondFuturesExpLogMoneynessProviderDiscount(
         curveWithSpread, BLACK_PROVIDER_BUN.getBlackParameters(), BLACK_PROVIDER_BUN.getLegalEntity());
 
@@ -353,15 +349,15 @@ public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodE2ETest
     double theta = TRANSACTION_BUN.getUnderlyingSecurity().accept(TBFC, blackNew);
     double vega = TRANSACTION_BUN.getUnderlyingSecurity().accept(VBFC, blackNew);
 
-    double[] bucketExpected = new double[] {0.0, 0.0, 0.0, 0.0, -7.044267721686774E-6, -0.0013112771184815367,
-        -0.0026077906901950704, -0.003893042244768844, -0.005127560684760342, -0.006246833287533004,
-        -0.007448992271228702, -0.008408292192481213, -0.012997136051315432, -0.6793830569801992, 0.0, 0.0, 0.0, 0.0 };
+    double[] bucketExpected = new double[] {0.0, 0.0, 0.0, 0.0, -7.043872687701196E-6, -0.0013112035838708407,
+        -0.002607644487398833, -0.0038928242105677065, -0.005127274086907749, -0.006246485024304067,
+        -0.007448577673891045, -0.008407825293669284, -0.012996416494364633, -0.6793455067559377, 0.0, 0.0, 0.0, 0.0 };
 
-    assertRelative("BUNTest", 0.5612849466205121, spread, TOL);
+    assertRelative("BUNTest", 0.5612849466207794, spread, TOL);
     assertRelative("BUNTest", 30.113033433034087, price, TOL);
     assertRelative("BUNTest", 301.1303343303409, pv.getAmount(EUR), TOL);
     assertArrayRelative("", bucketExpected, bucketedPv01.getData(), TOL);
-    assertRelative("BUNTest", -0.727431025788685, pv01, TOL);
+    assertRelative("BUNTest", -0.7273908014835997, pv01, TOL);
     assertRelative("BUNTest", 0.6126650490480057, delta, TOL);
     assertRelative("BUNTest", 0.5131248273894041, gamma, TOL);
     assertRelative("BUNTest", -0.47845638404975527, theta, TOL);
@@ -376,11 +372,10 @@ public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodE2ETest
     BondFuturesSecurity futures = TRANSACTION_BOB.getUnderlyingSecurity().getUnderlyingFuture();
     BondFixedSecurity bondAtSpot = futures.getDeliveryBasketAtSpotDate()[0];
     LegalEntity legalEntity = bondAtSpot.getIssuerEntity();
-    Pair pair = Pairs.of((IssuerProviderIssuerAnnuallyCompoundeding) BLACK_PROVIDER_BOB.getIssuerProvider(),
-        BOND_MARKET_PRICE_BOB / HUNDRED);
-    double spread = bondAtSpot.accept(ZSIC, pair);
-    IssuerProviderIssuerAnnuallyCompoundeding curveWithSpread = new IssuerProviderIssuerAnnuallyCompoundeding(
-        (IssuerProviderIssuerAnnuallyCompoundeding) BLACK_PROVIDER_BOB.getIssuerProvider(), legalEntity, spread * BP1);
+    double spread = BOND_METHOD.zSpreadFromCurvesAndClean(bondAtSpot, BLACK_PROVIDER_BOB.getIssuerProvider(),
+        BOND_MARKET_PRICE_BOB / HUNDRED, true, 1) / BP1;
+    IssuerProviderIssuerDecoratedSpreadPeriodic curveWithSpread = new IssuerProviderIssuerDecoratedSpreadPeriodic(
+        BLACK_PROVIDER_BOB.getIssuerProvider(), legalEntity, spread * BP1, 1);
     BlackBondFuturesExpLogMoneynessProviderDiscount blackNew = new BlackBondFuturesExpLogMoneynessProviderDiscount(
         curveWithSpread, BLACK_PROVIDER_BOB.getBlackParameters(), BLACK_PROVIDER_BOB.getLegalEntity());
 
@@ -394,15 +389,15 @@ public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodE2ETest
     double theta = TRANSACTION_BOB.getUnderlyingSecurity().accept(TBFC, blackNew);
     double vega = TRANSACTION_BOB.getUnderlyingSecurity().accept(VBFC, blackNew);
 
-    double[] bucketExpected = new double[] {0.0, 0.0, 0.0, 0.0, 3.9923623024940084E-4, 0.0017591397765423418,
-        0.003886881591029152, 0.005800090468418725, 0.03714702801470695, 0.2233208135383925, 0.0, 0.0, 0.0, 0.0, 0.0,
+    double[] bucketExpected = new double[] {0.0, 0.0, 0.0, 0.0, 3.9939567069155403E-4, 0.0017598422748673222,
+        0.0038884332824756437, 0.005802403467586379, 0.03716178737504283, 0.22340950463905093, 0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0 };
 
-    assertRelative("BOBTest", -3.9954021134089603, spread, TOL);
+    assertRelative("BOBTest", -3.9954021134091353, spread, TOL);
     assertRelative("BOBTest", 8.837066933825167, price, TOL);
     assertRelative("BOBTest", 88.37066933825166, pv.getAmount(EUR), TOL);
     assertArrayRelative("", bucketExpected, bucketedPv01.getData(), TOL);
-    assertRelative("BOBTest", 0.2723131896193391, pv01, TOL);
+    assertRelative("BOBTest", 0.2724213667097147, pv01, TOL);
     assertRelative("BOBTest", -0.47202802974084884, delta, TOL);
     assertRelative("BOBTest", 1.8320961337443291, gamma, TOL);
     assertRelative("BOBTest", -0.9280515056338662, theta, TOL);

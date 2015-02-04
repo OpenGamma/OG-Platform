@@ -17,7 +17,7 @@ Parameter provider
 Given a volatility surface in the form of **InterpolatedDoublesSurface** where the volatility surface is parametrised by option's expiry and log moneyness, the parameter provider for option valuation based on normal model is created by::
 
     BlackBondFuturesExpLogMoneynessProviderDiscount BLACK_PROVIDER_SCH; 
-    BLACK_PROVIDER_SCH = new BlackBondFuturesExpLogMoneynessProviderDiscount(wrapper, VOL_SURFACE_MONEYNESS, LEGAL_ENTITY_SCH);
+    BLACK_PROVIDER_SCH = new BlackBondFuturesExpLogMoneynessProviderDiscount(issuerProvider, VOL_SURFACE_MONEYNESS, LEGAL_ENTITY_SCH);
 
 Here the log moneyness is defined by log( (strike price) / (underlying futures price) ), and the legal entity **LEGAL_ENTITY_SCH** should accommodated with the curves and instrument described below. 
 
@@ -86,9 +86,9 @@ The calculators used for curve sensitivity calculation are::
 The **PSSFC** computes the sensitivity to the curve parameters (*bucketed PV01*), in the present case they are annually compounded zero rates.  The computation is not scaled, i.e. it is for a movement of 1. The last part of the code (**multipliedBy**) multiply it by one basis point to match the market standard. In general, the OG-Analytics library uses absolute numbers (not percent or basis point) everywhere and provide the tools to rescale the output easily.
 
 Here we look at the sensitivity to the issuer curve rather than the repo curve (in the present case the repo curve is a flat curve). 
-The format of the output is a **DoubleMatrix1D** object which can be represented by::
+The format of the output is a **DoubleMatrix1D** object which can be represented by:: 
 
-    (0.0, 0.0, 0.0, 0.0, 0.0, -0.0019, -0.0039, -0.0058, -0.0076, -0.0092, -0.0110, -0.0124, -0.0192, -1.0044, 0.0, 0.0, 0.0, 0.0)
+    (0.0, 0.0, 0.0, 0.0, 0.0, -0.0019, -0.0039, -0.0058, -0.0076, -0.0092, -0.0110, -0.0124, -0.0192, -1.0042, 0.0, 0.0, 0.0, 0.0)
 
 Another way of expressing the curve sensitivity is *PV01*, total amount of the curve sensitivity, which is computed by::
 
