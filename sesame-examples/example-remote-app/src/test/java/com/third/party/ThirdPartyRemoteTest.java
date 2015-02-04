@@ -17,9 +17,9 @@ import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.CalculationArguments;
-import com.opengamma.sesame.engine.Engine;
-import com.opengamma.sesame.engine.RemoteEngine;
+import com.opengamma.sesame.engine.RemoteViewRunner;
 import com.opengamma.sesame.engine.Results;
+import com.opengamma.sesame.engine.ViewRunner;
 import com.opengamma.sesame.irs.DefaultInterestRateSwapConverterFn;
 import com.opengamma.sesame.irs.DiscountingInterestRateSwapFn;
 import com.opengamma.sesame.irs.InterestRateSwapCalculatorFactory;
@@ -66,7 +66,7 @@ public class ThirdPartyRemoteTest {
   private ConfigLink<CurveConstructionConfiguration> _curveConstructionConfiguration;
   /* A single Fixed vs Libor 3m Swap ManageableSecurity list */
   private List<Object> _inputs = SwapViewUtils.VANILLA_TRADES;
-  private Engine _engine;
+  private ViewRunner _viewRunner;
   private CalculationArguments _calculationArguments;
   private MarketDataEnvironment _marketDataEnvironment;
   private RemoteServer _remoteServer;
@@ -76,7 +76,7 @@ public class ThirdPartyRemoteTest {
   @BeforeClass
   public void setUp() {
 
-    _engine = new RemoteEngine(URI.create(URL));
+    _viewRunner = new RemoteViewRunner(URI.create(URL));
 
     _remoteServer = RemoteServer.create(URL);
 
@@ -108,7 +108,7 @@ public class ThirdPartyRemoteTest {
   @Test(enabled = true)
   public void testSingleSwapPVExecution() {
 
-    Results results = _engine.runView(_viewConfig, _calculationArguments, _marketDataEnvironment, _inputs);
+    Results results = _viewRunner.runView(_viewConfig, _calculationArguments, _marketDataEnvironment, _inputs);
     Result result = results.get(0, OutputNames.PRESENT_VALUE).getResult();
     assertThat(result.isSuccess(), is(true));
 
@@ -117,7 +117,7 @@ public class ThirdPartyRemoteTest {
   @Test(enabled = false)
   public void testSingleSwapReceiveLegCashFlowsExecution() {
 
-    Results results = _engine.runView(_viewConfig, _calculationArguments, _marketDataEnvironment, _inputs);
+    Results results = _viewRunner.runView(_viewConfig, _calculationArguments, _marketDataEnvironment, _inputs);
     Result result = results.get(0, OutputNames.RECEIVE_LEG_CASH_FLOWS).getResult();
     assertThat(result.isSuccess(), is(true));
 
@@ -126,7 +126,7 @@ public class ThirdPartyRemoteTest {
   @Test(enabled = false)
   public void testSingleSwapPayLegCashFlowsExecution() {
 
-    Results results = _engine.runView(_viewConfig, _calculationArguments, _marketDataEnvironment, _inputs);
+    Results results = _viewRunner.runView(_viewConfig, _calculationArguments, _marketDataEnvironment, _inputs);
     Result result = results.get(0, OutputNames.PAY_LEG_CASH_FLOWS).getResult();
     assertThat(result.isSuccess(), is(true));
   }
@@ -134,7 +134,7 @@ public class ThirdPartyRemoteTest {
   @Test(enabled = false)
   public void testSingleSwapBucketedPV01Execution() {
 
-    Results results = _engine.runView(_viewConfig, _calculationArguments, _marketDataEnvironment, _inputs);
+    Results results = _viewRunner.runView(_viewConfig, _calculationArguments, _marketDataEnvironment, _inputs);
     Result result = results.get(0, OutputNames.BUCKETED_PV01).getResult();
     assertThat(result.isSuccess(), is(true));
 
@@ -143,7 +143,7 @@ public class ThirdPartyRemoteTest {
   @Test(enabled = false)
   public void testSingleSwapPV01Execution() {
 
-    Results results = _engine.runView(_viewConfig, _calculationArguments, _marketDataEnvironment, _inputs);
+    Results results = _viewRunner.runView(_viewConfig, _calculationArguments, _marketDataEnvironment, _inputs);
     Result result = results.get(0, OutputNames.PV01).getResult();
     assertThat(result.isSuccess(), is(true));
 
