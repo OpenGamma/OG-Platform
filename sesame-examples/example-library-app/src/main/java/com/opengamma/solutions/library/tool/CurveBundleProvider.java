@@ -5,12 +5,6 @@
  */
 package com.opengamma.solutions.library.tool;
 
-import java.util.List;
-import java.util.Set;
-
-import org.threeten.bp.Instant;
-import org.threeten.bp.ZonedDateTime;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
@@ -29,18 +23,19 @@ import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
-import com.opengamma.sesame.marketdata.MarketDataEnvironment;
-import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
-import com.opengamma.sesame.marketdata.MarketDataRequirement;
-import com.opengamma.sesame.marketdata.MulticurveId;
-import com.opengamma.sesame.marketdata.SingleValueRequirement;
-import com.opengamma.sesame.marketdata.SnapshotMarketDataFactory;
+import com.opengamma.sesame.marketdata.*;
 import com.opengamma.sesame.marketdata.builders.MarketDataBuilder;
 import com.opengamma.sesame.marketdata.builders.MarketDataBuilders;
 import com.opengamma.sesame.marketdata.builders.MarketDataEnvironmentFactory;
 import com.opengamma.sesame.marketdata.scenarios.SinglePerturbationMapping;
 import com.opengamma.solutions.library.storage.DataLoader;
 import com.opengamma.util.ArgumentChecker;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZonedDateTime;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Sample Curve Bundle Provider
@@ -115,6 +110,7 @@ public class CurveBundleProvider {
     MulticurveId multicurveId = MulticurveId.of(bundleName);
     SingleValueRequirement requirement = SingleValueRequirement.of(multicurveId);
     Set<MarketDataRequirement> requirements = ImmutableSet.<MarketDataRequirement>of(requirement);
+
     List<SinglePerturbationMapping> perturbations = ImmutableList.of();
     MarketDataEnvironment marketData =
         environmentFactory.build(suppliedData, requirements, perturbations, marketDataSpec, valuationTime);
