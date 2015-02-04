@@ -13,6 +13,7 @@ import org.apache.commons.lang.ObjectUtils;
 import com.opengamma.analytics.financial.interestrate.ContinuousInterestRate;
 import com.opengamma.analytics.financial.interestrate.InterestRate;
 import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
+import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -133,7 +134,7 @@ public class YieldPeriodicCurve extends YieldAndDiscountCurve {
    * Gets the underlying curve.
    * @return The curve.
    */
-  public DoublesCurve getCurve() {
+  public Curve<Double, Double> getCurve() {
     return _curve;
   }
   
