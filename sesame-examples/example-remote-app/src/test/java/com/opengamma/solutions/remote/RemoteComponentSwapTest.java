@@ -5,21 +5,6 @@
  */
 package com.opengamma.solutions.remote;
 
-import static com.opengamma.sesame.config.ConfigBuilder.argument;
-import static com.opengamma.sesame.config.ConfigBuilder.arguments;
-import static com.opengamma.sesame.config.ConfigBuilder.config;
-import static com.opengamma.sesame.config.ConfigBuilder.function;
-import static com.opengamma.sesame.config.ConfigBuilder.implementations;
-import static com.opengamma.util.result.ResultTestUtils.assertSuccess;
-
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-import org.threeten.bp.Instant;
-
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.link.ConfigLink;
@@ -54,6 +39,8 @@ import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.FixingsFn;
 import com.opengamma.sesame.MarketExposureSelector;
+import com.opengamma.sesame.cache.FunctionCache;
+import com.opengamma.sesame.cache.NoOpFunctionCache;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.CalculationArguments;
 import com.opengamma.sesame.engine.ComponentMap;
@@ -81,6 +68,20 @@ import com.opengamma.util.function.Function;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+
+import static com.opengamma.sesame.config.ConfigBuilder.argument;
+import static com.opengamma.sesame.config.ConfigBuilder.arguments;
+import static com.opengamma.sesame.config.ConfigBuilder.config;
+import static com.opengamma.sesame.config.ConfigBuilder.function;
+import static com.opengamma.sesame.config.ConfigBuilder.implementations;
+import static com.opengamma.util.result.ResultTestUtils.assertSuccess;
 
 /**
  * Integration tests that runs locally with remote components
@@ -88,7 +89,7 @@ import com.opengamma.util.time.DateUtils;
  * Output: Present Value
  */
 
-@Test(groups = TestGroup.INTEGRATION, enabled = false) //TODO enable after project moves off OG release 2.8.x
+@Test(groups = TestGroup.INTEGRATION, enabled = true) 
 public class RemoteComponentSwapTest {
 
   private ConfigLink<ExposureFunctions> _exposureConfig;
@@ -149,10 +150,12 @@ public class RemoteComponentSwapTest {
                 CurveLabellingFn.class, CurveDefinitionCurveLabellingFn.class,
                 HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
                 FixingsFn.class, DefaultFixingsFn.class,
-                MarketDataFn.class, DefaultMarketDataFn.class));
+                MarketDataFn.class, DefaultMarketDataFn.class,
+                FunctionCache.class, NoOpFunctionCache.class
+                ));
   }
 
-  @Test(enabled = false) //TODO enable after project moves off OG release 2.8.x
+  @Test(enabled = true)
   public void testSwapPV() {
     final InterestRateSwapSecurity irs = (InterestRateSwapSecurity) SwapViewUtils.VANILLA_INPUTS.get(0);
 

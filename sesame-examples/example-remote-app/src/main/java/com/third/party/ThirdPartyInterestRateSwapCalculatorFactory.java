@@ -5,18 +5,15 @@
  */
 package com.third.party;
 
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.irs.InterestRateSwapCalculator;
 import com.opengamma.sesame.irs.InterestRateSwapCalculatorFactory;
 import com.opengamma.sesame.trade.InterestRateSwapTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Example implementation of a third party IRS calculator
@@ -37,12 +34,11 @@ public class ThirdPartyInterestRateSwapCalculatorFactory implements InterestRate
 
   @Override
   public Result<InterestRateSwapCalculator> createCalculator(Environment environment, InterestRateSwapTrade trade) {
-    Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
-        _discountingMulticurveCombinerFn.createMergedMulticurveBundle(environment, trade, new FXMatrix());
+      Result<MulticurveBundle> bundleResult = _discountingMulticurveCombinerFn.getMulticurveBundle(environment,trade);
 
     if (bundleResult.isSuccess()) {
       InterestRateSwapCalculator calculator = new ThirdPartyInterestRateSwapCalculator(trade.getSecurity(),
-                                                                                       bundleResult.getValue().getFirst(),
+                                                                                       bundleResult.getValue().getMulticurveProvider(),
                                                                                        environment.getValuationTime());
       return Result.success(calculator);
     } else {
