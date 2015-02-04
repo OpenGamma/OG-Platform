@@ -20,7 +20,15 @@ import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.rolldate.RollConvention;
 import com.opengamma.financial.currency.CurrencyMatrix;
-import com.opengamma.financial.security.irs.*;
+import com.opengamma.financial.security.irs.FixedInterestRateSwapLeg;
+import com.opengamma.financial.security.irs.FloatingInterestRateSwapLeg;
+import com.opengamma.financial.security.irs.InterestRateSwapLeg;
+import com.opengamma.financial.security.irs.InterestRateSwapNotional;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
+import com.opengamma.financial.security.irs.NotionalExchange;
+import com.opengamma.financial.security.irs.PayReceiveType;
+import com.opengamma.financial.security.irs.Rate;
+import com.opengamma.financial.security.irs.StubCalculationMethod;
 import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -29,19 +37,34 @@ import com.opengamma.sesame.CurveSelectorMulticurveBundleFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.config.ViewColumn;
-import com.opengamma.sesame.irs.*;
+import com.opengamma.sesame.irs.DefaultInterestRateSwapConverterFn;
+import com.opengamma.sesame.irs.DiscountingInterestRateSwapCalculatorFactory;
+import com.opengamma.sesame.irs.DiscountingInterestRateSwapFn;
+import com.opengamma.sesame.irs.InterestRateSwapCalculatorFactory;
+import com.opengamma.sesame.irs.InterestRateSwapConverterFn;
+import com.opengamma.sesame.irs.InterestRateSwapFn;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.trade.InterestRateSwapTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.money.Currency;
-import org.threeten.bp.*;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.OffsetTime;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZoneOffset;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
-import static com.opengamma.sesame.config.ConfigBuilder.*;
+import static com.opengamma.sesame.config.ConfigBuilder.argument;
+import static com.opengamma.sesame.config.ConfigBuilder.arguments;
+import static com.opengamma.sesame.config.ConfigBuilder.column;
+import static com.opengamma.sesame.config.ConfigBuilder.config;
+import static com.opengamma.sesame.config.ConfigBuilder.function;
+import static com.opengamma.sesame.config.ConfigBuilder.implementations;
+
 
 /**
  * Utility class for swap views

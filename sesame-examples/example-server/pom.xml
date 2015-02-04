@@ -59,7 +59,7 @@
       <scope>test</scope>
     </dependency>
 
-    <dependency>
+    <dependency> <!--Dependency is needed to incorporate 3rd Party Integration-->
       <groupId>com.opengamma.solutions</groupId>
       <artifactId>example-remote-app</artifactId>
       <version>0.8-SNAPSHOT</version>
