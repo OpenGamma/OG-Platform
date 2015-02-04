@@ -688,9 +688,9 @@ public final class BondSecurityDiscountingMethod {
    * @param bond The bond.
    * @param issuerMulticurves The issuer and multi-curves provider.
    * @param cleanPrice The target clean price.
-   * @return The z-spread.
    * @param periodic If true, the spread is added to periodic compounded rates. If false, the spread is added to continuously compounded rates
    * @param periodPerYear The number of periods per year.
+   * @return The z-spread.
    */
   public double zSpreadFromCurvesAndClean(BondSecurity<? extends Payment, ? extends Coupon> bond,
       IssuerProviderInterface issuerMulticurves, double cleanPrice, boolean periodic, int periodPerYear) {
@@ -715,9 +715,9 @@ public final class BondSecurityDiscountingMethod {
    * @param bond The bond.
    * @param issuerMulticurves The issuer and multi-curves provider.
    * @param yield The yield.
-   * @return The z-spread.
    * @param periodic If true, the spread is added to periodic compounded rates. If false, the spread is added to continuously compounded rates
    * @param periodPerYear The number of periods per year.
+   * @return The z-spread.
    */
   public double zSpreadFromCurvesAndYield(BondSecurity<? extends Payment, ? extends Coupon> bond,
       IssuerProviderInterface issuerMulticurves, double yield, boolean periodic, int periodPerYear) {
