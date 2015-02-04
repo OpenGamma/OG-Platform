@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.provider.description.interestrate;
 
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.math.surface.Surface;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * Implementation for Black parameters provider for one underlying when multi-curves are described by a MulticurveProviderDiscount.
@@ -22,9 +21,6 @@ public class BlackBondFuturesExpLogMoneynessProviderDiscount extends BlackBondFu
   public BlackBondFuturesExpLogMoneynessProviderDiscount(final IssuerProviderInterface issuerProvider,
       final Surface<Double, Double, Double> parameters, final LegalEntity legalEntity) {
     super(issuerProvider, parameters, legalEntity);
-    ArgumentChecker.isTrue(issuerProvider instanceof IssuerProviderDiscount ||
-        issuerProvider instanceof IssuerProviderIssuerAnnuallyCompoundeding,
-        "issuerProvider should be IssuerProviderDiscount or contain IssuerProviderDiscount");
   }
 
   @Override
@@ -38,7 +34,10 @@ public class BlackBondFuturesExpLogMoneynessProviderDiscount extends BlackBondFu
     IssuerProviderInterface issuerProvider = getIssuerProvider();
     if (issuerProvider instanceof IssuerProviderDiscount) {
       return ((IssuerProviderDiscount) issuerProvider).getMulticurveProvider();
+    } else if (issuerProvider instanceof IssuerProviderIssuerDecoratedSpreadPeriodic) {
+      return (MulticurveProviderDiscount) ((IssuerProviderIssuerDecoratedSpreadPeriodic) issuerProvider)
+          .getMulticurveProvider();
     }
-    return ((IssuerProviderIssuerAnnuallyCompoundeding) issuerProvider).getMulticurveProvider();
+    throw new IllegalArgumentException("unsupported type of issuer provider");
   }
 }
