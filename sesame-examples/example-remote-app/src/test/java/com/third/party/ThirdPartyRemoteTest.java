@@ -15,7 +15,6 @@ import com.opengamma.sesame.CurveSelectorMulticurveBundleFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.OutputNames;
-import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.CalculationArguments;
 import com.opengamma.sesame.engine.Engine;
@@ -31,7 +30,6 @@ import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.solutions.remote.RemoteTestUtils;
 import com.opengamma.solutions.util.SwapViewUtils;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
@@ -82,8 +80,6 @@ public class ThirdPartyRemoteTest {
 
     _remoteServer = RemoteServer.create(URL);
 
-    _viewConfig = createViewConfig();
-
     MarketDataSnapshotSource snapshotSource = _remoteServer.getMarketDataSnapshotSource();
     ManageableMarketDataSnapshot snapshot = snapshotSource.getSingle(ManageableMarketDataSnapshot.class,
         RemoteTestUtils.USD_GBP_SNAPSHOT,
@@ -104,6 +100,8 @@ public class ThirdPartyRemoteTest {
     _currencyMatrixLink = ConfigLink.resolvable("BBG-Matrix", CurrencyMatrix.class);
     _curveConstructionConfiguration = ConfigLink.resolvable("USD TO GBP CSA USD Curve Construction Configuration",
         CurveConstructionConfiguration.class);
+
+    _viewConfig = createViewConfig();
 
   }
 
@@ -152,52 +150,31 @@ public class ThirdPartyRemoteTest {
   }
 
   /* Output specific view configuration for interest rate swaps */
+
   private ViewConfig createViewConfig() {
     return
         configureView(
             "IRS Remote view",
-            createThirdPartyInterestRateSwapViewColumn(OutputNames.PRESENT_VALUE,
-                _exposureConfig,
-                _currencyMatrixLink),
-            createThirdPartyInterestRateSwapViewColumn(OutputNames.BUCKETED_PV01,
-                _exposureConfig,
-                _currencyMatrixLink),
-            createThirdPartyInterestRateSwapViewColumn(OutputNames.PAY_LEG_CASH_FLOWS,
-                _exposureConfig,
-                _currencyMatrixLink),
-            createThirdPartyInterestRateSwapViewColumn(OutputNames.RECEIVE_LEG_CASH_FLOWS,
-                _exposureConfig,
-                _currencyMatrixLink),
-            createThirdPartyInterestRateSwapViewColumn(OutputNames.PV01,
-                _exposureConfig,
-                _currencyMatrixLink));
-  }
-
-
-  public static ViewColumn createThirdPartyInterestRateSwapViewColumn(String output,
-                                                                      ConfigLink<ExposureFunctions> exposureConfig,
-                                                                      ConfigLink<CurrencyMatrix> currencyMatrixLink) {
-    ArgumentChecker.notNull(output, "output");
-    ArgumentChecker.notNull(exposureConfig, "exposureConfig");
-    ArgumentChecker.notNull(currencyMatrixLink, "currencyMatrixLink");
-
-    return
-        column(
-            output,
             config(
                 arguments(
                     function(
                         MarketExposureSelector.class,
-                        argument("exposureFunctions", exposureConfig)),
+                        argument("exposureFunctions", _exposureConfig)),
                     function(
                         DefaultHistoricalMarketDataFn.class,
-                        argument("currencyMatrix", currencyMatrixLink))),
+                        argument("currencyMatrix", _currencyMatrixLink))),
                 implementations(
                     CurveSelector.class, MarketExposureSelector.class,
                     DiscountingMulticurveCombinerFn.class, CurveSelectorMulticurveBundleFn.class,
                     InterestRateSwapFn.class, DiscountingInterestRateSwapFn.class,
                     InterestRateSwapConverterFn.class, DefaultInterestRateSwapConverterFn.class,
-                    InterestRateSwapCalculatorFactory.class, ThirdPartyInterestRateSwapCalculatorFactory.class)));
+                    InterestRateSwapCalculatorFactory.class, ThirdPartyInterestRateSwapCalculatorFactory.class)),
+            column(OutputNames.PRESENT_VALUE),
+            column(OutputNames.BUCKETED_PV01),
+            column(OutputNames.PAY_LEG_CASH_FLOWS),
+            column(OutputNames.RECEIVE_LEG_CASH_FLOWS),
+            column(OutputNames.PV01));
   }
+
 
 }
