@@ -26,7 +26,8 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.Present
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueParallelCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
-import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderIssuerDecoratedSpread;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderIssuerDecoratedSpreadContinuous;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderIssuerDecoratedSpreadPeriodic;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscountingDecoratedIssuer;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
@@ -45,6 +46,7 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Class with methods related to bond security valued by discounting.
+ * TODO sensitivities with spread to periodic compounded rates
  */
 public final class BondSecurityDiscountingMethod {
   /**
@@ -136,15 +138,36 @@ public final class BondSecurityDiscountingMethod {
 
   /**
    * Computes the present value of a bond security from z-spread. The z-spread is a parallel shift applied to the discounting curve associated to the bond (Issuer Entity).
-   * The parallel shift is done in the curve convention.
+   * The parallel shift is done in the curve convention in terms of continuously compounded rates.
    * @param bond The bond security.
    * @param issuerMulticurves The issuer and multi-curves provider.
    * @param zSpread The z-spread.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValueFromZSpread(final BondSecurity<? extends Payment, ? extends Coupon> bond, final IssuerProviderInterface issuerMulticurves, final double zSpread) {
-    final IssuerProviderInterface issuerShifted = new IssuerProviderIssuerDecoratedSpread(issuerMulticurves, bond.getIssuerEntity(), zSpread);
+  public MultipleCurrencyAmount presentValueFromZSpread(final BondSecurity<? extends Payment, ? extends Coupon> bond,
+      final IssuerProviderInterface issuerMulticurves, final double zSpread) {
+    IssuerProviderInterface issuerShifted = new IssuerProviderIssuerDecoratedSpreadContinuous(issuerMulticurves, bond.getIssuerEntity(), zSpread);
     return presentValue(bond, issuerShifted);
+  }
+
+  /**
+   * Computes the present value of a bond security from z-spread. The z-spread is a parallel shift applied to continuously compounded rates or periodic compounded rates 
+   * of the discounting curve associated to the bond (Issuer Entity). 
+   * @param bond The bond security.
+   * @param issuerMulticurves The issuer and multi-curves provider.
+   * @param zSpread The z-spread.
+   * @param periodic If true, the spread is added to periodic compounded rates. If false, the spread is added to continuously compounded rates
+   * @param periodPerYear The number of periods per year.
+   * @return The present value.
+   */
+  public MultipleCurrencyAmount presentValueFromZSpread(BondSecurity<? extends Payment, ? extends Coupon> bond,
+      IssuerProviderInterface issuerMulticurves, double zSpread, boolean periodic, int periodPerYear) {
+    if (periodic) {
+      IssuerProviderInterface issuerShifted = new IssuerProviderIssuerDecoratedSpreadPeriodic(issuerMulticurves,
+        bond.getIssuerEntity(), zSpread, periodPerYear);
+      return presentValue(bond, issuerShifted);
+    }
+    return presentValueFromZSpread(bond, issuerMulticurves, zSpread);
   }
 
   /** 
@@ -154,7 +177,7 @@ public final class BondSecurityDiscountingMethod {
    * @return The Z spread sensitivity.
    */
   public double presentValueZSpreadSensitivity(final BondSecurity<? extends Payment, ? extends Coupon> bond, final IssuerProviderInterface issuerMulticurves, final double zSpread) {
-    final IssuerProviderInterface issuerShifted = new IssuerProviderIssuerDecoratedSpread(issuerMulticurves, bond.getIssuerEntity(), zSpread);
+    final IssuerProviderInterface issuerShifted = new IssuerProviderIssuerDecoratedSpreadContinuous(issuerMulticurves, bond.getIssuerEntity(), zSpread);
     final StringAmount parallelSensi = presentValueParallelCurveSensitivity(bond, issuerShifted);
     return parallelSensi.getMap().get(issuerMulticurves.getName(bond.getIssuerEntity()));
   }
@@ -603,6 +626,36 @@ public final class BondSecurityDiscountingMethod {
   }
 
   /**
+   * Computes a bond z-spread from the curves and a present value.
+   * The z-spread is a parallel shift applied to continously compounded rates or periodic compounded rates of the discounting curve 
+   * associated to the bond (Issuer Entity) to match the present value.
+   * @param bond The bond.
+   * @param issuerMulticurves The issuer and multi-curves provider.
+   * @param pv The target present value.
+   * @param periodic If true, the spread is added to periodic compounded rates. If false, the spread is added to continuously compounded rates
+   * @param periodPerYear The number of periods per year.
+   * @return The z-spread.
+   */
+  public double zSpreadFromCurvesAndPV(final BondSecurity<? extends Payment, ? extends Coupon> bond,
+      final IssuerProviderInterface issuerMulticurves, final MultipleCurrencyAmount pv, final boolean periodic,
+      final int periodPerYear) {
+    ArgumentChecker.notNull(bond, "Bond");
+    ArgumentChecker.notNull(issuerMulticurves, "Issuer and multi-curves provider");
+    final Currency ccy = bond.getCurrency();
+
+    final Function1D<Double, Double> residual = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(final Double z) {
+        return presentValueFromZSpread(bond, issuerMulticurves, z, periodic, periodPerYear).getAmount(ccy) -
+            pv.getAmount(ccy);
+      }
+    };
+
+    double[] range = ROOT_BRACKETER.getBracketedPoints(residual, -0.01, 0.01); // Starting range is [-1%, 1%]
+    return ROOT_FINDER.getRoot(residual, range[0], range[1]);
+  }
+
+  /**
    * Computes a bond present value z-spread sensitivity from the curves and a present value.
    * @param bond The bond.
    * @param issuerMulticurves The issuer and multi-curves provider.
@@ -630,6 +683,23 @@ public final class BondSecurityDiscountingMethod {
   }
 
   /**
+   * Computes a bond z-spread from the curves and a clean price. 
+   * The z-spread is a parallel shift applied to the discounting curve associated to the bond (Issuer Entity) to match the CleanPrice present value.
+   * @param bond The bond.
+   * @param issuerMulticurves The issuer and multi-curves provider.
+   * @param cleanPrice The target clean price.
+   * @param periodic If true, the spread is added to periodic compounded rates. If false, the spread is added to continuously compounded rates
+   * @param periodPerYear The number of periods per year.
+   * @return The z-spread.
+   */
+  public double zSpreadFromCurvesAndClean(BondSecurity<? extends Payment, ? extends Coupon> bond,
+      IssuerProviderInterface issuerMulticurves, double cleanPrice, boolean periodic, int periodPerYear) {
+    return zSpreadFromCurvesAndPV(bond, issuerMulticurves,
+        presentValueFromCleanPrice(bond, issuerMulticurves.getMulticurveProvider(), cleanPrice), periodic,
+        periodPerYear);
+  }
+
+  /**
    * Computes a bond z-spread from the curves and a yield. 
    * @param bond The bond.
    * @param issuerMulticurves The issuer and multi-curves provider.
@@ -638,6 +708,22 @@ public final class BondSecurityDiscountingMethod {
    */
   public double zSpreadFromCurvesAndYield(final BondSecurity<? extends Payment, ? extends Coupon> bond, final IssuerProviderInterface issuerMulticurves, final double yield) {
     return zSpreadFromCurvesAndPV(bond, issuerMulticurves, presentValueFromYield(bond, issuerMulticurves.getMulticurveProvider(), yield));
+  }
+
+  /**
+   * Computes a bond z-spread from the curves and a yield. 
+   * @param bond The bond.
+   * @param issuerMulticurves The issuer and multi-curves provider.
+   * @param yield The yield.
+   * @param periodic If true, the spread is added to periodic compounded rates. If false, the spread is added to continuously compounded rates
+   * @param periodPerYear The number of periods per year.
+   * @return The z-spread.
+   */
+  public double zSpreadFromCurvesAndYield(BondSecurity<? extends Payment, ? extends Coupon> bond,
+      IssuerProviderInterface issuerMulticurves, double yield, boolean periodic, int periodPerYear) {
+    return zSpreadFromCurvesAndPV(bond, issuerMulticurves,
+        presentValueFromYield(bond, issuerMulticurves.getMulticurveProvider(), yield), periodic, periodPerYear);
+
   }
 
   /**
