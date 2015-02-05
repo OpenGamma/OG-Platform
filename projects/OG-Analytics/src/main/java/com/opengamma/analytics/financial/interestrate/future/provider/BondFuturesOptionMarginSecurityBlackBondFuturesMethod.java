@@ -164,7 +164,7 @@ public final class BondFuturesOptionMarginSecurityBlackBondFuturesMethod extends
   }
   
   /**
-   * The theoretical theta of the option with respect to the underlying futures price.
+   * The theoretical vega of the option with respect to the underlying futures price.
    * @param security The future option security, not null
    * @param black The curve and Black volatility data, not null
    * @return The vega.

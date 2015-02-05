@@ -68,7 +68,7 @@ public class ParameterSensitivityBlackBondFuturesExpLogMoneynessDiscountInterpol
    */
   public MultipleCurrencyParameterSensitivity calculateSensitivity(final InstrumentDerivative instrument, final BlackBondFuturesExpLogMoneynessProviderDiscount black) {
     ArgumentChecker.isTrue(black.getIssuerProvider() instanceof IssuerProviderDiscount,
-        "provider should contain IssuerProviderDiscount"); // TODO annually compounded is not supported
+        "provider should contain IssuerProviderDiscount"); // TODO decorated is not supported
     MultipleCurrencyParameterSensitivity result = new MultipleCurrencyParameterSensitivity();
     final MultipleCurrencyAmount pvInit = instrument.accept(_valueCalculator, black);
     final int nbCcy = pvInit.size();
