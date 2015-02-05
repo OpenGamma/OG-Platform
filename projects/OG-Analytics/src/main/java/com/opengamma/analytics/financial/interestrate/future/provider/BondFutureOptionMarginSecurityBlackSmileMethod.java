@@ -97,7 +97,7 @@ public final class BondFutureOptionMarginSecurityBlackSmileMethod extends
    * @param price The underlying futures price.
    * @return The security price curve sensitivity.
    */
-  public MulticurveSensitivity priceCurveSensitivityFromPrice(final BondFuturesOptionMarginSecurity security,
+  public MulticurveSensitivity priceCurveSensitivityFromUnderlyingPrice(final BondFuturesOptionMarginSecurity security,
       final BlackBondFuturesProviderInterface black, final double price) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(black, "Black data");
@@ -131,7 +131,7 @@ public final class BondFutureOptionMarginSecurityBlackSmileMethod extends
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(black, "Black data");
     double priceFutures = METHOD_FUTURE.price(security.getUnderlyingFuture(), black.getIssuerProvider());
-    return priceCurveSensitivityFromPrice(security, black, priceFutures);
+    return priceCurveSensitivityFromUnderlyingPrice(security, black, priceFutures);
   }
 
   /**
@@ -164,7 +164,7 @@ public final class BondFutureOptionMarginSecurityBlackSmileMethod extends
   }
 
   /**
-   * The delta of the option without the underlying futures price.
+   * The theoretical delta in the Black model. The underlying futures price is computed from the curves
    * @param security The future option security, not null
    * @param black The curve and Black volatility data, not null
    * @return The delta.
@@ -177,7 +177,7 @@ public final class BondFutureOptionMarginSecurityBlackSmileMethod extends
   }
 
   /**
-   * The delta of the option with the underlying futures price.
+   * The theoretical delta in the Black model from a given underlying futures price.
    * @param security The future option security, not null
    * @param black The curve and Black volatility data, not null
    * @param priceFutures The underlying futures price.
@@ -197,7 +197,7 @@ public final class BondFutureOptionMarginSecurityBlackSmileMethod extends
   }
 
   /**
-   * The gamma of the option without the underlying futures price.
+   * The theoretical gamma in the Black model. The underlying futures price is computed from the curves
    * @param security The future option security, not null
    * @param black The curve and Black volatility data, not null
    * @return The gamma.
@@ -210,7 +210,7 @@ public final class BondFutureOptionMarginSecurityBlackSmileMethod extends
   }
 
   /**
-   * The gamma of the option with the underlying futures price.
+   * The theoretical gamma in the Black model from a given underlying futures price.
    * @param security The future option security, not null
    * @param black The curve and Black volatility data, not null
    * @param priceFutures The underlying futures price.
@@ -232,7 +232,7 @@ public final class BondFutureOptionMarginSecurityBlackSmileMethod extends
   }
 
   /**
-   * The vega of the option without the underlying futures price.
+   * The theoretical vega in the Black model. The underlying futures price is computed from the curves.
    * @param security The future option security, not null
    * @param black The curve and Black volatility data, not null
    * @return The vega.
@@ -245,7 +245,7 @@ public final class BondFutureOptionMarginSecurityBlackSmileMethod extends
   }
 
   /**
-   * The vega of the option with the underlying futures price.
+   * The theoretical vega in the Black model from a given underlying futures price.
    * @param security The future option security, not null
    * @param black The curve and Black volatility data, not null
    * @param priceFutures The underlying futures price.
@@ -265,7 +265,7 @@ public final class BondFutureOptionMarginSecurityBlackSmileMethod extends
   }
 
   /**
-   * The theta of the option without the underlying futures price.
+   * The theoretical theta in the Black model. The underlying futures price is computed from the curves.
    * @param security The future option security, not null
    * @param black The curve and Black volatility data, not null
    * @return The theta.
@@ -278,7 +278,7 @@ public final class BondFutureOptionMarginSecurityBlackSmileMethod extends
   }
 
   /**
-   * The theta of the option with the underlying futures price.
+   * The theoretical theta in the Black model from a given underlying futures price.
    * @param security The future option security, not null
    * @param black The curve and Black volatility data, not null
    * @param priceFutures The underlying futures price.

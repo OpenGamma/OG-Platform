@@ -18,26 +18,24 @@ public class BlackBondFuturesExpLogMoneynessProviderDiscount extends BlackBondFu
    * @param parameters The Black parameters.
    * @param legalEntity The legal entity of the bonds underlying the futures for which the volatility data is valid.
    */
-  public BlackBondFuturesExpLogMoneynessProviderDiscount(final IssuerProviderInterface issuerProvider,
+  public BlackBondFuturesExpLogMoneynessProviderDiscount(final IssuerProviderDiscount issuerProvider,
       final Surface<Double, Double, Double> parameters, final LegalEntity legalEntity) {
     super(issuerProvider, parameters, legalEntity);
   }
 
   @Override
   public BlackBondFuturesExpLogMoneynessProviderDiscount copy() {
-    IssuerProviderInterface issuerProvider = getIssuerProvider().copy();
+    IssuerProviderDiscount issuerProvider = getIssuerProvider().copy();
     return new BlackBondFuturesExpLogMoneynessProviderDiscount(issuerProvider, getBlackParameters(), getLegalEntity());
   }
 
   @Override
   public MulticurveProviderDiscount getMulticurveProvider() {
-    IssuerProviderInterface issuerProvider = getIssuerProvider();
-    if (issuerProvider instanceof IssuerProviderDiscount) {
-      return ((IssuerProviderDiscount) issuerProvider).getMulticurveProvider();
-    } else if (issuerProvider instanceof IssuerProviderIssuerDecoratedSpreadPeriodic) {
-      return (MulticurveProviderDiscount) ((IssuerProviderIssuerDecoratedSpreadPeriodic) issuerProvider)
-          .getMulticurveProvider();
-    }
-    throw new IllegalArgumentException("unsupported type of issuer provider");
+    return getIssuerProvider().getMulticurveProvider();
+  }
+
+  @Override
+  public IssuerProviderDiscount getIssuerProvider() {
+    return (IssuerProviderDiscount) super.getIssuerProvider();
   }
 }

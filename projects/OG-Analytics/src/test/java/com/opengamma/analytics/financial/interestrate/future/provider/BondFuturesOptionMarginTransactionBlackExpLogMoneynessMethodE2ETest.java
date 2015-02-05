@@ -34,6 +34,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldPeriodicC
 import com.opengamma.analytics.financial.provider.calculator.blackbondfutures.PresentValueBlackBondFuturesOptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.blackbondfutures.PresentValueCurveSensitivityBlackBondFuturesOptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PV01CurveParametersCalculator;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesExpLogMoneynessProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesExpLogMoneynessProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
@@ -295,7 +296,7 @@ public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodE2ETest
         BOND_MARKET_PRICE_SCH / HUNDRED, true, 1) / BP1;
     IssuerProviderIssuerDecoratedSpreadPeriodic curveWithSpread = new IssuerProviderIssuerDecoratedSpreadPeriodic(
         BLACK_PROVIDER_SCH.getIssuerProvider(), legalEntity, spread * BP1, 1);
-    BlackBondFuturesExpLogMoneynessProviderDiscount blackNew = new BlackBondFuturesExpLogMoneynessProviderDiscount(
+    BlackBondFuturesExpLogMoneynessProvider blackNew = new BlackBondFuturesExpLogMoneynessProvider(
         curveWithSpread, BLACK_PROVIDER_SCH.getBlackParameters(), BLACK_PROVIDER_SCH.getLegalEntity());
 
     double price = TRANSACTION_SCH.getUnderlyingSecurity().accept(FPBFC, blackNew) * HUNDRED;
@@ -335,7 +336,7 @@ public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodE2ETest
         BOND_MARKET_PRICE_BUN / HUNDRED, true, 1) / BP1;
     IssuerProviderIssuerDecoratedSpreadPeriodic curveWithSpread = new IssuerProviderIssuerDecoratedSpreadPeriodic(
         BLACK_PROVIDER_BUN.getIssuerProvider(), legalEntity, spread * BP1, 1);
-    BlackBondFuturesExpLogMoneynessProviderDiscount blackNew = new BlackBondFuturesExpLogMoneynessProviderDiscount(
+    BlackBondFuturesExpLogMoneynessProvider blackNew = new BlackBondFuturesExpLogMoneynessProvider(
         curveWithSpread, BLACK_PROVIDER_BUN.getBlackParameters(), BLACK_PROVIDER_BUN.getLegalEntity());
 
     double price = TRANSACTION_BUN.getUnderlyingSecurity().accept(FPBFC, blackNew) * HUNDRED;
@@ -375,7 +376,7 @@ public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodE2ETest
         BOND_MARKET_PRICE_BOB / HUNDRED, true, 1) / BP1;
     IssuerProviderIssuerDecoratedSpreadPeriodic curveWithSpread = new IssuerProviderIssuerDecoratedSpreadPeriodic(
         BLACK_PROVIDER_BOB.getIssuerProvider(), legalEntity, spread * BP1, 1);
-    BlackBondFuturesExpLogMoneynessProviderDiscount blackNew = new BlackBondFuturesExpLogMoneynessProviderDiscount(
+    BlackBondFuturesExpLogMoneynessProvider blackNew = new BlackBondFuturesExpLogMoneynessProvider(
         curveWithSpread, BLACK_PROVIDER_BOB.getBlackParameters(), BLACK_PROVIDER_BOB.getLegalEntity());
 
     double price = TRANSACTION_BOB.getUnderlyingSecurity().accept(FPBFC, blackNew) * HUNDRED;

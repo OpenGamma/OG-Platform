@@ -67,8 +67,6 @@ public class ParameterSensitivityBlackBondFuturesExpLogMoneynessDiscountInterpol
    * @return The parameter sensitivity.
    */
   public MultipleCurrencyParameterSensitivity calculateSensitivity(final InstrumentDerivative instrument, final BlackBondFuturesExpLogMoneynessProviderDiscount black) {
-    ArgumentChecker.isTrue(black.getIssuerProvider() instanceof IssuerProviderDiscount,
-        "provider should contain IssuerProviderDiscount"); // TODO decorated is not supported
     MultipleCurrencyParameterSensitivity result = new MultipleCurrencyParameterSensitivity();
     final MultipleCurrencyAmount pvInit = instrument.accept(_valueCalculator, black);
     final int nbCcy = pvInit.size();
@@ -92,8 +90,7 @@ public class ParameterSensitivityBlackBondFuturesExpLogMoneynessDiscountInterpol
         final YieldAndDiscountCurve dscBumpedPlus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedPlus,
             curveInt.getInterpolator(), true));
         final BlackBondFuturesExpLogMoneynessProviderDiscount marketDscBumpedPlus = new BlackBondFuturesExpLogMoneynessProviderDiscount(
-            new IssuerProviderDiscount(black.getMulticurveProvider().withDiscountFactor(ccy, dscBumpedPlus),
-                ((IssuerProvider) black.getIssuerProvider()).getIssuerCurves()),
+            new IssuerProviderDiscount(black.getMulticurveProvider().withDiscountFactor(ccy, dscBumpedPlus), black.getIssuerProvider().getIssuerCurves()),
             black.getBlackParameters(), black.getLegalEntity());
         final MultipleCurrencyAmount pvBumpedPlus = instrument.accept(_valueCalculator, marketDscBumpedPlus);
         final double[] yieldBumpedMinus = curveInt.getYDataAsPrimitive().clone();
@@ -101,8 +98,7 @@ public class ParameterSensitivityBlackBondFuturesExpLogMoneynessDiscountInterpol
         final YieldAndDiscountCurve dscBumpedMinus = new YieldCurve(curveInt.getName(),
             new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus, curveInt.getInterpolator(), true));
         final BlackBondFuturesExpLogMoneynessProviderDiscount marketDscBumpedMinus = new BlackBondFuturesExpLogMoneynessProviderDiscount(
-            new IssuerProviderDiscount(black.getMulticurveProvider().withDiscountFactor(ccy, dscBumpedMinus),
-                ((IssuerProvider) black.getIssuerProvider()).getIssuerCurves()),
+            new IssuerProviderDiscount(black.getMulticurveProvider().withDiscountFactor(ccy, dscBumpedMinus), black.getIssuerProvider().getIssuerCurves()),
             black.getBlackParameters(), black.getLegalEntity());
         final MultipleCurrencyAmount pvBumpedMinus = instrument.accept(_valueCalculator, marketDscBumpedMinus);
         final MultipleCurrencyAmount pvDiff = pvBumpedPlus.plus(pvBumpedMinus.multipliedBy(-1.0));
@@ -131,8 +127,7 @@ public class ParameterSensitivityBlackBondFuturesExpLogMoneynessDiscountInterpol
         final YieldAndDiscountCurve fwdBumpedPlus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(),
             yieldBumpedPlus, curveInt.getInterpolator(), true));
         final BlackBondFuturesExpLogMoneynessProviderDiscount marketFwdBumpedPlus = new BlackBondFuturesExpLogMoneynessProviderDiscount(
-            new IssuerProviderDiscount(black.getMulticurveProvider().withForward(index, fwdBumpedPlus),
-                ((IssuerProvider) black.getIssuerProvider()).getIssuerCurves()),
+            new IssuerProviderDiscount(black.getMulticurveProvider().withForward(index, fwdBumpedPlus), black.getIssuerProvider().getIssuerCurves()),
             black.getBlackParameters(), black.getLegalEntity());
         final MultipleCurrencyAmount pvBumpedPlus = instrument.accept(_valueCalculator, marketFwdBumpedPlus);
         final double[] yieldBumpedMinus = curveInt.getYDataAsPrimitive().clone();
@@ -140,8 +135,7 @@ public class ParameterSensitivityBlackBondFuturesExpLogMoneynessDiscountInterpol
         final YieldAndDiscountCurve fwdBumpedMinus = new YieldCurve(curveInt.getName(),
             new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus, curveInt.getInterpolator(), true));
         final BlackBondFuturesExpLogMoneynessProviderDiscount marketFwdBumpedMinus = new BlackBondFuturesExpLogMoneynessProviderDiscount(
-            new IssuerProviderDiscount(black.getMulticurveProvider().withForward(index, fwdBumpedMinus),
-                ((IssuerProvider) black.getIssuerProvider()).getIssuerCurves()),
+            new IssuerProviderDiscount(black.getMulticurveProvider().withForward(index, fwdBumpedMinus), black.getIssuerProvider().getIssuerCurves()),
             black.getBlackParameters(), black.getLegalEntity());
         final MultipleCurrencyAmount pvBumpedMinus = instrument.accept(_valueCalculator, marketFwdBumpedMinus);
         final MultipleCurrencyAmount pvDiff = pvBumpedPlus.plus(pvBumpedMinus.multipliedBy(-1.0));
@@ -170,8 +164,7 @@ public class ParameterSensitivityBlackBondFuturesExpLogMoneynessDiscountInterpol
         final YieldAndDiscountCurve fwdBumpedPlus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedPlus,
             curveInt.getInterpolator(), true));
         final BlackBondFuturesExpLogMoneynessProviderDiscount marketFwdBumpedPlus = new BlackBondFuturesExpLogMoneynessProviderDiscount(
-            new IssuerProviderDiscount(black.getMulticurveProvider().withForward(index, fwdBumpedPlus),
-                ((IssuerProvider) black.getIssuerProvider()).getIssuerCurves()),
+            new IssuerProviderDiscount(black.getMulticurveProvider().withForward(index, fwdBumpedPlus), black.getIssuerProvider().getIssuerCurves()),
             black.getBlackParameters(), black.getLegalEntity());
         final MultipleCurrencyAmount pvBumpedPlus = instrument.accept(_valueCalculator, marketFwdBumpedPlus);
         final double[] yieldBumpedMinus = curveInt.getYDataAsPrimitive().clone();
@@ -179,8 +172,7 @@ public class ParameterSensitivityBlackBondFuturesExpLogMoneynessDiscountInterpol
         final YieldAndDiscountCurve fwdBumpedMinus = new YieldCurve(curveInt.getName(),
             new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus, curveInt.getInterpolator(), true));
         final BlackBondFuturesExpLogMoneynessProviderDiscount marketFwdBumpedMinus = new BlackBondFuturesExpLogMoneynessProviderDiscount(
-            new IssuerProviderDiscount(black.getMulticurveProvider().withForward(index, fwdBumpedMinus),
-                ((IssuerProvider) black.getIssuerProvider()).getIssuerCurves()),
+            new IssuerProviderDiscount(black.getMulticurveProvider().withForward(index, fwdBumpedMinus), black.getIssuerProvider().getIssuerCurves()),
             black.getBlackParameters(), black.getLegalEntity());
         final MultipleCurrencyAmount pvBumpedMinus = instrument.accept(_valueCalculator, marketFwdBumpedMinus);
         final MultipleCurrencyAmount pvDiff = pvBumpedPlus.plus(pvBumpedMinus.multipliedBy(-1.0));
@@ -196,7 +188,7 @@ public class ParameterSensitivityBlackBondFuturesExpLogMoneynessDiscountInterpol
     // Discounting issuer
     final Set<Pair<Object, LegalEntityFilter<LegalEntity>>> issuerCcies = black.getIssuerProvider().getIssuers();
     for (final Pair<Object, LegalEntityFilter<LegalEntity>> ic : issuerCcies) {
-      final YieldAndDiscountCurve curve = ((IssuerProviderDiscount) black.getIssuerProvider()).getIssuerCurve(ic);
+      final YieldAndDiscountCurve curve = black.getIssuerProvider().getIssuerCurve(ic);
       ArgumentChecker.isTrue(curve instanceof YieldCurve, "Curve should be a YieldCurve");
       final YieldCurve curveYield = (YieldCurve) curve;
       ArgumentChecker.isTrue(curveYield.getCurve() instanceof InterpolatedDoublesCurve, "Yield curve should be based on InterpolatedDoublesCurve");
@@ -209,14 +201,14 @@ public class ParameterSensitivityBlackBondFuturesExpLogMoneynessDiscountInterpol
         final YieldAndDiscountCurve icBumpedPlus = new YieldCurve(curveInt.getName(),
             new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedPlus, curveInt.getInterpolator(), true));
         final BlackBondFuturesExpLogMoneynessProviderDiscount providerIcBumpedPlus = new BlackBondFuturesExpLogMoneynessProviderDiscount(
-            ((IssuerProviderDiscount) black.getIssuerProvider()).withIssuerCurve(ic, icBumpedPlus), black.getBlackParameters(), black.getLegalEntity());
+            black.getIssuerProvider().withIssuerCurve(ic, icBumpedPlus), black.getBlackParameters(), black.getLegalEntity());
         final MultipleCurrencyAmount pvBumpedPlus = instrument.accept(_valueCalculator, providerIcBumpedPlus);
         final double[] yieldBumpedMinus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedMinus[loopnode] -= _shift;
         final YieldAndDiscountCurve icBumpedMinus = new YieldCurve(curveInt.getName(),
             new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus, curveInt.getInterpolator(), true));
         final BlackBondFuturesExpLogMoneynessProviderDiscount providerIcBumpedMinus = new BlackBondFuturesExpLogMoneynessProviderDiscount(
-           ((IssuerProviderDiscount) black.getIssuerProvider()).withIssuerCurve(ic, icBumpedMinus), black.getBlackParameters(), black.getLegalEntity());
+            black.getIssuerProvider().withIssuerCurve(ic, icBumpedMinus), black.getBlackParameters(), black.getLegalEntity());
         final MultipleCurrencyAmount pvBumpedMinus = instrument.accept(_valueCalculator, providerIcBumpedMinus);
         final MultipleCurrencyAmount pvDiff = pvBumpedPlus.plus(pvBumpedMinus.multipliedBy(-1.0));
         for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
