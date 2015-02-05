@@ -63,7 +63,6 @@ import com.opengamma.util.tuple.Pairs;
 /**
  * End-to-end test for bond futures option based on Black model with moneyness-expiry volatility surface
  */
-@SuppressWarnings({"rawtypes", "unchecked" })
 @Test(groups = TestGroup.UNIT)
 public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodE2ETest {
   private static final BondAndSTIRFuturesE2EExamplesData DATA = new BondAndSTIRFuturesE2EExamplesData();
