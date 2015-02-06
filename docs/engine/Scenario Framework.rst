@@ -85,16 +85,16 @@ multiple independent pieces of market data.
 An example of this is to apply a range of shocks to both FX rates and volatilities. There is one scenario for
 each combination of FX rate shock and volatility shock. So given a set of 5 shocks for FX rates and 7
 shocks for volatilities, the output would contain 35 sets of results. This can be visualised as a table
-with FX shocks on one axis and vol shocks on the other. Each cell contains a set of results for a scenario.
+with FX shocks on one axis and volatility shocks on the other. Each cell contains a set of results for a scenario.
 
 This is achievable by using multiple perturbation mappings in the same scenario definition. The engine creates
 a set of market data for every combination of perturbations, where each scenario contains a perturbation
 from each mapping.
 
-So in the example above, there would be two perturbation mappings in the scenario definition, one containing a
+In the example above, there would be two perturbation mappings in the scenario definition, one containing a
 filter to select FX rates and the other with a filter to select volatilities. Each scenario would contain one
 FX rate perturbation and one volatility perturbation. The total number of scenarios would be the number of
-perturbations in the FX mapping multiplied by the number of perturbations in the vol mapping.
+perturbations in the FX mapping multiplied by the number of perturbations in the volatility mapping.
 
 This can be extended to an unlimited number of dimensions simply by including more mappings in the scenario definition.
 
