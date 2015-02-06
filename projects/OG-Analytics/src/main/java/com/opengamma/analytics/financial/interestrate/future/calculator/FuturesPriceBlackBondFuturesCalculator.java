@@ -9,48 +9,59 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.BondFutureOptionMarginSecurityBlackSmileMethod;
+import com.opengamma.analytics.financial.interestrate.future.provider.FuturesSecurityIssuerMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Computes the price for different types of futures. Calculator using a multi-curve and issuer provider.
  */
-public final class FuturesPriceBlackBondFuturesCalculator extends InstrumentDerivativeVisitorAdapter<BlackBondFuturesProviderInterface, Double> {
+public final class FuturesPriceBlackBondFuturesCalculator 
+    extends InstrumentDerivativeVisitorAdapter<BlackBondFuturesProviderInterface, Double> {
 
-  /**
-   * The unique instance of the calculator.
-   */
-  private static final FuturesPriceBlackBondFuturesCalculator INSTANCE = new FuturesPriceBlackBondFuturesCalculator();
+  /** The default instance of the calculator. */
+  private static final FuturesPriceBlackBondFuturesCalculator DEFAULT = new FuturesPriceBlackBondFuturesCalculator();
+  
+  /** The method used to compute futures option */
+  private final BondFutureOptionMarginSecurityBlackSmileMethod _methodFuturesOption;
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
   public static FuturesPriceBlackBondFuturesCalculator getInstance() {
-    return INSTANCE;
+    return DEFAULT;
   }
 
   /**
-   * Constructor.
+   * Default constructor.
    */
   private FuturesPriceBlackBondFuturesCalculator() {
+    _methodFuturesOption = BondFutureOptionMarginSecurityBlackSmileMethod.getInstance();
   }
 
-  /** The method used to compute futures option */
-  private static final BondFutureOptionMarginSecurityBlackSmileMethod METHOD_FUTURE_OPTION = BondFutureOptionMarginSecurityBlackSmileMethod
-      .getInstance();
+  /**
+   * Constructor from a particular bond futures method. The method is used to compute the price and price curve
+   * sensitivity of the underlying futures.
+   * @param methodFutures The method used to compute futures option.
+   */
+  public FuturesPriceBlackBondFuturesCalculator(FuturesSecurityIssuerMethod methodFutures) {
+    _methodFuturesOption = new BondFutureOptionMarginSecurityBlackSmileMethod(methodFutures);
+  }
 
   //     -----     Futures options    -----
 
   @Override
-  public Double visitBondFuturesOptionMarginSecurity(final BondFuturesOptionMarginSecurity security, final BlackBondFuturesProviderInterface black) {
+  public Double visitBondFuturesOptionMarginSecurity(final BondFuturesOptionMarginSecurity security, 
+      final BlackBondFuturesProviderInterface black) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(black, "black");
-    return METHOD_FUTURE_OPTION.price(security, black);
+    return _methodFuturesOption.price(security, black);
   }
   
   @Override
-  public Double visitBondFuturesOptionMarginTransaction(BondFuturesOptionMarginTransaction option, BlackBondFuturesProviderInterface data) {
+  public Double visitBondFuturesOptionMarginTransaction(BondFuturesOptionMarginTransaction option, 
+      BlackBondFuturesProviderInterface data) {
     return visitBondFuturesOptionMarginSecurity(option.getUnderlyingSecurity(), data);
   }
 }

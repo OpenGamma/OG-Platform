@@ -74,7 +74,7 @@ public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodTest {
   private static final BlackBondFuturesExpLogMoneynessProviderDiscount BLACK_BNDFUT_MONEYNESS_FLAT =
       new BlackBondFuturesExpLogMoneynessProviderDiscount(ISSUER_SPECIFIC_MULTICURVES, BLACK_SURFACE_FLAT, LEGAL_ENTITY_GERMANY);
   /** Methods and calculators */
-  private static final BondFuturesOptionMarginSecurityBlackBondFuturesMethod METHOD_OPT_SEC = BondFuturesOptionMarginSecurityBlackBondFuturesMethod.getInstance();
+  private static final BondFuturesOptionMarginSecurityBlackBondFuturesMethod METHOD_OPT_SEC = BondFuturesOptionMarginSecurityBlackBondFuturesMethod.getDefaultInstance();
   private static final FuturesTransactionBlackBondFuturesMethod METHOD_OPT_TRA = new FuturesTransactionBlackBondFuturesMethod();
   private static final PresentValueBlackBondFuturesOptionCalculator PVBFC = PresentValueBlackBondFuturesOptionCalculator.getInstance();
   private static final PresentValueCurveSensitivityBlackBondFuturesOptionCalculator PVCSBFC = PresentValueCurveSensitivityBlackBondFuturesOptionCalculator.getInstance();
