@@ -70,7 +70,7 @@ public class BondFuturesOptionMarginTransactionBlackFlatMethodTest {
   private static final BlackBondFuturesFlatProviderDiscount BLACK_FLAT_BNDFUT = new BlackBondFuturesFlatProviderDiscount(ISSUER_SPECIFIC_MULTICURVES,
       BLACK_SURFACE, LEGAL_ENTITY_GERMANY);
   /** Methods and calculators */
-  private static final BondFuturesOptionMarginSecurityBlackBondFuturesMethod METHOD_OPT_SEC = BondFuturesOptionMarginSecurityBlackBondFuturesMethod.getInstance();
+  private static final BondFuturesOptionMarginSecurityBlackBondFuturesMethod METHOD_OPT_SEC = BondFuturesOptionMarginSecurityBlackBondFuturesMethod.getDefaultInstance();
   private static final FuturesTransactionBlackBondFuturesMethod METHOD_OPT_TRA = new FuturesTransactionBlackBondFuturesMethod();
   private static final PresentValueBlackBondFuturesOptionCalculator PVBFC = PresentValueBlackBondFuturesOptionCalculator.getInstance();
   private static final PresentValueCurveSensitivityBlackBondFuturesOptionCalculator PVCSBFC = PresentValueCurveSensitivityBlackBondFuturesOptionCalculator.getInstance();

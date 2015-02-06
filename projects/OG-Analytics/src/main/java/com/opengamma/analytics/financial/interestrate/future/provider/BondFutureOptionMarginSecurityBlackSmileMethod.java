@@ -22,16 +22,30 @@ import com.opengamma.util.ArgumentChecker;
 public final class BondFutureOptionMarginSecurityBlackSmileMethod extends
     BondFutureOptionMarginSecurityGenericMethod<BlackBondFuturesProviderInterface> {
 
-  /**
-   * Creates the method unique instance.
-   */
-  private static final BondFutureOptionMarginSecurityBlackSmileMethod INSTANCE =
+  /** The method default instance. */
+  private static final BondFutureOptionMarginSecurityBlackSmileMethod DEFAULT =
       new BondFutureOptionMarginSecurityBlackSmileMethod();
 
+  /** The Black function used in the pricing. */
+  private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
+  
+  /** The method used to compute the future price. */
+  private final FuturesSecurityIssuerMethod _methodFutures;
+  
   /**
-   * Constructor.
+   * Default constructor.
    */
   private BondFutureOptionMarginSecurityBlackSmileMethod() {
+    _methodFutures = BondFuturesSecurityDiscountingMethod.getInstance();
+  }
+  
+  /**
+   * Constructor from a particular bond futures method. The method is used to compute the price and price curve
+   * sensitivity of the underlying futures.
+   * @param methodFutures The bond futures method.
+   */
+  public BondFutureOptionMarginSecurityBlackSmileMethod(FuturesSecurityIssuerMethod methodFutures) {
+    _methodFutures = methodFutures;
   }
 
   /**
@@ -39,19 +53,8 @@ public final class BondFutureOptionMarginSecurityBlackSmileMethod extends
    * @return The instance.
    */
   public static BondFutureOptionMarginSecurityBlackSmileMethod getInstance() {
-    return INSTANCE;
+    return DEFAULT;
   }
-
-  /**
-   * The Black function used in the pricing.
-   */
-  private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
-
-  /**
-   * The method used to compute the future price. 
-   */
-  private static final BondFuturesSecurityDiscountingMethod METHOD_FUTURE = BondFuturesSecurityDiscountingMethod
-      .getInstance();
 
   /**
    * Computes the option security price from future price.
@@ -83,7 +86,7 @@ public final class BondFutureOptionMarginSecurityBlackSmileMethod extends
   public double price(BondFuturesOptionMarginSecurity security, BlackBondFuturesProviderInterface black) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(black, "Black data");
-    double priceFutures = METHOD_FUTURE.price(security.getUnderlyingFuture(), black.getIssuerProvider());
+    double priceFutures = _methodFutures.price(security.getUnderlyingFuture(), black.getIssuerProvider());
     return priceFromUnderlyingPrice(security, black, priceFutures);
   }
 
@@ -112,7 +115,7 @@ public final class BondFutureOptionMarginSecurityBlackSmileMethod extends
     // Backward sweep
     final double priceBar = 1.0;
     final double priceFutureBar = priceAdjoint[1] * priceBar;
-    final MulticurveSensitivity priceFutureDerivative = METHOD_FUTURE.priceCurveSensitivity(
+    final MulticurveSensitivity priceFutureDerivative = _methodFutures.priceCurveSensitivity(
         security.getUnderlyingFuture(), black.getIssuerProvider());
     return priceFutureDerivative.multipliedBy(priceFutureBar);
   }
@@ -130,7 +133,7 @@ public final class BondFutureOptionMarginSecurityBlackSmileMethod extends
       BlackBondFuturesProviderInterface black) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(black, "Black data");
-    double priceFutures = METHOD_FUTURE.price(security.getUnderlyingFuture(), black.getIssuerProvider());
+    double priceFutures = _methodFutures.price(security.getUnderlyingFuture(), black.getIssuerProvider());
     return priceCurveSensitivityFromUnderlyingPrice(security, black, priceFutures);
   }
 
@@ -144,7 +147,7 @@ public final class BondFutureOptionMarginSecurityBlackSmileMethod extends
       final BlackBondFuturesProviderInterface black) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(black, "Black data");
-    final double priceFutures = METHOD_FUTURE.price(security.getUnderlyingFuture(), black.getIssuerProvider());
+    final double priceFutures = _methodFutures.price(security.getUnderlyingFuture(), black.getIssuerProvider());
     final double strike = security.getStrike();
     final double delay = security.getUnderlyingFuture().getNoticeLastTime() - security.getExpirationTime();
     final double volatility = black.getVolatility(security.getExpirationTime(), delay, strike, priceFutures);
@@ -160,7 +163,7 @@ public final class BondFutureOptionMarginSecurityBlackSmileMethod extends
   public double underlyingFuturePrice(final BondFuturesOptionMarginSecurity security,
       final IssuerProviderInterface issuerMulticurves) {
     ArgumentChecker.notNull(security, "security");
-    return METHOD_FUTURE.price(security.getUnderlyingFuture(), issuerMulticurves);
+    return _methodFutures.price(security.getUnderlyingFuture(), issuerMulticurves);
   }
 
   /**
@@ -172,7 +175,7 @@ public final class BondFutureOptionMarginSecurityBlackSmileMethod extends
   public double delta(BondFuturesOptionMarginSecurity security, BlackBondFuturesProviderInterface black) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(black, "Black data");
-    double priceFutures = METHOD_FUTURE.price(security.getUnderlyingFuture(), black.getIssuerProvider());
+    double priceFutures = _methodFutures.price(security.getUnderlyingFuture(), black.getIssuerProvider());
     return deltaFromUnderlyingPrice(security, black, priceFutures);
   }
 
@@ -205,7 +208,7 @@ public final class BondFutureOptionMarginSecurityBlackSmileMethod extends
   public double gamma(BondFuturesOptionMarginSecurity security, BlackBondFuturesProviderInterface black) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(black, "Black data");
-    double priceFutures = METHOD_FUTURE.price(security.getUnderlyingFuture(), black.getIssuerProvider());
+    double priceFutures = _methodFutures.price(security.getUnderlyingFuture(), black.getIssuerProvider());
     return gammaFromUnderlyingPrice(security, black, priceFutures);
   }
 
@@ -240,7 +243,7 @@ public final class BondFutureOptionMarginSecurityBlackSmileMethod extends
   public double vega(BondFuturesOptionMarginSecurity security, BlackBondFuturesProviderInterface black) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(black, "Black data");
-    double priceFutures = METHOD_FUTURE.price(security.getUnderlyingFuture(), black.getIssuerProvider());
+    double priceFutures = _methodFutures.price(security.getUnderlyingFuture(), black.getIssuerProvider());
     return vegaFromUnderlyingPrice(security, black, priceFutures);
   }
 
@@ -273,7 +276,7 @@ public final class BondFutureOptionMarginSecurityBlackSmileMethod extends
   public double theta(BondFuturesOptionMarginSecurity security, BlackBondFuturesProviderInterface black) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(black, "Black data");
-    double priceFutures = METHOD_FUTURE.price(security.getUnderlyingFuture(), black.getIssuerProvider());
+    double priceFutures = _methodFutures.price(security.getUnderlyingFuture(), black.getIssuerProvider());
     return thetaFromUnderlyingPrice(security, black, priceFutures);
   }
 

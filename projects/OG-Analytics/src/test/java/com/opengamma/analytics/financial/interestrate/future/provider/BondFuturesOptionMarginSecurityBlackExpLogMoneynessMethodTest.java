@@ -66,7 +66,7 @@ public class BondFuturesOptionMarginSecurityBlackExpLogMoneynessMethodTest {
   private static final BlackBondFuturesExpLogMoneynessProviderDiscount BLACK_FLAT_BNDFUT =
       new BlackBondFuturesExpLogMoneynessProviderDiscount(ISSUER_SPECIFIC_MULTICURVES, BLACK_SURFACE, LEGAL_ENTITY_GERMANY);
   /** Methods and calculators */
-  private static final BondFuturesOptionMarginSecurityBlackBondFuturesMethod METHOD_OPT = BondFuturesOptionMarginSecurityBlackBondFuturesMethod.getInstance();
+  private static final BondFuturesOptionMarginSecurityBlackBondFuturesMethod METHOD_OPT = BondFuturesOptionMarginSecurityBlackBondFuturesMethod.getDefaultInstance();
   private static final BondFuturesSecurityDiscountingMethod METHOD_FUTURE = BondFuturesSecurityDiscountingMethod.getInstance();
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
   private static final BondFutureOptionMarginSecurityBlackSmileMethod METHOD_SMILE = BondFutureOptionMarginSecurityBlackSmileMethod
