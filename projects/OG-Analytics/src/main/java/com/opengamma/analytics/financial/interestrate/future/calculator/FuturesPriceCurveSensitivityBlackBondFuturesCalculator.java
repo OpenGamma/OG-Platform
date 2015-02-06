@@ -22,10 +22,6 @@ public final class FuturesPriceCurveSensitivityBlackBondFuturesCalculator
   /** The default instance of the calculator. */
   private static final FuturesPriceCurveSensitivityBlackBondFuturesCalculator DEFAULT = 
       new FuturesPriceCurveSensitivityBlackBondFuturesCalculator();
-
-  /** The method used to compute futures option. */
-  private static final BondFutureOptionMarginSecurityBlackSmileMethod DEFAULT_METHOD_FUTURE_OPTION = 
-      BondFutureOptionMarginSecurityBlackSmileMethod.getInstance();
   
   /** The method used to compute futures option. */
   private final BondFutureOptionMarginSecurityBlackSmileMethod _methodFuturesOption;
@@ -42,7 +38,7 @@ public final class FuturesPriceCurveSensitivityBlackBondFuturesCalculator
    * Constructor.
    */
   private FuturesPriceCurveSensitivityBlackBondFuturesCalculator() {
-    _methodFuturesOption = DEFAULT_METHOD_FUTURE_OPTION;
+    _methodFuturesOption = BondFutureOptionMarginSecurityBlackSmileMethod.getInstance();
   }
 
   /**
