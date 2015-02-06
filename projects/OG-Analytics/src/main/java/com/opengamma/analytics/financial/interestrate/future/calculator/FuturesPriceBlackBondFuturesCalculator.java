@@ -8,10 +8,7 @@ package com.opengamma.analytics.financial.interestrate.future.calculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginTransaction;
-import com.opengamma.analytics.financial.interestrate.future.provider.BondFuturesSecurityDiscountingMethod;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.financial.interestrate.future.provider.BondFutureOptionMarginSecurityBlackSmileMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 
@@ -39,10 +36,9 @@ public final class FuturesPriceBlackBondFuturesCalculator extends InstrumentDeri
   private FuturesPriceBlackBondFuturesCalculator() {
   }
 
-  /** The Black function used in the pricing. */
-  private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
-  /** The method used to compute the future price. */
-  private static final BondFuturesSecurityDiscountingMethod METHOD_FUTURE = BondFuturesSecurityDiscountingMethod.getInstance();
+  /** The method used to compute futures option */
+  private static final BondFutureOptionMarginSecurityBlackSmileMethod METHOD_FUTURE_OPTION = BondFutureOptionMarginSecurityBlackSmileMethod
+      .getInstance();
 
   //     -----     Futures options    -----
 
@@ -50,14 +46,7 @@ public final class FuturesPriceBlackBondFuturesCalculator extends InstrumentDeri
   public Double visitBondFuturesOptionMarginSecurity(final BondFuturesOptionMarginSecurity security, final BlackBondFuturesProviderInterface black) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(black, "black");
-    final double priceFutures = METHOD_FUTURE.price(security.getUnderlyingFuture(), black.getIssuerProvider());
-    final double strike = security.getStrike();
-    final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, security.getExpirationTime(), security.isCall());
-    final double delay = security.getUnderlyingFuture().getNoticeLastTime() - security.getExpirationTime();
-    final double volatility = black.getVolatility(security.getExpirationTime(), delay, strike, priceFutures);
-    final BlackFunctionData dataBlack = new BlackFunctionData(priceFutures, 1.0, volatility);
-    final double priceSecurity = BLACK_FUNCTION.getPriceFunction(option).evaluate(dataBlack);
-    return priceSecurity;
+    return METHOD_FUTURE_OPTION.price(security, black);
   }
   
   @Override

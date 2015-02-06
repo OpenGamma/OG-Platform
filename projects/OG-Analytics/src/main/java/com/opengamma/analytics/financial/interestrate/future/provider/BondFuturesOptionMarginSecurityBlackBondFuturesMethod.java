@@ -124,11 +124,11 @@ public final class BondFuturesOptionMarginSecurityBlackBondFuturesMethod extends
   }
 
   /**
-   * The theoretical delta of the option with respect to the underlying futures price.
-   * @param security The future option security, not null
-   * @param black The curve and Black volatility data, not null
-   * @return The delta.
-   */
+  * The theoretical delta of the option with respect to the underlying futures price.
+  * @param security The future option security, not null
+  * @param black The curve and Black volatility data, not null
+  * @return The delta.
+  */
   public double deltaUnderlyingPrice(final BondFuturesOptionMarginSecurity security, final BlackBondFuturesProviderInterface black) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(black, "Black data");
@@ -162,12 +162,12 @@ public final class BondFuturesOptionMarginSecurityBlackBondFuturesMethod extends
     BLACK_FUNCTION.getPriceAdjoint2(option, dataBlack, firstDerivs, secondDerivs);
     return secondDerivs[0][0];
   }
-
+  
   /**
-   * The theoretical gamma of the option with respect to the underlying futures price.
+   * The theoretical vega of the option with respect to the underlying futures price.
    * @param security The future option security, not null
    * @param black The curve and Black volatility data, not null
-   * @return The gamma.
+   * @return The vega.
    */
   public double vegaUnderlyingPrice(final BondFuturesOptionMarginSecurity security, final BlackBondFuturesProviderInterface black) {
     ArgumentChecker.notNull(security, "security");
@@ -181,13 +181,13 @@ public final class BondFuturesOptionMarginSecurityBlackBondFuturesMethod extends
     final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
     return priceAdjoint[2];
   }
-  
+
   /**
-   * The theoretical theta of the option with respect to the underlying futures price.
-   * @param security The future option security, not null
-   * @param black The curve and Black volatility data, not null
-   * @return The theta.
-   */
+  * The theoretical theta of the option with respect to the underlying futures price.
+  * @param security The future option security, not null
+  * @param black The curve and Black volatility data, not null
+  * @return The theta.
+  */
   public double theta(final BondFuturesOptionMarginSecurity security, final BlackBondFuturesProviderInterface black) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(black, "Black data");
@@ -198,5 +198,4 @@ public final class BondFuturesOptionMarginSecurityBlackBondFuturesMethod extends
     final double rate = -Math.log(black.getMulticurveProvider().getDiscountFactor(security.getCurrency(), security.getExpirationTime())) / security.getExpirationTime();
     return BlackFormulaRepository.theta(priceFutures, strike, security.getExpirationTime(), volatility, security.isCall(), rate);
   }
-
 }

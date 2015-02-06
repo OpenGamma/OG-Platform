@@ -73,8 +73,11 @@ public class BondAndSTIRFuturesE2EExamplesData {
   private static final double[] RATE_ISSUER_GER = new double[] {6.8E-4, 6.8E-4, 6.8E-4, 6.8E-4, 8.8E-4, 8.3E-4,
       0.00109, 0.00212, 0.00414, 0.00674, 0.00838, 0.01075, 0.01311, 0.01547, 0.0174, 0.02289, 0.02577, 0.02693 };
   private static final double REPO_RATE_SCH = -2.0E-4;
+  private static final double REPO_RATE_SCH_OP = 0.0017;
   private static final double REPO_RATE_BUN = 9.0E-4;
+  private static final double REPO_RATE_BUN_OP = 0.0;
   private static final double REPO_RATE_BOB = -0.0013;
+  private static final double REPO_RATE_BOB_OP = -6.0E-4;
 
   /**
    * Access TIME_ISSUER_LGT
@@ -125,6 +128,14 @@ public class BondAndSTIRFuturesE2EExamplesData {
   }
 
   /**
+   * Access REPO_RATE_SCH_OP
+   * @return REPO_RATE_SCH_OP
+   */
+  public double getRepoSCHOp() {
+    return REPO_RATE_SCH_OP;
+  }
+
+  /**
    * Access REPO_RATE_BUN
    * @return REPO_RATE_BUN
    */
@@ -133,11 +144,27 @@ public class BondAndSTIRFuturesE2EExamplesData {
   }
 
   /**
+   * Access REPO_RATE_BUN_OP
+   * @return REPO_RATE_BUN_OP
+   */
+  public double getRepoBUNOp() {
+    return REPO_RATE_BUN_OP;
+  }
+
+  /**
    * Access REPO_RATE_BOB
    * @return REPO_RATE_BOB
    */
   public double getRepoBOB() {
     return REPO_RATE_BOB;
+  }
+
+  /**
+   * Access REPO_RATE_BOB_OP
+   * @return REPO_RATE_BOB_OP
+   */
+  public double getRepoBOBOp() {
+    return REPO_RATE_BOB_OP;
   }
 
   /**
