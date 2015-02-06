@@ -122,6 +122,7 @@ import com.opengamma.util.time.Expiry;
 public class DeliverableSwapFutureFnTest {
 
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 1, 22);
+  public static final LocalDate TRADE_DATE = LocalDate.of(2014, 6, 1).minusDays(2000);
 
   private DeliverableSwapFutureFn _deliverableSwapFutureFn;
 
@@ -265,10 +266,9 @@ public class DeliverableSwapFutureFnTest {
     dsf.setExternalIdBundle(externalDsfBundle);
     
     Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
-    LocalDate tradeDate = LocalDate.of(2014, 6, 1).minusDays(2000);   // As per other product types
     OffsetTime tradeTime = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
     BigDecimal tradeQuantity = BigDecimal.valueOf(1);
-    SimpleTrade trade = new SimpleTrade(dsf, tradeQuantity, counterparty , tradeDate, tradeTime);
+    SimpleTrade trade = new SimpleTrade(dsf, tradeQuantity, counterparty , TRADE_DATE, tradeTime);
     trade.setPremium(0.0);
                         
     return new DeliverableSwapFutureTrade(trade);
@@ -293,7 +293,8 @@ public class DeliverableSwapFutureFnTest {
     when(mock.changeManager()).thenReturn(mock(ChangeManager.class));
     
     HistoricalTimeSeries deliverableSwapFuturePrices = 
-        new SimpleHistoricalTimeSeries(UniqueId.of("Blah", "1"), 
+        new SimpleHistoricalTimeSeries(UniqueId.of("Blah", "1"),
+            // single point on valuation date but not on trade date (trade date will take trade price as last margin)
             ImmutableLocalDateDoubleTimeSeries.of(VALUATION_TIME.toLocalDate(), 0.975));
     
     when(mock.getHistoricalTimeSeries(eq(MarketDataRequirementNames.MARKET_VALUE),
@@ -314,6 +315,13 @@ public class DeliverableSwapFutureFnTest {
   @Test
   public void testPresentValue() {
     Result<Double> pvComputed = _deliverableSwapFutureFn.calculateSecurityModelPrice(ENV, TRADE);
+    assertSuccess(pvComputed);
+  }
+
+  @Test
+  public void testPresentValueTradeDate() {
+    Environment env = ENV.withValuationTimeAndFixedMarketData(TRADE_DATE.atTime(12, 0).atZone(ZoneOffset.UTC));
+    Result<Double> pvComputed = _deliverableSwapFutureFn.calculateSecurityModelPrice(env, TRADE);
     assertSuccess(pvComputed);
   }
   

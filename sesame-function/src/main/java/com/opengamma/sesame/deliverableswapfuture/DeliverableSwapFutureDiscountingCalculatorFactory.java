@@ -8,6 +8,8 @@ package com.opengamma.sesame.deliverableswapfuture;
 import java.util.Map;
 import java.util.Set;
 
+import org.threeten.bp.LocalDate;
+
 import com.opengamma.financial.analytics.conversion.DeliverableSwapFutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
@@ -54,7 +56,7 @@ public class DeliverableSwapFutureDiscountingCalculatorFactory implements Delive
   */
   private final CurveLabellingFn _curveLabellingFn;
 
-
+  private static final Result<HistoricalTimeSeriesBundle> EMPTY_BUNDLE = Result.success(new HistoricalTimeSeriesBundle());
 
 /**
  * Constructs a discounting calculator factory for deliverable swap futures.
@@ -64,9 +66,10 @@ public class DeliverableSwapFutureDiscountingCalculatorFactory implements Delive
  * @param definitionToDerivativeConverter the converter used to convert the definition to a derivative.
  * @param discountingMultiCurveCombinerFn the multicurve function.
  * @param fixingsFn function for looking up security fixings
+ * @param curveLabellingFn function that provides curve labels
  */
 
-public DeliverableSwapFutureDiscountingCalculatorFactory(DeliverableSwapFutureTradeConverter deliverableSwapFutureTradeConverter,
+  public DeliverableSwapFutureDiscountingCalculatorFactory(DeliverableSwapFutureTradeConverter deliverableSwapFutureTradeConverter,
                                                          FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                                                          DiscountingMulticurveCombinerFn discountingMultiCurveCombinerFn,
                                                          FixingsFn fixingsFn,
@@ -86,12 +89,9 @@ public DeliverableSwapFutureDiscountingCalculatorFactory(DeliverableSwapFutureTr
   @Override
   public Result<DeliverableSwapFutureCalculator> createCalculator(Environment env, DeliverableSwapFutureTrade trade) {
 
-    DeliverableSwapFutureSecurity security = trade.getSecurity();
-
     Result<MulticurveBundle> bundleResult = _discountingMultiCurveCombinerFn.getMulticurveBundle(env, trade);
 
-    Result<HistoricalTimeSeriesBundle> fixings = _fixingsFn.getFixingsForSecurity(env, security);
-
+    Result<HistoricalTimeSeriesBundle> fixings = getTimeSeries(env, trade);
     if (Result.anyFailures(bundleResult, fixings)) {
       return Result.failure(bundleResult, fixings);
     } else {
@@ -115,6 +115,25 @@ public DeliverableSwapFutureDiscountingCalculatorFactory(DeliverableSwapFutureTr
       } else {
         return Result.failure(curveLabellers);
       }
+    }
+  }
+
+  /**
+   * Is a time series of margin prices required. Not required if valued on trade date
+   *
+   * @param valuationDate the valuation date
+   * @param trade the trade date
+   * @return true if required, else false
+   */
+  private static boolean requiresTimeSeries(LocalDate valuationDate, DeliverableSwapFutureTrade trade) {
+    return !valuationDate.equals(trade.getTrade().getTradeDate());
+  }
+
+  private Result<HistoricalTimeSeriesBundle> getTimeSeries(Environment env, DeliverableSwapFutureTrade trade) {
+    if (requiresTimeSeries(env.getValuationDate(), trade)) {
+      return _fixingsFn.getFixingsForSecurity(env, trade.getSecurity());
+    } else {
+      return EMPTY_BUNDLE;
     }
   }
 

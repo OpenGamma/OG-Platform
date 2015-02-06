@@ -8,11 +8,12 @@ package com.opengamma.sesame.irfutureoption;
 import java.util.Map;
 import java.util.Set;
 
+import org.threeten.bp.LocalDate;
+
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesProviderInterface;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionTradeConverter;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.sesame.CurveLabellingFn;
 import com.opengamma.sesame.CurveMatrixLabeller;
 import com.opengamma.sesame.Environment;
@@ -25,6 +26,8 @@ import com.opengamma.util.result.Result;
  * Black calculator for interest rate future options.
  */
 public class IRFutureOptionBlackCalculatorFactory implements IRFutureOptionCalculatorFactory {
+
+  private static final Result<HistoricalTimeSeriesBundle> EMPTY_BUNDLE = Result.success(new HistoricalTimeSeriesBundle());
 
   /**
    * Converter used to create definition of the interest rate future option.
@@ -75,10 +78,8 @@ public class IRFutureOptionBlackCalculatorFactory implements IRFutureOptionCalcu
   @Override
   public Result<IRFutureOptionCalculator> createCalculator(Environment env, IRFutureOptionTrade trade) {
 
-    IRFutureOptionSecurity security = trade.getSecurity();
-
     Result<BlackSTIRFuturesProviderInterface> blackResult = _blackProviderFn.getBlackSTIRFuturesProvider(env, trade);
-    Result<HistoricalTimeSeriesBundle> fixingsResult = _fixingsFn.getFixingsForSecurity(env, security);
+    Result<HistoricalTimeSeriesBundle> fixingsResult = getTimeSeries(env, trade);
 
     if (Result.anyFailures(blackResult, fixingsResult)) {
       return Result.failure(blackResult, fixingsResult);
@@ -103,5 +104,24 @@ public class IRFutureOptionBlackCalculatorFactory implements IRFutureOptionCalcu
       }
     }
 
+  }
+
+  /**
+   * Is a time series of margin prices required. Not required if valued on trade date
+   *
+   * @param valuationDate the valuation date
+   * @param trade the trade date
+   * @return true if required, else false
+   */
+  private static boolean requiresTimeSeries(LocalDate valuationDate, IRFutureOptionTrade trade) {
+    return !valuationDate.equals(trade.getTrade().getTradeDate());
+  }
+
+  private Result<HistoricalTimeSeriesBundle> getTimeSeries(Environment env, IRFutureOptionTrade trade) {
+    if (requiresTimeSeries(env.getValuationDate(), trade)) {
+      return _fixingsFn.getFixingsForSecurity(env, trade.getSecurity());
+    } else {
+      return EMPTY_BUNDLE;
+    }
   }
 }

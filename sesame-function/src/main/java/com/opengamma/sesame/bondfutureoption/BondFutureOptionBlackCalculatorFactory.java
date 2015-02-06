@@ -5,10 +5,11 @@
  */
 package com.opengamma.sesame.bondfutureoption;
 
+import org.threeten.bp.LocalDate;
+
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesProviderInterface;
 import com.opengamma.financial.analytics.conversion.BondFutureOptionTradeConverter;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.FixingsFn;
 import com.opengamma.sesame.trade.BondFutureOptionTrade;
@@ -19,13 +20,15 @@ import com.opengamma.util.result.Result;
  * Black calculator for bond future options.
  */
 public class BondFutureOptionBlackCalculatorFactory implements BondFutureOptionCalculatorFactory {
-  
+
+  private static final Result<HistoricalTimeSeriesBundle> EMPTY_BUNDLE = Result.success(new HistoricalTimeSeriesBundle());
+
   private final BondFutureOptionTradeConverter _converter;
   
   private final BlackBondFuturesProviderFn _blackBondFuturesProviderFn;
   
   private final FixingsFn _fixingsFn;
-  
+
   public BondFutureOptionBlackCalculatorFactory(BondFutureOptionTradeConverter converter,
                                                 BlackBondFuturesProviderFn blackBondFuturesProviderFn,
                                                 FixingsFn fixingsFn) {
@@ -37,11 +40,9 @@ public class BondFutureOptionBlackCalculatorFactory implements BondFutureOptionC
   @Override
   public Result<BondFutureOptionCalculator> createCalculator(Environment env, BondFutureOptionTrade trade) {
     
-    BondFutureOptionSecurity security = trade.getSecurity();
-    
     Result<BlackBondFuturesProviderInterface> blackResult = _blackBondFuturesProviderFn.getBlackBondFuturesProvider(env, trade);
     
-    Result<HistoricalTimeSeriesBundle> fixingsResult = _fixingsFn.getFixingsForSecurity(env, security);
+    Result<HistoricalTimeSeriesBundle> fixingsResult = getTimeSeries(env, trade);
     
     if (Result.allSuccessful(blackResult, fixingsResult)) {
     
@@ -55,6 +56,25 @@ public class BondFutureOptionBlackCalculatorFactory implements BondFutureOptionC
       
     } else {
       return Result.failure(blackResult, fixingsResult);
+    }
+  }
+
+  /**
+   * Is a time series of margin prices required. Not required if valued on trade date
+   *
+   * @param valuationDate the valuation date
+   * @param trade the trade date
+   * @return true if required, else false
+   */
+  private static boolean requiresTimeSeries(LocalDate valuationDate, BondFutureOptionTrade trade) {
+    return !valuationDate.equals(trade.getTrade().getTradeDate());
+  }
+
+  private Result<HistoricalTimeSeriesBundle> getTimeSeries(Environment env, BondFutureOptionTrade trade) {
+    if (requiresTimeSeries(env.getValuationDate(), trade)) {
+      return _fixingsFn.getFixingsForSecurity(env, trade.getSecurity());
+    } else {
+      return EMPTY_BUNDLE;
     }
   }
 

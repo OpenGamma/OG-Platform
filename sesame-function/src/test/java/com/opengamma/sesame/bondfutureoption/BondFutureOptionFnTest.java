@@ -5,16 +5,19 @@
  */
 package com.opengamma.sesame.bondfutureoption;
 
+import static com.opengamma.sesame.sources.BondMockSources.BOND_FUTURE_OPTION_TRADE;
 import static org.testng.AssertJUnit.fail;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
+import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.graph.FunctionModel;
@@ -47,7 +50,17 @@ public class BondFutureOptionFnTest {
   @Test
   public void testPresentValue() {
     Result<MultipleCurrencyAmount> pvComputed = _bondFutureOptionFn.calculatePV(BondMockSources.ENV,
-                                                                                BondMockSources.BOND_FUTURE_OPTION_TRADE);
+                                                                                BOND_FUTURE_OPTION_TRADE);
+    if (!pvComputed.isSuccess()) {
+      fail(pvComputed.getFailureMessage());
+    }
+  }
+
+  @Test
+  public void testPresentValueTradeDate() {
+    ZonedDateTime tradeTime = BOND_FUTURE_OPTION_TRADE.getTrade().getTradeDate().atTime(BOND_FUTURE_OPTION_TRADE.getTrade().getTradeTime()).toZonedDateTime();
+    Environment env = BondMockSources.ENV.withValuationTimeAndFixedMarketData(tradeTime);
+    Result <MultipleCurrencyAmount> pvComputed = _bondFutureOptionFn.calculatePV(env, BOND_FUTURE_OPTION_TRADE);
     if (!pvComputed.isSuccess()) {
       fail(pvComputed.getFailureMessage());
     }
