@@ -32,6 +32,11 @@ public class FuturesSecurityBlackBondFuturesMethod extends FuturesSecurityMethod
     _futuresPriceBlackSensitivityCalculator = FuturesPriceBlackSensitivityBlackBondFuturesCalculator.getInstance();
   }
 
+  /**
+   * Constructor with a specific bond future pricing method. The method is used for price, price curve sensitivity and
+   * price Black parameters sensitivity.
+   * @param methodFutures The bond futures method.
+   */
   public FuturesSecurityBlackBondFuturesMethod(FuturesSecurityIssuerMethod methodFutures) {
     _futuresPriceCalculator = new FuturesPriceBlackBondFuturesCalculator(methodFutures);
     _futuresPriceCurveSensitivityCalculator = new FuturesPriceCurveSensitivityBlackBondFuturesCalculator(methodFutures);
