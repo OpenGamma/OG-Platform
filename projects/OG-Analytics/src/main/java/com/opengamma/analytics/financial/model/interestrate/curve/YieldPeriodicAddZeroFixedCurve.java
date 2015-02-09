@@ -1,19 +1,26 @@
 /**
-* Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
-*
-* Please see distribution for license.
-*/
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.analytics.financial.model.interestrate.curve;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.NotImplementedException;
+
 import com.opengamma.analytics.financial.interestrate.InterestRate;
 import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
-import com.opengamma.analytics.math.curve.Curve;
+import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.util.ArgumentChecker;
 
 /**
-* YieldPeriodicCurve created by adding the periodic compounded rate of two curves. One curve is fixed and there is no sensitivity to that curve.
+* YieldPeriodicCurve created by adding the periodic compounded rate of two curves. 
+* One curve is fixed and there is no sensitivity to that curve.
 * The term "fixed" for the second curve means that no parameter is associated to that curve.
 */
-public class YieldPeriodicAddZeroFixedCurve extends YieldAndDiscountAddZeroFixedCurve {
+public class YieldPeriodicAddZeroFixedCurve extends YieldAndDiscountCurve {
   /**
   * The number of compounding periods per year of the base curve.
   */
@@ -21,11 +28,11 @@ public class YieldPeriodicAddZeroFixedCurve extends YieldAndDiscountAddZeroFixed
   /**
   * The base curve.
   */
-  private final Curve<Double, Double> _baseCurve;
+  private final DoublesCurve _baseCurve;
   /**
   * The fixed curve.
   */
-  private final Curve<Double, Double> _fixedCurve;
+  private final DoublesCurve _fixedCurve;
   /**
   * If 1 the rates are added, if -1, they are subtracted (curve - curveFixed).
   */
@@ -44,25 +51,25 @@ public class YieldPeriodicAddZeroFixedCurve extends YieldAndDiscountAddZeroFixed
   public YieldPeriodicAddZeroFixedCurve(String name,
       boolean subtract,
       YieldPeriodicCurve curve,
-      YieldCurve curveFixed) {
-    super(name, subtract, curve, curveFixed);
+      DoublesCurve curveFixed) {
+    super(name);
     ArgumentChecker.notNull(curve, "curve");
     ArgumentChecker.notNull(curveFixed, "curveFixed");
     _baseCurve = curve.getCurve();
-    _fixedCurve = curveFixed.getCurve();
+    _fixedCurve = curveFixed;
     _compoundingPeriodsPerYear = curve.getCompoundingPeriodsPerYear();
     _sign = subtract ? -1.0 : 1.0;
   }
 
   @Override
   public double getInterestRate(Double time) {
-    final double rate = _baseCurve.getYValue(time) + _sign * _fixedCurve.getYValue(time);
-    return _compoundingPeriodsPerYear * Math.log(1 + rate / _compoundingPeriodsPerYear);
+    double discountFactor = getDiscountFactor(time);
+    return -Math.log(discountFactor) / time;
   }
 
   @Override
   public double getForwardRate(double t) {
-    return _baseCurve.getYValue(t) + _sign * _fixedCurve.getYValue(t);
+    throw new NotImplementedException("Instantaneous Forward rate not implemented for Periodic rate curves.");
   }
 
   @Override
@@ -82,4 +89,28 @@ public class YieldPeriodicAddZeroFixedCurve extends YieldAndDiscountAddZeroFixed
     InterestRate periodicRate = baseRate.toPeriodic(compoundingPeriodsPerYear);
     return periodicRate.getRate();
   }
+
+  @Override
+  public double[] getInterestRateParameterSensitivity(double time) {
+    Double[] drPdp = _baseCurve.getYValueParameterSensitivity(time); // d (r_Periodic) / d parameters
+    int nbParam = drPdp.length;
+    double rPS = _baseCurve.getYValue(time) + _sign * _fixedCurve.getYValue(time); // r_Periodic +/- spread
+    double drCdrP = 1.0d / (1.0d + rPS / _compoundingPeriodsPerYear); // d (r_ContinouslyCompounded) / d (r_Periodic)
+    double[] drCdp = new double[nbParam]; // d (r_ContinouslyCompounded) / d parameters
+    for (int i = 0; i < nbParam; i++) {
+      drCdp[i] = drCdrP * drPdp[i];
+    }
+    return drCdp;
+  }
+
+  @Override
+  public int getNumberOfParameters() {
+    return _baseCurve.size();
+  }
+
+  @Override
+  public List<String> getUnderlyingCurvesNames() {
+    return new ArrayList<>();
+  }
+  
 }
