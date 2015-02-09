@@ -1,6 +1,8 @@
 =================
 Scenario Examples
 =================
+THIS DOCUMENT IS OBSOLETE. SEE "Scenario Framework"
+
 This document gives examples of using the low-level scenario API.
 
 Running a view with a scenario

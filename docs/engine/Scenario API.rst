@@ -1,6 +1,8 @@
 ===========================
 Low-level API for Scenarios
 ===========================
+THIS DOCUMENT IS OBSOLETE. SEE "Scenario Framework"
+
 The scenario framework in the OpenGamma calculation engine provides a mechanism for transforming data as it moves
 into and out of functions in the engine. This allows scenarios to be implemented by transforming values that
 have been calculated by functions.
