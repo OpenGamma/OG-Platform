@@ -20,9 +20,12 @@ public class NormalDataSets {
       Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
 
-  private static final double[] EXPIRATIONS_1 = new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0};
-  private static final double[] STIRFUTURES_STRIKES_PRICES_1 = new double[] {0.99, 0.99, 0.99, 0.995, 0.995, 0.995};
-  private static final double[] VOLATILITIES_1 = new double[] {0.0100, 0.0110, 0.0120, 0.0090, 0.0100, 0.0100};
+  private static final double[] EXPIRATIONS_1 = new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0, 0.5, 1.0, 5.0, 0.5, 1.0,
+      5.0 };
+  private static final double[] STIRFUTURES_STRIKES_PRICES_1 = new double[] {0.98, 0.98, 0.98, 0.985, 0.985, 0.985,
+      0.99, 0.99, 0.99, 0.995, 0.995, 0.995 };
+  private static final double[] VOLATILITIES_1 = new double[] {0.0110, 0.0115, 0.0120, 0.0105, 0.0115, 0.0115, 0.0100,
+      0.0110, 0.0120, 0.0090, 0.0100, 0.0100 };
   private static final InterpolatedDoublesSurface NORMAL_SURFACE_STIRFUTURES_EXP_STRIKEPRICE =
       InterpolatedDoublesSurface.from(EXPIRATIONS_1, STIRFUTURES_STRIKES_PRICES_1, VOLATILITIES_1, INTERPOLATOR_2D);
 
@@ -71,6 +74,12 @@ public class NormalDataSets {
   /**
    * Constructing surface for NormalSTIRFuturesExpSimpleMoneynessProviderDiscount 
    */
+  private static final double[] EXPIRATIONS_3 = new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0, 0.5, 1.0, 5.0, 0.5, 1.0,
+      5.0 };
+  private static final double[] STIRFUTURES_STRIKES_PRICES_3 = new double[] {0.98, 0.98, 0.98, 0.985, 0.985, 0.985,
+      0.99, 0.99, 0.99, 0.995, 0.995, 0.995 };
+  private static final double[] VOLATILITIES_3 = new double[] {0.120, 0.125, 0.135, 0.105, 0.115, 0.130, 0.100, 0.110,
+      0.120, 0.090, 0.100, 0.100 };
   private static final Interpolator1D SQUARE_FLAT =
       CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.SQUARE_LINEAR,
                                                               Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
@@ -81,16 +90,16 @@ public class NormalDataSets {
                                                                                              SQUARE_FLAT);
 
   private static final double FORWARD = 0.983; // dummy forward to convert the strikes to the moneyness
-  private static final double[] SIMPLE_MONEYNESS_1;
+  private static final double[] SIMPLE_MONEYNESS_3;
   static {
-    final int nStrikes = STIRFUTURES_STRIKES_PRICES_1.length;
-    SIMPLE_MONEYNESS_1 = new double[nStrikes];
+    final int nStrikes = STIRFUTURES_STRIKES_PRICES_3.length;
+    SIMPLE_MONEYNESS_3 = new double[nStrikes];
     for (int i = 0; i < nStrikes; ++i) {
-      SIMPLE_MONEYNESS_1[i] = SIMPLE_MONEYNESS_1[i] - FORWARD;
+      SIMPLE_MONEYNESS_3[i] = FORWARD - SIMPLE_MONEYNESS_3[i];
     }
   }
   private static final InterpolatedDoublesSurface NOR_DOUBLES_SURFACE_SIMPLE_MONEYNESS =
-      InterpolatedDoublesSurface.from(EXPIRATIONS_1, SIMPLE_MONEYNESS_1, VOLATILITIES_1, INTERPOLATOR_2D_MONEYNESS);
+      InterpolatedDoublesSurface.from(EXPIRATIONS_3, SIMPLE_MONEYNESS_3, VOLATILITIES_3, INTERPOLATOR_2D_MONEYNESS);
 
   /**
    * Access NOR_DOUBLES_SURFACE_SIMPLE_MONEYNESS
@@ -106,11 +115,11 @@ public class NormalDataSets {
    * @return The shifted vol surface
    */
   public static InterpolatedDoublesSurface createNormalSurfaceFuturesPricesSimpleMoneynessShift(final double shift) {
-    double[] shiftedVol = VOLATILITIES_1.clone();
+    double[] shiftedVol = VOLATILITIES_3.clone();
     for (int loopvol = 0; loopvol < shiftedVol.length; loopvol++) {
       shiftedVol[loopvol] += shift;
     }
-    return InterpolatedDoublesSurface.from(EXPIRATIONS_1, SIMPLE_MONEYNESS_1, shiftedVol, INTERPOLATOR_2D_MONEYNESS);
+    return InterpolatedDoublesSurface.from(EXPIRATIONS_3, SIMPLE_MONEYNESS_3, shiftedVol, INTERPOLATOR_2D_MONEYNESS);
   }
 
 }

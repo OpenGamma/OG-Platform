@@ -18,7 +18,7 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Method for the pricing of interest rate future options with daily margining. The pricing is done with a Normal approach on the future price.
- * The normal parameters are represented by (expiration-strike-delay) surfaces. The "delay" is the time between option expiration and future last trading date,
+ * The normal parameters are represented by (expiration-delay-strike-futures price) surfaces. The "delay" is the time between option expiration and future last trading date,
  * i.e. 0 for quarterly options and x for x-year mid-curve options. The future prices are computed without convexity adjustments.
  */
 public final class InterestRateFutureOptionMarginSecurityNormalSmileMethod extends
@@ -184,7 +184,7 @@ public final class InterestRateFutureOptionMarginSecurityNormalSmileMethod exten
   }
 
   /**
-   * Computes the option security price delta, wrt the futures price dV/df. The futures price is computed without convexity adjustment.
+   * Computes the option security price delta, wrt the futures price dV/df. 
    * It is supposed that for a given strike the volatility does not change with the curves.
    * @param security The future option security.
    * @param normalData The curve and normal volatility data.
@@ -221,7 +221,6 @@ public final class InterestRateFutureOptionMarginSecurityNormalSmileMethod exten
 
   /**
    * Computes the option's value gamma, the second derivative of the security price wrt underlying futures rate.
-   * The future price is computed without convexity adjustment.
    * @param security The future option security.
    * @param normalData The curve and normal volatility data.
    * @param priceFuture The price of the underlying future.
@@ -255,7 +254,7 @@ public final class InterestRateFutureOptionMarginSecurityNormalSmileMethod exten
   }
 
   /**
-   * Computes the option security vega. The future price is computed without convexity adjustment.
+   * Computes the option security vega. 
    * @param security The future option security.
    * @param normalData The curve and normal volatility data.
    * @param priceFuture The price of the underlying future.
@@ -289,7 +288,7 @@ public final class InterestRateFutureOptionMarginSecurityNormalSmileMethod exten
   }
 
   /**
-   * Computes the option security theta. The future price is computed without convexity adjustment.
+   * Computes the option security theta.
    * @param security The future option security.
    * @param normalData The curve and normal volatility data.
    * @param priceFuture The price of the underlying future.

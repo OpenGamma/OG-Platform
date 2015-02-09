@@ -204,7 +204,7 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
     double priceVolUp = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, normalUp);
     double priceVolDw = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, normalDw);
     double expectedVega = 0.5 * (priceVolUp - priceVolDw) / eps;
-    assertEquals("Future option with volatilities, Greeks", expectedVega, computedVega, eps);
+    assertEquals("Future option with volatilities, Greeks", expectedVega, computedVega, eps * 10.0);
 
     double computedGamma = METHOD_SECURITY_OPTION_NORMAL.priceGamma(OPTION_ERU2, NORMAL_MULTICURVES);
     double deltaFutUp = METHOD_SECURITY_OPTION_NORMAL.priceDeltaFromFuturePrice(OPTION_ERU2,
@@ -238,7 +238,7 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
       MULTICURVES, NORMAL_PARAMETERS_MONEYNESS, EURIBOR3M);
 
   /**
-   * Test the option price from the future price.
+   * Test the option price.
    */
   @Test
   public void priceMoneyness() {

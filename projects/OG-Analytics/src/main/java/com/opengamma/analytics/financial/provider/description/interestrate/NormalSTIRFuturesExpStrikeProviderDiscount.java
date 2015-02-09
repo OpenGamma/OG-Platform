@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.provider.description.interestrate;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Implementation of a provider of normal volatility (Bachelier model) smile for options on STIR futures. The volatility is time to expiration/strike dependent. 
@@ -34,4 +35,11 @@ public class NormalSTIRFuturesExpStrikeProviderDiscount extends NormalSTIRFuture
     return (MulticurveProviderDiscount) super.getMulticurveProvider();
   }
 
+  @Override
+  public NormalSTIRFuturesExpStrikeProviderDiscount withMulticurve(MulticurveProviderInterface multicurve) {
+    ArgumentChecker.isTrue(multicurve instanceof MulticurveProviderDiscount,
+        "multicurve should be MulticurveProviderDiscount");
+    MulticurveProviderDiscount casted = (MulticurveProviderDiscount) multicurve;
+    return new NormalSTIRFuturesExpStrikeProviderDiscount(casted, getNormalParameters(), getFuturesIndex());
+  }
 }

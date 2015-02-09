@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.provider.description.interestrate;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.util.ArgumentChecker;
 
 
 /**
@@ -36,4 +37,11 @@ public class NormalSTIRFuturesExpSimpleMoneynessProviderDiscount extends NormalS
     return (MulticurveProviderDiscount) super.getMulticurveProvider();
   }
 
+  @Override
+  public NormalSTIRFuturesExpSimpleMoneynessProviderDiscount withMulticurve(MulticurveProviderInterface multicurve) {
+    ArgumentChecker.isTrue(multicurve instanceof MulticurveProviderDiscount,
+        "multicurve should be MulticurveProviderDiscount");
+    MulticurveProviderDiscount casted = (MulticurveProviderDiscount) multicurve;
+    return new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(casted, getNormalParameters(), getFuturesIndex());
+  }
 }
