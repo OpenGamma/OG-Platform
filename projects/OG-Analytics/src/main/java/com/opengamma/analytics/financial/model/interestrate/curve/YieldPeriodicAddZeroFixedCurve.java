@@ -63,8 +63,8 @@ public class YieldPeriodicAddZeroFixedCurve extends YieldAndDiscountCurve {
 
   @Override
   public double getInterestRate(Double time) {
-    double discountFactor = getDiscountFactor(time);
-    return -Math.log(discountFactor) / time;
+    final double rate = _baseCurve.getYValue(time) + _sign * _fixedCurve.getYValue(time);
+    return _compoundingPeriodsPerYear * Math.log(1.0d + rate / _compoundingPeriodsPerYear);
   }
 
   @Override
