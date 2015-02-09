@@ -51,4 +51,10 @@ public class DefaultMarketDataFn implements MarketDataFn {
     FxRateId rateId = FxRateId.of(currencyPair);
     return env.getMarketDataBundle().get(rateId, Double.class);
   }
+  
+  @Override
+  public Result<Double> getMarketValue(Environment env, ExternalIdBundle id) {
+    MarketDataId key = RawId.of(id);
+    return env.getMarketDataBundle().get(key, Double.class);
+  }
 }
