@@ -51,12 +51,12 @@ public interface MarketDataFn {
   Result<Double> getCurveNodeUnderlyingValue(Environment env, PointsCurveNodeWithIdentifier node);
 
   /**
-   * Returns the value of the {@link MarketDataRequirementNames#MARKET_VALUE} field for an ID.
+   * Returns the value of the {@link MarketDataRequirementNames#MARKET_VALUE} field for a Security.
    * TODO is a dependency on security a good idea?
    *
    * @param env  the function execution environment, not null
    * @param security  the security whose market value is required
-   * @return the value of {@link MarketDataRequirementNames#MARKET_VALUE} for the ID, not null
+   * @return the value of {@link MarketDataRequirementNames#MARKET_VALUE} for the Security, not null
    */
   Result<Double> getMarketValue(Environment env, Security security);
 
@@ -71,9 +71,11 @@ public interface MarketDataFn {
   <T> Result<T> getValue(Environment env, Security security, FieldName fieldName, Class<T> valueType);
 
   /**
-   * @param env
-   * @param id
-   * @return
+   * Returns the value of the {@link MarketDataRequirementNames#MARKET_VALUE} field for an ID.
+   *
+   * @param env  the function execution environment, not null
+   * @param id  the id of the market data required
+   * @return the value of {@link MarketDataRequirementNames#MARKET_VALUE} for the ID, not null
    */
   Result<Double> getMarketValue(Environment env, ExternalIdBundle id);
 
