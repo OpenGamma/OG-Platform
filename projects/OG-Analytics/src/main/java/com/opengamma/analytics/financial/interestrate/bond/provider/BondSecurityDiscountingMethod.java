@@ -164,7 +164,7 @@ public final class BondSecurityDiscountingMethod {
       IssuerProviderInterface issuerMulticurves, double zSpread, boolean periodic, int periodPerYear) {
     if (periodic) {
       IssuerProviderInterface issuerShifted = new IssuerProviderIssuerDecoratedSpreadPeriodic(issuerMulticurves,
-        bond.getIssuerEntity(), zSpread, periodPerYear);
+          bond.getIssuerEntity(), zSpread, periodPerYear);
       return presentValue(bond, issuerShifted);
     }
     return presentValueFromZSpread(bond, issuerMulticurves, zSpread);
