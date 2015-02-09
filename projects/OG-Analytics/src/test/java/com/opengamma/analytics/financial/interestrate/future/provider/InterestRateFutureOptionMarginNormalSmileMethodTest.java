@@ -21,6 +21,7 @@ import com.opengamma.analytics.financial.provider.calculator.normalstirfutures.P
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.NormalDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesExpSimpleMoneynessProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesSmileProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
@@ -48,9 +49,6 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
   private static final IborIndex EURIBOR3M = IBOR_INDEXES[0];
   private static final Currency EUR = EURIBOR3M.getCurrency();
   private static final Calendar TARGET = MulticurveProviderDiscountDataSets.getEURCalendar();
-
-  private static final InterpolatedDoublesSurface NORMAL_PARAMETERS = NormalDataSets.createNormalSurfaceFuturesPrices();
-  private static final NormalSTIRFuturesSmileProviderDiscount NORMAL_MULTICURVES = new NormalSTIRFuturesSmileProviderDiscount(MULTICURVES, NORMAL_PARAMETERS, EURIBOR3M);
 
   // Future
   private static final ZonedDateTime SPOT_LAST_TRADING_DATE = DateUtils.getUTCDate(2012, 9, 19);
@@ -101,6 +99,13 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
   private static final double TOLERANCE_PV = 1.0E-2;
   private static final double TOLERANCE_PRICE_DELTA = 1.0E-4;
   private static final double TOLERANCE_PV_DELTA = 1.0E+2;
+
+  /* 
+   * Tests below use NormalSTIRFuturesSmileProviderDiscount 
+   */
+  private static final InterpolatedDoublesSurface NORMAL_PARAMETERS = NormalDataSets.createNormalSurfaceFuturesPrices();
+  private static final NormalSTIRFuturesSmileProviderDiscount NORMAL_MULTICURVES = new NormalSTIRFuturesSmileProviderDiscount(
+      MULTICURVES, NORMAL_PARAMETERS, EURIBOR3M);
 
   /**
    * Test the option price from the future price. Standard option.
@@ -172,4 +177,103 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
     assertTrue("Future option with Black volatilities: option security vol sensi", SurfaceValue.compare(pvnsTransactionComputed, pvnsTransactionExpected, TOLERANCE_PV_DELTA));
   }
 
+  /* 
+   * Tests below use NormalSTIRFuturesExpSimpleMoneynessProviderDiscount
+   */
+  private static final InterpolatedDoublesSurface NORMAL_PARAMETERS_MONEYNESS = NormalDataSets
+      .createNormalSurfaceFuturesPricesSimpleMoneyness();
+  private static final NormalSTIRFuturesExpSimpleMoneynessProviderDiscount NORMAL_MULTICURVES_MONEYNESS = new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(
+      MULTICURVES, NORMAL_PARAMETERS_MONEYNESS, EURIBOR3M);
+
+  /**
+   * Test the option price from the future price.
+   */
+  @Test
+  public void priceMoneyness() {
+    double expiry = OPTION_ERU2.getExpirationTime();
+    EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKE, expiry, IS_CALL);
+    double priceFuture = METHOD_FUTURES.price(ERU2, MULTICURVES);
+    double volatility = NORMAL_PARAMETERS_MONEYNESS.getZValue(expiry, STRIKE);
+    NormalFunctionData dataNormal = new NormalFunctionData(priceFuture, 1.0, volatility);
+    double priceExpected = NORMAL_FUNCTION.getPriceFunction(option).evaluate(dataNormal);
+    double priceComputed = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, NORMAL_MULTICURVES_MONEYNESS);
+    assertEquals("Future option with volatilities: option security price", priceExpected, priceComputed,
+        TOLERANCE_PRICE);
+  }
+
+  /**
+   * Test the option transaction present value.
+   */
+  @Test
+  public void presentValueMoneyness() {
+    double priceOption = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, NORMAL_MULTICURVES_MONEYNESS);
+    double presentValue1Expected = (priceOption - MARGIN_PRICE) * QUANTITY * NOTIONAL * FUTURE_FACTOR;
+    MultipleCurrencyAmount presentValue1Computed = METHOD_TRANSACTION_OPTION_NORMAL.presentValue(TRANSACTION_1,
+        NORMAL_MULTICURVES_MONEYNESS);
+    assertEquals("Future option with volatilities: option transaction pv", presentValue1Expected,
+        presentValue1Computed.getAmount(EUR), TOLERANCE_PV);
+    double presentValue2Expected = (priceOption - TRADE_PRICE) * QUANTITY * NOTIONAL * FUTURE_FACTOR;
+    MultipleCurrencyAmount presentValue2Computed = METHOD_TRANSACTION_OPTION_NORMAL.presentValue(TRANSACTION_2,
+        NORMAL_MULTICURVES_MONEYNESS);
+    assertEquals("Future option with volatilities: option transaction pv", presentValue2Expected,
+        presentValue2Computed.getAmount(EUR), TOLERANCE_PV);
+    MultipleCurrencyAmount presentValue1Calculator = TRANSACTION_1.accept(PVNFC, NORMAL_MULTICURVES_MONEYNESS);
+    assertEquals("Future option with volatilities: option transaction pv", presentValue1Computed.getAmount(EUR),
+        presentValue1Calculator.getAmount(EUR), TOLERANCE_PV);
+  }
+
+  /**
+   * Tests present value curve sensitivity.
+   */
+  @Test
+  public void presentValueCurveSensitivityMoneyness() {
+     MultipleCurrencyParameterSensitivity pvpsDepositExact = PSNFC.calculateSensitivity(TRANSACTION_1,
+        NORMAL_MULTICURVES_MONEYNESS, NORMAL_MULTICURVES_MONEYNESS.getMulticurveProvider().getAllNames());
+     MultipleCurrencyParameterSensitivity pvpsDepositFD = PSNFC_FD.calculateSensitivity(TRANSACTION_1,
+        NORMAL_MULTICURVES_MONEYNESS);
+    AssertSensitivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ",
+        pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
+  }
+
+  /**
+   * Test the option price normal model sensitivity
+   */
+  @Test
+  public void priceNormalSensitivityMoneyness() {
+    InterpolatedDoublesSurface normalParameterPlus = NormalDataSets
+        .createNormalSurfaceFuturesPricesSimpleMoneynessShift(VOL_SHIFT);
+    InterpolatedDoublesSurface NormalParameterMinus = NormalDataSets
+        .createNormalSurfaceFuturesPricesSimpleMoneynessShift(-VOL_SHIFT);
+    NormalSTIRFuturesExpSimpleMoneynessProviderDiscount blackPlus = new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(
+        MULTICURVES, normalParameterPlus, EURIBOR3M);
+    NormalSTIRFuturesExpSimpleMoneynessProviderDiscount blackMinus = new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(
+        MULTICURVES, NormalParameterMinus, EURIBOR3M);
+    double pricePlus = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, blackPlus);
+    double priceMinus = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, blackMinus);
+    double priceSensiExpected = (pricePlus - priceMinus) / (2 * VOL_SHIFT);
+    SurfaceValue priceSensiComputed = METHOD_SECURITY_OPTION_NORMAL.priceNormalSensitivity(OPTION_ERU2,
+        NORMAL_MULTICURVES_MONEYNESS);
+    DoublesPair point = DoublesPair.of(OPTION_ERU2.getExpirationTime(), STRIKE);
+    assertEquals("Future option with volatilities: option security vol sensi", priceSensiExpected,
+        priceSensiComputed.getMap().get(point), TOLERANCE_PRICE_DELTA);
+    assertEquals("Future option with volatilities: option security vol sensi", 1, priceSensiComputed.getMap()
+        .size());
+  }
+
+  /**
+   * Test the option price normal model sensitivity
+   */
+  @Test
+  public void presentValueNormalSensitivityMoneyness() {
+    SurfaceValue pvnsSecurity = METHOD_SECURITY_OPTION_NORMAL.priceNormalSensitivity(OPTION_ERU2,
+        NORMAL_MULTICURVES_MONEYNESS);
+    SurfaceValue pvnsTransactionComputed = METHOD_TRANSACTION_OPTION_NORMAL.presentValueNormalSensitivity(
+        TRANSACTION_1, NORMAL_MULTICURVES_MONEYNESS);
+    SurfaceValue pvnsTransactionExpected = SurfaceValue.multiplyBy(pvnsSecurity, QUANTITY * NOTIONAL *
+        FUTURE_FACTOR);
+    assertTrue("Future option with volatilities: option security vol sensi",
+        SurfaceValue.compare(pvnsTransactionComputed, pvnsTransactionExpected, TOLERANCE_PV_DELTA));
+  }
+
+  // TODO Test Greeks
 }

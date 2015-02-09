@@ -152,7 +152,7 @@ public class NormalPriceFunctionTest {
       double deltaUp = FUNCTION.getDelta(option, dataFwUp);
       double deltaDw = FUNCTION.getDelta(option, dataFwDw);
       double refGamma = 0.5 * (deltaUp - deltaDw) / eps;
-      if (Math.abs(refGamma) > 0.1 / eps) {
+      if (Math.abs(refGamma) > 0.1 / eps) { // infinity handled
         assertTrue(Double.isInfinite(gamma));
       } else {
         assertEquals(refGamma, gamma, eps);

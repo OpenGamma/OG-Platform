@@ -72,10 +72,7 @@ public class NormalSTIRFuturesSmileProvider implements NormalSTIRFuturesProvider
     return _multicurveProvider;
   }
 
-  /**
-   * Returns the Black parameters.
-   * @return The parameters.
-   */
+  @Override
   public Surface<Double, Double, Double> getNormalParameters() {
     return _parameters;
   }
