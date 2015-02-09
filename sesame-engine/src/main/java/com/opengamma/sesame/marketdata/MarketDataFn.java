@@ -10,6 +10,7 @@ import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
 import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.Environment;
 import com.opengamma.util.result.Result;
 
@@ -68,5 +69,12 @@ public interface MarketDataFn {
    * @return the value of the field for the ID, not null
    */
   <T> Result<T> getValue(Environment env, Security security, FieldName fieldName, Class<T> valueType);
+
+  /**
+   * @param env
+   * @param id
+   * @return
+   */
+  Result<Double> getMarketValue(Environment env, ExternalIdBundle id);
 
 }
