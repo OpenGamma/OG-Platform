@@ -83,7 +83,7 @@ public final class SimpleEnvironment implements Environment {
   @Override
   public Environment withValuationTime(ZonedDateTime valuationTime) {
     return new SimpleEnvironment(
-        ArgumentChecker.notNull(valuationTime, "valuationTime"), _marketDataBundle, _scenarioDefinition);
+        ArgumentChecker.notNull(valuationTime, "valuationTime"), _marketDataBundle.withTime(valuationTime), _scenarioDefinition);
   }
 
   @Override
