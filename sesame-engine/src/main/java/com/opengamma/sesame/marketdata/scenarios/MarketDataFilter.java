@@ -36,7 +36,7 @@ public interface MarketDataFilter {
    * builder applying the perturbation to choose the correct curve.
    * <p>
    * For most simple market data items it is only possible to apply a single perturbation. In this case
-   * the match details should be {@link StandardMatchDetails#MATCH}.
+   * the match details should be {@link StandardMatchDetails#MATCHES}.
    *
    * @param marketDataId the ID of a piece of market data
    * @return details of any matches, empty if the filter doesn't match
@@ -61,7 +61,7 @@ public interface MarketDataFilter {
    * builder applying the perturbation to choose the correct curve.
    * <p>
    * For most simple market data items it is only possible to apply a single perturbation. In this case
-   * the match details should be {@link StandardMatchDetails#MATCH}.
+   * the match details should be {@link StandardMatchDetails#MATCHES}.
    *
    * @param marketDataId the ID of a piece of market data
    * @param marketData the market data value

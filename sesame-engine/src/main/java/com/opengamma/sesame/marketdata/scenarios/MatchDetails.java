@@ -25,7 +25,7 @@ import com.opengamma.sesame.marketdata.MarketDataId;
  * in {@link StandardMatchDetails}.
  * <p>
  * The majority of market data types are identified by their {@link MarketDataId} alone and don't need
- * to communicate any details about a match. They should use {@link StandardMatchDetails#MATCH}.
+ * to communicate any details about a match. They should use {@link StandardMatchDetails#MATCHES}.
  * <p>
  * This type is an unfortunate necessity because of our curve model. Functions, and therefore market data environment
  * and market data IDs, are written to use curve bundles. Users think in terms of individual curves, and this
