@@ -228,11 +228,11 @@ public class StandardDataSetsMulticurveEUR {
     }
   }
 
-  public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesUSDOisL3() {
+  public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesEurOisE3() {
     return CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0);
   }
 
-  public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesUSDOisL1L3L6() {
+  public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesEurOisE1E3E6() {
     return CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(1);
   }
 

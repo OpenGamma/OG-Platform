@@ -78,7 +78,7 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessMethodE2ETest {
 
   /* Curve */
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR =
-      StandardDataSetsMulticurveEUR.getCurvesUSDOisL3();
+      StandardDataSetsMulticurveEUR.getCurvesEurOisE3();
   private static final MulticurveProviderDiscount MULTICURVES = MULTICURVE_PAIR.getFirst();
   private static final CurveBuildingBlockBundle BLOCK = MULTICURVE_PAIR.getSecond();
   private static final IborIndex[] IBOR_INDEXES = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd();
