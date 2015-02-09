@@ -201,7 +201,7 @@ public class InterpolatedMulticurveBundleFn implements DiscountingMulticurveBund
             result = Result.failure(result, marketDataResult);
           }
         } else {
-          result = Result.failure(result, curveSpecResult);;
+          result = Result.failure(result, curveSpecResult);
         }
         
       }

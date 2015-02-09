@@ -109,7 +109,7 @@ final class EngineEnvironment implements Environment {
   // TODO do we still need this?
   @Override
   public Environment withMarketData(MarketDataBundle marketDataBundle) {
-    return new EngineEnvironment(_valuationTime, _marketDataBundle, _scenarioDefinition, _cacheInvalidator);
+    return new EngineEnvironment(_valuationTime, marketDataBundle, _scenarioDefinition, _cacheInvalidator);
   }
 
   // TODO do we still need this?
