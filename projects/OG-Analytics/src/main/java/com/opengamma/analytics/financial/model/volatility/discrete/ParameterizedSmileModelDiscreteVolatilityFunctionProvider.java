@@ -160,13 +160,6 @@ public abstract class ParameterizedSmileModelDiscreteVolatilityFunctionProvider<
       revMap[tIndex][kIndex] = index++;
     }
 
-    //create vectorFunctions that give the smile model parameters at the expiries and concatenate these to one function
-    VectorFunction[] funcs = new VectorFunction[nSmileModelParms];
-    for (int i = 0; i < nSmileModelParms; i++) {
-      funcs[i] = _smileModelParameterProviders[i].from(expiries);
-    }
-    final VectorFunction modelToSmileModelParms = new ConcatenatedVectorFunction(funcs);
-
     //this is a list of functions that map from model parameters (SmileModelData) to smiles (volatilities at fixed
     //strikes at particular expiry)
     final List<Function1D<T, double[]>> smiles = new ArrayList<>(nExpiries);
