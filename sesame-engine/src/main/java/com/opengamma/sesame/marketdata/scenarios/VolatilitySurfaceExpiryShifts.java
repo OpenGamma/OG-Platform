@@ -40,7 +40,7 @@ import com.opengamma.util.time.Tenor;
  * tenor and applies the same shift to them.
  */
 @BeanDefinition
-public class VolatilitySurfaceExpiryShifts implements Perturbation, ImmutableBean {
+public final class VolatilitySurfaceExpiryShifts implements Perturbation, ImmutableBean {
 
   private static final Logger s_logger = LoggerFactory.getLogger(VolatilitySurfaceExpiryShifts.class);
 

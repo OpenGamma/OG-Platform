@@ -30,7 +30,7 @@ import com.opengamma.sesame.marketdata.VolatilitySurfaceId;
  * Market data filter that matches a volatility surface by name.
  */
 @BeanDefinition
-public class VolatilitySurfaceNameFilter implements MarketDataFilter, ImmutableBean {
+public final class VolatilitySurfaceNameFilter implements MarketDataFilter, ImmutableBean {
 
   /** The name of the volatility surface. */
   @PropertyDefinition(validate = "notEmpty")
