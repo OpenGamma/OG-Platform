@@ -269,8 +269,8 @@ public class BondFuturesOptionMarginTransactionBlackExpLogMoneynessMethodE2ETest
       .getInstance();
   private static final PresentValueBlackBondFuturesOptionCalculator PVBFC = PresentValueBlackBondFuturesOptionCalculator
       .getInstance();
-  private static final PresentValueCurveSensitivityBlackBondFuturesOptionCalculator PVCSBFC = PresentValueCurveSensitivityBlackBondFuturesOptionCalculator
-      .getInstance();
+  private static final PresentValueCurveSensitivityBlackBondFuturesOptionCalculator PVCSBFC = 
+      new PresentValueCurveSensitivityBlackBondFuturesOptionCalculator();
   private static final ParameterSensitivityParameterCalculator<BlackBondFuturesProviderInterface> PSSFC =
       new ParameterSensitivityParameterCalculator<>(PVCSBFC);
   private static final PV01CurveParametersCalculator<BlackBondFuturesProviderInterface> PV01PC =

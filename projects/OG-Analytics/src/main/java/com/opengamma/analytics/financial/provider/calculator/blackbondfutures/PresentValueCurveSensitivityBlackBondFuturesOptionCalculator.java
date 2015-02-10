@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.provider.calculator.blackbondfutures;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginTransaction;
+import com.opengamma.analytics.financial.interestrate.future.provider.FuturesSecurityIssuerMethod;
 import com.opengamma.analytics.financial.interestrate.future.provider.FuturesTransactionBlackBondFuturesMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
@@ -16,36 +17,30 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
  */
 public final class PresentValueCurveSensitivityBlackBondFuturesOptionCalculator extends
     InstrumentDerivativeVisitorAdapter<BlackBondFuturesProviderInterface, MultipleCurrencyMulticurveSensitivity> {
+  
+  private final FuturesTransactionBlackBondFuturesMethod _methodFutures;
 
   /**
-   * The unique instance of the calculator.
+   * Default constructor.
    */
-  private static final PresentValueCurveSensitivityBlackBondFuturesOptionCalculator INSTANCE = new PresentValueCurveSensitivityBlackBondFuturesOptionCalculator();
-
-  /**
-   * Gets the calculator instance.
-   * @return The calculator.
-   */
-  public static PresentValueCurveSensitivityBlackBondFuturesOptionCalculator getInstance() {
-    return INSTANCE;
+  public PresentValueCurveSensitivityBlackBondFuturesOptionCalculator() {
+    _methodFutures = new FuturesTransactionBlackBondFuturesMethod();
   }
-
+  
+  
   /**
-   * Constructor.
+   * Constructor from a futures method.
    */
-  private PresentValueCurveSensitivityBlackBondFuturesOptionCalculator() {
+  public PresentValueCurveSensitivityBlackBondFuturesOptionCalculator(FuturesSecurityIssuerMethod methodFutures) {
+    _methodFutures = new FuturesTransactionBlackBondFuturesMethod(methodFutures);
   }
-
-  /**
-   * Pricing methods.
-   */
-  private static final FuturesTransactionBlackBondFuturesMethod METHOD_FUT = new FuturesTransactionBlackBondFuturesMethod();
 
   // -----     Futures     ------
 
   @Override
-  public MultipleCurrencyMulticurveSensitivity visitBondFuturesOptionMarginTransaction(final BondFuturesOptionMarginTransaction futures, final BlackBondFuturesProviderInterface black) {
-    return METHOD_FUT.presentValueCurveSensitivity(futures, black);
+  public MultipleCurrencyMulticurveSensitivity visitBondFuturesOptionMarginTransaction(
+      final BondFuturesOptionMarginTransaction futures, final BlackBondFuturesProviderInterface black) {
+    return _methodFutures.presentValueCurveSensitivity(futures, black);
   }
 
 }
