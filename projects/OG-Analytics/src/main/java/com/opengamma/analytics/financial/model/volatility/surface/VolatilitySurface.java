@@ -41,6 +41,11 @@ public class VolatilitySurface implements VolatilityModel<DoublesPair> {
 
   /**
    * Creates a new volatility surface backed by the specified surface.
+   * <p>
+   * If a surface is created using this constructor it doesn't contain any tenor information for its expiries.
+   * This means it won't be possible to apply a shock to individual points on the surface using the scenario
+   * framework. The other constructor should be used to provide information about expiry tenors and ensure
+   * compatibility with the scenario framework.
    *
    * @param surface  a surface containing the volatility data with expiries on the x-axis, strikes on the y-axis
    */
