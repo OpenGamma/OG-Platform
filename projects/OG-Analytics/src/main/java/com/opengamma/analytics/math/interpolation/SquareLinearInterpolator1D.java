@@ -7,6 +7,7 @@ package com.opengamma.analytics.math.interpolation;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.analytics.math.interpolation.data.InterpolationBoundedValues;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
@@ -18,6 +19,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class SquareLinearInterpolator1D extends Interpolator1D {
   private static final long serialVersionUID = 1L;
+  
+  /* Level below which the value is consider to be 0. */
+  private static final double EPS = 1.0E-10;
 
   @Override
   public Double interpolate(final Interpolator1DDataBundle data, final Double value) {
@@ -53,6 +57,15 @@ public class SquareLinearInterpolator1D extends Interpolator1D {
     double y1 = data.getValues()[index];
     double x2 = data.getKeys()[index + 1];
     double y2 = data.getValues()[index + 1];
+    if ((y1 < EPS) && (y2 >= EPS) && (value - x1) < EPS) { // On one vertex with value 0, other vertex not 0
+      throw new OpenGammaRuntimeException("ask for first derivative on value without derivative");
+    }
+    if ((y2 < EPS) && (y1 >= EPS) && (x2 - value) < EPS) { // On one vertex with value 0, other vertex not 0
+      throw new OpenGammaRuntimeException("ask for first derivative on value without derivative");
+    }
+    if ((y1 < EPS) && (y2 < EPS)) { // Both vertices have 0 value, return 0.
+      return 0.0;
+    }
     double w = (x2 - value) / (x2 - x1);
     double y21 = y1 * y1;
     double y22 = y2 * y2;
@@ -76,14 +89,32 @@ public class SquareLinearInterpolator1D extends Interpolator1D {
     }
     double x2 = boundedValues.getHigherBoundKey();
     double y2 = boundedValues.getHigherBoundValue();
+    if ((y1 < EPS) && (y2 >= EPS) && (value - x1) < EPS) { // On one vertex with value 0, other vertex not 0
+      throw new OpenGammaRuntimeException("ask for first derivative on value without derivative");
+    }
+    if ((y2 < EPS) && (y1 >= EPS) && (x2 - value) < EPS) { // On one vertex with value 0, other vertex not 0
+      throw new OpenGammaRuntimeException("ask for first derivative on value without derivative");
+    }
+    if ((y2 < EPS) && (y1 < EPS) && ((x2 - value) < EPS || (value - x1) < EPS)) {
+      throw new OpenGammaRuntimeException("ask for first derivative on value without derivative");
+    }
     double w2 = (x2 - value) / (x2 - x1);
-    double w1 = 1.0 - w2;
+    if ((y2 < EPS) && (y2 < EPS)) {
+      resultSensitivity[index] = Math.sqrt(w2);
+      resultSensitivity[index + 1] = Math.sqrt(1.0d - w2);
+      return resultSensitivity;
+    }
     double y21 = y1 * y1;
     double y22 = y2 * y2;
-    double ySq = w2 * y21 + w1 * y22;
-    double resultValue = Math.sqrt(ySq);
-    resultSensitivity[index] = w2 * y1 / resultValue;
-    resultSensitivity[index + 1] = w1 * y2 / resultValue;
+    double ySq = w2 * y21 + (1.0 - w2) * y22;
+    // Backward
+    double ySqBar = 0.5 / Math.sqrt(ySq);
+    double y22Bar = (1.0 - w2) * ySqBar;
+    double y21Bar = w2 * ySqBar;
+    double y1Bar = 2 * y1 * y21Bar;
+    double y2Bar = 2 * y2 * y22Bar;
+    resultSensitivity[index] = y1Bar;
+    resultSensitivity[index + 1] = y2Bar;
     return resultSensitivity;
   }
 
@@ -92,7 +123,7 @@ public class SquareLinearInterpolator1D extends Interpolator1D {
     ArgumentChecker.notNull(y, "y");
     int nY = y.length;
     for (int i = 0; i < nY; ++i) {
-      ArgumentChecker.isTrue(y[i] > 0.0, "All values in y must be positive");
+      ArgumentChecker.isTrue(y[i] >= 0.0, "All values in y must be positive");
     }
     return new ArrayInterpolator1DDataBundle(x, y);
   }
@@ -102,7 +133,7 @@ public class SquareLinearInterpolator1D extends Interpolator1D {
     ArgumentChecker.notNull(y, "y");
     int nY = y.length;
     for (int i = 0; i < nY; ++i) {
-      ArgumentChecker.isTrue(y[i] > 0.0, "All values in y must be positive");
+      ArgumentChecker.isTrue(y[i] >= 0.0, "All values in y must be positive");
     }
     return new ArrayInterpolator1DDataBundle(x, y, true);
   }
