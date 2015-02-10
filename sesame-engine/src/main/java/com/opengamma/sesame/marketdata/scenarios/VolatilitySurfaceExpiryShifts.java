@@ -136,7 +136,7 @@ public final class VolatilitySurfaceExpiryShifts implements Perturbation, Immuta
    * <p>
    * The shifted surface value is {@code (value x (1 + shift))}.
    *
-   * @param shifts  shift amounts that are added to the surface value at the corresponding tenor
+   * @param shifts  shift amounts that are used to scale the surface value at the corresponding tenor
    * @return an instance that will add shifts to the surface points with the specified tenors
    */
   public static VolatilitySurfaceExpiryShifts relative(Map<Tenor, Double> shifts) {
