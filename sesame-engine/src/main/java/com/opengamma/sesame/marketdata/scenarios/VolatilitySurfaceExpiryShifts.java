@@ -117,10 +117,28 @@ public class VolatilitySurfaceExpiryShifts implements Perturbation, ImmutableBea
     return PerturbationTarget.OUTPUT;
   }
 
+  /**
+   * Returns an instance that will add shifts to the surface points with the specified tenors.
+   *
+   * @param shifts  shift amounts that are added to the surface value at the corresponding tenor
+   * @return an instance that will add shifts to the surface points with the specified tenors
+   */
   public static VolatilitySurfaceExpiryShifts absolute(Map<Tenor, Double> shifts) {
     return VolatilitySurfaceExpiryShifts.builder().shiftType(ShiftType.ABSOLUTE).shifts(shifts).build();
   }
 
+  /**
+   * Returns an instance that will scale the surface points with the specified tenors by the shift amount.
+   * <p>
+   * Shifts are interpreted as a percentage increase or decrease. e.g. a shift of 0.1 indicates an increase
+   * of 10%, so the surface value will be scaled by a factor of 1.1. Similarly, a shift of -0.2 indicates
+   * a decrease of 20% and a scale factor of 0.8.
+   * <p>
+   * The shifted surface value is {@code (value x (1 + shift))}.
+   *
+   * @param shifts  shift amounts that are added to the surface value at the corresponding tenor
+   * @return an instance that will add shifts to the surface points with the specified tenors
+   */
   public static VolatilitySurfaceExpiryShifts relative(Map<Tenor, Double> shifts) {
     return VolatilitySurfaceExpiryShifts.builder().shiftType(ShiftType.RELATIVE).shifts(shifts).build();
   }
