@@ -7,16 +7,21 @@ package com.opengamma.analytics.financial.model.volatility.surface;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+
+import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.analytics.math.surface.SurfaceShiftFunctionFactory;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.time.Tenor;
 
 /**
  * Test.
@@ -110,5 +115,36 @@ public class VolatilitySurfaceTest {
     assertArrayEquals(other.getSurface().getXData(), underlying.getXData());
     assertArrayEquals(other.getSurface().getYData(), underlying.getYData());
     assertArrayEquals(other.getSurface().getZData(), underlying.getZData());
+  }
+
+  @Test
+  public void testExpiryTenors() {
+    List<Tenor> expiryTenors =
+        ImmutableList.of(
+            Tenor.ONE_MONTH,
+            Tenor.TWO_MONTHS,
+            Tenor.THREE_MONTHS,
+            Tenor.ONE_MONTH,
+            Tenor.TWO_MONTHS,
+            Tenor.THREE_MONTHS,
+            Tenor.ONE_MONTH,
+            Tenor.TWO_MONTHS,
+            Tenor.THREE_MONTHS);
+    VolatilitySurface surface = new VolatilitySurface(SURFACE, expiryTenors);
+    assertEquals(expiryTenors, surface.getExpiryTenors());
+
+    assertTrue(new VolatilitySurface(SURFACE).getExpiryTenors().isEmpty());
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testEmptyExpiryTenors() {
+    List<Tenor> expiryTenors = ImmutableList.of();
+    new VolatilitySurface(SURFACE, expiryTenors);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testWrongNumberOfExpiryTenors() {
+    List<Tenor> expiryTenors = ImmutableList.of(Tenor.ONE_MONTH, Tenor.TWO_MONTHS);
+    new VolatilitySurface(SURFACE, expiryTenors);
   }
 }
