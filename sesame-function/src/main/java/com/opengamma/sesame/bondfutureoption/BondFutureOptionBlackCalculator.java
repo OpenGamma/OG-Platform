@@ -38,7 +38,8 @@ public class BondFutureOptionBlackCalculator implements BondFutureOptionCalculat
 
   private static final PresentValueBlackBondFuturesOptionCalculator PV_CALC = PresentValueBlackBondFuturesOptionCalculator.getInstance();
   
-  private static final PresentValueCurveSensitivityBlackBondFuturesOptionCalculator PV01_CALC = PresentValueCurveSensitivityBlackBondFuturesOptionCalculator.getInstance();
+  private static final PresentValueCurveSensitivityBlackBondFuturesOptionCalculator PV01_CALC = 
+      new PresentValueCurveSensitivityBlackBondFuturesOptionCalculator();
 
   private static final FuturesPriceBlackBondFuturesCalculator PRICE_CALC = FuturesPriceBlackBondFuturesCalculator.getInstance();
   
