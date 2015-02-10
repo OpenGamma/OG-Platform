@@ -20,15 +20,25 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 public class FuturesTransactionBlackBondFuturesMethod extends FuturesTransactionMethod {
 
   /** The calculator used to compute the present value curve sensitivity from the price curve sensitivity **/
-  private static final FuturesPVCurveSensitivityFromPriceCurveSensitivityCalculator PVCSIC = FuturesPVCurveSensitivityFromPriceCurveSensitivityCalculator.getInstance();
+  private static final FuturesPVCurveSensitivityFromPriceCurveSensitivityCalculator PVCSIC = 
+      FuturesPVCurveSensitivityFromPriceCurveSensitivityCalculator.getInstance();
   /** The calculator used to compute the present value Black sensitivity from the price Black sensitivity **/
-  private static final FuturesPVBlackBondFuturesSensitivityFromPriceBlackSensitivityCalculator PVBSIC = FuturesPVBlackBondFuturesSensitivityFromPriceBlackSensitivityCalculator.getInstance();
+  private static final FuturesPVBlackBondFuturesSensitivityFromPriceBlackSensitivityCalculator PVBSIC = 
+      FuturesPVBlackBondFuturesSensitivityFromPriceBlackSensitivityCalculator.getInstance();
 
   /**
    * Default constructor.
    */
   public FuturesTransactionBlackBondFuturesMethod() {
     super(new FuturesSecurityBlackBondFuturesMethod());
+  }
+  
+  /**
+   * Constructor from futures method.
+   * @param methodFutures The method to compute price and price curve sensitivity of futures.
+   */
+  public FuturesTransactionBlackBondFuturesMethod(FuturesSecurityIssuerMethod methodFutures) {
+    super(new FuturesSecurityBlackBondFuturesMethod(methodFutures));
   }
 
   /**

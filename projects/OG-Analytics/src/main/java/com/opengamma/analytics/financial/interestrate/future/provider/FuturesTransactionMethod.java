@@ -23,7 +23,6 @@ public abstract class FuturesTransactionMethod {
    * @param securityMethod The method used to price the underlying futures security.
    */
   public FuturesTransactionMethod(FuturesSecurityMethod securityMethod) {
-    super();
     _securityMethod = securityMethod;
   }
 

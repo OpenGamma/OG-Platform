@@ -45,7 +45,7 @@ public final class BondFuturesOptionMarginSecurityBlackBondFuturesMethod extends
    * sensitivity of the underlying futures.
    * @param methodFutures The bond futures method.
    */
-  private BondFuturesOptionMarginSecurityBlackBondFuturesMethod(FuturesSecurityIssuerMethod methodFutures) {
+  public BondFuturesOptionMarginSecurityBlackBondFuturesMethod(FuturesSecurityIssuerMethod methodFutures) {
     super(methodFutures);
     _methodFutures = methodFutures;
   }
