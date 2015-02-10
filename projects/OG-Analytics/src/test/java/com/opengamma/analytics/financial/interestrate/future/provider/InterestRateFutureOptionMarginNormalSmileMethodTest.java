@@ -23,6 +23,7 @@ import com.opengamma.analytics.financial.provider.calculator.normalstirfutures.P
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.NormalDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesExpSimpleMoneynessProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesExpStrikeProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesProviderInterface;
@@ -300,7 +301,7 @@ public class InterestRateFutureOptionMarginNormalSmileMethodTest {
     InterestRateFutureTransaction transFut = new InterestRateFutureTransaction(ERU2, 0.0, QUANTITY);
     PresentValueCurveSensitivityDiscountingCalculator pvCal = PresentValueCurveSensitivityDiscountingCalculator
         .getInstance();
-    ParameterSensitivityParameterCalculator<ParameterProviderInterface> sensCal = new ParameterSensitivityParameterCalculator<>(
+    ParameterSensitivityParameterCalculator<MulticurveProviderInterface> sensCal = new ParameterSensitivityParameterCalculator<>(
         pvCal);
     MultipleCurrencyParameterSensitivity senseCurr = sensCal.calculateSensitivity(transFut, MULTICURVES);
     senseCurr = senseCurr.multipliedBy(-computedVega * grad);
