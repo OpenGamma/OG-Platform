@@ -18,19 +18,26 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSec
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.interestrate.future.calculator.FuturesPriceNormalSTIRFuturesCalculator;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldPeriodicCurve;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PV01CurveParametersCalculator;
+import com.opengamma.analytics.financial.provider.calculator.normalstirfutures.DeltaNormalSTIRFutureOptionCalculator;
+import com.opengamma.analytics.financial.provider.calculator.normalstirfutures.GammaNormalSTIRFutureOptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.normalstirfutures.PositionDeltaNormalSTIRFutureOptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.normalstirfutures.PositionGammaNormalSTIRFutureOptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.normalstirfutures.PositionThetaNormalSTIRFutureOptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.normalstirfutures.PositionVegaNormalSTIRFutureOptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.normalstirfutures.PresentValueCurveSensitivityNormalSTIRFuturesCalculator;
 import com.opengamma.analytics.financial.provider.calculator.normalstirfutures.PresentValueNormalSTIRFuturesCalculator;
+import com.opengamma.analytics.financial.provider.calculator.normalstirfutures.ThetaNormalSTIRFutureOptionCalculator;
+import com.opengamma.analytics.financial.provider.calculator.normalstirfutures.VegaNormalSTIRFutureOptionCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesExpSimpleMoneynessProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
@@ -266,6 +273,65 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessGBPE2ETest {
     double moneyness3 = 0.005;
     double interpolatedVol3 = VOL_SURFACE_SIMPLEMONEY.getZValue(expiry3, moneyness3);
     assertRelative("volatilitySurfaceSamplingPrintTest", 0.8395130870530448, interpolatedVol3, TOL);
+  }
+
+  private static final InterestRateFutureSecurityDiscountingMethod METHOD_FUTURE = InterestRateFutureSecurityDiscountingMethod
+      .getInstance();
+  private static final InterestRateFutureOptionMarginSecurityNormalSmileMethod METHOD_OPTION = InterestRateFutureOptionMarginSecurityNormalSmileMethod
+      .getInstance();
+  private static final InterestRateFutureOptionMarginSecurityNormalSmileMethod METHOD_OPTION_MARGIN = InterestRateFutureOptionMarginSecurityNormalSmileMethod
+      .getInstance();
+  private static final InterestRateFutureOptionMarginTransactionNormalSmileMethod METHOD_OPTION_MARGIN_TRANSA = InterestRateFutureOptionMarginTransactionNormalSmileMethod
+      .getInstance();
+  private static final DeltaNormalSTIRFutureOptionCalculator DEC = DeltaNormalSTIRFutureOptionCalculator.getInstance();
+  private static final GammaNormalSTIRFutureOptionCalculator GAC = GammaNormalSTIRFutureOptionCalculator.getInstance();
+  private static final ThetaNormalSTIRFutureOptionCalculator THC = ThetaNormalSTIRFutureOptionCalculator.getInstance();
+  private static final VegaNormalSTIRFutureOptionCalculator VEC = VegaNormalSTIRFutureOptionCalculator.getInstance();
+
+  /**
+   * Replicating the calculators by the underlying methods in which futures price is taken as an input. 
+   */
+  @Test
+  public void underlyingMethodTest() {
+    double localTol = 1.0e-14;
+    InterestRateFutureOptionMarginSecurity futureOption = TRANSACTION_Q.getUnderlyingSecurity();
+    InterestRateFutureSecurity future = futureOption.getUnderlyingFuture();
+    double futurePrice = METHOD_FUTURE.price(future, NORMAL_MULTICURVES.getMulticurveProvider());
+
+    // Option price and PV
+    double optionPriceQ = TRANSACTION_Q.accept(POC, NORMAL_MULTICURVES);
+    double optionPriceQRe = METHOD_OPTION.priceFromFuturePrice(futureOption, NORMAL_MULTICURVES, futurePrice);
+    assertRelative("underlyingMethodTest", optionPriceQ, optionPriceQRe, localTol);
+    MultipleCurrencyAmount pvQ = TRANSACTION_Q.accept(PVC, NORMAL_MULTICURVES);
+    MultipleCurrencyAmount pvQRe = METHOD_OPTION_MARGIN_TRANSA.presentValueFromFuturePrice(TRANSACTION_Q,
+        NORMAL_MULTICURVES, futurePrice);
+    assertRelative("underlyingMethodTest", pvQ.getAmount(GBP), pvQRe.getAmount(GBP), localTol);
+
+    // Option Greeks
+    Double delta = TRANSACTION_Q.accept(DEC, NORMAL_MULTICURVES);
+    Double deltaRe = METHOD_OPTION_MARGIN.priceDeltaFromFuturePrice(futureOption, NORMAL_MULTICURVES, futurePrice);
+    assertRelative("underlyingMethodTest", delta, deltaRe, localTol);
+    Double gamma = TRANSACTION_Q.accept(GAC, NORMAL_MULTICURVES);
+    Double gammaRe = METHOD_OPTION_MARGIN.priceGammaFromFuturePrice(futureOption, NORMAL_MULTICURVES, futurePrice);
+    assertRelative("underlyingMethodTest", gamma, gammaRe, localTol);
+    Double theta = TRANSACTION_Q.accept(THC, NORMAL_MULTICURVES);
+    Double thetaRe = METHOD_OPTION_MARGIN.priceThetaFromFuturePrice(futureOption, NORMAL_MULTICURVES, futurePrice);
+    assertRelative("underlyingMethodTest", theta, thetaRe, localTol);
+    Double vega = TRANSACTION_Q.accept(VEC, NORMAL_MULTICURVES);
+    Double vegaRe = METHOD_OPTION_MARGIN.priceVegaFromFuturePrice(futureOption, NORMAL_MULTICURVES, futurePrice);
+    assertRelative("underlyingMethodTest", vega, vegaRe, localTol);
+
+    // PV01
+    MultipleCurrencyParameterSensitivity bucketedPv01Q = PSSFC.calculateSensitivity(TRANSACTION_Q, NORMAL_MULTICURVES);
+    MultipleCurrencyMulticurveSensitivity pvSense = METHOD_OPTION_MARGIN_TRANSA
+        .presentValueCurveSensitivityFromPrice(TRANSACTION_Q, NORMAL_MULTICURVES, futurePrice);
+    MultipleCurrencyParameterSensitivity bucketedPv01QRe = PSSFC.pointToParameterSensitivity(pvSense,
+        NORMAL_MULTICURVES);
+    AssertSensitivityObjects.assertEquals("underlyingMethodTest", bucketedPv01Q, bucketedPv01QRe, localTol);
+    ReferenceAmount<Pair<String, Currency>> pv01Q = TRANSACTION_Q.accept(PV01PC, NORMAL_MULTICURVES);
+    ReferenceAmount<Pair<String, Currency>> pv01QRe = PV01PC.pv01CurveParameters(bucketedPv01QRe);
+    assertRelative("underlyingMethodTest", pv01Q.getMap().get(Pairs.of(MULTICURVES.getName(GBPLIBOR3M), GBP)), pv01QRe
+        .getMap().get(Pairs.of(MULTICURVES.getName(GBPLIBOR3M), GBP)), localTol);
   }
 
   private void assertRelative(String message, double expected, double obtained, double relativeTol) {

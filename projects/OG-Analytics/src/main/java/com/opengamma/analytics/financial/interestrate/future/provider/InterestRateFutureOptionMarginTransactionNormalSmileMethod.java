@@ -7,6 +7,8 @@ package com.opengamma.analytics.financial.interestrate.future.provider;
 
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -63,6 +65,26 @@ public final class InterestRateFutureOptionMarginTransactionNormalSmileMethod ex
     double priceSecurity = getSecurityMethod().priceFromFuturePrice(transaction.getUnderlyingSecurity(), normalData, priceFuture);
     MultipleCurrencyAmount priceTransaction = presentValueFromPrice(transaction, priceSecurity);
     return priceTransaction;
+  }
+
+  /**
+   * Computes the present value curve sensitivity of a transaction.
+   * @param transaction The future option transaction.
+   * @param normalData The Black volatility and multi-curves provider.
+   * @param priceFuture The price of the underlying future.
+   * @return The present value curve sensitivity.
+   */
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivityFromPrice(
+      InterestRateFutureOptionMarginTransaction transaction, NormalSTIRFuturesProviderInterface normalData,
+      double priceFuture) {
+    ArgumentChecker.notNull(transaction, "Transaction on option on STIR futures");
+    ArgumentChecker.notNull(normalData, "data provider");
+    MulticurveSensitivity securitySensitivity = getSecurityMethod().priceCurveSensitivityFromFuturePrice(
+        transaction.getUnderlyingSecurity(), normalData, priceFuture);
+    return MultipleCurrencyMulticurveSensitivity.of(transaction.getCurrency(),
+        securitySensitivity.multipliedBy(transaction.getQuantity() *
+            transaction.getUnderlyingSecurity().getUnderlyingFuture().getNotional()
+            * transaction.getUnderlyingSecurity().getUnderlyingFuture().getPaymentAccrualFactor()));
   }
 
   /**
