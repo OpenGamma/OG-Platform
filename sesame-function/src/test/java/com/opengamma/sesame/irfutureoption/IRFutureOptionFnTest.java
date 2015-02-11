@@ -109,6 +109,8 @@ public class IRFutureOptionFnTest {
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 1, 22);
   
   private static final Environment ENV = new SimpleEnvironment(VALUATION_TIME, createMarketDataBundle());
+  public static final LocalDate TRADE_DATE = LocalDate.of(2000, 1, 1);
+  public static final OffsetTime TRADE_TIME = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
 
   private IRFutureOptionFn _irFutureOptionFn;
 
@@ -236,9 +238,7 @@ public class IRFutureOptionFnTest {
     
     Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
     BigDecimal tradeQuantity = BigDecimal.valueOf(10);
-    LocalDate tradeDate = LocalDate.of(2000, 1, 1);
-    OffsetTime tradeTime = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
-    SimpleTrade trade = new SimpleTrade(irFutureOption, tradeQuantity, counterparty, tradeDate, tradeTime);
+    SimpleTrade trade = new SimpleTrade(irFutureOption, tradeQuantity, counterparty, TRADE_DATE, TRADE_TIME);
     trade.setPremium(10.0);
     trade.setPremiumCurrency(Currency.USD);
     return new IRFutureOptionTrade(trade);
@@ -247,6 +247,15 @@ public class IRFutureOptionFnTest {
   @Test
   public void testPresentValue() {
     Result<MultipleCurrencyAmount> pvComputed = _irFutureOptionFn.calculatePV(ENV, _irFutureOptionTrade);
+    if (!pvComputed.isSuccess()) {
+      fail(pvComputed.getFailureMessage());
+    }
+  }
+
+  @Test
+  public void testPresentValuetradeDate() {
+    Environment env = ENV.withValuationTimeAndFixedMarketData(TRADE_DATE.atTime(TRADE_TIME).toZonedDateTime());
+    Result<MultipleCurrencyAmount> pvComputed = _irFutureOptionFn.calculatePV(env, _irFutureOptionTrade);
     if (!pvComputed.isSuccess()) {
       fail(pvComputed.getFailureMessage());
     }
