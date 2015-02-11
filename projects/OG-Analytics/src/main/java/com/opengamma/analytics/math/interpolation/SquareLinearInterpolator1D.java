@@ -58,10 +58,12 @@ public class SquareLinearInterpolator1D extends Interpolator1D {
     double x2 = data.getKeys()[index + 1];
     double y2 = data.getValues()[index + 1];
     if ((y1 < EPS) && (y2 >= EPS) && (value - x1) < EPS) { // On one vertex with value 0, other vertex not 0
-      throw new OpenGammaRuntimeException("ask for first derivative on value without derivative");
+      throw new OpenGammaRuntimeException("ask for first derivative on a value without derivative; value " + value + 
+          " is close to vertex " + x1 + " and value at vertex is " + y1);
     }
     if ((y2 < EPS) && (y1 >= EPS) && (x2 - value) < EPS) { // On one vertex with value 0, other vertex not 0
-      throw new OpenGammaRuntimeException("ask for first derivative on value without derivative");
+      throw new OpenGammaRuntimeException("ask for first derivative on a value without derivative; value " + value + 
+          " is close to vertex " + x2 + " and value at vertex is " + y2);
     }
     if ((y1 < EPS) && (y2 < EPS)) { // Both vertices have 0 value, return 0.
       return 0.0;
