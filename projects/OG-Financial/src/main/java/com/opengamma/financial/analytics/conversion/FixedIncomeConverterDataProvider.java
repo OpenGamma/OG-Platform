@@ -1662,11 +1662,11 @@ public class FixedIncomeConverterDataProvider {
         /**
          * Returns the contract price of the future. If the valuation date is on the trade
          * date then the trade price is returned, otherwise the last margin price for the contract is returned.
-         * @param security the interest rate future option, not null.
-         * @param definition the interest rate future option definition, not null.
+         * @param security the dsf not null.
+         * @param definition the dsf definition, not null.
          * @param valuationDate the valuation time, not null.
          * @param timeSeries the time series bundle containing the last margin price, not null.
-         * @return the contract price of the interest rate future option.
+         * @return the contract price of the dsf.
          */
         private double getLastMarginPrice(final DeliverableSwapFutureSecurity security,
                                           final SwapFuturesPriceDeliverableTransactionDefinition definition,
