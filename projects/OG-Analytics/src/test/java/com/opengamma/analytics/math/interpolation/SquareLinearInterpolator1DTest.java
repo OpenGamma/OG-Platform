@@ -31,6 +31,7 @@ public class SquareLinearInterpolator1DTest {
   private static final ScalarFieldFirstOrderDifferentiator DIFF = new ScalarFieldFirstOrderDifferentiator(
       FiniteDifferenceType.CENTRAL, EPS);
   private static final double TOLERANCE_DELTA = 1.0E-6;
+  private static final double TOLERANCE_DELTA_0 = 1.0E-3;
 
   /**
    * Consistency with LinearInterpolator1D
@@ -259,7 +260,7 @@ public class SquareLinearInterpolator1DTest {
     double[] yData = new double[] {0.0, 0.0, 0.0, 0.0 };
     Interpolator1DDataBundle bundle = INTERP.getDataBundle(xData, yData);
     int nbData = yData.length;
-    double[] xTest = new double[] {1.1, 2.5, 3.1, 3.5};
+    double[] xTest = new double[] {1.0, 1.1, 2.5, 3.0 - 1.0E-13, 3.0, 3.0 + 1.0E-13, 3.5, 4.0 };
     int nbTest = xTest.length;
     double shift = 1.0E-8;
     for(int i=0; i<nbTest; i++) {
@@ -273,35 +274,51 @@ public class SquareLinearInterpolator1DTest {
         double yBumped = INTERP.interpolate(bundleBumped, xTest[i]);
         sensiFD[j] = (yBumped - y)/ shift;
       }
-      ArrayAsserts.assertArrayEquals("", sensiFD, sensiAD, TOLERANCE_DELTA);
+      ArrayAsserts.assertArrayEquals("SquareLinearInterpolator1DTest - " + i, sensiFD, sensiAD, TOLERANCE_DELTA);
+    }    
+  }
+
+  /** Tests input sensitivity when all values are 0. */
+  @Test
+  public void sensitivityOne0() {
+    double[] xData = new double[] {1.0, 2.0, 3.0, 4.0 };
+    double[] yData = new double[] {0.1, 0.0, 0.1, 1.0 };
+    Interpolator1DDataBundle bundle = INTERP.getDataBundle(xData, yData);
+    int nbData = yData.length;
+    double[] xTest = new double[] {1.0, 1.1, 2.0 - 1.0E-14, 2.0, 2.0 + 1.0E-14, 2.5, 3.1, 3.5, 4.0};
+    int nbTest = xTest.length;
+    double shift = 1.0E-4;
+    for(int i=0; i<nbTest; i++) {
+      double[] sensiAD = INTERP.getNodeSensitivitiesForValue(bundle, xTest[i]);
+      double y = INTERP.interpolate(bundle, xTest[i]);
+      double[] sensiFD = new double[nbData];
+      for(int j=0; j<nbData; j++) {
+        double[] yDataBumped = yData.clone();
+        yDataBumped[j] += shift;
+        Interpolator1DDataBundle bundleBumped = INTERP.getDataBundle(xData, yDataBumped);
+        double yBumped = INTERP.interpolate(bundleBumped, xTest[i]);
+        sensiFD[j] = (yBumped - y)/ shift;
+      }
+      ArrayAsserts.assertArrayEquals("SquareLinearInterpolator1DTest - " + i, sensiFD, sensiAD, TOLERANCE_DELTA_0);
     }    
   }
 
   /** Tests first derivative at node when value is 0. */
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
-  public void firstDerivativeNodeOne0Exception() {
+  public void firstDerivativeNodeOne0Exception1() {
     double[] xData = new double[] {1.0, 2.0, 3.0};
     double[] yData = new double[] {1.0, 0.0, 1.0 };
     Interpolator1DDataBundle bundle = INTERP.getDataBundle(xData, yData);
     INTERP.firstDerivative(bundle, 2.0);
   }
 
-  /** Tests sensitivity at node when all values are 0. */
+  /** Tests first derivative at node when value is 0. */
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
-  public void sensitivityNodeAll0Exception() {
-    double[] xData = new double[] {1.0, 2.0, 3.0};
-    double[] yData = new double[] {0.0, 0.0, 0.0 };
-    Interpolator1DDataBundle bundle = INTERP.getDataBundle(xData, yData);
-    INTERP.getNodeSensitivitiesForValue(bundle, 2.0);
-  }
-
-  /** Tests sensitivity at node when all values are 0. */
-  @Test(expectedExceptions = OpenGammaRuntimeException.class)
-  public void sensitivityNodeOne0Exception() {
-    double[] xData = new double[] {1.0, 2.0, 3.0};
+  public void firstDerivativeNodeOne0Exception2() {
+    double[] xData = new double[] {1.0, 2.0, 3.0 };
     double[] yData = new double[] {1.0, 0.0, 1.0 };
     Interpolator1DDataBundle bundle = INTERP.getDataBundle(xData, yData);
-    INTERP.getNodeSensitivitiesForValue(bundle, 2.0);
+    INTERP.firstDerivative(bundle, 2.0 - 1.0E-14);
   }
   
 }

@@ -89,17 +89,16 @@ public class SquareLinearInterpolator1D extends Interpolator1D {
     }
     double x2 = boundedValues.getHigherBoundKey();
     double y2 = boundedValues.getHigherBoundValue();
-    if ((y1 < EPS) && (y2 >= EPS) && (value - x1) < EPS) { // On one vertex with value 0, other vertex not 0
-      throw new OpenGammaRuntimeException("ask for first derivative on value without derivative");
+    if ((value - x1) < EPS) { // On or very close to Vertex 1
+      resultSensitivity[index] = 1.0d;
+      return resultSensitivity;
     }
-    if ((y2 < EPS) && (y1 >= EPS) && (x2 - value) < EPS) { // On one vertex with value 0, other vertex not 0
-      throw new OpenGammaRuntimeException("ask for first derivative on value without derivative");
-    }
-    if ((y2 < EPS) && (y1 < EPS) && ((x2 - value) < EPS || (value - x1) < EPS)) {
-      throw new OpenGammaRuntimeException("ask for first derivative on value without derivative");
+    if ((x2 - value) < EPS) { // On or very close to Vertex 2
+      resultSensitivity[index + 1] = 1.0d;
+      return resultSensitivity;
     }
     double w2 = (x2 - value) / (x2 - x1);
-    if ((y2 < EPS) && (y2 < EPS)) {
+    if ((y2 < EPS) && (y1 < EPS)) { // Both values very close to 0
       resultSensitivity[index] = Math.sqrt(w2);
       resultSensitivity[index + 1] = Math.sqrt(1.0d - w2);
       return resultSensitivity;
