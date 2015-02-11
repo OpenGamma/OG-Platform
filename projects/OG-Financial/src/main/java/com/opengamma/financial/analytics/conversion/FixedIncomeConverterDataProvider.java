@@ -1644,7 +1644,7 @@ public class FixedIncomeConverterDataProvider {
         @Override
         public InstrumentDerivative convert(DeliverableSwapFutureSecurity security, SwapFuturesPriceDeliverableTransactionDefinition definition, ZonedDateTime now, String[] curveNames,
             HistoricalTimeSeriesBundle timeSeries) {
-          final double lastMarginPrice = getLatestMarketValue(timeSeries, security);
+          double lastMarginPrice = getLastMarginPrice(security, definition, now, timeSeries);
           if (curveNames.length == 1) {
             final String[] singleCurve = new String[] {curveNames[0], curveNames[0] };
             return definition.toDerivative(now, lastMarginPrice);
@@ -1655,8 +1655,24 @@ public class FixedIncomeConverterDataProvider {
         @Override
         public InstrumentDerivative convert(DeliverableSwapFutureSecurity security, SwapFuturesPriceDeliverableTransactionDefinition definition, ZonedDateTime now,
             HistoricalTimeSeriesBundle timeSeries) {
-          final double lastMarginPrice = getLatestMarketValue(timeSeries, security);
+          double lastMarginPrice = getLastMarginPrice(security, definition, now, timeSeries);
           return definition.toDerivative(now, lastMarginPrice);
+        }
+
+        /**
+         * Returns the contract price of the future. If the valuation date is on the trade
+         * date then the trade price is returned, otherwise the last margin price for the contract is returned.
+         * @param security the dsf not null.
+         * @param definition the dsf definition, not null.
+         * @param valuationDate the valuation time, not null.
+         * @param timeSeries the time series bundle containing the last margin price, not null.
+         * @return the contract price of the dsf.
+         */
+        private double getLastMarginPrice(final DeliverableSwapFutureSecurity security,
+                                          final SwapFuturesPriceDeliverableTransactionDefinition definition,
+                                          final ZonedDateTime valuationDate,
+                                          final HistoricalTimeSeriesBundle timeSeries) {
+          return valuationDate.toLocalDate().equals(definition.getTradeDate().toLocalDate()) ? definition.getTradePrice() : getLatestMarketValue(timeSeries, security);
         }
       };
 
