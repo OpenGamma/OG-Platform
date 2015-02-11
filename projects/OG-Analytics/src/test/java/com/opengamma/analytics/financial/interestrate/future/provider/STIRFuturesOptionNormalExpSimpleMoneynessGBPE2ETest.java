@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOpt
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
+import com.opengamma.analytics.financial.interestrate.future.calculator.FuturesPriceMulticurveCalculator;
 import com.opengamma.analytics.financial.interestrate.future.calculator.FuturesPriceNormalSTIRFuturesCalculator;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -73,15 +74,15 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessGBPE2ETest {
     MULTICURVES = new MulticurveProviderDiscount();
     MULTICURVES.setCurve(GBPLIBOR3M, singleCurve);
   }
+  private static final Interpolator1D VALUESSQUARE_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
+      Interpolator1DFactory.SQUARE_LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final Interpolator1D TIME_VALUESSQUARE_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
+      Interpolator1DFactory.TIME_SQUARE, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(TIME_VALUESSQUARE_FLAT, VALUESSQUARE_FLAT);
   private static final InterpolatedDoublesSurface VOL_SURFACE_SIMPLEMONEY;
   static {
-    Interpolator1D squareFlat = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
-        Interpolator1DFactory.SQUARE_LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-        Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-    Interpolator1D timeSquareFlat = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
-        Interpolator1DFactory.TIME_SQUARE, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-        Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-    GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(timeSquareFlat, squareFlat);
     VOL_SURFACE_SIMPLEMONEY = InterpolatedDoublesSurface.from(DATA.getExpiry(), DATA.getSimpleMoneyness(),
         DATA.getVolatility(), INTERPOLATOR_2D);
   }
@@ -98,14 +99,14 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessGBPE2ETest {
   private static final double NOTIONAL = 5000.0;
   private static final String FUTURE_NAME = "20140300";
   private static final Calendar CALENDAR = DATA.getGBPCalendar();
+  private static final double PAYMENT_ACCRUAL_FACTOR = 0.25;
   static {
-    double paymentAccrualFactor = 0.25;
     RATE_FUTURE_Q = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE_Q, GBPLIBOR3M, NOTIONAL,
-        paymentAccrualFactor, FUTURE_NAME, CALENDAR);
+        PAYMENT_ACCRUAL_FACTOR, FUTURE_NAME, CALENDAR);
     RATE_FUTURE_S = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE_S, GBPLIBOR3M, NOTIONAL,
-        paymentAccrualFactor, FUTURE_NAME, CALENDAR);
+        PAYMENT_ACCRUAL_FACTOR, FUTURE_NAME, CALENDAR);
     RATE_FUTURE_M = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE_M, GBPLIBOR3M, NOTIONAL,
-        paymentAccrualFactor, FUTURE_NAME, CALENDAR);
+        PAYMENT_ACCRUAL_FACTOR, FUTURE_NAME, CALENDAR);
   }
 
   /* Rate futures option */
@@ -115,12 +116,12 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessGBPE2ETest {
   private static final boolean IS_CALL = false;
   private static final double STRIKE_S = 0.925;
   private static final boolean IS_CALL_S = true;
-  private static final InterestRateFutureOptionMarginSecurityDefinition RATE_FUTURE_OPTION_Q = new InterestRateFutureOptionMarginSecurityDefinition(
-      RATE_FUTURE_Q, EXPIRATION_DATE, STRIKE, IS_CALL);
-  private static final InterestRateFutureOptionMarginSecurityDefinition RATE_FUTURE_OPTION_S = new InterestRateFutureOptionMarginSecurityDefinition(
-      RATE_FUTURE_S, EXPIRATION_DATE_S, STRIKE_S, IS_CALL_S);
-  private static final InterestRateFutureOptionMarginSecurityDefinition RATE_FUTURE_OPTION_M = new InterestRateFutureOptionMarginSecurityDefinition(
-      RATE_FUTURE_M, EXPIRATION_DATE, STRIKE, IS_CALL);
+  private static final InterestRateFutureOptionMarginSecurityDefinition RATE_FUTURE_OPTION_Q = 
+      new InterestRateFutureOptionMarginSecurityDefinition(RATE_FUTURE_Q, EXPIRATION_DATE, STRIKE, IS_CALL);
+  private static final InterestRateFutureOptionMarginSecurityDefinition RATE_FUTURE_OPTION_S = 
+      new InterestRateFutureOptionMarginSecurityDefinition(RATE_FUTURE_S, EXPIRATION_DATE_S, STRIKE_S, IS_CALL_S);
+  private static final InterestRateFutureOptionMarginSecurityDefinition RATE_FUTURE_OPTION_M = 
+      new InterestRateFutureOptionMarginSecurityDefinition(RATE_FUTURE_M, EXPIRATION_DATE, STRIKE, IS_CALL);
 
   /* Rate futures option transaction */
   private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2008, 8, 27, 1, 0);
@@ -159,8 +160,10 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessGBPE2ETest {
       PositionThetaNormalSTIRFutureOptionCalculator.getInstance();
   private static final PositionVegaNormalSTIRFutureOptionCalculator PVEC =
       PositionVegaNormalSTIRFutureOptionCalculator.getInstance();
+  private static final FuturesPriceMulticurveCalculator FPC = FuturesPriceMulticurveCalculator.getInstance();
 
   private static final double TOL = 1.0e-10;
+  private static final double TOLERANCE_PRICE = 1.0e-8;
   private static final double BP1 = 1.0E-4;
 
   /**
@@ -245,6 +248,19 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessGBPE2ETest {
     assertRelative("testGBP, Mid-curve, gamma", 935.5314630568365, gammaM, TOL);
     assertRelative("testGBP, Mid-curve, theta", -397.5689087443393, thetaM, TOL);
     assertRelative("testGBP, Mid-curve, vega", 288.2818961163769, vegaM, TOL);
+  }
+
+  /* Tests options on futures with 0 volatility.  */
+  @Test
+  public void volatility0() {
+    InterpolatedDoublesSurface vol0 = InterpolatedDoublesSurface.from(new double[]{0.25, 5.0, 0.25, 5.0}, 
+        new double[] {-0.10, -0.10, 0.10, 0.10}, new double[] {0.0, 0.0, 0.0, 0.0}, INTERPOLATOR_2D);
+    NormalSTIRFuturesExpSimpleMoneynessProviderDiscount multicurveNormal0 = 
+        new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(MULTICURVES, vol0, GBPLIBOR3M, false);
+    double optionPriceVol0 = TRANSACTION_Q.accept(POC, multicurveNormal0);    
+    double futuresPrice = TRANSACTION_Q.getUnderlyingSecurity().getUnderlyingFuture().accept(FPC, MULTICURVES);
+    double optionPriceIntrinsic =  STRIKE - futuresPrice; // Put
+    assertEquals("Option price for a volatilituy of 0", optionPriceIntrinsic, optionPriceVol0, TOLERANCE_PRICE);
   }
 
   /**

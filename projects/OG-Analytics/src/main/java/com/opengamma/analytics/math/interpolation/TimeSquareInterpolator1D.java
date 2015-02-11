@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.math.interpolation;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang.NotImplementedException;
 
 import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.analytics.math.interpolation.data.InterpolationBoundedValues;
@@ -19,12 +19,15 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class TimeSquareInterpolator1D extends Interpolator1D {
   private static final long serialVersionUID = 1L;
+  
+  /* Level below which the value is consider to be 0. */
+  private static final double EPS = 1.0E-10;
 
   @Override
   public Double interpolate(final Interpolator1DDataBundle data, final Double value) {
-    Validate.notNull(value, "Value to be interpolated must not be null");
+    ArgumentChecker.notNull(value, "Value to be interpolated must not be null");
     ArgumentChecker.isTrue(value > 0, "Value should be stricly positive");
-    Validate.notNull(data, "Data bundle must not be null");
+    ArgumentChecker.notNull(data, "Data bundle must not be null");
     final InterpolationBoundedValues boundedValues = data.getBoundedValues(value);
     final double x1 = boundedValues.getLowerBoundKey();
     final double y1 = boundedValues.getLowerBoundValue();
@@ -42,9 +45,9 @@ public class TimeSquareInterpolator1D extends Interpolator1D {
 
   @Override
   public double firstDerivative(final Interpolator1DDataBundle data, final Double value) {
-    Validate.notNull(value, "Value to be interpolated must not be null");
+    ArgumentChecker.notNull(value, "Value to be interpolated must not be null");
     ArgumentChecker.isTrue(value > 0, "Value should be stricly positive");
-    Validate.notNull(data, "Data bundle must not be null");
+    ArgumentChecker.notNull(data, "Data bundle must not be null");
     int lowerIndex = data.getLowerBoundIndex(value);
     int index;
     if (lowerIndex == data.size() - 1) {
@@ -56,6 +59,9 @@ public class TimeSquareInterpolator1D extends Interpolator1D {
     double y1 = data.getValues()[index];
     double x2 = data.getKeys()[index + 1];
     double y2 = data.getValues()[index + 1];
+    if ((y1 < EPS) || (y2 < EPS)) {
+      throw new NotImplementedException("node sensitivity not implemented when one node is 0 value");
+    }
     final double w = (x2 - value) / (x2 - x1);
     final double xy21 = x1 * y1 * y1;
     final double xy22 = x2 * y2 * y2;
@@ -65,8 +71,8 @@ public class TimeSquareInterpolator1D extends Interpolator1D {
 
   @Override
   public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final Double value) {
-    Validate.notNull(value, "Value to be interpolated must not be null");
-    Validate.notNull(data, "Data bundle must not be null");
+    ArgumentChecker.notNull(value, "Value to be interpolated must not be null");
+    ArgumentChecker.notNull(data, "Data bundle must not be null");
     final int n = data.size();
     final double[] resultSensitivity = new double[n];
     final InterpolationBoundedValues boundedValues = data.getBoundedValues(value);
@@ -79,6 +85,9 @@ public class TimeSquareInterpolator1D extends Interpolator1D {
     }
     final double x2 = boundedValues.getHigherBoundKey();
     final double y2 = boundedValues.getHigherBoundValue();
+    if ((y1 < EPS) || (y2 < EPS)) {
+      throw new NotImplementedException("node sensitivity not implemented when one node is 0 value");
+    }
     final double w = (x2 - value) / (x2 - x1);
     final double xy21 = x1 * y1 * y1;
     final double xy22 = x2 * y2 * y2;
@@ -100,7 +109,7 @@ public class TimeSquareInterpolator1D extends Interpolator1D {
     ArgumentChecker.notNull(y, "y");
     int nY = y.length;
     for (int i = 0; i < nY; ++i) {
-      ArgumentChecker.isTrue(y[i] > 0.0, "All values in y must be positive");
+      ArgumentChecker.isTrue(y[i] >= 0.0, "All values in y must be positive");
     }
     return new ArrayInterpolator1DDataBundle(x, y);
   }
@@ -110,7 +119,7 @@ public class TimeSquareInterpolator1D extends Interpolator1D {
     ArgumentChecker.notNull(y, "y");
     int nY = y.length;
     for (int i = 0; i < nY; ++i) {
-      ArgumentChecker.isTrue(y[i] > 0.0, "All values in y must be positive");
+      ArgumentChecker.isTrue(y[i] >= 0.0, "All values in y must be positive");
     }
     return new ArrayInterpolator1DDataBundle(x, y, true);
   }
