@@ -9,7 +9,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Description of an interest rate future option with up-front margin security.
+ * Description of an interest rate future option security with up-front payment of the premium.
  */
 public class InterestRateFutureOptionPremiumSecurity extends InterestRateFutureOptionSecurity {
 

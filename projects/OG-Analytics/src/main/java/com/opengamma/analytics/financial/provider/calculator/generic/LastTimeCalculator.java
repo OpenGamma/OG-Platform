@@ -332,7 +332,7 @@ public class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter<Objec
 
   @Override
   public Double visitInterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumTransaction option) {
-    return option.getUnderlyingOption().getExpirationTime();
+    return option.getUnderlyingSecurity().getExpirationTime();
   }
 
   @Override
