@@ -49,11 +49,7 @@ public class InterestRateFutureOptionPremiumTransaction implements InstrumentDer
     _quantity = quantity;
     _tradePrice = tradePrice;
     final double premiumAmount = -_tradePrice * _quantity * _underlyingOption.getUnderlyingFuture().getNotional() * _underlyingOption.getUnderlyingFuture().getPaymentAccrualFactor();
-    try {
-      _premium = new PaymentFixed(underlyingOption.getCurrency(), premiumTime, premiumAmount, underlyingOption.getDiscountingCurveName());
-    } catch (final IllegalStateException e) {
-      _premium = new PaymentFixed(underlyingOption.getCurrency(), premiumTime, premiumAmount);
-    }
+    _premium = new PaymentFixed(underlyingOption.getCurrency(), premiumTime, premiumAmount);
   }
 
   /**
