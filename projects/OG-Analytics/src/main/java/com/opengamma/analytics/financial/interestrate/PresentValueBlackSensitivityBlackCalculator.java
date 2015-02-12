@@ -63,10 +63,10 @@ public final class PresentValueBlackSensitivityBlackCalculator extends Instrumen
     ArgumentChecker.notNull(curves, "curves");
     ArgumentChecker.notNull(option, "option");
     if (curves instanceof YieldCurveWithBlackCubeBundle) {
-      final InterestRateFutureOptionPremiumSecurity underlyingOption = option.getUnderlyingOption();
+      final InterestRateFutureOptionPremiumSecurity underlyingOption = option.getUnderlyingSecurity();
       final InterestRateFutureOptionMarginSecurity underlyingMarginedOption = new InterestRateFutureOptionMarginSecurity(underlyingOption.getUnderlyingFuture(), underlyingOption.getExpirationTime(),
           underlyingOption.getStrike(), underlyingOption.isCall());
-      final InterestRateFutureOptionMarginTransaction margined = new InterestRateFutureOptionMarginTransaction(underlyingMarginedOption, option.getQuantity(), option.getTradePrice());
+      final InterestRateFutureOptionMarginTransaction margined = new InterestRateFutureOptionMarginTransaction(underlyingMarginedOption, option.getQuantity(), option.getReferencePrice());
       return METHOD_OPTIONFUTURESMARGIN_BLACK.presentValueBlackSensitivity(margined, (YieldCurveWithBlackCubeBundle) curves);
     }
     throw new UnsupportedOperationException("The PresentValueBlackCalculator visitor visitInterestRateFutureOptionPremiumTransaction requires a YieldCurveWithBlackCubeBundle as data.");

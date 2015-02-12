@@ -56,7 +56,7 @@ public class InterestRateFutureOptionBlackValueGammaPFunction extends InterestRa
     } else if (derivative instanceof InterestRateFutureOptionPremiumTransaction) {
       final InterestRateFutureOptionPremiumTransaction transaction = (InterestRateFutureOptionPremiumTransaction) derivative;
       gamma = PREMIUM_TRANSACTION_METHOD.presentValueGamma(transaction, data);
-      spot = PREMIUM_SECURITY_METHOD.underlyingFuturePrice(transaction.getUnderlyingOption(), data);
+      spot = PREMIUM_SECURITY_METHOD.underlyingFuturePrice(transaction.getUnderlyingSecurity(), data);
     } else {
       throw new OpenGammaRuntimeException("Could not handle derivatives of type " + derivative.getClass());
     }

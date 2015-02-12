@@ -48,7 +48,7 @@ public class InterestRateFutureOptionBlackForwardFunction extends InterestRateFu
       final double forward = irFutureOptionSecurity.accept(CALCULATOR, curveBundle);
       return Collections.singleton(new ComputedValue(spec, forward));
     } else if (irFutureOptionTransaction instanceof InterestRateFutureOptionPremiumTransaction) {
-      final InstrumentDerivative irFutureOptionSecurity = ((InterestRateFutureOptionPremiumTransaction) irFutureOptionTransaction).getUnderlyingOption();
+      final InstrumentDerivative irFutureOptionSecurity = ((InterestRateFutureOptionPremiumTransaction) irFutureOptionTransaction).getUnderlyingSecurity();
       final double forward = irFutureOptionSecurity.accept(CALCULATOR, curveBundle);
       return Collections.singleton(new ComputedValue(spec, forward));
     }

@@ -68,10 +68,10 @@ public class PresentValueBlackGammaCalculator extends InstrumentDerivativeVisito
     ArgumentChecker.notNull(curves, "curves");
     ArgumentChecker.notNull(option, "option");
     if (curves instanceof YieldCurveWithBlackCubeBundle) {
-      final InterestRateFutureOptionPremiumSecurity underlyingOption = option.getUnderlyingOption();
+      final InterestRateFutureOptionPremiumSecurity underlyingOption = option.getUnderlyingSecurity();
       final InterestRateFutureOptionMarginSecurity underlyingMarginedOption = new InterestRateFutureOptionMarginSecurity(underlyingOption.getUnderlyingFuture(), underlyingOption.getExpirationTime(),
           underlyingOption.getStrike(), underlyingOption.isCall());
-      final InterestRateFutureOptionMarginTransaction margined = new InterestRateFutureOptionMarginTransaction(underlyingMarginedOption, option.getQuantity(), option.getTradePrice());
+      final InterestRateFutureOptionMarginTransaction margined = new InterestRateFutureOptionMarginTransaction(underlyingMarginedOption, option.getQuantity(), option.getReferencePrice());
       return MARGINED_IR_FUTURE_OPTION_SEC.optionPriceGamma(margined.getUnderlyingSecurity(), (YieldCurveWithBlackCubeBundle) curves);
     }
     throw new UnsupportedOperationException("The PresentValueBlackCalculator visitor visitInterestRateFutureOptionPremiumTransaction requires a YieldCurveWithBlackCubeBundle as data.");
