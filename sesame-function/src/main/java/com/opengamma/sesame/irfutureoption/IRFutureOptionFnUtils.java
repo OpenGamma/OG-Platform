@@ -9,6 +9,8 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.future.derivative.FuturesTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionSecurity;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionTradeConverter;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
@@ -21,13 +23,15 @@ public class IRFutureOptionFnUtils {
 
   private IRFutureOptionFnUtils() { /* private constructor */ }
 
-  public static InstrumentDerivative createDerivative(IRFutureOptionTrade tradeWrapper,
+  public static FuturesTransaction<InterestRateFutureOptionSecurity> createDerivative(IRFutureOptionTrade tradeWrapper,
                                                       InterestRateFutureOptionTradeConverter converter,
                                                       ZonedDateTime valTime,
                                                       FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                                                       HistoricalTimeSeriesBundle fixings) {
     InstrumentDefinition<?> definition = converter.convert(tradeWrapper.getTrade());
-    return definitionToDerivativeConverter.convert(tradeWrapper.getSecurity(), definition, valTime, fixings);
+    InstrumentDerivative instrumentDerivative =
+        definitionToDerivativeConverter.convert(tradeWrapper.getSecurity(), definition, valTime, fixings);
+    return (FuturesTransaction<InterestRateFutureOptionSecurity>) instrumentDerivative;
   }
 
 }
