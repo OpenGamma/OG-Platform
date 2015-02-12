@@ -34,7 +34,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
 
 /**
- * Interest rate future option Black calculator.
+ * Interest rate future option Black Log-Normal calculator.
  */
 public class IRFutureOptionBlackCalculator implements IRFutureOptionCalculator {
 
@@ -111,31 +111,25 @@ public class IRFutureOptionBlackCalculator implements IRFutureOptionCalculator {
    * @param fixings the historical prices of the underlying interest rate future, not null.
    * @param curveLabellers map containing the per curve labellers
    */
-  public IRFutureOptionBlackCalculator(
-      IRFutureOptionTrade trade,
-      InterestRateFutureOptionTradeConverter converter,
-      BlackSTIRFuturesProviderInterface black,
-      ZonedDateTime valTime,
-      FixedIncomeConverterDataProvider definitionToDerivativeConverter,
-      HistoricalTimeSeriesBundle fixings,
-      Map<String, CurveMatrixLabeller> curveLabellers) {
-
-    _derivative = createInstrumentDerivative(ArgumentChecker.notNull(trade, "trade"),
-        ArgumentChecker.notNull(converter, "converter"),
-        ArgumentChecker.notNull(valTime, "valTime"),
-        ArgumentChecker.notNull(definitionToDerivativeConverter, "definitionToDerivativeConverter"),
-        ArgumentChecker.notNull(fixings, "fixings"));
+  public IRFutureOptionBlackCalculator(IRFutureOptionTrade trade,
+                                       InterestRateFutureOptionTradeConverter converter,
+                                       BlackSTIRFuturesProviderInterface black,
+                                       ZonedDateTime valTime,
+                                       FixedIncomeConverterDataProvider definitionToDerivativeConverter,
+                                       HistoricalTimeSeriesBundle fixings,
+                                       Map<String, CurveMatrixLabeller> curveLabellers) {
+    ArgumentChecker.notNull(trade, "trade");
+    ArgumentChecker.notNull(converter, "converter");
+    ArgumentChecker.notNull(valTime, "valTime");
+    ArgumentChecker.notNull(definitionToDerivativeConverter, "definitionToDerivativeConverter");
+    ArgumentChecker.notNull(fixings, "fixings");
+    _derivative = IRFutureOptionFnUtils.createDerivative(trade,
+                                                         converter,
+                                                         valTime,
+                                                         definitionToDerivativeConverter,
+                                                         fixings);
     _black = ArgumentChecker.notNull(black, "black");
     _curveLabellers = ArgumentChecker.notNull(curveLabellers, "curveLabellers");
-  }
-
-  private InstrumentDerivative createInstrumentDerivative(IRFutureOptionTrade tradeWrapper,
-      InterestRateFutureOptionTradeConverter converter,
-      ZonedDateTime valTime,
-      FixedIncomeConverterDataProvider definitionToDerivativeConverter,
-      HistoricalTimeSeriesBundle fixings) {
-    InstrumentDefinition<?> definition = converter.convert(tradeWrapper.getTrade());
-    return definitionToDerivativeConverter.convert(tradeWrapper.getSecurity(), definition, valTime, fixings);
   }
 
   @Override

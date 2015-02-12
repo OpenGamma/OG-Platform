@@ -22,7 +22,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 
 /**
- * Black calculator for interest rate future options.
+ * Black - Log-Normal calculator for interest rate future options.
  */
 public class IRFutureOptionBlackCalculatorFactory implements IRFutureOptionCalculatorFactory {
 
