@@ -109,7 +109,6 @@ import com.opengamma.util.function.Function;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.SuccessResult;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
@@ -123,8 +122,6 @@ public class IRFutureOptionFnTest {
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 1, 22);
   private static final LocalDate MARKET_DATA_DATE = LocalDate.of(2014, 2, 18);
   private static final double STD_TOLERANCE_PV = 1.0E-3;
-  //private static final Environment BLACK_ENV = new SimpleEnvironment(VALUATION_TIME, createBlackMarketDataBundle());
-  //private static final Environment NORMAL_ENV = new SimpleEnvironment(VALUATION_TIME, createBlackMarketDataBundle());
   private IRFutureOptionFn _blackIRFutureOptionFn;
   private IRFutureOptionFn _normalIRFutureOptionFn;
   private InterestRateFutureSecurity _irFuture = createIRFuture();

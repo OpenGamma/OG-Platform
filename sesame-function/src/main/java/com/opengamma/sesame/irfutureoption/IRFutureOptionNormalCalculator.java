@@ -2,7 +2,6 @@ package com.opengamma.sesame.irfutureoption;
 
 import java.util.Map;
 
-import com.opengamma.analytics.financial.interestrate.future.calculator.FuturesPriceMulticurveCalculator;
 import com.opengamma.analytics.financial.interestrate.future.calculator.FuturesPriceNormalSTIRFuturesCalculator;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FuturesTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionSecurity;
@@ -50,11 +49,10 @@ public class IRFutureOptionNormalCalculator implements IRFutureOptionCalculator 
   private final Map<String, CurveMatrixLabeller> _curveLabellers;
   private final NormalSTIRFuturesExpSimpleMoneynessProviderDiscount _normalMulticurve;
 
-
   public IRFutureOptionNormalCalculator(FuturesTransaction<InterestRateFutureOptionSecurity> derivative,
                                         NormalSTIRFuturesExpSimpleMoneynessProviderDiscount normalMulticurve,
                                         Map<String, CurveMatrixLabeller> curveLabellers) {
-    _normalMulticurve = ArgumentChecker.notNull(normalMulticurve, "normalMulticurves");
+    _normalMulticurve = ArgumentChecker.notNull(normalMulticurve, "normalMulticurve");
     _curveLabellers = ArgumentChecker.notNull(curveLabellers, "curveLabellers");
     _derivative = ArgumentChecker.notNull(derivative, "derivative");
   }
