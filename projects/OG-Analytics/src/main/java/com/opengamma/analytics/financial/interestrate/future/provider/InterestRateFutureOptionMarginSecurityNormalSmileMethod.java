@@ -95,12 +95,27 @@ public final class InterestRateFutureOptionMarginSecurityNormalSmileMethod exten
    * @return The security price curve sensitivity.
    */
   @Override
-  public MulticurveSensitivity priceCurveSensitivity(final InterestRateFutureOptionMarginSecurity security,
-      final NormalSTIRFuturesProviderInterface normalData) {
+  public MulticurveSensitivity priceCurveSensitivity(InterestRateFutureOptionMarginSecurity security,
+      NormalSTIRFuturesProviderInterface normalData) {
+    ArgumentChecker.notNull(security, "Option security");
+    ArgumentChecker.notNull(normalData, "Normal data");
+    double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), normalData.getMulticurveProvider());
+    return priceCurveSensitivityFromFuturePrice(security, normalData, priceFuture);
+  }
+  
+  /**
+   * Computes the option security price curve sensitivity.  with underlying futures price
+   * It is supposed that for a given strike the volatility does not change with the curves (sticky strike).
+   * @param security The future option security.
+   * @param normalData The normal volatility and multi-curves provider.
+   * @param priceFuture The price of the underlying future.
+   * @return The security price curve sensitivity.
+   */
+  public MulticurveSensitivity priceCurveSensitivityFromFuturePrice(InterestRateFutureOptionMarginSecurity security,
+      NormalSTIRFuturesProviderInterface normalData, double priceFuture) {
     ArgumentChecker.notNull(security, "Option security");
     ArgumentChecker.notNull(normalData, "Normal data");
     // Forward sweep
-    final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), normalData.getMulticurveProvider());
     final EuropeanVanillaOption option = new EuropeanVanillaOption(security.getStrike(), security.getExpirationTime(), security.isCall());
     final double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
     double volatility = normalData.getVolatility(security.getExpirationTime(), delay, security.getStrike(), priceFuture);
