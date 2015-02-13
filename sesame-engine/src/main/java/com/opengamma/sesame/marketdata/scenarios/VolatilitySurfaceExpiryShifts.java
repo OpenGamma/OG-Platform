@@ -165,15 +165,13 @@ public final class VolatilitySurfaceExpiryShifts implements Perturbation, Immuta
     return new VolatilitySurfaceExpiryShifts.Builder();
   }
 
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected VolatilitySurfaceExpiryShifts(VolatilitySurfaceExpiryShifts.Builder builder) {
-    JodaBeanUtils.notNull(builder._shiftType, "shiftType");
-    JodaBeanUtils.notNull(builder._shifts, "shifts");
-    this._shiftType = builder._shiftType;
-    this._shifts = ImmutableMap.copyOf(builder._shifts);
+  private VolatilitySurfaceExpiryShifts(
+      ShiftType shiftType,
+      Map<Tenor, Double> shifts) {
+    JodaBeanUtils.notNull(shiftType, "shiftType");
+    JodaBeanUtils.notNull(shifts, "shifts");
+    this._shiftType = shiftType;
+    this._shifts = ImmutableMap.copyOf(shifts);
   }
 
   @Override
@@ -246,25 +244,17 @@ public final class VolatilitySurfaceExpiryShifts implements Perturbation, Immuta
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("VolatilitySurfaceExpiryShifts{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("shiftType").append('=').append(getShiftType()).append(',').append(' ');
+    buf.append("shifts").append('=').append(JodaBeanUtils.toString(getShifts()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("shiftType").append('=').append(JodaBeanUtils.toString(getShiftType())).append(',').append(' ');
-    buf.append("shifts").append('=').append(JodaBeanUtils.toString(getShifts())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code VolatilitySurfaceExpiryShifts}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -292,7 +282,7 @@ public final class VolatilitySurfaceExpiryShifts implements Perturbation, Immuta
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -326,7 +316,7 @@ public final class VolatilitySurfaceExpiryShifts implements Perturbation, Immuta
      * The meta-property for the {@code shiftType} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ShiftType> shiftType() {
+    public MetaProperty<ShiftType> shiftType() {
       return _shiftType;
     }
 
@@ -334,7 +324,7 @@ public final class VolatilitySurfaceExpiryShifts implements Perturbation, Immuta
      * The meta-property for the {@code shifts} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Map<Tenor, Double>> shifts() {
+    public MetaProperty<Map<Tenor, Double>> shifts() {
       return _shifts;
     }
 
@@ -365,7 +355,7 @@ public final class VolatilitySurfaceExpiryShifts implements Perturbation, Immuta
   /**
    * The bean-builder for {@code VolatilitySurfaceExpiryShifts}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<VolatilitySurfaceExpiryShifts> {
+  public static final class Builder extends DirectFieldsBeanBuilder<VolatilitySurfaceExpiryShifts> {
 
     private ShiftType _shiftType;
     private Map<Tenor, Double> _shifts = new HashMap<Tenor, Double>();
@@ -373,14 +363,14 @@ public final class VolatilitySurfaceExpiryShifts implements Perturbation, Immuta
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(VolatilitySurfaceExpiryShifts beanToCopy) {
+    private Builder(VolatilitySurfaceExpiryShifts beanToCopy) {
       this._shiftType = beanToCopy.getShiftType();
       this._shifts = new HashMap<Tenor, Double>(beanToCopy.getShifts());
     }
@@ -440,7 +430,9 @@ public final class VolatilitySurfaceExpiryShifts implements Perturbation, Immuta
 
     @Override
     public VolatilitySurfaceExpiryShifts build() {
-      return new VolatilitySurfaceExpiryShifts(this);
+      return new VolatilitySurfaceExpiryShifts(
+          _shiftType,
+          _shifts);
     }
 
     //-----------------------------------------------------------------------
@@ -471,18 +463,10 @@ public final class VolatilitySurfaceExpiryShifts implements Perturbation, Immuta
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("VolatilitySurfaceExpiryShifts.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
+      buf.append("shiftType").append('=').append(JodaBeanUtils.toString(_shiftType)).append(',').append(' ');
+      buf.append("shifts").append('=').append(JodaBeanUtils.toString(_shifts));
       buf.append('}');
       return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
-      buf.append("shiftType").append('=').append(JodaBeanUtils.toString(_shiftType)).append(',').append(' ');
-      buf.append("shifts").append('=').append(JodaBeanUtils.toString(_shifts)).append(',').append(' ');
     }
 
   }
