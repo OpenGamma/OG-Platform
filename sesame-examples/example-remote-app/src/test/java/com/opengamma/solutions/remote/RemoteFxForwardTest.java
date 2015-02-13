@@ -1,6 +1,7 @@
 package com.opengamma.solutions.remote;
 
 
+import com.google.common.base.Objects;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
@@ -10,19 +11,12 @@ import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.integration.server.RemoteServer;
-import com.opengamma.sesame.CurveSelector;
-import com.opengamma.sesame.CurveSelectorMulticurveBundleFn;
-import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
-import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.CalculationArguments;
 import com.opengamma.sesame.engine.RemoteViewRunner;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.engine.ViewRunner;
-import com.opengamma.sesame.fxforward.DiscountingFXForwardPVFn;
-import com.opengamma.sesame.fxforward.FXForwardPVFn;
-import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.solutions.util.FxForwardViewUtils;
@@ -36,23 +30,19 @@ import org.threeten.bp.Instant;
 import java.net.URI;
 import java.util.List;
 
-import static com.opengamma.sesame.config.ConfigBuilder.argument;
-import static com.opengamma.sesame.config.ConfigBuilder.arguments;
-import static com.opengamma.sesame.config.ConfigBuilder.column;
-import static com.opengamma.sesame.config.ConfigBuilder.config;
-import static com.opengamma.sesame.config.ConfigBuilder.configureView;
-import static com.opengamma.sesame.config.ConfigBuilder.function;
-import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-@Test(groups = TestGroup.INTEGRATION, enabled = true)
+@Test(groups = TestGroup.INTEGRATION)
 public class RemoteFxForwardTest {
 
-  private static final String URL = "http://localhost:8080/jax";
+
   private ConfigLink<ExposureFunctions> _exposureConfig;
   private ConfigLink<CurrencyMatrix> _currencyMatrixLink;
-  private List<Object> _inputs = FxForwardViewUtils.FX_SECURITY_INPUTS; //Note: FX Forward Present Value function currently works on security not trade
+
+  private List<Object> _inputs = FxForwardViewUtils.FX_SECURITY_INPUTS;
+  //Note: FX Forward Present Value function currently works on security not trade
+
   private ViewRunner _viewRunner;
   private CalculationArguments _calculationArguments;
   private MarketDataEnvironment _marketDataEnvironment;
@@ -62,10 +52,11 @@ public class RemoteFxForwardTest {
 
   @BeforeClass
   public void setUp() {
+    String url = Objects.firstNonNull(System.getProperty("server.url"), RemoteTestUtils.LOCALHOST);
 
-    _viewRunner = new RemoteViewRunner(URI.create(URL));
+    _viewRunner = new RemoteViewRunner(URI.create(url));
 
-    _remoteServer = RemoteServer.create(URL);
+    _remoteServer = RemoteServer.create(url);
 
     MarketDataSnapshotSource snapshotSource = _remoteServer.getMarketDataSnapshotSource();
     ManageableMarketDataSnapshot snapshot = snapshotSource.getSingle(ManageableMarketDataSnapshot.class,
@@ -86,38 +77,21 @@ public class RemoteFxForwardTest {
     _exposureConfig = ConfigLink.resolvable("USD-GBP-FF-1", ExposureFunctions.class);
     _currencyMatrixLink = ConfigLink.resolvable("BBG-Matrix", CurrencyMatrix.class);
 
-    _viewConfig = createViewConfig();
+    _viewConfig = FxForwardViewUtils.createViewConfig(_exposureConfig, _currencyMatrixLink);
 
   }
 
 
   @Test(enabled = true)
-  public void testSingleSwapPVExecution() {
+  public void testSingleFxForwardPVExecution() {
     // TODO check with analytics
     Results results = _viewRunner.runView(_viewConfig, _calculationArguments, _marketDataEnvironment, _inputs);
     Result result = results.get(0, OutputNames.FX_PRESENT_VALUE).getResult();
+    System.out.println(result.getValue());
     assertThat(result.isSuccess(), is(true));
 
   }
 
-  private ViewConfig createViewConfig() {
-    return
-        configureView(
-            "IRS Remote view",
-            config(
-                arguments(
-                    function(
-                        MarketExposureSelector.class,
-                        argument("exposureFunctions", _exposureConfig)),
-                    function(
-                        DefaultHistoricalMarketDataFn.class,
-                        argument("currencyMatrix", _currencyMatrixLink))),
-                implementations(
-                    CurveSelector.class, MarketExposureSelector.class,
-                    DiscountingMulticurveCombinerFn.class, CurveSelectorMulticurveBundleFn.class,
-                    FXForwardPVFn.class, DiscountingFXForwardPVFn.class)),
-            column(OutputNames.FX_PRESENT_VALUE));
-  }
 
 
 }
