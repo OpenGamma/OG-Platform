@@ -21,7 +21,7 @@ import com.opengamma.sesame.trade.IRFutureOptionTrade;
 /**
  * Utility class for interest rate options functions
  */
-public class IRFutureOptionFnUtils {
+public final class IRFutureOptionFnUtils {
 
   private IRFutureOptionFnUtils() { /* private constructor */ }
 
