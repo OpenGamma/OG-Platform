@@ -56,7 +56,7 @@ import static org.hamcrest.core.Is.is;
  * and a the curve bundle used to price the swap.
  */
 
-@Test(groups = TestGroup.INTEGRATION, enabled = true)
+@Test(groups = TestGroup.INTEGRATION, enabled = false)
 public class ThirdPartyRemoteTest {
 
   private static final String URL = "http://localhost:8080/jax";
@@ -105,7 +105,7 @@ public class ThirdPartyRemoteTest {
 
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void testSingleSwapPVExecution() {
 
     Results results = _viewRunner.runView(_viewConfig, _calculationArguments, _marketDataEnvironment, _inputs);

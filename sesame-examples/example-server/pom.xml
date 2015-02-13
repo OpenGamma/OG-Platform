@@ -12,7 +12,7 @@
   </parent>
   <groupId>com.opengamma.solutions</groupId>
   <artifactId>example-server</artifactId>
-  <version>0.8-SNAPSHOT</version>
+  <version>${og.version}</version>
 
   <dependencies>
     <!-- OG Platform -->
@@ -59,10 +59,11 @@
       <scope>test</scope>
     </dependency>
 
-    <dependency> <!--Dependency is needed to incorporate 3rd Party Integration-->
+    <!--Dependency is needed to incorporate 3rd Party Integration-->
+    <dependency>
       <groupId>com.opengamma.solutions</groupId>
       <artifactId>example-remote-app</artifactId>
-      <version>0.8-SNAPSHOT</version>
+      <version>${og.version}</version>
     </dependency>
 
   </dependencies>
@@ -128,7 +129,7 @@
   </build>
 
   <properties>
-    <og.version>2.9.0-M1</og.version>
+    <og.version>2.9.0</og.version>
   </properties>
 
 </project>
