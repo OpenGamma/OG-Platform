@@ -237,7 +237,7 @@
   </pluginRepositories>
 
   <properties>
-    <og.version>2.9.0-SNAPSHOT</og.version>
+    <og.version>2.9.0-M1</og.version>
     <guice.version>3.0</guice.version>
     <brooklyn.location>http://127.0.0.1:8081</brooklyn.location>
     <blueprint>${project.build.testOutputDirectory}/blueprints/fullstack.yaml</blueprint>

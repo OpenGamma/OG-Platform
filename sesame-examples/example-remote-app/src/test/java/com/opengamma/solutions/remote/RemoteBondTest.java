@@ -5,19 +5,6 @@
  */
 package com.opengamma.solutions.remote;
 
-import static com.opengamma.sesame.config.ConfigBuilder.configureView;
-import static com.opengamma.util.result.ResultTestUtils.assertSuccess;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.closeTo;
-
-import java.net.URI;
-import java.util.List;
-
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
 import com.google.common.base.Objects;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
@@ -42,6 +29,18 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import java.net.URI;
+import java.util.List;
+
+import static com.opengamma.sesame.config.ConfigBuilder.configureView;
+import static com.opengamma.util.result.ResultTestUtils.assertSuccess;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
 
 /**
  * Integration tests run against a remote server
