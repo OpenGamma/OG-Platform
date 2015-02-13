@@ -138,16 +138,13 @@ public class IRFutureOptionFnTest {
       CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR,
                                                               Interpolator1DFactory.FLAT_EXTRAPOLATOR,
                                                               Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
-
   private static final InterpolatedDoublesSurface TEST_SURFACE = InterpolatedDoublesSurface.from(
-      new double[] { 10, 20, 30 },
-      new double[] { 10, 20, 30 },
-      new double[] { 10, 20, 30 },
+      new double[] { .1, .2, .3 },
+      new double[] { .1, .2, .3 },
+      new double[] { .1, .2, .3 },
       INTERPOLATOR_2D
   );
-
 
   private static MarketDataEnvironment createSuppliedData() {
 
@@ -302,7 +299,7 @@ public class IRFutureOptionFnTest {
     ExerciseType exerciseType = new EuropeanExerciseType();
     double pointValue = Double.NaN;
     boolean margined = true;
-    double strike = 0.01;
+    double strike = 0.99;
     OptionType optionType = OptionType.PUT;
     ExternalId irFutureId = Iterables.getOnlyElement(_irFuture.getExternalIdBundle());
     IRFutureOptionSecurity irFutureOption = new IRFutureOptionSecurity(exchange, 
@@ -318,7 +315,7 @@ public class IRFutureOptionFnTest {
     irFutureOption.setExternalIdBundle(ExternalSchemes.syntheticSecurityId("Test future option").toBundle());
     
     Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
-    BigDecimal tradeQuantity = BigDecimal.valueOf(10);
+    BigDecimal tradeQuantity = BigDecimal.valueOf(1);
     SimpleTrade trade = new SimpleTrade(irFutureOption, tradeQuantity, counterparty, TRADE_DATE, TRADE_TIME);
     trade.setPremium(10.0);
     trade.setPremiumCurrency(Currency.USD);
@@ -337,13 +334,13 @@ public class IRFutureOptionFnTest {
     assertSuccess(result);
 
     MultipleCurrencyAmount mca = result.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-9725.050680, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-972.460677, STD_TOLERANCE_PV)));
   }
 
   @Test
   public void testBlackBucketedZeroDelta() {
     Result<BucketedCurveSensitivities> result = _functionRunner.runFunction(
-        ARGS, createSuppliedData(), new Function<Environment,Result<BucketedCurveSensitivities>>() {
+        ARGS, createSuppliedData(), new Function<Environment, Result<BucketedCurveSensitivities>>() {
           @Override
           public Result<BucketedCurveSensitivities> apply(Environment env) {
             return _blackIRFutureOptionFn.calculateBucketedZeroIRDelta(env, _irFutureOptionTrade);
@@ -363,7 +360,21 @@ public class IRFutureOptionFnTest {
         });
     assertSuccess(result);
     MultipleCurrencyAmount mca = result.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(10936.182601, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-902.7156551, STD_TOLERANCE_PV)));
+  }
+
+  @Test
+  public void testNormalPrice() {
+    Result<Double> result = _functionRunner.runFunction(
+        ARGS, createSuppliedData(), new Function<Environment,Result<Double>>() {
+          @Override
+          public Result<Double> apply(Environment env) {
+            return _normalIRFutureOptionFn.calculateModelPrice(env, _irFutureOptionTrade);
+          }
+        });
+    assertSuccess(result);
+    Double price = result.getValue();
+    assertThat(price, is(closeTo(0.072284344, STD_TOLERANCE_PV)));
   }
 
   @Test
@@ -377,6 +388,5 @@ public class IRFutureOptionFnTest {
         });
     assertSuccess(result);
   }
-  
 
 }

@@ -60,7 +60,6 @@ public class IRFutureOptionNormalCalculator implements IRFutureOptionCalculator 
  * @param normalSurface the normal surface provider
  * @param curveLabellers curve labellers for the multicurve
  */
-
   public IRFutureOptionNormalCalculator(FuturesTransaction<InterestRateFutureOptionSecurity> derivative,
                                         NormalSTIRFuturesExpSimpleMoneynessProviderDiscount normalSurface,
                                         Map<String, CurveMatrixLabeller> curveLabellers) {

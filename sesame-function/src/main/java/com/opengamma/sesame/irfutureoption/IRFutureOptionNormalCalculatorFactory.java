@@ -8,6 +8,8 @@ package com.opengamma.sesame.irfutureoption;
 import java.util.Map;
 import java.util.Set;
 
+import org.threeten.bp.LocalDate;
+
 import com.opengamma.analytics.financial.interestrate.future.derivative.FuturesTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
@@ -40,6 +42,8 @@ public class IRFutureOptionNormalCalculatorFactory implements IRFutureOptionCalc
   private final DiscountingMulticurveCombinerFn _multicurveFn;
   private final boolean _moneynessOnPrice;
   private final String _volSurfaceName;
+  private static final Result<HistoricalTimeSeriesBundle> EMPTY_BUNDLE = Result.success(new HistoricalTimeSeriesBundle());
+
 
   /**
    * Constructs a calculator factory for interest rate future options that will create a Normal calculator.
@@ -66,17 +70,15 @@ public class IRFutureOptionNormalCalculatorFactory implements IRFutureOptionCalc
     _multicurveFn = ArgumentChecker.notNull(multicurveFn, "multicurveFn");
     _moneynessOnPrice = ArgumentChecker.notNull(moneynessOnPrice, "moneynessOnPrice");
     _volSurfaceName = ArgumentChecker.notNull(volSurfaceName, "volSurfaceName");
-
   }
 
   @Override
   public Result<IRFutureOptionCalculator> createCalculator(Environment env, IRFutureOptionTrade trade) {
 
-    IRFutureOptionSecurity security = trade.getSecurity();
     Result<MulticurveBundle> multicurveBundle = _multicurveFn.getMulticurveBundle(env, trade);
     Result<VolatilitySurface> surfaceResult =
         env.getMarketDataBundle().get(VolatilitySurfaceId.of(_volSurfaceName), VolatilitySurface.class);
-    Result<HistoricalTimeSeriesBundle> fixingsResult = _fixingsFn.getFixingsForSecurity(env, security);
+    Result<HistoricalTimeSeriesBundle> fixingsResult = getTimeSeries(env, trade);
 
     if (Result.anyFailures(multicurveBundle, surfaceResult, fixingsResult)) {
       return Result.failure(multicurveBundle, surfaceResult, fixingsResult);
@@ -93,30 +95,46 @@ public class IRFutureOptionNormalCalculatorFactory implements IRFutureOptionCalc
     MulticurveBundle bundle = multicurveBundle.getValue();
 
     InterestRateFutureSecurity underlyingFuture = derivative.getUnderlyingSecurity().getUnderlyingFuture();
-    NormalSTIRFuturesExpSimpleMoneynessProviderDiscount normalMulticurve =
+    NormalSTIRFuturesExpSimpleMoneynessProviderDiscount normalSurface =
         new NormalSTIRFuturesExpSimpleMoneynessProviderDiscount(bundle.getMulticurveProvider(),
                                                                 volSurface.getSurface(),
                                                                 underlyingFuture.getIborIndex(),
                                                                 _moneynessOnPrice);
 
-    Set<String> curveNames = normalMulticurve.getMulticurveProvider().getAllCurveNames();
+    Set<String> curveNames = normalSurface.getMulticurveProvider().getAllCurveNames();
     Result<Map<String, CurveMatrixLabeller>> curveLabellers = _curveLabellingFn.getCurveLabellers(curveNames);
 
     if (Result.anyFailures(curveLabellers)) {
      return Result.failure(curveLabellers);
     }
 
-    IRFutureOptionCalculator calculator = getCalculator(derivative, normalMulticurve, curveLabellers.getValue());
+    IRFutureOptionCalculator calculator = getCalculator(derivative, normalSurface, curveLabellers.getValue());
 
     return Result.success(calculator);
 
   }
 
+  /**
+   * Create an instance of a IRFutureOptionCalculator, can be overwritten to return alternative calculators
+   *
+   * @param derivative FuturesTransaction for InterestRateFutureOptionSecurity
+   * @param normalSurface the normal surface provider
+   * @param curveLabellers curve labellers for the multicurve
+   *
+   * @return IRFutureOptionCalculator, in this instance an IRFutureOptionNormalCalculator
+   */
   protected IRFutureOptionCalculator getCalculator(FuturesTransaction<InterestRateFutureOptionSecurity> derivative,
-                                                   NormalSTIRFuturesExpSimpleMoneynessProviderDiscount normalMulticurve,
+                                                   NormalSTIRFuturesExpSimpleMoneynessProviderDiscount normalSurface,
                                                    Map<String, CurveMatrixLabeller> curveLabellers) {
+    return new IRFutureOptionNormalCalculator(derivative, normalSurface, curveLabellers);
+  }
 
-    return new IRFutureOptionNormalCalculator(derivative, normalMulticurve, curveLabellers);
+  private Result<HistoricalTimeSeriesBundle> getTimeSeries(Environment env, IRFutureOptionTrade trade) {
+    if (IRFutureOptionFnUtils.requiresTimeSeries(env.getValuationDate(), trade)) {
+      return _fixingsFn.getFixingsForSecurity(env, trade.getSecurity());
+    } else {
+      return EMPTY_BUNDLE;
+    }
   }
 
 }
