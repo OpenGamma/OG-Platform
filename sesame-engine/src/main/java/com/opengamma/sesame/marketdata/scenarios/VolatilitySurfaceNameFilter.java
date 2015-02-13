@@ -89,13 +89,10 @@ public final class VolatilitySurfaceNameFilter implements MarketDataFilter, Immu
     return new VolatilitySurfaceNameFilter.Builder();
   }
 
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected VolatilitySurfaceNameFilter(VolatilitySurfaceNameFilter.Builder builder) {
-    JodaBeanUtils.notNull(builder._name, "name");
-    this._name = builder._name;
+  private VolatilitySurfaceNameFilter(
+      String name) {
+    JodaBeanUtils.notEmpty(name, "name");
+    this._name = name;
   }
 
   @Override
@@ -116,7 +113,7 @@ public final class VolatilitySurfaceNameFilter implements MarketDataFilter, Immu
   //-----------------------------------------------------------------------
   /**
    * Gets the name of the volatility surface.
-   * @return the value of the property, not null
+   * @return the value of the property, not empty
    */
   public String getName() {
     return _name;
@@ -154,24 +151,16 @@ public final class VolatilitySurfaceNameFilter implements MarketDataFilter, Immu
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("VolatilitySurfaceNameFilter{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code VolatilitySurfaceNameFilter}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -192,7 +181,7 @@ public final class VolatilitySurfaceNameFilter implements MarketDataFilter, Immu
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -224,7 +213,7 @@ public final class VolatilitySurfaceNameFilter implements MarketDataFilter, Immu
      * The meta-property for the {@code name} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> name() {
+    public MetaProperty<String> name() {
       return _name;
     }
 
@@ -253,21 +242,21 @@ public final class VolatilitySurfaceNameFilter implements MarketDataFilter, Immu
   /**
    * The bean-builder for {@code VolatilitySurfaceNameFilter}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<VolatilitySurfaceNameFilter> {
+  public static final class Builder extends DirectFieldsBeanBuilder<VolatilitySurfaceNameFilter> {
 
     private String _name;
 
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(VolatilitySurfaceNameFilter beanToCopy) {
+    private Builder(VolatilitySurfaceNameFilter beanToCopy) {
       this._name = beanToCopy.getName();
     }
 
@@ -320,17 +309,18 @@ public final class VolatilitySurfaceNameFilter implements MarketDataFilter, Immu
 
     @Override
     public VolatilitySurfaceNameFilter build() {
-      return new VolatilitySurfaceNameFilter(this);
+      return new VolatilitySurfaceNameFilter(
+          _name);
     }
 
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code name} property in the builder.
-     * @param name  the new value, not null
+     * @param name  the new value, not empty
      * @return this, for chaining, not null
      */
     public Builder name(String name) {
-      JodaBeanUtils.notNull(name, "name");
+      JodaBeanUtils.notEmpty(name, "name");
       this._name = name;
       return this;
     }
@@ -340,17 +330,9 @@ public final class VolatilitySurfaceNameFilter implements MarketDataFilter, Immu
     public String toString() {
       StringBuilder buf = new StringBuilder(64);
       buf.append("VolatilitySurfaceNameFilter.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
+      buf.append("name").append('=').append(JodaBeanUtils.toString(_name));
       buf.append('}');
       return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
-      buf.append("name").append('=').append(JodaBeanUtils.toString(_name)).append(',').append(' ');
     }
 
   }

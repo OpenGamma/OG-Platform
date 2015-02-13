@@ -70,13 +70,10 @@ public final class VolatilitySurfaceId implements MarketDataId<VolatilitySurface
     return new VolatilitySurfaceId.Builder();
   }
 
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected VolatilitySurfaceId(VolatilitySurfaceId.Builder builder) {
-    JodaBeanUtils.notNull(builder._name, "name");
-    this._name = builder._name;
+  private VolatilitySurfaceId(
+      String name) {
+    JodaBeanUtils.notEmpty(name, "name");
+    this._name = name;
   }
 
   @Override
@@ -97,7 +94,7 @@ public final class VolatilitySurfaceId implements MarketDataId<VolatilitySurface
   //-----------------------------------------------------------------------
   /**
    * Gets the name of the volatility surface.
-   * @return the value of the property, not null
+   * @return the value of the property, not empty
    */
   public String getName() {
     return _name;
@@ -135,24 +132,16 @@ public final class VolatilitySurfaceId implements MarketDataId<VolatilitySurface
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("VolatilitySurfaceId{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code VolatilitySurfaceId}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -173,7 +162,7 @@ public final class VolatilitySurfaceId implements MarketDataId<VolatilitySurface
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -205,7 +194,7 @@ public final class VolatilitySurfaceId implements MarketDataId<VolatilitySurface
      * The meta-property for the {@code name} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> name() {
+    public MetaProperty<String> name() {
       return _name;
     }
 
@@ -234,21 +223,21 @@ public final class VolatilitySurfaceId implements MarketDataId<VolatilitySurface
   /**
    * The bean-builder for {@code VolatilitySurfaceId}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<VolatilitySurfaceId> {
+  public static final class Builder extends DirectFieldsBeanBuilder<VolatilitySurfaceId> {
 
     private String _name;
 
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(VolatilitySurfaceId beanToCopy) {
+    private Builder(VolatilitySurfaceId beanToCopy) {
       this._name = beanToCopy.getName();
     }
 
@@ -301,17 +290,18 @@ public final class VolatilitySurfaceId implements MarketDataId<VolatilitySurface
 
     @Override
     public VolatilitySurfaceId build() {
-      return new VolatilitySurfaceId(this);
+      return new VolatilitySurfaceId(
+          _name);
     }
 
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code name} property in the builder.
-     * @param name  the new value, not null
+     * @param name  the new value, not empty
      * @return this, for chaining, not null
      */
     public Builder name(String name) {
-      JodaBeanUtils.notNull(name, "name");
+      JodaBeanUtils.notEmpty(name, "name");
       this._name = name;
       return this;
     }
@@ -321,17 +311,9 @@ public final class VolatilitySurfaceId implements MarketDataId<VolatilitySurface
     public String toString() {
       StringBuilder buf = new StringBuilder(64);
       buf.append("VolatilitySurfaceId.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
+      buf.append("name").append('=').append(JodaBeanUtils.toString(_name));
       buf.append('}');
       return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
-      buf.append("name").append('=').append(JodaBeanUtils.toString(_name)).append(',').append(' ');
     }
 
   }
