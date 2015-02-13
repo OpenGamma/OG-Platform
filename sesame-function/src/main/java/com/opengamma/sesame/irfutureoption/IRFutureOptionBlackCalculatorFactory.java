@@ -23,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 
 /**
- * Black calculator for interest rate future options.
+ * Black - Log-Normal calculator for interest rate future options.
  */
 public class IRFutureOptionBlackCalculatorFactory implements IRFutureOptionCalculatorFactory {
 
@@ -106,19 +106,8 @@ public class IRFutureOptionBlackCalculatorFactory implements IRFutureOptionCalcu
 
   }
 
-  /**
-   * Is a time series of margin prices required. Not required if valued on trade date
-   *
-   * @param valuationDate the valuation date
-   * @param trade the trade date
-   * @return true if required, else false
-   */
-  private static boolean requiresTimeSeries(LocalDate valuationDate, IRFutureOptionTrade trade) {
-    return !valuationDate.equals(trade.getTrade().getTradeDate());
-  }
-
   private Result<HistoricalTimeSeriesBundle> getTimeSeries(Environment env, IRFutureOptionTrade trade) {
-    if (requiresTimeSeries(env.getValuationDate(), trade)) {
+    if (IRFutureOptionFnUtils.requiresTimeSeries(env.getValuationDate(), trade)) {
       return _fixingsFn.getFixingsForSecurity(env, trade.getSecurity());
     } else {
       return EMPTY_BUNDLE;
