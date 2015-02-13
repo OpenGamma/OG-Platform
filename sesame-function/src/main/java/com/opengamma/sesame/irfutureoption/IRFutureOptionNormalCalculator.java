@@ -47,54 +47,61 @@ public class IRFutureOptionNormalCalculator implements IRFutureOptionCalculator 
 
   private final FuturesTransaction<InterestRateFutureOptionSecurity> _derivative;
   private final Map<String, CurveMatrixLabeller> _curveLabellers;
-  private final NormalSTIRFuturesExpSimpleMoneynessProviderDiscount _normalMulticurve;
+  private final NormalSTIRFuturesExpSimpleMoneynessProviderDiscount _normalSurface;
+
+/**
+ * Constructs a interest rate future options Normal calculator.
+ * @param derivative FuturesTransaction for InterestRateFutureOptionSecurity
+ * @param normalSurface the normal surface provider
+ * @param curveLabellers curve labellers for the multicurve
+ */
 
   public IRFutureOptionNormalCalculator(FuturesTransaction<InterestRateFutureOptionSecurity> derivative,
-                                        NormalSTIRFuturesExpSimpleMoneynessProviderDiscount normalMulticurve,
+                                        NormalSTIRFuturesExpSimpleMoneynessProviderDiscount normalSurface,
                                         Map<String, CurveMatrixLabeller> curveLabellers) {
-    _normalMulticurve = ArgumentChecker.notNull(normalMulticurve, "normalMulticurve");
+    _normalSurface = ArgumentChecker.notNull(normalSurface, "normalSurface");
     _curveLabellers = ArgumentChecker.notNull(curveLabellers, "curveLabellers");
     _derivative = ArgumentChecker.notNull(derivative, "derivative");
   }
 
   @Override
   public Result<MultipleCurrencyAmount> calculatePV() {
-    return Result.success(_derivative.accept(PV_CALC, _normalMulticurve));
+    return Result.success(_derivative.accept(PV_CALC, _normalSurface));
   }
 
   @Override
   public Result<MultipleCurrencyMulticurveSensitivity> calculatePV01() {
-    return Result.success(_derivative.accept(PV01_CALC, _normalMulticurve));
+    return Result.success(_derivative.accept(PV01_CALC, _normalSurface));
   }
 
   @Override
   public Result<Double> calculateModelPrice() {
-    return Result.success(_derivative.accept(PRICE_CALC, _normalMulticurve));
+    return Result.success(_derivative.accept(PRICE_CALC, _normalSurface));
   }
 
   @Override
   public Result<Double> calculateDelta() {
-    return Result.success(_derivative.accept(DELTA_CALC, _normalMulticurve));
+    return Result.success(_derivative.accept(DELTA_CALC, _normalSurface));
   }
 
   @Override
   public Result<Double> calculateGamma() {
-    return Result.success(_derivative.accept(GAMMA_CALC, _normalMulticurve));
+    return Result.success(_derivative.accept(GAMMA_CALC, _normalSurface));
   }
 
   @Override
   public Result<Double> calculateVega() {
-    return Result.success(_derivative.accept(VEGA_CALC, _normalMulticurve));
+    return Result.success(_derivative.accept(VEGA_CALC, _normalSurface));
   }
 
   @Override
   public Result<Double> calculateTheta() {
-    return Result.success(_derivative.accept(THETA_CALC, _normalMulticurve));
+    return Result.success(_derivative.accept(THETA_CALC, _normalSurface));
   }
 
   @Override
   public Result<BucketedCurveSensitivities> calculateBucketedZeroIRDelta() {
-    MultipleCurrencyParameterSensitivity sensitivities = PSSFC.calculateSensitivity(_derivative, _normalMulticurve);
+    MultipleCurrencyParameterSensitivity sensitivities = PSSFC.calculateSensitivity(_derivative, _normalSurface);
     BucketedCurveSensitivities bucketedCurveSensitivities =
         ZeroIRDeltaBucketingUtils.getBucketedCurveSensitivities(sensitivities, _curveLabellers);
 

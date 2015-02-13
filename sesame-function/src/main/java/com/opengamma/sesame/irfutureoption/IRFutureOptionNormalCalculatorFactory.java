@@ -37,6 +37,16 @@ public class IRFutureOptionNormalCalculatorFactory implements IRFutureOptionCalc
   private final boolean _moneynessOnPrice;
   private final String _volSurfaceName;
 
+  /**
+   * Constructs a calculator factory for interest rate future options that will create a Normal calculator.
+   * @param converter converter used to create the definition of the interest rate future option, not null.
+   * @param definitionToDerivativeConverter converter used to create the derivative of the future option, not null.
+   * @param multicurveFn function used to retrieve the multicurve bundle
+   * @param fixingsFn function used to retrieve the historical prices of the underlying interest rate future.
+   * @param curveLabellingFn function used to retrieve curve labellers for the multicurve
+   * @param moneynessOnPrice flag indicating if the moneyness is on the price (true) or on the rate (false).
+   * @param volSurfaceName name of the volatility surface
+   */
   public IRFutureOptionNormalCalculatorFactory(InterestRateFutureOptionTradeConverter converter,
                                                FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                                                DiscountingMulticurveCombinerFn multicurveFn,
@@ -92,11 +102,17 @@ public class IRFutureOptionNormalCalculatorFactory implements IRFutureOptionCalc
      return Result.failure(curveLabellers);
     }
 
-    IRFutureOptionCalculator calculator = new IRFutureOptionNormalCalculator(derivative,
-                                                                             normalMulticurve,
-                                                                             curveLabellers.getValue());
+    IRFutureOptionCalculator calculator = getCalculator(derivative, normalMulticurve, curveLabellers.getValue());
+
     return Result.success(calculator);
 
+  }
+
+  protected IRFutureOptionCalculator getCalculator(FuturesTransaction<InterestRateFutureOptionSecurity> derivative,
+                                                   NormalSTIRFuturesExpSimpleMoneynessProviderDiscount normalMulticurve,
+                                                   Map<String, CurveMatrixLabeller> curveLabellers) {
+
+    return new IRFutureOptionNormalCalculator(derivative, normalMulticurve, curveLabellers);
   }
 
 }
