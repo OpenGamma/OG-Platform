@@ -54,12 +54,12 @@ public class IRFutureOptionNormalCalculator implements IRFutureOptionCalculator 
   private final Map<String, CurveMatrixLabeller> _curveLabellers;
   private final NormalSTIRFuturesExpSimpleMoneynessProviderDiscount _normalSurface;
 
-/**
- * Constructs a interest rate future options Normal calculator.
- * @param derivative FuturesTransaction for InterestRateFutureOptionSecurity
- * @param normalSurface the normal surface provider
- * @param curveLabellers curve labellers for the multicurve
- */
+  /**
+   * Constructs a interest rate future options Normal calculator.
+   * @param derivative FuturesTransaction for InterestRateFutureOptionSecurity
+   * @param normalSurface the normal surface provider
+   * @param curveLabellers curve labellers for the multicurve
+   */
   public IRFutureOptionNormalCalculator(FuturesTransaction<InterestRateFutureOptionSecurity> derivative,
                                         NormalSTIRFuturesExpSimpleMoneynessProviderDiscount normalSurface,
                                         Map<String, CurveMatrixLabeller> curveLabellers) {

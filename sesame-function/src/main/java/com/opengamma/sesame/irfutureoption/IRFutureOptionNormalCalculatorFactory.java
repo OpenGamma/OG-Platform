@@ -8,8 +8,6 @@ package com.opengamma.sesame.irfutureoption;
 import java.util.Map;
 import java.util.Set;
 
-import org.threeten.bp.LocalDate;
-
 import com.opengamma.analytics.financial.interestrate.future.derivative.FuturesTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
@@ -18,7 +16,6 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Norma
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionTradeConverter;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.sesame.CurveLabellingFn;
 import com.opengamma.sesame.CurveMatrixLabeller;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
@@ -43,7 +40,6 @@ public class IRFutureOptionNormalCalculatorFactory implements IRFutureOptionCalc
   private final boolean _moneynessOnPrice;
   private final String _volSurfaceName;
   private static final Result<HistoricalTimeSeriesBundle> EMPTY_BUNDLE = Result.success(new HistoricalTimeSeriesBundle());
-
 
   /**
    * Constructs a calculator factory for interest rate future options that will create a Normal calculator.
@@ -135,6 +131,7 @@ public class IRFutureOptionNormalCalculatorFactory implements IRFutureOptionCalc
     } else {
       return EMPTY_BUNDLE;
     }
+
   }
 
 }

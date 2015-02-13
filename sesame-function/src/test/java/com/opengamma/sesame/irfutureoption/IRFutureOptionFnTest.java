@@ -147,10 +147,8 @@ public class IRFutureOptionFnTest {
   );
 
   private static MarketDataEnvironment createSuppliedData() {
-
     LocalDateDoubleTimeSeries optionPrice = ImmutableLocalDateDoubleTimeSeries.of(VALUATION_TIME.toLocalDate(), 0.975);
     RawId<Double> optionRawId = RawId.of(ExternalSchemes.syntheticSecurityId("Test future option").toBundle());
-
     MarketDataEnvironmentBuilder builder = new MarketDataEnvironmentBuilder();
     builder.add(optionRawId, optionPrice);
     builder.add(VolatilitySurfaceId.of("TestSurface"), new VolatilitySurface(TEST_SURFACE));
