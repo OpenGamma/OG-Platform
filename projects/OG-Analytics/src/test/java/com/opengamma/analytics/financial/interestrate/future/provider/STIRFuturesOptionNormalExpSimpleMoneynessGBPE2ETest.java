@@ -271,6 +271,135 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessGBPE2ETest {
   }
 
   /**
+   * Underlying price and option value is rounded
+   */
+  @Test
+  public void withRoundingTest() {
+    InterestRateFutureOptionMarginSecurity futureOptionQ = TRANSACTION_Q.getUnderlyingSecurity();
+    InterestRateFutureSecurity futureQ = futureOptionQ.getUnderlyingFuture();
+    double futurePriceQ = rounding(METHOD_FUTURE.price(futureQ, NORMAL_MULTICURVES.getMulticurveProvider()));
+    double optionPriceQ = rounding(METHOD_OPTION.priceFromFuturePrice(futureOptionQ, NORMAL_MULTICURVES, futurePriceQ) * 100.0);
+    MultipleCurrencyAmount pvQ = METHOD_OPTION_MARGIN_TRANSA.presentValueFromFuturePrice(TRANSACTION_Q,
+        NORMAL_MULTICURVES, futurePriceQ);
+    double pvQRounded = rounding(pvQ.getAmount(GBP));
+    MultipleCurrencyMulticurveSensitivity pvSenseQ = METHOD_OPTION_MARGIN_TRANSA
+        .presentValueCurveSensitivityFromPrice(TRANSACTION_Q, NORMAL_MULTICURVES, futurePriceQ);
+    MultipleCurrencyParameterSensitivity bucketedPv01QUnscaled = PSSFC.pointToParameterSensitivity(pvSenseQ,
+        NORMAL_MULTICURVES);
+    String curveName = NORMAL_MULTICURVES.getMulticurveProvider().getName(GBPLIBOR3M);
+    double[] bucketedPv01QRounded = rounding(bucketedPv01QUnscaled.multipliedBy(BP1)
+        .getSensitivity(NORMAL_MULTICURVES.getMulticurveProvider().getName(GBPLIBOR3M), GBP).getData());
+    double pv01QRounded = rounding(PV01PC.pv01CurveParameters(bucketedPv01QUnscaled).getMap()
+        .get(Pairs.of(curveName, GBP)));
+    double deltaQ = rounding(METHOD_OPTION_MARGIN.priceDeltaFromFuturePrice(futureOptionQ, NORMAL_MULTICURVES,
+        futurePriceQ));
+    double gammaQ = rounding(METHOD_OPTION_MARGIN.priceGammaFromFuturePrice(futureOptionQ, NORMAL_MULTICURVES,
+        futurePriceQ));
+    double thetaQ = rounding(METHOD_OPTION_MARGIN.priceThetaFromFuturePrice(futureOptionQ, NORMAL_MULTICURVES,
+        futurePriceQ));
+    double vegaQ = rounding(METHOD_OPTION_MARGIN.priceVegaFromFuturePrice(futureOptionQ, NORMAL_MULTICURVES,
+        futurePriceQ));
+
+    InterestRateFutureOptionMarginSecurity futureOptionS = TRANSACTION_S.getUnderlyingSecurity();
+    InterestRateFutureSecurity futureS = futureOptionS.getUnderlyingFuture();
+    double futurePriceS = rounding(METHOD_FUTURE.price(futureS, NORMAL_MULTICURVES.getMulticurveProvider()));
+    double optionPriceS = rounding(METHOD_OPTION.priceFromFuturePrice(futureOptionS, NORMAL_MULTICURVES, futurePriceS) * 100.0);
+    MultipleCurrencyAmount pvS = METHOD_OPTION_MARGIN_TRANSA.presentValueFromFuturePrice(TRANSACTION_S,
+        NORMAL_MULTICURVES, futurePriceS);
+    double pvSRounded = rounding(pvS.getAmount(GBP));
+    MultipleCurrencyMulticurveSensitivity pvSenseS = METHOD_OPTION_MARGIN_TRANSA
+        .presentValueCurveSensitivityFromPrice(TRANSACTION_S, NORMAL_MULTICURVES, futurePriceS);
+    MultipleCurrencyParameterSensitivity bucketedPv01SUnscaled = PSSFC.pointToParameterSensitivity(pvSenseS,
+        NORMAL_MULTICURVES);
+    double[] bucketedPv01SRounded = rounding(bucketedPv01SUnscaled.multipliedBy(BP1)
+        .getSensitivity(NORMAL_MULTICURVES.getMulticurveProvider().getName(GBPLIBOR3M), GBP).getData());
+    double pv01SRounded = rounding(PV01PC.pv01CurveParameters(bucketedPv01SUnscaled).getMap()
+        .get(Pairs.of(curveName, GBP)));
+    double deltaS = rounding(METHOD_OPTION_MARGIN.priceDeltaFromFuturePrice(futureOptionS, NORMAL_MULTICURVES,
+        futurePriceS));
+    double gammaS = rounding(METHOD_OPTION_MARGIN.priceGammaFromFuturePrice(futureOptionS, NORMAL_MULTICURVES,
+        futurePriceS));
+    double thetaS = rounding(METHOD_OPTION_MARGIN.priceThetaFromFuturePrice(futureOptionS, NORMAL_MULTICURVES,
+        futurePriceS));
+    double vegaS = rounding(METHOD_OPTION_MARGIN.priceVegaFromFuturePrice(futureOptionS, NORMAL_MULTICURVES,
+        futurePriceS));
+
+    InterestRateFutureOptionMarginSecurity futureOptionM = TRANSACTION_M.getUnderlyingSecurity();
+    InterestRateFutureSecurity futureM = futureOptionM.getUnderlyingFuture();
+    double futurePriceM = rounding(METHOD_FUTURE.price(futureM, NORMAL_MULTICURVES.getMulticurveProvider()));
+    double optionPriceM = rounding(METHOD_OPTION.priceFromFuturePrice(futureOptionM, NORMAL_MULTICURVES, futurePriceM) * 100.0);
+    MultipleCurrencyAmount pvM = METHOD_OPTION_MARGIN_TRANSA.presentValueFromFuturePrice(TRANSACTION_M,
+        NORMAL_MULTICURVES, futurePriceM);
+    double pvMRounded = rounding(pvM.getAmount(GBP));
+    MultipleCurrencyMulticurveSensitivity pvSenseM = METHOD_OPTION_MARGIN_TRANSA
+        .presentValueCurveSensitivityFromPrice(TRANSACTION_M, NORMAL_MULTICURVES, futurePriceM);
+    MultipleCurrencyParameterSensitivity bucketedPv01MUnscaled = PSSFC.pointToParameterSensitivity(pvSenseM,
+        NORMAL_MULTICURVES);
+    double[] bucketedPv01MRounded = rounding(bucketedPv01MUnscaled.multipliedBy(BP1)
+        .getSensitivity(NORMAL_MULTICURVES.getMulticurveProvider().getName(GBPLIBOR3M), GBP).getData());
+    double pv01MRounded = rounding(PV01PC.pv01CurveParameters(bucketedPv01MUnscaled).getMap()
+        .get(Pairs.of(curveName, GBP)));
+    double deltaM = rounding(METHOD_OPTION_MARGIN.priceDeltaFromFuturePrice(futureOptionM, NORMAL_MULTICURVES,
+        futurePriceM));
+    double gammaM = rounding(METHOD_OPTION_MARGIN.priceGammaFromFuturePrice(futureOptionM, NORMAL_MULTICURVES,
+        futurePriceM));
+    double thetaM = rounding(METHOD_OPTION_MARGIN.priceThetaFromFuturePrice(futureOptionM, NORMAL_MULTICURVES,
+        futurePriceM));
+    double vegaM = rounding(METHOD_OPTION_MARGIN.priceVegaFromFuturePrice(futureOptionM, NORMAL_MULTICURVES,
+        futurePriceM));
+
+    double[] bucketedPv01ExpectedQ = new double[] {-0.0548, 0.06705, 0.05005, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    double[] bucketedPv01ExpectedS = new double[] {0.0629, -0.077, -0.05745, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    double[] bucketedPv01ExpectedM = new double[] {0.0, 0.0, 0.0, 0.0, -0.2271, 0.16225, 0.12745, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+
+    assertRelative("testGBP, Quarterly, option price", 17.5392, optionPriceQ, TOL);
+    assertRelative("testGBP, Quarterly, PV", 214.2398, pvQRounded, TOL);
+    assertArrayRelative("testGBP, Quarterly, bucketed pv01", bucketedPv01ExpectedQ, bucketedPv01QRounded, TOL);
+    assertRelative("testGBP, Quarterly, pv01", 0.0623, pv01QRounded, TOL);
+    assertRelative("testGBP, Quarterly, delta", -0.5006, deltaQ, TOL);
+    assertRelative("testGBP, Quarterly, gamma", 0.9091, gammaQ, TOL);
+    assertRelative("testGBP, Quarterly, theta", -0.2619, thetaQ, TOL);
+    assertRelative("testGBP, Quarterly, vega", 0.23065, vegaQ, TOL);
+
+    assertRelative("testGBP, Serial, option price", 18.40765, optionPriceS, TOL);
+    assertRelative("testGBP, Serial, PV", 225.09555, pvSRounded, TOL);
+    assertArrayRelative("testGBP, Serial, bucketed pv01", bucketedPv01ExpectedS, bucketedPv01SRounded, TOL);
+    assertRelative("testGBP, Serial, pv01", -0.07155, pv01SRounded, TOL);
+    assertRelative("testGBP, Serial, delta", 0.57475, deltaS, TOL);
+    assertRelative("testGBP, Serial, gamma", 1.06505, gammaS, TOL);
+    assertRelative("testGBP, Serial, theta", -0.283, thetaS, TOL);
+    assertRelative("testGBP, Serial, vega", 0.19785, vegaS, TOL);
+
+    assertRelative("testGBP, Mid-curve, option price", 21.6245, optionPriceM, TOL);
+    assertRelative("testGBP, Mid-curve, PV", 265.30635, pvMRounded, TOL);
+    assertArrayRelative("testGBP, Mid-curve, bucketed pv01", bucketedPv01ExpectedM, bucketedPv01MRounded, TOL);
+    assertRelative("testGBP, Mid-curve, pv01", 0.0626, pv01MRounded, TOL);
+    assertRelative("testGBP, Mid-curve, delta", -0.50515, deltaM, TOL);
+    assertRelative("testGBP, Mid-curve, gamma", 0.74795, gammaM, TOL);
+    assertRelative("testGBP, Mid-curve, theta", -0.31825, thetaM, TOL);
+    assertRelative("testGBP, Mid-curve, vega", 0.23065, vegaM, TOL);
+
+  }
+
+
+  private double[] rounding(double[] values) {
+    int n = values.length;
+    double[] res = new double[n];
+    for (int i = 0; i < n; ++i) {
+      res[i] = rounding(values[i]);
+    }
+    return res;
+  }
+
+  private double rounding(double value) {
+    double rounding = 0.5 * BP1;
+    return Math.round(value / rounding) * rounding;
+  }
+
+  /**
    * Test volatility surface interpolation.
    */
   @Test
@@ -348,6 +477,14 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessGBPE2ETest {
     ReferenceAmount<Pair<String, Currency>> pv01QRe = PV01PC.pv01CurveParameters(bucketedPv01QRe);
     assertRelative("underlyingMethodTest", pv01Q.getMap().get(Pairs.of(MULTICURVES.getName(GBPLIBOR3M), GBP)), pv01QRe
         .getMap().get(Pairs.of(MULTICURVES.getName(GBPLIBOR3M), GBP)), localTol);
+  }
+
+  private void assertArrayRelative(String message, double[] expected, double[] obtained, double relativeTol) {
+    int nData = expected.length;
+    assertEquals(message, nData, obtained.length);
+    for (int i = 0; i < nData; ++i) {
+      assertRelative(message, expected[i], obtained[i], relativeTol);
+    }
   }
 
   private void assertRelative(String message, double expected, double obtained, double relativeTol) {
