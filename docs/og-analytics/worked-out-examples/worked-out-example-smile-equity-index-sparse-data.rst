@@ -15,7 +15,7 @@ In the end-to-end test three methodologies are used: global SABR model method, l
 Details on these methodologies are given in [OG.2014]. 
 
 
-Data
+Option Data
 -------
 
 Given a set of information on the underlying,  
@@ -28,7 +28,7 @@ Given a set of information on the underlying,
     double RATE = 0.204 * 0.01;
     double DIVIDEND = 0.333 * 0.01;
 
-we assume the following options are available for a specific time to expiry, 
+we assume the following options are available for the specific time to expiry, 
 
 .. code-block:: java 
 
@@ -67,7 +67,7 @@ which is used for fixing a specific SABR parameter. In order to fix the beta par
 
     fixed.set(1); 
 
-none of the parameters are fixed if we use the default **BitSet**. Next initial guess values are defined
+None of the parameters are fixed if we use the default **BitSet**. Next initial guess values are defined
 
 .. code-block:: java 
 
@@ -99,7 +99,16 @@ result in this case.
 
 The spline interpolation and shifted lognormal model extrapolation are used in **splineInterpolationCallTest** and **splineInterpolationFlatCallTest** for call options. The two methods correspond to two distinct behaviours for calibration failure of the shifted lognormal model. 
 
-Here we have focused on the call options. The exactly the same argument applies for the put options.
+For example, the gradient values of the smile at the data endpoints are reduced to zero such that the calibration always success by using "Flat",
+
+.. code-block:: java 
+
+     GeneralSmileInterpolator spline = new SmileInterpolatorSpline(new DoubleQuadraticInterpolator1D(), "Flat");
+     Function1D<Double, Double> smile = spline.getVolatilityFunction(FORWARD, CALL_STRIKES, EXPIRY, CALL_IV);
+
+Here **DoubleQuadraticInterpolator1D** is used as the spline, but **SmileInterpolatorSpline** accepts any interpolator in **Interpolator1D**.
+
+In this document we have discussed the call options. The exactly the same argument is true for the put options.
 
 
 Price and Greeks
