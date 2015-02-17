@@ -271,7 +271,7 @@ public class STIRFuturesOptionNormalExpSimpleMoneynessGBPE2ETest {
   }
 
   /**
-   * Underlying price and option value is rounded
+   * Underlying price and option value are rounded
    */
   @Test
   public void withRoundingTest() {
