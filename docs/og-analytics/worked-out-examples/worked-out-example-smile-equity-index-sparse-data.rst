@@ -147,4 +147,4 @@ The result is printed by
     printDetailsWithShift(smile, DISPLAY_STRIKES, true, VOL_SHOCKS);
 
 
-.. [OG.2014] Yukinori Iwashita. Smile Interpolation and Extrapolation. OpenGamma Quantitative Research, 2014.
+.. [OG.2014] Yukinori Iwashita. Smile Interpolation and Extrapolation. OpenGamma Quantitative Research, 2014. http://www.opengamma.com/sites/default/files/smile-interpolation-extrapolation-opengamma.pdf
