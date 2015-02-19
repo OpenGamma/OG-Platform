@@ -3,7 +3,7 @@ Worked-out example: STIR futures option - normal model with simple moneyness
 
 The code of this example can be found in the test: **STIRFuturesOptionNormalExpSimpleMoneynessMethodE2ETest**.  
 Other examples are available in **STIRFuturesOptionNormalExpSimpleMoneynessGBPE2ETest** focusing on GBP-dominated trades and specific outputs.  
-Our discussion in this document follows the former test, but is transferable to the latter.
+Our discussion in this document follows the former test, especially the test included in the public method **testGBP**, but is transferable to the other tests.
 
 Curves
 ------
