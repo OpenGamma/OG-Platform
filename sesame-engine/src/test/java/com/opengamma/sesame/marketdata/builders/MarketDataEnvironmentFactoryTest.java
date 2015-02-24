@@ -21,7 +21,6 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -39,7 +38,7 @@ import com.opengamma.sesame.marketdata.SingleValueRequirement;
 import com.opengamma.sesame.marketdata.TimeSeriesRequirement;
 import com.opengamma.sesame.marketdata.builders.MarketDataEnvironmentFactory.MarketDataNode;
 import com.opengamma.sesame.marketdata.scenarios.CyclePerturbations;
-import com.opengamma.sesame.marketdata.scenarios.SinglePerturbationMapping;
+import com.opengamma.sesame.marketdata.scenarios.SingleScenarioDefinition;
 import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
@@ -136,7 +135,7 @@ public class MarketDataEnvironmentFactoryTest {
     MarketDataEnvironment env = new MarketDataEnvironmentBuilder().valuationTime(ZonedDateTime.now()).build();
     MarketDataBundle builtBundle = builder.build(env,
                                                  reqs,
-                                                 ImmutableList.<SinglePerturbationMapping>of(),
+                                                 SingleScenarioDefinition.base(),
                                                  EmptyMarketDataSpec.INSTANCE,
                                                  ZonedDateTime.now()).toBundle();
 
@@ -166,7 +165,7 @@ public class MarketDataEnvironmentFactoryTest {
     MarketDataEnvironment empty = MarketDataEnvironmentBuilder.empty();
     MarketDataEnvironment env = builder.build(empty,
                                               ImmutableSet.<MarketDataRequirement>of(req),
-                                              ImmutableList.<SinglePerturbationMapping>of(),
+                                              SingleScenarioDefinition.base(),
                                               EmptyMarketDataSpec.INSTANCE,
                                               ZonedDateTime.now());
     DateTimeSeries<LocalDate, ?> timeSeries = env.getTimeSeries().get(req.getMarketDataId());
@@ -202,7 +201,7 @@ public class MarketDataEnvironmentFactoryTest {
     MarketDataEnvironment empty = MarketDataEnvironmentBuilder.empty();
     MarketDataEnvironment env = builder.build(empty,
                                               reqs,
-                                              ImmutableList.<SinglePerturbationMapping>of(),
+                                              SingleScenarioDefinition.base(),
                                               EmptyMarketDataSpec.INSTANCE,
                                               empty.getValuationTime());
     DateTimeSeries<LocalDate, ?> timeSeries = env.getTimeSeries().get(id);
@@ -237,7 +236,7 @@ public class MarketDataEnvironmentFactoryTest {
     MarketDataEnvironment empty = MarketDataEnvironmentBuilder.empty();
     MarketDataEnvironment env = builder.build(empty,
                                               reqs,
-                                              ImmutableList.<SinglePerturbationMapping>of(),
+                                              SingleScenarioDefinition.base(),
                                               EmptyMarketDataSpec.INSTANCE,
                                               ZonedDateTime.now());
     DateTimeSeries<LocalDate, ?> timeSeries = env.getTimeSeries().get(id);

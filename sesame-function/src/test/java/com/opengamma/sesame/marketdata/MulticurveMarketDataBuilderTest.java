@@ -69,6 +69,7 @@ import com.opengamma.sesame.marketdata.scenarios.CurveNameMulticurveFilter;
 import com.opengamma.sesame.marketdata.scenarios.CyclePerturbations;
 import com.opengamma.sesame.marketdata.scenarios.MulticurveInputParallelShift;
 import com.opengamma.sesame.marketdata.scenarios.SinglePerturbationMapping;
+import com.opengamma.sesame.marketdata.scenarios.SingleScenarioDefinition;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
@@ -119,7 +120,7 @@ public class MulticurveMarketDataBuilderTest {
   public void buildSingleCurveBundle() {
     MarketDataBuilder curveBuilder = curveBuilder();
     CyclePerturbations cyclePerturbations = new CyclePerturbations(ImmutableSet.<MarketDataRequirement>of(),
-                                                                   ImmutableList.<SinglePerturbationMapping>of());
+                                                                   SingleScenarioDefinition.base());
 
     MarketDataEnvironment baseMarketData = InterestRateMockSources.createMarketDataEnvironment();
     FXMatrix fxMatrix = new FXMatrix();
@@ -183,7 +184,7 @@ public class MulticurveMarketDataBuilderTest {
   public void parallelShiftInputs() {
     MarketDataBuilder curveBuilder = curveBuilder();
     CyclePerturbations emptyPerturbations = new CyclePerturbations(ImmutableSet.<MarketDataRequirement>of(),
-                                                                   ImmutableList.<SinglePerturbationMapping>of());
+                                                                   SingleScenarioDefinition.base());
 
     MarketDataEnvironment baseMarketData = InterestRateMockSources.createMarketDataEnvironment();
     FXMatrix fxMatrix = new FXMatrix();
@@ -206,8 +207,9 @@ public class MulticurveMarketDataBuilderTest {
             .build();
 
     List<SinglePerturbationMapping> mappings = ImmutableList.of(mapping);
+    SingleScenarioDefinition scenario = SingleScenarioDefinition.of("scenarioName", mappings);
     ImmutableSet<SingleValueRequirement> requirements = ImmutableSet.of(curveReq);
-    CyclePerturbations shiftPerturbations = new CyclePerturbations(requirements, mappings);
+    CyclePerturbations shiftPerturbations = new CyclePerturbations(requirements, scenario);
     Map<SingleValueRequirement, Result<?>> shiftedResults =
         curveBuilder.buildSingleValues(marketData.toBundle(),
                                        marketData.getValuationTime(),

@@ -40,33 +40,33 @@ public class CyclePerturbations {
    * Creates a set of perturbations that apply to the market data specified in a set of requirements.
    *
    * @param requirements requirements for a set of market data
-   * @param mappings perturbations to apply to market data as part of a single calculation cycle in a scenario
+   * @param scenario defines how to perturb the market data during the calculation cycle
    */
-  public CyclePerturbations(Set<? extends MarketDataRequirement> requirements, List<SinglePerturbationMapping> mappings) {
+  public CyclePerturbations(Set<? extends MarketDataRequirement> requirements, SingleScenarioDefinition scenario) {
     ArgumentChecker.notNull(requirements, "requirements");
-    ArgumentChecker.notNull(mappings, "mappings");
+    ArgumentChecker.notNull(scenario, "scenario");
 
-    Pair<List<SinglePerturbationMapping>, List<SinglePerturbationMapping>> pair = partitionMappings(mappings);
+    Pair<List<SinglePerturbationMapping>, List<SinglePerturbationMapping>> pair = partitionMappings(scenario);
     _inputMappings = pair.getFirst();
     _outputMappings = pair.getSecond();
   }
 
   // TODO Java 8 - replace with a stream and groupingBy or partitioningBy
   /**
-   * Partitions a list of mappings into a list that applies to input data used to build market data and
+   * Partitions perturbations from a scenario into a list that applies to input data used to build market data and
    * a set that applies to the built market data.
    *
-   * @param mappings perturbation mappings that might apply to input or output market data
+   * @param scenario scenario containing perturbations that might apply to input or output market data
    * @return a pair of lists. The first list is the perturbations that apply to input data used to build market
    *   data. The second list applies to the built market data
    */
   private static Pair<List<SinglePerturbationMapping>, List<SinglePerturbationMapping>> partitionMappings(
-      List<SinglePerturbationMapping> mappings) {
+      SingleScenarioDefinition scenario) {
 
     List<SinglePerturbationMapping> inputs = new ArrayList<>();
     List<SinglePerturbationMapping> outputs = new ArrayList<>();
 
-    for (SinglePerturbationMapping mapping : mappings) {
+    for (SinglePerturbationMapping mapping : scenario.getMappings()) {
       switch (mapping.getPerturbation().getTargetType()) {
         case INPUT:
           inputs.add(mapping);

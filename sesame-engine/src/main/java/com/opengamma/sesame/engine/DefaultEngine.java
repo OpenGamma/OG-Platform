@@ -16,7 +16,6 @@ import java.util.concurrent.ExecutorService;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
@@ -33,7 +32,7 @@ import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.ScenarioMarketDataEnvironment;
 import com.opengamma.sesame.marketdata.builders.MarketDataEnvironmentFactory;
 import com.opengamma.sesame.marketdata.scenarios.ScenarioDefinition;
-import com.opengamma.sesame.marketdata.scenarios.SinglePerturbationMapping;
+import com.opengamma.sesame.marketdata.scenarios.SingleScenarioDefinition;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
@@ -123,7 +122,7 @@ public class DefaultEngine implements Engine {
     return _environmentFactory.build(
         suppliedData,
         requirements,
-        ImmutableList.<SinglePerturbationMapping>of(),
+        SingleScenarioDefinition.base(),
         calculationArguments.getMarketDataSpecification(),
         calculationArguments.getValuationTime());
   }
@@ -139,12 +138,12 @@ public class DefaultEngine implements Engine {
     View view = _viewFactory.createView(viewConfig, EngineUtils.getInputTypes(portfolio));
     // TODO when multiple valuation times are supported, gather one set of requirements for each valuation time
     Set<MarketDataRequirement> requirements = view.gatherRequirements(baseData, calculationArguments, portfolio);
-    List<List<SinglePerturbationMapping>> scenarios = scenarioDefinition.cyclePerturbations();
+    List<SingleScenarioDefinition> scenarios = scenarioDefinition.getScenarios();
     MarketDataSpecification marketDataSpecification = calculationArguments.getMarketDataSpecification();
     ZonedDateTime valuationTime = calculationArguments.getValuationTime();
     List<ListenableFuture<MarketDataEnvironment>> marketDataFutures = Lists.newArrayListWithExpectedSize(scenarios.size());
 
-    for (List<SinglePerturbationMapping> scenario : scenarios) {
+    for (SingleScenarioDefinition scenario : scenarios) {
       // create a future for building the market data for this scenario
       marketDataFutures.add(marketDataFuture(baseData, requirements, scenario, marketDataSpecification, valuationTime));
     }
@@ -237,7 +236,7 @@ public class DefaultEngine implements Engine {
    *
    * @param suppliedData market data supplied by the user
    * @param requirements requirements for data needed to perform the calculations but not supplied by the user
-   * @param perturbations perturbations to apply to the market data in the current scenario
+   * @param scenario contains perturbations to apply to the market data in the current calculation cycle
    * @param marketDataSpec specifies which market data providers should be used to look up the underlying market data
    * @param valuationTime valuation time for the calculations
    * @return a future for building the market data required to perform some calculations.
@@ -245,7 +244,7 @@ public class DefaultEngine implements Engine {
   private ListenableFuture<MarketDataEnvironment> marketDataFuture(
       final MarketDataEnvironment suppliedData,
       final Set<MarketDataRequirement> requirements,
-      final List<SinglePerturbationMapping> perturbations,
+      final SingleScenarioDefinition scenario,
       final MarketDataSpecification marketDataSpec,
       final ZonedDateTime valuationTime) {
 
@@ -254,7 +253,7 @@ public class DefaultEngine implements Engine {
         new Callable<MarketDataEnvironment>() {
           @Override
           public MarketDataEnvironment call() throws Exception {
-            return _environmentFactory.build(suppliedData, requirements, perturbations, marketDataSpec, valuationTime);
+            return _environmentFactory.build(suppliedData, requirements, scenario, marketDataSpec, valuationTime);
           }
         });
   }
@@ -333,12 +332,11 @@ public class DefaultEngine implements Engine {
         new Callable<Pair<String, MarketDataEnvironment>>() {
           @Override
           public Pair<String, MarketDataEnvironment> call() throws Exception {
-            List<SinglePerturbationMapping> perturbations = ImmutableList.of();
             MarketDataEnvironment marketData =
                 _environmentFactory.build(
                     suppliedData,
                     requirements,
-                    perturbations,
+                    SingleScenarioDefinition.base(),
                     marketDataSpec,
                     valuationTime);
             return Pairs.of(scenarioName, marketData);

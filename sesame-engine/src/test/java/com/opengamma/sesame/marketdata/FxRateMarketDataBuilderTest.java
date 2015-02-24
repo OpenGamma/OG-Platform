@@ -37,6 +37,7 @@ import com.opengamma.sesame.marketdata.scenarios.FxRateShift;
 import com.opengamma.sesame.marketdata.scenarios.MarketDataFilter;
 import com.opengamma.sesame.marketdata.scenarios.Perturbation;
 import com.opengamma.sesame.marketdata.scenarios.SinglePerturbationMapping;
+import com.opengamma.sesame.marketdata.scenarios.SingleScenarioDefinition;
 import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
@@ -55,7 +56,7 @@ public class FxRateMarketDataBuilderTest {
   private static final double USDCHF_RATE = 0.91;
   private static final double EURUSD_RATE = 1.35;
   private static final CyclePerturbations EMPTY_PERTURBATIONS =
-      new CyclePerturbations(ImmutableSet.<MarketDataRequirement>of(), ImmutableList.<SinglePerturbationMapping>of());
+      new CyclePerturbations(ImmutableSet.<MarketDataRequirement>of(), SingleScenarioDefinition.base());
 
   private static SingleValueRequirement singleValueRequirement(String currencyPair) {
     return SingleValueRequirement.of(FxRateId.of(CurrencyPair.parse(currencyPair)));
@@ -429,9 +430,10 @@ public class FxRateMarketDataBuilderTest {
     Set<SingleValueRequirement> requirements = ImmutableSet.of(gbpUsd, usdGbp);
     MarketDataFilter filter = new CurrencyPairFilter(Currency.GBP, Currency.USD);
     Perturbation perturbation = FxRateShift.absolute(0.1);
-    SinglePerturbationMapping mapping = new SinglePerturbationMapping(filter, perturbation);
+    SinglePerturbationMapping mapping = SinglePerturbationMapping.of(filter, perturbation);
     List<SinglePerturbationMapping> mappings = ImmutableList.of(mapping);
-    CyclePerturbations perturbations = new CyclePerturbations(requirements, mappings);
+    SingleScenarioDefinition scenario = SingleScenarioDefinition.of("scenarioName", mappings);
+    CyclePerturbations perturbations = new CyclePerturbations(requirements, scenario);
     MarketDataSource marketDataSource = mock(MarketDataSource.class);
     Map<SingleValueRequirement, Result<?>> values =
         builder.buildSingleValues(emptyBundle, ZonedDateTime.now(), requirements, marketDataSource, perturbations);
@@ -465,9 +467,10 @@ public class FxRateMarketDataBuilderTest {
     Set<SingleValueRequirement> requirements = ImmutableSet.of(gbpUsd, usdGbp);
     MarketDataFilter filter = new CurrencyPairFilter(Currency.GBP, Currency.USD);
     Perturbation perturbation = FxRateShift.absolute(0.1);
-    SinglePerturbationMapping mapping = new SinglePerturbationMapping(filter, perturbation);
+    SinglePerturbationMapping mapping = SinglePerturbationMapping.of(filter, perturbation);
     List<SinglePerturbationMapping> mappings = ImmutableList.of(mapping);
-    CyclePerturbations perturbations = new CyclePerturbations(requirements, mappings);
+    SingleScenarioDefinition scenario = SingleScenarioDefinition.of("scenarioName", mappings);
+    CyclePerturbations perturbations = new CyclePerturbations(requirements, scenario);
     Map<SingleValueRequirement, Result<?>> values =
         builder.buildSingleValues(bundle, valuationTime, requirements, marketDataSource, perturbations);
 
@@ -496,14 +499,15 @@ public class FxRateMarketDataBuilderTest {
 
     MarketDataFilter usdChfFilter = new CurrencyPairFilter(Currency.USD, Currency.CHF);
     Perturbation usdChfPerturbation = FxRateShift.relative(0.1);
-    SinglePerturbationMapping usdChfMapping = new SinglePerturbationMapping(usdChfFilter, usdChfPerturbation);
+    SinglePerturbationMapping usdChfMapping = SinglePerturbationMapping.of(usdChfFilter, usdChfPerturbation);
 
     MarketDataFilter eurUsdFilter = new CurrencyPairFilter(Currency.EUR, Currency.USD);
     Perturbation eurUsdPerturbation = FxRateShift.relative(0.2);
-    SinglePerturbationMapping eurUsdMapping = new SinglePerturbationMapping(eurUsdFilter, eurUsdPerturbation);
+    SinglePerturbationMapping eurUsdMapping = SinglePerturbationMapping.of(eurUsdFilter, eurUsdPerturbation);
 
     List<SinglePerturbationMapping> mappings = ImmutableList.of(usdChfMapping, eurUsdMapping);
-    CyclePerturbations perturbations = new CyclePerturbations(requirements, mappings);
+    SingleScenarioDefinition scenario = SingleScenarioDefinition.of("scenarioName", mappings);
+    CyclePerturbations perturbations = new CyclePerturbations(requirements, scenario);
     MarketDataBundle bundle = MarketDataEnvironmentBuilder.empty().toBundle();
     MarketDataSource marketDataSource = mock(MarketDataSource.class);
     Map<SingleValueRequirement, Result<?>> values =
@@ -552,9 +556,10 @@ public class FxRateMarketDataBuilderTest {
     Set<SingleValueRequirement> requirements = ImmutableSet.of(eurChf, chfEur);
     MarketDataFilter filter = new CurrencyPairFilter(Currency.EUR, Currency.CHF);
     Perturbation perturbation = FxRateShift.absolute(0.1);
-    SinglePerturbationMapping mapping = new SinglePerturbationMapping(filter, perturbation);
+    SinglePerturbationMapping mapping = SinglePerturbationMapping.of(filter, perturbation);
     List<SinglePerturbationMapping> mappings = ImmutableList.of(mapping);
-    CyclePerturbations perturbations = new CyclePerturbations(requirements, mappings);
+    SingleScenarioDefinition scenario = SingleScenarioDefinition.of("scenarioName", mappings);
+    CyclePerturbations perturbations = new CyclePerturbations(requirements, scenario);
 
     MarketDataSource marketDataSource = mock(MarketDataSource.class);
     Map<SingleValueRequirement, Result<?>> values =
@@ -592,9 +597,10 @@ public class FxRateMarketDataBuilderTest {
     // the shift is defined for the inverse pair of the raw market data
     MarketDataFilter filter = new CurrencyPairFilter(Currency.USD, Currency.GBP);
     Perturbation perturbation = FxRateShift.absolute(0.1);
-    SinglePerturbationMapping mapping = new SinglePerturbationMapping(filter, perturbation);
+    SinglePerturbationMapping mapping = SinglePerturbationMapping.of(filter, perturbation);
     List<SinglePerturbationMapping> mappings = ImmutableList.of(mapping);
-    CyclePerturbations perturbations = new CyclePerturbations(requirements, mappings);
+    SingleScenarioDefinition scenario = SingleScenarioDefinition.of("scenarioName", mappings);
+    CyclePerturbations perturbations = new CyclePerturbations(requirements, scenario);
     Map<SingleValueRequirement, Result<?>> values =
         builder.buildSingleValues(bundle, valuationTime, requirements, marketDataSource, perturbations);
 
