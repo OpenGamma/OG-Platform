@@ -38,7 +38,6 @@ public class IRFutureOptionNormalCalculatorFactory implements IRFutureOptionCalc
   private final CurveLabellingFn _curveLabellingFn;
   private final DiscountingMulticurveCombinerFn _multicurveFn;
   private final boolean _moneynessOnPrice;
-  private final String _volSurfaceName;
   private static final Result<HistoricalTimeSeriesBundle> EMPTY_BUNDLE = Result.success(new HistoricalTimeSeriesBundle());
 
   /**
@@ -49,15 +48,13 @@ public class IRFutureOptionNormalCalculatorFactory implements IRFutureOptionCalc
    * @param fixingsFn function used to retrieve the historical prices of the underlying interest rate future.
    * @param curveLabellingFn function used to retrieve curve labellers for the multicurve
    * @param moneynessOnPrice flag indicating if the moneyness is on the price (true) or on the rate (false).
-   * @param volSurfaceName name of the volatility surface
    */
   public IRFutureOptionNormalCalculatorFactory(InterestRateFutureOptionTradeConverter converter,
                                                FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                                                DiscountingMulticurveCombinerFn multicurveFn,
                                                FixingsFn fixingsFn,
                                                CurveLabellingFn curveLabellingFn,
-                                               boolean moneynessOnPrice,
-                                               String volSurfaceName) {
+                                               boolean moneynessOnPrice) {
     _converter = ArgumentChecker.notNull(converter, "converter");
     _definitionToDerivativeConverter =
         ArgumentChecker.notNull(definitionToDerivativeConverter, "definitionToDerivativeConverter");
@@ -65,7 +62,6 @@ public class IRFutureOptionNormalCalculatorFactory implements IRFutureOptionCalc
     _curveLabellingFn = ArgumentChecker.notNull(curveLabellingFn, "curveLabellingFn");
     _multicurveFn = ArgumentChecker.notNull(multicurveFn, "multicurveFn");
     _moneynessOnPrice = ArgumentChecker.notNull(moneynessOnPrice, "moneynessOnPrice");
-    _volSurfaceName = ArgumentChecker.notNull(volSurfaceName, "volSurfaceName");
   }
 
   @Override
@@ -73,7 +69,7 @@ public class IRFutureOptionNormalCalculatorFactory implements IRFutureOptionCalc
 
     Result<MulticurveBundle> multicurveBundle = _multicurveFn.getMulticurveBundle(env, trade);
     Result<VolatilitySurface> surfaceResult =
-        env.getMarketDataBundle().get(VolatilitySurfaceId.of(_volSurfaceName), VolatilitySurface.class);
+        env.getMarketDataBundle().get(VolatilitySurfaceId.of(trade.getSecurity().getExchange()), VolatilitySurface.class);
     Result<HistoricalTimeSeriesBundle> fixingsResult = getTimeSeries(env, trade);
 
     if (Result.anyFailures(multicurveBundle, surfaceResult, fixingsResult)) {
@@ -101,10 +97,10 @@ public class IRFutureOptionNormalCalculatorFactory implements IRFutureOptionCalc
     Result<Map<String, CurveMatrixLabeller>> curveLabellers = _curveLabellingFn.getCurveLabellers(curveNames);
 
     if (Result.anyFailures(curveLabellers)) {
-     return Result.failure(curveLabellers);
+      return Result.failure(curveLabellers);
     }
 
-    IRFutureOptionCalculator calculator = getCalculator(derivative, normalSurface, curveLabellers.getValue());
+    IRFutureOptionCalculator calculator = getCalculator(trade, derivative, normalSurface, curveLabellers.getValue());
 
     return Result.success(calculator);
 
@@ -113,13 +109,15 @@ public class IRFutureOptionNormalCalculatorFactory implements IRFutureOptionCalc
   /**
    * Create an instance of a IRFutureOptionCalculator, can be overwritten to return alternative calculators
    *
+   * @param trade the trade to be priced (not used in default implementation)
    * @param derivative FuturesTransaction for InterestRateFutureOptionSecurity
    * @param normalSurface the normal surface provider
    * @param curveLabellers curve labellers for the multicurve
    *
    * @return IRFutureOptionCalculator, in this instance an IRFutureOptionNormalCalculator
    */
-  protected IRFutureOptionCalculator getCalculator(FuturesTransaction<InterestRateFutureOptionSecurity> derivative,
+  protected IRFutureOptionCalculator getCalculator(IRFutureOptionTrade trade,
+                                                   FuturesTransaction<InterestRateFutureOptionSecurity> derivative,
                                                    NormalSTIRFuturesExpSimpleMoneynessProviderDiscount normalSurface,
                                                    Map<String, CurveMatrixLabeller> curveLabellers) {
     return new IRFutureOptionNormalCalculator(derivative, normalSurface, curveLabellers);
