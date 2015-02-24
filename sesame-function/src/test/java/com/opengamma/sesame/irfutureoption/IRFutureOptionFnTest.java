@@ -227,7 +227,7 @@ public class IRFutureOptionFnTest {
                     argument("rootFinderRelativeTolerance", 1e-9),
                     argument("rootFinderMaxIterations", 1000)),
                 function(
-                    IRFutureOptionNormalCalculatorFactory.class,
+                    TestIRFutureOptionNormalSurfaceProviderFn.class,
                     argument("moneynessOnPrice", false)),
                 function(
                     DefaultCurveNodeConverterFn.class,
@@ -246,6 +246,7 @@ public class IRFutureOptionFnTest {
                 FixingsFn.class, DefaultFixingsFn.class,
                 MarketDataFn.class, DefaultMarketDataFn.class,
                 CurveSelector.class, MarketExposureSelector.class,
+                IRFutureOptionNormalSurfaceProviderFn.class, TestIRFutureOptionNormalSurfaceProviderFn.class,
                 DiscountingMulticurveCombinerFn.class, CurveSelectorMulticurveBundleFn.class));
 
     return config;
