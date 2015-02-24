@@ -84,9 +84,9 @@ public class MulticurveMarketDataBuilder
     for (SingleValueRequirement requirement : requirements) {
       MulticurveId marketDataId = (MulticurveId) requirement.getMarketDataId();
       CurveConstructionConfiguration curveConfig = marketDataId.resolveConfig();
-      MulticurveBundle bundle =
+      Result<MulticurveBundle> bundleResult =
           buildBundle(marketDataBundle, valuationTime, curveConfig, requirement, cyclePerturbations);
-      results.put(requirement, Result.success(bundle));
+      results.put(requirement, bundleResult);
     }
     return results.build();
   }
@@ -135,35 +135,43 @@ public class MulticurveMarketDataBuilder
    * @param cyclePerturbations the perturbations that should be applied to the market data for this calculation cycle
    * @return a multicurve bundle built from the configuration
    */
-  @SuppressWarnings("unchecked")
-  private MulticurveBundle buildBundle(MarketDataBundle marketDataBundle,
-                                       ZonedDateTime valuationTime,
-                                       CurveConstructionConfiguration bundleConfig,
-                                       MarketDataRequirement bundleRequirement,
-                                       CyclePerturbations cyclePerturbations) {
+  private Result<MulticurveBundle> buildBundle(
+      MarketDataBundle marketDataBundle,
+      ZonedDateTime valuationTime,
+      CurveConstructionConfiguration bundleConfig,
+      MarketDataRequirement bundleRequirement,
+      CyclePerturbations cyclePerturbations) {
 
     Set<Currency> currencies = getCurrencies(bundleConfig, valuationTime);
     FxMatrixId fxMatrixKey = FxMatrixId.of(currencies);
-    FXMatrix fxMatrix = marketDataBundle.get(fxMatrixKey, FXMatrix.class).getValue();
+    Result<FXMatrix> fxMatrixResult = marketDataBundle.get(fxMatrixKey, FXMatrix.class);
+
+    if (!fxMatrixResult.isSuccess()) {
+      return Result.failure(fxMatrixResult);
+    }
+    FXMatrix fxMatrix = fxMatrixResult.getValue();
     MulticurveProviderDiscount parentBundle = createParentBundle(marketDataBundle, bundleConfig, fxMatrix);
 
-    IntermediateResults intermediateResults = buildIntermediateResults(marketDataBundle,
-                                                                       valuationTime,
-                                                                       bundleConfig,
-                                                                       bundleRequirement,
-                                                                       cyclePerturbations);
+    IntermediateResults intermediateResults =
+        buildIntermediateResults(
+            marketDataBundle,
+            valuationTime,
+            bundleConfig,
+            bundleRequirement,
+            cyclePerturbations);
 
     Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> calibratedCurves =
-        _curveBuilder.makeCurvesFromDerivatives(intermediateResults.getCurveBundles(),
-                                                parentBundle,
-                                                intermediateResults.getCurrenciesByCurveName(),
-                                                intermediateResults.getIborIndexByCurveName(),
-                                                intermediateResults.getOnIndexByCurveName(),
-                                                DISCOUNTING_CALCULATOR,
-                                                CURVE_SENSITIVITY_CALCULATOR);
+        _curveBuilder.makeCurvesFromDerivatives(
+            intermediateResults.getCurveBundles(),
+            parentBundle,
+            intermediateResults.getCurrenciesByCurveName(),
+            intermediateResults.getIborIndexByCurveName(),
+            intermediateResults.getOnIndexByCurveName(),
+            DISCOUNTING_CALCULATOR,
+            CURVE_SENSITIVITY_CALCULATOR);
 
     // TODO include curve node IDs - PLT-591
-    return new MulticurveBundle(calibratedCurves.getFirst(), calibratedCurves.getSecond());
+    return Result.success(new MulticurveBundle(calibratedCurves.getFirst(), calibratedCurves.getSecond()));
   }
 
   /**

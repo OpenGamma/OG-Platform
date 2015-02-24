@@ -13,6 +13,7 @@ import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static com.opengamma.util.result.ResultTestUtils.assertSuccess;
 import static org.mockito.Mockito.mock;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 
 import java.util.List;
 import java.util.Map;
@@ -231,5 +232,27 @@ public class MulticurveMarketDataBuilderTest {
     double shiftedRate = shiftedDiscountCurve.getForwardRate(2);
     // TODO confirm this is close enough
     assertEquals(unshiftedRate + shiftAmount, shiftedRate, 1e-4);
+  }
+
+  /**
+   * Tests that missing FX rates are handled correctly and a failure is returned and no exception is thrown.
+   */
+  public void handleMissingFxMatrix() {
+    MarketDataBuilder curveBuilder = curveBuilder();
+    CyclePerturbations cyclePerturbations =
+        new CyclePerturbations(ImmutableSet.<MarketDataRequirement>of(), SingleScenarioDefinition.base());
+
+    MarketDataEnvironment marketData = InterestRateMockSources.createMarketDataEnvironment();
+    SingleValueRequirement curveReq = SingleValueRequirement.of(MulticurveId.of("USD_ON-OIS_LIBOR3M-FRAIRS_1U"));
+    Map<SingleValueRequirement, Result<?>> results =
+        curveBuilder.buildSingleValues(
+            marketData.toBundle(),
+            marketData.getValuationTime(),
+            ImmutableSet.of(curveReq),
+            mock(MarketDataSource.class),
+            cyclePerturbations);
+
+    Result<?> result = results.get(curveReq);
+    assertFalse(result.isSuccess());
   }
 }
