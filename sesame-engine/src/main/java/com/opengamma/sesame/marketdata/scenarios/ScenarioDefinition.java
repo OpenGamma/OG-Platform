@@ -223,7 +223,7 @@ public final class ScenarioDefinition implements ImmutableBean {
    *   of perturbations, and they do not need to have the same number of perturbations
    * @return a scenario definition containing the perturbations in the mappings
    */
-  public static ScenarioDefinition allCombinationsOf(List<? extends PerturbationMapping<?>> mappings) {
+  public static ScenarioDefinition ofAllCombinations(List<? extends PerturbationMapping<?>> mappings) {
     int numScenarios = countScenarios(mappings, true);
     ImmutableSet<String> scenarioNames = generateNames(numScenarios);
     return new ScenarioDefinition(createScenarios(scenarioNames, mappings, true));
@@ -276,7 +276,7 @@ public final class ScenarioDefinition implements ImmutableBean {
    *   of perturbations, and they do not need to have the same number of perturbations
    * @return a scenario definition containing the perturbations in the mappings
    */
-  public static ScenarioDefinition allCombinationsOf(
+  public static ScenarioDefinition ofAllCombinations(
       ImmutableSet<String> scenarioNames,
       List<? extends PerturbationMapping<?>> mappings) {
 

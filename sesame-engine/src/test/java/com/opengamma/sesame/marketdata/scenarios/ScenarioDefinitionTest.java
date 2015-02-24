@@ -76,7 +76,7 @@ public class ScenarioDefinitionTest {
 
   public void allCombinationsOf() {
     List<PerturbationMapping<TestPerturbation>> mappings = ImmutableList.of(MAPPING_A, MAPPING_B, MAPPING_C);
-    ScenarioDefinition scenarioDefinition = ScenarioDefinition.allCombinationsOf(mappings);
+    ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofAllCombinations(mappings);
     List<SingleScenarioDefinition> scenarios =
         ImmutableList.of(
             SingleScenarioDefinition.of(
@@ -126,7 +126,7 @@ public class ScenarioDefinitionTest {
   public void allCombinationsOfWithNames() {
     List<PerturbationMapping<TestPerturbation>> mappings = ImmutableList.of(MAPPING_A, MAPPING_B, MAPPING_C);
     ImmutableSet<String> scenarioNames = ImmutableSet.of("foo1", "foo2", "foo3", "foo4", "foo5", "foo6", "foo7", "foo8");
-    ScenarioDefinition scenarioDefinition = ScenarioDefinition.allCombinationsOf(scenarioNames, mappings);
+    ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofAllCombinations(scenarioNames, mappings);
     List<SingleScenarioDefinition> scenarios =
         ImmutableList.of(
             SingleScenarioDefinition.of(
@@ -213,7 +213,7 @@ public class ScenarioDefinitionTest {
   public void allCombinationsOfWrongNumberOfScenarioNames() {
     List<PerturbationMapping<TestPerturbation>> mappings = ImmutableList.of(MAPPING_A, MAPPING_B, MAPPING_C);
     ImmutableSet<String> scenarioNames = ImmutableSet.of("foo1", "foo2", "foo3", "foo4", "foo5", "foo6", "foo7");
-    ScenarioDefinition.allCombinationsOf(scenarioNames, mappings);
+    ScenarioDefinition.ofAllCombinations(scenarioNames, mappings);
   }
 
   public void ofScenarios() {
