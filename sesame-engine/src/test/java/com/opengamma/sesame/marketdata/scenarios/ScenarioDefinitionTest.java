@@ -19,21 +19,21 @@ public class ScenarioDefinitionTest {
   private static final TestFilter FILTER_A = new TestFilter("a");
   private static final TestFilter FILTER_B = new TestFilter("b");
   private static final TestFilter FILTER_C = new TestFilter("c");
-  private static final TestPerturbation PERTURBATION_1 = new TestPerturbation(1);
-  private static final TestPerturbation PERTURBATION_2 = new TestPerturbation(2);
-  private static final TestPerturbation PERTURBATION_3 = new TestPerturbation(3);
-  private static final TestPerturbation PERTURBATION_4 = new TestPerturbation(4);
-  private static final TestPerturbation PERTURBATION_5 = new TestPerturbation(5);
-  private static final TestPerturbation PERTURBATION_6 = new TestPerturbation(6);
+  private static final TestPerturbation PERTURBATION_A1 = new TestPerturbation(1);
+  private static final TestPerturbation PERTURBATION_A2 = new TestPerturbation(2);
+  private static final TestPerturbation PERTURBATION_B1 = new TestPerturbation(3);
+  private static final TestPerturbation PERTURBATION_B2 = new TestPerturbation(4);
+  private static final TestPerturbation PERTURBATION_C1 = new TestPerturbation(5);
+  private static final TestPerturbation PERTURBATION_C2 = new TestPerturbation(6);
 
   private static final PerturbationMapping<TestPerturbation> MAPPING_A =
-      PerturbationMapping.of(FILTER_A, PERTURBATION_1, PERTURBATION_2);
+      PerturbationMapping.of(FILTER_A, PERTURBATION_A1, PERTURBATION_A2);
 
   private static final PerturbationMapping<TestPerturbation> MAPPING_B =
-      PerturbationMapping.of(FILTER_B, PERTURBATION_3, PERTURBATION_4);
+      PerturbationMapping.of(FILTER_B, PERTURBATION_B1, PERTURBATION_B2);
 
   private static final PerturbationMapping<TestPerturbation> MAPPING_C =
-      PerturbationMapping.of(FILTER_C, PERTURBATION_5, PERTURBATION_6);
+      PerturbationMapping.of(FILTER_C, PERTURBATION_C1, PERTURBATION_C2);
 
   public void ofMappings() {
     List<PerturbationMapping<TestPerturbation>> mappings = ImmutableList.of(MAPPING_A, MAPPING_B, MAPPING_C);
@@ -42,14 +42,14 @@ public class ScenarioDefinitionTest {
         ImmutableList.of(
             SingleScenarioDefinition.of(
                 "Scenario 1",
-                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_1),
-                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_3),
-                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_5)),
+                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_A1),
+                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_B1),
+                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_C1)),
             SingleScenarioDefinition.of(
                 "Scenario 2",
-                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_2),
-                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_4),
-                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_6)));
+                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_A2),
+                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_B2),
+                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_C2)));
 
     assertEquals(scenarios, scenarioDefinition.getScenarios());
   }
@@ -62,14 +62,14 @@ public class ScenarioDefinitionTest {
         ImmutableList.of(
             SingleScenarioDefinition.of(
                 "foo",
-                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_1),
-                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_3),
-                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_5)),
+                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_A1),
+                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_B1),
+                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_C1)),
             SingleScenarioDefinition.of(
                 "bar",
-                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_2),
-                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_4),
-                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_6)));
+                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_A2),
+                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_B2),
+                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_C2)));
 
     assertEquals(scenarios, scenarioDefinition.getScenarios());
   }
@@ -81,44 +81,44 @@ public class ScenarioDefinitionTest {
         ImmutableList.of(
             SingleScenarioDefinition.of(
                 "Scenario 1",
-                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_1),
-                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_3),
-                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_5)),
+                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_A1),
+                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_B1),
+                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_C1)),
             SingleScenarioDefinition.of(
                 "Scenario 2",
-                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_1),
-                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_3),
-                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_6)),
+                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_A1),
+                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_B1),
+                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_C2)),
             SingleScenarioDefinition.of(
                 "Scenario 3",
-                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_1),
-                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_4),
-                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_5)),
+                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_A1),
+                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_B2),
+                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_C1)),
             SingleScenarioDefinition.of(
                 "Scenario 4",
-                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_1),
-                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_4),
-                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_6)),
+                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_A1),
+                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_B2),
+                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_C2)),
             SingleScenarioDefinition.of(
                 "Scenario 5",
-                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_2),
-                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_3),
-                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_5)),
+                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_A2),
+                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_B1),
+                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_C1)),
             SingleScenarioDefinition.of(
                 "Scenario 6",
-                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_2),
-                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_3),
-                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_6)),
+                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_A2),
+                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_B1),
+                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_C2)),
             SingleScenarioDefinition.of(
                 "Scenario 7",
-                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_2),
-                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_4),
-                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_5)),
+                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_A2),
+                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_B2),
+                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_C1)),
             SingleScenarioDefinition.of(
                 "Scenario 8",
-                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_2),
-                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_4),
-                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_6)));
+                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_A2),
+                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_B2),
+                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_C2)));
 
     assertEquals(scenarios, scenarioDefinition.getScenarios());
   }
@@ -131,44 +131,44 @@ public class ScenarioDefinitionTest {
         ImmutableList.of(
             SingleScenarioDefinition.of(
                 "foo1",
-                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_1),
-                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_3),
-                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_5)),
+                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_A1),
+                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_B1),
+                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_C1)),
             SingleScenarioDefinition.of(
                 "foo2",
-                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_1),
-                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_3),
-                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_6)),
+                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_A1),
+                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_B1),
+                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_C2)),
             SingleScenarioDefinition.of(
                 "foo3",
-                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_1),
-                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_4),
-                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_5)),
+                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_A1),
+                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_B2),
+                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_C1)),
             SingleScenarioDefinition.of(
                 "foo4",
-                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_1),
-                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_4),
-                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_6)),
+                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_A1),
+                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_B2),
+                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_C2)),
             SingleScenarioDefinition.of(
                 "foo5",
-                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_2),
-                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_3),
-                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_5)),
+                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_A2),
+                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_B1),
+                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_C1)),
             SingleScenarioDefinition.of(
                 "foo6",
-                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_2),
-                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_3),
-                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_6)),
+                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_A2),
+                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_B1),
+                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_C2)),
             SingleScenarioDefinition.of(
                 "foo7",
-                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_2),
-                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_4),
-                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_5)),
+                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_A2),
+                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_B2),
+                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_C1)),
             SingleScenarioDefinition.of(
                 "foo8",
-                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_2),
-                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_4),
-                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_6)));
+                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_A2),
+                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_B2),
+                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_C2)));
 
     assertEquals(scenarios, scenarioDefinition.getScenarios());
   }
@@ -190,7 +190,7 @@ public class ScenarioDefinitionTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void ofMappingsDifferentNumberOfPerturbations() {
-    PerturbationMapping<TestPerturbation> mappingC = PerturbationMapping.of(FILTER_C, PERTURBATION_5);
+    PerturbationMapping<TestPerturbation> mappingC = PerturbationMapping.of(FILTER_C, PERTURBATION_C1);
     List<PerturbationMapping<TestPerturbation>> mappings = ImmutableList.of(MAPPING_A, MAPPING_B, mappingC);
     ScenarioDefinition.ofMappings(mappings);
   }
@@ -200,7 +200,7 @@ public class ScenarioDefinitionTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void ofMappingsWithNamesDifferentNumberOfPerturbations() {
-    PerturbationMapping<TestPerturbation> mappingC = PerturbationMapping.of(FILTER_C, PERTURBATION_5);
+    PerturbationMapping<TestPerturbation> mappingC = PerturbationMapping.of(FILTER_C, PERTURBATION_C1);
     List<PerturbationMapping<TestPerturbation>> mappings = ImmutableList.of(MAPPING_A, MAPPING_B, mappingC);
     ImmutableSet<String> scenarioNames = ImmutableSet.of("foo", "bar");
     ScenarioDefinition.ofMappings(scenarioNames, mappings);
@@ -221,14 +221,14 @@ public class ScenarioDefinitionTest {
         ImmutableList.of(
             SingleScenarioDefinition.of(
                 "Scenario 1",
-                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_1),
-                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_3),
-                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_5)),
+                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_A1),
+                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_B1),
+                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_C1)),
             SingleScenarioDefinition.of(
                 "Scenario 2",
-                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_2),
-                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_4),
-                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_6)));
+                SinglePerturbationMapping.of(FILTER_A, PERTURBATION_A2),
+                SinglePerturbationMapping.of(FILTER_B, PERTURBATION_B2),
+                SinglePerturbationMapping.of(FILTER_C, PERTURBATION_C2)));
 
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofScenarios(scenarios);
     assertEquals(scenarios, scenarioDefinition.getScenarios());
@@ -238,15 +238,15 @@ public class ScenarioDefinitionTest {
     SingleScenarioDefinition scenario1 =
         SingleScenarioDefinition.of(
             "Scenario 1",
-            SinglePerturbationMapping.of(FILTER_A, PERTURBATION_1),
-            SinglePerturbationMapping.of(FILTER_B, PERTURBATION_3),
-            SinglePerturbationMapping.of(FILTER_C, PERTURBATION_5));
+            SinglePerturbationMapping.of(FILTER_A, PERTURBATION_A1),
+            SinglePerturbationMapping.of(FILTER_B, PERTURBATION_B1),
+            SinglePerturbationMapping.of(FILTER_C, PERTURBATION_C1));
     SingleScenarioDefinition scenario2 =
         SingleScenarioDefinition.of(
             "Scenario 2",
-            SinglePerturbationMapping.of(FILTER_A, PERTURBATION_2),
-            SinglePerturbationMapping.of(FILTER_B, PERTURBATION_4),
-            SinglePerturbationMapping.of(FILTER_C, PERTURBATION_6));
+            SinglePerturbationMapping.of(FILTER_A, PERTURBATION_A2),
+            SinglePerturbationMapping.of(FILTER_B, PERTURBATION_B2),
+            SinglePerturbationMapping.of(FILTER_C, PERTURBATION_C2));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofScenarios(scenario1, scenario2);
     assertEquals(ImmutableList.of(scenario1, scenario2), scenarioDefinition.getScenarios());
   }

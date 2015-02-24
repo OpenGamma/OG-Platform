@@ -81,10 +81,23 @@ public final class ScenarioDefinition implements ImmutableBean {
    * Given three mappings, A, B and C, each containing two perturbations, 1 and 2, there will be two
    * scenarios generated:
    * <pre>
-   * |            | A | B | C |
-   * |------------|---|---|---|
-   * | Scenario 1 | 1 | 1 | 1 |
-   * | Scenario 2 | 2 | 2 | 2 |
+   * |            |  A   |  B   |  C   |
+   * |------------|------|------|------|
+   * | Scenario 1 | A[1] | B[1] | C[1] |
+   * | Scenario 2 | A[2] | B[2] | C[2] |
+   * </pre>
+   * For example, consider the following perturbation mappings:
+   * <ul>
+   *   <li>Filter: USD Curves, Shocks: [-10bp, 0, +10bp]</li>
+   *   <li>Filter: EUR/USD Rate, Shocks: [+5%, 0, -5%]</li>
+   * </ul>
+   * The scenario definition would contain the following three scenarios:
+   * <pre>
+   * |            | USD Curves | EUR/USD Rate |
+   * |------------|------------|--------------|
+   * | Scenario 1 |     -10bp  |     +5%      |
+   * | Scenario 2 |       0    |      0       |
+   * | Scenario 3 |     +10bp  |     -5%      |
    * </pre>
    *
    * @param mappings  the filters and perturbations that define the scenario. Each mapping must contain the same
@@ -103,7 +116,8 @@ public final class ScenarioDefinition implements ImmutableBean {
                 mappings.get(i).getPerturbations().size());
       }
     }
-    return new ScenarioDefinition(createScenarios(generateNames(mappings, false), mappings, false));
+    ImmutableSet<String> scenarioNames = generateNames(numScenarios);
+    return new ScenarioDefinition(createScenarios(scenarioNames, mappings, false));
   }
 
   /**
@@ -120,11 +134,23 @@ public final class ScenarioDefinition implements ImmutableBean {
    * Given three mappings, A, B and C, each containing two perturbations, 1 and 2, there will be two
    * scenarios generated:
    * <pre>
-   * |            | A | B | C |
-   * |------------|---|---|---|
-   * | Scenario 1 | 1 | 1 | 1 |
-   * | Scenario 2 | 2 | 2 | 2 |
+   * |            |  A   |  B   |  C   |
+   * |------------|------|------|------|
+   * | Scenario 1 | A[1] | B[1] | C[1] |
+   * | Scenario 2 | A[2] | B[2] | C[2] |
    * </pre>
+   * For example, consider the following perturbation mappings:
+   * <ul>
+   *   <li>Filter: USD Curves, Shocks: [-10bp, 0, +10bp]</li>
+   *   <li>Filter: EUR/USD Rate, Shocks: [+5%, 0, -5%]</li>
+   * </ul>
+   * The scenario definition would contain the following three scenarios:
+   * <pre>
+   * |            | USD Curves | EUR/USD Rate |
+   * |------------|------------|--------------|
+   * | Scenario 1 |     -10bp  |     +5%      |
+   * | Scenario 2 |       0    |      0       |
+   * | Scenario 3 |     +10bp  |     -5%      |
    *
    * @param mappings  the filters and perturbations that define the scenario. Each mapping must contain the same
    *   number of perturbations
@@ -163,24 +189,44 @@ public final class ScenarioDefinition implements ImmutableBean {
    * Given three mappings, A, B and C, each containing two perturbations, 1 and 2, there will be eight
    * scenarios generated:
    * <pre>
-   * |            | A | B | C |
-   * |------------|---|---|---|
-   * | Scenario 1 | 1 | 1 | 1 |
-   * | Scenario 2 | 1 | 1 | 2 |
-   * | Scenario 3 | 1 | 2 | 1 |
-   * | Scenario 4 | 1 | 2 | 2 |
-   * | Scenario 5 | 2 | 1 | 1 |
-   * | Scenario 6 | 2 | 1 | 2 |
-   * | Scenario 7 | 2 | 2 | 1 |
-   * | Scenario 8 | 2 | 2 | 2 |
+   * |            |   A  |   B  |   C  |
+   * |------------|------|------|------|
+   * | Scenario 1 | A[1] | B[1] | C[1] |
+   * | Scenario 2 | A[1] | B[1] | C[2] |
+   * | Scenario 3 | A[1] | B[2] | C[1] |
+   * | Scenario 4 | A[1] | B[2] | C[2] |
+   * | Scenario 5 | A[2] | B[1] | C[1] |
+   * | Scenario 6 | A[2] | B[1] | C[2] |
+   * | Scenario 7 | A[2] | B[2] | C[1] |
+   * | Scenario 8 | A[2] | B[2] | C[2] |
    * </pre>
+   * For example, consider the following perturbation mappings:
+   * <ul>
+   *   <li>Filter: USD Curves, Shocks: [-10bp, 0, +10bp]</li>
+   *   <li>Filter: EUR/USD Rate, Shocks: [+5%, 0, -5%]</li>
+   * </ul>
+   * The scenario definition would contain the following nine scenarios:
+   * <pre>
+   * |            | USD Curves | EUR/USD Rate |
+   * |------------|------------|--------------|
+   * | Scenario 1 |     -10bp  |     +5%      |
+   * | Scenario 2 |     -10bp  |      0       |
+   * | Scenario 3 |     -10bp  |     -5%      |
+   * | Scenario 4 |       0    |     +5%      |
+   * | Scenario 5 |       0    |      0       |
+   * | Scenario 6 |       0    |     -5%      |
+   * | Scenario 7 |     +10bp  |     +5%      |
+   * | Scenario 8 |     +10bp  |      0       |
+   * | Scenario 9 |     +10bp  |     -5%      |
    *
    * @param mappings  the filters and perturbations that define the scenarios. They can contain any number
    *   of perturbations, and they do not need to have the same number of perturbations
    * @return a scenario definition containing the perturbations in the mappings
    */
   public static ScenarioDefinition allCombinationsOf(List<? extends PerturbationMapping<?>> mappings) {
-    return new ScenarioDefinition(createScenarios(generateNames(mappings, true), mappings, true));
+    int numScenarios = countScenarios(mappings, true);
+    ImmutableSet<String> scenarioNames = generateNames(numScenarios);
+    return new ScenarioDefinition(createScenarios(scenarioNames, mappings, true));
   }
 
   /**
@@ -196,17 +242,35 @@ public final class ScenarioDefinition implements ImmutableBean {
    * Given three mappings, A, B and C, each containing two perturbations, 1 and 2, there will be eight
    * scenarios generated:
    * <pre>
-   * |            | A | B | C |
-   * |------------|---|---|---|
-   * | Scenario 1 | 1 | 1 | 1 |
-   * | Scenario 2 | 1 | 1 | 2 |
-   * | Scenario 3 | 1 | 2 | 1 |
-   * | Scenario 4 | 1 | 2 | 2 |
-   * | Scenario 5 | 2 | 1 | 1 |
-   * | Scenario 6 | 2 | 1 | 2 |
-   * | Scenario 7 | 2 | 2 | 1 |
-   * | Scenario 8 | 2 | 2 | 2 |
+   * |            |   A  |   B  |   C  |
+   * |------------|------|------|------|
+   * | Scenario 1 | A[1] | B[1] | C[1] |
+   * | Scenario 2 | A[1] | B[1] | C[2] |
+   * | Scenario 3 | A[1] | B[2] | C[1] |
+   * | Scenario 4 | A[1] | B[2] | C[2] |
+   * | Scenario 5 | A[2] | B[1] | C[1] |
+   * | Scenario 6 | A[2] | B[1] | C[2] |
+   * | Scenario 7 | A[2] | B[2] | C[1] |
+   * | Scenario 8 | A[2] | B[2] | C[2] |
    * </pre>
+   * For example, consider the following perturbation mappings:
+   * <ul>
+   *   <li>Filter: USD Curves, Shocks: [-10bp, 0, +10bp]</li>
+   *   <li>Filter: EUR/USD Rate, Shocks: [+5%, 0, -5%]</li>
+   * </ul>
+   * The scenario definition would contain the following nine scenarios:
+   * <pre>
+   * |            | USD Curves | EUR/USD Rate |
+   * |------------|------------|--------------|
+   * | Scenario 1 |     -10bp  |     +5%      |
+   * | Scenario 2 |     -10bp  |      0       |
+   * | Scenario 3 |     -10bp  |     -5%      |
+   * | Scenario 4 |       0    |     +5%      |
+   * | Scenario 5 |       0    |      0       |
+   * | Scenario 6 |       0    |     -5%      |
+   * | Scenario 7 |     +10bp  |     +5%      |
+   * | Scenario 8 |     +10bp  |      0       |
+   * | Scenario 9 |     +10bp  |     -5%      |
    *
    * @param mappings  the filters and perturbations that define the scenarios. They can contain any number
    *   of perturbations, and they do not need to have the same number of perturbations
@@ -343,11 +407,7 @@ public final class ScenarioDefinition implements ImmutableBean {
   /**
    * Generates simple names for the scenarios of the form 'Scenario 1' etc.
    */
-  private static ImmutableSet<String> generateNames(
-      List<? extends PerturbationMapping<?>> mappings,
-      boolean allCombinations) {
-
-    int numScenarios = countScenarios(mappings, allCombinations);
+  private static ImmutableSet<String> generateNames(int numScenarios) {
     ImmutableSet.Builder<String> namesBuilder = ImmutableSet.builder();
 
     for (int i = 1; i <= numScenarios; i++) {
