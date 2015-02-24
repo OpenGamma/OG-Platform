@@ -184,8 +184,6 @@ public class FxRateMarketDataBuilderTest {
     assertEquals(1 / (USDCHF_RATE * EURUSD_RATE), (Double) chfEurResult.getValue(), TOLERANCE);
   }
 
-  // TODO test time series data
-
   public void getTimeSeriesRequirements() {
     SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
     ExternalId rateId = ExternalId.of("x", "GBPUSD");
@@ -611,5 +609,18 @@ public class FxRateMarketDataBuilderTest {
     Result<?> usdGbpResult = values.get(usdGbp);
     assertSuccess(usdGbpResult);
     assertEquals((1 / GBPUSD_RATE) + 0.1, (Double) usdGbpResult.getValue(), TOLERANCE);
+  }
+
+  /**
+   * Tests that getting the requirements fails gracefully if there is no configuration in the currency matrix.
+   */
+  public void getRequirementWithMissingConfig() {
+    SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
+    FxRateMarketDataBuilder builder = new FxRateMarketDataBuilder(ConfigLink.<CurrencyMatrix>resolved(matrix));
+    SingleValueRequirement gbpUsd = singleValueRequirement("GBP/USD");
+    ZonedDateTime valuationTime = ZonedDateTime.now();
+    Set<MarketDataRequirement> requirements =
+        builder.getSingleValueRequirements(gbpUsd, valuationTime, ImmutableSet.<MarketDataRequirement>of());
+    assertTrue(requirements.isEmpty());
   }
 }
