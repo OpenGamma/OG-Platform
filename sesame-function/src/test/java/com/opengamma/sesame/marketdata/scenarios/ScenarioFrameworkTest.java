@@ -116,7 +116,7 @@ public class ScenarioFrameworkTest {
             .build();
 
     List<SinglePerturbationMapping> mappings = ImmutableList.of(mapping);
-    List<SinglePerturbationMapping> emptyMappings = ImmutableList.of();
+    SingleScenarioDefinition scenario = SingleScenarioDefinition.of("scenarioName", mappings);
     MarketDataEnvironmentFactory environmentFactory =
         new MarketDataEnvironmentFactory(new EmptyMarketDataFactory(), builder);
     ZonedDateTime valuationTime = ZonedDateTime.now();
@@ -125,7 +125,7 @@ public class ScenarioFrameworkTest {
         environmentFactory.build(
             suppliedData,
             ImmutableSet.<MarketDataRequirement>of(curveReq),
-            mappings,
+            scenario,
             EmptyMarketDataSpec.INSTANCE,
             valuationTime);
 
@@ -133,7 +133,7 @@ public class ScenarioFrameworkTest {
         environmentFactory.build(
             suppliedData,
             ImmutableSet.<MarketDataRequirement>of(curveReq),
-            emptyMappings,
+            SingleScenarioDefinition.base(),
             EmptyMarketDataSpec.INSTANCE,
             valuationTime);
 
@@ -173,12 +173,13 @@ public class ScenarioFrameworkTest {
             .perturbation(MulticurveOutputParallelShift.absolute(0.1))
             .build();
     List<SinglePerturbationMapping> mappings = ImmutableList.of(mapping);
+    SingleScenarioDefinition scenario = SingleScenarioDefinition.of("scenarioName", mappings);
 
     MarketDataEnvironment perturbedMarketData =
         environmentFactory.build(
             suppliedData,
             ImmutableSet.<MarketDataRequirement>of(),
-            mappings,
+            scenario,
             EmptyMarketDataSpec.INSTANCE,
             valuationTime);
 
@@ -215,8 +216,9 @@ public class ScenarioFrameworkTest {
 
     SingleValueRequirement bundleRequirement = SingleValueRequirement.of(multicurveId);
     List<SinglePerturbationMapping> mappings = ImmutableList.of(mapping);
+    SingleScenarioDefinition scenario = SingleScenarioDefinition.of("scenarioName", mappings);
     ImmutableSet<SingleValueRequirement> requirements = ImmutableSet.of(bundleRequirement);
-    CyclePerturbations cyclePerturbations = new CyclePerturbations(requirements, mappings);
+    CyclePerturbations cyclePerturbations = new CyclePerturbations(requirements, scenario);
 
     MarketDataEnvironment perturbedData = cyclePerturbations.apply(marketData);
     MulticurveBundle perturbedBundle = (MulticurveBundle) perturbedData.getData().get(bundleRequirement);

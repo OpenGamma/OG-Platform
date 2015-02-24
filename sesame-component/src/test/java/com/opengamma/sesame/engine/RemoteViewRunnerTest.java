@@ -37,8 +37,8 @@ import com.opengamma.component.rest.ComponentRepositoryServletContextListener;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
-import com.opengamma.sesame.marketdata.scenarios.PerturbationMapping;
 import com.opengamma.sesame.marketdata.scenarios.ScenarioDefinition;
+import com.opengamma.sesame.marketdata.scenarios.SingleScenarioDefinition;
 import com.opengamma.transport.jaxrs.FudgeObjectBinaryConsumer;
 import com.opengamma.transport.jaxrs.FudgeObjectBinaryProducer;
 import com.opengamma.util.result.Result;
@@ -98,7 +98,7 @@ public class RemoteViewRunnerTest {
   public void runScenarios() {
     MarketDataEnvironment marketData = MarketDataEnvironmentBuilder.empty();
     CalculationArguments calculationArgs = CalculationArguments.builder().build();
-    ScenarioDefinition scenarioDefinition = new ScenarioDefinition(ImmutableList.<PerturbationMapping>of());
+    ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofScenarios(SingleScenarioDefinition.base());
     ScenarioResults results =
         _remoteViewRunner.runScenarios(
             _viewConfig,

@@ -15,7 +15,6 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -26,61 +25,355 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.sesame.marketdata.MarketDataUtils;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Multiple sets of market data filters and perturbations that are combined when running scenarios.
+ * A scenario definition defines how to create multiple sets of market data for running calculations over
+ * a set of scenarios. The scenario data is created by applying perturbations to a set of base market data.
+ * A different set of perturbations is used for each scenario.
  * <p>
- * One set of calculations is performed for every combination of mappings. Therefore the number
- * of calculation cycles needed is the product of the number of cycles in each of its mappings.
+ * A definition contains multiple {@link SingleScenarioDefinition} instances, each corresponding to one
+ * scenario. Each single scenario definition contains market data filters and perturbations. Filters
+ * are used to choose items of market data that are shocked in the scenario, and the perturbations
+ * define those shocks.
  * <p>
- * Perturbations are applied in the order they are defined in the list of mappings. An item of market data
+ * Perturbations are applied in the order they are defined in scenario. An item of market data
  * can only be perturbed once, so if multiple mappings apply to it, only the first will be used.
  */
 @BeanDefinition
 public final class ScenarioDefinition implements ImmutableBean {
 
   /** The market data filters and perturbations that define the scenarios. */
-  @PropertyDefinition(validate = "notNull")
-  private final ImmutableList<PerturbationMapping> _mappings;
+  @PropertyDefinition(validate = "notEmpty")
+  private final ImmutableList<SingleScenarioDefinition> _scenarios;
 
   /**
-   * @param mappings the market data filters and perturbations that define the scenarios
+   * Creates a scenario definition from a list of individual scenarios.
+   *
+   * @param scenarios  the scenarios that make up the scenario definition
+   * @return a scenario definition containing the scenarios
    */
-  @ImmutableConstructor
-  public ScenarioDefinition(List<PerturbationMapping> mappings) {
-    ArgumentChecker.notNull(mappings, "mappings");
-    _mappings = ImmutableList.copyOf(mappings);
+  public static ScenarioDefinition ofScenarios(List<SingleScenarioDefinition> scenarios) {
+    return new ScenarioDefinition(scenarios);
   }
 
-  // TODO should this derive the scenario names? one name per inner list. use a real class instead of a list
   /**
-   * Returns the perturbations that should be applied in each calculation cycle in the scenario.
-   * The outer list contains one element per calculation cycle. The inner lists contain the perturbations
-   * to apply in a single cycle.
+   * Creates a scenario definition from individual scenarios.
    *
-   * @return the perturbations that should be applied in each calculation cycle in the scenario
+   * @param scenarios  the scenarios that make up the scenario definition
+   * @return a scenario definition containing the scenarios
    */
-  public List<List<SinglePerturbationMapping>> cyclePerturbations() {
-    ImmutableList.Builder<List<SinglePerturbationMapping>> builder = ImmutableList.builder();
+  public static ScenarioDefinition ofScenarios(SingleScenarioDefinition... scenarios) {
+    return new ScenarioDefinition(ImmutableList.copyOf(scenarios));
+  }
 
-    for (PerturbationMapping mapping : _mappings) {
-      builder.add(flattenPerturbations(mapping));
+  /**
+   * Returns a scenario definition containing the perturbations in {@code mappings}.
+   * <p>
+   * Each mapping must contain the same number of perturbations. The definition will contain the
+   * same number of scenarios as the number of perturbations in each mapping.
+   * <p>
+   * The first scenario contains the first perturbation from each mapping, the second scenario contains
+   * the second perturbation from each mapping, and so on.
+   * <p>
+   * Given three mappings, A, B and C, each containing two perturbations, 1 and 2, there will be two
+   * scenarios generated:
+   * <pre>
+   * |            | A | B | C |
+   * |------------|---|---|---|
+   * | Scenario 1 | 1 | 1 | 1 |
+   * | Scenario 2 | 2 | 2 | 2 |
+   * </pre>
+   *
+   * @param mappings  the filters and perturbations that define the scenario. Each mapping must contain the same
+   *   number of perturbations
+   * @return a scenario definition containing the perturbations in the mappings
+   */
+  public static ScenarioDefinition ofMappings(List<? extends PerturbationMapping<?>> mappings) {
+    ArgumentChecker.notEmpty(mappings, "mappings");
+    int numScenarios = countScenarios(mappings, false);
+
+    for (int i = 1; i < mappings.size(); i++) {
+      if (mappings.get(i).getPerturbations().size() != numScenarios) {
+        throw new IllegalArgumentException(
+            "All mappings must have the same number of perturbations. First mapping" +
+                " has " + numScenarios + " perturbations, mapping " + i + " has " +
+                mappings.get(i).getPerturbations().size());
+      }
     }
-    List<List<SinglePerturbationMapping>> perturbations = builder.build();
-    return MarketDataUtils.cartesianProduct(perturbations);
+    return new ScenarioDefinition(createScenarios(generateNames(mappings, false), mappings, false));
+  }
+
+  /**
+   * Returns a scenario definition containing the perturbations in {@code mappings}.
+   * <p>
+   * Each mapping must contain the same number of perturbations. The definition will contain the
+   * same number of scenarios as the number of perturbations in each mapping.
+   * <p>
+   * The first scenario contains the first perturbation from each mapping, the second scenario contains
+   * the second perturbation from each mapping, and so on.
+   * <p>
+   * The set of scenario names must contain the same number of elements as the mappings.
+   * <p>
+   * Given three mappings, A, B and C, each containing two perturbations, 1 and 2, there will be two
+   * scenarios generated:
+   * <pre>
+   * |            | A | B | C |
+   * |------------|---|---|---|
+   * | Scenario 1 | 1 | 1 | 1 |
+   * | Scenario 2 | 2 | 2 | 2 |
+   * </pre>
+   *
+   * @param mappings  the filters and perturbations that define the scenario. Each mapping must contain the same
+   *   number of perturbations
+   * @param scenarioNames  the names of the scenarios. This must be the same size as the list of perturbations
+   *   in each mapping
+   * @return a scenario definition containing the perturbations in the mappings
+   */
+  public static ScenarioDefinition ofMappings(
+      ImmutableSet<String> scenarioNames,
+      List<? extends PerturbationMapping<?>> mappings) {
+
+    ArgumentChecker.notNull(scenarioNames, "scenarioNames");
+    int numScenarios = scenarioNames.size();
+
+    for (int i = 0; i < mappings.size(); i++) {
+      if (mappings.get(i).getPerturbations().size() != numScenarios) {
+        throw new IllegalArgumentException(
+            "Each mapping must contain the same number of perturbations as there are scenarios. There are " +
+                numScenarios + " scenarios, mapping " + i + " has " + mappings.get(i).getPerturbations().size() +
+                " perturbations.");
+      }
+    }
+    return new ScenarioDefinition(createScenarios(scenarioNames, mappings, false));
+  }
+
+  /**
+   * Returns a scenario definition created from all possible combinations of the mappings.
+   * <p>
+   * The mappings can have any number of perturbations, they do not need to have the same number as each other.
+   * Each scenario contain one perturbation from each mapping. One scenario is created for each
+   * possible combination of perturbations formed by taking one from each mapping.
+   * <p>
+   * The number of scenarios in the definition will be equal to the product of the number of perturbations
+   * in the mappings.
+   * <p>
+   * Given three mappings, A, B and C, each containing two perturbations, 1 and 2, there will be eight
+   * scenarios generated:
+   * <pre>
+   * |            | A | B | C |
+   * |------------|---|---|---|
+   * | Scenario 1 | 1 | 1 | 1 |
+   * | Scenario 2 | 1 | 1 | 2 |
+   * | Scenario 3 | 1 | 2 | 1 |
+   * | Scenario 4 | 1 | 2 | 2 |
+   * | Scenario 5 | 2 | 1 | 1 |
+   * | Scenario 6 | 2 | 1 | 2 |
+   * | Scenario 7 | 2 | 2 | 1 |
+   * | Scenario 8 | 2 | 2 | 2 |
+   * </pre>
+   *
+   * @param mappings  the filters and perturbations that define the scenarios. They can contain any number
+   *   of perturbations, and they do not need to have the same number of perturbations
+   * @return a scenario definition containing the perturbations in the mappings
+   */
+  public static ScenarioDefinition allCombinationsOf(List<? extends PerturbationMapping<?>> mappings) {
+    return new ScenarioDefinition(createScenarios(generateNames(mappings, true), mappings, true));
+  }
+
+  /**
+   * Returns a scenario definition created from all possible combinations of the mappings.
+   * <p>
+   * The mappings can have any number of perturbations, they do not need to have the same number as each other.
+   * Each scenario contain one perturbation from each mapping. One scenario is created for each
+   * possible combination of perturbations formed by taking one from each mapping.
+   * <p>
+   * The number of scenarios in the definition will be equal to the product of the number of perturbations
+   * in the mappings.
+   * <p>
+   * Given three mappings, A, B and C, each containing two perturbations, 1 and 2, there will be eight
+   * scenarios generated:
+   * <pre>
+   * |            | A | B | C |
+   * |------------|---|---|---|
+   * | Scenario 1 | 1 | 1 | 1 |
+   * | Scenario 2 | 1 | 1 | 2 |
+   * | Scenario 3 | 1 | 2 | 1 |
+   * | Scenario 4 | 1 | 2 | 2 |
+   * | Scenario 5 | 2 | 1 | 1 |
+   * | Scenario 6 | 2 | 1 | 2 |
+   * | Scenario 7 | 2 | 2 | 1 |
+   * | Scenario 8 | 2 | 2 | 2 |
+   * </pre>
+   *
+   * @param mappings  the filters and perturbations that define the scenarios. They can contain any number
+   *   of perturbations, and they do not need to have the same number of perturbations
+   * @return a scenario definition containing the perturbations in the mappings
+   */
+  public static ScenarioDefinition allCombinationsOf(
+      ImmutableSet<String> scenarioNames,
+      List<? extends PerturbationMapping<?>> mappings) {
+
+    ArgumentChecker.notEmpty(scenarioNames, "scenarioNames");
+    ArgumentChecker.notEmpty(mappings, "mappings");
+    int numScenarios = countScenarios(mappings, true);
+
+    if (numScenarios != scenarioNames.size()) {
+      throw new IllegalArgumentException(
+          "The number of scenario names provided is " + scenarioNames.size() + " but " +
+              "the number of scenarios is " + numScenarios);
+    }
+    return new ScenarioDefinition(createScenarios(scenarioNames, mappings, true));
+  }
+
+  /**
+   * Counts the number of scenarios implied by the mappings and the {@code allCombinations} flag.
+   *
+   * @param mappings  the mappings that make up the scenarios
+   * @param allCombinations  whether the scenarios are generated by taking all combinations of perturbations
+   *   formed by taking one from each mapping
+   * @return the number of scenarios
+   */
+  private static int countScenarios(List<? extends PerturbationMapping<?>> mappings, boolean allCombinations) {
+    ArgumentChecker.notEmpty(mappings, "mappings");
+
+    if (allCombinations) {
+      // This accumulates the number of scenarios
+      int numScenarios = mappings.get(0).getPerturbations().size();
+
+      for (int i = 1; i < mappings.size(); i++) {
+        numScenarios *= mappings.get(i).getPerturbations().size();
+      }
+      return numScenarios;
+    } else {
+      return mappings.get(0).getPerturbations().size();
+    }
+  }
+
+  /**
+   * Returns a definition for each scenario.
+   *
+   * @param scenarioNames  the names of the scenarios
+   * @param mappings  the filters and perturbations that define the scenarios
+   * @return the perturbations that should be applied in each scenario
+   */
+  private static List<SingleScenarioDefinition> createScenarios(
+      ImmutableSet<String> scenarioNames,
+      List<? extends PerturbationMapping<?>> mappings,
+      boolean allCombinations) {
+
+    ImmutableList.Builder<List<SinglePerturbationMapping>> singleMappingsBuilder = ImmutableList.builder();
+
+    // Flatten the perturbation mappings into lists of single perturbations.
+    // The mappings contain a filter and multiple perturbations used across multiple scenarios.
+    // The single perturbation mappings contain a filter and a perturbation, and are used in a single scenario
+    for (PerturbationMapping mapping : mappings) {
+      singleMappingsBuilder.add(flattenPerturbations(mapping));
+    }
+    List<List<SinglePerturbationMapping>> perturbations = singleMappingsBuilder.build();
+    List<String> scenarioNamesList = scenarioNames.asList();
+
+    if (allCombinations) {
+      return createScenariosForAllCombinations(perturbations, scenarioNamesList);
+    } else {
+      return createScenariosForSimpleCombinations(perturbations, scenarioNamesList);
+    }
+  }
+
+  /**
+   * Creates definitions for each individual scenario. Each scenario is created by taking one
+   * perturbation for each perturbation mapping.
+   * <p>
+   * For example, consider a scenario definition containing a perturbation mapping for a curve with five
+   * perturbations and a perturbation mapping for an FX rate with five perturbations. The result would
+   * be five scenarios.
+   * <p>
+   * The first scenario contains the first curve shock and the first FX shock, the second scenario contains
+   * the second curve shock and second FX shock, and so on.
+   *
+   * @param perturbations  the perturbations. The outer list contains an element for each perturbation mapping.
+   *   The inner list contains an element for each perturbation in the perturbation mapping. The inners lists
+   *   must have the same size
+   * @param scenarioNames  the names of the scenarios
+   * @return definitions for the individual scenarios
+   */
+  private static List<SingleScenarioDefinition> createScenariosForSimpleCombinations(
+      List<List<SinglePerturbationMapping>> perturbations,
+      List<String> scenarioNames) {
+
+    ImmutableList.Builder<SingleScenarioDefinition> scenariosBuilder = ImmutableList.builder();
+
+    for (int i = 0; i < scenarioNames.size(); i++) {
+      ImmutableList.Builder<SinglePerturbationMapping> scenarioBuilder = ImmutableList.builder();
+
+      for (List<SinglePerturbationMapping> mappingPerturbations : perturbations) {
+        scenarioBuilder.add(mappingPerturbations.get(i));
+      }
+      scenariosBuilder.add(SingleScenarioDefinition.of(scenarioNames.get(i), scenarioBuilder.build()));
+    }
+    return scenariosBuilder.build();
+  }
+
+  /**
+   * Creates definitions for each individual scenario. Each scenario contains one perturbation from each
+   * perturbation mapping. A scenario is created for all possible combinations of perturbations.
+   *
+   * @param perturbations  the perturbations. The outer list contains an element for each perturbation mapping.
+   *   The inner list contains an element for each perturbation in the perturbation mapping. The inners lists
+   *   do not have to have the same size
+   * @param scenarioNames  the names of the scenarios
+   * @return definitions for the individual scenarios
+   */
+  private static List<SingleScenarioDefinition> createScenariosForAllCombinations(
+      List<List<SinglePerturbationMapping>> perturbations,
+      List<String> scenarioNames) {
+
+    List<List<SinglePerturbationMapping>> cartesianProduct = MarketDataUtils.cartesianProduct(perturbations);
+    ImmutableList.Builder<SingleScenarioDefinition> scenariosBuilder = ImmutableList.builder();
+
+    // Each of the inner lists corresponds to a single scenario
+    for (int i = 0; i < scenarioNames.size(); i++) {
+      scenariosBuilder.add(SingleScenarioDefinition.of(scenarioNames.get(i), cartesianProduct.get(i)));
+    }
+    return scenariosBuilder.build();
+  }
+
+  /**
+   * Generates simple names for the scenarios of the form 'Scenario 1' etc.
+   */
+  private static ImmutableSet<String> generateNames(
+      List<? extends PerturbationMapping<?>> mappings,
+      boolean allCombinations) {
+
+    int numScenarios = countScenarios(mappings, allCombinations);
+    ImmutableSet.Builder<String> namesBuilder = ImmutableSet.builder();
+
+    for (int i = 1; i <= numScenarios; i++) {
+      namesBuilder.add("Scenario " + Integer.toString(i));
+    }
+    return namesBuilder.build();
   }
 
   /**
    * A {@link PerturbationMapping} contains one filter and multiple perturbations. This method converts a
    * {@code PerturbationMapping} into a list of {@link SinglePerturbationMapping} which are a pair of filter
    * and perturbation.
+   * <p>
+   * The input data is:
+   * <pre>
+   *   [mapping, [perturbation1, perturbation2, perturbation3, ...]]
+   * </pre>
+   * and the output data is:
+   * <pre>
+   *   [[mapping, perturbation1], [mapping, perturbation2], [mapping, perturbation3], ...]
+   * </pre>
    *
    * @param mapping a perturbation mapping
    * @return a list in which each element contains the filter from {@code mapping} and a perturbation
    */
-  private static List<SinglePerturbationMapping> flattenPerturbations(PerturbationMapping mapping) {
+  private static List<SinglePerturbationMapping> flattenPerturbations(PerturbationMapping<?> mapping) {
     ImmutableList.Builder<SinglePerturbationMapping> builder = ImmutableList.builder();
 
     for (Perturbation perturbation : mapping.getPerturbations()) {
@@ -116,6 +409,12 @@ public final class ScenarioDefinition implements ImmutableBean {
     return new ScenarioDefinition.Builder();
   }
 
+  private ScenarioDefinition(
+      List<SingleScenarioDefinition> scenarios) {
+    JodaBeanUtils.notEmpty(scenarios, "scenarios");
+    this._scenarios = ImmutableList.copyOf(scenarios);
+  }
+
   @Override
   public ScenarioDefinition.Meta metaBean() {
     return ScenarioDefinition.Meta.INSTANCE;
@@ -134,10 +433,10 @@ public final class ScenarioDefinition implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the market data filters and perturbations that define the scenarios.
-   * @return the value of the property, not null
+   * @return the value of the property, not empty
    */
-  public ImmutableList<PerturbationMapping> getMappings() {
-    return _mappings;
+  public ImmutableList<SingleScenarioDefinition> getScenarios() {
+    return _scenarios;
   }
 
   //-----------------------------------------------------------------------
@@ -156,7 +455,7 @@ public final class ScenarioDefinition implements ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ScenarioDefinition other = (ScenarioDefinition) obj;
-      return JodaBeanUtils.equal(getMappings(), other.getMappings());
+      return JodaBeanUtils.equal(getScenarios(), other.getScenarios());
     }
     return false;
   }
@@ -164,7 +463,7 @@ public final class ScenarioDefinition implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getMappings());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getScenarios());
     return hash;
   }
 
@@ -172,7 +471,7 @@ public final class ScenarioDefinition implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("ScenarioDefinition{");
-    buf.append("mappings").append('=').append(JodaBeanUtils.toString(getMappings()));
+    buf.append("scenarios").append('=').append(JodaBeanUtils.toString(getScenarios()));
     buf.append('}');
     return buf.toString();
   }
@@ -188,17 +487,17 @@ public final class ScenarioDefinition implements ImmutableBean {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code mappings} property.
+     * The meta-property for the {@code scenarios} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableList<PerturbationMapping>> _mappings = DirectMetaProperty.ofImmutable(
-        this, "mappings", ScenarioDefinition.class, (Class) ImmutableList.class);
+    private final MetaProperty<ImmutableList<SingleScenarioDefinition>> _scenarios = DirectMetaProperty.ofImmutable(
+        this, "scenarios", ScenarioDefinition.class, (Class) ImmutableList.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "mappings");
+        "scenarios");
 
     /**
      * Restricted constructor.
@@ -209,8 +508,8 @@ public final class ScenarioDefinition implements ImmutableBean {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 194445669:  // mappings
-          return _mappings;
+        case 1726545635:  // scenarios
+          return _scenarios;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -232,19 +531,19 @@ public final class ScenarioDefinition implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code mappings} property.
+     * The meta-property for the {@code scenarios} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableList<PerturbationMapping>> mappings() {
-      return _mappings;
+    public MetaProperty<ImmutableList<SingleScenarioDefinition>> scenarios() {
+      return _scenarios;
     }
 
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 194445669:  // mappings
-          return ((ScenarioDefinition) bean).getMappings();
+        case 1726545635:  // scenarios
+          return ((ScenarioDefinition) bean).getScenarios();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -266,7 +565,7 @@ public final class ScenarioDefinition implements ImmutableBean {
    */
   public static final class Builder extends DirectFieldsBeanBuilder<ScenarioDefinition> {
 
-    private List<PerturbationMapping> _mappings = new ArrayList<PerturbationMapping>();
+    private List<SingleScenarioDefinition> _scenarios = new ArrayList<SingleScenarioDefinition>();
 
     /**
      * Restricted constructor.
@@ -279,15 +578,15 @@ public final class ScenarioDefinition implements ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(ScenarioDefinition beanToCopy) {
-      this._mappings = new ArrayList<PerturbationMapping>(beanToCopy.getMappings());
+      this._scenarios = new ArrayList<SingleScenarioDefinition>(beanToCopy.getScenarios());
     }
 
     //-----------------------------------------------------------------------
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 194445669:  // mappings
-          return _mappings;
+        case 1726545635:  // scenarios
+          return _scenarios;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -297,8 +596,8 @@ public final class ScenarioDefinition implements ImmutableBean {
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 194445669:  // mappings
-          this._mappings = (List<PerturbationMapping>) newValue;
+        case 1726545635:  // scenarios
+          this._scenarios = (List<SingleScenarioDefinition>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -333,29 +632,29 @@ public final class ScenarioDefinition implements ImmutableBean {
     @Override
     public ScenarioDefinition build() {
       return new ScenarioDefinition(
-          _mappings);
+          _scenarios);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code mappings} property in the builder.
-     * @param mappings  the new value, not null
+     * Sets the {@code scenarios} property in the builder.
+     * @param scenarios  the new value, not empty
      * @return this, for chaining, not null
      */
-    public Builder mappings(List<PerturbationMapping> mappings) {
-      JodaBeanUtils.notNull(mappings, "mappings");
-      this._mappings = mappings;
+    public Builder scenarios(List<SingleScenarioDefinition> scenarios) {
+      JodaBeanUtils.notEmpty(scenarios, "scenarios");
+      this._scenarios = scenarios;
       return this;
     }
 
     /**
-     * Sets the {@code mappings} property in the builder
+     * Sets the {@code scenarios} property in the builder
      * from an array of objects.
-     * @param mappings  the new value, not null
+     * @param scenarios  the new value, not empty
      * @return this, for chaining, not null
      */
-    public Builder mappings(PerturbationMapping... mappings) {
-      return mappings(Arrays.asList(mappings));
+    public Builder scenarios(SingleScenarioDefinition... scenarios) {
+      return scenarios(Arrays.asList(scenarios));
     }
 
     //-----------------------------------------------------------------------
@@ -363,7 +662,7 @@ public final class ScenarioDefinition implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(64);
       buf.append("ScenarioDefinition.Builder{");
-      buf.append("mappings").append('=').append(JodaBeanUtils.toString(_mappings));
+      buf.append("scenarios").append('=').append(JodaBeanUtils.toString(_scenarios));
       buf.append('}');
       return buf.toString();
     }

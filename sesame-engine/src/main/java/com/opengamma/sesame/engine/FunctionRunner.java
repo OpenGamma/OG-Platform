@@ -9,7 +9,6 @@ import java.util.Set;
 
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.function.scenarios.FilteredScenarioDefinition;
@@ -18,7 +17,7 @@ import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.builders.MarketDataEnvironmentFactory;
-import com.opengamma.sesame.marketdata.scenarios.SinglePerturbationMapping;
+import com.opengamma.sesame.marketdata.scenarios.SingleScenarioDefinition;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.function.Function;
 
@@ -92,7 +91,7 @@ public class FunctionRunner {
     MarketDataEnvironment marketData =
         _environmentFactory.build(suppliedData,
                                   requirements,
-                                  ImmutableList.<SinglePerturbationMapping>of(),
+                                  SingleScenarioDefinition.base(),
                                   calculationArguments.getMarketDataSpecification(),
                                   valuationTime);
 

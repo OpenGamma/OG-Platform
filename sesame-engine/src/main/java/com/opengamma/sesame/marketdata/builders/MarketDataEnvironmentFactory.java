@@ -36,7 +36,7 @@ import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.sesame.marketdata.SingleValueRequirement;
 import com.opengamma.sesame.marketdata.TimeSeriesRequirement;
 import com.opengamma.sesame.marketdata.scenarios.CyclePerturbations;
-import com.opengamma.sesame.marketdata.scenarios.SinglePerturbationMapping;
+import com.opengamma.sesame.marketdata.scenarios.SingleScenarioDefinition;
 import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateObjectTimeSeries;
@@ -102,7 +102,7 @@ public class MarketDataEnvironmentFactory {
    */
   public MarketDataEnvironment build(MarketDataEnvironment suppliedData,
                                      Set<MarketDataRequirement> requirements,
-                                     List<SinglePerturbationMapping> perturbations,
+                                     SingleScenarioDefinition scenario,
                                      MarketDataSpecification marketDataSpec,
                                      ZonedDateTime valuationTime) {
 
@@ -111,7 +111,7 @@ public class MarketDataEnvironmentFactory {
     MarketDataSource marketDataSource = _marketDataFactory.create(marketDataSpec);
 
     // figure out which perturbations should be applied to the market data for this calculation cycle
-    CyclePerturbations cyclePerturbations = new CyclePerturbations(requirements, perturbations);
+    CyclePerturbations cyclePerturbations = new CyclePerturbations(requirements, scenario);
 
     // build the data
     MarketDataEnvironment builtData =
