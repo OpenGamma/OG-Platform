@@ -462,7 +462,12 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
       }
     };
     CurrencyMatrixValue value = _currencyMatrixLink.resolve().getConversion(base, counter);
-    return value.accept(visitor);
+
+    if (value != null) {
+      return value.accept(visitor);
+    } else {
+      return ImmutableSet.of();
+    }
   }
 
 }
