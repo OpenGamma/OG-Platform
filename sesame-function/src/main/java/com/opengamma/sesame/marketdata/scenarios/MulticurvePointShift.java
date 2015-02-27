@@ -41,7 +41,7 @@ import com.opengamma.sesame.marketdata.MarketDataUtils;
  * curve's {@link MulticurveBundle}.
  */
 @BeanDefinition
-public class MulticurvePointShift implements Perturbation, ImmutableBean {
+public final class MulticurvePointShift implements Perturbation, ImmutableBean {
 
   /** The shifts to apply to the curve nodes, keyed by the ID of node. */
   @PropertyDefinition(validate = "notNull")
@@ -130,15 +130,13 @@ public class MulticurvePointShift implements Perturbation, ImmutableBean {
     return new MulticurvePointShift.Builder();
   }
 
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected MulticurvePointShift(MulticurvePointShift.Builder builder) {
-    JodaBeanUtils.notNull(builder._shifts, "shifts");
-    JodaBeanUtils.notNull(builder._shiftType, "shiftType");
-    this._shifts = ImmutableMap.copyOf(builder._shifts);
-    this._shiftType = builder._shiftType;
+  private MulticurvePointShift(
+      Map<CurveNodeId, Double> shifts,
+      ShiftType shiftType) {
+    JodaBeanUtils.notNull(shifts, "shifts");
+    JodaBeanUtils.notNull(shiftType, "shiftType");
+    this._shifts = ImmutableMap.copyOf(shifts);
+    this._shiftType = shiftType;
   }
 
   @Override
@@ -213,25 +211,17 @@ public class MulticurvePointShift implements Perturbation, ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("MulticurvePointShift{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("shifts").append('=').append(getShifts()).append(',').append(' ');
+    buf.append("shiftType").append('=').append(JodaBeanUtils.toString(getShiftType()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("shifts").append('=').append(JodaBeanUtils.toString(getShifts())).append(',').append(' ');
-    buf.append("shiftType").append('=').append(JodaBeanUtils.toString(getShiftType())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code MulticurvePointShift}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -259,7 +249,7 @@ public class MulticurvePointShift implements Perturbation, ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -293,7 +283,7 @@ public class MulticurvePointShift implements Perturbation, ImmutableBean {
      * The meta-property for the {@code shifts} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Map<CurveNodeId, Double>> shifts() {
+    public MetaProperty<Map<CurveNodeId, Double>> shifts() {
       return _shifts;
     }
 
@@ -301,7 +291,7 @@ public class MulticurvePointShift implements Perturbation, ImmutableBean {
      * The meta-property for the {@code shiftType} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ShiftType> shiftType() {
+    public MetaProperty<ShiftType> shiftType() {
       return _shiftType;
     }
 
@@ -332,7 +322,7 @@ public class MulticurvePointShift implements Perturbation, ImmutableBean {
   /**
    * The bean-builder for {@code MulticurvePointShift}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<MulticurvePointShift> {
+  public static final class Builder extends DirectFieldsBeanBuilder<MulticurvePointShift> {
 
     private Map<CurveNodeId, Double> _shifts = new HashMap<CurveNodeId, Double>();
     private ShiftType _shiftType;
@@ -340,14 +330,14 @@ public class MulticurvePointShift implements Perturbation, ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(MulticurvePointShift beanToCopy) {
+    private Builder(MulticurvePointShift beanToCopy) {
       this._shifts = new HashMap<CurveNodeId, Double>(beanToCopy.getShifts());
       this._shiftType = beanToCopy.getShiftType();
     }
@@ -407,7 +397,9 @@ public class MulticurvePointShift implements Perturbation, ImmutableBean {
 
     @Override
     public MulticurvePointShift build() {
-      return new MulticurvePointShift(this);
+      return new MulticurvePointShift(
+          _shifts,
+          _shiftType);
     }
 
     //-----------------------------------------------------------------------
@@ -438,18 +430,10 @@ public class MulticurvePointShift implements Perturbation, ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("MulticurvePointShift.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
+      buf.append("shifts").append('=').append(JodaBeanUtils.toString(_shifts)).append(',').append(' ');
+      buf.append("shiftType").append('=').append(JodaBeanUtils.toString(_shiftType));
       buf.append('}');
       return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
-      buf.append("shifts").append('=').append(JodaBeanUtils.toString(_shifts)).append(',').append(' ');
-      buf.append("shiftType").append('=').append(JodaBeanUtils.toString(_shiftType)).append(',').append(' ');
     }
 
   }
