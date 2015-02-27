@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.credit.isdanew;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -376,18 +377,33 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
   }
 
   public TenorLabelledMatrix1D getBucketedCS01(CDSAnalytic analytic, CDSAnalytic[] buckets, Tenor[] tenors, CDSQuoteConvention quote, double notional, ISDACompliantYieldCurve yieldCurve, ISDACompliantCreditCurve creditCurve) {
+    
+    int nBuckets = buckets.length;
+    int nShortBuckets = 0; 
+    for (int i = 0; i < nBuckets; ++i) { 
+      if (analytic.getProtectionEnd() >= buckets[i].getProtectionEnd()) { 
+        nShortBuckets = i; 
+      } 
+    }
+    nShortBuckets = (nShortBuckets == nBuckets - 1) ? nShortBuckets + 1 : nShortBuckets + 2; 
+    CDSAnalytic[] shortBuckets = Arrays.copyOf(buckets, nShortBuckets);
+    
     //TODO: Check quote.getCoupon() is spread value for IMM & 0.01 (or 0.05) for non IMM
-    double[] cs01Values;
+//    double[] cs01Values;
+    double[] shortCs01Values;
     if (quote instanceof ParSpread) {
-      cs01Values = CALCULATOR.bucketedCS01FromCreditCurve(analytic, quote.getCoupon(), buckets, yieldCurve, creditCurve, ONE_BPS);
+      shortCs01Values = CALCULATOR.bucketedCS01FromCreditCurve(analytic, quote.getCoupon(), shortBuckets, yieldCurve, creditCurve, ONE_BPS);
     } else if (quote instanceof PointsUpFront) {
-      cs01Values = CALCULATOR.bucketedCS01FromPUF(analytic, (PointsUpFront) quote, yieldCurve, buckets, ONE_BPS);
+      shortCs01Values = CALCULATOR.bucketedCS01FromPUF(analytic, (PointsUpFront) quote, yieldCurve, shortBuckets, ONE_BPS);
     } else {
-      cs01Values = CALCULATOR.bucketedCS01FromCreditCurve(analytic, quote.getCoupon()/*coupon * ONE_BPS*/, buckets, yieldCurve, creditCurve, ONE_BPS);
+      shortCs01Values = CALCULATOR.bucketedCS01FromCreditCurve(analytic, quote.getCoupon()/*coupon * ONE_BPS*/, shortBuckets, yieldCurve, creditCurve, ONE_BPS);
     }
-    for (int i = 0; i < cs01Values.length; i++) {
-      cs01Values[i] *= notional * ONE_BPS;
+    for (int i = 0; i < shortCs01Values.length; i++) {
+      shortCs01Values[i] *= notional * ONE_BPS;
     }
+    
+    double[] cs01Values = new double [nBuckets];
+    System.arraycopy(shortCs01Values, 0, cs01Values, 0, nShortBuckets);
     return new TenorLabelledMatrix1D(tenors, cs01Values);
   }
 

@@ -10,6 +10,9 @@ import static com.opengamma.analytics.financial.credit.isdastandardmodel.Doubles
 import static com.opengamma.analytics.math.utilities.Epsilon.epsilon;
 import static com.opengamma.analytics.math.utilities.Epsilon.epsilonP;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
@@ -23,6 +26,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 
 public class FastCreditCurveBuilder extends ISDACompliantCreditCurveBuilder {
+  private static final Logger LOGGER = LoggerFactory.getLogger(FastCreditCurveBuilder.class);
   private static final double HALFDAY = 1 / 730.;
   private static final BracketRoot BRACKER = new BracketRoot();
   private static final RealSingleRootFinder ROOTFINDER = new BrentSingleRootFinder();
@@ -107,6 +111,9 @@ public class FastCreditCurveBuilder extends ISDACompliantCreditCurveBuilder {
           } catch (final MathException e) { //handling bracketing failure due to small survival probability
             if (Math.abs(func.evaluate(creditCurve.getZeroRateAtIndex(i - 1))) < 1.e-12) {
               creditCurve = creditCurve.withRate(creditCurve.getZeroRateAtIndex(i - 1), i);
+            } else if (Math.abs(func.evaluate(10. * guess[i])) < 1.e-3) { // puf to calibrate is beyond theoretical upper bound 
+              LOGGER.info("puf to calibrate is beyond theoretical bound");
+              creditCurve = creditCurve.withRate(10. * guess[i], i);
             } else {
               throw new MathException(e);
             }
