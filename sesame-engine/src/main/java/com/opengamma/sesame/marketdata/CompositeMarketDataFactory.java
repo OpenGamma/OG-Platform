@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -21,7 +22,21 @@ public class CompositeMarketDataFactory implements MarketDataFactory<MarketDataS
 
   private final Map<Class<? extends MarketDataSpecification>, MarketDataFactory<?>> _factories;
 
+  /**
+   * Creates a factory that combines data from multiple other factories.
+   *
+   * @param factories  the factories that are the source of the data
+   */
   public CompositeMarketDataFactory(MarketDataFactory<?>... factories) {
+    this(ImmutableList.copyOf(factories));
+  }
+
+  /**
+   * Creates a factory that combines data from multiple other factories.
+   *
+   * @param factories  the factories that are the source of the data
+   */
+  public CompositeMarketDataFactory(List<MarketDataFactory<?>> factories) {
     Map<Class<? extends MarketDataSpecification>, MarketDataFactory<?>> factoryMap = new HashMap<>();
 
     for (MarketDataFactory<?> factory : factories) {
