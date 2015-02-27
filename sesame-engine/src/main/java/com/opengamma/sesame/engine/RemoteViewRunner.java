@@ -46,13 +46,23 @@ public class RemoteViewRunner extends AbstractRemoteClient implements ViewRunner
       List<?> portfolio) {
 
     URI uri = DataViewRunnerResource.uriRunScenarios(getBaseUri());
+
+    // As RunScenariosArguments works with List<Object>, if we call the
+    // portfolio method on the builder it picks the version taking
+    // Object... rather than the version taking List<Object>. This
+    // means that the portfolio gets wrapped in another list
+    // and fails later.
+    // For this reason we need to cast to enforce the correct call
+    @SuppressWarnings("unchecked")
+    List<Object> pf = (List<Object>) portfolio;
+
     RunScenariosArguments args =
         RunScenariosArguments.builder()
             .viewConfig(viewConfig)
             .calculationArguments(calculationArguments)
             .marketData(baseMarketData)
             .scenarioDefinition(scenarioDefinition)
-            .portfolio(portfolio)
+            .portfolio(pf)
             .build();
     return accessRemote(uri).post(ScenarioResults.class, args);
   }
