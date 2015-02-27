@@ -151,7 +151,7 @@ public class IRFutureOptionFnTest {
     RawId<Double> optionRawId = RawId.of(ExternalSchemes.syntheticSecurityId("Test future option").toBundle());
     MarketDataEnvironmentBuilder builder = new MarketDataEnvironmentBuilder();
     builder.add(optionRawId, optionPrice);
-    builder.add(VolatilitySurfaceId.of("TestSurface"), new VolatilitySurface(TEST_SURFACE));
+    builder.add(VolatilitySurfaceId.of("TestExchange"), new VolatilitySurface(TEST_SURFACE));
     builder.valuationTime(VALUATION_TIME);
     return builder.build();
   }
@@ -227,9 +227,8 @@ public class IRFutureOptionFnTest {
                     argument("rootFinderRelativeTolerance", 1e-9),
                     argument("rootFinderMaxIterations", 1000)),
                 function(
-                    IRFutureOptionNormalCalculatorFactory.class,
-                    argument("moneynessOnPrice", false),
-                    argument("volSurfaceName", "TestSurface")),
+                    TestIRFutureOptionNormalSurfaceProviderFn.class,
+                    argument("moneynessOnPrice", false)),
                 function(
                     DefaultCurveNodeConverterFn.class,
                     argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1))))),
@@ -247,6 +246,7 @@ public class IRFutureOptionFnTest {
                 FixingsFn.class, DefaultFixingsFn.class,
                 MarketDataFn.class, DefaultMarketDataFn.class,
                 CurveSelector.class, MarketExposureSelector.class,
+                IRFutureOptionNormalSurfaceProviderFn.class, TestIRFutureOptionNormalSurfaceProviderFn.class,
                 DiscountingMulticurveCombinerFn.class, CurveSelectorMulticurveBundleFn.class));
 
     return config;
@@ -293,7 +293,7 @@ public class IRFutureOptionFnTest {
 
   private IRFutureOptionTrade createIRFutureOptionTrade() {
     
-    String exchange = "";
+    String exchange = "TestExchange";
     ExerciseType exerciseType = new EuropeanExerciseType();
     double pointValue = Double.NaN;
     boolean margined = true;
