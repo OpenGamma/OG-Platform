@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.interestrate.swap.provider;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
+import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
@@ -31,4 +32,8 @@ public class CouponForwardRateVisitor extends InstrumentDerivativeVisitorAdapter
     return curves.getSimplyCompoundForwardRate(payment.getIndex(), payment.getFixingPeriodStartTime(), payment.getFixingPeriodEndTime(), payment.getFixingAccrualFactor());
   }
 
+  @Override
+  public Double visitForwardRateAgreement(ForwardRateAgreement payment, MulticurveProviderInterface curves) {
+    return curves.getSimplyCompoundForwardRate(payment.getIndex(), payment.getFixingPeriodStartTime(), payment.getFixingPeriodEndTime(), payment.getFixingYearFraction());
+  }
 }

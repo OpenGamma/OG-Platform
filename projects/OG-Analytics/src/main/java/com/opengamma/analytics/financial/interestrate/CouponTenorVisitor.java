@@ -11,6 +11,7 @@ import java.util.Set;
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitorAdapter;
+import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedAccruedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
@@ -170,5 +171,10 @@ public final class CouponTenorVisitor extends InstrumentDefinitionVisitorAdapter
   @Override
   public Set<Tenor> visitCouponFixedCompoundingDefinition(CouponFixedCompoundingDefinition payment) {
     return Collections.emptySet();
+  }
+
+  @Override
+  public Set<Tenor> visitForwardRateAgreementDefinition(ForwardRateAgreementDefinition fra) {
+    return Sets.newHashSet(Tenor.of(fra.getIndex().getTenor()));
   }
 }

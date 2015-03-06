@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
+import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
@@ -135,5 +136,10 @@ public class CouponPaymentYearFractionVisitor extends InstrumentDerivativeVisito
   @Override
   public Double visitCouponIborCompoundingSimpleSpread(CouponIborCompoundingSimpleSpread payment) {
     return payment.getPaymentYearFraction();
+  }
+
+  @Override
+  public Double visitForwardRateAgreement(ForwardRateAgreement fra) {
+    return fra.getPaymentYearFraction();
   }
 }
