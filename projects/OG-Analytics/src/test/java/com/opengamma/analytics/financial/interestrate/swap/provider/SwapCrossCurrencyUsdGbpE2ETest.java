@@ -63,7 +63,7 @@ import com.opengamma.util.tuple.Pair;
  * The data is hard-coded. It is also available in some integration unit test and in snapshots.
  */
 @Test(groups = TestGroup.UNIT)
-public class SwapCrossCurrencyE2ETest {  
+public class SwapCrossCurrencyUsdGbpE2ETest {  
 
   private static final ZonedDateTime VALUATION_DATE = DateUtils.getUTCDate(2014, 1, 22);
 
