@@ -67,7 +67,17 @@ public class MulticurveProviderDiscountDataSets {
   private static final double[] USD_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
   private static final double[] USD_DSC_RATE = new double[] {0.0100, 0.0120, 0.0120, 0.0140, 0.0140, 0.0140 };
   private static final String USD_DSC_NAME = "USD Dsc";
-  private static final YieldAndDiscountCurve USD_DSC = new YieldCurve(USD_DSC_NAME, new InterpolatedDoublesCurve(USD_DSC_TIME, USD_DSC_RATE, LINEAR_FLAT, true, USD_DSC_NAME));
+  private static final YieldAndDiscountCurve USD_DSC = 
+      new YieldCurve(USD_DSC_NAME, 
+          new InterpolatedDoublesCurve(USD_DSC_TIME, USD_DSC_RATE, LINEAR_FLAT, true, USD_DSC_NAME));
+  private static final double[] USD_DSC_PERF_TIME = 
+      new double[] {0.0, 0.1, 0.25, 0.5, 0.75, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 15.0, 20.0, 25.0, 30.0 }; // 20
+  private static final double[] USD_DSC_PERF_RATE = 
+      new double[] {0.0100, 0.0100, 0.0100, 0.0100, 0.0120, 0.0120, 0.0120, 0.0140, 0.0140, 0.0140, 
+    0.0140, 0.0150, 0.0160, 0.0170, 0.0160, 0.0160, 0.0150, 0.0150, 0.0140, 0.0140 };
+  private static final YieldAndDiscountCurve USD_PERF_DSC = 
+      new YieldCurve(USD_DSC_NAME, 
+          new InterpolatedDoublesCurve(USD_DSC_PERF_TIME, USD_DSC_PERF_RATE, LINEAR_FLAT, true, USD_DSC_NAME));
   private static final double[] USD_FWD3_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
   private static final double[] USD_FWD3_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150 };
   private static final String USD_FWD3_NAME = "USD LIBOR 3M";
@@ -225,6 +235,14 @@ public class MulticurveProviderDiscountDataSets {
     SINGLECURVES_USD.setCurve(FEDFUND, USD_DSC);
     SINGLECURVES_USD.setCurve(USDLIBOR3M, USD_DSC);
     SINGLECURVES_USD.setCurve(USDLIBOR6M, USD_DSC);
+  }
+
+  private static final MulticurveProviderDiscount SINGLECURVES_PERF_USD = new MulticurveProviderDiscount();
+  static {
+    SINGLECURVES_PERF_USD.setCurve(Currency.USD, USD_PERF_DSC);
+    SINGLECURVES_PERF_USD.setCurve(FEDFUND, USD_PERF_DSC);
+    SINGLECURVES_PERF_USD.setCurve(USDLIBOR3M, USD_PERF_DSC);
+    SINGLECURVES_PERF_USD.setCurve(USDLIBOR6M, USD_PERF_DSC);
   }
 
   private static final MulticurveProviderDiscount MULTICURVES_EUR_USD = new MulticurveProviderDiscount();
@@ -492,6 +510,15 @@ public class MulticurveProviderDiscountDataSets {
 
   public static MulticurveProviderDiscount createSingleCurveUsd() {
     return SINGLECURVES_USD;
+  }
+
+  /** 
+   * Returns a multi-curve provider with a unique curve (USD). 
+   * The curve has 20 nodes and can be used for performance measurement.
+   * @return The single curve.
+   */
+  public static MulticurveProviderDiscount createSingleCurvePerformanceUsd() {
+    return SINGLECURVES_PERF_USD;
   }
 
   /**
