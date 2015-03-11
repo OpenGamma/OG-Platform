@@ -9,6 +9,7 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
@@ -82,11 +83,21 @@ public class CrossGammaSingleCurveCalculator {
     String name = multicurve.getAllNames().iterator().next();
     Currency ccy = multicurve.getCurrencyForName(name);
     YieldAndDiscountCurve curve = multicurve.getCurve(name);
-    ArgumentChecker.isTrue(curve instanceof YieldCurve, "curve should be YieldCurve");
-    YieldCurve yieldCurve = (YieldCurve) curve;
-    ArgumentChecker.isTrue(yieldCurve.getCurve() instanceof InterpolatedDoublesCurve,
-        "Yield curve should be based on InterpolatedDoublesCurve");
-    InterpolatedDoublesCurve interpolatedCurve = (InterpolatedDoublesCurve) yieldCurve.getCurve();
+    ArgumentChecker.isTrue(curve instanceof YieldCurve || curve instanceof DiscountCurve, 
+        "curve should be YieldCurve or DiscountCurve");
+    boolean isZc = curve instanceof YieldCurve;
+    InterpolatedDoublesCurve interpolatedCurve;
+    if (isZc) {
+      YieldCurve yieldCurve = (YieldCurve) curve;
+      ArgumentChecker.isTrue(yieldCurve.getCurve() instanceof InterpolatedDoublesCurve,
+          "Yield curve should be based on InterpolatedDoublesCurve");
+      interpolatedCurve = (InterpolatedDoublesCurve) yieldCurve.getCurve();
+    } else {
+      DiscountCurve discountCurve = (DiscountCurve) curve;
+      ArgumentChecker.isTrue(discountCurve.getCurve() instanceof InterpolatedDoublesCurve,
+          "Discount curve should be based on InterpolatedDoublesCurve");
+      interpolatedCurve = (InterpolatedDoublesCurve) discountCurve.getCurve();
+    }
     double[] y = interpolatedCurve.getYDataAsPrimitive();
     double[] x = interpolatedCurve.getXDataAsPrimitive();
     int nbNode = y.length;
@@ -96,10 +107,16 @@ public class CrossGammaSingleCurveCalculator {
     MultipleCurrencyParameterSensitivity[] psShift = new MultipleCurrencyParameterSensitivity[nbNode];
     double[][] gammaArray = new double[nbNode][nbNode];
     for (int loopnode = 0; loopnode < nbNode; loopnode++) {
-      final double[] yieldBumped = y.clone();
-      yieldBumped[loopnode] += _shift;
-      final YieldAndDiscountCurve curveBumped = new YieldCurve(name,
-          new InterpolatedDoublesCurve(x, yieldBumped, interpolatedCurve.getInterpolator(), true));
+      double[] parametersBumped = y.clone();
+      parametersBumped[loopnode] += _shift;
+      YieldAndDiscountCurve curveBumped;
+      if (isZc) {
+        curveBumped = new YieldCurve(name,
+            new InterpolatedDoublesCurve(x, parametersBumped, interpolatedCurve.getInterpolator(), true));
+      } else {
+        curveBumped = new DiscountCurve(name,
+            new InterpolatedDoublesCurve(x, parametersBumped, interpolatedCurve.getInterpolator(), true));
+      }
       MulticurveProviderDiscount multicurveBumped = new MulticurveProviderDiscount();
       multicurveBumped.setForexMatrix(multicurve.getFxRates());
       for (Currency loopccy : multicurve.getCurrencies()) {
@@ -116,6 +133,13 @@ public class CrossGammaSingleCurveCalculator {
       for (int loopnode2 = 0; loopnode2 < nbNode; loopnode2++) {
         gammaArray[loopnode][loopnode2] = (psShiftArray[loopnode2] - ps0Array[loopnode2]) / _shift;
       }
+    }
+    // Due to approximation using a finite difference approach, the matrix computed may be (slightly) non-symmetrical.
+    // The matrix is made symmetric by using only one half.
+    for (int loopnode1 = 1; loopnode1 < nbNode; loopnode1++) {
+      for (int loopnode2 = loopnode1; loopnode2 < nbNode; loopnode2++) {
+        gammaArray[loopnode2][loopnode1] = gammaArray[loopnode1][loopnode2];
+      }      
     }
     DoubleMatrix2D gammaMat = new DoubleMatrix2D(gammaArray);
     return gammaMat;

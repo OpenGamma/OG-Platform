@@ -21,6 +21,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.legalentity.LegalEntityShortName;
+import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -66,10 +67,14 @@ public class MulticurveProviderDiscountDataSets {
 
   private static final double[] USD_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
   private static final double[] USD_DSC_RATE = new double[] {0.0100, 0.0120, 0.0120, 0.0140, 0.0140, 0.0140 };
+  private static final double[] USD_DSC_DF = new double[] {1.00, 0.99, 0.98, 9.96, 0.91, 0.85 };
   private static final String USD_DSC_NAME = "USD Dsc";
-  private static final YieldAndDiscountCurve USD_DSC = 
+  private static final YieldAndDiscountCurve USD_RATE_DSC = 
       new YieldCurve(USD_DSC_NAME, 
           new InterpolatedDoublesCurve(USD_DSC_TIME, USD_DSC_RATE, LINEAR_FLAT, true, USD_DSC_NAME));
+  private static final YieldAndDiscountCurve USD_DF_DSC = 
+      new DiscountCurve(USD_DSC_NAME, 
+          new InterpolatedDoublesCurve(USD_DSC_TIME, USD_DSC_DF, LINEAR_FLAT, true, USD_DSC_NAME));
   private static final double[] USD_DSC_PERF_TIME = 
       new double[] {0.0, 0.1, 0.25, 0.5, 0.75, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 15.0, 20.0, 25.0, 30.0 }; // 20
   private static final double[] USD_DSC_PERF_RATE = 
@@ -213,7 +218,7 @@ public class MulticurveProviderDiscountDataSets {
     MARKET_1.setCurve(Currency.AUD, AUD_DSC);
     MARKET_1.setCurve(AUDBB3M, AUD_FWD3);
     MARKET_1.setCurve(AUDBB6M, AUD_FWD6);
-    MARKET_1.setCurve(Currency.USD, USD_DSC);
+    MARKET_1.setCurve(Currency.USD, USD_RATE_DSC);
     MARKET_1.setCurve(Currency.EUR, EUR_DSC);
     MARKET_1.setCurve(Currency.GBP, CURVE_GBP_35);
     MARKET_1.setCurve(USDLIBOR3M, USD_FWD3);
@@ -229,12 +234,20 @@ public class MulticurveProviderDiscountDataSets {
     MARKET_1.setCurve(ISSUER_AUD_GOVT, CURVE_AUD_30);
   }
 
-  private static final MulticurveProviderDiscount SINGLECURVES_USD = new MulticurveProviderDiscount();
+  private static final MulticurveProviderDiscount SINGLECURVES_YIELD_USD = new MulticurveProviderDiscount();
   static {
-    SINGLECURVES_USD.setCurve(Currency.USD, USD_DSC);
-    SINGLECURVES_USD.setCurve(FEDFUND, USD_DSC);
-    SINGLECURVES_USD.setCurve(USDLIBOR3M, USD_DSC);
-    SINGLECURVES_USD.setCurve(USDLIBOR6M, USD_DSC);
+    SINGLECURVES_YIELD_USD.setCurve(Currency.USD, USD_RATE_DSC);
+    SINGLECURVES_YIELD_USD.setCurve(FEDFUND, USD_RATE_DSC);
+    SINGLECURVES_YIELD_USD.setCurve(USDLIBOR3M, USD_RATE_DSC);
+    SINGLECURVES_YIELD_USD.setCurve(USDLIBOR6M, USD_RATE_DSC);
+  }
+
+  private static final MulticurveProviderDiscount SINGLECURVES_DF_USD = new MulticurveProviderDiscount();
+  static {
+    SINGLECURVES_DF_USD.setCurve(Currency.USD, USD_DF_DSC);
+    SINGLECURVES_DF_USD.setCurve(FEDFUND, USD_DF_DSC);
+    SINGLECURVES_DF_USD.setCurve(USDLIBOR3M, USD_DF_DSC);
+    SINGLECURVES_DF_USD.setCurve(USDLIBOR6M, USD_DF_DSC);
   }
 
   private static final MulticurveProviderDiscount SINGLECURVES_PERF_USD = new MulticurveProviderDiscount();
@@ -248,8 +261,8 @@ public class MulticurveProviderDiscountDataSets {
   private static final MulticurveProviderDiscount MULTICURVES_EUR_USD = new MulticurveProviderDiscount();
   static {
     MULTICURVES_EUR_USD.setForexMatrix(FX_MATRIX);
-    MULTICURVES_EUR_USD.setCurve(Currency.USD, USD_DSC);
-    MULTICURVES_EUR_USD.setCurve(FEDFUND, USD_DSC);
+    MULTICURVES_EUR_USD.setCurve(Currency.USD, USD_RATE_DSC);
+    MULTICURVES_EUR_USD.setCurve(FEDFUND, USD_RATE_DSC);
     MULTICURVES_EUR_USD.setCurve(Currency.EUR, EUR_DSC);
     MULTICURVES_EUR_USD.setCurve(USDLIBOR3M, USD_FWD3);
     MULTICURVES_EUR_USD.setCurve(USDLIBOR6M, USD_FWD6);
@@ -260,8 +273,8 @@ public class MulticurveProviderDiscountDataSets {
 
   private static final MulticurveProviderDiscount MULTICURVES_GBP_USD = new MulticurveProviderDiscount();
   static {
-    MULTICURVES_GBP_USD.setCurve(Currency.USD, USD_DSC);
-    MULTICURVES_GBP_USD.setCurve(FEDFUND, USD_DSC);
+    MULTICURVES_GBP_USD.setCurve(Currency.USD, USD_RATE_DSC);
+    MULTICURVES_GBP_USD.setCurve(FEDFUND, USD_RATE_DSC);
     MULTICURVES_GBP_USD.setCurve(USDLIBOR3M, USD_FWD3);
     MULTICURVES_GBP_USD.setCurve(USDLIBOR6M, USD_FWD6);
     MULTICURVES_GBP_USD.setCurve(Currency.GBP, CURVE_GBP_30);
@@ -447,7 +460,7 @@ public class MulticurveProviderDiscountDataSets {
    */
   public static InflationIssuerProviderDiscount createMarket1(final ZonedDateTime pricingDate) {
     final InflationIssuerProviderDiscount market = new InflationIssuerProviderDiscount();
-    market.setCurve(Currency.USD, USD_DSC);
+    market.setCurve(Currency.USD, USD_RATE_DSC);
     market.setCurve(Currency.EUR, EUR_DSC);
     market.setCurve(Currency.GBP, CURVE_GBP_35);
     market.setCurve(Currency.AUD, AUD_DSC);
@@ -508,8 +521,17 @@ public class MulticurveProviderDiscountDataSets {
     return MULTICURVES_EUR_USD;
   }
 
-  public static MulticurveProviderDiscount createSingleCurveUsd() {
-    return SINGLECURVES_USD;
+  public static MulticurveProviderDiscount createSingleCurveZcUsd() {
+    return SINGLECURVES_YIELD_USD;
+  }
+
+  /** 
+   * Returns a multi-curve provider with a unique curve (USD). 
+   * The curve has 6 nodes and the parameters are discount factors (DiscountCurve).
+   * @return The single curve.
+   */
+  public static MulticurveProviderDiscount createSingleCurveDfUsd() {
+    return SINGLECURVES_DF_USD;
   }
 
   /** 
