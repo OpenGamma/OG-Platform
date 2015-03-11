@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.interestrate;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitorAdapter;
+import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageIndexDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
@@ -123,5 +124,10 @@ public class CouponFixingYearFractionVisitor extends InstrumentDefinitionVisitor
   public Double visitCouponArithmeticAverageONSpreadSimplifiedDefinition(
       CouponONArithmeticAverageSpreadSimplifiedDefinition payment) {
     return null;
+  }
+
+  @Override
+  public Double visitForwardRateAgreementDefinition(ForwardRateAgreementDefinition fra) {
+    return fra.getFixingPeriodAccrualFactor();
   }
 }

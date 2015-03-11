@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.interestrate;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitorAdapter;
+import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedAccruedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
@@ -167,5 +168,10 @@ public class CouponAccrualDatesVisitor extends InstrumentDefinitionVisitorAdapte
   public Pair<LocalDate, LocalDate> visitCouponIborAverageFlatCompoundingSpreadDefinition(
       CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition payment) {
     return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
+  }
+
+  @Override
+  public Pair<LocalDate, LocalDate> visitForwardRateAgreementDefinition(ForwardRateAgreementDefinition fra) {
+    return Pairs.of(fra.getAccrualStartDate().toLocalDate(), fra.getAccrualEndDate().toLocalDate());
   }
 }
