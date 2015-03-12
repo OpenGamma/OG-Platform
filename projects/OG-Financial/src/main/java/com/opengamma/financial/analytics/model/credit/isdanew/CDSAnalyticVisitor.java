@@ -84,8 +84,13 @@ public class CDSAnalyticVisitor extends FinancialSecurityVisitorAdapter<CDSAnaly
         Period.ofMonths(6); // non IMM forced to semi annual
 
     // Start date modified if not a business day
-    LocalDate startDateMod = _startDate == null ? security.getStartDate().toLocalDate() : _startDate;
-    startDateMod = security.getBusinessDayConvention().adjustDate(calendar, startDateMod);
+    LocalDate startDateMod;
+    if (IMMDateGenerator.isIMMDate(security.getMaturityDate())) {
+      startDateMod =  _startDate == null ? security.getStartDate().toLocalDate() : _startDate;
+      startDateMod = security.getBusinessDayConvention().adjustDate(calendar, startDateMod);
+    } else {
+      startDateMod = _valuationDate.plusDays(1); // not necessarily a business day
+    }
     
     final CDSAnalytic cdsAnalytic = new CDSAnalytic(_valuationDate,
                                                     security.getEffectiveDate().toLocalDate(),
