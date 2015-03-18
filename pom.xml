@@ -56,7 +56,6 @@
 
   <!-- ==================================================================== -->
   <modules>
-    <module>deployment-template</module>
     <module>examples</module>
     <module>projects</module>
   </modules>
