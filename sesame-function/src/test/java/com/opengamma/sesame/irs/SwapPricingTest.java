@@ -900,7 +900,7 @@ public class SwapPricingTest {
         ARGS, new Function<Environment, Result<BucketedCrossSensitivities>>() {
           @Override
           public Result<BucketedCrossSensitivities> apply(Environment env) {
-            return _swapFunction.calculateBucketedGamma(env, _fixedVsLibor3mSwapSecurity);
+            return _swapFunction.calculateBucketedCrossGamma(env, _fixedVsLibor3mSwapSecurity);
           }
         });
     assertThat(resultCrossGamma.isSuccess(), is(true));

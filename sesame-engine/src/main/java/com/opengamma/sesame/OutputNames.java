@@ -90,7 +90,7 @@ public final class OutputNames {
   /**
    * The bucketed Gamma
    */
-  public static final String BUCKETED_GAMMA = "Bucketed Gamma";
+  public static final String BUCKETED_CROSS_GAMMA = "Bucketed Cross Gamma";
   /**
    * The bucketed sensitivity with respect to zero rates.
    */
@@ -179,6 +179,10 @@ public final class OutputNames {
    *  The CS01 of a credit default swap
    */
   public static final String CS01 = "CS01";
+  /**
+   * The bucketed Gamma projected on curve pillars, without cross values
+   */
+  public static final String BUCKETED_GAMMA = "Bucketed Gamma";
 
   /**
    * Restricted constructor.

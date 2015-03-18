@@ -98,5 +98,12 @@ public interface InterestRateSwapCalculator {
    *
    * @return the bucketed Gamma
    */
-  Result<BucketedCrossSensitivities> calculateBucketedGamma();
+  Result<BucketedCrossSensitivities> calculateBucketedCrossGamma();
+
+  /**
+   * Calculates the bucketed Gamma without cross-gamma values
+   *
+   * @return the bucketed Gamma
+   */
+  Result<BucketedCurveSensitivities> calculateBucketedGamma();
 }

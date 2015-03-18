@@ -7,9 +7,11 @@ package com.opengamma.sesame.irs;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -18,6 +20,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.provider.calculator.discounting.CrossGammaMultiCurveCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.CrossGammaSingleCurveCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PV01CurveParametersCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
@@ -110,6 +113,8 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
       ParSpreadMarketQuoteDiscountingCalculator.getInstance();
   /** The calculator which will compute intra-curve gammas */
   private static final CrossGammaMultiCurveCalculator CGC = new CrossGammaMultiCurveCalculator(PVCSDC);
+  /** The calculator which will compute the sum of columns gammas */
+  private static final CrossGammaSingleCurveCalculator SUM_OF_COLUMNS_GAMMA = new CrossGammaSingleCurveCalculator(PVCSDC);
   /** Matrix algebra tooling to permit matrix manipulation */
   private static final CommonsMatrixAlgebra MA = new CommonsMatrixAlgebra();
 
@@ -284,7 +289,7 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   }
   
   @Override
-  public Result<BucketedCrossSensitivities> calculateBucketedGamma() {
+  public Result<BucketedCrossSensitivities> calculateBucketedCrossGamma() {
     HashMap<String, DoubleMatrix2D> crossGammas = CGC.calculateCrossGammaIntraCurve(_derivative, (MulticurveProviderDiscount) _bundle);
     Map<String, DoubleLabelledMatrix2D> labelledMatrix2DMap = new HashMap<>();
     
@@ -296,6 +301,24 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
       labelledMatrix2DMap.put(entry.getKey(), matrix);
     }
     return Result.success(BucketedCrossSensitivities.of(labelledMatrix2DMap));
+  }
+
+  @Override
+  public Result<BucketedCurveSensitivities> calculateBucketedGamma() {
+    MulticurveProviderDiscount singleCurveBundle = (MulticurveProviderDiscount) _bundle;
+    Set<String> curveNames = singleCurveBundle.getAllCurveNames();
+   
+    ArgumentChecker.isTrue(curveNames.size() == 1, "There ought to be exactly one curve in the multi curve bundle");
+
+    Set<Currency> currencies = singleCurveBundle.getCurrencies();
+    DoubleMatrix1D gamma = 
+        new DoubleMatrix1D(SUM_OF_COLUMNS_GAMMA.calculateSumOfColumnsGamma(_derivative, singleCurveBundle));
+    Pair<String, Currency> sensitivityKey = Pairs.of(curveNames.iterator().next(), currencies.iterator().next());
+    CurveMatrixLabeller curveMatrixLabeller = _curveLabellers.get(sensitivityKey.getFirst());
+    DoubleLabelledMatrix1D matrix = curveMatrixLabeller.labelMatrix(gamma);
+    Map<Pair<String, Currency>, DoubleLabelledMatrix1D> labelledMatrix1DMap = ImmutableMap.of(sensitivityKey, matrix);
+
+    return Result.success(BucketedCurveSensitivities.of(labelledMatrix1DMap));
   }
 
   @Override
