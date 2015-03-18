@@ -56,7 +56,6 @@
 
   <!-- ==================================================================== -->
   <modules>
-    <module>examples</module>
     <module>projects</module>
   </modules>
 
