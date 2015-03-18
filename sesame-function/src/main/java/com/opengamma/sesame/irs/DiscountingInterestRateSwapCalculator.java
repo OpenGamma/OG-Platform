@@ -311,8 +311,13 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
     ArgumentChecker.isTrue(curveNames.size() == 1, "There ought to be exactly one curve in the multi curve bundle");
 
     Set<Currency> currencies = singleCurveBundle.getCurrencies();
-    DoubleMatrix1D gamma = 
-        new DoubleMatrix1D(SUM_OF_COLUMNS_GAMMA.calculateSumOfColumnsGamma(_derivative, singleCurveBundle));
+    double[] rawGamma = SUM_OF_COLUMNS_GAMMA.calculateSumOfColumnsGamma(_derivative, singleCurveBundle);
+    
+    for (int i = 0; i < rawGamma.length; ++i) {
+      rawGamma[i] *= BASIS_POINT_FACTOR * BASIS_POINT_FACTOR;
+    }
+    
+    DoubleMatrix1D gamma = new DoubleMatrix1D(rawGamma);
     Pair<String, Currency> sensitivityKey = Pairs.of(curveNames.iterator().next(), currencies.iterator().next());
     CurveMatrixLabeller curveMatrixLabeller = _curveLabellers.get(sensitivityKey.getFirst());
     DoubleLabelledMatrix1D matrix = curveMatrixLabeller.labelMatrix(gamma);
