@@ -39,6 +39,7 @@ public class CreditPvFnTest {
 
   /* Expected results validated external to OG */
   public static final double EXPECTED_PV = 103477.13641;
+  public static final double EXPECTED_INDEX_PV = EXPECTED_PV * 0.97;
   private static final double STD_TOLERANCE_PV = 1.0E-3;
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 10, 16);
   private static final Environment ENV = new SimpleEnvironment(VALUATION_TIME,
@@ -78,6 +79,18 @@ public class CreditPvFnTest {
     CurrencyAmount ca = result.getValue();
     assertThat(ca.getCurrency(), is(Currency.USD));
     assertThat(ca.getAmount(), is(closeTo(EXPECTED_PV, STD_TOLERANCE_PV)));
+  }
+
+  @Test
+  public void testIndexCdsPV() {
+
+    DefaultCreditPvFn function = FunctionModel.build(DefaultCreditPvFn.class, _config, _componentMap);
+    Result<CurrencyAmount> result = function.priceIndexCds(ENV, CreditPricingSampleData.createIndexCDSSecurity());
+
+    assertThat(result.isSuccess(), is(true));
+    CurrencyAmount ca = result.getValue();
+    assertThat(ca.getCurrency(), is(Currency.USD));
+    assertThat(ca.getAmount(), is(closeTo(EXPECTED_INDEX_PV, STD_TOLERANCE_PV)));
   }
 
 }
