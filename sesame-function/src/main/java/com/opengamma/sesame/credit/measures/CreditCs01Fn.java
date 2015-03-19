@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.credit.measures;
 
+import com.opengamma.financial.security.credit.IndexCDSSecurity;
 import com.opengamma.financial.security.credit.LegacyCDSSecurity;
 import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.sesame.Environment;
@@ -21,6 +22,10 @@ public interface CreditCs01Fn extends CreditRiskMeasureFn<CurrencyAmount> {
   @Override
   @Output(OutputNames.CS01)
   Result<CurrencyAmount> priceStandardCds(Environment env, StandardCDSSecurity cds);
+
+  @Override
+  @Output(OutputNames.CS01)
+  Result<CurrencyAmount> priceIndexCds(Environment env, IndexCDSSecurity cds);
 
   @Override
   @Output(OutputNames.CS01)

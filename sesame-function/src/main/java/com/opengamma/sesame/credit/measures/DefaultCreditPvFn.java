@@ -12,8 +12,10 @@ import com.opengamma.analytics.financial.credit.isdastandardmodel.PriceType;
 import com.opengamma.sesame.credit.CdsData;
 import com.opengamma.sesame.credit.IsdaCompliantCreditCurveFn;
 import com.opengamma.sesame.credit.IsdaCreditCurve;
+import com.opengamma.sesame.credit.converter.IndexCdsConverterFn;
 import com.opengamma.sesame.credit.converter.LegacyCdsConverterFn;
 import com.opengamma.sesame.credit.converter.StandardCdsConverterFn;
+import com.opengamma.sesame.credit.market.IndexCdsMarketDataResolverFn;
 import com.opengamma.sesame.credit.market.LegacyCdsMarketDataResolverFn;
 import com.opengamma.sesame.credit.market.StandardCdsMarketDataResolverFn;
 import com.opengamma.util.ArgumentChecker;
@@ -39,6 +41,7 @@ public class DefaultCreditPvFn extends AbstractCreditRiskMeasureFn<CurrencyAmoun
    *
    * @param legacyCdsConverterFn a legacy cds converter
    * @param standardCdsConverterFn a standard cds converter
+   * @param indexCdsConverterFn a index cds converter
    * @param standardCdsMarketDataResolverFn a market data resolver for standard cds
    * @param legacyCdsMarketDataResolverFn a market data resolver for legacy cds
    * @param creditCurveFn the credit curve function
@@ -47,13 +50,17 @@ public class DefaultCreditPvFn extends AbstractCreditRiskMeasureFn<CurrencyAmoun
    */
   public DefaultCreditPvFn(LegacyCdsConverterFn legacyCdsConverterFn,
                            StandardCdsConverterFn standardCdsConverterFn,
+                           IndexCdsConverterFn indexCdsConverterFn,
                            StandardCdsMarketDataResolverFn standardCdsMarketDataResolverFn,
                            LegacyCdsMarketDataResolverFn legacyCdsMarketDataResolverFn,
+                           IndexCdsMarketDataResolverFn indexCdsMarketDataResolverFn,
                            IsdaCompliantCreditCurveFn creditCurveFn,
                            PriceType priceType,
                            AccrualOnDefaultFormulae accrualOnDefaultFormulae) {
     super(legacyCdsConverterFn,
           standardCdsConverterFn,
+          indexCdsConverterFn,
+          indexCdsMarketDataResolverFn,
           standardCdsMarketDataResolverFn,
           legacyCdsMarketDataResolverFn,
           creditCurveFn);
