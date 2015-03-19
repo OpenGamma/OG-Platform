@@ -11,10 +11,13 @@ import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 
+import org.apache.commons.lang.StringUtils;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
@@ -32,6 +35,7 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.legalentity.SeniorityLevel;
 import com.opengamma.core.link.ConventionLink;
 import com.opengamma.core.link.ResolvedSnapshotLink;
+import com.opengamma.core.link.SecurityLink;
 import com.opengamma.core.link.SnapshotLink;
 import com.opengamma.core.region.impl.SimpleRegion;
 import com.opengamma.financial.analytics.isda.credit.CdsQuote;
@@ -45,6 +49,11 @@ import com.opengamma.financial.convention.IsdaCreditCurveConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
+import com.opengamma.financial.security.cds.CDSIndexComponentBundle;
+import com.opengamma.financial.security.cds.CDSIndexTerms;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexComponent;
+import com.opengamma.financial.security.credit.IndexCDSDefinitionSecurity;
+import com.opengamma.financial.security.credit.IndexCDSSecurity;
 import com.opengamma.financial.security.credit.LegacyCDSSecurity;
 import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
@@ -56,16 +65,24 @@ import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.impl.InMemoryRegionMaster;
 import com.opengamma.master.region.impl.MasterRegionSource;
 import com.opengamma.sesame.config.FunctionModelConfig;
+import com.opengamma.sesame.credit.DefaultIsdaCompliantYieldCurveFn;
+import com.opengamma.sesame.credit.IsdaCompliantCreditCurveFn;
+import com.opengamma.sesame.credit.IsdaCompliantYieldCurveFn;
+import com.opengamma.sesame.credit.StandardIsdaCompliantCreditCurveFn;
 import com.opengamma.sesame.credit.config.CreditCurveDataKeyMap;
 import com.opengamma.sesame.credit.config.RestructuringSettings;
+import com.opengamma.sesame.credit.converter.DefaultIndexCdsConverterFn;
 import com.opengamma.sesame.credit.converter.DefaultLegacyCdsConverterFn;
 import com.opengamma.sesame.credit.converter.DefaultStandardCdsConverterFn;
+import com.opengamma.sesame.credit.converter.IndexCdsConverterFn;
 import com.opengamma.sesame.credit.converter.LegacyCdsConverterFn;
 import com.opengamma.sesame.credit.converter.StandardCdsConverterFn;
 import com.opengamma.sesame.credit.market.CreditKeyMapperFn;
 import com.opengamma.sesame.credit.market.DefaultCreditKeyMapperFn;
+import com.opengamma.sesame.credit.market.DefaultIndexCdsMarketDataResolverFn;
 import com.opengamma.sesame.credit.market.DefaultLegacyCdsMarketDataResolverFn;
 import com.opengamma.sesame.credit.market.DefaultStandardCdsMarketDataResolverFn;
+import com.opengamma.sesame.credit.market.IndexCdsMarketDataResolverFn;
 import com.opengamma.sesame.credit.market.LegacyCdsMarketDataResolverFn;
 import com.opengamma.sesame.credit.market.StandardCdsMarketDataResolverFn;
 import com.opengamma.sesame.credit.measures.CreditCs01Fn;
@@ -84,25 +101,19 @@ import com.opengamma.util.time.Tenor;
  */
 public class CreditPricingSampleData {
 
-  /**
-   * Sample credit data - short name
-   */
   private static final String SHORT_NAME = "Pepsico Inc";
-  /**
-   * Sample credit data - credit curve name
-   */
+  private static final String INDEX_DEFINITION_NAME = "CDX.NA.HY.S23.V3";
+  private static final String INDEX_NAME = "10M." + INDEX_DEFINITION_NAME;
   private static final String SAMPLE_CREDIT_CURVE = "Sample Credit Curve";
-  /**
-   * Sample credit data - yield curve name
-   */
   private static final String SAMPLE_YIELD_CURVE = "Sample Yield Curve";
 
-  private static final ImmutableList<String> NAMES = ImmutableList.of(SHORT_NAME);
   private static final SeniorityLevel SNRFOR = SeniorityLevel.SNRFOR;
   private static final RestructuringClause XR = RestructuringClause.XR;
   private static final Currency USD = Currency.USD;
   private static final ExternalIdBundle SCDS_BUNDLE = ExternalIdBundle.of("Sample", SHORT_NAME);
   private static final ExternalIdBundle LCDS_BUNDLE = ExternalIdBundle.of("Sample", SHORT_NAME);
+  private static final ExternalIdBundle CDX_BUNDLE = ExternalIdBundle.of("Sample", INDEX_NAME);
+  private static final ExternalIdBundle CDXD_BUNDLE = ExternalIdBundle.of("Sample", INDEX_DEFINITION_NAME);
   private static final ExternalId REF_ID = ExternalId.of("SHORT-NAME", SHORT_NAME);
   private static final Set<ExternalId> USNY = Sets.newHashSet(ExternalId.of(ExternalSchemes.ISDA_HOLIDAY, "USNY"));
   private static final ExternalId REGION_US = ExternalId.of("FINANCIAL_REGION", "US");
@@ -150,6 +161,57 @@ public class CreditPricingSampleData {
 
   }
 
+  public static IndexCDSSecurity createIndexCDSSecurity() {
+
+    // 97 components in the basket, with total wieght of 0.97
+    List<CreditDefaultSwapIndexComponent> components = new ArrayList<>();
+    for (int i = 1; i <= 97; i++) {
+      ExternalId externalId = ExternalId.of("Basket", String.valueOf(i));
+      CreditDefaultSwapIndexComponent component =
+          new CreditDefaultSwapIndexComponent(externalId.getValue(),
+                                              externalId,
+                                              0.01,
+                                              externalId);
+      components.add(component);
+    }
+    CDSIndexComponentBundle componentBundle = CDSIndexComponentBundle.of(components);
+
+    //
+    //new StandardCDSSecurity(SCDS_BUNDLE,
+    //                               SHORT_NAME,
+    //                               LocalDate.of(2014, 9, 20),
+    //                               LocalDate.of(2019, 12, 20),
+    //                               REF_ID,
+    //                               new InterestRateNotional(USD, 10_000_000),
+    //                               true,
+    //                               0.01,
+    //                               SNRFOR);
+
+    IndexCDSDefinitionSecurity definition =
+        new IndexCDSDefinitionSecurity(CDXD_BUNDLE,
+                                       INDEX_DEFINITION_NAME,
+                                       LocalDate.of(1950, 1, 1),
+                                       "V1",
+                                       "S23",
+                                       "HY",
+                                       USD,
+                                       0.4,
+                                       SimpleFrequency.QUARTERLY,
+                                       0.01,
+                                       CDSIndexTerms.of(Tenor.ONE_YEAR),
+                                       componentBundle,
+                                       USNY,
+                                       BusinessDayConventions.MODIFIED_FOLLOWING);
+
+    return new IndexCDSSecurity(CDX_BUNDLE,
+                                INDEX_NAME,
+                                true,
+                                SecurityLink.resolved(definition),
+                                LocalDate.of(2014, 9, 20),
+                                LocalDate.of(2019, 12, 20),
+                                new InterestRateNotional(USD, 10_000_000));
+  }
+
   public static RestructuringSettings createRestructuringSettings() {
     Map<Currency, RestructuringClause> mappings = ImmutableMap.of(USD, XR);
     return RestructuringSettings.builder().restructuringMappings(mappings).build();
@@ -157,9 +219,8 @@ public class CreditPricingSampleData {
 
   public static CreditCurveDataSnapshot createCreditCurveDataSnapshot() {
     ImmutableMap.Builder<CreditCurveDataKey, CreditCurveData> builder = ImmutableMap.builder();
-    for (String name : NAMES) {
-      builder.put(curveCreditCurveDataKey(name), createCreditCurveData());
-    }
+    builder.put(curveCreditCurveDataKey(SHORT_NAME), createCreditCurveData());
+    builder.put(curveIndexCreditCurveDataKey(INDEX_DEFINITION_NAME), createCreditCurveData());
     return CreditCurveDataSnapshot.builder().name(SAMPLE_CREDIT_CURVE).creditCurves(builder.build()).build();
   }
 
@@ -167,7 +228,6 @@ public class CreditPricingSampleData {
     Map<Currency, YieldCurveData> map = ImmutableMap.of(USD, createYieldCurveData());
     return YieldCurveDataSnapshot.builder().name(SAMPLE_YIELD_CURVE).yieldCurves(map).build();
   }
-
 
   public static FunctionModelConfig createFunctionModelConfig() {
 
@@ -207,8 +267,10 @@ public class CreditPricingSampleData {
             CreditCurveDataProviderFn.class, SnapshotCreditCurveDataProviderFn.class,
             IsdaCompliantCreditCurveFn.class, StandardIsdaCompliantCreditCurveFn.class,
             LegacyCdsConverterFn.class, DefaultLegacyCdsConverterFn.class,
+            IndexCdsConverterFn.class, DefaultIndexCdsConverterFn.class,
             StandardCdsConverterFn.class, DefaultStandardCdsConverterFn.class,
             StandardCdsMarketDataResolverFn.class, DefaultStandardCdsMarketDataResolverFn.class,
+            IndexCdsMarketDataResolverFn.class, DefaultIndexCdsMarketDataResolverFn.class,
             LegacyCdsMarketDataResolverFn.class, DefaultLegacyCdsMarketDataResolverFn.class,
             CreditKeyMapperFn.class, DefaultCreditKeyMapperFn.class));
   }
@@ -263,6 +325,13 @@ public class CreditPricingSampleData {
         .build();
   }
 
+  private static CreditCurveDataKey curveIndexCreditCurveDataKey(String code) {
+    return CreditCurveDataKey.builder()
+        .currency(USD)
+        .curveName(code)
+        .build();
+  }
+
   public static IsdaCreditCurveConvention createUsdIsdaCreditCurveConvention() {
     return createIsdaCreditCurveConvention(REGION_US);
   }
@@ -302,10 +371,10 @@ public class CreditPricingSampleData {
         .build();
 
     return CreditCurveData.builder()
-      .curveConventionLink(conventionLink)
-      .recoveryRate(0.4)
-      .cdsQuotes(spreadData)
-      .build();
+        .curveConventionLink(conventionLink)
+        .recoveryRate(0.4)
+        .cdsQuotes(spreadData)
+        .build();
 
   }
 
