@@ -11,7 +11,6 @@ import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitiv
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.irs.InterestRateSwapCalculator;
 import com.opengamma.sesame.trade.ForwardRateAgreementTrade;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -117,7 +116,7 @@ public class DiscountingFRAFn implements FRAFn {
   }
 
   @Override
-  public Result<BucketedCrossSensitivities> calculateBucketedGamma(Environment env, FRASecurity security) {
+  public Result<BucketedCrossSensitivities> calculateBucketedCrossGamma(Environment env, FRASecurity security) {
     Result<FRACalculator> calculatorResult = _fraCalculatorFactory.createCalculator(env, security);
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
@@ -126,7 +125,7 @@ public class DiscountingFRAFn implements FRAFn {
   }
 
   @Override
-  public Result<BucketedCrossSensitivities> calculateBucketedGamma(Environment env,
+  public Result<BucketedCrossSensitivities> calculateBucketedCrossGamma(Environment env,
                                                                    ForwardRateAgreementSecurity security) {
     Result<FRACalculator> calculatorResult = _fraCalculatorFactory.createCalculator(env, security);
     if (!calculatorResult.isSuccess()) {

@@ -112,7 +112,7 @@ public interface FRAFn {
    * @return result containing the bucketed Gamma, full matrix, if successful, a Failure otherwise
    */
   @Output(OutputNames.BUCKETED_CROSS_GAMMA)
-  Result<BucketedCrossSensitivities> calculateBucketedGamma(Environment env, ForwardRateAgreementSecurity security);
+  Result<BucketedCrossSensitivities> calculateBucketedCrossGamma(Environment env, ForwardRateAgreementSecurity security);
 
   /**
    * Calculate the bucketed Gamma for a security.
@@ -122,7 +122,7 @@ public interface FRAFn {
    * @return result containing the bucketed Gamma, full matrix, if successful, a Failure otherwise
    */
   @Output(OutputNames.BUCKETED_CROSS_GAMMA)
-  Result<BucketedCrossSensitivities> calculateBucketedGamma(Environment env, FRASecurity security);
+  Result<BucketedCrossSensitivities> calculateBucketedCrossGamma(Environment env, FRASecurity security);
 
   /* Trade based model integration */
   /**
