@@ -173,6 +173,16 @@ public interface FRAFn {
    * @return result containing the bucketed Gamma if successful, a Failure otherwise
    */
   @Output(OutputNames.BUCKETED_CROSS_GAMMA)
-  Result<BucketedCrossSensitivities> calculateBucketedGamma(Environment env, ForwardRateAgreementTrade trade);
+  Result<BucketedCrossSensitivities> calculateBucketedCrossGamma(Environment env, ForwardRateAgreementTrade trade);
+ 
+  /**
+   * Calculate the bucketed Gamma project on curve pillars without cross values for a trade on a forward rate agreement.
+   *
+   * @param env the environment used for calculation
+   * @param trade the trade on a forward rate agreement to calculate the bucketed Gamma for
+   * @return result containing the bucketed Gamma if successful, a Failure otherwise
+   */
+  @Output(OutputNames.BUCKETED_GAMMA)
+  Result<BucketedCurveSensitivities> calculateBucketedGamma(Environment env, ForwardRateAgreementTrade trade);
   
 }

@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.irs;
 
+import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -308,8 +309,11 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
     MulticurveProviderDiscount singleCurveBundle = (MulticurveProviderDiscount) _bundle;
     Set<String> curveNames = singleCurveBundle.getAllCurveNames();
    
-    ArgumentChecker.isTrue(curveNames.size() == 1, "There ought to be exactly one curve in the multi curve bundle");
-
+    if (curveNames.size() != 1) {
+      return Result.failure(
+          new InvalidParameterException("Only bucketed gamma on single-curve multicurve is currently supported"));
+    }
+    
     Set<Currency> currencies = singleCurveBundle.getCurrencies();
     double[] rawGamma = SUM_OF_COLUMNS_GAMMA.calculateSumOfColumnsGamma(_derivative, singleCurveBundle);
     

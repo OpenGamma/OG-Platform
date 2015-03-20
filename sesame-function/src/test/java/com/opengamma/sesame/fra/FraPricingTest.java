@@ -400,7 +400,7 @@ public class FraPricingTest {
         ARGS, new Function<Environment, Result<BucketedCrossSensitivities>>() {
           @Override
           public Result<BucketedCrossSensitivities> apply(Environment env) {
-            return _fraFunction.calculateBucketedGamma(env, trade);
+            return _fraFunction.calculateBucketedCrossGamma(env, trade);
           }
         });
     assertThat(resultCrossGamma.isSuccess(), is(true));

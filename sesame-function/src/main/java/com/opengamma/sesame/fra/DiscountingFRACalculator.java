@@ -5,15 +5,19 @@
  */
 package com.opengamma.sesame.fra;
 
+import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.calculator.discounting.CrossGammaMultiCurveCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.CrossGammaSingleCurveCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PV01CurveParametersCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
@@ -45,6 +49,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Calculator for Discounting FRAs.
@@ -78,6 +83,8 @@ public class DiscountingFRACalculator implements FRACalculator {
       new MarketQuoteSensitivityBlockCalculator<>(PSC);
   /** The calculator which will compute intra-curve gammas */
   private static final CrossGammaMultiCurveCalculator CGC = new CrossGammaMultiCurveCalculator(PVCSDC);
+  /** The calculator which will compute the sum of columns gammas */
+  private static final CrossGammaSingleCurveCalculator SUM_OF_COLUMNS_GAMMA = new CrossGammaSingleCurveCalculator(PVCSDC);
   /** Matrix algebra tooling to permit matrix manipulation */
   private static final CommonsMatrixAlgebra MA = new CommonsMatrixAlgebra();
 
@@ -217,7 +224,7 @@ public class DiscountingFRACalculator implements FRACalculator {
   }
 
   @Override
-  public Result<BucketedCrossSensitivities> calculateBucketedGamma() {
+  public Result<BucketedCrossSensitivities> calculateBucketedCrossGamma() {
     HashMap<String, DoubleMatrix2D> crossGammas = CGC.calculateCrossGammaIntraCurve(_derivative, _bundle);
     Map<String, DoubleLabelledMatrix2D> labelledMatrix2DMap = new HashMap<>();
 
@@ -229,6 +236,32 @@ public class DiscountingFRACalculator implements FRACalculator {
       labelledMatrix2DMap.put(entry.getKey(), matrix);
     }
     return Result.success(BucketedCrossSensitivities.of(labelledMatrix2DMap));
+  }
+
+  @Override
+  public Result<BucketedCurveSensitivities> calculateBucketedGamma() {
+    MulticurveProviderDiscount singleCurveBundle = (MulticurveProviderDiscount) _bundle;
+    Set<String> curveNames = singleCurveBundle.getAllCurveNames();
+   
+    if (curveNames.size() != 1) {
+      return Result.failure(
+          new InvalidParameterException("Only bucketed gamma on single-curve multicurve is currently supported"));
+    }
+    
+    Set<Currency> currencies = singleCurveBundle.getCurrencies();
+    double[] rawGamma = SUM_OF_COLUMNS_GAMMA.calculateSumOfColumnsGamma(_derivative, singleCurveBundle);
+    
+    for (int i = 0; i < rawGamma.length; ++i) {
+      rawGamma[i] *= BASIS_POINT_FACTOR * BASIS_POINT_FACTOR;
+    }
+    
+    DoubleMatrix1D gamma = new DoubleMatrix1D(rawGamma);
+    Pair<String, Currency> sensitivityKey = Pairs.of(curveNames.iterator().next(), currencies.iterator().next());
+    CurveMatrixLabeller curveMatrixLabeller = _curveLabellers.get(sensitivityKey.getFirst());
+    DoubleLabelledMatrix1D matrix = curveMatrixLabeller.labelMatrix(gamma);
+    Map<Pair<String, Currency>, DoubleLabelledMatrix1D> labelledMatrix1DMap = ImmutableMap.of(sensitivityKey, matrix);
+
+    return Result.success(BucketedCurveSensitivities.of(labelledMatrix1DMap));
   }
 
 }

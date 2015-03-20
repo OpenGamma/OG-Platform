@@ -57,10 +57,17 @@ public interface FRACalculator {
   Result<BucketedCurveSensitivities> calculateBucketedPV01();
 
   /**
-   * Calculates the bucketed Gamma for the security
+   * Calculates the bucketed Gamma (full matrix)
    *
    * @return the bucketed Gamma
    */
-  Result<BucketedCrossSensitivities> calculateBucketedGamma();
+  Result<BucketedCrossSensitivities> calculateBucketedCrossGamma();
+
+  /**
+   * Calculates the bucketed Gamma without cross-gamma values
+   *
+   * @return the bucketed Gamma
+   */
+  Result<BucketedCurveSensitivities> calculateBucketedGamma();
 
 }

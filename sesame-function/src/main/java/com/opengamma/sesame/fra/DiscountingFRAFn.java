@@ -11,6 +11,7 @@ import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitiv
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.irs.InterestRateSwapCalculator;
 import com.opengamma.sesame.trade.ForwardRateAgreementTrade;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -121,7 +122,7 @@ public class DiscountingFRAFn implements FRAFn {
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    return calculatorResult.getValue().calculateBucketedGamma();
+    return calculatorResult.getValue().calculateBucketedCrossGamma();
   }
 
   @Override
@@ -131,7 +132,7 @@ public class DiscountingFRAFn implements FRAFn {
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    return calculatorResult.getValue().calculateBucketedGamma();
+    return calculatorResult.getValue().calculateBucketedCrossGamma();
   }
 
   @Override
@@ -171,8 +172,18 @@ public class DiscountingFRAFn implements FRAFn {
   }
 
   @Override
-  public Result<BucketedCrossSensitivities> calculateBucketedGamma(Environment env, ForwardRateAgreementTrade trade) {
+  public Result<BucketedCrossSensitivities> calculateBucketedCrossGamma(Environment env, ForwardRateAgreementTrade trade) {
     Result<FRACalculator> calculatorResult = _fraCalculatorFactory.createCalculator(env, trade);
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return calculatorResult.getValue().calculateBucketedCrossGamma();
+  }
+
+  @Override
+  public Result<BucketedCurveSensitivities> calculateBucketedGamma(Environment env, ForwardRateAgreementTrade trade) {
+    Result<FRACalculator> calculatorResult = _fraCalculatorFactory.createCalculator(env, trade);
+    
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
