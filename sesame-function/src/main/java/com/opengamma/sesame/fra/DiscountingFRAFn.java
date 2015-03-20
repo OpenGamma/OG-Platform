@@ -116,22 +116,22 @@ public class DiscountingFRAFn implements FRAFn {
   }
 
   @Override
-  public Result<BucketedCrossSensitivities> calculateBucketedGamma(Environment env, FRASecurity security) {
+  public Result<BucketedCrossSensitivities> calculateBucketedCrossGamma(Environment env, FRASecurity security) {
     Result<FRACalculator> calculatorResult = _fraCalculatorFactory.createCalculator(env, security);
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    return calculatorResult.getValue().calculateBucketedGamma();
+    return calculatorResult.getValue().calculateBucketedCrossGamma();
   }
 
   @Override
-  public Result<BucketedCrossSensitivities> calculateBucketedGamma(Environment env,
+  public Result<BucketedCrossSensitivities> calculateBucketedCrossGamma(Environment env,
                                                                    ForwardRateAgreementSecurity security) {
     Result<FRACalculator> calculatorResult = _fraCalculatorFactory.createCalculator(env, security);
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    return calculatorResult.getValue().calculateBucketedGamma();
+    return calculatorResult.getValue().calculateBucketedCrossGamma();
   }
 
   @Override
@@ -171,8 +171,18 @@ public class DiscountingFRAFn implements FRAFn {
   }
 
   @Override
-  public Result<BucketedCrossSensitivities> calculateBucketedGamma(Environment env, ForwardRateAgreementTrade trade) {
+  public Result<BucketedCrossSensitivities> calculateBucketedCrossGamma(Environment env, ForwardRateAgreementTrade trade) {
     Result<FRACalculator> calculatorResult = _fraCalculatorFactory.createCalculator(env, trade);
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return calculatorResult.getValue().calculateBucketedCrossGamma();
+  }
+
+  @Override
+  public Result<BucketedCurveSensitivities> calculateBucketedGamma(Environment env, ForwardRateAgreementTrade trade) {
+    Result<FRACalculator> calculatorResult = _fraCalculatorFactory.createCalculator(env, trade);
+    
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }

@@ -124,8 +124,8 @@ public interface InterestRateSwapFn {
    * @param security the InterestRateSwapSecurity to calculate the bucketed Gamma for
    * @return result containing the bucketed Gamma, full matrix, if successful, a Failure otherwise
    */
-  @Output(OutputNames.BUCKETED_GAMMA)
-  Result<BucketedCrossSensitivities> calculateBucketedGamma(Environment env, InterestRateSwapSecurity security);
+  @Output(OutputNames.BUCKETED_CROSS_GAMMA)
+  Result<BucketedCrossSensitivities> calculateBucketedCrossGamma(Environment env, InterestRateSwapSecurity security);
   
   /* Trade based model integration */
 
@@ -216,7 +216,17 @@ public interface InterestRateSwapFn {
    * @param trade the InterestRateSwapTrade to calculate the bucketed Gamma for
    * @return result containing the bucketed Gamma if successful, a Failure otherwise
    */
+  @Output(OutputNames.BUCKETED_CROSS_GAMMA)
+  Result<BucketedCrossSensitivities> calculateBucketedCrossGamma(Environment env, InterestRateSwapTrade trade);
+ 
+  /**
+   * Calculate the bucketed Gamma project on curve pillars without cross values for a swap trade.
+   *
+   * @param env the environment used for calculation
+   * @param trade the InterestRateSwapTrade to calculate the bucketed Gamma for
+   * @return result containing the bucketed Gamma if successful, a Failure otherwise
+   */
   @Output(OutputNames.BUCKETED_GAMMA)
-  Result<BucketedCrossSensitivities> calculateBucketedGamma(Environment env, InterestRateSwapTrade trade);
-  
+  Result<BucketedCurveSensitivities> calculateBucketedGamma(Environment env, InterestRateSwapTrade trade);
+
 }

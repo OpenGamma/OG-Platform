@@ -129,12 +129,12 @@ public class DiscountingInterestRateSwapFn implements InterestRateSwapFn {
   }
 
   @Override
-  public Result<BucketedCrossSensitivities> calculateBucketedGamma(Environment env, InterestRateSwapSecurity security) {
+  public Result<BucketedCrossSensitivities> calculateBucketedCrossGamma(Environment env, InterestRateSwapSecurity security) {
     Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFactory.createCalculator(env, security);
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    return calculatorResult.getValue().calculateBucketedGamma();
+    return calculatorResult.getValue().calculateBucketedCrossGamma();
   }
   
   /* Trade based model integration */
@@ -219,7 +219,17 @@ public class DiscountingInterestRateSwapFn implements InterestRateSwapFn {
   }
 
   @Override
-  public Result<BucketedCrossSensitivities> calculateBucketedGamma(Environment env, InterestRateSwapTrade trade) {
+  public Result<BucketedCrossSensitivities> calculateBucketedCrossGamma(Environment env, InterestRateSwapTrade trade) {
+    Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFactory.createCalculator(env, trade);
+    
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return calculatorResult.getValue().calculateBucketedCrossGamma();
+  }
+
+  @Override
+  public Result<BucketedCurveSensitivities> calculateBucketedGamma(Environment env, InterestRateSwapTrade trade) {
     Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFactory.createCalculator(env, trade);
     
     if (!calculatorResult.isSuccess()) {
