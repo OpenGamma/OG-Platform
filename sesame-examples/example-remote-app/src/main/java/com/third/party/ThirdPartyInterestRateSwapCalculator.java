@@ -91,7 +91,13 @@ public class ThirdPartyInterestRateSwapCalculator implements InterestRateSwapCal
 
   /* Not implemented */
   @Override
-  public Result<BucketedCrossSensitivities> calculateBucketedGamma() {
+  public Result<BucketedCurveSensitivities> calculateBucketedGamma() {
+    throw new UnsupportedOperationException();
+  }
+
+  /* Not implemented */
+  @Override
+  public Result<BucketedCrossSensitivities> calculateBucketedCrossGamma() {
     throw new UnsupportedOperationException();
   }
 
