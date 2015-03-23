@@ -28,8 +28,10 @@ import com.opengamma.sesame.marketdata.builders.MarketDataBuilder;
 import com.opengamma.sesame.marketdata.builders.MarketDataBuilders;
 import com.opengamma.sesame.marketdata.builders.MarketDataEnvironmentFactory;
 import com.opengamma.sesame.marketdata.scenarios.SinglePerturbationMapping;
+import com.opengamma.sesame.marketdata.scenarios.SingleScenarioDefinition;
 import com.opengamma.solutions.library.storage.DataLoader;
 import com.opengamma.util.ArgumentChecker;
+
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZonedDateTime;
 
@@ -111,7 +113,7 @@ public class CurveBundleProvider {
     SingleValueRequirement requirement = SingleValueRequirement.of(multicurveId);
     Set<MarketDataRequirement> requirements = ImmutableSet.<MarketDataRequirement>of(requirement);
 
-    List<SinglePerturbationMapping> perturbations = ImmutableList.of();
+    SingleScenarioDefinition perturbations = SingleScenarioDefinition.base();
     MarketDataEnvironment marketData =
         environmentFactory.build(suppliedData, requirements, perturbations, marketDataSpec, valuationTime);
 
