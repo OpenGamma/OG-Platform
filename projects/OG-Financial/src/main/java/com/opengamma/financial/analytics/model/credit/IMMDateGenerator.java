@@ -18,6 +18,7 @@ import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.IMMDateLogic;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
 import com.opengamma.util.time.Tenor;
 
@@ -36,6 +37,18 @@ public class IMMDateGenerator {
     return nextIMMDate.plus(tenor.getPeriod());
   }
 
+  public static ZonedDateTime getNextIMMDateNoAdjustment(final ZonedDateTime date, final Tenor tenor) {
+    ZonedDateTime nextIMMDateTime;
+    if (IMMDateLogic.isIMMDate(date.toLocalDate())) {
+      nextIMMDateTime = date;
+    } else {
+      LocalDate nextIMMDate =  IMMDateLogic.getNextIMMDate(date.toLocalDate());
+      nextIMMDateTime = date.with(nextIMMDate);
+    }
+    return nextIMMDateTime.plus(tenor.getPeriod());
+  }
+  
+  
   public static LocalDate getPreviousIMMDate(final LocalDate date) {
     final TemporalAdjuster adjuster = new TemporalAdjuster() {
       @Override

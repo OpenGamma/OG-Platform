@@ -77,10 +77,35 @@ public class SpreadCurveFunctions {
     return dates.toArray(new ZonedDateTime[dates.size()]);
   }
 
+  public static final ZonedDateTime[] getPillarDatesNoAdjustment(final ZonedDateTime now, final String inputs) {
+    if (inputs == null || inputs.isEmpty()) {
+      return getDefaultBuckets(now);
+    }
+    final List<ZonedDateTime> dates = new ArrayList<>();
+    for (final String tenorOrDate : inputs.split(",")) {
+      if (tenorOrDate.startsWith("P")) { // tenor
+        final Tenor tenor = Tenor.of(Period.parse(tenorOrDate));
+        dates.add(IMMDateGenerator.getNextIMMDateNoAdjustment(now, tenor));
+      } else { // date
+        final LocalDate date = LocalDate.parse(tenorOrDate);
+        dates.add(date.atStartOfDay(now.getZone()));
+      }
+    }
+    return dates.toArray(new ZonedDateTime[dates.size()]);
+  }
+
   public static final ZonedDateTime[] getPillarDates(final ZonedDateTime now, final Tenor[] tenors) {
     final ZonedDateTime[] dates = new ZonedDateTime[tenors.length];
     for (int i = 0; i < tenors.length; i++) {
       dates[i] = IMMDateGenerator.getNextIMMDate(now, tenors[i]);
+    }
+    return dates;
+  }
+
+  public static final ZonedDateTime[] getPillarDatesNoAdjustment(final ZonedDateTime now, final Tenor[] tenors) {
+    final ZonedDateTime[] dates = new ZonedDateTime[tenors.length];
+    for (int i = 0; i < tenors.length; i++) {
+      dates[i] = IMMDateGenerator.getNextIMMDateNoAdjustment(now, tenors[i]);
     }
     return dates;
   }

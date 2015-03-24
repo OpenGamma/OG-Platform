@@ -201,6 +201,7 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
     final double principal = isNonIMMAndFromSpread ? 0 : cleanPV;
     final double cleanPrice = getCleanPrice(puf);
     final TenorLabelledMatrix1D bucketedCS01 = getBucketedCS01(analytic, bucketCDSs, spreadObject.getXData(), quote, notional, yieldCurve, creditCurve);
+   
     final double parallelCS01 = getParallelCS01(quote, analytic, yieldCurve, notional, pillarCDSs, ArrayUtils.toPrimitive(pillarObject.getYData()));
 
     final Set<ComputedValue> results = Sets.newHashSetWithExpectedSize(_valueRequirements.length);

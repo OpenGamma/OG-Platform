@@ -253,8 +253,8 @@ public class ISDACompliantCreditCurveFunction extends AbstractFunction.NonCompil
       // non IMM date - pillars set to fixed set
       final String pillarString = NON_IMM_PILLAR_TENORS;
       final String bucketString = requirement.getConstraint(ISDAFunctionConstants.ISDA_BUCKET_TENORS);
-      final ZonedDateTime[] bucketDates = SpreadCurveFunctions.getPillarDates(now, bucketString);
-      final ZonedDateTime[] pillarDates = SpreadCurveFunctions.getPillarDates(now, pillarString);
+      final ZonedDateTime[] bucketDates = SpreadCurveFunctions.getPillarDatesNoAdjustment(now, bucketString);
+      final ZonedDateTime[] pillarDates = SpreadCurveFunctions.getPillarDatesNoAdjustment(now, pillarString);
       double[] bucketSpreads = SpreadCurveFunctions.getSpreadCurveNew(spreadCurve,
                                                                       bucketDates,
                                                                       security.getStartDate(),
