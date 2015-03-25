@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 
+import org.apache.commons.lang.StringUtils;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
@@ -64,6 +65,10 @@ import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.impl.InMemoryRegionMaster;
 import com.opengamma.master.region.impl.MasterRegionSource;
 import com.opengamma.sesame.config.FunctionModelConfig;
+import com.opengamma.sesame.credit.DefaultIsdaCompliantYieldCurveFn;
+import com.opengamma.sesame.credit.IsdaCompliantCreditCurveFn;
+import com.opengamma.sesame.credit.IsdaCompliantYieldCurveFn;
+import com.opengamma.sesame.credit.StandardIsdaCompliantCreditCurveFn;
 import com.opengamma.sesame.credit.config.CreditCurveDataKeyMap;
 import com.opengamma.sesame.credit.config.RestructuringSettings;
 import com.opengamma.sesame.credit.converter.DefaultIndexCdsConverterFn;
