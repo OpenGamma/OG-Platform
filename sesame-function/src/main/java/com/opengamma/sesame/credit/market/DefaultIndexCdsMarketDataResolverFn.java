@@ -6,6 +6,7 @@
 package com.opengamma.sesame.credit.market;
 
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
+import com.opengamma.financial.analytics.isda.credit.CreditDefaultSwapType;
 import com.opengamma.financial.security.credit.IndexCDSSecurity;
 import com.opengamma.sesame.Environment;
 import com.opengamma.util.ArgumentChecker;
@@ -39,6 +40,7 @@ public class DefaultIndexCdsMarketDataResolverFn implements IndexCdsMarketDataRe
     CreditCurveDataKey key = CreditCurveDataKey.builder()
                                 .currency(currency)
                                 .curveName(referenceEntity)
+                                .cdsType(CreditDefaultSwapType.INDEX)
                                 .build();
     
     return _creditKeyMapperFn.getMapping(key);

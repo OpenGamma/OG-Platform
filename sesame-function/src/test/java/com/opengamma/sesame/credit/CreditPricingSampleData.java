@@ -17,11 +17,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 
-import org.apache.commons.lang.StringUtils;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Sets;
@@ -42,6 +40,7 @@ import com.opengamma.financial.analytics.isda.credit.CdsQuote;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveData;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataSnapshot;
+import com.opengamma.financial.analytics.isda.credit.CreditDefaultSwapType;
 import com.opengamma.financial.analytics.isda.credit.ParSpreadQuote;
 import com.opengamma.financial.analytics.isda.credit.YieldCurveData;
 import com.opengamma.financial.analytics.isda.credit.YieldCurveDataSnapshot;
@@ -65,10 +64,6 @@ import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.impl.InMemoryRegionMaster;
 import com.opengamma.master.region.impl.MasterRegionSource;
 import com.opengamma.sesame.config.FunctionModelConfig;
-import com.opengamma.sesame.credit.DefaultIsdaCompliantYieldCurveFn;
-import com.opengamma.sesame.credit.IsdaCompliantCreditCurveFn;
-import com.opengamma.sesame.credit.IsdaCompliantYieldCurveFn;
-import com.opengamma.sesame.credit.StandardIsdaCompliantCreditCurveFn;
 import com.opengamma.sesame.credit.config.CreditCurveDataKeyMap;
 import com.opengamma.sesame.credit.config.RestructuringSettings;
 import com.opengamma.sesame.credit.converter.DefaultIndexCdsConverterFn;
@@ -163,7 +158,7 @@ public class CreditPricingSampleData {
 
   public static IndexCDSSecurity createIndexCDSSecurity() {
 
-    // 97 components in the basket, with total wieght of 0.97
+    // 97 components in the basket, with total weight of 0.97
     List<CreditDefaultSwapIndexComponent> components = new ArrayList<>();
     for (int i = 1; i <= 97; i++) {
       ExternalId externalId = ExternalId.of("Basket", String.valueOf(i));
@@ -175,17 +170,6 @@ public class CreditPricingSampleData {
       components.add(component);
     }
     CDSIndexComponentBundle componentBundle = CDSIndexComponentBundle.of(components);
-
-    //
-    //new StandardCDSSecurity(SCDS_BUNDLE,
-    //                               SHORT_NAME,
-    //                               LocalDate.of(2014, 9, 20),
-    //                               LocalDate.of(2019, 12, 20),
-    //                               REF_ID,
-    //                               new InterestRateNotional(USD, 10_000_000),
-    //                               true,
-    //                               0.01,
-    //                               SNRFOR);
 
     IndexCDSDefinitionSecurity definition =
         new IndexCDSDefinitionSecurity(CDXD_BUNDLE,
@@ -322,6 +306,7 @@ public class CreditPricingSampleData {
         .curveName(code)
         .seniority(SNRFOR)
         .restructuring(XR)
+        .cdsType(CreditDefaultSwapType.SINGLE_NAME) // not needed as key defaults to SINGLE_NAME
         .build();
   }
 
@@ -329,6 +314,7 @@ public class CreditPricingSampleData {
     return CreditCurveDataKey.builder()
         .currency(USD)
         .curveName(code)
+        .cdsType(CreditDefaultSwapType.INDEX)
         .build();
   }
 
