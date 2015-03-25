@@ -12,14 +12,18 @@ import static org.testng.AssertJUnit.fail;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.TimeZone;
 
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.OffsetTime;
 import org.threeten.bp.Period;
+import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
@@ -75,6 +79,7 @@ import com.opengamma.sesame.interestrate.InterestRateMockSources;
 import com.opengamma.sesame.trade.FedFundsFutureTrade;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -115,12 +120,21 @@ public class FedFundFutureCurveTest {
   private static final LocalDate TRADE_DATE = VALUATION_TIME.toLocalDate();
   private static final OffsetTime TRADE_TIME = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
   
+  
+  
   private DiscountingMulticurveBundleResolverFn _curveBundle;
   
   private FedFundsFutureFn _fedFundsFutureFn;
+  private Clock _defaultInstance;
   
   @BeforeClass
   public void setUpClass() throws IOException {
+    // required for futures lookup to work.
+    // BloombergFutureUtils.getMonthlyExpiryCodeForFutures(String, int, LocalDate) uses LocalDate.now()
+    // to infer the future code so it's important that this remains static from the point of view of this
+    // test.
+    _defaultInstance = OpenGammaClock.getInstance();
+    OpenGammaClock.setInstance(Clock.fixed(VALUATION_TIME.toInstant(), ZoneId.of("UTC"))); 
     FunctionModelConfig config =
         config(
             arguments(
@@ -248,6 +262,11 @@ public class FedFundFutureCurveTest {
     trade.setPremiumCurrency(Currency.USD);
     trade.setPremium(tradePrice);
     return new FedFundsFutureTrade(trade);
+  }
+  
+  @AfterClass
+  public void tearDown() {
+    OpenGammaClock.setInstance(_defaultInstance);
   }
 }
 
