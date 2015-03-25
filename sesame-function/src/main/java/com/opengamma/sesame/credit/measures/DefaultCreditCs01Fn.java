@@ -53,7 +53,6 @@ public class DefaultCreditCs01Fn extends AbstractCreditRiskMeasureFn<CurrencyAmo
                              LegacyCdsMarketDataResolverFn legacyCdsMarketDataResolverFn,
                              IndexCdsMarketDataResolverFn indexCdsMarketDataResolverFn,
                              IsdaCompliantCreditCurveFn creditCurveFn,
-                             PriceType priceType,
                              AccrualOnDefaultFormulae accrualOnDefaultFormulae) {
     super(legacyCdsConverterFn,
           standardCdsConverterFn,
