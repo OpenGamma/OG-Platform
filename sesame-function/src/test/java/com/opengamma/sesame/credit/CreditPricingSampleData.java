@@ -119,15 +119,15 @@ public class CreditPricingSampleData {
    * @return StandardCDSSecurity
    */
   public static StandardCDSSecurity createStandardCDSSecurity() {
-    return new StandardCDSSecurity(SCDS_BUNDLE,
-                                   SHORT_NAME,
-                                   LocalDate.of(2014, 9, 20),
-                                   LocalDate.of(2019, 12, 20),
-                                   REF_ID,
-                                   new InterestRateNotional(USD, 10_000_000),
-                                   true,
-                                   0.01,
-                                   SNRFOR);
+    return new StandardCDSSecurity(SCDS_BUNDLE,                                 //id
+                                   SHORT_NAME,                                  //name
+                                   LocalDate.of(2014, 9, 20),                   //trade date
+                                   LocalDate.of(2019, 12, 20),                  //maturity date
+                                   REF_ID,                                      //reference id
+                                   new InterestRateNotional(USD, 10_000_000),   //notional
+                                   true,                                        //buy/sell
+                                   0.01,                                        //coupon
+                                   SNRFOR);                                     //seniority
   }
 
   /**
@@ -172,28 +172,31 @@ public class CreditPricingSampleData {
     CDSIndexComponentBundle componentBundle = CDSIndexComponentBundle.of(components);
 
     IndexCDSDefinitionSecurity definition =
-        new IndexCDSDefinitionSecurity(CDXD_BUNDLE,
-                                       INDEX_DEFINITION_NAME,
-                                       LocalDate.of(1950, 1, 1),
-                                       "V1",
-                                       "S23",
-                                       "HY",
-                                       USD,
-                                       0.4,
-                                       SimpleFrequency.QUARTERLY,
-                                       0.01,
-                                       CDSIndexTerms.of(Tenor.ONE_YEAR),
-                                       componentBundle,
-                                       USNY,
-                                       BusinessDayConventions.MODIFIED_FOLLOWING);
+        new IndexCDSDefinitionSecurity(CDXD_BUNDLE,                                //id
+                                       INDEX_DEFINITION_NAME,                      //name
+                                       LocalDate.of(1950, 1, 1),                   //start date
+                                       "V1",                                       //version
+                                       "S23",                                      //series
+                                       "HY",                                       //family
+                                       USD,                                        //currency
+                                       0.4,                                        //recovery rate
+                                       SimpleFrequency.QUARTERLY,                  //coupon frequency
+                                       0.01,                                       //coupon
+                                       CDSIndexTerms.of(Tenor.THREE_YEARS,
+                                                        Tenor.FIVE_YEARS,
+                                                        Tenor.SEVEN_YEARS,
+                                                        Tenor.TEN_YEARS),          //terms
+                                       componentBundle,                            //basket
+                                       USNY,                                       //calendar
+                                       BusinessDayConventions.MODIFIED_FOLLOWING); //business day conventions
 
-    return new IndexCDSSecurity(CDX_BUNDLE,
-                                INDEX_NAME,
-                                true,
-                                SecurityLink.resolved(definition),
-                                LocalDate.of(2014, 9, 20),
-                                LocalDate.of(2019, 12, 20),
-                                new InterestRateNotional(USD, 10_000_000));
+    return new IndexCDSSecurity(CDX_BUNDLE,                                        //id
+                                INDEX_NAME,                                        //name
+                                true,                                              //buy/sell
+                                SecurityLink.resolved(definition),                 //definition
+                                LocalDate.of(2014, 9, 20),                         //trade date
+                                LocalDate.of(2019, 12, 20),                        //maturity date
+                                new InterestRateNotional(USD, 10_000_000));        //notional
   }
 
   public static RestructuringSettings createRestructuringSettings() {
