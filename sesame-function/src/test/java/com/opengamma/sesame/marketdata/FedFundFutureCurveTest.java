@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.TimeZone;
 
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.threeten.bp.Clock;
@@ -124,6 +125,7 @@ public class FedFundFutureCurveTest {
   private DiscountingMulticurveBundleResolverFn _curveBundle;
   
   private FedFundsFutureFn _fedFundsFutureFn;
+  private Clock _defaultInstance;
   
   @BeforeClass
   public void setUpClass() throws IOException {
@@ -131,6 +133,7 @@ public class FedFundFutureCurveTest {
     // BloombergFutureUtils.getMonthlyExpiryCodeForFutures(String, int, LocalDate) uses LocalDate.now()
     // to infer the future code so it's important that this remains static from the point of view of this
     // test.
+    _defaultInstance = OpenGammaClock.getInstance();
     OpenGammaClock.setInstance(Clock.fixed(VALUATION_TIME.toInstant(), ZoneId.of("UTC"))); 
     FunctionModelConfig config =
         config(
@@ -259,6 +262,11 @@ public class FedFundFutureCurveTest {
     trade.setPremiumCurrency(Currency.USD);
     trade.setPremium(tradePrice);
     return new FedFundsFutureTrade(trade);
+  }
+  
+  @AfterClass
+  public void tearDown() {
+    OpenGammaClock.setInstance(_defaultInstance);
   }
 }
 
