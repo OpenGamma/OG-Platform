@@ -823,7 +823,7 @@ public class View {
     /**
      * Binds the thread local state to the current thread.
      *
-     * @return this, so it can be used in a try-with-resources block
+     * @return this, so it can be used in a try-finally block
      */
     private void bindToThread() {
       _cacheThreadLocal.set(_cache);
