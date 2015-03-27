@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 
+import javax.ws.rs.HEAD;
+
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
