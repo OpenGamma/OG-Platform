@@ -258,7 +258,7 @@ public class SwapGammaSingleCurveProfitAnalysis {
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest2; looptest++) {
       String name = SINGLECURVE_GBP.getAllNames().iterator().next();
-      Currency ccy = SINGLECURVE_GBP.getCurrencyForName(name);
+      Currency ccy = SINGLECURVE_GBP.getCurrencyForName(name).get(0);
       YieldAndDiscountCurve curve = SINGLECURVE_GBP.getCurve(name);
       ArgumentChecker.isTrue(curve instanceof YieldCurve, "curve should be YieldCurve");
       YieldCurve yieldCurve = (YieldCurve) curve;

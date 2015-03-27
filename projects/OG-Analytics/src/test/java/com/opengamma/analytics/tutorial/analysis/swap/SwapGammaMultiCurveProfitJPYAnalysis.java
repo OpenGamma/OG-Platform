@@ -8,6 +8,7 @@ package com.opengamma.analytics.tutorial.analysis.swap;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -253,10 +254,14 @@ public class SwapGammaMultiCurveProfitJPYAnalysis {
     System.out.println("SwapGammaMultiCurveProfitJPYAnalysis - p/L - " + (endTime - startTime) + " ms");
   }
 
-  private MulticurveProviderDiscount shiftedProvider(MulticurveProviderDiscount multicurve, String[] curveNames, double[][] x, double[][] y, double[][] shifts) {
+  private MulticurveProviderDiscount shiftedProvider(MulticurveProviderDiscount multicurve, String[] curveNames,
+      double[][] x, double[][] y, double[][] shifts) {
     MulticurveProviderDiscount multicurveBumped = new MulticurveProviderDiscount();
     multicurveBumped.setForexMatrix(multicurve.getFxRates());
     for (int loopcurve = 0; loopcurve < curveNames.length; loopcurve++) {
+      List<Currency> nameCcys = multicurve.getCurrencyForName(curveNames[loopcurve]);
+      List<IborIndex> nameIbors = multicurve.getIborIndexForName(curveNames[loopcurve]);
+      List<IndexON> nameOns = multicurve.getOvernightIndexForName(curveNames[loopcurve]);
       double[] yShift = new double[y[loopcurve].length];
       for (int i = 0; i < y[loopcurve].length; i++) {
         yShift[i] = y[loopcurve][i] + shifts[loopcurve][i];
@@ -266,21 +271,21 @@ public class SwapGammaMultiCurveProfitJPYAnalysis {
       final YieldAndDiscountCurve curveBumped = new YieldCurve(curveNames[loopcurve],
           new InterpolatedDoublesCurve(x[loopcurve], yShift, interpolatedCurve.getInterpolator(), true));
       for (Currency loopccy : multicurve.getCurrencies()) {
-        if (loopccy.equals(multicurve.getCurrencyForName(curveNames[loopcurve]))) {
+        if (nameCcys.contains(loopccy)) {
           multicurveBumped.setCurve(loopccy, curveBumped);
         }
-        for (IborIndex loopibor : multicurve.getIndexesIbor()) {
-          if (loopibor.equals(multicurve.getIborIndexForName(curveNames[loopcurve]))) { // REQS-427
-            multicurveBumped.setCurve(loopibor, curveBumped);
-          }
-        }
-        for (IndexON loopon : multicurve.getIndexesON()) {
-          if (loopon.equals(multicurve.getOvernightIndexForName(curveNames[loopcurve]))) { // REQS-427
-            multicurveBumped.setCurve(loopon, curveBumped);
-          }
-        }
-        loopcurve++;
       }
+      for (IborIndex loopibor : multicurve.getIndexesIbor()) {
+        if (nameIbors.contains(loopibor)) {
+          multicurveBumped.setCurve(loopibor, curveBumped);
+        }
+      }
+      for (IndexON loopon : multicurve.getIndexesON()) {
+        if (nameOns.contains(loopon)) {
+          multicurveBumped.setCurve(loopon, curveBumped);
+        }
+      }
+      loopcurve++;
     }
     return multicurveBumped;
   }

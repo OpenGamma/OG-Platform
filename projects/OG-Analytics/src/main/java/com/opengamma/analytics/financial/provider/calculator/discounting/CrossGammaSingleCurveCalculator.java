@@ -81,7 +81,7 @@ public class CrossGammaSingleCurveCalculator {
     ArgumentChecker.isTrue(multicurve.getAllNames().size() == 1,
         "provider should have only one curve for GammaSingleCurve computation");
     String name = multicurve.getAllNames().iterator().next();
-    Currency ccy = multicurve.getCurrencyForName(name);
+    Currency ccy = multicurve.getCurrencyForName(name).get(0);
     YieldAndDiscountCurve curve = multicurve.getCurve(name);
     ArgumentChecker.isTrue(curve instanceof YieldCurve || curve instanceof DiscountCurve, 
         "curve should be YieldCurve or DiscountCurve");
@@ -135,7 +135,7 @@ public class CrossGammaSingleCurveCalculator {
       }
     }
     // Due to approximation using a finite difference approach, the matrix computed may be (slightly) non-symmetrical.
-    // The matrix is made symmetric by using only one half.
+    // The matrix is made symmetric by copying one half on the other.
     for (int loopnode1 = 1; loopnode1 < nbNode; loopnode1++) {
       for (int loopnode2 = loopnode1; loopnode2 < nbNode; loopnode2++) {
         gammaArray[loopnode2][loopnode1] = gammaArray[loopnode1][loopnode2];
@@ -194,7 +194,7 @@ class Delta extends Function1D<DoubleMatrix1D, DoubleMatrix1D> {
     _multicurve = multicurve;
     _name = multicurve.getAllNames().iterator().next();
     _instrument = instrument;
-    _ccy = multicurve.getCurrencyForName(_name);
+    _ccy = multicurve.getCurrencyForName(_name).get(0);
     YieldAndDiscountCurve curve = multicurve.getCurve(_name);
     YieldCurve yieldCurve = (YieldCurve) curve;
     _interpolatedCurve = (InterpolatedDoublesCurve) yieldCurve.getCurve();

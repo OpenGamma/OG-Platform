@@ -9,6 +9,7 @@ import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 import org.testng.annotations.Test;
@@ -150,6 +151,8 @@ public class CrossGammaMultiCurveCalculatorTest {
     Set<String> names = MULTICURVE.getAllNames();
     for (String name : names) { // Start curves 
       Set<Currency> ccys = MULTICURVE.getCurrencies();
+      List<Currency> nameCcys = MULTICURVE.getCurrencyForName(name);
+      List<IborIndex> nameIbors = MULTICURVE.getIborIndexForName(name);
       ArgumentChecker.isTrue(ccys.size() == 1, "only one currency allowed for multi-curve gamma");
       Currency ccy = ccys.iterator().next();
       YieldAndDiscountCurve curve = MULTICURVE.getCurve(name);
@@ -174,14 +177,14 @@ public class CrossGammaMultiCurveCalculatorTest {
                   new InterpolatedDoublesCurve(x, yieldBumpedPP, interpolatedCurve.getInterpolator(), true));
               MulticurveProviderDiscount providerBumped = new MulticurveProviderDiscount();
               for (Currency loopccy : MULTICURVE.getCurrencies()) {
-                if (loopccy.equals(MULTICURVE.getCurrencyForName(name))) {
+                if (nameCcys.contains(loopccy)) {
                   providerBumped.setCurve(loopccy, curveBumped);
                 } else {
                   providerBumped.setCurve(loopccy, MULTICURVE.getCurve(loopccy));
                 }
               }
               for (IborIndex loopibor : MULTICURVE.getIndexesIbor()) {
-                if (loopibor.equals(MULTICURVE.getIborIndexForName(name))) {
+                if (nameIbors.contains(loopibor)) {
                   providerBumped.setCurve(loopibor, curveBumped);
                 } else {
                   providerBumped.setCurve(loopibor, MULTICURVE.getCurve(loopibor));
@@ -196,7 +199,7 @@ public class CrossGammaMultiCurveCalculatorTest {
       for (int i = 0; i < nbNode; i++) { // Start assert
         for (int j = 0; j < nbNode; j++) {
           if (Math.abs(gammaExpected[i][j]) > 1 || Math.abs(gammaComputed[i][j]) > 1) { // Check only the meaningful numbers
-            assertTrue("CrossGammaSingleCurveCalculator - " + i + " - " + j + " / " + gammaExpected[i][j] + " - " + gammaComputed[i][j],
+            assertTrue("CrossGammaSingleCurveCalculator - " + i + " - " + j + " / " + gammaExpected[i][j] + " != " + gammaComputed[i][j],
                 (Math.abs(gammaExpected[i][j] / gammaComputed[i][j] - 1) < TOLERANCE_PV_GAMMA_RELATIF) || // If relative difference is small enough
                     (Math.abs(gammaExpected[i][j] - gammaComputed[i][j]) < TOLERANCE_PV_GAMMA)); // If absolute difference is small enough
           }
