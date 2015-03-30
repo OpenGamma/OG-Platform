@@ -11,7 +11,6 @@ import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantY
 import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.analytics.isda.credit.YieldCurveData;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.marketdata.MulticurveId;
@@ -27,8 +26,6 @@ import com.opengamma.util.result.Result;
  * The Isda compliant yield curve has a requirement to be log-linear interpolated. Thus the original interpolation used
  * to create the curve in the market data environment will be converted to log-linear interpolation.
  *
- * This function expects to be able to query a provider which, given a currency, can provide a {@link YieldCurveData}
- * instance.
  */
 public class MappingIsdaCompliantYieldCurveFn implements IsdaCompliantYieldCurveFn {
 

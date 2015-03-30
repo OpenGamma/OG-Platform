@@ -128,7 +128,9 @@ The top level interface for the building and resolution of credit curves is
 taking a pricing environment and credit curve key. When called, it will take
 the following sequence of actions: 
 
-1. Resolve a yield curve via ``YieldCurveDataProviderFn`` using the currency on
+1. The yield curve can be sourced from the multicurve framework via the market
+data environment, in this case it is requested by bundle name and currency, alternatively
+the curve is resolved via the ``YieldCurveDataProviderFn`` using the currency as
 the key. A ``YieldCurveData`` object is returned containing the market data and
 term structure.
 
@@ -146,3 +148,14 @@ the credit curve data returned in 3 and the yield curve returned in 1. An
 ``IsdaCreditCurve`` is returned which contains the ``IsdaYieldCurve`` and
 ``CreditCurveData`` instances used as inputs to the calibration and the
 calibrated ``IsdaCompliantCreditCurve`` instance.
+
+Yield curve mapping
+===================
+
+The ``MappingIsdaCompliantYieldCurveFn`` builds an ISDA curve for the passed currency.
+The function provides a mapping from a Yield Curve contained in the market data environment
+to the Isda compliant Yield curve.
+
+The Isda compliant yield curve has a requirement to be log-linear interpolated. Thus the
+original interpolation used to create the curve in the market data environment will be
+converted to log-linear interpolation.
