@@ -72,7 +72,7 @@ public final class CreditCurveDataKey implements ImmutableBean {
   /**
    * The Credit Default Swap type. Defaults to Single Name
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final CreditDefaultSwapType _cdsType;
 
 
@@ -112,6 +112,7 @@ public final class CreditCurveDataKey implements ImmutableBean {
       CreditDefaultSwapType cdsType) {
     JodaBeanUtils.notEmpty(curveName, "curveName");
     JodaBeanUtils.notNull(currency, "currency");
+    JodaBeanUtils.notNull(cdsType, "cdsType");
     this._curveName = curveName;
     this._currency = currency;
     this._seniority = seniority;
@@ -180,8 +181,8 @@ public final class CreditCurveDataKey implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the Credit Default Swap type.
-   * @return the value of the property
+   * Gets the Credit Default Swap type. Defaults to Single Name
+   * @return the value of the property, not null
    */
   public CreditDefaultSwapType getCdsType() {
     return _cdsType;
@@ -543,10 +544,11 @@ public final class CreditCurveDataKey implements ImmutableBean {
 
     /**
      * Sets the {@code cdsType} property in the builder.
-     * @param cdsType  the new value
+     * @param cdsType  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder cdsType(CreditDefaultSwapType cdsType) {
+      JodaBeanUtils.notNull(cdsType, "cdsType");
       this._cdsType = cdsType;
       return this;
     }
