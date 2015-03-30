@@ -15,12 +15,25 @@ Curve types
 Single name CDS curves
 ----------------------
 
-Single name CDS curves are resolved using a combination of four CDS fields:
+Single name CDS curves are resolved using a combination of five CDS fields:
 
 * Curve name (a.k.a. legal entity name)
 * Currency 
 * Seniority 
 * Restructuring clause
+* CDS type
+
+Index CDS curves
+----------------
+
+Index CDS curves are resolved using a combination of three CDS fields:
+
+* Curve name
+* Currency
+* CDS type
+
+The ``CreditDefaultSwapType`` defines the CDS type as either SINGLE_NAME or INDEX. The CDS type defaults to
+SINGLE_NAME.
 
 The key object used to store these fields is ``CreditCurveDataKey``. The
 ``CreditCurveDataProviderFn`` is the interface used to resolve curves for these
@@ -37,37 +50,59 @@ currency.
 Trade types
 ===========
 
+A resolution key is created by copying fields from the target CDS and can
+then be passed to the ``CreditCurveDataProviderFn`` to resolve the correct
+curve.
+
 Single name CDS
 ---------------
 
-Four fields on a CDS are significant in resolving market data:
+Five fields on a single name CDS are significant in resolving market data:
 
 * Legal entity 
 * Currency
 * Seniority
 * Restructuring clause
-
-A resolution key is created by copying these fields from the target CDS and can
-then be passed to the ``CreditCurveDataProviderFn`` to resolve the correct
-curve.
-
-For situations where quotes cannot be obtained for a specific CDS, a generic
-curve (e.g. AAA curve) can be used instead. This is achieved by storing a list
-of ``CreditCurveDataKey`` to ``CreditCurveDataKey`` mappings.
+* CDS type
 
 For example, the following key for IBM might map to the triple A key below:
 
 *IBM key*:
 
-* Curve name (legal entity) = "IBM" 
+* Curve name (legal entity) = "IBM"
 * Currency = "USD"
-* Seniority = "SNRFOR" 
+* Seniority = "SNRFOR"
 * Restructuring clause = "XR"
+* CDS type = "SINGLE_NAME"
+
+
+Index CDS
+---------
+
+Three fields on a index CDS are significant in resolving market data:
+
+* Index reference
+* Currency
+* CDS type
+
+*CDX North America key*:
+
+* Curve name (index reference) =  "CDX.NA.HY.S4.V1.5Y" (eg CDX North America, High Yield, Series 4, Version 1, 5 Year)
+* Currency = "USD"
+* CDS type = "INDEX"
+
+Generic curves
+--------------
+
+For situations where quotes cannot be obtained for a specific CDS, a generic
+curve (e.g. AAA curve) can be used instead. This is achieved by storing a list
+of ``CreditCurveDataKey`` to ``CreditCurveDataKey`` mappings.
 
 *Triple A key*
 
 * Curve name (legal entity) = "AAA"
 * Currency = "USD"
+* CDS type = "SINGLE_NAME"
 
 (Note seniority and restructuring are optional so may be omitted).
 

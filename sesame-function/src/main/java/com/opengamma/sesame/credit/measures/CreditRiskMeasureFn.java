@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.credit.measures;
 
+import com.opengamma.financial.security.credit.IndexCDSSecurity;
 import com.opengamma.financial.security.credit.LegacyCDSSecurity;
 import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.sesame.Environment;
@@ -34,5 +35,14 @@ public interface CreditRiskMeasureFn<T> {
    * @return the result
    */
   Result<T> priceLegacyCds(Environment env, LegacyCDSSecurity cds);
+
+  /**
+   * Calculate a risk measure for a index cds
+   *
+   * @param env the pricing environment
+   * @param cds the cds to price
+   * @return the result
+   */
+  Result<T> priceIndexCds(Environment env, IndexCDSSecurity cds);
   
 }

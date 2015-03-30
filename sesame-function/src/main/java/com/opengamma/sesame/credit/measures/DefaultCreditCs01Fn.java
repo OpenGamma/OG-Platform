@@ -8,11 +8,14 @@ package com.opengamma.sesame.credit.measures;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.AccrualOnDefaultFormulae;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.FiniteDifferenceSpreadSensitivityCalculator;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.PriceType;
 import com.opengamma.sesame.credit.CdsData;
 import com.opengamma.sesame.credit.IsdaCompliantCreditCurveFn;
 import com.opengamma.sesame.credit.IsdaCreditCurve;
+import com.opengamma.sesame.credit.converter.IndexCdsConverterFn;
 import com.opengamma.sesame.credit.converter.LegacyCdsConverterFn;
 import com.opengamma.sesame.credit.converter.StandardCdsConverterFn;
+import com.opengamma.sesame.credit.market.IndexCdsMarketDataResolverFn;
 import com.opengamma.sesame.credit.market.LegacyCdsMarketDataResolverFn;
 import com.opengamma.sesame.credit.market.StandardCdsMarketDataResolverFn;
 import com.opengamma.util.ArgumentChecker;
@@ -45,12 +48,16 @@ public class DefaultCreditCs01Fn extends AbstractCreditRiskMeasureFn<CurrencyAmo
    */
   public DefaultCreditCs01Fn(LegacyCdsConverterFn legacyCdsConverterFn,
                              StandardCdsConverterFn standardCdsConverterFn,
+                             IndexCdsConverterFn indexCdsConverterFn,
                              StandardCdsMarketDataResolverFn standardCdsMarketDataResolverFn,
                              LegacyCdsMarketDataResolverFn legacyCdsMarketDataResolverFn,
+                             IndexCdsMarketDataResolverFn indexCdsMarketDataResolverFn,
                              IsdaCompliantCreditCurveFn creditCurveFn,
                              AccrualOnDefaultFormulae accrualOnDefaultFormulae) {
     super(legacyCdsConverterFn,
           standardCdsConverterFn,
+          indexCdsConverterFn,
+          indexCdsMarketDataResolverFn,
           standardCdsMarketDataResolverFn,
           legacyCdsMarketDataResolverFn,
           creditCurveFn);

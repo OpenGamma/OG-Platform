@@ -8,6 +8,7 @@ package com.opengamma.sesame.credit.market;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.core.legalentity.SeniorityLevel;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
+import com.opengamma.financial.analytics.isda.credit.CreditDefaultSwapType;
 import com.opengamma.financial.security.credit.LegacyCDSSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.Environment;
@@ -45,6 +46,7 @@ public class DefaultLegacyCdsMarketDataResolverFn implements LegacyCdsMarketData
         .curveName(referenceEntity.getValue())
         .seniority(seniority)
         .restructuring(restructuringClause)
+        .cdsType(CreditDefaultSwapType.SINGLE_NAME)
         .build();
     
     return _creditKeyMapperFn.getMapping(key);

@@ -447,9 +447,7 @@ public class MarketDataEnvironmentFactoryComponentFactory extends AbstractCompon
     protected void validate(Bean bean) {
       JodaBeanUtils.notEmpty(((MarketDataEnvironmentFactoryComponentFactory) bean)._classifier, "classifier");
       JodaBeanUtils.notNull(((MarketDataEnvironmentFactoryComponentFactory) bean)._componentMap, "componentMap");
-      JodaBeanUtils.notEmpty(
-          ((MarketDataEnvironmentFactoryComponentFactory) bean)._currencyMatrixName,
-          "currencyMatrixName");
+      JodaBeanUtils.notEmpty(((MarketDataEnvironmentFactoryComponentFactory) bean)._currencyMatrixName, "currencyMatrixName");
       JodaBeanUtils.notEmpty(((MarketDataEnvironmentFactoryComponentFactory) bean)._timeSeriesDataSource, "timeSeriesDataSource");
       JodaBeanUtils.notNull(((MarketDataEnvironmentFactoryComponentFactory) bean)._marketDataFactory, "marketDataFactory");
       super.validate(bean);
