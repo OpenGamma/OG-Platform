@@ -35,9 +35,10 @@ public final class IsdaYieldCurve implements ImmutableBean {
 
   /**
    * The data used to calibrated this curve, i.e. term structure,
-   * market data, conventions, etc.
+   * market data, conventions, etc. If the IsdaYieldCurve is created with a
+   * curve from the multicurve bundle, the YieldCurveData can be null
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private final YieldCurveData _curveData;
   
   /**
@@ -72,7 +73,6 @@ public final class IsdaYieldCurve implements ImmutableBean {
   private IsdaYieldCurve(
       YieldCurveData curveData,
       ISDACompliantYieldCurve calibratedCurve) {
-    JodaBeanUtils.notNull(curveData, "curveData");
     JodaBeanUtils.notNull(calibratedCurve, "calibratedCurve");
     this._curveData = curveData;
     this._calibratedCurve = calibratedCurve;
@@ -96,8 +96,9 @@ public final class IsdaYieldCurve implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the data used to calibrated this curve, i.e. term structure,
-   * market data, conventions, etc.
-   * @return the value of the property, not null
+   * market data, conventions, etc. If the IsdaYieldCurve is created with a
+   * curve from the multicurve bundle, the YieldCurveData can be null
+   * @return the value of the property
    */
   public YieldCurveData getCurveData() {
     return _curveData;
@@ -338,11 +339,10 @@ public final class IsdaYieldCurve implements ImmutableBean {
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code curveData} property in the builder.
-     * @param curveData  the new value, not null
+     * @param curveData  the new value
      * @return this, for chaining, not null
      */
     public Builder curveData(YieldCurveData curveData) {
-      JodaBeanUtils.notNull(curveData, "curveData");
       this._curveData = curveData;
       return this;
     }

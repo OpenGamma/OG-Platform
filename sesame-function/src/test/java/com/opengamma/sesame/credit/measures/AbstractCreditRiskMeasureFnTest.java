@@ -38,7 +38,7 @@ import com.opengamma.util.result.Result;
 public class AbstractCreditRiskMeasureFnTest {
   
   
-  private AbstractCreditRiskMeasureFn<RiskResult> _fn;
+  private AbstractCreditRiskMeasureFn<RiskResult> _creditRiskMeasureFn;
   private Environment _env;
   private LegacyCDSSecurity _legCds;
   private StandardCDSSecurity _cds;
@@ -122,7 +122,7 @@ public class AbstractCreditRiskMeasureFnTest {
     when(isdaCurveResult.isSuccess()).thenReturn(true);
     when(curveFn.buildIsdaCompliantCreditCurve(any(Environment.class), any(CreditCurveDataKey.class))).thenReturn(isdaCurveResult);
     
-    _fn = new AbstractCreditRiskMeasureFn<RiskResult>(legacyCdsConverter, 
+    _creditRiskMeasureFn = new AbstractCreditRiskMeasureFn<RiskResult>(legacyCdsConverter,
                                                       standardCdsConverter,
                                                       indexCdsConverter,
                                                       new IndexCdsMdResolverMock(),
@@ -150,19 +150,19 @@ public class AbstractCreditRiskMeasureFnTest {
 
   @Test
   public void priceLegacyCds() {
-    Result<RiskResult> result = _fn.priceLegacyCds(_env, _legCds);
+    Result<RiskResult> result = _creditRiskMeasureFn.priceLegacyCds(_env, _legCds);
     assertTrue(result.isSuccess());
   }
 
   @Test
   public void priceStandardCds() {
-    Result<RiskResult> result = _fn.priceStandardCds(_env, _cds);
+    Result<RiskResult> result = _creditRiskMeasureFn.priceStandardCds(_env, _cds);
     assertTrue(result.isSuccess());
   }
 
   @Test
   public void priceIndexCds() {
-    Result<RiskResult> result = _fn.priceIndexCds(_env, _cdx);
+    Result<RiskResult> result = _creditRiskMeasureFn.priceIndexCds(_env, _cdx);
     assertTrue(result.isSuccess());
   }
 }

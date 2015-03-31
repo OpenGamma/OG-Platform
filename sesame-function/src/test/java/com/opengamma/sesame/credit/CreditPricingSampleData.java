@@ -138,7 +138,7 @@ public class CreditPricingSampleData {
 
   public static StandardCDSSecurity createStandardCDSSecurity() {
     return new StandardCDSSecurity(SCDS_BUNDLE,                                 //id
-                                   PEPSICO_INC,                                  //name
+                                   PEPSICO_INC,                                 //name
                                    LocalDate.of(2014, 10, 16),                  //trade date
                                    LocalDate.of(2019, 12, 20),                  //maturity date
                                    REF_ID,                                      //reference id
@@ -191,7 +191,7 @@ public class CreditPricingSampleData {
 
     IndexCDSDefinitionSecurity definition =
         new IndexCDSDefinitionSecurity(CDXD_BUNDLE,                                //id
-                                       IG_INDEX,                      //name
+                                       IG_INDEX,                                   //name
                                        LocalDate.of(2014, 9, 20),                  //start date
                                        "V1",                                       //version
                                        "23",                                       //series
@@ -267,6 +267,50 @@ public class CreditPricingSampleData {
             CreditCs01Fn.class, DefaultCreditCs01Fn.class,
             IsdaCompliantYieldCurveFn.class, DefaultIsdaCompliantYieldCurveFn.class,
             YieldCurveDataProviderFn.class, SnapshotYieldCurveDataProviderFn.class,
+            CreditCurveDataProviderFn.class, SnapshotCreditCurveDataProviderFn.class,
+            IsdaCompliantCreditCurveFn.class, StandardIsdaCompliantCreditCurveFn.class,
+            LegacyCdsConverterFn.class, DefaultLegacyCdsConverterFn.class,
+            IndexCdsConverterFn.class, DefaultIndexCdsConverterFn.class,
+            StandardCdsConverterFn.class, DefaultStandardCdsConverterFn.class,
+            StandardCdsMarketDataResolverFn.class, DefaultStandardCdsMarketDataResolverFn.class,
+            IndexCdsMarketDataResolverFn.class, DefaultIndexCdsMarketDataResolverFn.class,
+            LegacyCdsMarketDataResolverFn.class, DefaultLegacyCdsMarketDataResolverFn.class,
+            CreditKeyMapperFn.class, DefaultCreditKeyMapperFn.class));
+  }
+
+  public static FunctionModelConfig createYCMappingFunctionModelConfig() {
+
+    CreditCurveDataKeyMap configKeyMap = CreditCurveDataKeyMap.builder()
+        .securityCurveMappings(ImmutableMap.<CreditCurveDataKey, CreditCurveDataKey>of())
+        .build();
+    SnapshotLink<CreditCurveDataSnapshot> creditCurve = ResolvedSnapshotLink.resolved(createCreditCurveDataSnapshot());
+    RestructuringSettings restructuringSettings = createRestructuringSettings();
+
+    return config(
+        arguments(
+            function(
+                DefaultCreditCs01Fn.class,
+                argument("accrualOnDefaultFormulae", AccrualOnDefaultFormulae.OrignalISDA)),
+            function(
+                DefaultCreditPvFn.class,
+                argument("priceType", PriceType.CLEAN),
+                argument("accrualOnDefaultFormulae", AccrualOnDefaultFormulae.OrignalISDA)),
+            function(
+                DefaultCreditKeyMapperFn.class,
+                argument("keyMap", configKeyMap)),
+            function(
+                DefaultStandardCdsMarketDataResolverFn.class,
+                argument("restructuringSettings", restructuringSettings)),
+            function(
+                MappingIsdaCompliantYieldCurveFn.class,
+                argument("multicurveName", "Curve Bundle")),
+            function(
+                SnapshotCreditCurveDataProviderFn.class,
+                argument("snapshotLink", creditCurve))),
+        implementations(
+            CreditPvFn.class, DefaultCreditPvFn.class,
+            CreditCs01Fn.class, DefaultCreditCs01Fn.class,
+            IsdaCompliantYieldCurveFn.class, MappingIsdaCompliantYieldCurveFn.class,
             CreditCurveDataProviderFn.class, SnapshotCreditCurveDataProviderFn.class,
             IsdaCompliantCreditCurveFn.class, StandardIsdaCompliantCreditCurveFn.class,
             LegacyCdsConverterFn.class, DefaultLegacyCdsConverterFn.class,
