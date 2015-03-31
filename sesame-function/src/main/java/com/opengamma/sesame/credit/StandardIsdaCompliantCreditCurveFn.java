@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 
+import javax.ws.rs.HEAD;
+
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
