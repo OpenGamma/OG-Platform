@@ -38,7 +38,9 @@ import com.opengamma.util.time.DateUtils;
 public class CreditCs01FnTest {
 
   /* Expected results validated external to OG */
-  public static final double EXPECTED_CS01 = 4884.4636;
+  public static final double EXPECTED_CS01 = 518.749438;
+  public static final double PUF_EXPECTED_CS01 = 421.92896;
+  public static final double EXPECTED_INDEX_CS01 = 504.84802;
   private static final double STD_TOLERANCE_PV = 1.0E-3;
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 10, 16);
   private static final Environment ENV = new SimpleEnvironment(VALUATION_TIME,
@@ -69,6 +71,18 @@ public class CreditCs01FnTest {
   }
 
   @Test
+  public void testPUFStandardCdsCS01() {
+
+    DefaultCreditCs01Fn function = FunctionModel.build(DefaultCreditCs01Fn.class, _config, _componentMap);
+    Result<CurrencyAmount> result = function.priceStandardCds(ENV, CreditPricingSampleData.createPointsUpFrontStandardCDSSecurity());
+
+    assertThat(result.isSuccess(), is(true));
+    CurrencyAmount ca = result.getValue();
+    assertThat(ca.getCurrency(), is(Currency.USD));
+    assertThat(ca.getAmount(), is(closeTo(PUF_EXPECTED_CS01, STD_TOLERANCE_PV)));
+  }
+
+  @Test
   public void testLegacyCdsCS01() {
 
     DefaultCreditCs01Fn function = FunctionModel.build(DefaultCreditCs01Fn.class, _config, _componentMap);
@@ -78,6 +92,18 @@ public class CreditCs01FnTest {
     CurrencyAmount ca = result.getValue();
     assertThat(ca.getCurrency(), is(Currency.USD));
     assertThat(ca.getAmount(), is(closeTo(EXPECTED_CS01, STD_TOLERANCE_PV)));
+  }
+
+  @Test
+  public void testIndexCdsCS01() {
+
+    DefaultCreditCs01Fn function = FunctionModel.build(DefaultCreditCs01Fn.class, _config, _componentMap);
+    Result<CurrencyAmount> result = function.priceIndexCds(ENV, CreditPricingSampleData.createIndexCDSSecurity());
+
+    assertThat(result.isSuccess(), is(true));
+    CurrencyAmount ca = result.getValue();
+    assertThat(ca.getCurrency(), is(Currency.USD));
+    assertThat(ca.getAmount(), is(closeTo(EXPECTED_INDEX_CS01, STD_TOLERANCE_PV)));
   }
 
 }

@@ -12,6 +12,7 @@ import java.util.SortedMap;
 
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.AccrualOnDefaultFormulae;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalyticFactory;
@@ -88,7 +89,10 @@ public class StandardIsdaCompliantCreditCurveFn implements IsdaCompliantCreditCu
     
     IsdaYieldCurve yieldCurve = yieldCurveResult.getValue();
     Pair<ISDACompliantCreditCurve, List<CDSAnalytic>> curveData =
-        buildWithResolvedData(env, yieldCurve.getCalibratedCurve(), creditCurveDataResult.getValue());
+        buildWithResolvedData(env,
+                              yieldCurve.getCalibratedCurve(),
+                              creditCurveDataResult.getValue(),
+                              creditCurveKey);
     
     return Result.success(IsdaCreditCurve.builder()
                                          .calibratedCurve(curveData.getFirst())
@@ -98,8 +102,10 @@ public class StandardIsdaCompliantCreditCurveFn implements IsdaCompliantCreditCu
                                          .build());
   }
 
-  private Pair<ISDACompliantCreditCurve, List<CDSAnalytic>> buildWithResolvedData(
-      Environment env, ISDACompliantYieldCurve yieldCurve, CreditCurveData creditCurveData) {
+  private Pair<ISDACompliantCreditCurve, List<CDSAnalytic>> buildWithResolvedData(Environment env,
+                                                                                  ISDACompliantYieldCurve yieldCurve,
+                                                                                  CreditCurveData creditCurveData,
+                                                                                  CreditCurveDataKey creditCurveKey) {
     
     IsdaCreditCurveConvention convention = creditCurveData.getCurveConventionLink().resolve();
     
@@ -127,8 +133,20 @@ public class StandardIsdaCompliantCreditCurveFn implements IsdaCompliantCreditCu
     LocalDate valuationDate = env.getValuationDate();
     
     for (Map.Entry<Tenor, CdsQuote> spreadEntry : spreadData.entrySet()) {
-      
-      CDSAnalytic cdsAnalytic = cdsFactory.makeIMMCDS(valuationDate, spreadEntry.getKey().getPeriod());
+      CDSAnalytic cdsAnalytic;
+
+      switch (creditCurveKey.getCdsType()) {
+        case INDEX:
+          cdsAnalytic = cdsFactory.makeCDX(valuationDate, spreadEntry.getKey().getPeriod());
+          break;
+        case SINGLE_NAME:
+          cdsAnalytic = cdsFactory.makeIMMCDS(valuationDate, spreadEntry.getKey().getPeriod());
+          break;
+        default:
+          throw new OpenGammaRuntimeException("Credit curve key with CDS type " + creditCurveKey.getCdsType() + " is " +
+                                                  "invalid. Change to INDEX or SINGLE_NAME.");
+      }
+
       CDSQuoteConvention quoteConvention = spreadEntry.getValue().toQuoteConvention();
       
       calibrationCdsList.add(cdsAnalytic);

@@ -37,12 +37,14 @@ import com.opengamma.util.time.DateUtils;
 @Test(groups = TestGroup.UNIT)
 public class CreditPvFnTest {
 
-  /* Expected results validated external to OG */
-  public static final double EXPECTED_PV = 103477.13641;
+  /* Expected PV validated external to OG */
+  public static final double SINGLE_NAME_EXPECTED_PV = -36941.17725;
+  public static final double INDEX_EXPECTED_PV = -20558.01483;
+  public static final double PUF_EXPECTED_PV = -13472.22222;
+
   private static final double STD_TOLERANCE_PV = 1.0E-3;
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 10, 16);
-  private static final Environment ENV = new SimpleEnvironment(VALUATION_TIME,
-                                                               MarketDataEnvironmentBuilder.empty().toBundle());
+  private static final Environment ENV = new SimpleEnvironment(VALUATION_TIME, MarketDataEnvironmentBuilder.empty().toBundle());
   private FunctionModelConfig _config;
   private ComponentMap _componentMap;
 
@@ -60,24 +62,52 @@ public class CreditPvFnTest {
   public void testStandardCdsPV() {
 
     DefaultCreditPvFn function = FunctionModel.build(DefaultCreditPvFn.class, _config, _componentMap);
-    Result<CurrencyAmount> result = function.priceStandardCds(ENV, CreditPricingSampleData.createStandardCDSSecurity());
 
-    assertThat(result.isSuccess(), is(true));
-    CurrencyAmount ca = result.getValue();
-    assertThat(ca.getCurrency(), is(Currency.USD));
-    assertThat(ca.getAmount(), is(closeTo(EXPECTED_PV, STD_TOLERANCE_PV)));
+    Result<CurrencyAmount> postResult = function.priceStandardCds(ENV, CreditPricingSampleData.createStandardCDSSecurity());
+    assertThat(postResult.isSuccess(), is(true));
+    CurrencyAmount postCa = postResult.getValue();
+    assertThat(postCa.getCurrency(), is(Currency.USD));
+    assertThat(postCa.getAmount(), is(closeTo(SINGLE_NAME_EXPECTED_PV, STD_TOLERANCE_PV)));
+
+  }
+
+  @Test
+  public void testPUFStandardCdsPV() {
+
+    DefaultCreditPvFn function = FunctionModel.build(DefaultCreditPvFn.class, _config, _componentMap);
+
+    Result<CurrencyAmount> postResult = function.priceStandardCds(ENV, CreditPricingSampleData.createPointsUpFrontStandardCDSSecurity());
+    assertThat(postResult.isSuccess(), is(true));
+    CurrencyAmount postCa = postResult.getValue();
+    assertThat(postCa.getCurrency(), is(Currency.USD));
+    assertThat(postCa.getAmount(), is(closeTo(PUF_EXPECTED_PV, STD_TOLERANCE_PV)));
+
   }
 
   @Test
   public void testLegacyCdsPV() {
 
     DefaultCreditPvFn function = FunctionModel.build(DefaultCreditPvFn.class, _config, _componentMap);
-    Result<CurrencyAmount> result = function.priceLegacyCds(ENV, CreditPricingSampleData.createLegacyCDSSecurity());
 
-    assertThat(result.isSuccess(), is(true));
-    CurrencyAmount ca = result.getValue();
-    assertThat(ca.getCurrency(), is(Currency.USD));
-    assertThat(ca.getAmount(), is(closeTo(EXPECTED_PV, STD_TOLERANCE_PV)));
+    Result<CurrencyAmount> postResult = function.priceLegacyCds(ENV, CreditPricingSampleData.createLegacyCDSSecurity());
+    assertThat(postResult.isSuccess(), is(true));
+    CurrencyAmount postCa = postResult.getValue();
+    assertThat(postCa.getCurrency(), is(Currency.USD));
+    assertThat(postCa.getAmount(), is(closeTo(SINGLE_NAME_EXPECTED_PV, STD_TOLERANCE_PV)));
+
+  }
+
+  @Test
+  public void testIndexCdsPV() {
+
+    DefaultCreditPvFn function = FunctionModel.build(DefaultCreditPvFn.class, _config, _componentMap);
+
+    Result<CurrencyAmount> postResult = function.priceIndexCds(ENV, CreditPricingSampleData.createIndexCDSSecurity());
+    assertThat(postResult.isSuccess(), is(true));
+    CurrencyAmount postCa = postResult.getValue();
+    assertThat(postCa.getCurrency(), is(Currency.USD));
+    assertThat(postCa.getAmount(), is(closeTo(INDEX_EXPECTED_PV, STD_TOLERANCE_PV)));
+
   }
 
 }

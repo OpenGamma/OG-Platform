@@ -9,16 +9,24 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
+import com.opengamma.core.link.SecurityLink;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
+import com.opengamma.financial.security.cds.CDSIndexComponentBundle;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexComponent;
+import com.opengamma.financial.security.credit.IndexCDSDefinitionSecurity;
+import com.opengamma.financial.security.credit.IndexCDSSecurity;
 import com.opengamma.financial.security.credit.LegacyCDSSecurity;
 import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
+import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.credit.CdsData;
 import com.opengamma.sesame.credit.IsdaCompliantCreditCurveFn;
 import com.opengamma.sesame.credit.IsdaCreditCurve;
+import com.opengamma.sesame.credit.converter.IndexCdsConverterFn;
 import com.opengamma.sesame.credit.converter.LegacyCdsConverterFn;
 import com.opengamma.sesame.credit.converter.StandardCdsConverterFn;
+import com.opengamma.sesame.credit.market.IndexCdsMarketDataResolverFn;
 import com.opengamma.sesame.credit.market.LegacyCdsMarketDataResolverFn;
 import com.opengamma.sesame.credit.market.StandardCdsMarketDataResolverFn;
 import com.opengamma.util.money.Currency;
@@ -34,10 +42,22 @@ public class AbstractCreditRiskMeasureFnTest {
   private Environment _env;
   private LegacyCDSSecurity _legCds;
   private StandardCDSSecurity _cds;
+  private IndexCDSSecurity _cdx;
+  private IndexCDSDefinitionSecurity _cdxDef;
+  private SecurityLink<IndexCDSDefinitionSecurity> _cdxDefLink;
   
   //standard cds fields:
   private final InterestRateNotional _notional = new InterestRateNotional(Currency.USD, 1000000);
   private final double _coupon = 0.01;
+
+  //cdx fields used in the AbstractCreditRiskMeasureFn
+  private final ExternalId _externalId = ExternalId.of("test", "123");
+  private final CreditDefaultSwapIndexComponent _component =
+      new CreditDefaultSwapIndexComponent(_externalId.getValue(),
+                                          _externalId,
+                                          0.95,
+                                          _externalId);
+  private final CDSIndexComponentBundle _bundle = CDSIndexComponentBundle.of(_component);
 
   @SuppressWarnings("unchecked")
   @BeforeMethod
@@ -45,17 +65,27 @@ public class AbstractCreditRiskMeasureFnTest {
     _env = mock(Environment.class);
     _legCds = mock(LegacyCDSSecurity.class);
     _cds = mock(StandardCDSSecurity.class);
-    
+    _cdx = mock(IndexCDSSecurity.class);
+    _cdxDefLink = mock(SecurityLink.class);
+    _cdxDef = mock(IndexCDSDefinitionSecurity.class);
+
     when(_legCds.getNotional()).thenReturn(_notional);
     when(_legCds.getCoupon()).thenReturn(_coupon);
     when(_cds.getNotional()).thenReturn(_notional);
     when(_cds.getCoupon()).thenReturn(_coupon);
-    
+    when(_cdx.getNotional()).thenReturn(_notional);
+    when(_cdx.getUnderlyingIndex()).thenReturn(_cdxDefLink);
+    when(_cdxDefLink.resolve()).thenReturn(_cdxDef);
+    when(_cdxDef.getCoupon()).thenReturn(_coupon);
+    when(_cdxDef.getComponents()).thenReturn(_bundle);
+
     LegacyCdsConverterFn legacyCdsConverter = mock(LegacyCdsConverterFn.class);
     StandardCdsConverterFn standardCdsConverter = mock(StandardCdsConverterFn.class);
+    IndexCdsConverterFn indexCdsConverter = mock(IndexCdsConverterFn.class);
     Result<CDSAnalytic> result = mock(Result.class);
     when(result.isSuccess()).thenReturn(true);
     when(legacyCdsConverter.toCdsAnalytic(any(Environment.class), any(LegacyCDSSecurity.class), any(IsdaCreditCurve.class))).thenReturn(result);
+    when(indexCdsConverter.toCdsAnalytic(any(Environment.class), any(IndexCDSSecurity.class), any(IsdaCreditCurve.class))).thenReturn(result);
     when(standardCdsConverter.toCdsAnalytic(any(Environment.class), any(StandardCDSSecurity.class), any(IsdaCreditCurve.class))).thenReturn(result);
     
     final Result<CreditCurveDataKey> keyResult = mock(Result.class);
@@ -68,7 +98,7 @@ public class AbstractCreditRiskMeasureFnTest {
       public Result<CreditCurveDataKey> resolve(Environment env, StandardCDSSecurity security) {
         return keyResult;
       }
-    };
+    }
     
     class LegacyCdsMdResolverMock implements LegacyCdsMarketDataResolverFn {
       
@@ -76,7 +106,15 @@ public class AbstractCreditRiskMeasureFnTest {
       public Result<CreditCurveDataKey> resolve(Environment env, LegacyCDSSecurity security) {
         return keyResult;
       }
-    };
+    }
+
+    class IndexCdsMdResolverMock implements IndexCdsMarketDataResolverFn {
+
+      @Override
+      public Result<CreditCurveDataKey> resolve(Environment env, IndexCDSSecurity security) {
+        return keyResult;
+      }
+    }
     
     IsdaCompliantCreditCurveFn curveFn = mock(IsdaCompliantCreditCurveFn.class);
     
@@ -85,7 +123,9 @@ public class AbstractCreditRiskMeasureFnTest {
     when(curveFn.buildIsdaCompliantCreditCurve(any(Environment.class), any(CreditCurveDataKey.class))).thenReturn(isdaCurveResult);
     
     _fn = new AbstractCreditRiskMeasureFn<RiskResult>(legacyCdsConverter, 
-                                                      standardCdsConverter, 
+                                                      standardCdsConverter,
+                                                      indexCdsConverter,
+                                                      new IndexCdsMdResolverMock(),
                                                       new StandardCdsMdResolverMock(), 
                                                       new LegacyCdsMdResolverMock(),
                                                       curveFn) {
@@ -117,6 +157,12 @@ public class AbstractCreditRiskMeasureFnTest {
   @Test
   public void priceStandardCds() {
     Result<RiskResult> result = _fn.priceStandardCds(_env, _cds);
+    assertTrue(result.isSuccess());
+  }
+
+  @Test
+  public void priceIndexCds() {
+    Result<RiskResult> result = _fn.priceIndexCds(_env, _cdx);
     assertTrue(result.isSuccess());
   }
 }
