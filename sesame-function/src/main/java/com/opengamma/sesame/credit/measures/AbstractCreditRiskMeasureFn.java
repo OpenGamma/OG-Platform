@@ -7,11 +7,10 @@ package com.opengamma.sesame.credit.measures;
 
 import java.util.Iterator;
 
-import com.google.common.collect.Iterables;
+import com.google.common.collect.ImmutableSortedSet;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
 import com.opengamma.financial.security.cds.CDSIndexComponentBundle;
-import com.opengamma.financial.security.cds.CDSSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapIndexComponent;
 import com.opengamma.financial.security.credit.IndexCDSDefinitionSecurity;
 import com.opengamma.financial.security.credit.IndexCDSSecurity;
@@ -31,6 +30,7 @@ import com.opengamma.sesame.credit.market.LegacyCdsMarketDataResolverFn;
 import com.opengamma.sesame.credit.market.StandardCdsMarketDataResolverFn;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.time.Tenor;
 
 /**
  * Abstract implementation of a credit risk measure, e.g. pv, cs01, etc. This
@@ -99,7 +99,7 @@ public abstract class AbstractCreditRiskMeasureFn<T> implements CreditRiskMeasur
     Result<CDSAnalytic> analyticResult = _legacyCdsConverterFn.toCdsAnalytic(env, cds, creditCurve);
     
     if (analyticResult.isSuccess()) {
-      return price(extractForLegacyCds(cds), 
+      return price(extractForLegacyCds(cds, creditCurve),
                    analyticResult.getValue(), 
                    creditCurve);
     } else {
@@ -143,7 +143,7 @@ public abstract class AbstractCreditRiskMeasureFn<T> implements CreditRiskMeasur
     Result<CDSAnalytic> analyticResult = _standardCdsConverterFn.toCdsAnalytic(env, cds, creditCurve);
     
     if (analyticResult.isSuccess()) {
-      return price(extractForStandardCds(cds),
+      return price(extractForStandardCds(cds, creditCurve),
                    analyticResult.getValue(), 
                    creditCurve);
     } else {
@@ -165,7 +165,7 @@ public abstract class AbstractCreditRiskMeasureFn<T> implements CreditRiskMeasur
     Result<CDSAnalytic> analyticResult = _indexCdsConverterFn.toCdsAnalytic(env, cds, creditCurve);
 
     if (analyticResult.isSuccess()) {
-      return price(extractForIndexCds(cds),
+      return price(extractForIndexCds(cds, creditCurve),
                    analyticResult.getValue(),
                    creditCurve);
     } else {
@@ -192,15 +192,17 @@ public abstract class AbstractCreditRiskMeasureFn<T> implements CreditRiskMeasur
    * 
    *
    * @param cds the standard cds
+   * @param creditCurve
    * @return a CdsData instance
    */
-  private CdsData extractForStandardCds(StandardCDSSecurity cds) {
-    
+  private CdsData extractForStandardCds(StandardCDSSecurity cds, IsdaCreditCurve creditCurve) {
+    ImmutableSortedSet<Tenor> tenors = creditCurve.getCurveData().getCdsQuotes().keySet();
     return CdsData.builder()
-                  .coupon(cds.getCoupon())
-                  .interestRateNotional(cds.getNotional())
-                  .buy(cds.isBuyProtection())
-                  .build();
+        .coupon(cds.getCoupon())
+        .tenors(tenors)
+        .interestRateNotional(cds.getNotional())
+        .buy(cds.isBuyProtection())
+        .build();
   }
 
   /**
@@ -211,7 +213,7 @@ public abstract class AbstractCreditRiskMeasureFn<T> implements CreditRiskMeasur
    * @param cds the index cds
    * @return a CdsData instance
    */
-  private CdsData extractForIndexCds(IndexCDSSecurity cds) {
+  private CdsData extractForIndexCds(IndexCDSSecurity cds, IsdaCreditCurve creditCurve) {
     double indexFactor = 0d;
     IndexCDSDefinitionSecurity definition = cds.getUnderlyingIndex().resolve();
     CDSIndexComponentBundle components = definition.getComponents();
@@ -227,8 +229,10 @@ public abstract class AbstractCreditRiskMeasureFn<T> implements CreditRiskMeasur
     InterestRateNotional notional = cds.getNotional();
     InterestRateNotional scaledNotional = new InterestRateNotional(notional.getCurrency(),
                                                                    notional.getAmount() * indexFactor);
+    ImmutableSortedSet<Tenor> tenors = creditCurve.getCurveData().getCdsQuotes().keySet();
     return CdsData.builder()
         .coupon(definition.getCoupon())
+        .tenors(tenors)
         .interestRateNotional(scaledNotional)
         .buy(cds.isBuyProtection())
         .build();
@@ -240,12 +244,14 @@ public abstract class AbstractCreditRiskMeasureFn<T> implements CreditRiskMeasur
    * @param cds the legacy cds
    * @return a CdsData instance
    */
-  private CdsData extractForLegacyCds(LegacyCDSSecurity cds) {
+  private CdsData extractForLegacyCds(LegacyCDSSecurity cds, IsdaCreditCurve creditCurve) {
+    ImmutableSortedSet<Tenor> tenors = creditCurve.getCurveData().getCdsQuotes().keySet();
     return CdsData.builder()
-                  .coupon(cds.getCoupon())
-                  .interestRateNotional(cds.getNotional())
-                  .buy(cds.isBuyProtection())
-                  .build();
+        .coupon(cds.getCoupon())
+        .tenors(tenors)
+        .interestRateNotional(cds.getNotional())
+        .buy(cds.isBuyProtection())
+        .build();
   }
   
 }

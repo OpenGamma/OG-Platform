@@ -180,6 +180,10 @@ public final class OutputNames {
    */
   public static final String CS01 = "CS01";
   /**
+   *  The Bucketed CS01 of a credit default swap
+   */
+  public static final String BUCKETED_CS01 = "Bucketed CS01";
+  /**
    * The bucketed Gamma projected on curve pillars, without cross values
    */
   public static final String BUCKETED_GAMMA = "Bucketed Gamma";
