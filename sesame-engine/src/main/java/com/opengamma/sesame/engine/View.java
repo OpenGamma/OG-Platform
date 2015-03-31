@@ -35,6 +35,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.env.AnalyticsEnvironment;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.id.VersionCorrection;
@@ -344,7 +345,11 @@ public class View {
     ServiceContext cycleContext = cycleInitializer.getServiceContext();
 
     ThreadLocalWrapper threadLocalWrapper =
-        new ThreadLocalWrapper(cycleContext, originalContext, cycleInitializer.getCache(), _cacheThreadLocal);
+        new ThreadLocalWrapper(cycleContext, 
+                               originalContext, 
+                               cycleInitializer.getCache(), 
+                               _cacheThreadLocal, 
+                               AnalyticsEnvironment.getInstance());
 
     ListenableFuture<List<TaskResult>> tasksFuture =
         runAsync(calculationArguments, marketData, cycleInitializer, threadLocalWrapper, inputs);
@@ -380,7 +385,11 @@ public class View {
     ServiceContext context = originalContext.with(VersionCorrectionProvider.class, vcProvider);
     CycleInitializer cycleInitializer = new StandardCycleInitializer(context, _graph, cache);
     ThreadLocalWrapper threadLocalWrapper =
-        new ThreadLocalWrapper(context, originalContext, cycleInitializer.getCache(), _cacheThreadLocal);
+        new ThreadLocalWrapper(context, 
+                               originalContext, 
+                               cycleInitializer.getCache(), 
+                               _cacheThreadLocal, 
+                               AnalyticsEnvironment.getInstance());
     ZonedDateTime valuationTime = calculationArguments.getValuationTime();
     GatheringMarketDataBundle gatheringBundle = GatheringMarketDataBundle.create(suppliedData.toBundle());
     MarketDataEnvironment marketData = new GatheringMarketDataEnvironment(gatheringBundle, valuationTime);
@@ -702,13 +711,21 @@ public class View {
     }
 
     private Result<?> invokeFunction() {
-      // try-with-resources requires the declaration of variable even if it's not used in the body of the block
-      try (ThreadLocalWrapper ignore = _threadLocalWrapper.bindToThread()) {
+      AnalyticsEnvironment previousEnvironment = AnalyticsEnvironment.getInstance();
+      //allow any exception in bindThread to be propagated since
+      //this would indicate something very fundamental has gone
+      //wrong in the environment.
+      _threadLocalWrapper.bindToThread();
+      try {
         Object retVal = _invokableFunction.invoke(_env, _input, _args);
         return retVal instanceof Result ? (Result<?>) retVal : Result.success(retVal);
-      } catch (Exception e) {
+      } catch (RuntimeException e) {
         s_logger.warn("Failed to execute function", e);
         return Result.failure(e);
+      } finally {
+        //note: only restore thread if it was successfully bound above.
+        //again, exceptions are allowed to propagate.
+        _threadLocalWrapper.restoreThread(previousEnvironment);
       }
     }
 
@@ -772,52 +789,55 @@ public class View {
   }
 
   /**
-   * Auto-closable wrapper around state that needs to be bound to a thread before the calculations are performed
+   * Wrapper around state that needs to be bound to a thread before the calculations are performed
    * and cleared when the calculations are complete.
    * <p>
-   * When {@link #bindToThread()} is called the values are bound to the current thread and when {@link #close()}
+   * When {@link #bindToThread()} is called the values are bound to the current thread and when {@link #restoreThread()}
    * is called they are removed.
    * <p>
    * The values need to be bound to the thread which will execute the functions, which is likely to be a
    * thread from the pool and not the one that initializes the view. The intention is that
-   * tasks which execute functions should bind the values in a try-with-resources block and execute the
+   * tasks which execute functions should bind the values in a try-finally block and execute the
    * function in the body of the block.
    */
-  private static class ThreadLocalWrapper implements AutoCloseable {
+  private static final class ThreadLocalWrapper {
 
     private final ServiceContext _cycleServiceContext;
     private final ServiceContext _originalServiceContext;
     private final ThreadLocal<Cache<Object, Object>> _cacheThreadLocal;
     private final Cache<Object, Object> _cache;
+    private final AnalyticsEnvironment _targetEnvironment;
 
     private ThreadLocalWrapper(ServiceContext cycleServiceContext,
                                ServiceContext originalServiceContext,
                                Cache<Object, Object> cache,
-                               ThreadLocal<Cache<Object, Object>> cacheThreadLocal) {
+                               ThreadLocal<Cache<Object, Object>> cacheThreadLocal,
+                               AnalyticsEnvironment analyticsEnvironment) {
       _cycleServiceContext = cycleServiceContext;
       _originalServiceContext = originalServiceContext;
       _cache = cache;
       _cacheThreadLocal = cacheThreadLocal;
+      _targetEnvironment = analyticsEnvironment;
     }
 
     /**
      * Binds the thread local state to the current thread.
      *
-     * @return this, so it can be used in a try-with-resources block
+     * @return this, so it can be used in a try-finally block
      */
-    private ThreadLocalWrapper bindToThread() {
+    private void bindToThread() {
       _cacheThreadLocal.set(_cache);
       ThreadLocalServiceContext.init(_cycleServiceContext);
-      return this;
+      AnalyticsEnvironment.setInstance(_targetEnvironment);
     }
 
     /**
      * Removes the thread local bindings.
      */
-    @Override
-    public void close() {
+    public void restoreThread(AnalyticsEnvironment previousEnvironment) {
       _cacheThreadLocal.remove();
       ThreadLocalServiceContext.init(_originalServiceContext);
+      AnalyticsEnvironment.setInstance(previousEnvironment);
     }
   }
 }
