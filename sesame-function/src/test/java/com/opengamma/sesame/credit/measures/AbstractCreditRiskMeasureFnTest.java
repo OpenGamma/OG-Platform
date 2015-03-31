@@ -1,15 +1,18 @@
 package com.opengamma.sesame.credit.measures;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.testng.AssertJUnit.assertTrue;
 
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.testng.PowerMockTestCase;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.core.link.SecurityLink;
+import com.opengamma.financial.analytics.isda.credit.CreditCurveData;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
 import com.opengamma.financial.security.cds.CDSIndexComponentBundle;
 import com.opengamma.financial.security.cds.CreditDefaultSwapIndexComponent;
@@ -19,8 +22,10 @@ import com.opengamma.financial.security.credit.LegacyCDSSecurity;
 import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.credit.CdsData;
+import com.opengamma.sesame.credit.CreditPricingSampleData;
 import com.opengamma.sesame.credit.IsdaCompliantCreditCurveFn;
 import com.opengamma.sesame.credit.IsdaCreditCurve;
 import com.opengamma.sesame.credit.converter.IndexCdsConverterFn;
@@ -35,7 +40,8 @@ import com.opengamma.util.result.Result;
 /**
  * Tests {@link AbstractCreditRiskMeasureFn} flow.
  */
-public class AbstractCreditRiskMeasureFnTest {
+@PrepareForTest(IsdaCreditCurve.class)
+public class AbstractCreditRiskMeasureFnTest extends PowerMockTestCase {
   
   
   private AbstractCreditRiskMeasureFn<RiskResult> _fn;
@@ -69,11 +75,16 @@ public class AbstractCreditRiskMeasureFnTest {
     _cdxDefLink = mock(SecurityLink.class);
     _cdxDef = mock(IndexCDSDefinitionSecurity.class);
 
+    ExternalIdBundle idBundle = ExternalIdBundle.of(ExternalId.of("test", "1"));
+
     when(_legCds.getNotional()).thenReturn(_notional);
+    when(_legCds.getExternalIdBundle()).thenReturn(idBundle);
     when(_legCds.getCoupon()).thenReturn(_coupon);
     when(_cds.getNotional()).thenReturn(_notional);
+    when(_cds.getExternalIdBundle()).thenReturn(idBundle);
     when(_cds.getCoupon()).thenReturn(_coupon);
     when(_cdx.getNotional()).thenReturn(_notional);
+    when(_cdx.getExternalIdBundle()).thenReturn(idBundle);
     when(_cdx.getUnderlyingIndex()).thenReturn(_cdxDefLink);
     when(_cdxDefLink.resolve()).thenReturn(_cdxDef);
     when(_cdxDef.getCoupon()).thenReturn(_coupon);
@@ -117,9 +128,12 @@ public class AbstractCreditRiskMeasureFnTest {
     }
     
     IsdaCompliantCreditCurveFn curveFn = mock(IsdaCompliantCreditCurveFn.class);
-    
     Result<IsdaCreditCurve> isdaCurveResult = mock(Result.class);
     when(isdaCurveResult.isSuccess()).thenReturn(true);
+    IsdaCreditCurve curve = mock(IsdaCreditCurve.class);
+    when(isdaCurveResult.getValue()).thenReturn(curve);
+    CreditCurveData data = CreditPricingSampleData.createSingleNameCreditCurveData();
+    when(curve.getCurveData()).thenReturn(data);
     when(curveFn.buildIsdaCompliantCreditCurve(any(Environment.class), any(CreditCurveDataKey.class))).thenReturn(isdaCurveResult);
     
     _fn = new AbstractCreditRiskMeasureFn<RiskResult>(legacyCdsConverter, 

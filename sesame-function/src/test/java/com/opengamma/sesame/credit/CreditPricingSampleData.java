@@ -11,6 +11,7 @@ import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import java.util.Set;
 import java.util.SortedMap;
 
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 import org.threeten.bp.Period;
 
 import com.google.common.collect.ImmutableMap;
@@ -35,6 +37,10 @@ import com.opengamma.core.link.ConventionLink;
 import com.opengamma.core.link.ResolvedSnapshotLink;
 import com.opengamma.core.link.SecurityLink;
 import com.opengamma.core.link.SnapshotLink;
+import com.opengamma.core.position.Counterparty;
+import com.opengamma.core.position.Trade;
+import com.opengamma.core.position.impl.SimpleCounterparty;
+import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.region.impl.SimpleRegion;
 import com.opengamma.financial.analytics.isda.credit.CdsQuote;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveData;
@@ -90,6 +96,9 @@ import com.opengamma.sesame.credit.snapshot.CreditCurveDataProviderFn;
 import com.opengamma.sesame.credit.snapshot.SnapshotCreditCurveDataProviderFn;
 import com.opengamma.sesame.credit.snapshot.SnapshotYieldCurveDataProviderFn;
 import com.opengamma.sesame.credit.snapshot.YieldCurveDataProviderFn;
+import com.opengamma.sesame.trade.IndexCDSTrade;
+import com.opengamma.sesame.trade.LegacyCDSTrade;
+import com.opengamma.sesame.trade.StandardCDSTrade;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
@@ -123,28 +132,46 @@ public class CreditPricingSampleData {
    * This StandardCDSSecurity is structured to create the same CDSAnalytic as the LegacyCDSSecurity below
    * @return StandardCDSSecurity
    */
-  public static StandardCDSSecurity createPointsUpFrontStandardCDSSecurity() {
-    return new StandardCDSSecurity(PUFSCDS_BUNDLE,                              //id
-                                   JCP,                                         //name
-                                   LocalDate.of(2014, 10, 16),                  //trade date
-                                   LocalDate.of(2019, 12, 20),                  //maturity date
-                                   PUF_REF_ID,                                  //reference id
-                                   new InterestRateNotional(USD, 1_000_000),    //notional
-                                   true,                                        //buy/sell
-                                   0.05,                                        //coupon
-                                   SNRFOR);                                     //seniority
+  public static StandardCDSTrade createPointsUpFrontStandardCDSSecurity() {
+
+    StandardCDSSecurity cds = new StandardCDSSecurity(
+                                     PUFSCDS_BUNDLE,                              //id
+                                     JCP,                                         //name
+                                     LocalDate.of(2014, 10, 16),                  //trade date
+                                     LocalDate.of(2019, 12, 20),                  //maturity date
+                                     PUF_REF_ID,                                  //reference id
+                                     new InterestRateNotional(USD, 1_000_000),    //notional
+                                     true,                                        //buy/sell
+                                     0.05,                                        //coupon
+                                     SNRFOR);                                     //seniority
+
+    Trade trade = new SimpleTrade(cds,
+                                  BigDecimal.ONE,
+                                  new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
+                                  LocalDate.now(),
+                                  OffsetTime.now());
+    return new StandardCDSTrade(trade);
+
   }
 
-  public static StandardCDSSecurity createStandardCDSSecurity() {
-    return new StandardCDSSecurity(SCDS_BUNDLE,                                 //id
-                                   PEPSICO_INC,                                 //name
-                                   LocalDate.of(2014, 10, 16),                  //trade date
-                                   LocalDate.of(2019, 12, 20),                  //maturity date
-                                   REF_ID,                                      //reference id
-                                   new InterestRateNotional(USD, 1_000_000),    //notional
-                                   true,                                        //buy/sell
-                                   0.01,                                        //coupon
-                                   SNRFOR);                                     //seniority
+  public static StandardCDSTrade createStandardCDSSecurity() {
+    StandardCDSSecurity cds = new StandardCDSSecurity(
+                                     SCDS_BUNDLE,                                 //id
+                                     PEPSICO_INC,                                 //name
+                                     LocalDate.of(2014, 10, 16),                  //trade date
+                                     LocalDate.of(2019, 12, 20),                  //maturity date
+                                     REF_ID,                                      //reference id
+                                     new InterestRateNotional(USD, 1_000_000),    //notional
+                                     true,                                        //buy/sell
+                                     0.01,                                        //coupon
+                                     SNRFOR);                                     //seniority
+    Trade trade = new SimpleTrade(cds,
+                                  BigDecimal.ONE,
+                                  new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
+                                  LocalDate.now(),
+                                  OffsetTime.now());
+
+    return new StandardCDSTrade(trade);
   }
 
   /**
@@ -152,28 +179,37 @@ public class CreditPricingSampleData {
    * This LegacyCDSSecurity is structured to create the same CDSAnalytic as the  StandardCDSSecurity above
    * @return LegacyCDSSecurity
    */
-  public static LegacyCDSSecurity createLegacyCDSSecurity() {
-    return new LegacyCDSSecurity(LCDS_BUNDLE,
-                                 LocalDate.of(2014, 10, 16),
-                                 LocalDate.of(2014, 7, 16),
-                                 LocalDate.of(2019, 12, 20),
-                                 REF_ID,
-                                 new InterestRateNotional(Currency.USD, 1_000_000),
-                                 true,
-                                 0.01,
-                                 SNRFOR,
-                                 SimpleFrequency.QUARTERLY,
-                                 DayCounts.ACT_360,
-                                 BusinessDayConventions.FOLLOWING,
-                                 USNY,
-                                 XR,
-                                 new InterestRateNotional(USD, 1_000_000),
-                                 LocalDate.of(2019, 12, 20),
-                                 true);
+  public static LegacyCDSTrade createLegacyCDSSecurity() {
+    LegacyCDSSecurity cds =  new LegacyCDSSecurity(
+                                     LCDS_BUNDLE,
+                                     LocalDate.of(2014, 10, 16),
+                                     LocalDate.of(2014, 7, 16),
+                                     LocalDate.of(2019, 12, 20),
+                                     REF_ID,
+                                     new InterestRateNotional(Currency.USD, 1_000_000),
+                                     true,
+                                     0.01,
+                                     SNRFOR,
+                                     SimpleFrequency.QUARTERLY,
+                                     DayCounts.ACT_360,
+                                     BusinessDayConventions.FOLLOWING,
+                                     USNY,
+                                     XR,
+                                     new InterestRateNotional(USD, 1_000_000),
+                                     LocalDate.of(2019, 12, 20),
+                                     true);
+
+    Trade trade = new SimpleTrade(cds,
+                                  BigDecimal.ONE,
+                                  new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
+                                  LocalDate.now(),
+                                  OffsetTime.now());
+
+    return new LegacyCDSTrade(trade);
 
   }
 
-  public static IndexCDSSecurity createIndexCDSSecurity() {
+  public static IndexCDSTrade createIndexCDSSecurity() {
 
     // 100 components in the basket, with total weight of 1
     List<CreditDefaultSwapIndexComponent> components = new ArrayList<>();
@@ -204,13 +240,22 @@ public class CreditPricingSampleData {
                                        USNY,                                       //calendar
                                        BusinessDayConventions.MODIFIED_FOLLOWING); //business day conventions
 
-    return new IndexCDSSecurity(CDX_BUNDLE,                                        //id
-                                INDEX_NAME,                                        //name
-                                true,                                              //buy/sell
-                                SecurityLink.resolved(definition),                 //definition
-                                LocalDate.of(2014, 10, 16),                        //trade date
-                                LocalDate.of(2019, 12, 20),                        //maturity date
-                                new InterestRateNotional(USD, 1_000_000));         //notional
+    IndexCDSSecurity cds = new IndexCDSSecurity(
+                                      CDX_BUNDLE,                                        //id
+                                      INDEX_NAME,                                        //name
+                                      true,                                              //buy/sell
+                                      SecurityLink.resolved(definition),                 //definition
+                                      LocalDate.of(2014, 10, 16),                        //trade date
+                                      LocalDate.of(2019, 12, 20),                        //maturity date
+                                      new InterestRateNotional(USD, 1_000_000));         //notional
+
+    Trade trade = new SimpleTrade(cds,
+                                  BigDecimal.ONE,
+                                  new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
+                                  LocalDate.now(),
+                                  OffsetTime.now());
+
+    return new IndexCDSTrade(trade);
   }
 
   public static RestructuringSettings createRestructuringSettings() {
@@ -403,7 +448,7 @@ public class CreditPricingSampleData {
     return convention;
   }
 
-  private static CreditCurveData createSingleNameCreditCurveData() {
+  public static CreditCurveData createSingleNameCreditCurveData() {
 
       ConventionLink<IsdaCreditCurveConvention> conventionLink = ConventionLink.resolved(
           createUsdIsdaCreditCurveConvention());

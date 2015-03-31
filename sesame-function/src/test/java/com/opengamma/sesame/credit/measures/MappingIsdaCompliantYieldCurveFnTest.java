@@ -25,8 +25,8 @@ import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
-import com.opengamma.financial.security.credit.IndexCDSSecurity;
 import com.opengamma.financial.security.credit.StandardCDSSecurity;
+import com.opengamma.financial.security.credit.IndexCDSSecurity;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
@@ -45,6 +45,8 @@ import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.sesame.marketdata.MulticurveId;
 import com.opengamma.sesame.marketdata.builders.MarketDataEnvironmentFactory;
+import com.opengamma.sesame.trade.IndexCDSTrade;
+import com.opengamma.sesame.trade.StandardCDSTrade;
 import com.opengamma.util.function.Function;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
@@ -109,12 +111,13 @@ public class MappingIsdaCompliantYieldCurveFnTest {
   @Test
   public void testDiscountingStandardCdsPV() {
 
-    final StandardCDSSecurity security = CreditPricingSampleData.createStandardCDSSecurity();
+    final StandardCDSTrade trade = CreditPricingSampleData.createStandardCDSSecurity();
+    StandardCDSSecurity security = (StandardCDSSecurity) trade.getTrade().getSecurity();
     double tolerance = security.getNotional().getAmount() * BP;
     Result<CurrencyAmount> result = _functionRunner.runFunction(ARGS, getSuppliedData(getDiscountCurveBundle()), new Function<Environment, Result<CurrencyAmount>>() {
       @Override
       public Result<CurrencyAmount> apply(Environment env) {
-        return _pvFunction.priceStandardCds(env, security);
+        return _pvFunction.priceStandardCds(env, trade);
       }
     });
 
@@ -130,12 +133,13 @@ public class MappingIsdaCompliantYieldCurveFnTest {
   @Test
   public void testYieldCurveStandardCdsPV() {
 
-    final StandardCDSSecurity security = CreditPricingSampleData.createStandardCDSSecurity();
+    final StandardCDSTrade trade = CreditPricingSampleData.createStandardCDSSecurity();
+    StandardCDSSecurity security = (StandardCDSSecurity) trade.getTrade().getSecurity();
     double tolerance = security.getNotional().getAmount() * BP;
     Result<CurrencyAmount> result = _functionRunner.runFunction(ARGS, getSuppliedData(getYieldCurveBundle()), new Function<Environment, Result<CurrencyAmount>>() {
       @Override
       public Result<CurrencyAmount> apply(Environment env) {
-        return _pvFunction.priceStandardCds(env, security);
+        return _pvFunction.priceStandardCds(env, trade);
       }
     });
 
@@ -152,12 +156,13 @@ public class MappingIsdaCompliantYieldCurveFnTest {
   @Test
   public void testDiscountingIndexCdsPV() {
 
-    final IndexCDSSecurity security = CreditPricingSampleData.createIndexCDSSecurity();
+    final IndexCDSTrade trade = CreditPricingSampleData.createIndexCDSSecurity();
+    IndexCDSSecurity security = (IndexCDSSecurity) trade.getTrade().getSecurity();
     double tolerance = security.getNotional().getAmount() * BP;
     Result<CurrencyAmount> result = _functionRunner.runFunction(ARGS, getSuppliedData(getDiscountCurveBundle()), new Function<Environment, Result<CurrencyAmount>>() {
       @Override
       public Result<CurrencyAmount> apply(Environment env) {
-        return _pvFunction.priceIndexCds(env, security);
+        return _pvFunction.priceIndexCds(env, trade);
       }
     });
 

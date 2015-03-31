@@ -12,10 +12,11 @@ import org.testng.annotations.Test;
 
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataSnapshot;
 import com.opengamma.financial.analytics.isda.credit.YieldCurveDataSnapshot;
-import com.opengamma.financial.security.credit.LegacyCDSSecurity;
-import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.sesame.credit.CreditPricingSampleData;
 import com.opengamma.sesame.credit.config.RestructuringSettings;
+import com.opengamma.sesame.trade.IndexCDSTrade;
+import com.opengamma.sesame.trade.LegacyCDSTrade;
+import com.opengamma.sesame.trade.StandardCDSTrade;
 import com.opengamma.util.JodaBeanSerialization;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.test.TestGroup;
@@ -28,17 +29,25 @@ public class CreditSourcesTest {
 
   @Test
   public void standardCdsRoundTrip() {
-    StandardCDSSecurity input = CreditPricingSampleData.createStandardCDSSecurity();
+    StandardCDSTrade input = CreditPricingSampleData.createStandardCDSSecurity();
     String xml = JodaBeanSerialization.serializer(true).xmlWriter().write(input);
-    StandardCDSSecurity output = (StandardCDSSecurity) JodaBeanSerialization.deserializer().xmlReader().read(xml);
+    StandardCDSTrade output = (StandardCDSTrade) JodaBeanSerialization.deserializer().xmlReader().read(xml);
     assertEquals(input, output);
   }
 
   @Test
   public void legacyCdsRoundTrip() {
-    LegacyCDSSecurity input = CreditPricingSampleData.createLegacyCDSSecurity();
+    LegacyCDSTrade input = CreditPricingSampleData.createLegacyCDSSecurity();
     String xml = JodaBeanSerialization.serializer(true).xmlWriter().write(input);
-    LegacyCDSSecurity output = (LegacyCDSSecurity) JodaBeanSerialization.deserializer().xmlReader().read(xml);
+    LegacyCDSTrade output = (LegacyCDSTrade) JodaBeanSerialization.deserializer().xmlReader().read(xml);
+    assertEquals(input, output);
+  }
+
+  @Test
+  public void indexCdsRoundTrip() {
+    IndexCDSTrade input = CreditPricingSampleData.createIndexCDSSecurity();
+    String xml = JodaBeanSerialization.serializer(true).xmlWriter().write(input);
+    IndexCDSTrade output = (IndexCDSTrade) JodaBeanSerialization.deserializer().xmlReader().read(xml);
     assertEquals(input, output);
   }
 
