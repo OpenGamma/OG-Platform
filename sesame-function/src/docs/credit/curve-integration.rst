@@ -20,8 +20,6 @@ Available snapshot types are:
 * ``com.opengamma.financial.analytics.isda.credit.CreditCurveDataSnapshot`` 
 * ``com.opengamma.financial.analytics.isda.credit.YieldCurveDataSnapshot``
 
-TODO: add CDX snapshots
-
 For more information on the different types of snapshot, see here (TODO - link
 to credit snapshot docs)
 

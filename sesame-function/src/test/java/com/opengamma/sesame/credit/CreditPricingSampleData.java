@@ -17,8 +17,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 
-import javax.ws.rs.HEAD;
-
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
@@ -85,6 +83,7 @@ import com.opengamma.sesame.credit.market.LegacyCdsMarketDataResolverFn;
 import com.opengamma.sesame.credit.market.StandardCdsMarketDataResolverFn;
 import com.opengamma.sesame.credit.measures.CreditCs01Fn;
 import com.opengamma.sesame.credit.measures.CreditPvFn;
+import com.opengamma.sesame.credit.measures.DefaultCreditBucketedCs01Fn;
 import com.opengamma.sesame.credit.measures.DefaultCreditCs01Fn;
 import com.opengamma.sesame.credit.measures.DefaultCreditPvFn;
 import com.opengamma.sesame.credit.snapshot.CreditCurveDataProviderFn;
@@ -243,6 +242,9 @@ public class CreditPricingSampleData {
 
     return config(
         arguments(
+            function(
+                DefaultCreditBucketedCs01Fn.class,
+                argument("accrualOnDefaultFormulae", AccrualOnDefaultFormulae.OrignalISDA)),
             function(
                 DefaultCreditCs01Fn.class,
                 argument("accrualOnDefaultFormulae", AccrualOnDefaultFormulae.OrignalISDA)),
