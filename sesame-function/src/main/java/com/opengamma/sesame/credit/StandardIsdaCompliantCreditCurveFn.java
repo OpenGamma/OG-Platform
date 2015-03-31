@@ -12,6 +12,7 @@ import java.util.SortedMap;
 
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.AccrualOnDefaultFormulae;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalyticFactory;
@@ -27,7 +28,6 @@ import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.isda.credit.CdsQuote;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveData;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
-import com.opengamma.financial.analytics.isda.credit.CreditDefaultSwapType;
 import com.opengamma.financial.convention.IsdaCreditCurveConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
@@ -134,10 +134,17 @@ public class StandardIsdaCompliantCreditCurveFn implements IsdaCompliantCreditCu
     
     for (Map.Entry<Tenor, CdsQuote> spreadEntry : spreadData.entrySet()) {
       CDSAnalytic cdsAnalytic;
-      if (creditCurveKey.getCdsType() == CreditDefaultSwapType.INDEX) {
-        cdsAnalytic = cdsFactory.makeCDX(valuationDate, spreadEntry.getKey().getPeriod());
-      } else { //SINGLE_NAME is the only other choice
-        cdsAnalytic = cdsFactory.makeIMMCDS(valuationDate, spreadEntry.getKey().getPeriod());
+
+      switch (creditCurveKey.getCdsType()) {
+        case INDEX:
+          cdsAnalytic = cdsFactory.makeCDX(valuationDate, spreadEntry.getKey().getPeriod());
+          break;
+        case SINGLE_NAME:
+          cdsAnalytic = cdsFactory.makeIMMCDS(valuationDate, spreadEntry.getKey().getPeriod());
+          break;
+        default:
+          throw new OpenGammaRuntimeException("Credit curve key with CDS type " + creditCurveKey.getCdsType() + " is " +
+                                                  "invalid. Change to INDEX or SINGLE_NAME.");
       }
 
       CDSQuoteConvention quoteConvention = spreadEntry.getValue().toQuoteConvention();
