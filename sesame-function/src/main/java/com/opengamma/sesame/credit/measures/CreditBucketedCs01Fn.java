@@ -12,6 +12,9 @@ import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.function.Output;
+import com.opengamma.sesame.trade.IndexCDSTrade;
+import com.opengamma.sesame.trade.LegacyCDSTrade;
+import com.opengamma.sesame.trade.StandardCDSTrade;
 import com.opengamma.util.result.Result;
 
 /**
@@ -30,5 +33,17 @@ public interface CreditBucketedCs01Fn extends CreditRiskMeasureFn<TenorLabelledM
   @Override
   @Output(OutputNames.BUCKETED_CS01)
   Result<TenorLabelledMatrix1D> priceLegacyCds(Environment env, LegacyCDSSecurity cds);
+
+  @Override
+  @Output(OutputNames.PRESENT_VALUE)
+  Result<TenorLabelledMatrix1D> priceStandardCds(Environment env, StandardCDSTrade cds);
+
+  @Override
+  @Output(OutputNames.PRESENT_VALUE)
+  Result<TenorLabelledMatrix1D> priceIndexCds(Environment env, IndexCDSTrade cds);
+
+  @Override
+  @Output(OutputNames.PRESENT_VALUE)
+  Result<TenorLabelledMatrix1D> priceLegacyCds(Environment env, LegacyCDSTrade cds);
   
 }

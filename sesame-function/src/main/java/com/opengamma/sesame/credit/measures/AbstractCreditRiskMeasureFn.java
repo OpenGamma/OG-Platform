@@ -5,10 +5,19 @@
  */
 package com.opengamma.sesame.credit.measures;
 
+import java.math.BigDecimal;
 import java.util.Iterator;
+
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 
 import com.google.common.collect.ImmutableSortedSet;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
+import com.opengamma.core.position.Counterparty;
+import com.opengamma.core.position.Trade;
+import com.opengamma.core.position.impl.SimpleCounterparty;
+import com.opengamma.core.position.impl.SimpleTrade;
+import com.opengamma.core.security.Security;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
 import com.opengamma.financial.security.cds.CDSIndexComponentBundle;
 import com.opengamma.financial.security.cds.CreditDefaultSwapIndexComponent;
@@ -17,6 +26,7 @@ import com.opengamma.financial.security.credit.IndexCDSSecurity;
 import com.opengamma.financial.security.credit.LegacyCDSSecurity;
 import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
+import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.credit.CdsData;
 import com.opengamma.sesame.credit.IsdaCompliantCreditCurveFn;
@@ -28,6 +38,9 @@ import com.opengamma.sesame.credit.market.CreditMarketDataResolverFn;
 import com.opengamma.sesame.credit.market.IndexCdsMarketDataResolverFn;
 import com.opengamma.sesame.credit.market.LegacyCdsMarketDataResolverFn;
 import com.opengamma.sesame.credit.market.StandardCdsMarketDataResolverFn;
+import com.opengamma.sesame.trade.IndexCDSTrade;
+import com.opengamma.sesame.trade.LegacyCDSTrade;
+import com.opengamma.sesame.trade.StandardCDSTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.time.Tenor;
@@ -85,28 +98,6 @@ public abstract class AbstractCreditRiskMeasureFn<T> implements CreditRiskMeasur
     _creditCurveFn = ArgumentChecker.notNull(creditCurveFn, "creditCurveFn");
   }
 
-  @Override
-  public Result<T> priceLegacyCds(Environment env, LegacyCDSSecurity cds) {
-    
-    Result<IsdaCreditCurve> marketDataResult = resolveMarketData(env, _legacyCdsMarketDataResolverFn, cds);
-        
-    //not much we can do if we can't resolve/build market data
-    if (!marketDataResult.isSuccess()) {
-      return Result.failure(marketDataResult);
-    }
-    
-    IsdaCreditCurve creditCurve = marketDataResult.getValue();
-    Result<CDSAnalytic> analyticResult = _legacyCdsConverterFn.toCdsAnalytic(env, cds, creditCurve);
-    
-    if (analyticResult.isSuccess()) {
-      return price(extractForLegacyCds(cds, creditCurve),
-                   analyticResult.getValue(), 
-                   creditCurve);
-    } else {
-      return Result.failure(analyticResult);
-    }
-    
-  }
   
   /**
    * Resolve market data for the security using the passed function.
@@ -128,23 +119,23 @@ public abstract class AbstractCreditRiskMeasureFn<T> implements CreditRiskMeasur
     return _creditCurveFn.buildIsdaCompliantCreditCurve(env, mdKeyResult.getValue()); //source from env
     
   }
-  
+
   @Override
-  public Result<T> priceStandardCds(Environment env, StandardCDSSecurity cds) {
-    
+  public Result<T> priceStandardCds(Environment env, StandardCDSTrade trade) {
+    StandardCDSSecurity cds = (StandardCDSSecurity) trade.getTrade().getSecurity();
     Result<IsdaCreditCurve> marketDataResult = resolveMarketData(env, _standardCdsMarketDataResolverFn, cds);
-    
+
     //not much we can do if we can't resolve/build market data
     if (!marketDataResult.isSuccess()) {
       return Result.failure(marketDataResult);
     }
     IsdaCreditCurve creditCurve = marketDataResult.getValue();
-    
+
     Result<CDSAnalytic> analyticResult = _standardCdsConverterFn.toCdsAnalytic(env, cds, creditCurve);
-    
+
     if (analyticResult.isSuccess()) {
       return price(extractForStandardCds(cds, creditCurve),
-                   analyticResult.getValue(), 
+                   analyticResult.getValue(),
                    creditCurve);
     } else {
       return Result.failure(analyticResult);
@@ -152,8 +143,30 @@ public abstract class AbstractCreditRiskMeasureFn<T> implements CreditRiskMeasur
   }
 
   @Override
-  public Result<T> priceIndexCds(Environment env, IndexCDSSecurity cds) {
+  public Result<T> priceLegacyCds(Environment env, LegacyCDSTrade trade) {
+    LegacyCDSSecurity cds = (LegacyCDSSecurity) trade.getTrade().getSecurity();
+    Result<IsdaCreditCurve> marketDataResult = resolveMarketData(env, _legacyCdsMarketDataResolverFn, cds);
 
+    //not much we can do if we can't resolve/build market data
+    if (!marketDataResult.isSuccess()) {
+      return Result.failure(marketDataResult);
+    }
+
+    IsdaCreditCurve creditCurve = marketDataResult.getValue();
+    Result<CDSAnalytic> analyticResult = _legacyCdsConverterFn.toCdsAnalytic(env, cds, creditCurve);
+
+    if (analyticResult.isSuccess()) {
+      return price(extractForLegacyCds(cds, creditCurve),
+                   analyticResult.getValue(),
+                   creditCurve);
+    } else {
+      return Result.failure(analyticResult);
+    }
+  }
+
+  @Override
+  public Result<T> priceIndexCds(Environment env, IndexCDSTrade trade) {
+    IndexCDSSecurity cds = (IndexCDSSecurity) trade.getTrade().getSecurity();
     Result<IsdaCreditCurve> marketDataResult = resolveMarketData(env, _indexCdsMarketDataResolverFn, cds);
 
     //not much we can do if we can't resolve/build market data
@@ -171,6 +184,32 @@ public abstract class AbstractCreditRiskMeasureFn<T> implements CreditRiskMeasur
     } else {
       return Result.failure(analyticResult);
     }
+  }
+
+  @Override
+  public Result<T> priceStandardCds(Environment env, StandardCDSSecurity cds) {
+    StandardCDSTrade tradeWrapper = new StandardCDSTrade(buildTrade(cds));
+    return priceStandardCds(env, tradeWrapper);
+  }
+
+  @Override
+  public Result<T> priceLegacyCds(Environment env, LegacyCDSSecurity cds) {
+    LegacyCDSTrade tradeWrapper = new LegacyCDSTrade(buildTrade(cds));
+    return priceLegacyCds(env, tradeWrapper);
+  }
+
+  @Override
+  public Result<T> priceIndexCds(Environment env, IndexCDSSecurity cds) {
+    IndexCDSTrade tradeWrapper = new IndexCDSTrade(buildTrade(cds));
+    return priceIndexCds(env, tradeWrapper);
+  }
+ 
+  private Trade buildTrade(Security security) {
+    return new SimpleTrade(security,
+        BigDecimal.ONE,
+        new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
+        LocalDate.now(),
+        OffsetTime.now());
   }
   
   /**
