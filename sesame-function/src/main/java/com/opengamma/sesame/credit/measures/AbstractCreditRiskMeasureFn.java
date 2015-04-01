@@ -17,6 +17,7 @@ import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.core.position.impl.SimpleTrade;
+import com.opengamma.core.security.Security;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
 import com.opengamma.financial.security.cds.CDSIndexComponentBundle;
 import com.opengamma.financial.security.cds.CreditDefaultSwapIndexComponent;
@@ -187,35 +188,28 @@ public abstract class AbstractCreditRiskMeasureFn<T> implements CreditRiskMeasur
 
   @Override
   public Result<T> priceStandardCds(Environment env, StandardCDSSecurity cds) {
-    Trade trade = new SimpleTrade(cds,
-                                  BigDecimal.ONE,
-                                  new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
-                                  LocalDate.now(),
-                                  OffsetTime.now());
-    StandardCDSTrade tradeWrapper = new StandardCDSTrade(trade);
+    StandardCDSTrade tradeWrapper = new StandardCDSTrade(buildTrade(cds));
     return priceStandardCds(env, tradeWrapper);
   }
 
   @Override
   public Result<T> priceLegacyCds(Environment env, LegacyCDSSecurity cds) {
-    Trade trade = new SimpleTrade(cds,
-                                  BigDecimal.ONE,
-                                  new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
-                                  LocalDate.now(),
-                                  OffsetTime.now());
-    LegacyCDSTrade tradeWrapper = new LegacyCDSTrade(trade);
+    LegacyCDSTrade tradeWrapper = new LegacyCDSTrade(buildTrade(cds));
     return priceLegacyCds(env, tradeWrapper);
   }
 
   @Override
   public Result<T> priceIndexCds(Environment env, IndexCDSSecurity cds) {
-    Trade trade = new SimpleTrade(cds,
-                                  BigDecimal.ONE,
-                                  new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
-                                  LocalDate.now(),
-                                  OffsetTime.now());
-    IndexCDSTrade tradeWrapper = new IndexCDSTrade(trade);
+    IndexCDSTrade tradeWrapper = new IndexCDSTrade(buildTrade(cds));
     return priceIndexCds(env, tradeWrapper);
+  }
+ 
+  private Trade buildTrade(Security security) {
+    return new SimpleTrade(security,
+        BigDecimal.ONE,
+        new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
+        LocalDate.now(),
+        OffsetTime.now());
   }
   
   /**
