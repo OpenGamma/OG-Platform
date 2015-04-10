@@ -40,16 +40,26 @@ public class CreditBucketedCs01FnTest {
   public static final double EXPECTED_CS01_5Y = 506.4119079;
   public static final double PUF_EXPECTED_CS01_5Y = 421.92896;
   public static final double EXPECTED_INDEX_CS01 = 504.84802;
+  // risk concentrated around 4Y
+  private static final double EXPECTED_MULTI_POINT_INDEX_CS01_2Y = 2.185144915407834;
+  private static final double EXPECTED_MULTI_POINT_INDEX_CS01_3Y = 155.2472982766993;
+  private static final double EXPECTED_MULTI_POINT_INDEX_CS01_5Y = 250.35807869708287;
+  private static final double EXPECTED_MULTI_POINT_INDEX_CS01_10Y = 0.0;
   private static final double STD_TOLERANCE_PV = 1.0E-3;
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 10, 16);
+  private static final ZonedDateTime FUTURE_VALUATION_TIME = DateUtils.getUTCDate(2015, 10, 16);
   private static final Environment ENV = new SimpleEnvironment(VALUATION_TIME,
                                                                MarketDataEnvironmentBuilder.empty().toBundle());
+  private static final Environment FUTURE_ENV = new SimpleEnvironment(FUTURE_VALUATION_TIME,
+                                                                      MarketDataEnvironmentBuilder.empty().toBundle());
   private FunctionModelConfig _config;
   private ComponentMap _componentMap;
+  private FunctionModelConfig _multiPointIndexConfig;
 
   @BeforeMethod
   public void setUpClass()  {
     _config = CreditPricingSampleData.createFunctionModelConfig();
+    _multiPointIndexConfig = CreditPricingSampleData.createFunctionModelConfig(CreditPricingSampleData.createMultiPointIndexCurveCreditCurveDataSnapshot());
     _componentMap = ComponentMap.of(CreditPricingSampleData.generateBaseComponents());
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
     ServiceContext serviceContext =
@@ -98,6 +108,19 @@ public class CreditBucketedCs01FnTest {
 
     assertThat(result.isSuccess(), is(true));
     assertThat(result.getValue().getValues()[0], is(closeTo(EXPECTED_INDEX_CS01, STD_TOLERANCE_PV)));
+  }
+
+  @Test
+  public void testMultiPointIndexCdsCS01() {
+
+    DefaultCreditBucketedCs01Fn function = FunctionModel.build(DefaultCreditBucketedCs01Fn.class, _multiPointIndexConfig, _componentMap);
+    Result<TenorLabelledMatrix1D> result = function.priceIndexCds(FUTURE_ENV, CreditPricingSampleData.createIndexCDSSecurity());
+
+    assertThat(result.isSuccess(), is(true));
+    assertThat(result.getValue().getValues()[0], is(closeTo(EXPECTED_MULTI_POINT_INDEX_CS01_2Y, STD_TOLERANCE_PV)));
+    assertThat(result.getValue().getValues()[1], is(closeTo(EXPECTED_MULTI_POINT_INDEX_CS01_3Y, STD_TOLERANCE_PV)));
+    assertThat(result.getValue().getValues()[2], is(closeTo(EXPECTED_MULTI_POINT_INDEX_CS01_5Y, STD_TOLERANCE_PV)));
+    assertThat(result.getValue().getValues()[3], is(closeTo(EXPECTED_MULTI_POINT_INDEX_CS01_10Y, STD_TOLERANCE_PV)));
   }
 
 }
