@@ -35,15 +35,15 @@ public interface CreditCs01Fn extends CreditRiskMeasureFn<CurrencyAmount> {
   Result<CurrencyAmount> priceLegacyCds(Environment env, LegacyCDSSecurity cds);
 
   @Override
-  @Output(OutputNames.PRESENT_VALUE)
+  @Output(OutputNames.CS01)
   Result<CurrencyAmount> priceStandardCds(Environment env, StandardCDSTrade cds);
 
   @Override
-  @Output(OutputNames.PRESENT_VALUE)
+  @Output(OutputNames.CS01)
   Result<CurrencyAmount> priceIndexCds(Environment env, IndexCDSTrade cds);
 
   @Override
-  @Output(OutputNames.PRESENT_VALUE)
+  @Output(OutputNames.CS01)
   Result<CurrencyAmount> priceLegacyCds(Environment env, LegacyCDSTrade cds);
   
 }
