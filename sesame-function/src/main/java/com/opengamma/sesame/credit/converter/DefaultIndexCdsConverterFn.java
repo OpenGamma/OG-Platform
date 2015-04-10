@@ -19,7 +19,6 @@ import com.opengamma.financial.convention.IsdaCreditCurveConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.security.credit.IndexCDSSecurity;
-import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.credit.IsdaCreditCurve;
@@ -70,7 +69,7 @@ public class DefaultIndexCdsConverterFn implements IndexCdsConverterFn {
                                       .withProtectionStart(convention.isProtectFromStartOfDay())
                                       .withRecoveryRate(curveData.getRecoveryRate())
                                       .withStepIn(convention.getStepIn());
-    CDSAnalytic cdsAnalytic = factory.makeCDS(cds.getTradeDate(), prevImm, cds.getMaturityDate());
+    CDSAnalytic cdsAnalytic = factory.makeCDS(env.getValuationDate(), prevImm, cds.getMaturityDate());
     return Result.success(cdsAnalytic);
   }
 

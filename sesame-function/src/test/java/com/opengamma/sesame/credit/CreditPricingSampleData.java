@@ -270,6 +270,12 @@ public class CreditPricingSampleData {
     builder.put(curveIndexCreditCurveDataKey(IG_INDEX), createIndexCreditCurveData());
     return CreditCurveDataSnapshot.builder().name(SAMPLE_CREDIT_CURVE).creditCurves(builder.build()).build();
   }
+  
+  public static CreditCurveDataSnapshot createMultiPointIndexCurveCreditCurveDataSnapshot() {
+    ImmutableMap.Builder<CreditCurveDataKey, CreditCurveData> builder = ImmutableMap.builder();
+    builder.put(curveIndexCreditCurveDataKey(IG_INDEX), createMultiPointIndexCreditCurveData());
+    return CreditCurveDataSnapshot.builder().name(SAMPLE_CREDIT_CURVE).creditCurves(builder.build()).build();
+  }
 
   public static YieldCurveDataSnapshot createYieldCurveDataSnapshot() {
     Map<Currency, YieldCurveData> map = ImmutableMap.of(USD, createYieldCurveData());
@@ -277,11 +283,15 @@ public class CreditPricingSampleData {
   }
 
   public static FunctionModelConfig createFunctionModelConfig() {
+    return createFunctionModelConfig(createCreditCurveDataSnapshot());
+  }
+  
+  public static FunctionModelConfig createFunctionModelConfig(CreditCurveDataSnapshot customCreditSnapshot) {
 
     CreditCurveDataKeyMap configKeyMap = CreditCurveDataKeyMap.builder()
         .securityCurveMappings(ImmutableMap.<CreditCurveDataKey, CreditCurveDataKey>of())
         .build();
-    SnapshotLink<CreditCurveDataSnapshot> creditCurve = ResolvedSnapshotLink.resolved(createCreditCurveDataSnapshot());
+    SnapshotLink<CreditCurveDataSnapshot> creditCurve = ResolvedSnapshotLink.resolved(customCreditSnapshot);
     SnapshotLink<YieldCurveDataSnapshot> yieldCurve = ResolvedSnapshotLink.resolved(createYieldCurveDataSnapshot());
     RestructuringSettings restructuringSettings = createRestructuringSettings();
 
@@ -496,6 +506,25 @@ public class CreditPricingSampleData {
 
     SortedMap<Tenor, CdsQuote> spreadData = ImmutableSortedMap.<Tenor, CdsQuote>naturalOrder()
         .put(Tenor.FIVE_YEARS, ParSpreadQuote.from(0.006))
+        .build();
+
+    return CreditCurveData.builder()
+        .curveConventionLink(conventionLink)
+        .recoveryRate(0.4)
+        .cdsQuotes(spreadData)
+        .build();
+  }
+
+  private static CreditCurveData createMultiPointIndexCreditCurveData() {
+
+    ConventionLink<IsdaCreditCurveConvention> conventionLink = ConventionLink.resolved(
+        createUsdIsdaCreditCurveConvention());
+
+    SortedMap<Tenor, CdsQuote> spreadData = ImmutableSortedMap.<Tenor, CdsQuote>naturalOrder()
+        .put(Tenor.TWO_YEARS, ParSpreadQuote.from(0.006))
+        .put(Tenor.THREE_YEARS, ParSpreadQuote.from(0.006))
+        .put(Tenor.FIVE_YEARS, ParSpreadQuote.from(0.006))
+        .put(Tenor.TEN_YEARS, ParSpreadQuote.from(0.006))
         .build();
 
     return CreditCurveData.builder()
