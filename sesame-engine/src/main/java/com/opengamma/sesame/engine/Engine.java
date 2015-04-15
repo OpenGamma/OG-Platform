@@ -15,50 +15,19 @@ import com.opengamma.sesame.marketdata.scenarios.ScenarioDefinition;
 /**
  * The main entry point to the OpenGamma calculation engine.
  * <p>
- * An engine receives requests from clients to perform calculations, selects the appropriate functions,
- * builds any required market data, executes the calculations and returns the results.
+ * The engine performs two main tasks:
+ * <ul>
+ *   <li>Requesting and building market data required for risk calculations</li>
+ *   <li>Performing the calculations</li>
+ * </ul>
  * <p>
- * The caller can provide market data by populating and passing a {@link MarketDataEnvironment} when
- * making the request. The engine will attempt to create any market data that is required for the calculations
- * but not available in the data provided by the user.
+ * Market data is built by {@link #buildMarketData} (for a single scenario) and {@link #buildScenarioMarketData}
+ * (for multiple scenarios).
+ * <p>
+ * Calculations are performed by {@link #runView} (for a single scenario)
+ * and {@link #runScenarios} (for multiple scenarios).
  */
 public interface Engine {
-
-  /**
-   * Creates a view and uses it to perform a set of calculations.
-   * <p>
-   * The valuation time in the market data is ignored, the valuation time from
-   * {@code calculationArguments} is used. This will change in v3.0.
-   *
-   * @param viewConfig configuration defining the view that will perform the calculations
-   * @param calculationArguments options used when performing calculations
-   * @param marketData market data to be used in the calculations
-   * @param portfolio the trades, securities (or anything else) that are the inputs to the calculations
-   * @return the calculation results
-   */
-  Results runView(
-      ViewConfig viewConfig,
-      CalculationArguments calculationArguments,
-      MarketDataEnvironment marketData,
-      List<?> portfolio);
-
-  /**
-   * Performs the calculations defined in a view multiple times, using data from a different scenario each time.
-   * <p>
-   * The valuation time in the market data is ignored, the valuation time from {@code calculationArguments} is used.
-   * This will change in v3.0.
-   *
-   * @param viewConfig configuration of the view that performs the calculations
-   * @param marketData the market data used in the calculations
-   * @param calculationArguments options used when performing calculations
-   * @param portfolio the items in the portfolio
-   * @return the results of running the calculations in the view for every item in the portfolio and every scenario
-   */
-  ScenarioResults runScenarios(
-      ViewConfig viewConfig,
-      ScenarioMarketDataEnvironment marketData,
-      CalculationArguments calculationArguments,
-      List<?> portfolio);
 
   /**
    * Builds the market data required for performing calculations over a portfolio.
@@ -98,6 +67,42 @@ public interface Engine {
       ViewConfig viewConfig,
       MarketDataEnvironment baseData,
       ScenarioDefinition scenarioDefinition,
+      CalculationArguments calculationArguments,
+      List<?> portfolio);
+
+  /**
+   * Creates a view and uses it to perform a set of calculations.
+   * <p>
+   * The valuation time in the market data is ignored, the valuation time from
+   * {@code calculationArguments} is used. This will change in v3.0.
+   *
+   * @param viewConfig configuration defining the view that will perform the calculations
+   * @param calculationArguments options used when performing calculations
+   * @param marketData market data to be used in the calculations
+   * @param portfolio the trades, securities (or anything else) that are the inputs to the calculations
+   * @return the calculation results
+   */
+  Results runView(
+      ViewConfig viewConfig,
+      CalculationArguments calculationArguments,
+      MarketDataEnvironment marketData,
+      List<?> portfolio);
+
+  /**
+   * Performs the calculations defined in a view multiple times, using data from a different scenario each time.
+   * <p>
+   * The valuation time in the market data is ignored, the valuation time from {@code calculationArguments} is used.
+   * This will change in v3.0.
+   *
+   * @param viewConfig configuration of the view that performs the calculations
+   * @param marketData the market data used in the calculations
+   * @param calculationArguments options used when performing calculations
+   * @param portfolio the items in the portfolio
+   * @return the results of running the calculations in the view for every item in the portfolio and every scenario
+   */
+  ScenarioResults runScenarios(
+      ViewConfig viewConfig,
+      ScenarioMarketDataEnvironment marketData,
       CalculationArguments calculationArguments,
       List<?> portfolio);
 
