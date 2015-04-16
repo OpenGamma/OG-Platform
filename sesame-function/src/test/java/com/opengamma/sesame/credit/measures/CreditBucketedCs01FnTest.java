@@ -25,7 +25,6 @@ import com.opengamma.sesame.credit.CreditPricingSampleData;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.graph.FunctionModel;
-import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
@@ -48,18 +47,17 @@ public class CreditBucketedCs01FnTest {
   private static final double STD_TOLERANCE_PV = 1.0E-3;
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 10, 16);
   private static final ZonedDateTime FUTURE_VALUATION_TIME = DateUtils.getUTCDate(2015, 10, 16);
-  private static final Environment ENV = new SimpleEnvironment(VALUATION_TIME,
-                                                               MarketDataEnvironmentBuilder.empty().toBundle());
-  private static final Environment FUTURE_ENV = new SimpleEnvironment(FUTURE_VALUATION_TIME,
-                                                                      MarketDataEnvironmentBuilder.empty().toBundle());
+  private static final Environment ENV =
+      new SimpleEnvironment(VALUATION_TIME, CreditPricingSampleData.getCreditMarketDataBundle(VALUATION_TIME));
+  private static final Environment FUTURE_ENV =
+      new SimpleEnvironment(FUTURE_VALUATION_TIME, CreditPricingSampleData.getCreditMarketDataBundle(
+          FUTURE_VALUATION_TIME));
   private FunctionModelConfig _config;
   private ComponentMap _componentMap;
-  private FunctionModelConfig _multiPointIndexConfig;
 
   @BeforeMethod
   public void setUpClass()  {
     _config = CreditPricingSampleData.createFunctionModelConfig();
-    _multiPointIndexConfig = CreditPricingSampleData.createFunctionModelConfig(CreditPricingSampleData.createMultiPointIndexCurveCreditCurveDataSnapshot());
     _componentMap = ComponentMap.of(CreditPricingSampleData.generateBaseComponents());
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
     ServiceContext serviceContext =
@@ -113,8 +111,8 @@ public class CreditBucketedCs01FnTest {
   @Test
   public void testMultiPointIndexCdsCS01() {
 
-    DefaultCreditBucketedCs01Fn function = FunctionModel.build(DefaultCreditBucketedCs01Fn.class, _multiPointIndexConfig, _componentMap);
-    Result<TenorLabelledMatrix1D> result = function.priceIndexCds(FUTURE_ENV, CreditPricingSampleData.createIndexCDSSecurity());
+    DefaultCreditBucketedCs01Fn function = FunctionModel.build(DefaultCreditBucketedCs01Fn.class, _config, _componentMap);
+    Result<TenorLabelledMatrix1D> result = function.priceIndexCds(FUTURE_ENV, CreditPricingSampleData.createMultiPointIndexCDSSecurity());
 
     assertThat(result.isSuccess(), is(true));
     assertThat(result.getValue().getValues()[0], is(closeTo(EXPECTED_MULTI_POINT_INDEX_CS01_2Y, STD_TOLERANCE_PV)));

@@ -17,8 +17,11 @@ import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 
 /**
- * A provider function which, given a credit key, will return a valid {@link CreditCurveData} instance.
+ * @deprecated Use {@link DefaultCreditCurveDataProviderFn}
+ * A provider function which, given a credit key, will return a valid {@link CreditCurveData} instance
+ * via a snapshot link.
  */
+@Deprecated
 public class SnapshotCreditCurveDataProviderFn implements CreditCurveDataProviderFn {
 
   private final SnapshotLink<CreditCurveDataSnapshot> _snapshotLink;
@@ -34,7 +37,7 @@ public class SnapshotCreditCurveDataProviderFn implements CreditCurveDataProvide
   @Override
   public Result<CreditCurveData> retrieveCreditCurveData(Environment env, CreditCurveDataKey key) {
     CreditCurveDataSnapshot snapshotResult = _snapshotLink.resolve();
-    
+
     Map<CreditCurveDataKey, CreditCurveData> creditCurveDataMap = snapshotResult.getCreditCurves();
     if (creditCurveDataMap.containsKey(key)) {
       return Result.success(creditCurveDataMap.get(key));
