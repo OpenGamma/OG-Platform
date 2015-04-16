@@ -20,7 +20,7 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.isda.credit.YieldCurveData;
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.credit.snapshot.YieldCurveDataProviderFn;
+import com.opengamma.sesame.credit.curve.YieldCurveDataProviderFn;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
@@ -69,22 +69,17 @@ public class DefaultIsdaCompliantYieldCurveFnTest {
   
   @BeforeMethod
   public void beforeMethod() {
-    
+
+    _env = mock(Environment.class);
     YieldCurveDataProviderFn providerFn = mock(YieldCurveDataProviderFn.class);
-    
-    when(providerFn.retrieveYieldCurveData(Currency.GBP)).
-        thenReturn(Result.<YieldCurveData> failure(FailureStatus.ERROR, "test"));
-    
     _fn = new DefaultIsdaCompliantYieldCurveFn(providerFn, 
                                                mock(RegionSource.class), 
                                                mock(HolidaySource.class));
     
     YieldCurveData ycData = CreditCurveCalibrationSampleData.createYieldCurveData();
-    
-    when(providerFn.retrieveYieldCurveData(Currency.USD)).thenReturn(Result.success(ycData));
-    
-    _env = mock(Environment.class);
-    
+    when(providerFn.retrieveYieldCurveData(_env, Currency.GBP)).
+        thenReturn(Result.<YieldCurveData> failure(FailureStatus.ERROR, "test"));
+    when(providerFn.retrieveYieldCurveData(_env, Currency.USD)).thenReturn(Result.success(ycData));
     when(_env.getValuationDate()).thenReturn(VALUATION_DATE);
     
   }

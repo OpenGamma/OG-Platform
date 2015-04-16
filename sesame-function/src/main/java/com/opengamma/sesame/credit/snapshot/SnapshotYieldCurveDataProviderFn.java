@@ -10,15 +10,20 @@ import java.util.Map;
 import com.opengamma.core.link.SnapshotLink;
 import com.opengamma.financial.analytics.isda.credit.YieldCurveData;
 import com.opengamma.financial.analytics.isda.credit.YieldCurveDataSnapshot;
+import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.credit.curve.YieldCurveDataProviderFn;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
+import com.opengamma.sesame.credit.curve.DefaultYieldCurveDataProviderFn;
 
 /**
- * A {@link YieldCurveDataProviderFn} which sources {@link YieldCurveData} instances from a 
+ * @deprecated Use {@link DefaultYieldCurveDataProviderFn}
+ * A {@link YieldCurveDataProviderFn} which sources {@link YieldCurveData} instances from a
  * {@link YieldCurveDataSnapshot}.
  */
+@Deprecated
 public class SnapshotYieldCurveDataProviderFn implements YieldCurveDataProviderFn {
   
   private final SnapshotLink<YieldCurveDataSnapshot> _snapshotLink;
@@ -32,7 +37,7 @@ public class SnapshotYieldCurveDataProviderFn implements YieldCurveDataProviderF
   }
 
   @Override
-  public Result<YieldCurveData> retrieveYieldCurveData(Currency currency) {
+  public Result<YieldCurveData> retrieveYieldCurveData(Environment env, Currency currency) {
     YieldCurveDataSnapshot snapshotResult = _snapshotLink.resolve();
     
     Map<Currency, YieldCurveData> creditCurveDataMap = snapshotResult.getYieldCurves();

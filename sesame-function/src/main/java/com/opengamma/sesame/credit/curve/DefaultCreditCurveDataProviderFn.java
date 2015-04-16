@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.credit.snapshot;
+package com.opengamma.sesame.credit.curve;
 
 import java.util.Map;
 

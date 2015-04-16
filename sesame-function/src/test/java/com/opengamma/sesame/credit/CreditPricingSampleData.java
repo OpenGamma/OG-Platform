@@ -35,9 +35,7 @@ import com.opengamma.core.holiday.impl.WeekendHolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.legalentity.SeniorityLevel;
 import com.opengamma.core.link.ConventionLink;
-import com.opengamma.core.link.ResolvedSnapshotLink;
 import com.opengamma.core.link.SecurityLink;
-import com.opengamma.core.link.SnapshotLink;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleCounterparty;
@@ -80,6 +78,10 @@ import com.opengamma.sesame.credit.converter.DefaultStandardCdsConverterFn;
 import com.opengamma.sesame.credit.converter.IndexCdsConverterFn;
 import com.opengamma.sesame.credit.converter.LegacyCdsConverterFn;
 import com.opengamma.sesame.credit.converter.StandardCdsConverterFn;
+import com.opengamma.sesame.credit.curve.CreditCurveDataProviderFn;
+import com.opengamma.sesame.credit.curve.DefaultCreditCurveDataProviderFn;
+import com.opengamma.sesame.credit.curve.DefaultYieldCurveDataProviderFn;
+import com.opengamma.sesame.credit.curve.YieldCurveDataProviderFn;
 import com.opengamma.sesame.credit.market.CreditKeyMapperFn;
 import com.opengamma.sesame.credit.market.DefaultCreditKeyMapperFn;
 import com.opengamma.sesame.credit.market.DefaultIndexCdsMarketDataResolverFn;
@@ -93,13 +95,10 @@ import com.opengamma.sesame.credit.measures.CreditPvFn;
 import com.opengamma.sesame.credit.measures.DefaultCreditBucketedCs01Fn;
 import com.opengamma.sesame.credit.measures.DefaultCreditCs01Fn;
 import com.opengamma.sesame.credit.measures.DefaultCreditPvFn;
-import com.opengamma.sesame.credit.snapshot.CreditCurveDataProviderFn;
-import com.opengamma.sesame.credit.snapshot.DefaultCreditCurveDataProviderFn;
-import com.opengamma.sesame.credit.snapshot.SnapshotYieldCurveDataProviderFn;
-import com.opengamma.sesame.credit.snapshot.YieldCurveDataProviderFn;
 import com.opengamma.sesame.marketdata.CreditCurveDataId;
 import com.opengamma.sesame.marketdata.MarketDataBundle;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
+import com.opengamma.sesame.marketdata.YieldCurveDataId;
 import com.opengamma.sesame.trade.IndexCDSTrade;
 import com.opengamma.sesame.trade.LegacyCDSTrade;
 import com.opengamma.sesame.trade.StandardCDSTrade;
@@ -276,12 +275,17 @@ public class CreditPricingSampleData {
   }
 
   public static CreditCurveDataId getCreditCurveDataId() {
-    return CreditCurveDataId.of(CreditPricingSampleData.SAMPLE_CREDIT_CURVE);
+    return CreditCurveDataId.of(SAMPLE_CREDIT_CURVE);
+  }
+
+  public static YieldCurveDataId getYieldCurveDataId() {
+    return YieldCurveDataId.of(SAMPLE_YIELD_CURVE);
   }
 
   public static MarketDataBundle getCreditMarketDataBundle(ZonedDateTime valuation) {
     MarketDataEnvironmentBuilder builder = new MarketDataEnvironmentBuilder();
     builder.add(getCreditCurveDataId(), createCreditCurveDataSnapshot());
+    builder.add(getYieldCurveDataId(), createYieldCurveDataSnapshot());
     builder.valuationTime(valuation);
     return builder.build().toBundle();
   }
@@ -310,7 +314,6 @@ public class CreditPricingSampleData {
     CreditCurveDataKeyMap configKeyMap = CreditCurveDataKeyMap.builder()
         .securityCurveMappings(ImmutableMap.<CreditCurveDataKey, CreditCurveDataKey>of())
         .build();
-    SnapshotLink<YieldCurveDataSnapshot> yieldCurve = ResolvedSnapshotLink.resolved(createYieldCurveDataSnapshot());
     RestructuringSettings restructuringSettings = createRestructuringSettings();
 
     return config(
@@ -335,13 +338,13 @@ public class CreditPricingSampleData {
                 DefaultCreditCurveDataProviderFn.class,
                 argument("creditCurveDataName", SAMPLE_CREDIT_CURVE)),
             function(
-                SnapshotYieldCurveDataProviderFn.class,
-                argument("snapshotLink", yieldCurve))),
+                DefaultYieldCurveDataProviderFn.class,
+                argument("yieldCurveDataName", SAMPLE_YIELD_CURVE))),
         implementations(
             CreditPvFn.class, DefaultCreditPvFn.class,
             CreditCs01Fn.class, DefaultCreditCs01Fn.class,
             IsdaCompliantYieldCurveFn.class, DefaultIsdaCompliantYieldCurveFn.class,
-            YieldCurveDataProviderFn.class, SnapshotYieldCurveDataProviderFn.class,
+            YieldCurveDataProviderFn.class, DefaultYieldCurveDataProviderFn.class,
             CreditCurveDataProviderFn.class, DefaultCreditCurveDataProviderFn.class,
             IsdaCompliantCreditCurveFn.class, StandardIsdaCompliantCreditCurveFn.class,
             LegacyCdsConverterFn.class, DefaultLegacyCdsConverterFn.class,

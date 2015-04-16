@@ -12,6 +12,8 @@ import com.opengamma.financial.analytics.isda.credit.CreditCurveData;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataSnapshot;
 import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.credit.curve.CreditCurveDataProviderFn;
+import com.opengamma.sesame.credit.curve.DefaultCreditCurveDataProviderFn;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;

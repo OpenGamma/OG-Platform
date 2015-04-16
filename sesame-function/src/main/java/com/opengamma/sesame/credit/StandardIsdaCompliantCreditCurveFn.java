@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 
-import javax.ws.rs.HEAD;
-
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -30,13 +28,12 @@ import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.isda.credit.CdsQuote;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveData;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
-import com.opengamma.financial.analytics.isda.credit.CreditDefaultSwapType;
 import com.opengamma.financial.convention.IsdaCreditCurveConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.credit.snapshot.CreditCurveDataProviderFn;
+import com.opengamma.sesame.credit.curve.CreditCurveDataProviderFn;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.time.Tenor;

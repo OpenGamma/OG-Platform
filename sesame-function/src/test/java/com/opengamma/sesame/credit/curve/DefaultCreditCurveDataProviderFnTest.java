@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.credit.snapshot;
+package com.opengamma.sesame.credit.curve;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -38,15 +38,11 @@ public class DefaultCreditCurveDataProviderFnTest {
   @SuppressWarnings("unchecked")
   @BeforeClass
   public void beforeClass() {
-
     _env = mock(Environment.class);
-
     MarketDataBundle bundle = mock(MarketDataBundle.class);
     when(_env.getMarketDataBundle()).thenReturn(bundle);
-
     String name = "Name";
     CreditCurveDataId goodId = CreditCurveDataId.of(name);
-
     CreditCurveDataSnapshot snapshot =
         CreditCurveDataSnapshot.builder()
                                .name("")
@@ -54,7 +50,6 @@ public class DefaultCreditCurveDataProviderFnTest {
                                .build();
 
     when(bundle.get(goodId, CreditCurveDataSnapshot.class)).thenReturn(Result.success(snapshot));
-
     _fnWithUSDCurve = new DefaultCreditCurveDataProviderFn(name);
   }
 

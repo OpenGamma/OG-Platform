@@ -23,7 +23,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.credit.snapshot.YieldCurveDataProviderFn;
+import com.opengamma.sesame.credit.curve.YieldCurveDataProviderFn;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
@@ -54,14 +54,14 @@ public class DefaultIsdaCompliantYieldCurveFn implements IsdaCompliantYieldCurve
                                           RegionSource regionSource,
                                           HolidaySource holidaySource) {
     _yieldCurveProvider = ArgumentChecker.notNull(yieldCurveProvider, "yieldCurveProvider");
-    _regionSource = ArgumentChecker.notNull(regionSource, "regionSoruce");
+    _regionSource = ArgumentChecker.notNull(regionSource, "regionSource");
     _holidaySource = ArgumentChecker.notNull(holidaySource, "holidaySource");
   }
 
   @Override
   public Result<IsdaYieldCurve> buildIsdaCompliantCurve(Environment env, Currency ccy) {
     
-    Result<YieldCurveData> yieldCurveData = _yieldCurveProvider.retrieveYieldCurveData(ccy);
+    Result<YieldCurveData> yieldCurveData = _yieldCurveProvider.retrieveYieldCurveData(env, ccy);
     
     if (!yieldCurveData.isSuccess()) {
       return Result.failure(yieldCurveData);
