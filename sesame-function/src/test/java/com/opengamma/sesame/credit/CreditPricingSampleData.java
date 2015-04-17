@@ -227,19 +227,6 @@ public class CreditPricingSampleData {
 
   private static IndexCDSTrade createIndexCDSSecurity(String definitionName) {
 
-    // 100 components in the basket, with total weight of 1
-    List<CreditDefaultSwapIndexComponent> components = new ArrayList<>();
-    for (int i = 1; i <= 100; i++) {
-      ExternalId externalId = ExternalId.of("Basket", String.valueOf(i));
-      CreditDefaultSwapIndexComponent component =
-          new CreditDefaultSwapIndexComponent(externalId.getValue(),
-                                              externalId,
-                                              0.01,
-                                              externalId);
-      components.add(component);
-    }
-    CDSIndexComponentBundle componentBundle = CDSIndexComponentBundle.of(components);
-
     IndexCDSDefinitionSecurity definition =
         new IndexCDSDefinitionSecurity(CDXD_BUNDLE,                                //id
                                        definitionName,                             //name
@@ -252,9 +239,9 @@ public class CreditPricingSampleData {
                                        SimpleFrequency.QUARTERLY,                  //coupon frequency
                                        0.01,                                       //coupon
                                        CDSIndexTerms.of(Tenor.FIVE_YEARS),         //terms
-                                       componentBundle,                            //basket
                                        USNY,                                       //calendar
-                                       BusinessDayConventions.MODIFIED_FOLLOWING); //business day conventions
+                                       BusinessDayConventions.MODIFIED_FOLLOWING,  //business day conventions
+                                       1d);                                        //index factor
 
     IndexCDSSecurity cds = new IndexCDSSecurity(
                                       CDX_BUNDLE,                                        //id
