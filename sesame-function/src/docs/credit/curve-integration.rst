@@ -23,13 +23,14 @@ Available snapshot types are:
 For more information on the different types of snapshot, see here (TODO - link
 to credit snapshot docs)
 
-Once a snapshot is created and/or persisted, it needs to be referenced in the
-function graph. The two functions designed for this purpose are:
+Once a snapshot is created and/or persisted, it needs to added to the market data
+environment, and then referenced in the function graph. The two functions designed
+for this purpose are:
 
-* ``com.opengamma.sesame.credit.snapshot.SnapshotCreditCurveDataProviderFn``
-* ``com.opengamma.sesame.credit.snapshot.SnapshotYieldCurveDataProviderFn``
+* ``com.opengamma.sesame.credit.curve.DefaultCreditCurveDataProviderFn``
+* ``com.opengamma.sesame.credit.curve.DefaultYieldCurveDataProviderFn``
 
-Each takes a snapshot link as its constructor parameter which will be resolved
+Each takes the curve data name as its constructor parameter which will be resolved
 when a curve is required.
 
 Curve data provider functions
@@ -41,8 +42,8 @@ directly from an external data source.
 
 Function interfaces which can be implemented are:
 
-* ``com.opengamma.sesame.credit.snapshot.CreditCurveDataProviderFn``
-* ``com.opengamma.sesame.credit.snapshot.YieldCurveDataProviderFn``
+* ``com.opengamma.sesame.credit.curve.CreditCurveDataProviderFn``
+* ``com.opengamma.sesame.credit.curve.YieldCurveDataProviderFn``
 
 Each has a single method which takes the key for the relevant curve type. The
 implementation should consult the relevant data source and return a result as

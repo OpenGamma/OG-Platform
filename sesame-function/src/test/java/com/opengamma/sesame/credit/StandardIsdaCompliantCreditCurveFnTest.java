@@ -34,7 +34,7 @@ import com.opengamma.financial.convention.IsdaCreditCurveConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.credit.snapshot.CreditCurveDataProviderFn;
+import com.opengamma.sesame.credit.curve.CreditCurveDataProviderFn;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;

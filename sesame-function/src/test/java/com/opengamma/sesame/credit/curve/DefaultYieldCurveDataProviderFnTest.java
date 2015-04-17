@@ -1,4 +1,4 @@
-package com.opengamma.sesame.credit.snapshot;
+package com.opengamma.sesame.credit.curve;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -11,24 +11,24 @@ import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
-import com.opengamma.DataNotFoundException;
-import com.opengamma.core.link.SnapshotLink;
 import com.opengamma.financial.analytics.isda.credit.YieldCurveData;
 import com.opengamma.financial.analytics.isda.credit.YieldCurveDataSnapshot;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.marketdata.MarketDataBundle;
+import com.opengamma.sesame.marketdata.YieldCurveDataId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 
 /**
- * Tests {@link SnapshotYieldCurveDataProviderFn}.
+ * Tests {@link DefaultYieldCurveDataProviderFn}.
  */
 @Test(groups = TestGroup.UNIT)
-public class SnapshotYieldCurveDataProviderFnTest {
-  
+public class DefaultYieldCurveDataProviderFnTest {
+
   private static YieldCurveData YIELD_CURVE_DATA;
   static {
     YIELD_CURVE_DATA = YieldCurveData.builder()
@@ -45,29 +45,22 @@ public class SnapshotYieldCurveDataProviderFnTest {
         .build();
   }
   private Environment _env;
-  private SnapshotYieldCurveDataProviderFn _fnWithBadLink;
-  private SnapshotYieldCurveDataProviderFn _fnWithUSDCurve;
-
+  private DefaultYieldCurveDataProviderFn _fnWithUSDCurve;
   @SuppressWarnings("unchecked")
   @BeforeClass
   public void beforeClass() {
+
     _env = mock(Environment.class);
-    SnapshotLink<YieldCurveDataSnapshot> badLink = mock(SnapshotLink.class);
-    when(badLink.resolve()).thenThrow(new DataNotFoundException("test"));
-    _fnWithBadLink = new SnapshotYieldCurveDataProviderFn(badLink);
-    YieldCurveDataSnapshot snapshot =
-        YieldCurveDataSnapshot.builder()
-                              .name("")
-                              .yieldCurves(ImmutableMap.of(Currency.USD, YIELD_CURVE_DATA))
-                              .build();
-    SnapshotLink<YieldCurveDataSnapshot> goodLink = SnapshotLink.resolved(snapshot);
-    _fnWithUSDCurve = new SnapshotYieldCurveDataProviderFn(goodLink);
-  }
-  
-  @Test(expectedExceptions = {DataNotFoundException.class})
-  public void testFnWithBadLink() {
-    Result<YieldCurveData> result = _fnWithBadLink.retrieveYieldCurveData(_env, Currency.USD);
-    assertFalse("Link threw exception so function should fail.", result.isSuccess());
+    MarketDataBundle bundle = mock(MarketDataBundle.class);
+    when(_env.getMarketDataBundle()).thenReturn(bundle);
+    String name = "Name";
+    YieldCurveDataId goodId = YieldCurveDataId.of(name);
+    YieldCurveDataSnapshot snapshot = YieldCurveDataSnapshot.builder()
+                      .name("")
+                      .yieldCurves(ImmutableMap.of(Currency.USD, YIELD_CURVE_DATA))
+                      .build();
+    when(bundle.get(goodId, YieldCurveDataSnapshot.class)).thenReturn(Result.success(snapshot));
+    _fnWithUSDCurve = new DefaultYieldCurveDataProviderFn(name);
   }
 
   @Test

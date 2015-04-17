@@ -21,6 +21,7 @@ import java.util.SortedMap;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.OffsetTime;
 import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
@@ -34,9 +35,7 @@ import com.opengamma.core.holiday.impl.WeekendHolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.legalentity.SeniorityLevel;
 import com.opengamma.core.link.ConventionLink;
-import com.opengamma.core.link.ResolvedSnapshotLink;
 import com.opengamma.core.link.SecurityLink;
-import com.opengamma.core.link.SnapshotLink;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleCounterparty;
@@ -79,6 +78,10 @@ import com.opengamma.sesame.credit.converter.DefaultStandardCdsConverterFn;
 import com.opengamma.sesame.credit.converter.IndexCdsConverterFn;
 import com.opengamma.sesame.credit.converter.LegacyCdsConverterFn;
 import com.opengamma.sesame.credit.converter.StandardCdsConverterFn;
+import com.opengamma.sesame.credit.curve.CreditCurveDataProviderFn;
+import com.opengamma.sesame.credit.curve.DefaultCreditCurveDataProviderFn;
+import com.opengamma.sesame.credit.curve.DefaultYieldCurveDataProviderFn;
+import com.opengamma.sesame.credit.curve.YieldCurveDataProviderFn;
 import com.opengamma.sesame.credit.market.CreditKeyMapperFn;
 import com.opengamma.sesame.credit.market.DefaultCreditKeyMapperFn;
 import com.opengamma.sesame.credit.market.DefaultIndexCdsMarketDataResolverFn;
@@ -92,10 +95,10 @@ import com.opengamma.sesame.credit.measures.CreditPvFn;
 import com.opengamma.sesame.credit.measures.DefaultCreditBucketedCs01Fn;
 import com.opengamma.sesame.credit.measures.DefaultCreditCs01Fn;
 import com.opengamma.sesame.credit.measures.DefaultCreditPvFn;
-import com.opengamma.sesame.credit.snapshot.CreditCurveDataProviderFn;
-import com.opengamma.sesame.credit.snapshot.SnapshotCreditCurveDataProviderFn;
-import com.opengamma.sesame.credit.snapshot.SnapshotYieldCurveDataProviderFn;
-import com.opengamma.sesame.credit.snapshot.YieldCurveDataProviderFn;
+import com.opengamma.sesame.marketdata.CreditCurveDataId;
+import com.opengamma.sesame.marketdata.MarketDataBundle;
+import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
+import com.opengamma.sesame.marketdata.YieldCurveDataId;
 import com.opengamma.sesame.trade.IndexCDSTrade;
 import com.opengamma.sesame.trade.LegacyCDSTrade;
 import com.opengamma.sesame.trade.StandardCDSTrade;
@@ -109,7 +112,8 @@ public class CreditPricingSampleData {
 
   private static final String PEPSICO_INC = "Pepsico Inc";
   private static final String JCP = "JCP";
-  private static final String IG_INDEX = "CDX.NA.IG.23-V1 5Y";
+  public static final String IG_INDEX_5Y = "CDX.NA.IG.23-V1 5Y";
+  public static final String IG_INDEX = "CDX.NA.IG.23-V1";
   private static final String INDEX_NAME = "10M." + IG_INDEX;
   private static final String SAMPLE_CREDIT_CURVE = "Sample Credit Curve";
   private static final String SAMPLE_YIELD_CURVE = "Sample Yield Curve";
@@ -128,8 +132,7 @@ public class CreditPricingSampleData {
   private static final ExternalId REGION_US = ExternalId.of("FINANCIAL_REGION", "US");
 
   /**
-   * Create an instance of a Standard CDS
-   * This StandardCDSSecurity is structured to create the same CDSAnalytic as the LegacyCDSSecurity below
+   * Create an instance of a Standard CDS with points up front
    * @return StandardCDSSecurity
    */
   public static StandardCDSTrade createPointsUpFrontStandardCDSSecurity() {
@@ -154,6 +157,11 @@ public class CreditPricingSampleData {
 
   }
 
+  /**
+   * Create an instance of a Standard CDS
+   * This StandardCDSSecurity is structured to create the same CDSAnalytic as the LegacyCDSSecurity below
+   * @return StandardCDSSecurity
+   */
   public static StandardCDSTrade createStandardCDSSecurity() {
     StandardCDSSecurity cds = new StandardCDSSecurity(
                                      SCDS_BUNDLE,                                 //id
@@ -210,6 +218,14 @@ public class CreditPricingSampleData {
   }
 
   public static IndexCDSTrade createIndexCDSSecurity() {
+    return createIndexCDSSecurity(IG_INDEX_5Y);
+  }
+
+  public static IndexCDSTrade createMultiPointIndexCDSSecurity() {
+    return createIndexCDSSecurity(IG_INDEX);
+  }
+
+  private static IndexCDSTrade createIndexCDSSecurity(String definitionName) {
 
     // 100 components in the basket, with total weight of 1
     List<CreditDefaultSwapIndexComponent> components = new ArrayList<>();
@@ -226,7 +242,7 @@ public class CreditPricingSampleData {
 
     IndexCDSDefinitionSecurity definition =
         new IndexCDSDefinitionSecurity(CDXD_BUNDLE,                                //id
-                                       IG_INDEX,                                   //name
+                                       definitionName,                             //name
                                        LocalDate.of(2014, 9, 20),                  //start date
                                        "V1",                                       //version
                                        "23",                                       //series
@@ -258,6 +274,22 @@ public class CreditPricingSampleData {
     return new IndexCDSTrade(trade);
   }
 
+  public static CreditCurveDataId getCreditCurveDataId() {
+    return CreditCurveDataId.of(SAMPLE_CREDIT_CURVE);
+  }
+
+  public static YieldCurveDataId getYieldCurveDataId() {
+    return YieldCurveDataId.of(SAMPLE_YIELD_CURVE);
+  }
+
+  public static MarketDataBundle getCreditMarketDataBundle(ZonedDateTime valuation) {
+    MarketDataEnvironmentBuilder builder = new MarketDataEnvironmentBuilder();
+    builder.add(getCreditCurveDataId(), createCreditCurveDataSnapshot());
+    builder.add(getYieldCurveDataId(), createYieldCurveDataSnapshot());
+    builder.valuationTime(valuation);
+    return builder.build().toBundle();
+  }
+
   public static RestructuringSettings createRestructuringSettings() {
     Map<Currency, RestructuringClause> mappings = ImmutableMap.of(USD, XR);
     return RestructuringSettings.builder().restructuringMappings(mappings).build();
@@ -267,32 +299,21 @@ public class CreditPricingSampleData {
     ImmutableMap.Builder<CreditCurveDataKey, CreditCurveData> builder = ImmutableMap.builder();
     builder.put(curveCreditCurveDataKey(PEPSICO_INC), createSingleNameCreditCurveData());
     builder.put(curveCreditCurveDataKey(JCP), createPUFSingleNameCreditCurveData());
-    builder.put(curveIndexCreditCurveDataKey(IG_INDEX), createIndexCreditCurveData());
-    return CreditCurveDataSnapshot.builder().name(SAMPLE_CREDIT_CURVE).creditCurves(builder.build()).build();
-  }
-  
-  public static CreditCurveDataSnapshot createMultiPointIndexCurveCreditCurveDataSnapshot() {
-    ImmutableMap.Builder<CreditCurveDataKey, CreditCurveData> builder = ImmutableMap.builder();
+    builder.put(curveIndexCreditCurveDataKey(IG_INDEX_5Y), createIndexCreditCurveData());
     builder.put(curveIndexCreditCurveDataKey(IG_INDEX), createMultiPointIndexCreditCurveData());
     return CreditCurveDataSnapshot.builder().name(SAMPLE_CREDIT_CURVE).creditCurves(builder.build()).build();
   }
-
+  
   public static YieldCurveDataSnapshot createYieldCurveDataSnapshot() {
     Map<Currency, YieldCurveData> map = ImmutableMap.of(USD, createYieldCurveData());
     return YieldCurveDataSnapshot.builder().name(SAMPLE_YIELD_CURVE).yieldCurves(map).build();
   }
 
   public static FunctionModelConfig createFunctionModelConfig() {
-    return createFunctionModelConfig(createCreditCurveDataSnapshot());
-  }
-  
-  public static FunctionModelConfig createFunctionModelConfig(CreditCurveDataSnapshot customCreditSnapshot) {
 
     CreditCurveDataKeyMap configKeyMap = CreditCurveDataKeyMap.builder()
         .securityCurveMappings(ImmutableMap.<CreditCurveDataKey, CreditCurveDataKey>of())
         .build();
-    SnapshotLink<CreditCurveDataSnapshot> creditCurve = ResolvedSnapshotLink.resolved(customCreditSnapshot);
-    SnapshotLink<YieldCurveDataSnapshot> yieldCurve = ResolvedSnapshotLink.resolved(createYieldCurveDataSnapshot());
     RestructuringSettings restructuringSettings = createRestructuringSettings();
 
     return config(
@@ -314,17 +335,17 @@ public class CreditPricingSampleData {
                 DefaultStandardCdsMarketDataResolverFn.class,
                 argument("restructuringSettings", restructuringSettings)),
             function(
-                SnapshotCreditCurveDataProviderFn.class,
-                argument("snapshotLink", creditCurve)),
+                DefaultCreditCurveDataProviderFn.class,
+                argument("creditCurveDataName", SAMPLE_CREDIT_CURVE)),
             function(
-                SnapshotYieldCurveDataProviderFn.class,
-                argument("snapshotLink", yieldCurve))),
+                DefaultYieldCurveDataProviderFn.class,
+                argument("yieldCurveDataName", SAMPLE_YIELD_CURVE))),
         implementations(
             CreditPvFn.class, DefaultCreditPvFn.class,
             CreditCs01Fn.class, DefaultCreditCs01Fn.class,
             IsdaCompliantYieldCurveFn.class, DefaultIsdaCompliantYieldCurveFn.class,
-            YieldCurveDataProviderFn.class, SnapshotYieldCurveDataProviderFn.class,
-            CreditCurveDataProviderFn.class, SnapshotCreditCurveDataProviderFn.class,
+            YieldCurveDataProviderFn.class, DefaultYieldCurveDataProviderFn.class,
+            CreditCurveDataProviderFn.class, DefaultCreditCurveDataProviderFn.class,
             IsdaCompliantCreditCurveFn.class, StandardIsdaCompliantCreditCurveFn.class,
             LegacyCdsConverterFn.class, DefaultLegacyCdsConverterFn.class,
             IndexCdsConverterFn.class, DefaultIndexCdsConverterFn.class,
@@ -340,7 +361,6 @@ public class CreditPricingSampleData {
     CreditCurveDataKeyMap configKeyMap = CreditCurveDataKeyMap.builder()
         .securityCurveMappings(ImmutableMap.<CreditCurveDataKey, CreditCurveDataKey>of())
         .build();
-    SnapshotLink<CreditCurveDataSnapshot> creditCurve = ResolvedSnapshotLink.resolved(createCreditCurveDataSnapshot());
     RestructuringSettings restructuringSettings = createRestructuringSettings();
 
     return config(
@@ -362,13 +382,13 @@ public class CreditPricingSampleData {
                 MappingIsdaCompliantYieldCurveFn.class,
                 argument("multicurveName", "Curve Bundle")),
             function(
-                SnapshotCreditCurveDataProviderFn.class,
-                argument("snapshotLink", creditCurve))),
+                DefaultCreditCurveDataProviderFn.class,
+                argument("creditCurveDataName", SAMPLE_CREDIT_CURVE))),
         implementations(
             CreditPvFn.class, DefaultCreditPvFn.class,
             CreditCs01Fn.class, DefaultCreditCs01Fn.class,
             IsdaCompliantYieldCurveFn.class, MappingIsdaCompliantYieldCurveFn.class,
-            CreditCurveDataProviderFn.class, SnapshotCreditCurveDataProviderFn.class,
+            CreditCurveDataProviderFn.class, DefaultCreditCurveDataProviderFn.class,
             IsdaCompliantCreditCurveFn.class, StandardIsdaCompliantCreditCurveFn.class,
             LegacyCdsConverterFn.class, DefaultLegacyCdsConverterFn.class,
             IndexCdsConverterFn.class, DefaultIndexCdsConverterFn.class,

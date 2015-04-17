@@ -24,7 +24,6 @@ import com.opengamma.sesame.credit.CreditPricingSampleData;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.graph.FunctionModel;
-import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -43,8 +42,8 @@ public class CreditCs01FnTest {
   public static final double EXPECTED_INDEX_CS01 = 504.84802;
   private static final double STD_TOLERANCE_PV = 1.0E-3;
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 10, 16);
-  private static final Environment ENV = new SimpleEnvironment(VALUATION_TIME,
-                                                               MarketDataEnvironmentBuilder.empty().toBundle());
+  private static final Environment ENV =
+      new SimpleEnvironment(VALUATION_TIME, CreditPricingSampleData.getCreditMarketDataBundle(VALUATION_TIME));
   private FunctionModelConfig _config;
   private ComponentMap _componentMap;
 

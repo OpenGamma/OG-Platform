@@ -25,8 +25,8 @@ import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
-import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.financial.security.credit.IndexCDSSecurity;
+import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
@@ -100,11 +100,11 @@ public class MappingIsdaCompliantYieldCurveFnTest {
   private MarketDataEnvironment getSuppliedData(MulticurveBundle multicurveBundle) {
 
     MulticurveId multicurveId = MulticurveId.of("Curve Bundle");
-    MarketDataEnvironment suppliedData = new MarketDataEnvironmentBuilder()
+    return new MarketDataEnvironmentBuilder()
         .add(multicurveId, multicurveBundle)
+        .add(CreditPricingSampleData.getCreditCurveDataId(), CreditPricingSampleData.createCreditCurveDataSnapshot())
         .valuationTime(VALUATION_TIME)
         .build();
-  return suppliedData;
   }
 
 
@@ -151,7 +151,6 @@ public class MappingIsdaCompliantYieldCurveFnTest {
     assertThat(amount.getAmount(), is(closeTo(SINGLE_NAME_EXPECTED_PV, STD_TOLERANCE_PV)));
 
   }
-
 
   @Test
   public void testDiscountingIndexCdsPV() {
@@ -208,8 +207,7 @@ public class MappingIsdaCompliantYieldCurveFnTest {
     MulticurveProviderDiscount multicurveProvider = new MulticurveProviderDiscount();
     CurveBuildingBlockBundle curveBuildingBlockBundle = new CurveBuildingBlockBundle();
     multicurveProvider.setCurve(Currency.USD, yc);
-    MulticurveBundle bundle = new MulticurveBundle(multicurveProvider, curveBuildingBlockBundle);
-    return bundle;
+    return new MulticurveBundle(multicurveProvider, curveBuildingBlockBundle);
 
   }
 
@@ -221,8 +219,7 @@ public class MappingIsdaCompliantYieldCurveFnTest {
     MulticurveProviderDiscount multicurveProvider = new MulticurveProviderDiscount();
     CurveBuildingBlockBundle curveBuildingBlockBundle = new CurveBuildingBlockBundle();
     multicurveProvider.setCurve(Currency.USD, yc);
-    MulticurveBundle bundle = new MulticurveBundle(multicurveProvider, curveBuildingBlockBundle);
-    return bundle;
+    return new MulticurveBundle(multicurveProvider, curveBuildingBlockBundle);
 
   }
 

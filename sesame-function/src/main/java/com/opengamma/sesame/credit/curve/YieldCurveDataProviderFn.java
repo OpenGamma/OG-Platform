@@ -3,9 +3,10 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.sesame.credit.snapshot;
+package com.opengamma.sesame.credit.curve;
 
 import com.opengamma.financial.analytics.isda.credit.YieldCurveData;
+import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.cache.Cacheable;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
@@ -17,10 +18,11 @@ public interface YieldCurveDataProviderFn {
 
   /**
    * Loads the {@link YieldCurveData} instance associated with the given currency.
+   * @param env the execution environment
    * @param currency a currency
    * @return a valid {@link YieldCurveData} object or failure
    */
   @Cacheable
-  Result<YieldCurveData> retrieveYieldCurveData(Currency currency);
+  Result<YieldCurveData> retrieveYieldCurveData(Environment env, Currency currency);
 
 }
