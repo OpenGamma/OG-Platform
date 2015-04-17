@@ -26,9 +26,11 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.cds.CDSIndexComponentBundle;
 import com.opengamma.financial.security.cds.CDSIndexTerms;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexComponent;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.security.SecurityDescription;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -207,6 +209,67 @@ public class IndexCDSDefinitionSecurity extends FinancialSecurity {
     setCoupon(coupon);
     setTerms(terms);
     setComponents(components);
+    setCalendars(calendars);
+    setBusinessDayConvention(businessDayConvention);
+  }
+
+  /**
+   * Index CDS definition
+   *
+   * @param ids identifiers representing this cds index definition, used by cds inidicies to reference this definition
+   * @param name the descriptive name for this cds index definition
+   * @param startDate the start date, not null
+   * @param version  the version, not null
+   * @param series  the series, not null
+   * @param family  the family, not null
+   * @param currency  the currency, not null
+   * @param recoveryRate the recovery rate for the index, not null
+   * @param couponFrequency the coupon frequency, not null
+   * @param coupon the coupon, not null
+   * @param terms the terms, not null
+   * @param calendars the holiday calendars, not null
+   * @param businessDayConvention the business day convention, not null
+   * @param indexFactor the index factor, combined weight of components, not null, between 0 and 1
+   */
+  public IndexCDSDefinitionSecurity(
+      ExternalIdBundle ids,
+      String name,
+      LocalDate startDate,
+      String version,
+      String series,
+      String family,
+      Currency currency,
+      Double recoveryRate,
+      Frequency couponFrequency,
+      Double coupon,
+      CDSIndexTerms terms,
+      Set<ExternalId> calendars,
+      BusinessDayConvention businessDayConvention,
+      double indexFactor) {
+    super(SECURITY_TYPE);
+
+    ArgumentChecker.notNull(indexFactor, "indexFactor");
+    if (!ArgumentChecker.isInRangeInclusive(0d, 1d, indexFactor)) {
+      throw new IllegalArgumentException("indexFactor must lie between 0 and 1: have " + indexFactor);
+    }
+    // create a single component in the basket with a weight equal to the index factor
+    // and a name/id that matches the index itself
+    ExternalId id = ids.getExternalIds().first();
+    CreditDefaultSwapIndexComponent component = new CreditDefaultSwapIndexComponent(id.getValue(), id, indexFactor, id);
+    CDSIndexComponentBundle componentBundle = CDSIndexComponentBundle.of(component);
+
+    setExternalIdBundle(ids);
+    setName(name);
+    setStartDate(startDate);
+    setVersion(version);
+    setSeries(series);
+    setFamily(family);
+    setCurrency(currency);
+    setRecoveryRate(recoveryRate);
+    setCouponFrequency(couponFrequency);
+    setCoupon(coupon);
+    setTerms(terms);
+    setComponents(componentBundle);
     setCalendars(calendars);
     setBusinessDayConvention(businessDayConvention);
   }
