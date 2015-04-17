@@ -49,9 +49,10 @@ public class DefaultCreditCurveDataProviderFn implements CreditCurveDataProvider
       return Result.success(creditCurveDataMap.get(key));
     } else {
       return Result.failure(FailureStatus.MISSING_DATA,
-                            "Failed to load curve data for credit curve key {} in snapshot {}",
+                            "Failed to load curve data for credit curve key {} in snapshot {} for valuation {}",
                             key,
-                            curveData.getName());
+                            curveData.getName(),
+                            env.getValuationDate());
     }
   }
 

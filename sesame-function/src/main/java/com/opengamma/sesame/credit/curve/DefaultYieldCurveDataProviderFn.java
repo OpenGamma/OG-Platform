@@ -49,9 +49,10 @@ public class DefaultYieldCurveDataProviderFn implements YieldCurveDataProviderFn
       return Result.success(creditCurveDataMap.get(currency));
     } else {
       return Result.failure(FailureStatus.MISSING_DATA,
-                            "Failed to load curve data for credit curve key {} in snapshot {}",
+                            "Failed to load curve data for credit curve key {} in snapshot {} for valuation {}",
                             currency,
-                            curveData.getName());
+                            curveData.getName(),
+                            env.getValuationDate());
     }
   }
 
