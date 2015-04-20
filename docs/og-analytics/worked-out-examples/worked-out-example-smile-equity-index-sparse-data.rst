@@ -28,6 +28,7 @@ Given a set of information on the underlying,
     double RATE = 0.204 * 0.01;
     double DIVIDEND = 0.333 * 0.01;
 
+where interest rate (RATE) and dividend rate (DIVIDEND) are continuously compounded annual rates. 
 we assume the following options are available for the specific time to expiry, 
 
 .. code-block:: java 
@@ -48,6 +49,7 @@ Then the smile construction methodologies are applied to the implied volatilitie
 
 In general market prices of call options are inconsistent with those of put options in the sense call and put with the same strike lead to different values of implied volatility, which is mainly a consequence of liquidity difference
 between the call and put options, and also between options and underlying. 
+Another source of the implied volatility difference is the discrete dividend payment which we approximate in terms of a continuous dividend rate in this test end-to-end test.  
 To capture this feature, we straightforwardly build two volatility smiles, one for call options and the other for put options.
 
 
@@ -67,7 +69,9 @@ which is used for fixing a specific SABR parameter. In order to fix the beta par
 
     fixed.set(1); 
 
-None of the parameters are fixed if we use the default **BitSet**. Next initial guess values are defined
+because calibrating all of the four SABR parameters involves potential instability. 
+
+Next initial guess values are defined
 
 .. code-block:: java 
 

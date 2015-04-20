@@ -93,7 +93,7 @@ public class EquityIndexOptionSmileAndPriceGreeksE2ETest {
   @Test(description = "Demo", enabled = false)
   public void fitSabrSmileCall() {
     BitSet fixed = new BitSet();
-    // fixed.set(1); // turn on if beta value is fixed
+    fixed.set(1); // beta is fixed
     double atmVol = 0.19;
     double beta = 0.5;
     double rho = -0.7;
@@ -113,7 +113,7 @@ public class EquityIndexOptionSmileAndPriceGreeksE2ETest {
   @Test(description = "Demo", enabled = false)
   public void fitSabrSmilePut() {
     BitSet fixed = new BitSet();
-    // fixed.set(1); // turn on if beta value is fixed
+    fixed.set(1); // beta is fixed
     double atmVol = 0.19;
     double beta = 0.5;
     double rho = -0.9;
@@ -135,7 +135,7 @@ public class EquityIndexOptionSmileAndPriceGreeksE2ETest {
     GeneralSmileInterpolator sabr_interpolator = new SmileInterpolatorSABR();
     Function1D<Double, Double> smile = sabr_interpolator.getVolatilityFunction(FORWARD, CALL_STRIKES, EXPIRY, CALL_IV);
     printDetails(smile, DISPLAY_STRIKES, true);
-    printDetailsWithShift(smile, DISPLAY_STRIKES, true, VOL_SHOCKS); // vol shocks
+    //    printDetailsWithShift(smile, DISPLAY_STRIKES, true, VOL_SHOCKS); // vol shocks
   }
 
   /**
