@@ -1,5 +1,6 @@
 package com.opengamma.financial.analytics.model.credit.isdanew;
 
+import static com.opengamma.analytics.financial.credit.isdastandardmodel.CDSCoupon.makeCoupons;
 import static com.opengamma.analytics.financial.credit.isdastandardmodel.IMMDateLogic.getPrevIMMDate;
 
 import org.threeten.bp.LocalDate;
@@ -7,6 +8,7 @@ import org.threeten.bp.Period;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDAPremiumLegSchedule;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.StubType;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
@@ -135,6 +137,48 @@ public class CDSAnalyticVisitor extends FinancialSecurityVisitorAdapter<CDSAnaly
                                                     calendar,
                                                     security.getDayCount()
     );
+    return cdsAnalytic;
+  }
+  
+  public CDSAnalytic visitLegacyVanillaCDSSecurityNonIMMIrrSch(final LegacyVanillaCDSSecurity security) {
+    Calendar calendar;
+
+    if (security.getAttributes().containsKey("calendar")) {
+      String calendarOverride = security.getAttributes().get("calendar");
+      if (calendarOverride.equalsIgnoreCase("5D")) {
+        calendar = new MondayToFridayCalendar("MondayToFridayCalendar");
+      } else {
+        calendar = new HolidaySourceCalendarAdapter(_holidaySource, Currency.of(calendarOverride));
+      }
+    } else {
+      calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getNotional().getCurrency());
+    }
+
+    StubType stubType = security.getStubType().toAnalyticsType();
+    Period period = Period.ofMonths(6); // non IMM forced to semi annual
+
+    LocalDate startDateMod = _valuationDate.plusDays(1); // not necessarily a business day
+    LocalDate maturityDate = _maturityDate == null ? security.getMaturityDate().toLocalDate() : _maturityDate;
+    ISDAPremiumLegSchedule fullPaymentSchedule = new ISDAPremiumLegSchedule(startDateMod, maturityDate, period, stubType, 
+        security.getBusinessDayConvention(), calendar, security.isProtectionStart());
+    LocalDate date  = fullPaymentSchedule.getAccStartDate(0).plusMonths(1);
+    if (date.isAfter(fullPaymentSchedule.getAccEndDate(0))) {
+      stubType = StubType.FRONTLONG;
+    }
+    
+    final CDSAnalytic cdsAnalytic = new CDSAnalytic(_valuationDate,
+                                                    security.getEffectiveDate().toLocalDate(),
+                                                    BusinessDayDateUtils.addWorkDays(_valuationDate, 3, calendar),
+                                                    startDateMod,
+                                                    maturityDate,
+                                                    true, 
+                                                    period,
+                                                    stubType,
+                                                    security.isProtectionStart(),
+                                                    _recoveryRate,
+                                                    security.getBusinessDayConvention(),
+                                                    calendar,
+                                                    security.getDayCount());
     return cdsAnalytic;
   }
 

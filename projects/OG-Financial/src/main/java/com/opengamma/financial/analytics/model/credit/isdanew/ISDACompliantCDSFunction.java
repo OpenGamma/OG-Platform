@@ -173,7 +173,6 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
 
     //final CDSAnalytic analytic = CDSAnalyticConverter.create(cds, now.toLocalDate());
     final CDSAnalyticVisitor visitor = new CDSAnalyticVisitor(now.toLocalDate(), _holidaySource, _regionSource, recoveryRate);
-    final CDSAnalytic analytic = security.accept(visitor);
     final BuySellProtection buySellProtection = security.isBuy() ? BuySellProtection.BUY : BuySellProtection.SELL;
 //    final String term = new Tenor(Period.between(security.getStartDate().toLocalDate(), security.getMaturityDate().toLocalDate())).getPeriod().toString();
 //    final Double cdsQuoteDouble = (Double) inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
@@ -187,6 +186,9 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
     boolean isNonIMMFAndFromPUF = !IMMDateLogic.isIMMDate(security.getMaturityDate().toLocalDate()) && quote instanceof PointsUpFront;
     boolean isNonIMMAndFromSpread = !IMMDateLogic.isIMMDate(security.getMaturityDate().toLocalDate()) && (quote instanceof QuotedSpread || quote instanceof ParSpread);
     int buySellPremiumFactor = security.isBuy() ? -1 : 1;
+
+    final CDSAnalytic analytic = (isNonIMMAndFromSpread || isNonIMMFAndFromPUF) ? 
+        ((CDSAnalyticVisitor) visitor).visitLegacyVanillaCDSSecurityNonIMMIrrSch(security) : security.accept(visitor);
     
     final double notional = security.getNotional().getAmount();
     final double coupon = security.getParSpread() * ONE_BPS;
@@ -201,8 +203,9 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
     final double principal = isNonIMMAndFromSpread ? 0 : cleanPV;
     final double cleanPrice = getCleanPrice(puf);
     final TenorLabelledMatrix1D bucketedCS01 = getBucketedCS01(analytic, bucketCDSs, spreadObject.getXData(), quote, notional, yieldCurve, creditCurve);
-   
-    final double parallelCS01 = getParallelCS01(quote, analytic, yieldCurve, notional, pillarCDSs, ArrayUtils.toPrimitive(pillarObject.getYData()));
+
+    double factor = isNonIMMAndFromSpread ? yieldCurve.getDiscountFactor(analytic.getValuationTime()) : 1.0;
+    final double parallelCS01 = factor * getParallelCS01(quote, analytic, yieldCurve, notional, pillarCDSs, ArrayUtils.toPrimitive(pillarObject.getYData()));
 
     final Set<ComputedValue> results = Sets.newHashSetWithExpectedSize(_valueRequirements.length);
     results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.ACCRUED_PREMIUM, target.toSpecification(), properties), accruedPremium));
