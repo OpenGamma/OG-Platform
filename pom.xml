@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <!--
+    This POM is a build script solely intended to allow the specified modules to be managed as one
+    No artifact is deployed or installed
+  -->
+  <parent>
+    <groupId>com.opengamma</groupId>
+    <artifactId>corporate-parent</artifactId>
+    <version>1.1.8</version>
+    <relativePath></relativePath>
+  </parent>  
+  <groupId>com.opengamma.platform</groupId>
+  <artifactId>sesame-dev</artifactId>
+  <version>2.13.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>Sesame-Dev</name>
+  <description>OpenGamma Sesame aggregator project</description>
+
+  <!-- ==================================================================== -->
+  <inceptionYear>2013</inceptionYear>
+  <licenses>
+    <license>
+      <name>Proprietary OpenGamma licensing</name>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>
+    <connection>scm:git:https://github.com/OpenGamma/Sesame.git</connection>
+    <developerConnection>scm:git:https://github.com/OpenGamma/Sesame.git</developerConnection>
+    <url>https://github.com/OpenGamma/Sesame</url>
+  </scm>
+
+  <!-- ==================================================================== -->
+  <modules>
+    <module>sesame-engine</module>
+    <module>sesame-function</module>
+    <module>sesame-web</module>
+    <module>sesame-war-main</module>
+    <module>sesame-component</module>
+    <module>sesame-server</module>
+  </modules>
+
+  <!-- ==================================================================== -->
+  <profiles>
+    <!-- if "javadoc-jar" property is set on command line then build/attach javadoc jars -->
+    <profile>
+      <id>javadoc-jar</id>
+      <activation>
+        <property>
+          <name>javadoc-jar</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>${maven-javadoc-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>aggregate-jar</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <links>
+                <link>http://docs-static.opengamma.com/${project.version}/java/javadocs/</link>
+              </links>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+  <!-- ==================================================================== -->
+  <properties>
+    <!-- Properties for maven-javadoc-plugin -->
+    <windowtitle>OpenGamma Sesame project Engine API</windowtitle>
+    <doctitle><![CDATA[<h1>OpenGamma Sesame project Engine API</h1>]]></doctitle>
+    <header><![CDATA[<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\\\(","\\\\)"] ],processEscapes: true} });</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>]]></header>
+    <bottom><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>Additional documentation can be found at <a href="http://docs.opengamma.com">docs.opengamma.com</a>.</i>]]></bottom>
+    <!-- Properties for maven-install-plugin -->
+    <maven.install.skip>true</maven.install.skip>
+    <!-- Properties for maven-deploy-plugin -->
+    <maven.deploy.skip>true</maven.deploy.skip>
+  </properties>
+
+</project>

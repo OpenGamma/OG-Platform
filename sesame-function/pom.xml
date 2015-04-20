@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.opengamma.platform</groupId>
+    <artifactId>og-platform-public</artifactId>
+    <version>2.13.0-SNAPSHOT</version>
+    <relativePath></relativePath>
+  </parent>
+  <artifactId>sesame-function</artifactId>
+  <packaging>jar</packaging>
+  <name>Sesame-Function</name>
+  <description>Functions for the Sesame calculation engine</description>
+
+  <!-- ==================================================================== -->
+  <inceptionYear>2013</inceptionYear>
+  <licenses>
+    <license>
+      <name>Proprietary OpenGamma licensing</name>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <!-- ==================================================================== -->
+  <!-- override to ensure deployment to dedicated repository -->
+  <distributionManagement>
+    <repository>
+      <id>og-sesame-release</id>
+      <name>OpenGamma sesame maven repository</name>
+      <url>${og-sesame-release.url}</url>
+    </repository>
+    <snapshotRepository>
+      <id>og-sesame-snapshot</id>
+      <name>OpenGamma sesame snapshot maven repository</name>
+      <url>${og-sesame-snapshot.url}</url>
+    </snapshotRepository>
+  </distributionManagement>
+
+  <!-- ==================================================================== -->
+  <dependencies>
+    <!-- OpenGamma dependencies -->
+    <dependency>
+      <groupId>com.opengamma.platform</groupId>
+      <artifactId>sesame-engine</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- 3rd party dependencies -->
+    <dependency>
+      <groupId>com.thoughtworks.paranamer</groupId>
+      <artifactId>paranamer</artifactId>
+    </dependency>
+
+    <!-- test dependencies -->
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-module-testng</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-api-mockito</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma.platform</groupId>
+      <artifactId>og-util</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+      <type>test-jar</type>
+    </dependency>
+  </dependencies>
+</project>
