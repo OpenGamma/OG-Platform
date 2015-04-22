@@ -13,11 +13,24 @@ public enum ShiftType {
   /**
    * Relative shifts.
    */
-  RELATIVE("Relative"),
+  RELATIVE("Relative") {
+    @Override
+    public double applyShift(double value, double shift) {
+      return value * (1 + shift);
+    }
+  },
+
   /**
    * Absolute shifts.
    */
-  ABSOLUTE("Absolute");
+  ABSOLUTE("Absolute") {
+    @Override
+    public double applyShift(double value, double shift) {
+      return value + shift;
+    }
+  };
+
+  public abstract double applyShift(double value, double shiftAmount);
 
   /** The name of the shift type */
   private String _name;
