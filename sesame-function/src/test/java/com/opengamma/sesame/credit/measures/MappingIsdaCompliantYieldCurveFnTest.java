@@ -40,10 +40,13 @@ import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.engine.FunctionRunner;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.interestrate.InterestRateMockSources;
+import com.opengamma.sesame.marketdata.EmptyMarketDataFactory;
+import com.opengamma.sesame.marketdata.EmptyMarketDataSpec;
 import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.sesame.marketdata.MulticurveId;
+import com.opengamma.sesame.marketdata.builders.MarketDataBuilders;
 import com.opengamma.sesame.marketdata.builders.MarketDataEnvironmentFactory;
 import com.opengamma.sesame.trade.IndexCDSTrade;
 import com.opengamma.sesame.trade.StandardCDSTrade;
@@ -70,7 +73,7 @@ public class MappingIsdaCompliantYieldCurveFnTest {
   private static final CalculationArguments ARGS =
       CalculationArguments.builder()
           .valuationTime(VALUATION_TIME)
-          .marketDataSpecification(LiveMarketDataSpecification.LIVE_SPEC)
+          .marketDataSpecification(EmptyMarketDataSpec.INSTANCE)
           .build();
 
   private FunctionRunner _functionRunner;
@@ -85,16 +88,17 @@ public class MappingIsdaCompliantYieldCurveFnTest {
   public void setUpClass()  {
     FunctionModelConfig config = CreditPricingSampleData.createYCMappingFunctionModelConfig();
     ImmutableMap<Class<?>, Object> components = InterestRateMockSources.generateBaseComponents();
-
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
     ServiceContext serviceContext = ServiceContext.of(components).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
-
     ComponentMap componentMap = ComponentMap.of(components);
-
-    _functionRunner = new FunctionRunner(new MarketDataEnvironmentFactory(mock(MarketDataFactory.class)));
+    EmptyMarketDataFactory dataFactory = new EmptyMarketDataFactory();
+    MarketDataEnvironmentFactory environmentFactory =
+        new MarketDataEnvironmentFactory(dataFactory,
+                                         MarketDataBuilders.creditCurve(),
+                                         MarketDataBuilders.isdaYieldCurve());
+    _functionRunner = new FunctionRunner(environmentFactory);
     _pvFunction = FunctionModel.build(DefaultCreditPvFn.class, config, componentMap);
-
   }
 
   private MarketDataEnvironment getSuppliedData(MulticurveBundle multicurveBundle) {
@@ -102,7 +106,7 @@ public class MappingIsdaCompliantYieldCurveFnTest {
     MulticurveId multicurveId = MulticurveId.of("Curve Bundle");
     return new MarketDataEnvironmentBuilder()
         .add(multicurveId, multicurveBundle)
-        .add(CreditPricingSampleData.getCreditCurveDataId(), CreditPricingSampleData.createCreditCurveDataSnapshot())
+        .add(CreditPricingSampleData.getCreditCurveDataSnapshotId(), CreditPricingSampleData.createCreditCurveDataSnapshot())
         .valuationTime(VALUATION_TIME)
         .build();
   }

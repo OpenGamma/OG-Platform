@@ -12,8 +12,6 @@ import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
@@ -54,9 +52,7 @@ import com.opengamma.financial.convention.IsdaCreditCurveConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
-import com.opengamma.financial.security.cds.CDSIndexComponentBundle;
 import com.opengamma.financial.security.cds.CDSIndexTerms;
-import com.opengamma.financial.security.cds.CreditDefaultSwapIndexComponent;
 import com.opengamma.financial.security.credit.IndexCDSDefinitionSecurity;
 import com.opengamma.financial.security.credit.IndexCDSSecurity;
 import com.opengamma.financial.security.credit.LegacyCDSSecurity;
@@ -95,10 +91,10 @@ import com.opengamma.sesame.credit.measures.CreditPvFn;
 import com.opengamma.sesame.credit.measures.DefaultCreditBucketedCs01Fn;
 import com.opengamma.sesame.credit.measures.DefaultCreditCs01Fn;
 import com.opengamma.sesame.credit.measures.DefaultCreditPvFn;
-import com.opengamma.sesame.marketdata.CreditCurveDataId;
-import com.opengamma.sesame.marketdata.MarketDataBundle;
+import com.opengamma.sesame.marketdata.CreditCurveDataSnapshotId;
+import com.opengamma.sesame.marketdata.IsdaYieldCurveDataSnapshotId;
+import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
-import com.opengamma.sesame.marketdata.YieldCurveDataId;
 import com.opengamma.sesame.trade.IndexCDSTrade;
 import com.opengamma.sesame.trade.LegacyCDSTrade;
 import com.opengamma.sesame.trade.StandardCDSTrade;
@@ -261,20 +257,20 @@ public class CreditPricingSampleData {
     return new IndexCDSTrade(trade);
   }
 
-  public static CreditCurveDataId getCreditCurveDataId() {
-    return CreditCurveDataId.of(SAMPLE_CREDIT_CURVE);
+  public static CreditCurveDataSnapshotId getCreditCurveDataSnapshotId() {
+    return CreditCurveDataSnapshotId.of(SAMPLE_CREDIT_CURVE);
   }
 
-  public static YieldCurveDataId getYieldCurveDataId() {
-    return YieldCurveDataId.of(SAMPLE_YIELD_CURVE);
+  public static IsdaYieldCurveDataSnapshotId getYieldCurveDataId() {
+    return IsdaYieldCurveDataSnapshotId.of(SAMPLE_YIELD_CURVE);
   }
 
-  public static MarketDataBundle getCreditMarketDataBundle(ZonedDateTime valuation) {
+  public static MarketDataEnvironment getCreditMarketDataEnvironment(ZonedDateTime valuation) {
     MarketDataEnvironmentBuilder builder = new MarketDataEnvironmentBuilder();
-    builder.add(getCreditCurveDataId(), createCreditCurveDataSnapshot());
+    builder.add(getCreditCurveDataSnapshotId(), createCreditCurveDataSnapshot());
     builder.add(getYieldCurveDataId(), createYieldCurveDataSnapshot());
     builder.valuationTime(valuation);
-    return builder.build().toBundle();
+    return builder.build();
   }
 
   public static RestructuringSettings createRestructuringSettings() {
@@ -490,7 +486,7 @@ public class CreditPricingSampleData {
           .build();
     }
 
-  private static CreditCurveData createPUFSingleNameCreditCurveData() {
+  public static CreditCurveData createPUFSingleNameCreditCurveData() {
 
     ConventionLink<IsdaCreditCurveConvention> conventionLink = ConventionLink.resolved(
         createUsdIsdaCreditCurveConvention());

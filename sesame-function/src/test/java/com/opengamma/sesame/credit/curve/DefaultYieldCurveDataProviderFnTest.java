@@ -11,13 +11,16 @@ import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
+import com.opengamma.DataNotFoundException;
+import com.opengamma.financial.analytics.isda.credit.CreditCurveData;
 import com.opengamma.financial.analytics.isda.credit.YieldCurveData;
 import com.opengamma.financial.analytics.isda.credit.YieldCurveDataSnapshot;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.marketdata.IsdaYieldCurveDataId;
 import com.opengamma.sesame.marketdata.MarketDataBundle;
-import com.opengamma.sesame.marketdata.YieldCurveDataId;
+import com.opengamma.sesame.marketdata.IsdaYieldCurveDataSnapshotId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
@@ -54,12 +57,15 @@ public class DefaultYieldCurveDataProviderFnTest {
     MarketDataBundle bundle = mock(MarketDataBundle.class);
     when(_env.getMarketDataBundle()).thenReturn(bundle);
     String name = "Name";
-    YieldCurveDataId goodId = YieldCurveDataId.of(name);
+    IsdaYieldCurveDataId goodId = IsdaYieldCurveDataId.of(name, Currency.USD);
+    IsdaYieldCurveDataId badId = IsdaYieldCurveDataId.of(name, Currency.GBP);
     YieldCurveDataSnapshot snapshot = YieldCurveDataSnapshot.builder()
                       .name("")
                       .yieldCurves(ImmutableMap.of(Currency.USD, YIELD_CURVE_DATA))
                       .build();
-    when(bundle.get(goodId, YieldCurveDataSnapshot.class)).thenReturn(Result.success(snapshot));
+    YieldCurveData yieldCurveData = snapshot.getYieldCurves().get(Currency.USD);
+    when(bundle.get(goodId, YieldCurveData.class)).thenReturn(Result.success(yieldCurveData));
+    when(bundle.get(badId, YieldCurveData.class)).thenReturn(Result.<YieldCurveData>failure(new DataNotFoundException("No Data")));
     _fnWithUSDCurve = new DefaultYieldCurveDataProviderFn(name);
   }
 

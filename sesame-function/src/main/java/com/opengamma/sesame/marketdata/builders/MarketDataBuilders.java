@@ -126,6 +126,24 @@ public class MarketDataBuilders {
   }
 
   /**
+   * Creates a builder for credit curve data.
+   *
+   * @return a builder for credit curve data
+   */
+  public static CreditCurveMarketDataBuilder creditCurve() {
+    return new CreditCurveMarketDataBuilder();
+  }
+
+  /**
+   * Creates a builder for isda yield curve data.
+   *
+   * @return a builder for isda yield curve data
+   */
+  public static IsdaYieldCurveMarketDataBuilder isdaYieldCurve() {
+    return new IsdaYieldCurveMarketDataBuilder();
+  }
+
+  /**
    * Creates a builder for matrices of FX rates.
    *
    * @return a builder for matrices of FX rates
@@ -160,6 +178,8 @@ public class MarketDataBuilders {
                             issuerMulticurve(componentMap, currencyMatrixLink),
                             fxMatrix(),
                             fxRate(currencyMatrixLink),
-                            security());
+                            security(),
+                            creditCurve(),
+                            isdaYieldCurve());
   }
 }
