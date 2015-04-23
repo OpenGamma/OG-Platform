@@ -17,6 +17,8 @@ import static com.opengamma.sesame.config.ConfigBuilder.output;
 import java.util.List;
 import java.util.Set;
 
+import com.opengamma.sesame.credit.curve.CreditCurveDataProviderFn;
+import com.opengamma.sesame.credit.curve.YieldCurveDataProviderFn;
 import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.ImmutableList;
@@ -67,10 +69,8 @@ import com.opengamma.sesame.credit.measures.CreditCs01Fn;
 import com.opengamma.sesame.credit.measures.CreditPvFn;
 import com.opengamma.sesame.credit.measures.DefaultCreditCs01Fn;
 import com.opengamma.sesame.credit.measures.DefaultCreditPvFn;
-import com.opengamma.sesame.credit.snapshot.CreditCurveDataProviderFn;
 import com.opengamma.sesame.credit.snapshot.SnapshotCreditCurveDataProviderFn;
 import com.opengamma.sesame.credit.snapshot.SnapshotYieldCurveDataProviderFn;
-import com.opengamma.sesame.credit.snapshot.YieldCurveDataProviderFn;
 import com.opengamma.util.money.Currency;
 
 /**
