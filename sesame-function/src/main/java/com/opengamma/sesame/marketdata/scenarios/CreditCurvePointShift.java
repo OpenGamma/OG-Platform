@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.marketdata.scenarios;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -23,95 +24,91 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedMap;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.ShiftType;
-import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
-import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
-import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
-import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
-import com.opengamma.id.ExternalId;
+import com.opengamma.financial.analytics.isda.credit.CdsQuote;
+import com.opengamma.financial.analytics.isda.credit.CreditCurveData;
+import com.opengamma.financial.analytics.isda.credit.ParSpreadQuote;
+import com.opengamma.util.time.Tenor;
 
 /**
- * Applies a parallel shift to the market quotes used to build a multicurve bundle.
+ * Applies a point shift to the spreads used to build the credit curves.
+ * If the resulting shift is negative the values are floored at zero.
  */
 @BeanDefinition
-public final class MulticurveInputParallelShift implements Perturbation, ImmutableBean {
+public final class CreditCurvePointShift implements Perturbation, ImmutableBean {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(MulticurveInputParallelShift.class);
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(CreditCurvePointShift.class);
 
+  /**
+   * Whether the shift is absolute or relative.
+   */
   @PropertyDefinition(validate = "notNull", get = "private")
   private final ShiftType _shiftType;
 
-  @PropertyDefinition(get = "private")
-  private final double _shiftAmount;
+  /** The shifts to apply to the curve values */
+  @PropertyDefinition(validate = "notEmpty", get = "private")
+  private final Map<Tenor, Double> _shifts;
 
   /**
    * Creates a shift that adds a fixed amount to every market data value.
-   * <p>
-   * Futures market data is handled as a special case so the shifted data makes sense.
    *
-   * @param shiftAmount the amount to add to each market data value
+   * @param shifts the amount to add to each market data value per Tenor
    * @return a shift that adds a fixed amount to each market data value
    */
-  public static MulticurveInputParallelShift absolute(double shiftAmount) {
-    return new MulticurveInputParallelShift(ShiftType.ABSOLUTE, shiftAmount);
+  public static CreditCurvePointShift absolute(Map<Tenor, Double> shifts) {
+    return new CreditCurvePointShift(ShiftType.ABSOLUTE, shifts);
   }
 
   /**
    * Creates a shift that multiplies every market data value by a fixed factor.
-   * <p>
-   * Futures market data is handled as a special case so the shifted data makes sense
    *
-   * @param shiftAmount the factor to multiply the values by
+   * @param shifts the factor to multiply the values by, per Tenor
    * @return a shift that multiplies the market data values by a fixed factor
    */
-  public static MulticurveInputParallelShift relative(double shiftAmount) {
-    return new MulticurveInputParallelShift(ShiftType.RELATIVE, shiftAmount);
+  public static CreditCurvePointShift relative(Map<Tenor, Double> shifts) {
+    return new CreditCurvePointShift(ShiftType.RELATIVE, shifts);
   }
 
-  /**
-   * Applies the shift to the curve input data.
-   *
-   * @param marketData a piece of market data with type {@link CurveInputs}
-   * @param matchDetails details of the match which the {@link MarketDataFilter} was applied to the market data
-   * @return the shifted data
-   */
   @Override
-  public CurveInputs apply(Object marketData, MatchDetails matchDetails) {
-    SnapshotDataBundle shiftedData = new SnapshotDataBundle();
-    CurveInputs curveInputs = ((CurveInputs) marketData);
-    SnapshotDataBundle nodeData = curveInputs.getNodeData();
+  public CreditCurveData apply(Object marketData, MatchDetails matchDetails) {
 
-    for (CurveNodeWithIdentifier nodeWithId : curveInputs.getNodes()) {
-      CurveNode node = nodeWithId.getCurveNode();
-      ExternalId id = nodeWithId.getIdentifier();
-      Double value = nodeData.getDataPoint(id);
+    CreditCurveData input = (CreditCurveData) marketData;
+    CreditCurveData.Builder curveBuilder = CreditCurveData.builder();
+    ImmutableSortedMap.Builder<Tenor, CdsQuote> quotesBuilder = ImmutableSortedMap.naturalOrder();
+    ImmutableSortedMap<Tenor, CdsQuote> cdsQuotes = input.getCdsQuotes();
 
-      if (value != null) {
-        shiftedData.setDataPoint(id, shift(value, node));
+    // all shifts should be available in the input
+    if (!cdsQuotes.keySet().containsAll(_shifts.keySet())) {
+      throw new OpenGammaRuntimeException("Input tenors " + cdsQuotes.keySet() + " do not contain all " +
+                                           _shifts.keySet() + " scenario shift tenors");
+    }
+    for (Map.Entry<Tenor, CdsQuote> entry : cdsQuotes.entrySet()) {
+      if (_shifts.containsKey(entry.getKey())) {
+        quotesBuilder.put(entry.getKey(), shift(entry.getValue(), _shifts.get(entry.getKey())));
       } else {
-        s_logger.info("No data found for curve node with ID {}", id);
+        quotesBuilder.put(entry.getKey(), entry.getValue());
       }
     }
-    return new CurveInputs(curveInputs.getNodes(), shiftedData);
-  }
 
-  private double shift(double value, CurveNode node) {
-    // futures are quoted the other way round, i.e. (1 - value)
-    if (node instanceof RateFutureNode) {
-      return 1 - _shiftType.applyShift(1 - value, _shiftAmount);
-    } else {
-      return _shiftType.applyShift(value, _shiftAmount);
-    }
+    curveBuilder.cdsQuotes(quotesBuilder.build())
+        .curveConventionLink(input.getCurveConventionLink())
+        .recoveryRate(input.getRecoveryRate());
+
+    return curveBuilder.build();
   }
 
   @Override
-  public Class<CurveInputs> getMarketDataType() {
-    return CurveInputs.class;
+  public Class<?> getMarketDataType() {
+    return CreditCurveData.class;
   }
 
   @Override
   public Class<? extends MatchDetails> getMatchDetailsType() {
-    return MulticurveMatchDetails.class;
+    return StandardMatchDetails.NoDetails.class;
   }
 
   @Override
@@ -119,39 +116,64 @@ public final class MulticurveInputParallelShift implements Perturbation, Immutab
     return PerturbationTarget.INPUT;
   }
 
+  /**
+   * Shift the CdsQuote, If the resulting shift is negative the values are floored at zero
+   *
+   * @param quote the CdsQuote to shift
+   * @param shift the shift to apply
+   * @return CdsQuote with a shifted value
+   */
+  private CdsQuote shift(CdsQuote quote, Double shift) {
+    if (quote instanceof ParSpreadQuote) {
+      ParSpreadQuote parSpreadQuote = (ParSpreadQuote) quote;
+      double shifted = _shiftType.applyShift(parSpreadQuote.getParSpread(), shift);
+      if (shifted < 0) {
+        s_logger.warn("Credit curve scenario shift caused a spread less than zero. " +
+                          "Shift type {} of {} on {} results in {}. Shift floored to zero.",
+                          _shiftType.toString(), shift, quote, shifted);
+        shifted = 0;
+      }
+      return ParSpreadQuote.from(shifted);
+    } else {
+      // TODO extend to include FlatQuoteSpread and PointsUpFrontQuote
+      throw new OpenGammaRuntimeException("Only ParSpreadQuote is supported. Unsupported quote type: " + quote.getClass());
+    }
+  }
+
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code MulticurveInputParallelShift}.
+   * The meta-bean for {@code CreditCurvePointShift}.
    * @return the meta-bean, not null
    */
-  public static MulticurveInputParallelShift.Meta meta() {
-    return MulticurveInputParallelShift.Meta.INSTANCE;
+  public static CreditCurvePointShift.Meta meta() {
+    return CreditCurvePointShift.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(MulticurveInputParallelShift.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(CreditCurvePointShift.Meta.INSTANCE);
   }
 
   /**
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static MulticurveInputParallelShift.Builder builder() {
-    return new MulticurveInputParallelShift.Builder();
+  public static CreditCurvePointShift.Builder builder() {
+    return new CreditCurvePointShift.Builder();
   }
 
-  private MulticurveInputParallelShift(
+  private CreditCurvePointShift(
       ShiftType shiftType,
-      double shiftAmount) {
+      Map<Tenor, Double> shifts) {
     JodaBeanUtils.notNull(shiftType, "shiftType");
+    JodaBeanUtils.notEmpty(shifts, "shifts");
     this._shiftType = shiftType;
-    this._shiftAmount = shiftAmount;
+    this._shifts = ImmutableMap.copyOf(shifts);
   }
 
   @Override
-  public MulticurveInputParallelShift.Meta metaBean() {
-    return MulticurveInputParallelShift.Meta.INSTANCE;
+  public CreditCurvePointShift.Meta metaBean() {
+    return CreditCurvePointShift.Meta.INSTANCE;
   }
 
   @Override
@@ -166,7 +188,7 @@ public final class MulticurveInputParallelShift implements Perturbation, Immutab
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the shiftType.
+   * Gets whether the shift is absolute or relative.
    * @return the value of the property, not null
    */
   private ShiftType getShiftType() {
@@ -175,11 +197,11 @@ public final class MulticurveInputParallelShift implements Perturbation, Immutab
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the shiftAmount.
-   * @return the value of the property
+   * Gets the shifts to apply to the curve values
+   * @return the value of the property, not empty
    */
-  private double getShiftAmount() {
-    return _shiftAmount;
+  private Map<Tenor, Double> getShifts() {
+    return _shifts;
   }
 
   //-----------------------------------------------------------------------
@@ -197,9 +219,9 @@ public final class MulticurveInputParallelShift implements Perturbation, Immutab
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      MulticurveInputParallelShift other = (MulticurveInputParallelShift) obj;
+      CreditCurvePointShift other = (CreditCurvePointShift) obj;
       return JodaBeanUtils.equal(getShiftType(), other.getShiftType()) &&
-          JodaBeanUtils.equal(getShiftAmount(), other.getShiftAmount());
+          JodaBeanUtils.equal(getShifts(), other.getShifts());
     }
     return false;
   }
@@ -208,23 +230,23 @@ public final class MulticurveInputParallelShift implements Perturbation, Immutab
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getShiftType());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getShiftAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getShifts());
     return hash;
   }
 
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
-    buf.append("MulticurveInputParallelShift{");
+    buf.append("CreditCurvePointShift{");
     buf.append("shiftType").append('=').append(getShiftType()).append(',').append(' ');
-    buf.append("shiftAmount").append('=').append(JodaBeanUtils.toString(getShiftAmount()));
+    buf.append("shifts").append('=').append(JodaBeanUtils.toString(getShifts()));
     buf.append('}');
     return buf.toString();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code MulticurveInputParallelShift}.
+   * The meta-bean for {@code CreditCurvePointShift}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -236,19 +258,20 @@ public final class MulticurveInputParallelShift implements Perturbation, Immutab
      * The meta-property for the {@code shiftType} property.
      */
     private final MetaProperty<ShiftType> _shiftType = DirectMetaProperty.ofImmutable(
-        this, "shiftType", MulticurveInputParallelShift.class, ShiftType.class);
+        this, "shiftType", CreditCurvePointShift.class, ShiftType.class);
     /**
-     * The meta-property for the {@code shiftAmount} property.
+     * The meta-property for the {@code shifts} property.
      */
-    private final MetaProperty<Double> _shiftAmount = DirectMetaProperty.ofImmutable(
-        this, "shiftAmount", MulticurveInputParallelShift.class, Double.TYPE);
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Map<Tenor, Double>> _shifts = DirectMetaProperty.ofImmutable(
+        this, "shifts", CreditCurvePointShift.class, (Class) Map.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "shiftType",
-        "shiftAmount");
+        "shifts");
 
     /**
      * Restricted constructor.
@@ -261,20 +284,20 @@ public final class MulticurveInputParallelShift implements Perturbation, Immutab
       switch (propertyName.hashCode()) {
         case 893345500:  // shiftType
           return _shiftType;
-        case -1043480710:  // shiftAmount
-          return _shiftAmount;
+        case -903338959:  // shifts
+          return _shifts;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public MulticurveInputParallelShift.Builder builder() {
-      return new MulticurveInputParallelShift.Builder();
+    public CreditCurvePointShift.Builder builder() {
+      return new CreditCurvePointShift.Builder();
     }
 
     @Override
-    public Class<? extends MulticurveInputParallelShift> beanType() {
-      return MulticurveInputParallelShift.class;
+    public Class<? extends CreditCurvePointShift> beanType() {
+      return CreditCurvePointShift.class;
     }
 
     @Override
@@ -292,11 +315,11 @@ public final class MulticurveInputParallelShift implements Perturbation, Immutab
     }
 
     /**
-     * The meta-property for the {@code shiftAmount} property.
+     * The meta-property for the {@code shifts} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Double> shiftAmount() {
-      return _shiftAmount;
+    public MetaProperty<Map<Tenor, Double>> shifts() {
+      return _shifts;
     }
 
     //-----------------------------------------------------------------------
@@ -304,9 +327,9 @@ public final class MulticurveInputParallelShift implements Perturbation, Immutab
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 893345500:  // shiftType
-          return ((MulticurveInputParallelShift) bean).getShiftType();
-        case -1043480710:  // shiftAmount
-          return ((MulticurveInputParallelShift) bean).getShiftAmount();
+          return ((CreditCurvePointShift) bean).getShiftType();
+        case -903338959:  // shifts
+          return ((CreditCurvePointShift) bean).getShifts();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -324,12 +347,12 @@ public final class MulticurveInputParallelShift implements Perturbation, Immutab
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code MulticurveInputParallelShift}.
+   * The bean-builder for {@code CreditCurvePointShift}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<MulticurveInputParallelShift> {
+  public static final class Builder extends DirectFieldsBeanBuilder<CreditCurvePointShift> {
 
     private ShiftType _shiftType;
-    private double _shiftAmount;
+    private Map<Tenor, Double> _shifts = new HashMap<Tenor, Double>();
 
     /**
      * Restricted constructor.
@@ -341,9 +364,9 @@ public final class MulticurveInputParallelShift implements Perturbation, Immutab
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(MulticurveInputParallelShift beanToCopy) {
+    private Builder(CreditCurvePointShift beanToCopy) {
       this._shiftType = beanToCopy.getShiftType();
-      this._shiftAmount = beanToCopy.getShiftAmount();
+      this._shifts = new HashMap<Tenor, Double>(beanToCopy.getShifts());
     }
 
     //-----------------------------------------------------------------------
@@ -352,21 +375,22 @@ public final class MulticurveInputParallelShift implements Perturbation, Immutab
       switch (propertyName.hashCode()) {
         case 893345500:  // shiftType
           return _shiftType;
-        case -1043480710:  // shiftAmount
-          return _shiftAmount;
+        case -903338959:  // shifts
+          return _shifts;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 893345500:  // shiftType
           this._shiftType = (ShiftType) newValue;
           break;
-        case -1043480710:  // shiftAmount
-          this._shiftAmount = (Double) newValue;
+        case -903338959:  // shifts
+          this._shifts = (Map<Tenor, Double>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -399,10 +423,10 @@ public final class MulticurveInputParallelShift implements Perturbation, Immutab
     }
 
     @Override
-    public MulticurveInputParallelShift build() {
-      return new MulticurveInputParallelShift(
+    public CreditCurvePointShift build() {
+      return new CreditCurvePointShift(
           _shiftType,
-          _shiftAmount);
+          _shifts);
     }
 
     //-----------------------------------------------------------------------
@@ -418,12 +442,13 @@ public final class MulticurveInputParallelShift implements Perturbation, Immutab
     }
 
     /**
-     * Sets the {@code shiftAmount} property in the builder.
-     * @param shiftAmount  the new value
+     * Sets the {@code shifts} property in the builder.
+     * @param shifts  the new value, not empty
      * @return this, for chaining, not null
      */
-    public Builder shiftAmount(double shiftAmount) {
-      this._shiftAmount = shiftAmount;
+    public Builder shifts(Map<Tenor, Double> shifts) {
+      JodaBeanUtils.notEmpty(shifts, "shifts");
+      this._shifts = shifts;
       return this;
     }
 
@@ -431,9 +456,9 @@ public final class MulticurveInputParallelShift implements Perturbation, Immutab
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
-      buf.append("MulticurveInputParallelShift.Builder{");
+      buf.append("CreditCurvePointShift.Builder{");
       buf.append("shiftType").append('=').append(JodaBeanUtils.toString(_shiftType)).append(',').append(' ');
-      buf.append("shiftAmount").append('=').append(JodaBeanUtils.toString(_shiftAmount));
+      buf.append("shifts").append('=').append(JodaBeanUtils.toString(_shifts));
       buf.append('}');
       return buf.toString();
     }

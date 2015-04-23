@@ -5,15 +5,11 @@
  */
 package com.opengamma.sesame.credit.curve;
 
-import java.util.Map;
-
 import com.opengamma.financial.analytics.isda.credit.YieldCurveData;
-import com.opengamma.financial.analytics.isda.credit.YieldCurveDataSnapshot;
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.marketdata.YieldCurveDataId;
+import com.opengamma.sesame.marketdata.IsdaYieldCurveDataId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 
 /**
@@ -34,26 +30,8 @@ public class DefaultYieldCurveDataProviderFn implements YieldCurveDataProviderFn
 
   @Override
   public Result<YieldCurveData> retrieveYieldCurveData(Environment env, Currency currency) {
-
-    YieldCurveDataId yieldCurveDataId = YieldCurveDataId.of(_yieldCurveDataName);
-    Result<YieldCurveDataSnapshot> curveResult =
-        env.getMarketDataBundle().get(yieldCurveDataId, YieldCurveDataSnapshot.class);
-
-    if (!curveResult.isSuccess()) {
-      return Result.failure(curveResult);
-    }
-    YieldCurveDataSnapshot curveData = curveResult.getValue();
-
-    Map<Currency, YieldCurveData> creditCurveDataMap = curveData.getYieldCurves();
-    if (creditCurveDataMap.containsKey(currency)) {
-      return Result.success(creditCurveDataMap.get(currency));
-    } else {
-      return Result.failure(FailureStatus.MISSING_DATA,
-                            "Failed to load curve data for credit curve key {} in snapshot {} for valuation {}",
-                            currency,
-                            curveData.getName(),
-                            env.getValuationDate());
-    }
+    IsdaYieldCurveDataId yieldCurveDataId = IsdaYieldCurveDataId.of(_yieldCurveDataName, currency);
+    return env.getMarketDataBundle().get(yieldCurveDataId, YieldCurveData.class);
   }
 
 }

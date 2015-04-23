@@ -76,20 +76,9 @@ public final class FxRateShift implements Perturbation, ImmutableBean {
     CurrencyPairMatchDetails pairMatchDetails = (CurrencyPairMatchDetails) matchDetails;
 
     if (pairMatchDetails.isInverse()) {
-      return 1 / shift(1 / rate);
+      return 1 / _shiftType.applyShift(1 / rate, _shiftAmount);
     } else {
-      return shift(rate);
-    }
-  }
-
-  private double shift(double rate) {
-    switch (_shiftType) {
-      case ABSOLUTE:
-        return rate + _shiftAmount;
-      case RELATIVE:
-        return rate * (1 + _shiftAmount);
-      default:
-        throw new IllegalArgumentException("Unexpected shift type " + _shiftType);
+      return _shiftType.applyShift(rate, _shiftAmount);
     }
   }
 
