@@ -37,11 +37,10 @@ import com.opengamma.util.time.Tenor;
 @BeanDefinition
 public final class CreditCurveParallelShift implements Perturbation, ImmutableBean {
 
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(CreditCurveParallelShift.class);
   /**
-   * Whether the shift is absolute or relative. An absolute shift adds the shift amount to the rate. Relative shifts
-   * are defined in terms of how much to increase or decrease the rate by. e.g. a 10% shift multiplies the rate
-   * by 1.1, a -20% shift multiplies the rate by 0.8. So for relative shifts the shifted
-   * rate is {@code (rate x (1 + shiftAmount))}.
+   * Whether the shift is absolute or relative.
    */
   @PropertyDefinition(validate = "notNull", get = "private")
   private final ShiftType _shiftType;
@@ -107,8 +106,14 @@ public final class CreditCurveParallelShift implements Perturbation, ImmutableBe
   private CdsQuote shift(CdsQuote quote) {
     if (quote instanceof ParSpreadQuote) {
       ParSpreadQuote parSpreadQuote = (ParSpreadQuote) quote;
-      double applyShift = _shiftType.applyShift(parSpreadQuote.getParSpread(), _shiftAmount);
-      return ParSpreadQuote.from(applyShift);
+      double shifted = _shiftType.applyShift(parSpreadQuote.getParSpread(), _shiftAmount);
+      if (shifted < 0) {
+        s_logger.warn("Credit curve scenario shift caused a spread less than zero. " +
+                          "Shift type {} of {} on {} results in {}. Shift floored to zero.",
+                          _shiftType.toString(), _shiftAmount, quote, shifted);
+        shifted = 0;
+      }
+      return ParSpreadQuote.from(shifted);
     } else {
       // TODO extend to include FlatQuoteSpread and PointsUpFrontQuote
       throw new OpenGammaRuntimeException("Only ParSpreadQuote is supported. Unsupported quote type: " + quote.getClass());

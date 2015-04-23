@@ -77,6 +77,31 @@ public class CreditCurvePointShiftTest {
       } else if (tenor == Tenor.TEN_YEARS) {
         expected = 0.00308;
       }
+        assertEquals(expected, quote.getParSpread(), DELTA);
+    }
+  }
+
+  @Test
+  public void flooredShift() {
+    ImmutableMap<Tenor, Double> shifts = ImmutableMap.of(Tenor.ONE_YEAR, -0.0030,
+                                                         Tenor.THREE_YEARS, -0.0050,
+                                                         Tenor.TEN_YEARS, -0.0100);
+    CreditCurvePointShift relative = CreditCurvePointShift.absolute(shifts);
+    CreditCurveData shifted = relative.apply(CreditPricingSampleData.createSingleNameCreditCurveData(),
+                                             StandardMatchDetails.MATCH);
+    ImmutableSortedMap<Tenor, CdsQuote> cdsQuotes = shifted.getCdsQuotes();
+    for (Map.Entry<Tenor, CdsQuote> entry : cdsQuotes.entrySet()) {
+      ParSpreadQuote quote = (ParSpreadQuote) entry.getValue();
+      double expected = 0.0028;
+      Tenor tenor = entry.getKey();
+
+      if (tenor== Tenor.ONE_YEAR) {
+        expected = 0d;
+      } else if (tenor == Tenor.THREE_YEARS) {
+        expected = 0d;
+      } else if (tenor == Tenor.TEN_YEARS) {
+        expected = 0d;
+      }
       assertEquals(expected, quote.getParSpread(), DELTA);
     }
   }

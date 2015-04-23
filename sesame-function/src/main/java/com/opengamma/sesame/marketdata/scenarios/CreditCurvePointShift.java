@@ -25,15 +25,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedMap;
-import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.ShiftType;
 import com.opengamma.financial.analytics.isda.credit.CdsQuote;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveData;
 import com.opengamma.financial.analytics.isda.credit.ParSpreadQuote;
-import com.opengamma.sesame.CurveNodeId;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -42,11 +39,11 @@ import com.opengamma.util.time.Tenor;
 @BeanDefinition
 public final class CreditCurvePointShift implements Perturbation, ImmutableBean {
 
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(CreditCurvePointShift.class);
+
   /**
-   * Whether the shift is absolute or relative. An absolute shift adds the shift amount to the rate. Relative shifts
-   * are defined in terms of how much to increase or decrease the rate by. e.g. a 10% shift multiplies the rate
-   * by 1.1, a -20% shift multiplies the rate by 0.8. So for relative shifts the shifted
-   * rate is {@code (rate x (1 + shiftAmount))}.
+   * Whether the shift is absolute or relative.
    */
   @PropertyDefinition(validate = "notNull", get = "private")
   private final ShiftType _shiftType;
@@ -84,7 +81,6 @@ public final class CreditCurvePointShift implements Perturbation, ImmutableBean 
     ImmutableSortedMap<Tenor, CdsQuote> cdsQuotes = input.getCdsQuotes();
 
     // all shifts should be available in the input
-
     if (!cdsQuotes.keySet().containsAll(_shifts.keySet())) {
       throw new OpenGammaRuntimeException("Input tenors " + cdsQuotes.keySet() + " do not contain all " +
                                            _shifts.keySet() + " scenario shift tenors");
@@ -122,8 +118,14 @@ public final class CreditCurvePointShift implements Perturbation, ImmutableBean 
   private CdsQuote shift(CdsQuote quote, Double shift) {
     if (quote instanceof ParSpreadQuote) {
       ParSpreadQuote parSpreadQuote = (ParSpreadQuote) quote;
-      double applyShift = _shiftType.applyShift(parSpreadQuote.getParSpread(), shift);
-      return ParSpreadQuote.from(applyShift);
+      double shifted = _shiftType.applyShift(parSpreadQuote.getParSpread(), shift);
+      if (shifted < 0) {
+        s_logger.warn("Credit curve scenario shift caused a spread less than zero. " +
+                          "Shift type {} of {} on {} results in {}. Shift floored to zero.",
+                          _shiftType.toString(), shift, quote, shifted);
+        shifted = 0;
+      }
+      return ParSpreadQuote.from(shifted);
     } else {
       // TODO extend to include FlatQuoteSpread and PointsUpFrontQuote
       throw new OpenGammaRuntimeException("Only ParSpreadQuote is supported. Unsupported quote type: " + quote.getClass());

@@ -121,6 +121,10 @@ Perturbations
 * ``MulticurvePointShift`` - applies shifts to the nodal points in a calibrated curve. Different shifts can be
   applied to different points. This requires the curve's ``MulticurveBundle`` to contain the same ``CurveNodeId``
   data as the perturbation.
+* ``CreditCurvePointShift`` - applies shifts to the nodal points in credit input curve. Different shifts can be
+  applied to different points, specified by tenor. Shifts are limited to ``ParSpreadQuote`` and are floored at zero
+* ``CreditCurveParallelShift`` - applies a parallel shift to the market quotes used to build a credit curve.
+  Shifts are limited to ``ParSpreadQuote`` and are floored at zero
 
 FX Rates
 --------
