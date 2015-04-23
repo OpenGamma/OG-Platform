@@ -67,7 +67,6 @@
   </build>
 
   <properties>
-    <og.version>2.12.1</og.version>
     <guice.version>3.0</guice.version>
   </properties>
 
