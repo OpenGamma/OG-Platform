@@ -5,21 +5,21 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.opengamma</groupId>
-    <artifactId>corporate-parent</artifactId>
-    <version>1.1.8</version>
-    <relativePath></relativePath>
+    <groupId>com.opengamma.platform</groupId>
+    <artifactId>sesame-examples</artifactId>
+    <version>2.13.0-SNAPSHOT</version>
+    <relativePath>../</relativePath>
   </parent>
   <groupId>com.opengamma.solutions</groupId>
   <artifactId>example-remote-app</artifactId>
-  <version>2.11.0</version>
+
 
   <dependencies>
     <!-- OG Platform -->
     <dependency>
       <groupId>com.opengamma.platform</groupId>
       <artifactId>og-server</artifactId>
-      <version>${og.version}</version>
+      <version>${project.version}</version>
       <type>pom</type>
     </dependency>
 
@@ -27,14 +27,14 @@
     <dependency>
       <groupId>com.opengamma.platform</groupId>
       <artifactId>sesame-component</artifactId>
-      <version>${og.version}</version>
+      <version>${project.version}</version>
     </dependency>
 
     <!-- Example Data -->
     <dependency>
       <groupId>com.opengamma.solutions</groupId>
       <artifactId>example-data</artifactId>
-      <version>${og.version}</version>
+      <version>${project.version}</version>
     </dependency>
 
     <!-- Database -->
@@ -69,7 +69,7 @@
     <dependency>
       <groupId>com.opengamma.platform</groupId>
       <artifactId>og-util</artifactId>
-      <version>${og.version}</version>
+      <version>${project.version}</version>
       <scope>test</scope>
       <type>test-jar</type>
     </dependency>
