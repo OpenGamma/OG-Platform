@@ -15,7 +15,8 @@ Run ``mvn package -DskipTests`` to unpack the web resources
 Running the fullstack server from you IDE
 -----------------------------------------
 
-Run ``OpenGammaServer`` from example server in your IDE.
+Run ``OpenGammaServer`` from example server in your IDE. Ensure that the working directory is set to the module directory,
+for example ``$MODULE_DIR$`` in Intellij. This makes sure that the web resources are on the classpath.
 
 This will start the OpenGamma Component Server using the configuration the config/fullstack folder.
 The following can be added to your VM options ``-Dlogback.configurationFile=com/opengamma/util/warn-logback.xml`` to manage the logging level.

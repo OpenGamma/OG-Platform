@@ -49,14 +49,18 @@ import com.opengamma.sesame.credit.IsdaCompliantYieldCurveFn;
 import com.opengamma.sesame.credit.StandardIsdaCompliantCreditCurveFn;
 import com.opengamma.sesame.credit.config.CreditCurveDataKeyMap;
 import com.opengamma.sesame.credit.config.RestructuringSettings;
+import com.opengamma.sesame.credit.converter.DefaultIndexCdsConverterFn;
 import com.opengamma.sesame.credit.converter.DefaultLegacyCdsConverterFn;
 import com.opengamma.sesame.credit.converter.DefaultStandardCdsConverterFn;
+import com.opengamma.sesame.credit.converter.IndexCdsConverterFn;
 import com.opengamma.sesame.credit.converter.LegacyCdsConverterFn;
 import com.opengamma.sesame.credit.converter.StandardCdsConverterFn;
 import com.opengamma.sesame.credit.market.CreditKeyMapperFn;
 import com.opengamma.sesame.credit.market.DefaultCreditKeyMapperFn;
+import com.opengamma.sesame.credit.market.DefaultIndexCdsMarketDataResolverFn;
 import com.opengamma.sesame.credit.market.DefaultLegacyCdsMarketDataResolverFn;
 import com.opengamma.sesame.credit.market.DefaultStandardCdsMarketDataResolverFn;
+import com.opengamma.sesame.credit.market.IndexCdsMarketDataResolverFn;
 import com.opengamma.sesame.credit.market.LegacyCdsMarketDataResolverFn;
 import com.opengamma.sesame.credit.market.StandardCdsMarketDataResolverFn;
 import com.opengamma.sesame.credit.measures.CreditCs01Fn;
@@ -148,7 +152,9 @@ public final class CreditViewUtils {
             IsdaCompliantCreditCurveFn.class, StandardIsdaCompliantCreditCurveFn.class,
             LegacyCdsConverterFn.class, DefaultLegacyCdsConverterFn.class,
             StandardCdsConverterFn.class, DefaultStandardCdsConverterFn.class,
+            IndexCdsConverterFn.class, DefaultIndexCdsConverterFn.class,
             StandardCdsMarketDataResolverFn.class, DefaultStandardCdsMarketDataResolverFn.class,
+            IndexCdsMarketDataResolverFn.class, DefaultIndexCdsMarketDataResolverFn.class,
             LegacyCdsMarketDataResolverFn.class, DefaultLegacyCdsMarketDataResolverFn.class,
             CreditKeyMapperFn.class, DefaultCreditKeyMapperFn.class));
   }
