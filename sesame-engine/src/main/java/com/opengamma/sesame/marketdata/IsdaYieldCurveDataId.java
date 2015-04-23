@@ -21,13 +21,12 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.financial.analytics.isda.credit.CreditCurveData;
-import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
 import com.opengamma.financial.analytics.isda.credit.YieldCurveData;
 import com.opengamma.util.money.Currency;
 
 /**
-* Identifies a YieldCurveData by snapshot name and currency.
+* Identifies a YieldCurveData by snapshot name and currency. The YieldCurveData
+* contains the data used to build an ISDACompliantYieldCurve
 */
 @BeanDefinition
 public class IsdaYieldCurveDataId implements MarketDataId<YieldCurveData>, ImmutableBean {

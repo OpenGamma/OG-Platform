@@ -24,7 +24,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.financial.analytics.isda.credit.YieldCurveDataSnapshot;
 
 /**
-* Identifies a YieldCurveDataSnapshot by name.
+* Identifies a YieldCurveDataSnapshot by name. The snapshot contains multiple YieldCurveData
+* objects, which in turn contain the data used to build an ISDACompliantYieldCurve
 */
 @BeanDefinition
 public class IsdaYieldCurveDataSnapshotId implements MarketDataId<YieldCurveDataSnapshot>, ImmutableBean {

@@ -33,6 +33,7 @@ import com.opengamma.util.time.Tenor;
 
 /**
  * Applies a parallel shift to the spreads used to build the credit curves.
+ * If the resulting shift is negative the values are floored at zero.
  */
 @BeanDefinition
 public final class CreditCurveParallelShift implements Perturbation, ImmutableBean {
@@ -103,6 +104,12 @@ public final class CreditCurveParallelShift implements Perturbation, ImmutableBe
     return PerturbationTarget.INPUT;
   }
 
+  /**
+   * Shift the CdsQuote, If the resulting shift is negative the values are floored at zero
+   *
+   * @param quote the CdsQuote to shift
+   * @return CdsQuote with a shifted value
+   */
   private CdsQuote shift(CdsQuote quote) {
     if (quote instanceof ParSpreadQuote) {
       ParSpreadQuote parSpreadQuote = (ParSpreadQuote) quote;
