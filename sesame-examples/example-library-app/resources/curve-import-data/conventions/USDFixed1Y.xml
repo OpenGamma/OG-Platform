@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.convention.SwapFixedLegConvention">
+ <externalIdBundle>
+  <externalIds>
+   <item>CONVENTION~USDFixed1Y</item>
+  </externalIds>
+ </externalIdBundle>
+ <attributes/>
+ <name>USDFixed1Y</name>
+ <paymentTenor>P1Y</paymentTenor>
+ <dayCount>Actual/360</dayCount>
+ <businessDayConvention>Modified Following</businessDayConvention>
+ <currency>USD</currency>
+ <regionCalendar>FINANCIAL_REGION~US</regionCalendar>
+ <settlementDays>2</settlementDays>
+ <isEOM>true</isEOM>
+ <stubType>SHORT_START</stubType>
+ <isExchangeNotional>false</isExchangeNotional>
+ <paymentLag>0</paymentLag>
+</bean>

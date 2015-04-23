@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.opengamma.platform</groupId>
+    <artifactId>sesame-examples</artifactId>
+    <version>2.13.0-SNAPSHOT</version>
+    <relativePath>../</relativePath>
+  </parent>
+  <groupId>com.opengamma.solutions</groupId>
+  <artifactId>example-library-app</artifactId>
+
+
+  <dependencies>
+    <!-- OG Platform -->
+    <dependency>
+      <groupId>com.opengamma.platform</groupId>
+      <artifactId>og-server</artifactId>
+      <version>${project.version}</version>
+      <type>pom</type>
+    </dependency>
+
+    <!-- New engine -->
+    <dependency>
+      <groupId>com.opengamma.platform</groupId>
+      <artifactId>sesame-component</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- Example Data -->
+    <dependency>
+      <groupId>com.opengamma.solutions</groupId>
+      <artifactId>example-data</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- Guava -->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>14.0.1</version>
+    </dependency>
+
+    <!-- Guice -->
+    <dependency>
+      <groupId>com.google.inject</groupId>
+      <artifactId>guice</artifactId>
+      <version>${guice.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.inject.extensions</groupId>
+      <artifactId>guice-multibindings</artifactId>
+      <version>${guice.version}</version>
+    </dependency>
+
+    <!-- Test-->
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <version>6.3.1</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-library</artifactId>
+      <version>1.3</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.opengamma.platform</groupId>
+      <artifactId>og-util</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+      <type>test-jar</type>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+
+    <resources>
+      <resource>
+        <directory>resources</directory>
+      </resource>
+    </resources>
+
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.7</source>
+          <target>1.7</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.joda</groupId>
+        <artifactId>joda-beans-maven-plugin</artifactId>
+        <version>0.7.3</version>
+      </plugin>
+    </plugins>
+
+  </build>
+
+  <properties>
+    <guice.version>3.0</guice.version>
+  </properties>
+
+</project>

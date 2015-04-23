@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.security.index.IborIndex">
+ <externalIdBundle>
+  <externalIds>
+   <item>BLOOMBERG_BUID~NI373113</item>
+   <item>BLOOMBERG_TICKER~US0001M Index</item>
+   <item>OG_TICKER~USDLIBOR1M</item>
+  </externalIds>
+ </externalIdBundle>
+ <name>USDLIBOR1M</name>
+ <securityType>IBOR_INDEX</securityType>
+ <attributes/>
+ <requiredPermissions/>
+ <indexFamilyId>INDEX_FAMILY~USDLIBOR</indexFamilyId>
+ <tenor>P1M</tenor>
+ <conventionId>CONVENTION~USDLIBOR</conventionId>
+</bean>
