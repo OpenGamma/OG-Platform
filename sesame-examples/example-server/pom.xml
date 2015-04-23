@@ -129,7 +129,7 @@
   </build>
 
   <properties>
-    <og.version>2.11.0</og.version>
+    <og.version>2.12.1</og.version>
   </properties>
 
 </project>

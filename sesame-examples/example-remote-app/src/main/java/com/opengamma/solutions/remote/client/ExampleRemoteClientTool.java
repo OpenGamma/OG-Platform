@@ -5,10 +5,19 @@
  */
 package com.opengamma.solutions.remote.client;
 
+import static com.opengamma.sesame.config.ConfigBuilder.configureView;
+
+import java.net.URI;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
+
 import com.google.common.collect.ImmutableList;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.link.ConfigLink;
-import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
@@ -20,24 +29,17 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.scripts.Scriptable;
 import com.opengamma.sesame.OutputNames;
+import com.opengamma.sesame.config.ViewConfig;
+import com.opengamma.sesame.engine.CalculationArguments;
+import com.opengamma.sesame.engine.RemoteViewRunner;
 import com.opengamma.sesame.engine.ResultRow;
 import com.opengamma.sesame.engine.Results;
-import com.opengamma.sesame.server.FunctionServer;
-import com.opengamma.sesame.server.FunctionServerRequest;
-import com.opengamma.sesame.server.IndividualCycleOptions;
-import com.opengamma.sesame.server.RemoteFunctionServer;
+import com.opengamma.sesame.engine.ViewRunner;
+import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.sesame.trade.InterestRateSwapTrade;
 import com.opengamma.solutions.util.SwapViewUtils;
+import com.opengamma.solutions.util.ViewUtils;
 import com.opengamma.util.time.DateUtils;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.ZonedDateTime;
-
-import java.net.URI;
-
-import static com.opengamma.sesame.config.ConfigBuilder.configureView;
 
 /** The entry point for running an example remote view. */
 @Scriptable
@@ -47,8 +49,6 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
   private static final String EXPOSURE_FUNCTION = "ef";
   /** Snapshot uid flag */
   private static final String SNAPSHOT_UID = "s";
-  /** Live data flag name flag */
-  private static final String LIVE_DATA = "ld";
   /** Valuation data flag. Format: YYYYMMDD */
   private static final String VALUATION_DATE = "d";
   /** Security inputs */
@@ -76,10 +76,10 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
 
     /* Create a RemoteFunctionServer to executes view requests RESTfully.*/
     String url = commandLine.getOptionValue(CONFIG_RESOURCE_OPTION) + "/jax";
-    FunctionServer functionServer = new RemoteFunctionServer(URI.create(url));
+    ViewRunner viewRunner = new RemoteViewRunner(URI.create(url));
 
     /* Single cycle options containing the market data specification and valuation time. */
-    IndividualCycleOptions.Builder builder = IndividualCycleOptions.builder();
+    CalculationArguments.Builder builder  = CalculationArguments.builder();
     if (commandLine.hasOption(VALUATION_DATE)) {
       LocalDate val = DateUtils.toLocalDate(commandLine.getOptionValue(VALUATION_DATE));
       builder.valuationTime(DateUtils.getUTCDate(val.getYear(), val.getMonthValue(), val.getDayOfMonth()));
@@ -87,19 +87,9 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
       builder.valuationTime(ZonedDateTime.now());
     }
 
-    if (commandLine.hasOption(SNAPSHOT_UID)) {
-      UniqueId snapshotId = UniqueId.parse(commandLine.getOptionValue(SNAPSHOT_UID));
-      MarketDataSpecification marketDataSpecification = UserMarketDataSpecification.of(snapshotId);
-      builder.marketDataSpecs(ImmutableList.of(marketDataSpecification));
-    } else if (commandLine.hasOption(LIVE_DATA)) {
-      String liveDataSource = commandLine.getOptionValue(LIVE_DATA);
-      MarketDataSpecification marketDataSpecification = LiveMarketDataSpecification.of(liveDataSource);
-      builder.marketDataSpecs(ImmutableList.of(marketDataSpecification));
-    } else {
-      // Default to Bloomberg if snapshot or live data provider is not stipulated
-      MarketDataSpecification marketDataSpecification = LiveMarketDataSpecification.of("Bloomberg");
-      builder.marketDataSpecs(ImmutableList.of(marketDataSpecification));
-    }
+    UniqueId snapshotId = UniqueId.parse(commandLine.getOptionValue(SNAPSHOT_UID));
+    MarketDataSpecification marketDataSpecification = UserMarketDataSpecification.of(snapshotId);
+    builder.marketDataSpecification(marketDataSpecification);
 
     if (commandLine.hasOption(SECURITY_INPUTS)) {
       SecurityMaster securityMaster = s_context.getSecurityMaster();
@@ -109,7 +99,7 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
       inputs.addAll(SwapViewUtils.SWAP_INPUTS);
     }
 
-    IndividualCycleOptions cycleOptions = builder.build();
+    CalculationArguments calculationArguments = builder.build();
 
     /* Configuration links matching the curve exposure function and currency matrix as named on the remote server.
        These are needed as specific arguments in the creation of the ViewConfig. */
@@ -117,25 +107,21 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
         ConfigLink.resolvable(commandLine.getOptionValue(EXPOSURE_FUNCTION), ExposureFunctions.class);
     ConfigLink<CurrencyMatrix> currencyMatrixLink = ConfigLink.resolvable("BBG-Matrix", CurrencyMatrix.class);
 
-
     /* Building the output specific request, based on a the view config, the single cycle options
        and the List<ManageableSecurity> containing the swaps */
-    FunctionServerRequest<IndividualCycleOptions> request =
-        FunctionServerRequest.<IndividualCycleOptions>builder()
-            .viewConfig(configureView(
-                "IRS remote view",
-                SwapViewUtils.createInterestRateSwapViewColumn(OutputNames.PRESENT_VALUE,
-                                                               exposureConfig,
-                                                               currencyMatrixLink),
-                SwapViewUtils.createInterestRateSwapViewColumn(OutputNames.BUCKETED_PV01,
-                                                               exposureConfig,
-                                                               currencyMatrixLink)))
-            .inputs(inputs.build())
-            .cycleOptions(cycleOptions)
-            .build();
-
+    ViewConfig viewConfig = configureView(
+        "IRS remote view",
+        SwapViewUtils.createInterestRateSwapViewColumn(OutputNames.PRESENT_VALUE,
+                                                       exposureConfig,
+                                                       currencyMatrixLink),
+        SwapViewUtils.createInterestRateSwapViewColumn(OutputNames.BUCKETED_PV01,
+                                                       exposureConfig,
+                                                       currencyMatrixLink));
     /* Execute the engine cycle and extract the first result result */
-    Results results = functionServer.executeSingleCycle(request);
+    Results results = viewRunner.runView(viewConfig,
+                                          calculationArguments,
+                                          MarketDataEnvironmentBuilder.empty(),
+                                          inputs.build());
 
     for (ResultRow row : results.getRows()) {
       Object input = row.getInput();
@@ -147,6 +133,10 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
       } else {
         System.out.println("Unsupported Output");
       }
+      // Output PV
+      ViewUtils.outputMultipleCurrencyAmount(name, row.get(0).getResult());
+      // Output Bucketed PV01
+      ViewUtils.outputBucketedCurveSensitivities(name, row.get(1).getResult());
     }
     System.exit(0);
   }
@@ -158,7 +148,6 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
     options.addOption(createSnapshotUidOption());
     options.addOption(createValuationDateOption());
     options.addOption(createExposureFunctionOption());
-    options.addOption(createLiveDataNameOption());
     options.addOption(createSecurityInputsOption());
     return options;
   }
@@ -187,17 +176,7 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
   private static Option createSnapshotUidOption() {
     final Option option = new Option(SNAPSHOT_UID, "snapshotUid", true, "snapshot unique identifier to use");
     option.setArgName("snapshot uid");
-    option.setOptionalArg(true);
-    return option;
-  }
-
-  private static Option createLiveDataNameOption() {
-    final Option option = new Option(LIVE_DATA,
-        "liveData",
-        true,
-        "live data provider, defaults to Bloomberg if no snapshot or live data is specified");
-    option.setArgName("live data provider");
-    option.setOptionalArg(true);
+    option.setRequired(true);
     return option;
   }
 
