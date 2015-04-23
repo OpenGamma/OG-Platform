@@ -22,7 +22,7 @@ The **-d** date option accepts the format *YYYYMMDD*
 
 The **-ef** option refers to the name of the exposure function from your uploaded configuration. Visit http://your-server-ip:8080/jax/configs?type=ExposureFunctions&name= for a full list of exposure functions.
 
-The **-s** and **-ld** options refers to the market data source. -s is the ID of an existing snapshot.
+The **-s** option refers to the market data source, that is, the ID of an existing snapshot.
 
 Available snapshots can be seen here http://your-server-ip:8080/jax/snapshots
 
