@@ -31,10 +31,9 @@ public enum ShiftType {
   };
 
   /**
-   * Apply a absolute or relative shift. An absolute shift adds the shift amount to the rate. Relative shifts
-   * are defined in terms of how much to increase or decrease the rate by. e.g. a 10% shift multiplies the rate
-   * by 1.1, a -20% shift multiplies the rate by 0.8. So for relative shifts the shifted
-   * rate is {@code (rate x (1 + shift))}.
+   * Apply a absolute or relative shift. An absolute shift adds the shift amount to the rate. Relative shifts apply a
+   * scale factor to the input value. e.g. a 10% shift multiplies the rate by 1.1, a -20% shift multiplies the rate
+   * by 0.8. So for relative shifts the shifted rate is {@code (rate x (1 + shift))}.
    * @param value the value to shift
    * @param shift the shift to apply
    * @return the shifted value
