@@ -180,10 +180,7 @@ public final class CreditCurvePointShift implements Perturbation, ImmutableBean 
 
   //-----------------------------------------------------------------------
   /**
-   * Gets whether the shift is absolute or relative. An absolute shift adds the shift amount to the rate. Relative shifts
-   * are defined in terms of how much to increase or decrease the rate by. e.g. a 10% shift multiplies the rate
-   * by 1.1, a -20% shift multiplies the rate by 0.8. So for relative shifts the shifted
-   * rate is {@code (rate x (1 + shiftAmount))}.
+   * Gets whether the shift is absolute or relative.
    * @return the value of the property, not null
    */
   private ShiftType getShiftType() {

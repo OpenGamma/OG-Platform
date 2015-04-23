@@ -146,6 +146,7 @@ public final class CreditCurveParallelShift implements Perturbation, ImmutableBe
       ShiftType shiftType,
       double shiftAmount) {
     JodaBeanUtils.notNull(shiftType, "shiftType");
+    JodaBeanUtils.notNull(shiftAmount, "shiftAmount");
     this._shiftType = shiftType;
     this._shiftAmount = shiftAmount;
   }
@@ -167,10 +168,7 @@ public final class CreditCurveParallelShift implements Perturbation, ImmutableBe
 
   //-----------------------------------------------------------------------
   /**
-   * Gets whether the shift is absolute or relative. An absolute shift adds the shift amount to the rate. Relative shifts
-   * are defined in terms of how much to increase or decrease the rate by. e.g. a 10% shift multiplies the rate
-   * by 1.1, a -20% shift multiplies the rate by 0.8. So for relative shifts the shifted
-   * rate is {@code (rate x (1 + shiftAmount))}.
+   * Gets whether the shift is absolute or relative.
    * @return the value of the property, not null
    */
   private ShiftType getShiftType() {
@@ -180,7 +178,7 @@ public final class CreditCurveParallelShift implements Perturbation, ImmutableBe
   //-----------------------------------------------------------------------
   /**
    * Gets the shifts to apply to the curve values
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   private double getShiftAmount() {
     return _shiftAmount;
@@ -423,10 +421,11 @@ public final class CreditCurveParallelShift implements Perturbation, ImmutableBe
 
     /**
      * Sets the {@code shiftAmount} property in the builder.
-     * @param shiftAmount  the new value
+     * @param shiftAmount  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder shiftAmount(double shiftAmount) {
+      JodaBeanUtils.notNull(shiftAmount, "shiftAmount");
       this._shiftAmount = shiftAmount;
       return this;
     }
