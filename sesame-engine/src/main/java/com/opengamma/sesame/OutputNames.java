@@ -187,6 +187,10 @@ public final class OutputNames {
    * The bucketed Gamma projected on curve pillars, without cross values
    */
   public static final String BUCKETED_GAMMA = "Bucketed Gamma";
+  /**
+   * The currency fx rates
+   */
+  public static final String FX_RATES = "FX Rates";
 
   /**
    * Restricted constructor.
