@@ -133,20 +133,9 @@ public class HolidaySourceCalendarAdapter implements Calendar, Serializable {
     switch (_type) {
       case BANK:
         for (final Region region : _regions) {
-          // REVIEW: jim 14-Feb-2012 -- This was HolidayType.BANK, but as the bank holidays are saved by LOCODE, nothing can actually look them up
-          //                            and it's not clear from the country alone which holiday should be used.
-          //_holidaySource.isHoliday(date, HolidayType.BANK, region.getExternalIdBundle());
-          // REVIEW: yomi 2013-08-15 -- Use currency if available otherwise use region externalId as some margining region data may have missing currency
-          if (region.getCurrency() != null) {
-            if (_holidaySource.isHoliday(date, region.getCurrency())) {
-              return false;
-            }
-          } else {
-            if (_holidaySource.isHoliday(date, HolidayType.BANK, region.getExternalIdBundle())) {
-              return false;
-            }
+          if (_holidaySource.isHoliday(date, HolidayType.BANK, region.getExternalIdBundle())) {
+            return false;
           }
-          
         }
         return true;
       case CURRENCY:
