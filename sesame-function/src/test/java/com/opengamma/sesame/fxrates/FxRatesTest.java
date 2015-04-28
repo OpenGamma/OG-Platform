@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.currency;
+package com.opengamma.sesame.fxrates;
 
 import static com.opengamma.sesame.config.ConfigBuilder.argument;
 import static com.opengamma.sesame.config.ConfigBuilder.arguments;
@@ -76,7 +76,6 @@ import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.sesame.marketdata.builders.FxRateMarketDataBuilder;
 import com.opengamma.sesame.marketdata.builders.MarketDataEnvironmentFactory;
 import com.opengamma.sesame.trade.FXForwardTrade;
-import com.opengamma.sesame.trade.InterestRateSwapTrade;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.function.Function;
 import com.opengamma.util.money.Currency;
@@ -88,7 +87,7 @@ import com.opengamma.util.time.DateUtils;
  * Tests fx rates for base currency against various trades.
  */
 @Test(groups = TestGroup.UNIT)
-public class CurrencyRatesTest {
+public class FxRatesTest {
 
   private static CurrencyPair EUR_USD = CurrencyPair.of(Currency.EUR, Currency.USD);
   private static CurrencyPair EUR_GBP = CurrencyPair.of(Currency.EUR, Currency.GBP);
@@ -104,7 +103,7 @@ public class CurrencyRatesTest {
           .valuationTime(VALUATION_TIME)
           .marketDataSpecification(EmptyMarketDataSpec.INSTANCE)
           .build();
-  private CurrencyRatesFn _function;
+  private FxRatesFn _function;
   private FunctionRunner _functionRunner;
 
 
@@ -115,11 +114,11 @@ public class CurrencyRatesTest {
         config(
             arguments(
                 function(
-                    DefaultCurrencyRatesFn.class,
+                    DefaultFxRatesFn.class,
                     argument("baseCurrency", Currency.EUR))
             ),
             implementations(
-                CurrencyRatesFn.class, DefaultCurrencyRatesFn.class));
+                FxRatesFn.class, DefaultFxRatesFn.class));
 
     SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
     FxRateMarketDataBuilder fxBuilder = new FxRateMarketDataBuilder(ConfigLink.<CurrencyMatrix>resolved(matrix));
@@ -130,7 +129,7 @@ public class CurrencyRatesTest {
     EmptyMarketDataFactory dataFactory = new EmptyMarketDataFactory();
     MarketDataEnvironmentFactory environmentFactory = new MarketDataEnvironmentFactory(dataFactory, fxBuilder);
     _functionRunner = new FunctionRunner(environmentFactory);
-    _function = FunctionModel.build(CurrencyRatesFn.class, engineFunctionConfig, map);
+    _function = FunctionModel.build(FxRatesFn.class, engineFunctionConfig, map);
   }
 
   public static MarketDataEnvironment getMarketDataEnvironment(ZonedDateTime valuation) {

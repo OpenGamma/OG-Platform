@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.currency;
+package com.opengamma.sesame.fxrates;
 
 import java.util.Map;
 
@@ -16,26 +16,26 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 
 /**
- * Obtain currency rates for a given Security.
+ * Obtain fx rates for a given Security.
  */
-public interface CurrencyRatesFn {
+public interface FxRatesFn {
 
   /**
-   * Calculate the currency rates for security.
+   * Calculate the fx rates for security.
    *
    * @param env the environment used for calculation
    * @param security the Security to obtain the relevant currencies
-   * @return result containing the currency rates if successful, a Failure otherwise
+   * @return result containing the fx rates if successful, a Failure otherwise
    */
   @Output(OutputNames.FX_RATES)
   Result<Map<Currency, Double>> getFxRates(Environment env, Security security);
 
   /**
-   * Calculate the currency rates for security.
+   * Calculate the fx rates for security.
    *
    * @param env the environment used for calculation
    * @param trade the TradeWrapper to obtain security and then the relevant currencies
-   * @return result containing the currency rates if successful, a Failure otherwise
+   * @return result containing the fx rates if successful, a Failure otherwise
    */
   @Output(OutputNames.FX_RATES)
   Result<Map<Currency, Double>> getFxRates(Environment env, TradeWrapper trade);

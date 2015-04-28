@@ -188,7 +188,7 @@ public final class OutputNames {
    */
   public static final String BUCKETED_GAMMA = "Bucketed Gamma";
   /**
-   * The currency fx rates
+   * The foreign exchange rates
    */
   public static final String FX_RATES = "FX Rates";
 

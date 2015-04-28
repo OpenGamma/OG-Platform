@@ -1,4 +1,4 @@
-package com.opengamma.sesame.currency;
+package com.opengamma.sesame.fxrates;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,9 +16,9 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 
 /**
- * Default implementation to obtain currency rates for a given FinancialSecurity against a base currency.
+ * Default implementation to obtain fx rates for a given Security against a base currency.
  */
-public class DefaultCurrencyRatesFn implements CurrencyRatesFn {
+public class DefaultFxRatesFn implements FxRatesFn {
 
   private final Currency _baseCurrency;
 
@@ -27,7 +27,7 @@ public class DefaultCurrencyRatesFn implements CurrencyRatesFn {
    *
    * @param baseCurrency base currency
    */
-  public DefaultCurrencyRatesFn(Currency baseCurrency) {
+  public DefaultFxRatesFn(Currency baseCurrency) {
     _baseCurrency = baseCurrency;
   }
 
