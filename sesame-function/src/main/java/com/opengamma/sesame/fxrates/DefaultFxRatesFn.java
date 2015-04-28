@@ -12,6 +12,7 @@ import com.opengamma.financial.security.CurrenciesVisitor;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.marketdata.FxRateId;
 import com.opengamma.sesame.trade.TradeWrapper;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 
@@ -25,10 +26,10 @@ public class DefaultFxRatesFn implements FxRatesFn {
   /**
    * Create the function.
    *
-   * @param baseCurrency base currency
+   * @param baseCurrency base currency, not null
    */
   public DefaultFxRatesFn(Currency baseCurrency) {
-    _baseCurrency = baseCurrency;
+    _baseCurrency = ArgumentChecker.notNull(baseCurrency, "baseCurrency");
   }
 
   @Override
