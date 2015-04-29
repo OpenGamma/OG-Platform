@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+		xmlns="http://maven.apache.org/POM/4.0.0"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.opengamma.platform</groupId>
+		<artifactId>og-platform</artifactId>
+		<version>2.13.0-SNAPSHOT</version>
+		<relativePath>..</relativePath>
+	</parent>
+	<artifactId>og-platform-packaging</artifactId>
+	<packaging>pom</packaging>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.opengamma.platform</groupId>
+			<artifactId>og-platform</artifactId>
+			<version>${project.version}</version>
+			<type>pom</type>
+		</dependency>
+        <dependency>
+            <groupId>com.opengamma.platform</groupId>
+            <artifactId>og-platform-public</artifactId>
+            <version>${project.version}</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.opengamma.platform</groupId>
+            <artifactId>og-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.opengamma.platform</groupId>
+            <artifactId>og-timeseries</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.opengamma.platform</groupId>
+            <artifactId>og-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.opengamma.platform</groupId>
+            <artifactId>og-component</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.opengamma.platform</groupId>
+            <artifactId>og-engine</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.opengamma.platform</groupId>
+            <artifactId>og-financial</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.opengamma.platform</groupId>
+            <artifactId>og-analytics</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.opengamma.platform</groupId>
+            <artifactId>og-livedata</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.opengamma.platform</groupId>
+            <artifactId>og-master</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.opengamma.platform</groupId>
+            <artifactId>og-masterdb</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.opengamma.platform</groupId>
+            <artifactId>og-integration</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.opengamma.platform</groupId>
+            <artifactId>og-web</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.opengamma</groupId>
+            <artifactId>og-region-data</artifactId>
+            <version>1.0.0.v20110908a</version>
+        </dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.8.2</version>
+                <configuration>
+                    <deployAtEnd>true</deployAtEnd>
+                </configuration>
+            </plugin>
+			<plugin>
+				<groupId>org.codehaus.gmaven</groupId>
+				<artifactId>gmaven-plugin</artifactId>
+				<version>1.5</version>
+				<executions>
+					<execution>
+						<id>prepareAndPackageMavenRepoArchives</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>execute</goal>
+						</goals>
+						<configuration>
+							<providerSelection>1.8</providerSelection>
+							<source>
+                                String fullArchiveName = "${project.basedir}/../ogp-${project.version}_full_maven-repo"
+								String fullFileName = "${fullArchiveName}.zip"
+								ant.zip(destfile: fullFileName) {
+									zipfileset(prefix: "ogp-${project.version}", dir: "${project.basedir}/../maven_deploy")
+								}
+							</source>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

@@ -57,6 +57,7 @@
   <!-- ==================================================================== -->
   <modules>
     <module>projects</module>
+    <module>packaging</module>
   </modules>
 
   <!-- ==================================================================== -->
@@ -197,6 +198,44 @@
             <goals>
               <goal>attach-descriptor</goal>
             </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Include OG dependencies in Package -->
+      <plugin>
+            <artifactId>maven-clean-plugin</artifactId>
+            <version>2.6.1</version>
+            <configuration>
+                <filesets>
+                    <fileset>
+                        <directory>.</directory>
+                        <includes>
+                            <include>maven_deploy/</include>
+                            <include>*.zip</include>
+                        </includes>
+                        <followSymlinks>false</followSymlinks>
+                    </fileset>
+                </filesets>
+            </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>2.10</version>
+        <executions>
+          <execution>
+            <id>layoutOGDepsAsRepo</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${session.executionRootDirectory}/maven_deploy</outputDirectory>
+              <copyPom>true</copyPom>
+              <useRepositoryLayout>true</useRepositoryLayout>
+              <includeGroupIds>com.opengamma</includeGroupIds>
+              <excludeGroupIds>com.opengamma.platform</excludeGroupIds>
+            </configuration>
           </execution>
         </executions>
       </plugin>
