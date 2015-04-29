@@ -6,6 +6,7 @@
 package com.opengamma.sesame.marketdata.scenarios;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.ShiftType;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
@@ -13,6 +14,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.CurveNodeId;
+import com.opengamma.sesame.FuturesExpiryCurveNodeId;
 import com.opengamma.sesame.TenorCurveNodeId;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
@@ -116,28 +118,16 @@ public final class MulticurveInputPointShift implements Perturbation, ImmutableB
     double shiftAmount = calcShiftAmount(node);
     // futures are quoted the other way round, i.e. (1 - value)
     if (node instanceof RateFutureNode) {
-      return 1 - shift(shiftAmount, 1 - value);
+      return 1 - _shiftType.applyShift(1 - value, shiftAmount);
     } else {
-      return shift(shiftAmount, value);
-    }
-  }
-
-  private double shift(double shiftAmount, double value) {
-    switch (_shiftType) {
-      case ABSOLUTE:
-        return value + shiftAmount;
-      case RELATIVE:
-        return value * (1 + shiftAmount);
-      default:
-        // should never happen
-        throw new IllegalStateException("Unexpected shift type: " + _shiftType);
+      return _shiftType.applyShift(value, shiftAmount);
     }
   }
 
   private double calcShiftAmount(CurveNode node) {
     if (node instanceof RateFutureNode) {
-      // TODO not sure how to get proper expiry for futures to create CurveNodeId
-      return 0D;
+      // TODO not sure how to get proper expiry for futures to create CurveNodeId of FuturesExpiryCurveNodeId
+      throw new OpenGammaRuntimeException("Futures instruments not currently supported, cannot perturb " + node);
     } else {
       CurveNodeId nodeId = TenorCurveNodeId.of(node.getResolvedMaturity());
       Double shiftAmount = _shifts.get(nodeId);
