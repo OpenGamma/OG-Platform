@@ -43,6 +43,11 @@ public final class FraTrade extends TradeWrapper<FRASecurity> implements Immutab
     this(ImmutableTradeBundle.of(trade));
   }
 
+  @Override
+  public TradeWrapper<FRASecurity> updateBundle(ImmutableTradeBundle bundle) {
+    return toBuilder().tradeBundle(bundle).build();
+  }
+  
   @ImmutableConstructor
   private FraTrade(ImmutableTradeBundle tradeBundle) {
     super(FRASecurity.class, tradeBundle);

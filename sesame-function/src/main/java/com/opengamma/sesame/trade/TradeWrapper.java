@@ -38,10 +38,32 @@ public abstract class TradeWrapper<S extends Security> {
     return ImmutableTrade.of(getTradeBundle());
   }
 
-  protected abstract ImmutableTradeBundle getTradeBundle();
+  /**
+   * ImmutableTradeBundle stores the fields on the TradeWrapper 
+   * in an immutable manner. This provides access to the bundle.
+   * 
+   * @return the underlying immutable trade bundle
+   */
+  public abstract ImmutableTradeBundle getTradeBundle();
 
+  /**
+   * The security instance for the underlying trade.
+   * 
+   * @return a security instance of type S
+   */
   public S getSecurity() {
     return _clazz.cast(getTrade().getSecurity());
   }
+  
+  /**
+   * Creates a new TradeWrapper, replacing the bundle of this instance
+   * with the one supplied. This is provided for convenience when
+   * the client needs to update fields on the bundle but does not
+   * know the underlying type.
+   * 
+   * @param bundle the new tradle bundle
+   * @return a new trade wrapper 
+   */
+  public abstract TradeWrapper<S> updateBundle(ImmutableTradeBundle bundle);
 
 }

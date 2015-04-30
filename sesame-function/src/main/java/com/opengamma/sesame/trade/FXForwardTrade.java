@@ -43,6 +43,11 @@ public final class FXForwardTrade extends TradeWrapper<FXForwardSecurity> implem
     this(ImmutableTradeBundle.of(trade));
   }
 
+  @Override
+  public TradeWrapper<FXForwardSecurity> updateBundle(ImmutableTradeBundle bundle) {
+    return toBuilder().tradeBundle(bundle).build();
+  }
+  
   @ImmutableConstructor
   private FXForwardTrade(ImmutableTradeBundle tradeBundle) {
     super(FXForwardSecurity.class, tradeBundle);

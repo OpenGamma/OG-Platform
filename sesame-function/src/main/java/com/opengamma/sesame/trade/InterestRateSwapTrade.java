@@ -43,6 +43,11 @@ public final class InterestRateSwapTrade extends TradeWrapper<InterestRateSwapSe
     this(ImmutableTradeBundle.of(trade));
   }
 
+  @Override
+  public TradeWrapper<InterestRateSwapSecurity> updateBundle(ImmutableTradeBundle bundle) {
+    return toBuilder().tradeBundle(bundle).build();
+  }
+  
   @ImmutableConstructor
   private InterestRateSwapTrade(ImmutableTradeBundle tradeBundle) {
     super(InterestRateSwapSecurity.class, tradeBundle);

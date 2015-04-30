@@ -24,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.position.Trade;
 import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 
 /**
  * Trade wrapper for bond future trades.
@@ -43,6 +44,11 @@ public final class BondFutureTrade extends TradeWrapper<BondFutureSecurity> impl
     this(ImmutableTradeBundle.of(trade));
   }
 
+  @Override
+  public TradeWrapper<BondFutureSecurity> updateBundle(ImmutableTradeBundle bundle) {
+    return toBuilder().tradeBundle(bundle).build();
+  }
+  
   @ImmutableConstructor
   private BondFutureTrade(ImmutableTradeBundle tradeBundle) {
     super(BondFutureSecurity.class, tradeBundle);

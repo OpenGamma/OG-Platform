@@ -42,6 +42,11 @@ public final class InterestRateFutureTrade extends TradeWrapper<InterestRateFutu
   public InterestRateFutureTrade(Trade trade) {
     this(ImmutableTradeBundle.of(trade));
   }
+  
+  @Override
+  public TradeWrapper<InterestRateFutureSecurity> updateBundle(ImmutableTradeBundle bundle) {
+    return toBuilder().tradeBundle(bundle).build();
+  }
 
   @ImmutableConstructor
   private InterestRateFutureTrade(ImmutableTradeBundle tradeBundle) {

@@ -42,6 +42,11 @@ public final class ForwardRateAgreementTrade extends TradeWrapper<ForwardRateAgr
   public ForwardRateAgreementTrade(Trade trade) {
     this(ImmutableTradeBundle.of(trade));
   }
+  
+  @Override
+  public TradeWrapper<ForwardRateAgreementSecurity> updateBundle(ImmutableTradeBundle bundle) {
+    return toBuilder().tradeBundle(bundle).build();
+  }
 
   @ImmutableConstructor
   private ForwardRateAgreementTrade(ImmutableTradeBundle tradeBundle) {

@@ -42,6 +42,11 @@ public final class DeliverableSwapFutureTrade extends TradeWrapper<DeliverableSw
   public DeliverableSwapFutureTrade(Trade trade) {
     this(ImmutableTradeBundle.of(trade));
   }
+  
+  @Override
+  public TradeWrapper<DeliverableSwapFutureSecurity> updateBundle(ImmutableTradeBundle bundle) {
+    return toBuilder().tradeBundle(bundle).build();
+  }
 
   @ImmutableConstructor
   private DeliverableSwapFutureTrade(ImmutableTradeBundle tradeBundle) {

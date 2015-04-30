@@ -42,6 +42,11 @@ public final class IRFutureOptionTrade extends TradeWrapper<IRFutureOptionSecuri
   public IRFutureOptionTrade(Trade trade) {
     this(ImmutableTradeBundle.of(trade));
   }
+  
+  @Override
+  public TradeWrapper<IRFutureOptionSecurity> updateBundle(ImmutableTradeBundle bundle) {
+    return toBuilder().tradeBundle(bundle).build();
+  }
 
   @ImmutableConstructor
   private IRFutureOptionTrade(ImmutableTradeBundle tradeBundle) {
