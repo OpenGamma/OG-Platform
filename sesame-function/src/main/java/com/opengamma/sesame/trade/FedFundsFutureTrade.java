@@ -43,6 +43,11 @@ public final class FedFundsFutureTrade extends TradeWrapper<FederalFundsFutureSe
     this(ImmutableTradeBundle.of(trade));
   }
 
+  @Override
+  public TradeWrapper<FederalFundsFutureSecurity> updateBundle(ImmutableTradeBundle bundle) {
+    return toBuilder().tradeBundle(bundle).build();
+  }
+  
   @ImmutableConstructor
   private FedFundsFutureTrade(ImmutableTradeBundle tradeBundle) {
     super(FederalFundsFutureSecurity.class, tradeBundle);

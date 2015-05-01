@@ -43,6 +43,11 @@ public final class StandardCDSTrade extends TradeWrapper<StandardCDSSecurity> im
     this(ImmutableTradeBundle.of(trade));
   }
 
+  @Override
+  public TradeWrapper<StandardCDSSecurity> updateBundle(ImmutableTradeBundle bundle) {
+    return toBuilder().tradeBundle(bundle).build();
+  }
+  
   @ImmutableConstructor
   private StandardCDSTrade(ImmutableTradeBundle tradeBundle) {
     super(StandardCDSSecurity.class, tradeBundle);

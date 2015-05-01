@@ -42,6 +42,11 @@ public final class IndexCDSTrade extends TradeWrapper<IndexCDSSecurity> implemen
   public IndexCDSTrade(Trade trade) {
     this(ImmutableTradeBundle.of(trade));
   }
+  
+  @Override
+  public TradeWrapper<IndexCDSSecurity> updateBundle(ImmutableTradeBundle bundle) {
+    return toBuilder().tradeBundle(bundle).build();
+  }
 
   @ImmutableConstructor
   private IndexCDSTrade(ImmutableTradeBundle tradeBundle) {

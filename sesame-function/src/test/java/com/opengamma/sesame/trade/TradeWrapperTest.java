@@ -5,10 +5,13 @@
  */
 package com.opengamma.sesame.trade;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.math.BigDecimal;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
@@ -31,6 +34,7 @@ import com.opengamma.util.time.Expiry;
 @Test(groups = TestGroup.UNIT)
 public class TradeWrapperTest {
 
+  
   /**
    * Tests if the validation check for the security type is working correctly.
    */
@@ -57,5 +61,42 @@ public class TradeWrapperTest {
     } catch(Exception e) {
       // expected
     }
+    
+  }
+  
+  
+  public void testUpdate() {
+    
+    Expiry expiry = new Expiry(ZonedDateTime.of(LocalDate.of(2014, 6, 18), LocalTime.of(0, 0), ZoneOffset.UTC));
+    String tradingExchange = "";
+    String settlementExchange = "";
+    Currency currency = Currency.USD;
+    double unitAmount = 1000;
+    ExternalId underlyingId = ExternalId.of("first", "second");
+    String category = "";
+    InterestRateFutureSecurity irFuture = new InterestRateFutureSecurity(expiry, tradingExchange, settlementExchange, currency, unitAmount, underlyingId, category);
+    Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
+    BigDecimal tradeQuantity = BigDecimal.valueOf(10);
+    LocalDate tradeDate = LocalDate.of(2000, 1, 1);
+    OffsetTime tradeTime = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
+    SimpleTrade trade = new SimpleTrade(irFuture, tradeQuantity, counterparty, tradeDate, tradeTime);
+    
+    TradeWrapper<?> irs = new InterestRateFutureTrade(trade);
+    
+    ImmutableTradeBundle bundleOverride = irs.getTradeBundle()
+                                             .toBuilder()
+                                             .counterparty(new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "new counterparty")))
+                                             .build();
+    
+    TradeWrapper<?> updatedIrs = irs.updateBundle(bundleOverride);
+    
+    assertTrue(updatedIrs.getSecurity() == irs.getSecurity());
+    
+    String newValue = updatedIrs.getTradeBundle().getCounterparty().getExternalId().getValue();
+    String oldValue = irs.getTradeBundle().getCounterparty().getExternalId().getValue();
+    assertEquals(newValue, "new counterparty");
+    assertEquals(oldValue, "COUNTERPARTY");
+    
+    
   }
 }

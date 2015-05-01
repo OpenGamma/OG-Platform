@@ -42,6 +42,11 @@ public final class SwaptionTrade extends TradeWrapper<SwaptionSecurity> implemen
   public SwaptionTrade(Trade trade) {
     this(ImmutableTradeBundle.of(trade));
   }
+  
+  @Override
+  public TradeWrapper<SwaptionSecurity> updateBundle(ImmutableTradeBundle bundle) {
+    return toBuilder().tradeBundle(bundle).build();
+  }
 
   @ImmutableConstructor
   private SwaptionTrade(ImmutableTradeBundle tradeBundle) {

@@ -34,6 +34,11 @@ public final class BondFutureOptionTrade extends TradeWrapper<BondFutureOptionSe
   @PropertyDefinition(overrideGet = true)
   private final ImmutableTradeBundle _tradeBundle;
 
+  @Override
+  public TradeWrapper<BondFutureOptionSecurity> updateBundle(ImmutableTradeBundle bundle) {
+    return toBuilder().tradeBundle(bundle).build();
+  }
+
   /**
    * Base trade wrapper constructor that wraps a trade in an explicit instrument type.
    *

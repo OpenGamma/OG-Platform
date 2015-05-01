@@ -42,6 +42,11 @@ public final class LegacyCDSTrade extends TradeWrapper<LegacyCDSSecurity> implem
   public LegacyCDSTrade(Trade trade) {
     this(ImmutableTradeBundle.of(trade));
   }
+  
+  @Override
+  public TradeWrapper<LegacyCDSSecurity> updateBundle(ImmutableTradeBundle bundle) {
+    return toBuilder().tradeBundle(bundle).build();
+  }
 
   @ImmutableConstructor
   private LegacyCDSTrade(ImmutableTradeBundle tradeBundle) {
