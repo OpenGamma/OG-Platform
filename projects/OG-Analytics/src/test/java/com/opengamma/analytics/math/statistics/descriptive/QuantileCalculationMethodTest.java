@@ -147,5 +147,14 @@ public class QuantileCalculationMethodTest {
     double quantileComputed = QUANTILE_MIDWAY_INTERPOLATION.quantileFromSorted(LEVEL, SAMPLE_SORTED_123);
     assertEquals(quantileComputed, quantileExpected, TOLERANCE_QUANTILE);
   }
+
+  @Test
+  public void excel() {
+    double[] data = new double[] {1.0, 3.0, 2.0, 4.0};
+    double level = 0.3;
+    double quantileComputed = ExcelInterpolationQuantileMethod.DEFAULT.quantileFromUnsorted(level, data);
+    double quantileExpected = 1.9; // From Excel doc
+    assertEquals(quantileComputed, quantileExpected, TOLERANCE_QUANTILE);
+  }
   
 }

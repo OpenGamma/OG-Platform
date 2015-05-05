@@ -26,4 +26,9 @@ public class MidwayInterpolationQuantileMethod extends InterpolationQuantileMeth
     return 0.5d;
   }
 
+  @Override
+  int sampleCorrection(int sampleSize) {
+    return sampleSize;
+  }
+
 }

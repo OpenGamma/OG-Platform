@@ -23,7 +23,7 @@ public abstract class InterpolationQuantileMethod extends QuantileCalculationMet
     ArgumentChecker.isTrue(level > 0, "Quantile should be above 0.");
     ArgumentChecker.isTrue(level < 1, "Quantile should be below 1.");
     int sampleSize = sortedSample.length;
-    double adjustedLevel = level * sampleSize + indexCorrection();
+    double adjustedLevel = level * sampleCorrection(sampleSize) + indexCorrection();
     int lowerIndex = (int) Math.floor(adjustedLevel);
     int upperIndex = (int) Math.ceil(adjustedLevel);
     double lowerWeight = upperIndex - adjustedLevel;
@@ -36,5 +36,7 @@ public abstract class InterpolationQuantileMethod extends QuantileCalculationMet
    * @return The correction.
    */
   abstract double indexCorrection();
+  
+  abstract int sampleCorrection(int sampleSize);
 
 }
