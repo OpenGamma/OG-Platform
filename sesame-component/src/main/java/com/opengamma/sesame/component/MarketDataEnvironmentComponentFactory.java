@@ -50,7 +50,9 @@ import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.IssuerMulticurveMarketDataBuilder;
 import com.opengamma.sesame.marketdata.MulticurveMarketDataBuilder;
 import com.opengamma.sesame.marketdata.SnapshotMarketDataFactory;
+import com.opengamma.sesame.marketdata.builders.CreditCurveMarketDataBuilder;
 import com.opengamma.sesame.marketdata.builders.FxRateMarketDataBuilder;
+import com.opengamma.sesame.marketdata.builders.IsdaYieldCurveMarketDataBuilder;
 import com.opengamma.sesame.marketdata.builders.MarketDataEnvironmentFactory;
 import com.opengamma.sesame.marketdata.builders.RawMarketDataBuilder;
 import com.opengamma.sesame.marketdata.builders.SecurityMarketDataBuilder;
@@ -99,7 +101,9 @@ public class MarketDataEnvironmentComponentFactory extends AbstractComponentFact
                                          issuerCurveBuilder(),
                                          securityBuilder(),
                                          fxMatrixBuilder(),
-                                         fxRateBuilder());
+                                         fxRateBuilder(),
+                                         creditCurveMarketDataBuilder(),
+                                         isdaYieldCurveMarketDataBuilder());
 
     repo.registerComponent(MarketDataEnvironmentFactory.class, _classifier, environmentFactory);
   }
@@ -146,6 +150,24 @@ public class MarketDataEnvironmentComponentFactory extends AbstractComponentFact
                 HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class));
 
     return FunctionModel.build(MulticurveMarketDataBuilder.class, config, _componentMap);
+  }
+
+  /**
+   * Creates a builder that provides Credit Curve Market Data.
+   *
+   * @return a builder that provides Credit Curve Market Data.
+   */
+  protected CreditCurveMarketDataBuilder creditCurveMarketDataBuilder() {
+    return new CreditCurveMarketDataBuilder();
+  }
+
+  /**
+   * Creates a builder that provides Isda Yield Curve Market Data.
+   *
+   * @return a builder that provides Isda Yield Curve Market Data.
+   */
+  protected IsdaYieldCurveMarketDataBuilder isdaYieldCurveMarketDataBuilder() {
+    return new IsdaYieldCurveMarketDataBuilder();
   }
 
   /**
