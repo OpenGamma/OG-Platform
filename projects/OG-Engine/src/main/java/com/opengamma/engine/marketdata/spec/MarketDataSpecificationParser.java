@@ -25,7 +25,14 @@ public class MarketDataSpecificationParser {
   /**
    * Parses a string to produce a {@link MarketDataSpecification}. Supported formats are
    * 'live', 'fixedhistorical', 'latesthistorical' and 'snapshot'
-   * See the output of {@link #getUsageMessage()} for full examples.
+   * For example:
+   * <p><ul>
+   * <li>{@code live:Bloomberg}
+   * <li>{@code latesthistorical, DEFAULT_HTS_RATING}
+   * <li>{@code fixedhistorical:2011-08-03}
+   * <li>{@code fixedhistorical:2011-08-03, DEFAULT_HTS_RATING}
+   * <li>{@code snapshot:DbSnp~1234}
+   * <ul><p>
    * @param specStr String representation of a {@link MarketDataSpecification}
    * @return A {@link MarketDataSpecification} instance built from the string
    * @throws IllegalArgumentException If the string can't be parsed
