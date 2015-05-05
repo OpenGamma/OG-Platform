@@ -20,9 +20,12 @@ public class MarketDataSpecificationParser {
   private static final String FIXED_HISTORICAL = "fixedhistorical";
   private static final String LATEST_HISTORICAL = "latesthistorical";
 
+  private MarketDataSpecificationParser() {/*private constructor*/}
+
   /**
-   * Parses a string to produce a {@link MarketDataSpecification}. See the output of {@link #getUsageMessage()}
-   * for examples.
+   * Parses a string to produce a {@link MarketDataSpecification}. Supported formats are
+   * 'live', 'fixedhistorical', 'latesthistorical' and 'snapshot'
+   * See the output of {@link #getUsageMessage()} for full examples.
    * @param specStr String representation of a {@link MarketDataSpecification}
    * @return A {@link MarketDataSpecification} instance built from the string
    * @throws IllegalArgumentException If the string can't be parsed
@@ -104,6 +107,10 @@ public class MarketDataSpecificationParser {
     return specStr.substring(prefix.length(), specStr.length());
   }
 
+  /**
+   * Example usages of the MarketDataSpecificationParser
+   * @return example strings
+   */
   public static String getUsageMessage() {
     return "Examples of valid market data strings:\n" +
         "live:Data provider name\n" +
