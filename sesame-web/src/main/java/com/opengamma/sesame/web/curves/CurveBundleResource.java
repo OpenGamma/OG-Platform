@@ -131,8 +131,8 @@ public class CurveBundleResource  {
         s_logger.error(curve.getName() + " is in instance of " + curve.getClass() + " CurveBundleResource only " +
                            "supports YieldCurve and DiscountCurve instances of YieldAndDiscountCurve");
       }
-    } catch(UnsupportedOperationException e) {
-      throw new IllegalArgumentException("Curve type: " + curve.getClass() + ", does not support " +
+    } catch (UnsupportedOperationException e) {
+      throw new IllegalArgumentException("Curve type: " + curve.getClass().getName() + ", does not support " +
           "the ability to get X or Y data", e);
     }
 
