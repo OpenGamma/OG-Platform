@@ -64,9 +64,10 @@ public class CurveBundleResource  {
    * @param spec the market data specification in the format {type}:{name/id}
    * @return a json representation of the bundle, split into discounting, forward ON and forward Ibor Curves
    */
-  @GET @Produces("application/json")
-  public String calculate(@PathParam("bundle") String bundle,
-                          @PathParam("spec") String spec) {
+  @GET
+  @Produces("application/json")
+  public String buildCurveBundle(@PathParam("bundle") String bundle,
+                                 @PathParam("spec") String spec) {
 
     MarketDataSpecification marketDataSpec = MarketDataSpecificationParser.parse(spec);
     ZonedDateTime valuationTime = ZonedDateTime.now();
@@ -117,17 +118,22 @@ public class CurveBundleResource  {
     Double[] rates;
     Map<String, Object> data = new HashMap<>();
 
-    if (curve instanceof YieldCurve) {
-      tenors = ((YieldCurve) curve).getCurve().getXData();
-      rates = ((YieldCurve) curve).getCurve().getYData();
-    } else if (curve instanceof DiscountCurve) {
-      tenors = ((DiscountCurve) curve).getCurve().getXData();
-      rates = ((DiscountCurve) curve).getCurve().getYData();
-    } else {
-      tenors = new Double[0];
-      rates = new Double[0];
-      s_logger.error(curve.getName() + " is in instance of " + curve.getClass() + " CurveBundleResource only " +
-                         "supports YieldCurve and DiscountCurve instances of YieldAndDiscountCurve");
+    try {
+      if (curve instanceof YieldCurve) {
+        tenors = ((YieldCurve) curve).getCurve().getXData();
+        rates = ((YieldCurve) curve).getCurve().getYData();
+      } else if (curve instanceof DiscountCurve) {
+        tenors = ((DiscountCurve) curve).getCurve().getXData();
+        rates = ((DiscountCurve) curve).getCurve().getYData();
+      } else {
+        tenors = new Double[0];
+        rates = new Double[0];
+        s_logger.error(curve.getName() + " is in instance of " + curve.getClass() + " CurveBundleResource only " +
+                           "supports YieldCurve and DiscountCurve instances of YieldAndDiscountCurve");
+      }
+    } catch(UnsupportedOperationException e) {
+      throw new IllegalArgumentException("Curve type: " + curve.getClass() + ", does not support " +
+          "the ability to get X or Y data", e);
     }
 
     data.put("name", curve.getName());
