@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.provider.calculator.discounting;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -31,8 +32,7 @@ import com.opengamma.util.money.Currency;
  * The curves should be represented by a YieldCurve with an InterpolatedDoublesCurve on the zero-coupon rates.
  * By default the gamma is computed using a one basis-point shift. This default can be change in a constructor.
  * The results themselves are not scaled (the represent the second order derivative).
- * Note that currently, the calculator will work only if the same curve is not used for two indexes (REQS-427).
- * <p> Reference: Interest Rate Cross-gamma for Single and Multiple Curves. OpenGamma quantitative research 15, July 14
+ * <p> Reference: Interest Rate Cross-gamma for Single and Multiple Curves. OpenGamma Analysis 1, August 14
  */
 public class CrossGammaMultiCurveCalculator {
 
@@ -255,28 +255,31 @@ public class CrossGammaMultiCurveCalculator {
    * @param yieldBumped The yield after the bump.
    * @return The bump curve provider.
    */
-  private MulticurveProviderDiscount bumpedProvider(final MulticurveProviderDiscount multicurve, String name, Interpolator1D interpolator,
-      double[] x, final double[] yieldBumped) {
+  private MulticurveProviderDiscount bumpedProvider(final MulticurveProviderDiscount multicurve, String name, 
+      Interpolator1D interpolator, double[] x, final double[] yieldBumped) {
+    List<Currency> nameCcys = multicurve.getCurrencyForName(name);
+    List<IborIndex> nameIbors = multicurve.getIborIndexForName(name);
+    List<IndexON> nameOns = multicurve.getOvernightIndexForName(name);
     final YieldAndDiscountCurve curveBumped = new YieldCurve(name,
         new InterpolatedDoublesCurve(x, yieldBumped, interpolator, true));
     MulticurveProviderDiscount multicurveBumped = new MulticurveProviderDiscount();
     multicurveBumped.setForexMatrix(multicurve.getFxRates());
     for (Currency loopccy : multicurve.getCurrencies()) {
-      if (loopccy.equals(multicurve.getCurrencyForName(name))) {
+      if (nameCcys.contains(loopccy)) {
         multicurveBumped.setCurve(loopccy, curveBumped);
       } else {
         multicurveBumped.setCurve(loopccy, multicurve.getCurve(loopccy));
       }
     }
     for (IborIndex loopibor : multicurve.getIndexesIbor()) {
-      if (loopibor.equals(multicurve.getIborIndexForName(name))) { // REQS-427
+      if (nameIbors.contains(loopibor)) {
         multicurveBumped.setCurve(loopibor, curveBumped);
       } else {
         multicurveBumped.setCurve(loopibor, multicurve.getCurve(loopibor));
       }
     }
     for (IndexON loopon : multicurve.getIndexesON()) {
-      if (loopon.equals(multicurve.getOvernightIndexForName(name))) { // REQS-427
+      if (nameOns.contains(loopon)) {
         multicurveBumped.setCurve(loopon, curveBumped);
       } else {
         multicurveBumped.setCurve(loopon, multicurve.getCurve(loopon));
