@@ -170,23 +170,23 @@ public class MarketDataUtils {
 
     MulticurveProviderDiscount updatedProvider = multicurve;
 
-    Currency currency = multicurve.getCurrencyForName(curve.getName());
-
-    if (currency != null) {
-      updatedProvider = multicurve.withDiscountFactor(currency, curve);
+    List<Currency> currencies = multicurve.getCurrencyForName(curve.getName());
+    for (Currency currency : currencies) {
+      updatedProvider = updatedProvider.withDiscountFactor(currency, curve);
     }
 
-    IborIndex iborIndex = multicurve.getIborIndexForName(curve.getName());
+    List<IborIndex> iborIndices = multicurve.getIborIndexForName(curve.getName());
 
-    if (iborIndex != null) {
-      updatedProvider = multicurve.withForward(iborIndex, curve);
+    for (IborIndex index : iborIndices) {
+      updatedProvider = updatedProvider.withForward(index, curve);
     }
 
-    IndexON indexON = multicurve.getOvernightIndexForName(curve.getName());
+    List<IndexON> onIndices = multicurve.getOvernightIndexForName(curve.getName());
 
-    if (indexON != null) {
-      updatedProvider = multicurve.withForward(indexON, curve);
+    for (IndexON index : onIndices) {
+      updatedProvider = updatedProvider.withForward(index, curve);
     }
+
     return updatedProvider;
   }
 
