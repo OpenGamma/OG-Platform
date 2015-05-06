@@ -152,10 +152,10 @@ public final class PresentValueSABRCalculator extends PresentValueCalculator {
     Validate.notNull(option);
     if (curves instanceof SABRInterestRateDataBundle) {
       final SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
-      final InterestRateFutureOptionPremiumSecurity underlyingOption = option.getUnderlyingOption();
+      final InterestRateFutureOptionPremiumSecurity underlyingOption = option.getUnderlyingSecurity();
       final InterestRateFutureOptionMarginSecurity underlyingMarginedOption = new InterestRateFutureOptionMarginSecurity(underlyingOption.getUnderlyingFuture(), underlyingOption.getExpirationTime(),
           underlyingOption.getStrike(), underlyingOption.isCall());
-      final InterestRateFutureOptionMarginTransaction margined = new InterestRateFutureOptionMarginTransaction(underlyingMarginedOption, option.getQuantity(), option.getTradePrice());
+      final InterestRateFutureOptionMarginTransaction margined = new InterestRateFutureOptionMarginTransaction(underlyingMarginedOption, option.getQuantity(), option.getReferencePrice());
       return METHOD_OPTIONFUTURESMARGIN_SABR.presentValue(margined, sabrBundle).getAmount();
     }
     throw new UnsupportedOperationException("The PresentValueSABRCalculator visitor visitInterestRateFutureOptionPremiumTransaction requires a SABRInterestRateDataBundle as data.");

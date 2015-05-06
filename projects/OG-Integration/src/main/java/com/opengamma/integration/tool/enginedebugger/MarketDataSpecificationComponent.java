@@ -6,9 +6,7 @@
 
 package com.opengamma.integration.tool.enginedebugger;
 
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Date;
@@ -16,7 +14,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
@@ -25,15 +22,13 @@ import javax.swing.JRadioButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.jdesktop.swingx.JXDatePicker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.LatestHistoricalMarketDataSpecification;
@@ -48,6 +43,8 @@ import com.opengamma.integration.swing.SnapshotMarketDataSpecificationVersionLis
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.provider.livedata.LiveDataMetaDataProvider;
+
+import net.miginfocom.swing.MigLayout;
 
 /**
  * Component representing a market data specification
@@ -290,7 +287,7 @@ public class MarketDataSpecificationComponent extends JPanel {
       } else {
         Date datePickerDate = outer._datePicker.getDate();
         if (item != null && item.length() > 0 && datePickerDate != null) {
-          LocalDate localDate = Instant.ofEpochMilli(datePickerDate.getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
+          LocalDate localDate = Instant.ofEpochMilli(datePickerDate.getTime()).atZone(ZoneOffset.UTC).toLocalDate();
           marketDataSpec = new FixedHistoricalMarketDataSpecification(item, localDate);
           validSpecification(marketDataSpec); 
           return;

@@ -255,10 +255,10 @@ public class ZeroCouponInflationNode extends CurveNode {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInflationLegConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixedLegConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInflationNodeType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTenor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getInflationLegConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixedLegConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getInflationNodeType());
     return hash ^ super.hashCode();
   }
 

@@ -344,7 +344,7 @@ public abstract class Result<T> {
    * @return a failed result wrapping multiple other failed results
    * @throws IllegalArgumentException if results is empty or contains nothing but successes
    */
-  public static <U> Result<U> failure(Iterable<Result<?>> results) {
+  public static <U> Result<U> failure(Iterable<? extends Result<?>> results) {
     ArgumentChecker.notEmpty(results, "results");
 
     List<Failure> failures = new ArrayList<>();

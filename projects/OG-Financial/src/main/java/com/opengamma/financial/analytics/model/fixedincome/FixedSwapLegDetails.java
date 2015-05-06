@@ -457,9 +457,7 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
           JodaBeanUtils.equal(getPaymentFractions(), other.getPaymentFractions()) &&
           JodaBeanUtils.equal(getPaymentAmounts(), other.getPaymentAmounts()) &&
           JodaBeanUtils.equal(getNotionals(), other.getNotionals()) &&
-          JodaBeanUtils.equal(getFixedRates(), other.getFixedRates()) &&
-          (getNumberOfCashFlows() == other.getNumberOfCashFlows()) &&
-          JodaBeanUtils.equal(getDiscountedPaymentAmounts(), other.getDiscountedPaymentAmounts());
+          JodaBeanUtils.equal(getFixedRates(), other.getFixedRates());
     }
     return false;
   }
@@ -467,16 +465,14 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualStart());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualEnd());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDiscountFactors());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentTimes());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentFractions());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentAmounts());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotionals());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixedRates());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNumberOfCashFlows());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDiscountedPaymentAmounts());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAccrualStart());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAccrualEnd());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDiscountFactors());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentTimes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentFractions());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentAmounts());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotionals());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixedRates());
     return hash;
   }
 

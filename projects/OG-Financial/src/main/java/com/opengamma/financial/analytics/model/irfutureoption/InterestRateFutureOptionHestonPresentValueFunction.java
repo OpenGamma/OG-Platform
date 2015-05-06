@@ -216,7 +216,7 @@ public class InterestRateFutureOptionHestonPresentValueFunction extends Abstract
 
     @Override
     public Double visitInterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumTransaction option) {
-      return visitInterestRateFutureOptionPremiumSecurity(option.getUnderlyingOption());
+      return visitInterestRateFutureOptionPremiumSecurity(option.getUnderlyingSecurity());
     }
 
     @Override

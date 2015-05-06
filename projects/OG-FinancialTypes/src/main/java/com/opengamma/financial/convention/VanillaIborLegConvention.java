@@ -425,15 +425,15 @@ public class VanillaIborLegConvention extends FinancialConvention {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIborIndexConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsAdvanceFixing());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInterpolationMethod());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getResetTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStubType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsExchangeNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentLag());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIborIndexConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isIsAdvanceFixing());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getInterpolationMethod());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getResetTenor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStubType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isIsExchangeNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentLag());
     return hash ^ super.hashCode();
   }
 

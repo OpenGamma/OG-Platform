@@ -268,12 +268,12 @@ public class FutureSecurityDefinition extends ListedSecurityDefinition {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFutureType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPrice());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFutureExpiry());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementExchange());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFutureCategory());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFutureType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPrice());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFutureExpiry());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementExchange());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFutureCategory());
     return hash ^ super.hashCode();
   }
 

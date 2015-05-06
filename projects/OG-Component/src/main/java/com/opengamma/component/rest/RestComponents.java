@@ -402,12 +402,12 @@ public class RestComponents extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseUri());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLocalComponents());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRemoteComponents());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRootResourceSingletons());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRootResourceFactories());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHelpers());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBaseUri());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLocalComponents());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRemoteComponents());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRootResourceSingletons());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRootResourceFactories());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHelpers());
     return hash;
   }
 

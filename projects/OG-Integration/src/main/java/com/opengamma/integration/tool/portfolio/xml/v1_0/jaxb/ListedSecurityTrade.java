@@ -219,10 +219,10 @@ public class ListedSecurityTrade extends Trade {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBuySell());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNumContracts());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBrokers());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getListedSecurityDefinition());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBuySell());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNumContracts());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBrokers());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getListedSecurityDefinition());
     return hash ^ super.hashCode();
   }
 

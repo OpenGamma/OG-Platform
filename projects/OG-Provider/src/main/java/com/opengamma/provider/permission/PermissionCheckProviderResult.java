@@ -251,9 +251,9 @@ public final class PermissionCheckProviderResult implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCheckedPermissions());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAuthenticationError());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAuthorizationError());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCheckedPermissions());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAuthenticationError());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAuthorizationError());
     return hash;
   }
 

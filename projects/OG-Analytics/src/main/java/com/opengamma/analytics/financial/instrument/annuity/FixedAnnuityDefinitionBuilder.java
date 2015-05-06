@@ -113,84 +113,73 @@ public class FixedAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionBuil
   private CouponDefinition[] generateZeroCouponFlows(int exchangeNotionalCoupons, Calendar accrualCalendar, boolean noCompounding) {
     CouponDefinition[] coupons;
 
-    if (Math.abs(_rate) < 1e-16) {
-      //        coupons = new CouponDefinition[exchangeNotionalCoupons];
-      //        if (isExchangeInitialNotional()) {
-      //          coupons[0] = getExchangeInitialNotionalCoupon();
-      //        } else if (isExchangeFinalNotional()) {
-      //          coupons[coupons.length - 1] = getExchangeFinalNotionalCoupon();
-      //        }
-      coupons = new CouponDefinition[1];
-      coupons[0] = getExchangeFinalNotionalCoupon();
+    coupons = new CouponDefinition[exchangeNotionalCoupons + 1];
+    // TODO missing support for start and end stub types
+    StubType stubType = null;
+    if (getStartStub() != null) {
+      stubType = getStartStub().getStubType();
+    } else if (getEndStub() != null) {
+      stubType = getEndStub().getStubType();
+    }
+
+    if (stubType == null) {
+      stubType = StubType.NONE;
+    }
+
+    final ZonedDateTime adjustedEndDate = getAccrualPeriodAdjustmentParameters().getBusinessDayConvention().adjustDate(
+        getAccrualPeriodAdjustmentParameters().getCalendar(), getEndDate());
+    ZonedDateTime paymentDate = getPaymentDates(new ZonedDateTime[] {adjustedEndDate })[0];
+
+    if (noCompounding) {
+      coupons[0] = new CouponFixedDefinition(
+          getCurrency(),
+          paymentDate,
+          getStartDate(),
+          getEndDate(),
+          AnnuityDefinitionBuilder.getDayCountFraction(getAccrualPeriodFrequency(), accrualCalendar, getDayCount(),
+              getStartStub() != null ? getStartStub().getStubType() : StubType.NONE,
+              getEndStub() != null ? getEndStub().getStubType() : StubType.NONE,
+              getStartDate(), getEndDate(), true, true),
+          (isPayer() ? -1 : 1) * getNotional().getAmount(getStartDate().toLocalDate()),
+          _rate);
     } else {
-      coupons = new CouponDefinition[exchangeNotionalCoupons + 1];
-      // TODO missing support for start and end stub types
-      StubType stubType = null;
-      if (getStartStub() != null) {
-        stubType = getStartStub().getStubType();
-      } else if (getEndStub() != null) {
-        stubType = getEndStub().getStubType();
-      }
-
-      if (stubType == null) {
-        stubType = StubType.NONE;
-      }
-
-      final ZonedDateTime adjustedEndDate = getAccrualPeriodAdjustmentParameters().getBusinessDayConvention().adjustDate(
-          getAccrualPeriodAdjustmentParameters().getCalendar(), getEndDate());
-      ZonedDateTime paymentDate = getPaymentDates(new ZonedDateTime[] {adjustedEndDate })[0];
-
-      if (noCompounding) {
-        coupons[0] = new CouponFixedDefinition(
-            getCurrency(),
-            paymentDate,
+      ZonedDateTime[] accrualEndDates;
+      if (getAccrualPeriodAdjustmentParameters() != null) {
+        accrualEndDates = ScheduleCalculator.getAdjustedDateSchedule(
             getStartDate(),
             getEndDate(),
-            AnnuityDefinitionBuilder.getDayCountFraction(getAccrualPeriodFrequency(), accrualCalendar, getDayCount(),
-                getStartStub() != null ? getStartStub().getStubType() : StubType.NONE,
-                getEndStub() != null ? getEndStub().getStubType() : StubType.NONE,
-                getStartDate(), getEndDate(), true, true),
-            (isPayer() ? -1 : 1) * getNotional().getAmount(getStartDate().toLocalDate()),
-            _rate);
+            Period.ofYears(1), // PLAT-6810
+            stubType,
+            getAccrualPeriodAdjustmentParameters().getBusinessDayConvention(),
+            getAccrualPeriodAdjustmentParameters().getCalendar(),
+            getRollDateAdjuster());
       } else {
-        ZonedDateTime[] accrualEndDates;
-        if (getAccrualPeriodAdjustmentParameters() != null) {
-          accrualEndDates = ScheduleCalculator.getAdjustedDateSchedule(
-              getStartDate(),
-              getEndDate(),
-              Period.ofYears(1), // PLAT-6810
-              stubType,
-              getAccrualPeriodAdjustmentParameters().getBusinessDayConvention(),
-              getAccrualPeriodAdjustmentParameters().getCalendar(),
-              getRollDateAdjuster());
-        } else {
-          accrualEndDates = ScheduleCalculator.getUnadjustedDateSchedule(
-              getStartDate(),
-              getEndDate(),
-              Period.ofYears(1), // PLAT-6810
-              stubType);
-        }
-        ZonedDateTime[] accrualStartDates = ScheduleCalculator.getStartDates(getStartDate(), accrualEndDates);
-        double[] paymentYearFractions = new double[accrualEndDates.length];
-        for (int i = 0; i < accrualEndDates.length; i++) {
-          paymentYearFractions[i] = AnnuityDefinitionBuilder.getDayCountFraction(Period.ofYears(1), // PLAT-6810
-              accrualCalendar, getDayCount(), stubType, stubType,
-              accrualStartDates[i], accrualEndDates[i], i == 0, i == accrualEndDates.length - 1);
-        }
-
-        coupons[0] = CouponFixedCompoundingDefinition.from(
-            getCurrency(),
-            paymentDate, // pmt
-            getStartDate(), // acc start
-            adjustedEndDate, // acc end
-            AnnuityDefinitionBuilder.getDayCountFraction(Period.ofYears(1), getPaymentDateAdjustmentParameters().getCalendar(), getDayCount(), stubType, stubType,
-                getStartDate(), adjustedEndDate, true, true), // pmt yf
-            (isPayer() ? -1 : 1) * getNotional().getAmount(getStartDate().toLocalDate()),
-            _rate,
-            accrualStartDates,
-            accrualEndDates,
-            paymentYearFractions);
+        accrualEndDates = ScheduleCalculator.getUnadjustedDateSchedule(
+            getStartDate(),
+            getEndDate(),
+            Period.ofYears(1), // PLAT-6810
+            stubType);
       }
+      ZonedDateTime[] accrualStartDates = ScheduleCalculator.getStartDates(getStartDate(), accrualEndDates);
+      double[] paymentYearFractions = new double[accrualEndDates.length];
+      for (int i = 0; i < accrualEndDates.length; i++) {
+        paymentYearFractions[i] = AnnuityDefinitionBuilder.getDayCountFraction(Period.ofYears(1), // PLAT-6810
+            accrualCalendar, getDayCount(), stubType, stubType,
+            accrualStartDates[i], accrualEndDates[i], i == 0, i == accrualEndDates.length - 1);
+      }
+
+      coupons[0] = CouponFixedCompoundingDefinition.from(
+          getCurrency(),
+          paymentDate, // pmt
+          getStartDate(), // acc start
+          adjustedEndDate, // acc end
+          AnnuityDefinitionBuilder.getDayCountFraction(Period.ofYears(1), getPaymentDateAdjustmentParameters().getCalendar(), getDayCount(), stubType, stubType,
+              getStartDate(), adjustedEndDate, true, true), // pmt yf
+          (isPayer() ? -1 : 1) * getNotional().getAmount(getStartDate().toLocalDate()),
+          _rate,
+          accrualStartDates,
+          accrualEndDates,
+          paymentYearFractions);
     }
     return coupons;
   }

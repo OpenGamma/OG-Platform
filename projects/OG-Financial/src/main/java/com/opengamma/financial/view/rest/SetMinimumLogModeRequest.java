@@ -130,8 +130,8 @@ public class SetMinimumLogModeRequest extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMinimumLogMode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTargets());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMinimumLogMode());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTargets());
     return hash;
   }
 

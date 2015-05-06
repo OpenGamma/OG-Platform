@@ -296,13 +296,13 @@ public class ConventionInstrumentTimeSeriesLoaderTool extends AbstractComponentF
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesLoader());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifierScheme());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isUpdateExisting());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesLoader());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataField());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIdentifierScheme());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isUpdateExisting());
     return hash ^ super.hashCode();
   }
 

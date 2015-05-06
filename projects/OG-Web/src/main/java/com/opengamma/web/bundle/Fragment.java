@@ -168,8 +168,8 @@ public class Fragment extends DirectBean implements BundleNode {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUri());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPath());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUri());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPath());
     return hash;
   }
 

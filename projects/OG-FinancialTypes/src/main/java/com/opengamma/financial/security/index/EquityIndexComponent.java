@@ -154,8 +154,8 @@ public class EquityIndexComponent extends DirectBean implements Serializable {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEquityIdentifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getWeight());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEquityIdentifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getWeight());
     return hash;
   }
 

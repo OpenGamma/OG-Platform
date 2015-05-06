@@ -240,10 +240,10 @@ public class InterpolatedYieldCurveDefinitionSourceComponentFactory extends Abst
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
     return hash ^ super.hashCode();
   }
 

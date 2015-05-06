@@ -168,9 +168,9 @@ public class AttachToViewProcessRequest extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExecutionOptions());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isNewBatchProcess());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExecutionOptions());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isNewBatchProcess());
     return hash;
   }
 

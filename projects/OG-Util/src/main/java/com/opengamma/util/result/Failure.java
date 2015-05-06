@@ -241,10 +241,10 @@ public final class Failure implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStatus());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMessage());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStackTrace());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCauseType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStatus());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMessage());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStackTrace());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCauseType());
     return hash;
   }
 

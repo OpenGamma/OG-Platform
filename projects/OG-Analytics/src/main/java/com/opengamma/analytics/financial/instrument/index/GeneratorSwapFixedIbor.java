@@ -208,6 +208,25 @@ public class GeneratorSwapFixedIbor extends GeneratorInstrument<GeneratorAttribu
     return SwapFixedIborDefinition.from(startDate, attribute.getEndPeriod(), this, notional, rate, true);
   }
 
+  /**
+   * Generate fixed-for-ibor swap definition
+   * @param date The reference date
+   * @param rate The fixed rate
+   * @param notional The notional
+   * @param attribute The instrument attributes, as given by a GeneratorAttribute.
+   * @param isFixedPayer True if fixed rate payer
+   * @return Fixed-for-ibor swap definition 
+   */
+  public SwapFixedIborDefinition generateInstrument(final ZonedDateTime date, final double rate, final double notional,
+      final GeneratorAttributeIR attribute, final boolean isFixedPayer) {
+    ArgumentChecker.notNull(date, "Reference date");
+    ArgumentChecker.notNull(attribute, "Attributes");
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _calendar);
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, attribute.getStartPeriod(), _iborIndex,
+        _calendar);
+    return SwapFixedIborDefinition.from(startDate, attribute.getEndPeriod(), this, notional, rate, isFixedPayer);
+  }
+
   @Override
   public String toString() {
     return getName();

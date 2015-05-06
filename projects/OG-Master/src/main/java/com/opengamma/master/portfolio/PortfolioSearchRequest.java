@@ -405,13 +405,13 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioObjectIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNodeObjectIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDepth());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIncludePositions());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVisibility());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPortfolioObjectIds());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNodeObjectIds());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDepth());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isIncludePositions());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVisibility());
     return hash ^ super.hashCode();
   }
 

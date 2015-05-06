@@ -5,9 +5,11 @@
  */
 package com.opengamma.master.historicaltimeseries.impl;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -193,7 +195,7 @@ public final class HistoricalTimeSeriesRating implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRules());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRules());
     return hash;
   }
 
@@ -375,6 +377,16 @@ public final class HistoricalTimeSeriesRating implements ImmutableBean {
       JodaBeanUtils.notNull(rules, "rules");
       this._rules = rules;
       return this;
+    }
+
+    /**
+     * Sets the {@code rules} property in the builder
+     * from an array of objects.
+     * @param rules  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder rules(HistoricalTimeSeriesRatingRule... rules) {
+      return rules(new LinkedHashSet<HistoricalTimeSeriesRatingRule>(Arrays.asList(rules)));
     }
 
     //-----------------------------------------------------------------------

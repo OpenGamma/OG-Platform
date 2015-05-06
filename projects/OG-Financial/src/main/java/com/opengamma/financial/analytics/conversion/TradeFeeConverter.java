@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -62,7 +62,7 @@ public class TradeFeeConverter implements TradeConverter {
         break;
       }
       final LocalDate feeDate = LocalDate.parse(trade.getAttributes().get(String.format(FEE_DATE, i)));
-      final ZonedDateTime feeTime = feeDate.atStartOfDay(ZoneId.systemDefault());
+      final ZonedDateTime feeTime = feeDate.atStartOfDay(ZoneOffset.UTC);
       final Currency ccy = Currency.of(trade.getAttributes().get(String.format(FEE_CURRENCY, i)));
       ArgumentChecker.isTrue(securityCcy.equals(ccy), "Fee must be in security currency {} got {}", securityCcy, ccy);
       final Double amount = Double.parseDouble(trade.getAttributes().get(String.format(FEE_AMOUNT, i)));

@@ -184,10 +184,10 @@ public class WebFunctionTypeDetails extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSimpleName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFullyQualifiedName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isParameterized());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getParameters());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSimpleName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFullyQualifiedName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isParameterized());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getParameters());
     return hash;
   }
 

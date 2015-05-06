@@ -253,10 +253,10 @@ public class EquityTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNumberOfShares());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotionalCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotionalAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDividendPercentage());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNumberOfShares());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotionalCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotionalAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDividendPercentage());
     return hash ^ super.hashCode();
   }
 

@@ -428,7 +428,7 @@ public final class MultipleCurrencyAmount implements ImmutableBean,
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrencyAmountMap());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrencyAmountMap());
     return hash;
   }
 

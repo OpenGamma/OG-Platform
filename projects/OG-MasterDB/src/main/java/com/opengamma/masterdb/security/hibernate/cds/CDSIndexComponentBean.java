@@ -192,10 +192,10 @@ public class CDSIndexComponentBean extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObligor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getWeight());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBondId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObligor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getWeight());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBondId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
     return hash;
   }
 

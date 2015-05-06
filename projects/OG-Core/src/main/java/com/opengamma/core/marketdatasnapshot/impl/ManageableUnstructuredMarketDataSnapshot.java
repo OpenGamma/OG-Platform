@@ -336,7 +336,7 @@ public class ManageableUnstructuredMarketDataSnapshot implements Bean, Unstructu
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValues());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValues());
     return hash;
   }
 

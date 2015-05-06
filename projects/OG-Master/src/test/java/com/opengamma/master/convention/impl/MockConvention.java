@@ -143,7 +143,7 @@ public class MockConvention extends ManageableConvention {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     return hash ^ super.hashCode();
   }
 

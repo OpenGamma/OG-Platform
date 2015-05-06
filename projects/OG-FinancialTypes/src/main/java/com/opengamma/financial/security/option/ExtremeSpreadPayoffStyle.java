@@ -155,8 +155,8 @@ public class ExtremeSpreadPayoffStyle extends PayoffStyle {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPeriodEnd());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isReverse());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPeriodEnd());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isReverse());
     return hash ^ super.hashCode();
   }
 

@@ -359,12 +359,12 @@ public abstract class AbstractHistoryRequest extends DirectBean implements Paged
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPagingRequest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionsFromInstant());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionsToInstant());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrectionsFromInstant());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrectionsToInstant());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPagingRequest());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObjectId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVersionsFromInstant());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVersionsToInstant());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCorrectionsFromInstant());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCorrectionsToInstant());
     return hash;
   }
 

@@ -223,10 +223,10 @@ public class PoolExecutorComponentFactory extends AbstractComponentFactory {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPoolName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLoadFactor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxThreads());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPoolName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLoadFactor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaxThreads());
     return hash ^ super.hashCode();
   }
 

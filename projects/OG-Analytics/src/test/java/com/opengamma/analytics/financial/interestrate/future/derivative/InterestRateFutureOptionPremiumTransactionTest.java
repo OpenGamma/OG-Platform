@@ -70,11 +70,11 @@ public class InterestRateFutureOptionPremiumTransactionTest {
 
   @Test
   public void getter() {
-    assertEquals(OPTION_EDU2, OPTION_TRANSACTION.getUnderlyingOption());
+    assertEquals(OPTION_EDU2, OPTION_TRANSACTION.getUnderlyingSecurity());
     assertEquals(QUANTITY, OPTION_TRANSACTION.getQuantity());
     assertEquals(PREMIUM_TIME, OPTION_TRANSACTION.getPremium().getPaymentTime());
     assertEquals(-TRADE_PRICE * QUANTITY * NOTIONAL * EDU2.getPaymentAccrualFactor(), OPTION_TRANSACTION.getPremium().getAmount());
-    assertEquals(TRADE_PRICE, OPTION_TRANSACTION.getTradePrice());
+    assertEquals(TRADE_PRICE, OPTION_TRANSACTION.getReferencePrice());
   }
 
   @Test

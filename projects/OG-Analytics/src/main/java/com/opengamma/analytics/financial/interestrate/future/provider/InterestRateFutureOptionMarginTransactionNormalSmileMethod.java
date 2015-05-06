@@ -6,7 +6,9 @@
 package com.opengamma.analytics.financial.interestrate.future.provider;
 
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
-import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesSmileProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -16,7 +18,8 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * The normal parameters are represented by (expiration-strike-delay) surfaces. The "delay" is the time between option expiration and future last trading date,
  * i.e. 0 for quarterly options and x for x-year mid-curve options. The future prices are computed without convexity adjustments.
  */
-public final class InterestRateFutureOptionMarginTransactionNormalSmileMethod extends InterestRateFutureOptionMarginTransactionGenericMethod<NormalSTIRFuturesSmileProviderInterface> {
+public final class InterestRateFutureOptionMarginTransactionNormalSmileMethod extends
+    InterestRateFutureOptionMarginTransactionGenericMethod<NormalSTIRFuturesProviderInterface> {
 
   /**
    * Creates the method unique instance.
@@ -54,7 +57,8 @@ public final class InterestRateFutureOptionMarginTransactionNormalSmileMethod ex
    * @param priceFuture The price of the underlying future.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValueFromFuturePrice(final InterestRateFutureOptionMarginTransaction transaction, final NormalSTIRFuturesSmileProviderInterface normalData,
+  public MultipleCurrencyAmount presentValueFromFuturePrice(
+      final InterestRateFutureOptionMarginTransaction transaction, final NormalSTIRFuturesProviderInterface normalData,
       final double priceFuture) {
     ArgumentChecker.notNull(transaction, "Transaction on option on STIR futures");
     ArgumentChecker.notNull(normalData, "Normal / multi-curves provider");
@@ -67,9 +71,30 @@ public final class InterestRateFutureOptionMarginTransactionNormalSmileMethod ex
    * Computes the present value curve sensitivity of a transaction.
    * @param transaction The future option transaction.
    * @param normalData The Black volatility and multi-curves provider.
+   * @param priceFuture The price of the underlying future.
    * @return The present value curve sensitivity.
    */
-  public SurfaceValue presentValueNormalSensitivity(final InterestRateFutureOptionMarginTransaction transaction, final NormalSTIRFuturesSmileProviderInterface normalData) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivityFromPrice(
+      InterestRateFutureOptionMarginTransaction transaction, NormalSTIRFuturesProviderInterface normalData,
+      double priceFuture) {
+    ArgumentChecker.notNull(transaction, "Transaction on option on STIR futures");
+    ArgumentChecker.notNull(normalData, "data provider");
+    MulticurveSensitivity securitySensitivity = getSecurityMethod().priceCurveSensitivityFromFuturePrice(
+        transaction.getUnderlyingSecurity(), normalData, priceFuture);
+    return MultipleCurrencyMulticurveSensitivity.of(transaction.getCurrency(),
+        securitySensitivity.multipliedBy(transaction.getQuantity() *
+            transaction.getUnderlyingSecurity().getUnderlyingFuture().getNotional()
+            * transaction.getUnderlyingSecurity().getUnderlyingFuture().getPaymentAccrualFactor()));
+  }
+
+  /**
+   * Computes the present value curve sensitivity of a transaction.
+   * @param transaction The future option transaction.
+   * @param normalData The Black volatility and multi-curves provider.
+   * @return The present value curve sensitivity.
+   */
+  public SurfaceValue presentValueNormalSensitivity(final InterestRateFutureOptionMarginTransaction transaction,
+      final NormalSTIRFuturesProviderInterface normalData) {
     ArgumentChecker.notNull(transaction, "Transaction on option on STIR futures");
     ArgumentChecker.notNull(normalData, "Normal / multi-curves provider");
     SurfaceValue securitySensitivity = getSecurityMethod().priceNormalSensitivity(transaction.getUnderlyingSecurity(), normalData);
@@ -78,4 +103,73 @@ public final class InterestRateFutureOptionMarginTransactionNormalSmileMethod ex
     return securitySensitivity;
   }
 
+  /**
+   * Computes the present value gamma of a transaction.
+   * This is with respect to futures price
+   * @param transaction The future option transaction.
+   * @param normalData The normal volatility and multi-curves provider.
+   * @return The present value gamma.
+   */
+  public double presentValueGamma(InterestRateFutureOptionMarginTransaction transaction,
+      NormalSTIRFuturesProviderInterface normalData) {
+    ArgumentChecker.notNull(transaction, "Transaction on option on STIR futures");
+    ArgumentChecker.notNull(normalData, "normal volatility / multi-curves provider");
+    double securityGamma = getSecurityMethod().priceGamma(transaction.getUnderlyingSecurity(), normalData);
+    double presentValueGamma = securityGamma * transaction.getQuantity()
+        * transaction.getUnderlyingSecurity().getUnderlyingFuture().getNotional()
+        * transaction.getUnderlyingSecurity().getUnderlyingFuture().getPaymentAccrualFactor();
+    return presentValueGamma;
+  }
+
+  /**
+   * Computes the present value delta of a transaction.
+   * This is with respect to futures price
+   * @param transaction The future option transaction.
+   * @param normalData The curve and normal volatility data.
+   * @return The present value delta.
+   */
+  public double presentValueDelta(InterestRateFutureOptionMarginTransaction transaction,
+      NormalSTIRFuturesProviderInterface normalData) {
+    ArgumentChecker.notNull(transaction, "Transaction on option on STIR futures");
+    ArgumentChecker.notNull(normalData, "normal volatility / multi-curves provider");
+    double securityDelta = getSecurityMethod().priceDelta(transaction.getUnderlyingSecurity(), normalData);
+    double presentValueDelta = securityDelta * transaction.getQuantity()
+        * transaction.getUnderlyingSecurity().getUnderlyingFuture().getNotional()
+        * transaction.getUnderlyingSecurity().getUnderlyingFuture().getPaymentAccrualFactor();
+    return presentValueDelta;
+  }
+
+  /**
+   * Computes the present value volatility sensitivity of a transaction.
+   * @param transaction The future option transaction.
+   * @param normalData The curve and normal volatility data.
+   * @return The present value vega.
+   */
+  public double presentValueVega(InterestRateFutureOptionMarginTransaction transaction,
+      NormalSTIRFuturesProviderInterface normalData) {
+    ArgumentChecker.notNull(transaction, "Transaction on option on STIR futures");
+    ArgumentChecker.notNull(normalData, "normal volatility / multi-curves provider");
+    double securitySensitivity = getSecurityMethod().priceVega(transaction.getUnderlyingSecurity(), normalData);
+    double presentValueVega = securitySensitivity * transaction.getQuantity()
+        * transaction.getUnderlyingSecurity().getUnderlyingFuture().getNotional()
+        * transaction.getUnderlyingSecurity().getUnderlyingFuture().getPaymentAccrualFactor();
+    return presentValueVega;
+  }
+
+  /**
+   * Computes the present value theta of a transaction.
+   * @param transaction the future option transaction.
+   * @param normalData the curve and normal volatility data.
+   * @return the present value theta.
+   */
+  public double presentValueTheta(InterestRateFutureOptionMarginTransaction transaction,
+      NormalSTIRFuturesProviderInterface normalData) {
+    ArgumentChecker.notNull(transaction, "Transaction on option on STIR futures");
+    ArgumentChecker.notNull(normalData, "normal volatility / multi-curves provider");
+    double securitySensitivity = getSecurityMethod().priceTheta(transaction.getUnderlyingSecurity(), normalData);
+    double presentValueTheta = securitySensitivity * transaction.getQuantity()
+        * transaction.getUnderlyingSecurity().getUnderlyingFuture().getNotional()
+        * transaction.getUnderlyingSecurity().getUnderlyingFuture().getPaymentAccrualFactor();
+    return presentValueTheta;
+  }
 }

@@ -49,7 +49,6 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.model.interestrate.curve.SeasonalCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -211,7 +210,7 @@ public class InflationBuildingCurveWithDiscountAndSeasonalityTestUS {
   }
 
   @SuppressWarnings({"rawtypes", "unchecked" })
-  public static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final GeneratorAttribute[] attribute) {
+  private static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final GeneratorAttribute[] attribute) {
     final InstrumentDefinition<?>[] definitions = new InstrumentDefinition<?>[marketQuotes.length];
     for (int loopmv = 0; loopmv < marketQuotes.length; loopmv++) {
       definitions[loopmv] = generators[loopmv].generateInstrument(NOW, marketQuotes[loopmv], NOTIONAL, attribute[loopmv]);
@@ -250,19 +249,23 @@ public class InflationBuildingCurveWithDiscountAndSeasonalityTestUS {
       bb[loopblock] = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(loopblock).getSecond();
       curveDsc[loopblock] = units[loopblock].getCurve(USD);
       curveInflation[loopblock] = units[loopblock].getCurve(US_CPI);
-
     }
-    assertEquals("Curve construction: 1 unit / 3 units ", curveDsc[0].getNumberOfParameters(), curveDsc[1].getNumberOfParameters());
-    assertEquals("Curve construction: 1 unit / 3 units ", curveInflation[0].getNumberOfParameters(), curveInflation[1].getNumberOfParameters());
+    assertEquals("Curve construction: 1 unit / 3 units ", 
+        curveDsc[0].getNumberOfParameters(), curveDsc[1].getNumberOfParameters());
+    assertEquals("Curve construction: 1 unit / 3 units ", 
+        curveInflation[0].getNumberOfParameters(), curveInflation[1].getNumberOfParameters());
 
-    assertArrayEquals("Curve construction: 1 unit / 3 units ", ArrayUtils.toPrimitive(((YieldCurve) curveDsc[0]).getCurve().getXData()),
+    assertArrayEquals("Curve construction: 1 unit / 3 units ",
+        ArrayUtils.toPrimitive(((YieldCurve) curveDsc[0]).getCurve().getXData()),
         ArrayUtils.toPrimitive(((YieldCurve) curveDsc[1]).getCurve().getXData()), TOLERANCE_CAL);
-    assertArrayEquals("Curve construction: 1 unit / 3 units ", ArrayUtils.toPrimitive(((YieldCurve) curveDsc[0]).getCurve().getYData()),
+    assertArrayEquals("Curve construction: 1 unit / 3 units ",
+        ArrayUtils.toPrimitive(((YieldCurve) curveDsc[0]).getCurve().getYData()),
         ArrayUtils.toPrimitive(((YieldCurve) curveDsc[1]).getCurve().getYData()), TOLERANCE_CAL);
-    assertArrayEquals("Curve construction: 1 unit / 3 units ", ArrayUtils.toPrimitive(((PriceIndexCurveSimple)curveInflation[0]).getCurve().getXData()),
-        ArrayUtils.toPrimitive(((PriceIndexCurveSimple)curveInflation[1]).getCurve().getXData()), TOLERANCE_CAL);
-    assertArrayEquals("Curve construction: 1 unit / 3 units ", ArrayUtils.toPrimitive(((PriceIndexCurveSimple)curveInflation[0]).getCurve().getYData()),
-        ArrayUtils.toPrimitive(((PriceIndexCurveSimple)curveInflation[1]).getCurve().getYData()), TOLERANCE_CAL);
+    double[] sample = {0.1, 0.8, 1.0, 1.01, 1.99, 2.0, 5.0, 10.0, 30.0 };
+    for (int i = 0; i < sample.length; i++) {
+      assertEquals(curveInflation[0].getPriceIndex(sample[i]), curveInflation[1].getPriceIndex(sample[i]),
+          TOLERANCE_CAL);
+    }
   }
 
   @Test(enabled = false)

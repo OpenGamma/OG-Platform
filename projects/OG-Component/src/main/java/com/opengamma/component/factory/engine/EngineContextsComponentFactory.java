@@ -1047,30 +1047,30 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTargetResolver());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLegalEntitySource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionBundleSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInterpolatedYieldCurveDefinitionSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInterpolatedYieldCurveSpecificationBuilder());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityCubeDefinitionSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidaySource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesResolver());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExecutionBlacklist());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCompilationBlacklist());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTempTargetRepository());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPermissive());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPnlRequirementsGatherer());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRiskFactorsGatherer());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTargetResolver());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRegionSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLegalEntitySource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConventionBundleSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getInterpolatedYieldCurveDefinitionSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getInterpolatedYieldCurveSpecificationBuilder());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVolatilityCubeDefinitionSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHolidaySource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExchangeSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesResolver());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConventionSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExecutionBlacklist());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCompilationBlacklist());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTempTargetRepository());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPermissive());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPnlRequirementsGatherer());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRiskFactorsGatherer());
     return hash ^ super.hashCode();
   }
 

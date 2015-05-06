@@ -201,9 +201,9 @@ public class WebRoleData extends WebPerRequestData {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriRoleName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRole());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUserMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUriRoleName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRole());
     return hash ^ super.hashCode();
   }
 

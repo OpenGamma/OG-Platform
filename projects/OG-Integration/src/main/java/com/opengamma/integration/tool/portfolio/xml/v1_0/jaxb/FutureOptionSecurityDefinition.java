@@ -301,13 +301,13 @@ public class FutureOptionSecurityDefinition extends ListedSecurityDefinition {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getListedFutureOptionType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOptionType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFutureExpiry());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOptionExpiry());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsMargined());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getListedFutureOptionType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getOptionType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStrike());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFutureExpiry());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getOptionExpiry());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isIsMargined());
     return hash ^ super.hashCode();
   }
 

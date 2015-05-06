@@ -608,17 +608,17 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsBrokerUri());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getScheduler());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityCubeDefinitionSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataProviderResolver());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isCompileViewsWithRequirementStriping());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsMarketDataAvailabilityTopic());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsBrokerUri());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getScheduler());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVolatilityCubeDefinitionSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataProviderResolver());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isCompileViewsWithRequirementStriping());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsMarketDataAvailabilityTopic());
     return hash ^ super.hashCode();
   }
 

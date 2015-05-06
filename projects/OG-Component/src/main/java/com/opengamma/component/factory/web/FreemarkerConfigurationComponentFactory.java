@@ -171,7 +171,7 @@ public class FreemarkerConfigurationComponentFactory extends AbstractComponentFa
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTemplateLocations());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTemplateLocations());
     return hash ^ super.hashCode();
   }
 

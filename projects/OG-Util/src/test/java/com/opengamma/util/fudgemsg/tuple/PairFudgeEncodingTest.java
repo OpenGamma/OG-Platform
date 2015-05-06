@@ -14,7 +14,6 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.fudgemsg.tuple.ObjectsPairFudgeBuilder;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;

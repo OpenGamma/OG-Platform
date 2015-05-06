@@ -205,10 +205,10 @@ public final class CalculatedValue implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValue());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSpecificationProperties());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTargetType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTargetName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValue());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSpecificationProperties());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTargetType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTargetName());
     return hash;
   }
 

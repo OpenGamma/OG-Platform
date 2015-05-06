@@ -190,11 +190,11 @@ public class SwapCalculatorTest {
   @Test
   /** Tests the cross-gamma calculator vs bump and recompute. */
   public void crossGamma() {
-    MulticurveProviderDiscount singleCurve = MulticurveProviderDiscountDataSets.createSingleCurveUsd();
+    MulticurveProviderDiscount singleCurve = MulticurveProviderDiscountDataSets.createSingleCurveZcUsd();
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 14);
     final SwapFixedCoupon<Coupon> swap = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate);
     String name = singleCurve.getAllNames().iterator().next();
-    Currency ccy = singleCurve.getCurrencyForName(name);
+    Currency ccy = singleCurve.getCurrencyForName(name).get(0);
     YieldAndDiscountCurve curve = singleCurve.getCurve(name);
     ArgumentChecker.isTrue(curve instanceof YieldCurve, "curve should be YieldCurve");
     YieldCurve yieldCurve = (YieldCurve) curve;

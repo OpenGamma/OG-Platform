@@ -338,10 +338,10 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotionalExchange());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEffectiveDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnadjustedMaturityDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLegs());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotionalExchange());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEffectiveDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnadjustedMaturityDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLegs());
     return hash ^ super.hashCode();
   }
 

@@ -228,10 +228,10 @@ public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketD
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDefinitionName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSpecificationName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getQuoteType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getQuoteUnits());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDefinitionName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSpecificationName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getQuoteType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getQuoteUnits());
     return hash;
   }
 

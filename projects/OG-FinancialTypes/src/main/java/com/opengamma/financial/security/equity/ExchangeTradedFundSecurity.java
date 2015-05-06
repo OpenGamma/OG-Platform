@@ -237,10 +237,10 @@ public class ExchangeTradedFundSecurity extends FinancialSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getShortName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeDescription());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeCode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getShortName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExchangeDescription());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExchangeCode());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
     return hash ^ super.hashCode();
   }
 

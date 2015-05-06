@@ -496,17 +496,17 @@ public abstract class VolatilitySwapSecurity extends FinancialSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilitySwapType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAnnualizationFactor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstObservationDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLastObservationDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationFrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVolatilitySwapType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStrike());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAnnualizationFactor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFirstObservationDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLastObservationDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObservationFrequency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
     return hash ^ super.hashCode();
   }
 

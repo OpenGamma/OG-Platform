@@ -29,6 +29,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.id.ObjectId;
 import com.opengamma.util.ArgumentChecker;
+import java.util.Arrays;
 
 /**
  * Key for identifying values in results.
@@ -266,11 +267,11 @@ public final class CalculationResultKey implements ImmutableBean, Comparable<Cal
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCalcConfigName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValueName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProperties());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPath());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTargetId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCalcConfigName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValueName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProperties());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPath());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTargetId());
     return hash;
   }
 
@@ -592,6 +593,16 @@ public final class CalculationResultKey implements ImmutableBean, Comparable<Cal
     public Builder path(List<String> path) {
       this._path = path;
       return this;
+    }
+
+    /**
+     * Sets the {@code path} property in the builder
+     * from an array of objects.
+     * @param path  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder path(String... path) {
+      return path(Arrays.asList(path));
     }
 
     /**

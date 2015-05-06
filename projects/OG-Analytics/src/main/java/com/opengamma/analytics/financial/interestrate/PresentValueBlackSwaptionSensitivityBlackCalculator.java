@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
-import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueBlackSwaptionSensitivity;
+import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueSwaptionSurfaceSensitivity;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
@@ -22,7 +22,7 @@ import com.opengamma.util.ArgumentChecker;
  * {@link PresentValueBlackSensitivityBlackSwaptionCalculator}
  */
 @Deprecated
-public final class PresentValueBlackSwaptionSensitivityBlackCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, PresentValueBlackSwaptionSensitivity> {
+public final class PresentValueBlackSwaptionSensitivityBlackCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, PresentValueSwaptionSurfaceSensitivity> {
 
   /**
    * The method unique instance.
@@ -51,7 +51,7 @@ public final class PresentValueBlackSwaptionSensitivityBlackCalculator extends I
   private static final SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod METHOD_SWAPTION_PHYSICAL_COMPOUNDED = SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod.getInstance();
 
   @Override
-  public PresentValueBlackSwaptionSensitivity visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final YieldCurveBundle curves) {
+  public PresentValueSwaptionSurfaceSensitivity visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final YieldCurveBundle curves) {
     ArgumentChecker.notNull(swaption, "swaption");
     ArgumentChecker.notNull(curves, "curves");
     if (curves instanceof YieldCurveWithBlackSwaptionBundle) {
@@ -62,7 +62,7 @@ public final class PresentValueBlackSwaptionSensitivityBlackCalculator extends I
   }
 
   @Override
-  public PresentValueBlackSwaptionSensitivity visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final YieldCurveBundle curves) {
+  public PresentValueSwaptionSurfaceSensitivity visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final YieldCurveBundle curves) {
     ArgumentChecker.notNull(swaption, "swaption");
     ArgumentChecker.notNull(curves, "curves");
     if (curves instanceof YieldCurveWithBlackSwaptionBundle) {
@@ -74,7 +74,7 @@ public final class PresentValueBlackSwaptionSensitivityBlackCalculator extends I
   }
 
   @Override
-  public PresentValueBlackSwaptionSensitivity visitSwaptionPhysicalFixedCompoundedONCompounded(final SwaptionPhysicalFixedCompoundedONCompounded swaption, final YieldCurveBundle curves) {
+  public PresentValueSwaptionSurfaceSensitivity visitSwaptionPhysicalFixedCompoundedONCompounded(final SwaptionPhysicalFixedCompoundedONCompounded swaption, final YieldCurveBundle curves) {
     ArgumentChecker.notNull(swaption, "swaption");
     ArgumentChecker.notNull(curves, "curves");
     if (curves instanceof YieldCurveWithBlackSwaptionBundle) {

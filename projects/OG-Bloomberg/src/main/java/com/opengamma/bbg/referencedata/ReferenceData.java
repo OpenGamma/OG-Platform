@@ -293,10 +293,10 @@ public class ReferenceData extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFieldValues());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getErrors());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEidValues());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIdentifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFieldValues());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getErrors());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEidValues());
     return hash;
   }
 

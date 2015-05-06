@@ -333,12 +333,12 @@ public class ManageableRole
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRoleName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDescription());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAssociatedRoles());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAssociatedUsers());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAssociatedPermissions());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRoleName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDescription());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAssociatedRoles());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAssociatedUsers());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAssociatedPermissions());
     return hash;
   }
 

@@ -350,13 +350,13 @@ public class DelegatingHistoricalTimeSeriesProviderComponentFactory extends Abst
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProvider1());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProvider2());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProvider3());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProvider4());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProvider5());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProvider1());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProvider2());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProvider3());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProvider4());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProvider5());
     return hash ^ super.hashCode();
   }
 

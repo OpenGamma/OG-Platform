@@ -304,12 +304,12 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isEnableChangeManagement());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsChangeManagerTopic());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isEnableChangeManagement());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsChangeManagerTopic());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
     return hash ^ super.hashCode();
   }
 

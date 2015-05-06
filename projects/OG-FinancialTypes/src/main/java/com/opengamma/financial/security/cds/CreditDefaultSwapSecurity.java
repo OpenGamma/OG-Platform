@@ -205,9 +205,9 @@ public abstract class CreditDefaultSwapSecurity extends AbstractCreditDefaultSwa
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDebtSeniority());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRestructuringClause());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDebtSeniority());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRestructuringClause());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRegionId());
     return hash ^ super.hashCode();
   }
 

@@ -241,7 +241,7 @@ public final class FixedInterestRateSwapLegConvention extends InterestRateSwapLe
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentLag());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentLag());
     return hash ^ super.hashCode();
   }
 

@@ -329,13 +329,13 @@ public class EquitySecurity extends FinancialSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getShortName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchange());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeCode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCompanyName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGicsCode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPreferred());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getShortName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExchange());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExchangeCode());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCompanyName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getGicsCode());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPreferred());
     return hash ^ super.hashCode();
   }
 

@@ -357,11 +357,11 @@ public final class CalculationResults implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValues());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersion());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValues());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSnapshotName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVersion());
     return hash;
   }
 

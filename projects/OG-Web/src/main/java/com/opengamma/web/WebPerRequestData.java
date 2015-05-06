@@ -115,7 +115,7 @@ public class WebPerRequestData implements Bean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
     return hash;
   }
 

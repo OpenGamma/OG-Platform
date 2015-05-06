@@ -17,13 +17,22 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  */
 public class FuturesTransactionIssuerMethod extends FuturesTransactionMethod {
 
-  private static final FuturesPVCurveSensitivityFromPriceCurveSensitivityCalculator PVCSIC = FuturesPVCurveSensitivityFromPriceCurveSensitivityCalculator.getInstance();
+  private static final FuturesPVCurveSensitivityFromPriceCurveSensitivityCalculator PVCSIC = 
+      FuturesPVCurveSensitivityFromPriceCurveSensitivityCalculator.getInstance();
 
   /**
-   * Constructor.
+   * Default constructor.
    */
   public FuturesTransactionIssuerMethod() {
     super(new FuturesSecurityIssuerMethod());
+  }
+  
+  /**
+   * Constructor from a futures security method.
+   * @param securityMethod The method to compute the price and the price curve sensitivity of the underlying security.
+   */
+  public FuturesTransactionIssuerMethod(FuturesSecurityMethod securityMethod) {
+    super(securityMethod);
   }
 
   /**
@@ -41,7 +50,8 @@ public class FuturesTransactionIssuerMethod extends FuturesTransactionMethod {
    * @param multicurve The multicurve and parameters provider.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(final FuturesTransaction<?> futures, final ParameterIssuerProviderInterface multicurve) {
+  public MultipleCurrencyAmount presentValue(final FuturesTransaction<?> futures, 
+      final ParameterIssuerProviderInterface multicurve) {
     double price = getSecurityMethod().price(futures.getUnderlyingSecurity(), multicurve);
     return presentValueFromPrice(futures, price);
   }
@@ -53,8 +63,10 @@ public class FuturesTransactionIssuerMethod extends FuturesTransactionMethod {
    * @return The present value rate sensitivity.
    */
 
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final FuturesTransaction<?> futures, final ParameterIssuerProviderInterface multicurve) {
-    final MulticurveSensitivity priceSensitivity = getSecurityMethod().priceCurveSensitivity(futures.getUnderlyingSecurity(), multicurve);
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final FuturesTransaction<?> futures, 
+      final ParameterIssuerProviderInterface multicurve) {
+    final MulticurveSensitivity priceSensitivity = 
+        getSecurityMethod().priceCurveSensitivity(futures.getUnderlyingSecurity(), multicurve);
     return futures.accept(PVCSIC, priceSensitivity);
 
   }

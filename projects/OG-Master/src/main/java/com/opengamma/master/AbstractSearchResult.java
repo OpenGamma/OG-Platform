@@ -142,7 +142,7 @@ public abstract class AbstractSearchResult<D extends AbstractDocument> extends A
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionCorrection());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVersionCorrection());
     return hash ^ super.hashCode();
   }
 

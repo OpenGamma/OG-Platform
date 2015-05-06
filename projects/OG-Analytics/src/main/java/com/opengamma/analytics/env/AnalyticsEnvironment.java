@@ -208,9 +208,9 @@ public final class AnalyticsEnvironment implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getModelDayCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixedAnnuityDefinitionBuilder());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFloatingAnnuityDefinitionBuilder());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getModelDayCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixedAnnuityDefinitionBuilder());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFloatingAnnuityDefinitionBuilder());
     return hash;
   }
 

@@ -288,12 +288,12 @@ public class CogdaLiveDataServerFactory extends AbstractComponentFactory {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getListenJmsConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getListenTopicName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataRedisServer());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataRedisPort());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataRedisPrefix());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getListenPort());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getListenJmsConnector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getListenTopicName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataRedisServer());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataRedisPort());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataRedisPrefix());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getListenPort());
     return hash ^ super.hashCode();
   }
 

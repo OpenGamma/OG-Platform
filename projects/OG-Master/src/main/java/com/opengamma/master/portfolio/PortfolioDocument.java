@@ -200,9 +200,9 @@ public class PortfolioDocument extends AbstractDocument implements Serializable 
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolio());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVisibility());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPortfolio());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVisibility());
     return hash ^ super.hashCode();
   }
 

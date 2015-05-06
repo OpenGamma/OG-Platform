@@ -274,11 +274,11 @@ public class BondConvention extends FinancialConvention {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExDividendDays());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsCalculateScheduleFromMaturity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExDividendDays());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isIsCalculateScheduleFromMaturity());
     return hash ^ super.hashCode();
   }
 

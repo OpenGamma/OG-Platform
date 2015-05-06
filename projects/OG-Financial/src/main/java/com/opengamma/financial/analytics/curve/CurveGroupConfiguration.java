@@ -180,8 +180,8 @@ public class CurveGroupConfiguration extends DirectBean implements Serializable 
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOrder());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTypesForCurves());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getOrder());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTypesForCurves());
     return hash;
   }
 

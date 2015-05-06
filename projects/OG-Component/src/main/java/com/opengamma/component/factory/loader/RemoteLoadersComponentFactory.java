@@ -170,8 +170,8 @@ public class RemoteLoadersComponentFactory extends AbstractComponentFactory {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseUri());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBaseUri());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
     return hash ^ super.hashCode();
   }
 

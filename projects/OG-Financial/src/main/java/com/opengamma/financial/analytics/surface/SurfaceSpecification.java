@@ -270,11 +270,11 @@ public class SurfaceSpecification implements Bean, Serializable, UniqueIdentifia
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getQuoteUnits());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getQuoteType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSurfaceInstrumentProvider());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getQuoteUnits());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getQuoteType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSurfaceInstrumentProvider());
     return hash;
   }
 

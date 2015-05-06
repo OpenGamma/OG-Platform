@@ -7,6 +7,7 @@ package com.opengamma.analytics.math.interpolation;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
@@ -44,6 +45,16 @@ public class TimeSquareInterpolator1DTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void highValue() {
     INTERPOLATOR.interpolate(DATA, 10.0);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void lowValueFirstDerivative() {
+    INTERPOLATOR.firstDerivative(DATA, -4.);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void lowValueSensitivity() {
+    INTERPOLATOR.getNodeSensitivitiesForValue(DATA, -4.);
   }
 
   @Test
@@ -104,4 +115,91 @@ public class TimeSquareInterpolator1DTest {
     }
   }
 
+  /**
+   * Test first derivative values at end points
+   */
+  @Test
+  public void firstDerivativeEndpointsTest() {
+    double eps = 1.0e-5;
+    double[][] xValues = new double[][] { {1., 2., 3., 4., 5., 6. }, {2., 3.6, 5., 5.1, 7.12, 8.8 } };
+    double[][] yValues = new double[][] { {1., 1.1, 3., 4., 6.9, 9. }, {1., 1.6, 4., 1.1, 5.32, 7.8 } };
+    int dim = xValues.length;
+    Interpolator1D interp = new TimeSquareInterpolator1D();
+    for (int j = 0; j < dim; ++j) {
+      int nData = xValues[j].length;
+      Interpolator1DDataBundle data = interp.getDataBundleFromSortedArrays(xValues[j], yValues[j]);
+      double xMin = xValues[j][0];
+      double xMax = xValues[j][nData - 1];
+      double minFirst = (interp.interpolate(data, xMin + eps) - interp.interpolate(data, xMin)) / eps;
+      double maxFirst = (interp.interpolate(data, xMax) - interp.interpolate(data, xMax - eps)) / eps;
+      assertEquals("firstDerivativeInterpolatorsTest", minFirst, interp.firstDerivative(data, xMin), eps);
+      assertEquals("firstDerivativeInterpolatorsTest", maxFirst, interp.firstDerivative(data, xMax), eps);
+    }
+  }
+
+  /** Tests interpolation when all values are 0. */
+  @Test
+  public void interpolationAll0() {
+    double[] xData = new double[] {1.0, 2.0, 3.0, 4.0 };
+    double[] yData = new double[] {0.0, 0.0, 0.0, 0.0 };
+    Interpolator1DDataBundle bundle = INTERPOLATOR.getDataBundle(xData, yData);
+    double[] xTest = new double[] {1.0, 2.5, 3.0, 3.5, 4.0 };
+    int nbTest = xTest.length;
+    for(int i=0; i<nbTest; i++) {
+      assertEquals("SquareLinearInterpolator - 0 values", 0, INTERPOLATOR.interpolate(bundle, xTest[i]), TOLERANCE_Y);
+    }    
+  }
+
+  /** Tests first derivative at node when value is 0. */
+  @Test(expectedExceptions = NotImplementedException.class)
+  public void firstDerivativeNodeOne0Exception1() {
+    double[] xData = new double[] {1.0, 2.0, 3.0};
+    double[] yData = new double[] {1.0, 0.0, 1.0 };
+    Interpolator1DDataBundle bundle = INTERPOLATOR.getDataBundle(xData, yData);
+    INTERPOLATOR.firstDerivative(bundle, 2.1);
+  }
+
+  /** Tests first derivative at node when value is 0. */
+  @Test(expectedExceptions = NotImplementedException.class)
+  public void firstDerivativeNodeOne0Exception2() {
+    double[] xData = new double[] {1.0, 2.0, 3.0};
+    double[] yData = new double[] {1.0, 0.0, 1.0 };
+    Interpolator1DDataBundle bundle = INTERPOLATOR.getDataBundle(xData, yData);
+    INTERPOLATOR.firstDerivative(bundle, 1.9);
+  }
+
+  /** Tests sensitivity at node when all values are 0. */
+  @Test(expectedExceptions = NotImplementedException.class)
+  public void sensitivityNodeOne0Exception1() {
+    double[] xData = new double[] {1.0, 2.0, 3.0};
+    double[] yData = new double[] {1.0, 0.0, 1.0 };
+    Interpolator1DDataBundle bundle = INTERPOLATOR.getDataBundle(xData, yData);
+    INTERPOLATOR.getNodeSensitivitiesForValue(bundle, 2.1);
+  }
+
+  /** Tests sensitivity at node when all values are 0. */
+  @Test(expectedExceptions = NotImplementedException.class)
+  public void sensitivityNodeOne0Exception2() {
+    double[] xData = new double[] {1.0, 2.0, 3.0};
+    double[] yData = new double[] {1.0, 0.0, 1.0 };
+    Interpolator1DDataBundle bundle = INTERPOLATOR.getDataBundle(xData, yData);
+    INTERPOLATOR.getNodeSensitivitiesForValue(bundle, 1.9);
+  }
+
+  /** Tests data with a negative value. */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void negativeValueException() {
+    double[] xData = new double[] {1.0, 2.0, 3.0};
+    double[] yData = new double[] {1.0, -0.1, 1.0 };
+    INTERPOLATOR.getDataBundle(xData, yData);
+  }
+
+  /** Tests data with a negative value. */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void negativeValueException2() {
+    double[] xData = new double[] {1.0, 2.0, 3.0};
+    double[] yData = new double[] {1.0, -0.1, 1.0 };
+    INTERPOLATOR.getDataBundleFromSortedArrays(xData, yData);
+  }
+  
 }

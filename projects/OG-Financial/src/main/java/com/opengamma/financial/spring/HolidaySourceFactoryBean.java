@@ -119,7 +119,7 @@ public class HolidaySourceFactoryBean extends SpringFactoryBean<HolidaySource> {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHolidayMaster());
     return hash ^ super.hashCode();
   }
 

@@ -461,17 +461,17 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getYieldCurveDefinitionMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getScheduler());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClientTimeOut());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSnapshotMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getYieldCurveDefinitionMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getScheduler());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClientTimeOut());
     return hash ^ super.hashCode();
   }
 

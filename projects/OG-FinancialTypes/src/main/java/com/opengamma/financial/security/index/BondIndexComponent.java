@@ -154,8 +154,8 @@ public class BondIndexComponent extends DirectBean implements Serializable {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBondIdentifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getWeight());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBondIdentifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getWeight());
     return hash;
   }
 

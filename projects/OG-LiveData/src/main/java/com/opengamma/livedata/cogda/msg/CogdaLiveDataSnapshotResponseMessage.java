@@ -97,7 +97,7 @@ public class CogdaLiveDataSnapshotResponseMessage extends CogdaLiveDataCommandRe
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValues());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValues());
     return hash ^ super.hashCode();
   }
 

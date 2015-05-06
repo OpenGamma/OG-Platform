@@ -837,29 +837,29 @@ public abstract class BondSecurity extends FinancialSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuerName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuerType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuerDomicile());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarket());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getYieldConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGuaranteeType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLastTradeDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCouponType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCouponRate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCouponFrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAnnouncementDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInterestAccrualDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstCouponDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuancePrice());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTotalAmountIssued());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMinimumAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMinimumIncrement());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getParAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRedemptionValue());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIssuerName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIssuerType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIssuerDomicile());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMarket());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getYieldConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getGuaranteeType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLastTradeDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCouponType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCouponRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCouponFrequency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAnnouncementDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getInterestAccrualDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFirstCouponDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIssuancePrice());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTotalAmountIssued());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMinimumAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMinimumIncrement());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getParAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRedemptionValue());
     return hash ^ super.hashCode();
   }
 

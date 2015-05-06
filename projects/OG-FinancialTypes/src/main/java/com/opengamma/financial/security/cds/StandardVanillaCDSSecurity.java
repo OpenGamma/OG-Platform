@@ -207,9 +207,9 @@ public class StandardVanillaCDSSecurity extends StandardCDSSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCoupon());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCashSettlementDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isAdjustCashSettlementDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCoupon());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCashSettlementDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isAdjustCashSettlementDate());
     return hash ^ super.hashCode();
   }
 

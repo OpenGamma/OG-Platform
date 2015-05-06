@@ -169,7 +169,7 @@ public final class ResolvableSecurityLink<T extends Security> extends SecurityLi
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLinkIdentifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLinkIdentifier());
     return hash;
   }
 

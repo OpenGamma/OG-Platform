@@ -270,11 +270,11 @@ public class ReferenceDataError extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getField());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCategory());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSubcategory());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMessage());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getField());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCode());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCategory());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSubcategory());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMessage());
     return hash;
   }
 

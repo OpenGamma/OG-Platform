@@ -123,7 +123,7 @@ public class SecurityNotional extends Notional {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotionalId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotionalId());
     return hash ^ super.hashCode();
   }
 

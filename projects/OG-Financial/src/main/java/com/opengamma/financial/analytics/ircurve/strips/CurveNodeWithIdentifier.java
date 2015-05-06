@@ -233,10 +233,10 @@ public class CurveNodeWithIdentifier extends DirectBean implements Comparable<Cu
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurveNode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFieldType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveNode());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIdentifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataField());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFieldType());
     return hash;
   }
 

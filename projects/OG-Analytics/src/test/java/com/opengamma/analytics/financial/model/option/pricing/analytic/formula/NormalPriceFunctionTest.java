@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.model.option.pricing.analytic.formula;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
@@ -89,6 +90,90 @@ public class NormalPriceFunctionTest {
     double priceVM = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataVM);
     double derivativeV_FD = (priceVP - priceVM) / (2 * deltaV);
     assertEquals(derivativeV_FD, priceDerivative[1], 1E-6);
+  }
+
+  private static final EuropeanVanillaOption ATM_CALL = new EuropeanVanillaOption(F, T, true);
+  private static final EuropeanVanillaOption ATM_PUT = new EuropeanVanillaOption(F, T, false);
+
+  /**
+   * Test getDelta, getGamma and getVega
+   */
+  @Test
+  public void greeksTest() {
+    double tol = 1.0e-12;
+    double eps = 1.0e-5;
+    double[] priceDerivative = new double[3];
+    for (EuropeanVanillaOption option : new EuropeanVanillaOption[] {ITM_CALL, ITM_PUT, OTM_CALL, OTM_PUT, ATM_CALL,
+        ATM_PUT }) {
+      // consistency with getPriceFunction for first order derivatives
+      FUNCTION.getPriceAdjoint(option, VOL_DATA, priceDerivative);
+      double delta = FUNCTION.getDelta(option, VOL_DATA);
+      double vega = FUNCTION.getVega(option, VOL_DATA);
+      assertEquals(delta, priceDerivative[0], tol);
+      assertEquals(vega, priceDerivative[1], tol);
+
+      // testing second order derivative against finite difference approximation
+      NormalFunctionData dataUp = new NormalFunctionData(F + eps, DF, SIGMA);
+      NormalFunctionData dataDw = new NormalFunctionData(F - eps, DF, SIGMA);
+      double deltaUp = FUNCTION.getDelta(option, dataUp);
+      double deltaDw = FUNCTION.getDelta(option, dataDw);
+      double ref = 0.5 * (deltaUp - deltaDw) / eps;
+      double gamma = FUNCTION.getGamma(option, VOL_DATA);
+      assertEquals(ref, gamma, eps);
+
+      EuropeanVanillaOption optionUp = new EuropeanVanillaOption(option.getStrike(), T + eps, option.isCall());
+      EuropeanVanillaOption optionDw = new EuropeanVanillaOption(option.getStrike(), T - eps, option.isCall());
+      double priceTimeUp = FUNCTION.getPriceAdjoint(optionUp, VOL_DATA, priceDerivative);
+      double priceTimeDw = FUNCTION.getPriceAdjoint(optionDw, VOL_DATA, priceDerivative);
+      ref = -0.5 * (priceTimeUp - priceTimeDw) / eps;
+      double theta = FUNCTION.getTheta(option, VOL_DATA);
+      assertEquals(ref, theta, eps);
+    }
+  }
+
+  /**
+   * Testing the branch for sigmaRootT < 1e-16
+   */
+  @Test
+  public void smallParameterGreeksTest() {
+    double eps = 1.0e-5;
+    double[] der = new double[3];
+    NormalFunctionData dataVolUp = new NormalFunctionData(F, DF, eps);
+    NormalFunctionData dataFwUp = new NormalFunctionData(F + eps, DF, 0.0);
+    NormalFunctionData dataFwDw = new NormalFunctionData(F - eps, DF, 0.0);
+
+    for (EuropeanVanillaOption option : new EuropeanVanillaOption[] {ITM_CALL, ITM_PUT, OTM_CALL, OTM_PUT, ATM_CALL,
+        ATM_PUT }) {
+      double delta = FUNCTION.getDelta(option, ZERO_VOL_DATA);
+      double priceUp = FUNCTION.getPriceAdjoint(option, dataFwUp, der);
+      double priceDw = FUNCTION.getPriceAdjoint(option, dataFwDw, der);
+      double refDelta = 0.5 * (priceUp - priceDw) / eps;
+      assertEquals(refDelta, delta, eps);
+
+      double vega = FUNCTION.getVega(option, ZERO_VOL_DATA);
+      double priceVolUp = FUNCTION.getPriceAdjoint(option, dataVolUp, der);
+      double price = FUNCTION.getPriceAdjoint(option, ZERO_VOL_DATA, der);
+      double refVega = (priceVolUp - price) / eps;
+      assertEquals(refVega, vega, eps);
+
+      double gamma = FUNCTION.getGamma(option, ZERO_VOL_DATA);
+      double deltaUp = FUNCTION.getDelta(option, dataFwUp);
+      double deltaDw = FUNCTION.getDelta(option, dataFwDw);
+      double refGamma = 0.5 * (deltaUp - deltaDw) / eps;
+      if (Math.abs(refGamma) > 0.1 / eps) { // infinity handled
+        assertTrue(Double.isInfinite(gamma));
+      } else {
+        assertEquals(refGamma, gamma, eps);
+      }
+
+      EuropeanVanillaOption optionUp = new EuropeanVanillaOption(option.getStrike(), T + eps, option.isCall());
+      EuropeanVanillaOption optionDw = new EuropeanVanillaOption(option.getStrike(), T - eps, option.isCall());
+      double priceTimeUp = FUNCTION.getPriceAdjoint(optionUp, ZERO_VOL_DATA, der);
+      double priceTimeDw = FUNCTION.getPriceAdjoint(optionDw, ZERO_VOL_DATA, der);
+      double refTheta = -0.5 * (priceTimeUp - priceTimeDw) / eps;
+      double theta = FUNCTION.getTheta(option, ZERO_VOL_DATA);
+      assertEquals(refTheta, theta, eps);
+    }
   }
 
 }

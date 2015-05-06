@@ -536,16 +536,16 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBasisViewName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGlobalValues());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getYieldCurves());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurves());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityCubes());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilitySurfaces());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSurfaces());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBasisViewName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getGlobalValues());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getYieldCurves());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurves());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVolatilityCubes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVolatilitySurfaces());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSurfaces());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
     return hash;
   }
 

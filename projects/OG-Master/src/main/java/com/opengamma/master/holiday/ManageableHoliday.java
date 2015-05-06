@@ -414,13 +414,13 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionExternalId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeExternalId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCustomExternalId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayDates());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRegionExternalId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExchangeExternalId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCustomExternalId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHolidayDates());
     return hash;
   }
 

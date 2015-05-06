@@ -207,10 +207,10 @@ public final class FloatingInterestRateSwapLegSchedule implements ImmutableBean 
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDates());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentDates());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCalculationDates());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDates());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDates());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCalculationDates());
     return hash;
   }
 
@@ -477,7 +477,7 @@ public final class FloatingInterestRateSwapLegSchedule implements ImmutableBean 
      * @param dates  the new value
      * @return this, for chaining, not null
      */
-    public Builder dates(int[] dates) {
+    public Builder dates(int... dates) {
       this._dates = dates;
       return this;
     }
@@ -487,7 +487,7 @@ public final class FloatingInterestRateSwapLegSchedule implements ImmutableBean 
      * @param paymentDates  the new value
      * @return this, for chaining, not null
      */
-    public Builder paymentDates(LocalDate[] paymentDates) {
+    public Builder paymentDates(LocalDate... paymentDates) {
       this._paymentDates = paymentDates;
       return this;
     }
@@ -497,7 +497,7 @@ public final class FloatingInterestRateSwapLegSchedule implements ImmutableBean 
      * @param calculationDates  the new value
      * @return this, for chaining, not null
      */
-    public Builder calculationDates(LocalDate[] calculationDates) {
+    public Builder calculationDates(LocalDate... calculationDates) {
       this._calculationDates = calculationDates;
       return this;
     }

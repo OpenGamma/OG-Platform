@@ -3,7 +3,7 @@ package com.opengamma.analytics.financial.interestrate.future.calculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginTransaction;
-import com.opengamma.analytics.financial.interestrate.future.provider.BondFuturesOptionMarginSecurityBlackBondFuturesMethod;
+import com.opengamma.analytics.financial.interestrate.future.provider.BondFutureOptionMarginSecurityBlackSmileMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesProviderInterface;
 
 /**
@@ -33,7 +33,8 @@ public final class ThetaBlackBondFuturesCalculator extends InstrumentDerivativeV
   /**
    * Pricing method for theta.
    */
-  private static final BondFuturesOptionMarginSecurityBlackBondFuturesMethod METHOD = BondFuturesOptionMarginSecurityBlackBondFuturesMethod.getInstance();
+  private static final BondFutureOptionMarginSecurityBlackSmileMethod METHOD = BondFutureOptionMarginSecurityBlackSmileMethod
+      .getInstance();
   
   @Override
   public Double visitBondFuturesOptionMarginSecurity(BondFuturesOptionMarginSecurity option, BlackBondFuturesProviderInterface data) {

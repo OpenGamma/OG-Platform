@@ -53,6 +53,16 @@ public final class PV01CurveParametersCalculator<T extends ParameterProviderInte
     ArgumentChecker.notNull(ird, "derivative");
     ArgumentChecker.notNull(multicurves, "multicurves");
     final MultipleCurrencyParameterSensitivity sensi = _parameterSensitivityCalculator.calculateSensitivity(ird, multicurves);
+    return pv01CurveParameters(sensi);
+  }
+
+  /**
+   * Given a MultipleCurrencyParameterSensitivity, compute total parameter sensitivities for individual currencies
+   * @param sensi MultipleCurrencyParameterSensitivity
+   * @return PV01
+   */
+  public ReferenceAmount<Pair<String, Currency>> pv01CurveParameters(final MultipleCurrencyParameterSensitivity sensi) {
+    ArgumentChecker.notNull(sensi, "parameter sensitivity");
     final ReferenceAmount<Pair<String, Currency>> ref = new ReferenceAmount<>();
     for (final Pair<String, Currency> nameCcy : sensi.getAllNamesCurrency()) {
       final DoubleMatrix1D vector = sensi.getSensitivity(nameCcy);

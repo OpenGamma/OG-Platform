@@ -226,9 +226,9 @@ public class TestsComponentFactory extends AbstractComponentFactory {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(isEnableSecurities());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isEnableSnapshots());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isEnableYieldCurves());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isEnableSecurities());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isEnableSnapshots());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isEnableYieldCurves());
     return hash ^ super.hashCode();
   }
 

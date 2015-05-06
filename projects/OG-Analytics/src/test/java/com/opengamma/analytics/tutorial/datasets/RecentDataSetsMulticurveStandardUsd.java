@@ -94,11 +94,54 @@ public class RecentDataSetsMulticurveStandardUsd {
 
   /** Data as of 28-Jul-2014 */
   /** Market values for the dsc USD curve */
-  private static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.00175, 0.0015,
+  private static final double[] DSC_USD_MARKET_QUOTES_1 = new double[] {0.00175, 0.0015,
     0.0009, 0.0009, 0.0010, 0.0011, 0.0013,
     0.0017, 0.0053, 0.0096, 0.0132, 0.0160,
     0.0181, 0.0199, 0.0199, 0.0213, 0.0236,
     0.0255, 0.0275, 0.0290, 0.0300, 0.0302 };
+  /** Market values for the Fwd 3M USD curve */
+  private static final double[] FWD3_USD_MARKET_QUOTES_1 = new double[] {0.0023,
+    0.0026, 0.0032,
+    0.0033, 0.0070, 0.0115, 0.0153, 0.0181,
+    0.0222, 0.0260, 0.0277, 0.0295, 0.0310, 0.0318, 0.0320 }; //15
+  /** Market values for the Fwd 1M USD curve */
+  private static final double[] FWD1_USD_MARKET_QUOTES_1 = new double[] {0.00156,
+    0.0015, 0.0015,
+    0.0008, 0.0008,
+    0.0008, 0.0009, 0.0009, 0.0010, 0.0010,
+    0.0009, 0.0008, 0.0008, 0.0007, 0.0006,
+    0.0006, 0.0005 }; //15
+  /** Market values for the Fwd 6M USD curve */
+  private static final double[] FWD6_USD_MARKET_QUOTES_1 = new double[] {0.003281,
+    0.0037,
+    0.0008, 0.0008, 0.0008, 0.0008, 0.0008,
+    0.0008, 0.0009, 0.0009, 0.0009, 0.0009, 0.0009, 0.0009 };
+  /** Fake data with some negative quotes */
+  /** Market values for the dsc USD curve */
+  private static final double[] DSC_USD_MARKET_QUOTES_2 = new double[] {0.0001, -0.0001,
+    -0.0005, -0.0020, -0.0030, -0.0030, -0.0030,
+    -0.0030, -0.0030, -0.0030, -0.0015, 0.000,
+    0.0050, 0.0050, 0.0050, 0.0050, 0.0050,
+    0.0100, 0.0120, 0.0140, 0.0120, 0.0100 };
+  /** Market values for the Fwd 3M USD curve */
+  private static final double[] FWD3_USD_MARKET_QUOTES_2 = new double[] {-0.0010,
+    -0.0010, -0.0010,
+    -0.0015, -0.0010, -0.0005, -0.0000, 0.0010,
+    0.0060, 0.0060, 0.0110, 0.0130, 0.0170,
+    0.0130, 0.0120 };
+  /** Market values for the Fwd 1M USD curve */
+  private static final double[] FWD1_USD_MARKET_QUOTES_2 = new double[] {0.00156,
+    0.0015, 0.0015,
+    0.0008, 0.0008,
+    0.0008, 0.0009, 0.0009, 0.0010, 0.0010,
+    0.0009, 0.0008, 0.0008, 0.0007, 0.0006,
+    0.0006, 0.0005 }; //15
+  /** Market values for the Fwd 6M USD curve */
+  private static final double[] FWD6_USD_MARKET_QUOTES_2 = new double[] {0.003281,
+    0.0037,
+    0.0008, 0.0008, 0.0008, 0.0008, 0.0008,
+    0.0008, 0.0009, 0.0009, 0.0009, 0.0009, 0.0009, 0.0009 };
+  
   /** Generators for the dsc USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_USD_GENERATORS =
       CurveCalibrationConventionDataSets.generatorUsdOnOisFfs(2, 20, 0);
@@ -118,11 +161,6 @@ public class RecentDataSetsMulticurveStandardUsd {
     }
   }
 
-  /** Market values for the Fwd 3M USD curve */
-  private static final double[] FWD3_USD_MARKET_QUOTES = new double[] {0.0023,
-    0.0026, 0.0032,
-    0.0033, 0.0070, 0.0115, 0.0153, 0.0181,
-    0.0222, 0.0260, 0.0277, 0.0295, 0.0310, 0.0318, 0.0320 }; //15
   /** Generators for the Fwd 3M USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_USD_GENERATORS =
       CurveCalibrationConventionDataSets.generatorUsdIbor3Fra3Irs3(1, 2, 12);
@@ -138,13 +176,6 @@ public class RecentDataSetsMulticurveStandardUsd {
     }
   }
 
-  /** Market values for the Fwd 1M USD curve */
-  private static final double[] FWD1_USD_MARKET_QUOTES = new double[] {0.00156,
-    0.0015, 0.0015,
-    0.0008, 0.0008,
-    0.0008, 0.0009, 0.0009, 0.0010, 0.0010,
-    0.0009, 0.0008, 0.0008, 0.0007, 0.0006,
-    0.0006, 0.0005 }; //15
   /** Generators for the Fwd 3M USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD1_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_USDLIBOR1M,
     GENERATOR_FRA1M, GENERATOR_FRA1M,
@@ -166,11 +197,6 @@ public class RecentDataSetsMulticurveStandardUsd {
     }
   }
 
-  /** Market values for the Fwd 6M USD curve */
-  private static final double[] FWD6_USD_MARKET_QUOTES = new double[] {0.003281,
-    0.0037,
-    0.0008, 0.0008, 0.0008, 0.0008, 0.0008,
-    0.0008, 0.0009, 0.0009, 0.0009, 0.0009, 0.0009, 0.0009 };
   /** Generators for the Fwd 3M USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD6_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_USDLIBOR6M,
     GENERATOR_FRA6M,
@@ -241,7 +267,7 @@ public class RecentDataSetsMulticurveStandardUsd {
       CurveCalibrationConventionDataSets.curveBuildingRepositoryMulticurve();
 
   /**
-   * Calibrate curves with hard-coded date and with calibration date the date provided. 
+   * Calibrate curves with hard-coded date and with calibration date the date provided. Data as of 28-Jul-2014.
    * The curves are discounting/overnight forward, Libor3M forward, Libor1M forward and Libor6M forward.
    * OIS are used for the discounting curve from 1 month up to 30 years.
    * Libor3M curve uses FRA and OIS.
@@ -249,12 +275,36 @@ public class RecentDataSetsMulticurveStandardUsd {
    * @param calibrationDate The calibration date.
    * @return The curves and the Jacobian matrices.
    */
-  public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesUSDOisL1L3L6(ZonedDateTime calibrationDate) {
+  public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesUSDOisL1L3L6_20140728(ZonedDateTime calibrationDate) {
     InstrumentDefinition<?>[][][] definitionsUnits = new InstrumentDefinition<?>[NB_UNITS[0]][][];
-    InstrumentDefinition<?>[] definitionsDsc = getDefinitions(DSC_USD_MARKET_QUOTES, DSC_USD_GENERATORS, DSC_USD_ATTR, calibrationDate);
-    InstrumentDefinition<?>[] definitionsFwd3 = getDefinitions(FWD3_USD_MARKET_QUOTES, FWD3_USD_GENERATORS, FWD3_USD_ATTR, calibrationDate);
-    InstrumentDefinition<?>[] definitionsFwd1 = getDefinitions(FWD1_USD_MARKET_QUOTES, FWD1_USD_GENERATORS, FWD1_USD_ATTR, calibrationDate);
-    InstrumentDefinition<?>[] definitionsFwd6 = getDefinitions(FWD6_USD_MARKET_QUOTES, FWD6_USD_GENERATORS, FWD6_USD_ATTR, calibrationDate);
+    InstrumentDefinition<?>[] definitionsDsc = getDefinitions(DSC_USD_MARKET_QUOTES_1, DSC_USD_GENERATORS, DSC_USD_ATTR, calibrationDate);
+    InstrumentDefinition<?>[] definitionsFwd3 = getDefinitions(FWD3_USD_MARKET_QUOTES_1, FWD3_USD_GENERATORS, FWD3_USD_ATTR, calibrationDate);
+    InstrumentDefinition<?>[] definitionsFwd1 = getDefinitions(FWD1_USD_MARKET_QUOTES_1, FWD1_USD_GENERATORS, FWD1_USD_ATTR, calibrationDate);
+    InstrumentDefinition<?>[] definitionsFwd6 = getDefinitions(FWD6_USD_MARKET_QUOTES_1, FWD6_USD_GENERATORS, FWD6_USD_ATTR, calibrationDate);
+    definitionsUnits[0] = new InstrumentDefinition<?>[][] {definitionsDsc };
+    definitionsUnits[1] = new InstrumentDefinition<?>[][] {definitionsFwd3 };
+    definitionsUnits[2] = new InstrumentDefinition<?>[][] {definitionsFwd1 };
+    definitionsUnits[3] = new InstrumentDefinition<?>[][] {definitionsFwd6 };
+    return CurveCalibrationTestsUtils.makeCurvesFromDefinitionsMulticurve(calibrationDate, definitionsUnits, GENERATORS_UNITS[0],
+        NAMES_UNITS[0], KNOWN_DATA, PSMQC, PSMQCSC, false, DSC_MAP, FWD_ON_MAP, FWD_IBOR_MAP, CURVE_BUILDING_REPOSITORY,
+        TS_FIXED_OIS_USD_WITH_TODAY, TS_FIXED_OIS_USD_WITHOUT_TODAY, TS_FIXED_IBOR_USD3M_WITH_LAST, TS_FIXED_IBOR_USD3M_WITHOUT_LAST);
+  }
+
+  /**
+   * Calibrate curves with hard-coded date and with calibration date the date provided. Fake data with negative quotes.
+   * The curves are discounting/overnight forward, Libor3M forward, Libor1M forward and Libor6M forward.
+   * OIS are used for the discounting curve from 1 month up to 30 years.
+   * Libor3M curve uses FRA and OIS.
+   * Libor1M and Libor6M use FRA and bsis swaps v 3M.
+   * @param calibrationDate The calibration date.
+   * @return The curves and the Jacobian matrices.
+   */
+  public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesUSDOisL1L3L6_Negative(ZonedDateTime calibrationDate) {
+    InstrumentDefinition<?>[][][] definitionsUnits = new InstrumentDefinition<?>[NB_UNITS[0]][][];
+    InstrumentDefinition<?>[] definitionsDsc = getDefinitions(DSC_USD_MARKET_QUOTES_2, DSC_USD_GENERATORS, DSC_USD_ATTR, calibrationDate);
+    InstrumentDefinition<?>[] definitionsFwd3 = getDefinitions(FWD3_USD_MARKET_QUOTES_2, FWD3_USD_GENERATORS, FWD3_USD_ATTR, calibrationDate);
+    InstrumentDefinition<?>[] definitionsFwd1 = getDefinitions(FWD1_USD_MARKET_QUOTES_2, FWD1_USD_GENERATORS, FWD1_USD_ATTR, calibrationDate);
+    InstrumentDefinition<?>[] definitionsFwd6 = getDefinitions(FWD6_USD_MARKET_QUOTES_2, FWD6_USD_GENERATORS, FWD6_USD_ATTR, calibrationDate);
     definitionsUnits[0] = new InstrumentDefinition<?>[][] {definitionsDsc };
     definitionsUnits[1] = new InstrumentDefinition<?>[][] {definitionsFwd3 };
     definitionsUnits[2] = new InstrumentDefinition<?>[][] {definitionsFwd1 };
@@ -273,7 +323,7 @@ public class RecentDataSetsMulticurveStandardUsd {
    * @return The curves and the Jacobian matrices.
    */
   public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesUSDOisL3(ZonedDateTime calibrationDate, MulticurveProviderInterface multicurve) {
-    int nbDscNode = DSC_USD_MARKET_QUOTES.length;
+    int nbDscNode = DSC_USD_MARKET_QUOTES_1.length;
     double[] dscMarketQuotes0 = new double[nbDscNode];
     InstrumentDefinition<?>[] definitionsDsc0 = getDefinitions(dscMarketQuotes0, DSC_USD_GENERATORS, DSC_USD_ATTR, calibrationDate);
     double[] dscMarketQuoteComputed = new double[nbDscNode];
@@ -282,7 +332,7 @@ public class RecentDataSetsMulticurveStandardUsd {
           TS_FIXED_OIS_USD_WITH_TODAY, TS_FIXED_OIS_USD_WITHOUT_TODAY, TS_FIXED_IBOR_USD3M_WITH_LAST, TS_FIXED_IBOR_USD3M_WITHOUT_LAST);
       dscMarketQuoteComputed[loopdsc] = derivative.accept(PSMQC, multicurve);
     }
-    int nbFwd3Node = FWD3_USD_MARKET_QUOTES.length;
+    int nbFwd3Node = FWD3_USD_MARKET_QUOTES_1.length;
     double[] fwd3MarketQuotes0 = new double[nbFwd3Node];
     InstrumentDefinition<?>[] definitionsFwd30 = getDefinitions(fwd3MarketQuotes0, FWD3_USD_GENERATORS, FWD3_USD_ATTR, calibrationDate);
     double[] fwd3MarketQuoteComputed = new double[nbFwd3Node];

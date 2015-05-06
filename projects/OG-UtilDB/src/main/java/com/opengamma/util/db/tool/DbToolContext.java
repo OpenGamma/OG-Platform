@@ -258,11 +258,11 @@ public class DbToolContext extends DirectBean implements Closeable {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDbManagement());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCatalog());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSchema());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSchemaNames());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDbManagement());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCatalog());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSchema());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSchemaNames());
     return hash;
   }
 

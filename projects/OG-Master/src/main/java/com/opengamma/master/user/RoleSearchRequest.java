@@ -408,13 +408,13 @@ public class RoleSearchRequest implements Bean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPagingRequest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRoleName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAssociatedRole());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAssociatedUser());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAssociatedPermission());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPagingRequest());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObjectIds());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRoleName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAssociatedRole());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAssociatedUser());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAssociatedPermission());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
     return hash;
   }
 

@@ -227,10 +227,10 @@ public class ManageableHistoricalTimeSeries extends DirectBean
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionInstant());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrectionInstant());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVersionInstant());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCorrectionInstant());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
     return hash;
   }
 

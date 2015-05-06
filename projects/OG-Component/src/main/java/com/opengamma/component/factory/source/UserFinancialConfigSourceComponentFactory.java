@@ -362,13 +362,13 @@ public class UserFinancialConfigSourceComponentFactory extends AbstractComponent
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingConfigMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserConfigMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingConfigMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUserClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUserConfigMaster());
     return hash ^ super.hashCode();
   }
 

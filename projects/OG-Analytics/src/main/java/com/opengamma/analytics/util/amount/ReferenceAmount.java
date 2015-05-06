@@ -185,7 +185,7 @@ public class ReferenceAmount<T> extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getData());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getData());
     return hash;
   }
 

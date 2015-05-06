@@ -211,6 +211,7 @@ public class InflationBuildingCurveWithDiscountTestEUR {
   private static final InflationDiscountBuildingRepositoryWithDiscount CURVE_BUILDING_REPOSITORY = new InflationDiscountBuildingRepositoryWithDiscount(TOLERANCE_ROOT, TOLERANCE_ROOT, STEP_MAX);
 
   private static final double TOLERANCE_CAL = 1.0E-9;
+  private static final double TOLERANCE_SENSI = 1.0E-6;
 
   @BeforeSuite
   static void initClass() {
@@ -324,7 +325,7 @@ public class InflationBuildingCurveWithDiscountTestEUR {
     final double[] CPI_EUR_MARKET_QUOTES_PLUS = new double[] {0.0200, 0.0200, 0.0250, 0.0260, 0.0200, 0.0270, 0.0280, 0.0290, 0.0300, 0.0310, 0.0320, 0.0330, 0.0330, 0.0330, 0.0330 };
     final double[] CPI_EUR_MARKET_QUOTES_MINUS = new double[] {0.0200, 0.0200, 0.0250, 0.0260, 0.0200, 0.0270, 0.0280, 0.0290, 0.0300, 0.0310, 0.0320, 0.0330, 0.0330, 0.0330, 0.0330 };
     final CurveBuildingBlockBundle blockBundles = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).clone().getSecond();
-    final double bump = 1e-5;
+    final double bump = 2.0e-5;
 
     for (int k = 0; k < DSC_USD_MARKET_QUOTES_BUMPED_MINUS.length; k++) {
       DSC_USD_MARKET_QUOTES_BUMPED_PLUS[k] += bump;
@@ -351,7 +352,7 @@ public class InflationBuildingCurveWithDiscountTestEUR {
       for (int j = 0; j < blockBundles.getBlock(CURVE_NAME_CPI_EUR).getSecond().getData().length; j++) {
         parametersSensi[j] = (parametersPlus[j] - parametersMinus[j]) / (2 * bump);
         assertEquals("Curve construction: block " + CURVE_NAME_CPI_EUR + ", column " + j + " - line " + k, blockBundles.getBlock(CURVE_NAME_CPI_EUR).getSecond().getData()[j][k],
-            parametersSensi[j], 2e-6);
+            parametersSensi[j], TOLERANCE_SENSI);
       }
     }
     for (int k = 0; k < CPI_EUR_MARKET_QUOTES_PLUS.length; k++) {

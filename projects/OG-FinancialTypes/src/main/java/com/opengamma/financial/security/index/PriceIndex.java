@@ -135,7 +135,7 @@ public class PriceIndex extends Index {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConventionId());
     return hash ^ super.hashCode();
   }
 

@@ -250,9 +250,9 @@ public class PermissionCheckProviderRequest implements Bean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserIdBundle());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNetworkAddress());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRequestedPermissions());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUserIdBundle());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNetworkAddress());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRequestedPermissions());
     return hash;
   }
 

@@ -211,6 +211,10 @@ public final class Interpolator1DFactory {
   public static final String PRODUCT_POLYNOMIAL_EXTRAPOLATOR = "ProductPolynomialExtrapolator";
   /** Reciprocal extrapolator */
   public static final String RECIPROCAL_EXTRAPOLATOR = "ReciprocalExtrapolator";
+  /**Square linear interpolation*/
+  public static final String SQUARE_LINEAR = "SquareLinear";
+  /**Instance of square linear interpolation*/
+  public static final SquareLinearInterpolator1D SQUARE_LINEAR_INSTANCE = new SquareLinearInterpolator1D();
 
   private static final Map<String, Interpolator1D> s_staticInstances;
   private static final Map<Class<?>, String> s_instanceNames;
@@ -308,6 +312,8 @@ public final class Interpolator1DFactory {
 
     staticInstances.put(PRODUCT_NATURAL_CUBIC, PRODUCT_NATURAL_CUBIC_INSTANCE);
     instanceNames.put(ProductPiecewisePolynomialInterpolator1D.class, PRODUCT_NATURAL_CUBIC);
+    staticInstances.put(SQUARE_LINEAR, SQUARE_LINEAR_INSTANCE);
+    instanceNames.put(SquareLinearInterpolator1D.class, SQUARE_LINEAR);
 
     s_staticInstances = new HashMap<>(staticInstances);
     s_instanceNames = new HashMap<>(instanceNames);

@@ -7,9 +7,14 @@ package com.opengamma.util.time;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.Iterator;
+import java.util.List;
+
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -134,4 +139,41 @@ public class LocalDateRangeTest {
     assertEquals(false, test.isEndDateMaximum());
   }
 
+  @Test
+  public void test_iteratorEndInclusive() {
+    LocalDate start = LocalDate.of(2011, 3, 8);
+    LocalDate end = LocalDate.of(2011, 3, 10);
+    LocalDateRange dateRange = LocalDateRange.of(start, end, true);
+    List<LocalDate> expected = ImmutableList.of(start, LocalDate.of(2011, 3, 9), end);
+    assertEquals(expected, Lists.newArrayList(dateRange));
+  }
+
+  @Test
+  public void test_iteratorEndExclusive() {
+    LocalDate start = LocalDate.of(2011, 3, 8);
+    LocalDate end = LocalDate.of(2011, 3, 11);
+    LocalDateRange dateRange = LocalDateRange.of(start, end, false);
+    List<LocalDate> expected = ImmutableList.of(start, LocalDate.of(2011, 3, 9), LocalDate.of(2011, 3, 10));
+    assertEquals(expected, Lists.newArrayList(dateRange));
+  }
+
+  @Test(expectedExceptions = IllegalStateException.class)
+  public void test_iteratorIllegalState() {
+    LocalDate start = LocalDate.of(2011, 3, 8);
+    LocalDate end = LocalDate.of(2011, 3, 9);
+    LocalDateRange dateRange = LocalDateRange.of(start, end, true);
+    Iterator<LocalDate> itr = dateRange.iterator();
+    itr.next();
+    itr.next();
+    itr.next();
+  }
+
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public void test_iteratorRemove() {
+    LocalDate start = LocalDate.of(2011, 3, 8);
+    LocalDate end = LocalDate.of(2011, 3, 9);
+    LocalDateRange dateRange = LocalDateRange.of(start, end, true);
+    Iterator<LocalDate> itr = dateRange.iterator();
+    itr.remove();
+  }
 }

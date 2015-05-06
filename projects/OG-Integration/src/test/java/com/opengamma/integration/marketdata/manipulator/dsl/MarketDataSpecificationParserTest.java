@@ -14,6 +14,7 @@ import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecificati
 import com.opengamma.engine.marketdata.spec.LatestHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecificationParser;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.TestGroup;

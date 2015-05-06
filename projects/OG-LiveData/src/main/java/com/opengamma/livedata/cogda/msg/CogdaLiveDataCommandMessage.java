@@ -124,8 +124,8 @@ public abstract class CogdaLiveDataCommandMessage extends CogdaCommandMessage {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSubscriptionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNormalizationScheme());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSubscriptionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNormalizationScheme());
     return hash ^ super.hashCode();
   }
 

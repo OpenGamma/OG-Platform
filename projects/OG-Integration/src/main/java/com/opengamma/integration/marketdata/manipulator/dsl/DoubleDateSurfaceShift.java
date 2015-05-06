@@ -22,6 +22,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.util.ArgumentChecker;
+import java.util.Arrays;
 
 /**
  * Shifts a volatility surface whose Y axis is time.
@@ -138,8 +139,8 @@ public final class DoubleDateSurfaceShift extends VolatilitySurfaceShiftManipula
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getXValues());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getYValues());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getXValues());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getYValues());
     return hash ^ super.hashCode();
   }
 
@@ -353,7 +354,7 @@ public final class DoubleDateSurfaceShift extends VolatilitySurfaceShiftManipula
      * @param xValues  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder xValues(double[] xValues) {
+    public Builder xValues(double... xValues) {
       JodaBeanUtils.notNull(xValues, "xValues");
       this._xValues = xValues;
       return this;
@@ -368,6 +369,16 @@ public final class DoubleDateSurfaceShift extends VolatilitySurfaceShiftManipula
       JodaBeanUtils.notNull(yValues, "yValues");
       this._yValues = yValues;
       return this;
+    }
+
+    /**
+     * Sets the {@code yValues} property in the builder
+     * from an array of objects.
+     * @param yValues  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder yValues(Period... yValues) {
+      return yValues(Arrays.asList(yValues));
     }
 
     //-----------------------------------------------------------------------

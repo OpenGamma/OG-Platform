@@ -286,10 +286,10 @@ public abstract class AbstractDocument extends DirectBean
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionFromInstant());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionToInstant());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrectionFromInstant());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrectionToInstant());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVersionFromInstant());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVersionToInstant());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCorrectionFromInstant());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCorrectionToInstant());
     return hash;
   }
 

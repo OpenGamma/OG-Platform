@@ -237,10 +237,10 @@ public class DbManagementComponentFactory extends AbstractComponentFactory {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJdbcUrl());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUsername());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPassword());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJdbcUrl());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUsername());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPassword());
     return hash ^ super.hashCode();
   }
 

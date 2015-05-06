@@ -429,15 +429,15 @@ public class DataSourceComponentFactory extends AbstractAliasedComponentFactory 
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDriverClass());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJdbcUrl());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUsername());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPassword());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPoolName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPartitionCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAcquireIncrement());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMinConnectionsPerPartition());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxConnectionsPerPartition());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDriverClass());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJdbcUrl());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUsername());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPassword());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPoolName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPartitionCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAcquireIncrement());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMinConnectionsPerPartition());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaxConnectionsPerPartition());
     return hash ^ super.hashCode();
   }
 

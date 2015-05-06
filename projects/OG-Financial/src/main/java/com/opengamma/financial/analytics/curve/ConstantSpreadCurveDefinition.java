@@ -334,12 +334,12 @@ public class ConstantSpreadCurveDefinition extends AbstractCurveDefinition {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurve());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSpreadValue());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSpreadId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValueRequirementName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProperties());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOperationName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurve());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSpreadValue());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSpreadId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValueRequirementName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProperties());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getOperationName());
     return hash ^ super.hashCode();
   }
 

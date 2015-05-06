@@ -185,7 +185,7 @@ public class LegalEntityCombiningFilter implements LegalEntityFilter<LegalEntity
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFiltersToUse());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFiltersToUse());
     return hash;
   }
 

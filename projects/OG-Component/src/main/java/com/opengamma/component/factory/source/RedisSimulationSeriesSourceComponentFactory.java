@@ -300,12 +300,12 @@ public class RedisSimulationSeriesSourceComponentFactory extends AbstractCompone
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisPrefix());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDatabase());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSimulationDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRedisConnector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRedisPrefix());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDatabase());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSimulationDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
     return hash ^ super.hashCode();
   }
 

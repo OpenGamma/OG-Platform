@@ -124,7 +124,7 @@ public class MarketDataScaling implements StructureManipulator<Double>, Immutabl
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getScalingFactor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getScalingFactor());
     return hash;
   }
 

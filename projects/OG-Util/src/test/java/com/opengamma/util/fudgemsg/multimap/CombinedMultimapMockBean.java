@@ -145,9 +145,9 @@ public class CombinedMultimapMockBean implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSetMultimap());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getListMultimap());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNoTypeMultimap());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSetMultimap());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getListMultimap());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNoTypeMultimap());
     return hash;
   }
 

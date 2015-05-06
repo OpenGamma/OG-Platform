@@ -663,20 +663,20 @@ public class ManageableTrade extends DirectBean
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getParentPositionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getQuantity());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLink());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCounterpartyExternalId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPremium());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDeal());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProviderId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getParentPositionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getQuantity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityLink());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCounterpartyExternalId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPremium());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPremiumCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPremiumDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPremiumTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAttributes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDeal());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProviderId());
     return hash;
   }
 

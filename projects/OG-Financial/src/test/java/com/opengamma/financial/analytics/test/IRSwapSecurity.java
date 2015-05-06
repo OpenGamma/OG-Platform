@@ -129,8 +129,8 @@ public final class IRSwapSecurity implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSwapSecurity());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRawInput());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSwapSecurity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRawInput());
     return hash;
   }
 

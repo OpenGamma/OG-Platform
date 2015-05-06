@@ -118,7 +118,7 @@ public class LiveDataMetaDataProviderResult extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMetaData());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMetaData());
     return hash;
   }
 

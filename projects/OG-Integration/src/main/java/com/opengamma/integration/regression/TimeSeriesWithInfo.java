@@ -146,8 +146,8 @@ public class TimeSeriesWithInfo extends DirectBean implements UniqueIdentifiable
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInfo());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getInfo());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
     return hash;
   }
 

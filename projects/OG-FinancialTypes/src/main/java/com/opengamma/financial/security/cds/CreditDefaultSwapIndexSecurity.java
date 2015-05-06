@@ -278,10 +278,10 @@ public class CreditDefaultSwapIndexSecurity extends AbstractCreditDefaultSwapSec
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isAdjustSettlementDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUpfrontPayment());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIndexCoupon());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isAdjustSettlementDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUpfrontPayment());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIndexCoupon());
     return hash ^ super.hashCode();
   }
 

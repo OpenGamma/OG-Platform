@@ -120,7 +120,7 @@ public class PoweredPayoffStyle extends PayoffStyle {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPower());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPower());
     return hash ^ super.hashCode();
   }
 

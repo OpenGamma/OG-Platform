@@ -151,8 +151,8 @@ public class PointsCurveNodeWithIdentifier extends CurveNodeWithIdentifier {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingIdentifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingDataField());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingIdentifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingDataField());
     return hash ^ super.hashCode();
   }
 

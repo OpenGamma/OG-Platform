@@ -18,13 +18,14 @@ public class BlackBondFuturesExpLogMoneynessProviderDiscount extends BlackBondFu
    * @param parameters The Black parameters.
    * @param legalEntity The legal entity of the bonds underlying the futures for which the volatility data is valid.
    */
-  public BlackBondFuturesExpLogMoneynessProviderDiscount(final IssuerProviderDiscount issuerProvider, final Surface<Double, Double, Double> parameters, final LegalEntity legalEntity) {
+  public BlackBondFuturesExpLogMoneynessProviderDiscount(final IssuerProviderDiscount issuerProvider,
+      final Surface<Double, Double, Double> parameters, final LegalEntity legalEntity) {
     super(issuerProvider, parameters, legalEntity);
   }
 
   @Override
   public BlackBondFuturesExpLogMoneynessProviderDiscount copy() {
-    final IssuerProviderDiscount issuerProvider = getIssuerProvider().copy();
+    IssuerProviderDiscount issuerProvider = getIssuerProvider().copy();
     return new BlackBondFuturesExpLogMoneynessProviderDiscount(issuerProvider, getBlackParameters(), getLegalEntity());
   }
 
@@ -37,5 +38,4 @@ public class BlackBondFuturesExpLogMoneynessProviderDiscount extends BlackBondFu
   public IssuerProviderDiscount getIssuerProvider() {
     return (IssuerProviderDiscount) super.getIssuerProvider();
   }
-
 }

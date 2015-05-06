@@ -458,12 +458,12 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdSearch());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassification());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProviderId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getChildrenOfId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObjectIds());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExternalIdSearch());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassification());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProviderId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getChildrenOfId());
     return hash ^ super.hashCode();
   }
 

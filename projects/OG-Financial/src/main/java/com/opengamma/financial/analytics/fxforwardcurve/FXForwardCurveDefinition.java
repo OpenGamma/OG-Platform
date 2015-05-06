@@ -28,6 +28,7 @@ import com.opengamma.core.config.Config;
 import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
+import java.util.Arrays;
 
 /**
  * Definition of an FX forward curve.
@@ -176,9 +177,9 @@ public final class FXForwardCurveDefinition implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTarget());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTenors());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTarget());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTenors());
     return hash;
   }
 
@@ -436,6 +437,16 @@ public final class FXForwardCurveDefinition implements ImmutableBean {
       JodaBeanUtils.notNull(tenors, "tenors");
       this._tenors = tenors;
       return this;
+    }
+
+    /**
+     * Sets the {@code tenors} property in the builder
+     * from an array of objects.
+     * @param tenors  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder tenors(Tenor... tenors) {
+      return tenors(Arrays.asList(tenors));
     }
 
     //-----------------------------------------------------------------------

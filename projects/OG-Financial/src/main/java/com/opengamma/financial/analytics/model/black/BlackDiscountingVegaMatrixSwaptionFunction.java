@@ -15,10 +15,10 @@ import org.threeten.bp.Instant;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.analytics.financial.interestrate.BlackSwaptionSensitivityNodeCalculator;
+import com.opengamma.analytics.financial.interestrate.SwaptionSurfaceSensitivityNodeCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueBlackSwaptionSensitivity;
+import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueSwaptionSurfaceSensitivity;
 import com.opengamma.analytics.financial.model.option.parameters.BlackFlatSwaptionParameters;
 import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueBlackSensitivityBlackSwaptionCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProvider;
@@ -46,7 +46,7 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class BlackDiscountingVegaMatrixSwaptionFunction extends BlackDiscountingSwaptionFunction {
   /** The value vega calculator */
-  private static final InstrumentDerivativeVisitor<BlackSwaptionFlatProviderInterface, PresentValueBlackSwaptionSensitivity> VEGA_CALCULATOR =
+  private static final InstrumentDerivativeVisitor<BlackSwaptionFlatProviderInterface, PresentValueSwaptionSurfaceSensitivity> VEGA_CALCULATOR =
       PresentValueBlackSensitivityBlackSwaptionCalculator.getInstance();
 
   /**
@@ -66,9 +66,9 @@ public class BlackDiscountingVegaMatrixSwaptionFunction extends BlackDiscounting
           final FXMatrix fxMatrix) {
         final BlackSwaptionFlatProvider blackData = getBlackSurface(executionContext, inputs, target, fxMatrix);
         // Compute scalar value of the Black Vega
-        final PresentValueBlackSwaptionSensitivity vegaSens = derivative.accept(VEGA_CALCULATOR, blackData);
+        final PresentValueSwaptionSurfaceSensitivity vegaSens = derivative.accept(VEGA_CALCULATOR, blackData);
         // Distribute the vega back onto the nodes of the Vol Surface according to the interpolator
-        final PresentValueBlackSwaptionSensitivity vegaMap = (new BlackSwaptionSensitivityNodeCalculator()).calculateNodeSensitivities(vegaSens, blackData.getBlackParameters());
+        final PresentValueSwaptionSurfaceSensitivity vegaMap = (new SwaptionSurfaceSensitivityNodeCalculator()).calculateNodeSensitivities(vegaSens, blackData.getBlackParameters());
         // Repackage the sensitivities into a format easy that's fit for display
         DoubleLabelledMatrix2D vegaMatrix = VegaMatrixUtils.getVegaSwaptionMatrix(vegaMap);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);

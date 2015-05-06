@@ -229,10 +229,10 @@ public class ExposureFunctions extends DirectBean implements Serializable, Uniqu
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExposureFunctions());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIdsToNames());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExposureFunctions());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIdsToNames());
     return hash;
   }
 

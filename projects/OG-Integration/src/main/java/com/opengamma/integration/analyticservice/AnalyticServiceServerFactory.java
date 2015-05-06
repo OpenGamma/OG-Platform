@@ -406,16 +406,16 @@ public class AnalyticServiceServerFactory extends AbstractComponentFactory {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getListenJmsConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getListenTopicName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProviderIdName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUser());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getListenJmsConnector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getListenTopicName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getViewName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProviderIdName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUser());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
     return hash ^ super.hashCode();
   }
 

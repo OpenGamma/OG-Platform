@@ -439,15 +439,15 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInterpolatorName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLeftExtrapolatorName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRightExtrapolatorName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isInterpolateYields());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStrips());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRegionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getInterpolatorName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLeftExtrapolatorName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRightExtrapolatorName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isInterpolateYields());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStrips());
     return hash;
   }
 

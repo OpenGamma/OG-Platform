@@ -153,8 +153,8 @@ public class FadeInPayoffStyle extends PayoffStyle {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLowerBound());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUpperBound());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLowerBound());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUpperBound());
     return hash ^ super.hashCode();
   }
 

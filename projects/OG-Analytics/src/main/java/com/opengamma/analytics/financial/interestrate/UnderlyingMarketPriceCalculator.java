@@ -63,6 +63,6 @@ public class UnderlyingMarketPriceCalculator extends InstrumentDerivativeVisitor
   public Double visitInterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumTransaction security, final YieldCurveBundle curves) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(curves, "curves");
-    return PREMIUM_IR_FUTURE_OPTION.underlyingFuturePrice(security.getUnderlyingOption(), curves);
+    return PREMIUM_IR_FUTURE_OPTION.underlyingFuturePrice(security.getUnderlyingSecurity(), curves);
   }
 }

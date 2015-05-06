@@ -274,9 +274,9 @@ public class MarketDataSnapshotDocument extends AbstractDocument implements Seri
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNamedSnapshot());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNamedSnapshot());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSnapshotType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     return hash ^ super.hashCode();
   }
 

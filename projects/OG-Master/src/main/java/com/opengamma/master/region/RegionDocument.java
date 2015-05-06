@@ -212,9 +212,9 @@ public class RegionDocument extends AbstractDocument implements Serializable {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegion());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProviderId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRegion());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProviderId());
     return hash ^ super.hashCode();
   }
 

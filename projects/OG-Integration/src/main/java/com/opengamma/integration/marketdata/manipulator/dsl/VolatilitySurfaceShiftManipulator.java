@@ -311,8 +311,8 @@ public class VolatilitySurfaceShiftManipulator implements StructureManipulator<V
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getShiftType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getShiftValues());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getShiftType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getShiftValues());
     return hash;
   }
 
@@ -532,7 +532,7 @@ public class VolatilitySurfaceShiftManipulator implements StructureManipulator<V
      * @param shiftValues  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder shiftValues(double[] shiftValues) {
+    public Builder shiftValues(double... shiftValues) {
       JodaBeanUtils.notNull(shiftValues, "shiftValues");
       this._shiftValues = shiftValues;
       return this;

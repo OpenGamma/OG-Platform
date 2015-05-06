@@ -206,9 +206,9 @@ public class FloatingVarianceSwapLeg extends VarianceSwapLeg {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMonitoringFrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAnnualizationFactor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMonitoringFrequency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAnnualizationFactor());
     return hash ^ super.hashCode();
   }
 

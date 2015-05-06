@@ -6,6 +6,7 @@
 package com.opengamma.util.time;
 
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -36,7 +37,7 @@ import com.opengamma.util.ArgumentChecker;
  * This class is immutable and thread-safe.
  */
 @BeanDefinition(builderScope = "private")
-public final class LocalDateRange implements ImmutableBean, Serializable {
+public final class LocalDateRange implements Iterable<LocalDate>, ImmutableBean, Serializable {
 
   /**
    * A range over the whole time-line.
@@ -202,6 +203,34 @@ public final class LocalDateRange implements ImmutableBean, Serializable {
     return isEndDateMaximum() ? LocalDateRange.of(_startDateInclusive, endDate, endDateInclusive) : this;
   }
 
+  @Override
+  public Iterator<LocalDate> iterator() {
+    return new Iterator<LocalDate>() {
+
+      private LocalDate _next = _startDateInclusive;
+
+      @Override
+      public boolean hasNext() {
+        return !_next.isAfter(_endDateInclusive);
+      }
+
+      @Override
+      public LocalDate next() {
+        if (!hasNext()) {
+          throw new IllegalStateException("No more elements");
+        }
+        LocalDate next = _next;
+        _next = _next.plusDays(1);
+        return next;
+      }
+
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException("remove not supported");
+      }
+    };
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
@@ -254,8 +283,8 @@ public final class LocalDateRange implements ImmutableBean, Serializable {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartDateInclusive());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEndDateInclusive());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStartDateInclusive());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEndDateInclusive());
     return hash;
   }
 

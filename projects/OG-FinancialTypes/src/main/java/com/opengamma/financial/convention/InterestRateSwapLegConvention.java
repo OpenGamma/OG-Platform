@@ -604,20 +604,20 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentCalendars());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCalculationCalendars());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityCalendars());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCalculationBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCountConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentFrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCalculationFrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentRelativeTo());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isAdjustedAccrual());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRollConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCompoundingMethod());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentCalendars());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCalculationCalendars());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityCalendars());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDayConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCalculationBusinessDayConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityBusinessDayConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCountConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentFrequency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCalculationFrequency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentRelativeTo());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isAdjustedAccrual());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRollConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCompoundingMethod());
     return hash ^ super.hashCode();
   }
 

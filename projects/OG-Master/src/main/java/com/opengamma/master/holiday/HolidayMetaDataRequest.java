@@ -108,7 +108,7 @@ public class HolidayMetaDataRequest extends AbstractMetaDataRequest {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(isHolidayTypes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isHolidayTypes());
     return hash ^ super.hashCode();
   }
 

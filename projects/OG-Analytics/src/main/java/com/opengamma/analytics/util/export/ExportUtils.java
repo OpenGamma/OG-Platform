@@ -7,6 +7,7 @@ package com.opengamma.analytics.util.export;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -125,17 +126,17 @@ public class ExportUtils {
       for (String name: curveNamesSet) {
         writer.append("Curve name: " + name + "\n");
         YieldAndDiscountCurve curve = multicurve.getCurve(name);
-        Currency ccy = multicurve.getCurrencyForName(name);
-        if (ccy != null) {
+        List<Currency> ccys = multicurve.getCurrencyForName(name);
+        for (Currency ccy : ccys) {
           writer.append("Currency: " + ccy.toString() + "\n");
         }
-        IborIndex indexIbor = multicurve.getIborIndexForName(name);
-        if (indexIbor != null) {
-          writer.append("Ibor Index: " + indexIbor.toString() + "\n");
+        List<IborIndex> iborIndices = multicurve.getIborIndexForName(name);
+        for (IborIndex index : iborIndices) {
+          writer.append("Ibor Index: " + index.toString() + "\n");
         }
-        IndexON indexOn = multicurve.getOvernightIndexForName(name);
-        if (indexOn != null) {
-          writer.append("Overnight Index: " + indexOn.toString() + "\n");
+        List<IndexON> onIndices = multicurve.getOvernightIndexForName(name);
+        for (IndexON index : onIndices) {
+          writer.append("Overnight Index: " + index.toString() + "\n");
         }
         InterpolatedDoublesCurve interpolatedCurve;
         if (curve instanceof YieldCurve) { // YieldCurve
@@ -206,17 +207,17 @@ public class ExportUtils {
       for (String name: curveNamesMulticurveSet) {
         writer.append("Curve name: " + name + "\n");
         YieldAndDiscountCurve curve = multicurve.getCurve(name);
-        Currency ccy = multicurve.getCurrencyForName(name);
-        if (ccy != null) {
+        List<Currency> ccys = multicurve.getCurrencyForName(name);
+        for (Currency ccy : ccys) {
           writer.append("Currency: " + ccy.toString() + "\n");
         }
-        IborIndex indexIbor = multicurve.getIborIndexForName(name);
-        if (indexIbor != null) {
-          writer.append("Ibor Index: " + indexIbor.toString() + "\n");
+        List<IborIndex> iborIndices = multicurve.getIborIndexForName(name);
+        for (IborIndex index : iborIndices) {
+          writer.append("Ibor Index: " + index.toString() + "\n");
         }
-        IndexON indexOn = multicurve.getOvernightIndexForName(name);
-        if (indexOn != null) {
-          writer.append("Overnight Index: " + indexOn.toString() + "\n");
+        List<IndexON> onIndices = multicurve.getOvernightIndexForName(name);
+        for (IndexON index : onIndices) {
+          writer.append("Overnight Index: " + index.toString() + "\n");
         }
         InterpolatedDoublesCurve interpolatedCurve;
         if (curve instanceof YieldCurve) { // YieldCurve

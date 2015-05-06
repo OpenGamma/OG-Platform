@@ -262,11 +262,11 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFloatingReferenceRateId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInitialFloatingRate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFloatingRateType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOffsetFixing());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFloatingReferenceRateId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getInitialFloatingRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFloatingRateType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getOffsetFixing());
     return hash ^ super.hashCode();
   }
 

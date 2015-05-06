@@ -366,14 +366,14 @@ public class WebConfigData extends WebPerRequestData {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriConfigId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfig());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTypeMap());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJsonBuilderMap());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUriConfigId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConfig());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVersioned());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTypeMap());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJsonBuilderMap());
     return hash ^ super.hashCode();
   }
 

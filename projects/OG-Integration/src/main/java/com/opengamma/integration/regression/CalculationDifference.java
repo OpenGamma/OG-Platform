@@ -401,8 +401,7 @@ public final class CalculationDifference implements ImmutableBean {
           JodaBeanUtils.equal(getOnlyBase(), other.getOnlyBase()) &&
           JodaBeanUtils.equal(getOnlyTest(), other.getOnlyTest()) &&
           JodaBeanUtils.equal(getDifferent(), other.getDifferent()) &&
-          JodaBeanUtils.equal(getDifferentProperties(), other.getDifferentProperties()) &&
-          JodaBeanUtils.equal(getStatus(), other.getStatus());
+          JodaBeanUtils.equal(getDifferentProperties(), other.getDifferentProperties());
     }
     return false;
   }
@@ -410,17 +409,16 @@ public final class CalculationDifference implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEqualResultCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseVersion());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTestVersion());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOnlyBase());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOnlyTest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDifferent());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDifferentProperties());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStatus());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEqualResultCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSnapshotName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBaseVersion());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTestVersion());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getOnlyBase());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getOnlyTest());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDifferent());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDifferentProperties());
     return hash;
   }
 

@@ -357,13 +357,13 @@ public class UserFinancialMarketDataSnapshotSourceComponentFactory extends Abstr
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingMarketDataSnapshotMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserMarketDataSnapshotMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingMarketDataSnapshotMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUserClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUserMarketDataSnapshotMaster());
     return hash ^ super.hashCode();
   }
 

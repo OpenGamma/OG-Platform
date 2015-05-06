@@ -512,14 +512,14 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionObjectIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeObjectIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityIdSearch());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityIdValue());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionProviderId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeProviderId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMinQuantity());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxQuantity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPositionObjectIds());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeObjectIds());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityIdSearch());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityIdValue());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPositionProviderId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeProviderId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMinQuantity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaxQuantity());
     return hash ^ super.hashCode();
   }
 

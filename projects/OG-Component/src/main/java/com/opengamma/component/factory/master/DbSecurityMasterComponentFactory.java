@@ -180,8 +180,8 @@ public class DbSecurityMasterComponentFactory extends AbstractDocumentDbMasterCo
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDetailProvider());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDetailProvider());
     return hash ^ super.hashCode();
   }
 

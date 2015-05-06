@@ -254,9 +254,9 @@ public class SecurityLoaderRequest extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundles());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isForceUpdate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isReturnSecurityObjects());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundles());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isForceUpdate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isReturnSecurityObjects());
     return hash;
   }
 

@@ -166,8 +166,8 @@ public final class LinkIdentifier<I, T> implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIdentifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getType());
     return hash;
   }
 

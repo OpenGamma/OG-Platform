@@ -191,9 +191,9 @@ public class ExecutionLogWithContext extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTargetSpecification());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExecutionLog());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFunctionName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTargetSpecification());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExecutionLog());
     return hash;
   }
 

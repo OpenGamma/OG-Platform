@@ -288,9 +288,9 @@ public class ReferenceDataProviderGetRequest extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifiers());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFields());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isUseCache());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIdentifiers());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFields());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isUseCache());
     return hash;
   }
 

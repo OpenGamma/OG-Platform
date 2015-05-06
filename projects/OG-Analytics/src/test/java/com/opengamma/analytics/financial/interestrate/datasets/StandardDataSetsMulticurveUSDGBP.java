@@ -321,7 +321,11 @@ public class StandardDataSetsMulticurveUSDGBP {
    * The curves are 
    *  - USD discounting/overnight forward, USDIbor3M forward, USDIbor1M forward and USDIbor6M forward.
    *  - GBP discounting, GBPIbor3M forward.
-   * OIS are used for the discounting curve from 2 years up to 30 years.
+   * The instruments for the calibration are: 
+   *  - USD discounting: OIS up to 1Y and Fed Fund Swaps from 2Y to 30Y
+   *  - USD Libor3M: Fixing, FRA to 9M and IRS from 1Y to 30Y
+   *  - GBP discounting: FX up to 9M, XCCY swaps from 1Y to 30Y
+   *  - GBP Libor3M: Fixing, FRA to 9M and IRS from 1Y to 30Y
    * USDIbor3M curve uses FRA and IRS.
    * USDIbor1M and Libor6M use FRA and basis swaps v 3M.
    * @param calibrationDate The calibration date.

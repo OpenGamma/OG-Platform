@@ -315,13 +315,13 @@ public abstract class CommodityForwardSecurity extends FinancialSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnitNumber());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnitName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExpiry());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnitAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getContractCategory());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnitNumber());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnitName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiry());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnitAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getContractCategory());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
     return hash ^ super.hashCode();
   }
 

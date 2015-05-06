@@ -575,16 +575,16 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishJms());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionTopic());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsEntitlementTopic());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsHeartbeatTopic());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionQueuePrefix());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionQueueConcurrentConsumers());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionQueueMaxConcurrentConsumers());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPublishJms());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionTopic());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsEntitlementTopic());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsHeartbeatTopic());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionQueuePrefix());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionQueueConcurrentConsumers());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionQueueMaxConcurrentConsumers());
     return hash ^ super.hashCode();
   }
 

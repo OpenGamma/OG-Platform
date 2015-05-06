@@ -624,16 +624,16 @@ public class VolatilityCubeData<X, Y, Z> implements Bean, Serializable {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDefinitionName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSpecificationName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValues());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getXLabel());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getYLabel());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getZLabel());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getXs());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getYs());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getZs());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVs());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDefinitionName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSpecificationName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValues());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getXLabel());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getYLabel());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getZLabel());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getXs());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getYs());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getZs());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVs());
     return hash;
   }
 

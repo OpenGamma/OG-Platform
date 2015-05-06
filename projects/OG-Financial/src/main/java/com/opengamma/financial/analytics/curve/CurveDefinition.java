@@ -127,7 +127,7 @@ public class CurveDefinition extends AbstractCurveDefinition {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNodes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNodes());
     return hash ^ super.hashCode();
   }
 

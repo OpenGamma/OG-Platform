@@ -170,7 +170,7 @@ public class RemoteMastersBeanPostProcessor extends DirectBean implements BeanFa
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseUri());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBaseUri());
     return hash;
   }
 

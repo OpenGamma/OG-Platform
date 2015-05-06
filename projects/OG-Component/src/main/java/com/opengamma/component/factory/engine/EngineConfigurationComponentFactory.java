@@ -340,9 +340,9 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLogicalServerId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLogicalServerId());
     return hash ^ super.hashCode();
   }
 

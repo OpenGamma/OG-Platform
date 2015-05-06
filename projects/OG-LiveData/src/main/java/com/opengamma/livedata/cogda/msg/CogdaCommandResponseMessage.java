@@ -164,9 +164,9 @@ public abstract class CogdaCommandResponseMessage extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrelationId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGenericResult());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserMessage());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCorrelationId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getGenericResult());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUserMessage());
     return hash;
   }
 

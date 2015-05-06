@@ -159,7 +159,7 @@ public class RawSecurity extends ManageableSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRawData());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRawData());
     return hash ^ super.hashCode();
   }
 

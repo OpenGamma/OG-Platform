@@ -326,14 +326,14 @@ public class WebBundlesData extends WebPerRequestData {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBundleManagerFactory());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBundleManager());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDevBundleManager());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCompressor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStyleTag());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getScriptTag());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHttpHeaders());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBundleManagerFactory());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBundleManager());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDevBundleManager());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCompressor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMode());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStyleTag());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getScriptTag());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHttpHeaders());
     return hash ^ super.hashCode();
   }
 

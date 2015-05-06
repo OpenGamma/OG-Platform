@@ -145,8 +145,8 @@ public class DataTrackingSecurityMasterComponentFactory extends AbstractComponen
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTrackedMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTrackedMaster());
     return hash ^ super.hashCode();
   }
 

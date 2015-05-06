@@ -154,7 +154,6 @@ public class HistoricalTimeSeriesInfoDocument extends AbstractDocument {
     if (obj != null && obj.getClass() == this.getClass()) {
       HistoricalTimeSeriesInfoDocument other = (HistoricalTimeSeriesInfoDocument) obj;
       return JodaBeanUtils.equal(getInfo(), other.getInfo()) &&
-          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           super.equals(obj);
     }
     return false;
@@ -163,8 +162,7 @@ public class HistoricalTimeSeriesInfoDocument extends AbstractDocument {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInfo());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getInfo());
     return hash ^ super.hashCode();
   }
 

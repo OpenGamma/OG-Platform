@@ -1089,32 +1089,32 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPasswordService());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLegalEntityMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesLoader());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getScheduler());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTargetTypes());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionConfigurationSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLiveMarketDataProviderFactory());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSpecificationRepository());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetResolver());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityCubeDefinitionSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalSchemes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUserMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPasswordService());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExchangeMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHolidayMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRegionMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConventionMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLegalEntityMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesLoader());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getScheduler());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTargetTypes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFunctionConfigurationSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLiveMarketDataProviderFactory());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataSpecificationRepository());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getComputationTargetResolver());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVolatilityCubeDefinitionSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExternalSchemes());
     return hash ^ super.hashCode();
   }
 

@@ -186,10 +186,10 @@ public final class CreditRating implements ImmutableBean, Serializable {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRating());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRatingDescription());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAgencyName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isLongTerm());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRating());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRatingDescription());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAgencyName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isLongTerm());
     return hash;
   }
 

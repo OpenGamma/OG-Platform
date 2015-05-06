@@ -17,7 +17,7 @@ import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilityNodeSensitivityDataBundle;
 import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilityQuoteSensitivityDataBundle;
-import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueBlackSwaptionSensitivity;
+import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueSwaptionSurfaceSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
@@ -197,7 +197,7 @@ public class VegaMatrixUtils {
    * @param vegas a map from swaption expiry, maturity to vega, not null
    * @return A labelled vega matrix
    */
-  public static DoubleLabelledMatrix2D getVegaSwaptionMatrix(final PresentValueBlackSwaptionSensitivity vegas) {
+  public static DoubleLabelledMatrix2D getVegaSwaptionMatrix(final PresentValueSwaptionSurfaceSensitivity vegas) {
     ArgumentChecker.notNull(vegas, "vegas");
     final HashMap<DoublesPair, Double> vegaMap = vegas.getSensitivity().getMap();
     final List<Double> xKeysList = new ArrayList<>();

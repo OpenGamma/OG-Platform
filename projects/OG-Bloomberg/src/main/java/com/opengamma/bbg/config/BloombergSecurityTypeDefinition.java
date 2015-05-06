@@ -221,8 +221,8 @@ public class BloombergSecurityTypeDefinition implements Bean, Serializable, Uniq
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityTypes());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityTypes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     return hash;
   }
 

@@ -268,11 +268,11 @@ public class VolatilityCubeSpecification implements Bean, Serializable, UniqueId
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCubeQuoteType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityQuoteUnits());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCubeInstrumentProvider());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCubeQuoteType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVolatilityQuoteUnits());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCubeInstrumentProvider());
     return hash;
   }
 

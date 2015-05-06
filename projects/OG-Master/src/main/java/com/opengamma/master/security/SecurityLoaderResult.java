@@ -192,8 +192,8 @@ public class SecurityLoaderResult extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getResultMap());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMap());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getResultMap());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityMap());
     return hash;
   }
 

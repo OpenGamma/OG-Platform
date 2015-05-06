@@ -158,8 +158,8 @@ public abstract class Index extends ManageableSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDescription());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIndexFamilyId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDescription());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIndexFamilyId());
     return hash ^ super.hashCode();
   }
 

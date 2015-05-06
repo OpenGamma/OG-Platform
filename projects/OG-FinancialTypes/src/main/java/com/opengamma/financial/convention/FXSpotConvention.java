@@ -186,8 +186,8 @@ public class FXSpotConvention extends FinancialConvention {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementRegion());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementRegion());
     return hash ^ super.hashCode();
   }
 

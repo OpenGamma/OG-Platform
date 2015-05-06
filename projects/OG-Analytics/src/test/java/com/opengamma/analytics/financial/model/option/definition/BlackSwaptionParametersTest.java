@@ -57,7 +57,7 @@ public class BlackSwaptionParametersTest {
    * Tests the object getters.
    */
   public void getter() {
-    assertEquals("Black Swaption Surface: getter", BLACK_SURFACE, BLACK_SWAPTION.getVolatilitySurface());
+    assertEquals("Black Swaption Surface: getter", BLACK_SURFACE, BLACK_SWAPTION.getParameterSurface());
     assertEquals("Black Swaption Surface: getter", EUR1YEURIBOR6M, BLACK_SWAPTION.getGeneratorSwap());
   }
 

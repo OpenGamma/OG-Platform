@@ -132,7 +132,7 @@ public class ForwardSwapCurveInstrumentProvider implements Bean, SurfaceInstrume
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     return hash;
   }
 

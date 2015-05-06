@@ -234,8 +234,8 @@ public class CacheManagerComponentFactory extends AbstractAliasedComponentFactor
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(isShared());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigLocation());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isShared());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConfigLocation());
     return hash ^ super.hashCode();
   }
 

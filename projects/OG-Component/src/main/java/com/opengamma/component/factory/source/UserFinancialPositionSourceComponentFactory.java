@@ -427,15 +427,15 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingPortfolioMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingPositionMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserPortfolioMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserPositionMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingPortfolioMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingPositionMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUserClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUserPortfolioMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUserPositionMaster());
     return hash ^ super.hashCode();
   }
 

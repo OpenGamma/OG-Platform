@@ -170,9 +170,9 @@ public final class HistoricalTimeSeriesRatingRule implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFieldName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFieldValue());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRating());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFieldName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFieldValue());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRating());
     return hash;
   }
 

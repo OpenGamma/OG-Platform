@@ -321,13 +321,13 @@ public class WebConventionData extends WebPerRequestData {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriConventionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTypeMap());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConventionMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUriConventionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVersioned());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTypeMap());
     return hash ^ super.hashCode();
   }
 

@@ -164,8 +164,8 @@ public final class YieldCurveDataParallelShift implements StructureManipulator<Y
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getShiftType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getShift());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getShiftType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getShift());
     return hash;
   }
 

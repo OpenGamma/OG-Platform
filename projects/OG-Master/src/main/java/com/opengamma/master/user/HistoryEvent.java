@@ -27,6 +27,7 @@ import org.threeten.bp.Instant;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.id.UniqueId;
+import java.util.Arrays;
 
 /**
  * A single event history element.
@@ -248,11 +249,11 @@ public class HistoryEvent implements ImmutableBean, Comparable<HistoryEvent> {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInstant());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getChanges());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUserName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getInstant());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getChanges());
     return hash;
   }
 
@@ -589,6 +590,16 @@ public class HistoryEvent implements ImmutableBean, Comparable<HistoryEvent> {
       JodaBeanUtils.notNull(changes, "changes");
       this._changes = changes;
       return this;
+    }
+
+    /**
+     * Sets the {@code changes} property in the builder
+     * from an array of objects.
+     * @param changes  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder changes(String... changes) {
+      return changes(Arrays.asList(changes));
     }
 
     //-----------------------------------------------------------------------

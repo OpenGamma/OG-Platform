@@ -363,15 +363,15 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewCycleId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionCorrection());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAllCalculationConfigurationNames());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetsByCalcConfig());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTerminalOutputsByCalcConfig());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getViewCycleId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVersionCorrection());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAllCalculationConfigurationNames());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getComputationTargetsByCalcConfig());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTerminalOutputsByCalcConfig());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
     return hash;
   }
 

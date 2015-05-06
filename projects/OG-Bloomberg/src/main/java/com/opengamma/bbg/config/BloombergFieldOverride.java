@@ -194,10 +194,10 @@ public class BloombergFieldOverride extends DirectBean implements Serializable, 
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBloombergId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFieldName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOverrideValue());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBloombergId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFieldName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getOverrideValue());
     return hash;
   }
 

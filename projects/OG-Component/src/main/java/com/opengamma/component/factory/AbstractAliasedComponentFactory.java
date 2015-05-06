@@ -156,8 +156,8 @@ public abstract class AbstractAliasedComponentFactory extends AbstractComponentF
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifierAliases());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifierAliases());
     return hash ^ super.hashCode();
   }
 

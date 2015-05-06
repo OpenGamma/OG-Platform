@@ -227,10 +227,10 @@ public class HistoricalTimeSeriesInfoMetaDataResult extends AbstractMetaDataResu
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataFields());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSources());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataProviders());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTimes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataFields());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataSources());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataProviders());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObservationTimes());
     return hash ^ super.hashCode();
   }
 

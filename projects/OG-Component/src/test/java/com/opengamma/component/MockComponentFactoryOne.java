@@ -170,9 +170,9 @@ public class MockComponentFactoryOne implements Bean, ComponentFactory {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAlpha());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBeta());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGamma());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAlpha());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBeta());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getGamma());
     return hash;
   }
 

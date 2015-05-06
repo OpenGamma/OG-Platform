@@ -218,11 +218,11 @@ public class CashFlowDetailsProvider implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMulticurveProviderInterface());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getZonedDateTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isFixed());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDefinition());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMulticurveProviderInterface());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getZonedDateTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isFixed());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDefinition());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getType());
     return hash;
   }
 

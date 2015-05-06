@@ -150,8 +150,8 @@ public class MarketDataSnapshotSourceFactoryBean extends SpringFactoryBean<Marke
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSnapshotMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
     return hash ^ super.hashCode();
   }
 

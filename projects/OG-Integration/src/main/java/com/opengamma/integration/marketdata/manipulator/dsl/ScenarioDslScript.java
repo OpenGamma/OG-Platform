@@ -153,7 +153,7 @@ public final class ScenarioDslScript implements ImmutableBean, ScenarioDefinitio
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getScript());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getScript());
     return hash;
   }
 

@@ -254,11 +254,11 @@ public class WebHolidayData extends WebPerRequestData {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriHolidayId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHoliday());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHolidayMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUriHolidayId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHoliday());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVersioned());
     return hash ^ super.hashCode();
   }
 

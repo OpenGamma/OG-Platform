@@ -127,7 +127,7 @@ public class StaticFunctionConfiguration extends DirectBean implements FunctionC
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDefinitionClassName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDefinitionClassName());
     return hash;
   }
 

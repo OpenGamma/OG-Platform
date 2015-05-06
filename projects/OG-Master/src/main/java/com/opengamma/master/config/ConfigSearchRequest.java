@@ -8,6 +8,9 @@ package com.opengamma.master.config;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
+
+import javax.annotation.Nullable;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -51,7 +54,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
   /**
    * The name, wildcards allowed, null to not match on name.
    */
-  @PropertyDefinition
+  @PropertyDefinition(set = "manual")
   private String _name;
   /**
    * The class of the configuration.
@@ -63,6 +66,13 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
    */
   @PropertyDefinition(validate = "notNull")
   private ConfigSearchSortOrder _sortOrder = ConfigSearchSortOrder.VERSION_FROM_INSTANT_DESC;
+
+  /**
+   * Regular expression pattern for matching the name using wildcards (* and ?).
+   * <p>
+   * This is null if {@code _name} is null or doesn't contain any wildcard characters.
+   */
+  private Pattern _namePattern;
 
   /**
    * Creates an instance.
@@ -110,6 +120,51 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
     }
   }
 
+  /**
+   * Sets the name to match, wildcards allowed, null to not match on name.
+   * <p>
+   * The wildcard characters are:
+   * <ul>
+   *   <li>'*' - matches any number of characters, including none</li>
+   *   <li>'?' - matches exactly one character</li>
+   * </ul>
+   *
+   * @param name  the new value of the property
+   */
+  public void setName(String name) {
+    _name = name;
+    _namePattern = createPattern(name);
+  }
+
+  /**
+   * Creates a pattern for matching document names using wildcards. Returns null if name is null or doesn't
+   * contain any wildcard characters.
+   *
+   * @param name the name to match against document names
+   * @return a pattern for matching documents by name or null if name is null or doesn't contain wildcard characters
+   */
+  @Nullable
+  private static Pattern createPattern(@Nullable String name) {
+    if (name == null || !containsWildcards(name)) {
+      // If the name doesn't contain wildcards there's no point creating a pattern.
+      // This can slow things down unnecessarily when performing a large number of matches where the names
+      // don't contains wildcards. This is common when using links.
+      return null;
+    } else {
+      return RegexUtils.wildcardsToPattern(name);
+    }
+  }
+
+  /**
+   * Returns true if {@code name} contains either of the wildcard characters '*' or '?'.
+   *
+   * @param name a name for matching against a config object
+   * @return true if {@code name} contains either of the wildcard characters '*' or '?'
+   */
+  private static boolean containsWildcards(String name) {
+    return name.indexOf('*') != -1 || name.indexOf('?') != -1;
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public boolean matches(final AbstractDocument doc) {
@@ -117,11 +172,19 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
       return false;
     }
     final ConfigDocument configDoc = (ConfigDocument) doc;
-    if (getConfigIds() != null && getConfigIds().contains(configDoc.getObjectId()) == false) {
+    if (getConfigIds() != null && !getConfigIds().contains(configDoc.getObjectId())) {
       return false;
     }
-    if (getName() != null && RegexUtils.wildcardMatch(getName(), configDoc.getName()) == false) {
-      return false;
+    if (_namePattern != null) {
+      // if there is a pattern then we're doing a wildcard match. try matching the pattern
+      if (!_namePattern.matcher(configDoc.getName()).matches()) {
+        return false;
+      }
+    } else if (getName() != null) {
+      // if there is no pattern but there is a name we're looking for an exact match
+      if (!getName().equals(configDoc.getName())) {
+        return false;
+      }
     }
     return super.matches(doc) && (getType() == null || getType().isAssignableFrom(configDoc.getType()));
   }
@@ -184,14 +247,6 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
    */
   public String getName() {
     return _name;
-  }
-
-  /**
-   * Sets the name, wildcards allowed, null to not match on name.
-   * @param name  the new value of the property
-   */
-  public void setName(String name) {
-    this._name = name;
   }
 
   /**
@@ -279,10 +334,10 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConfigIds());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
     return hash ^ super.hashCode();
   }
 

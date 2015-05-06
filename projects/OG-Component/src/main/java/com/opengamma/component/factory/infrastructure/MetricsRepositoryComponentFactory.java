@@ -488,14 +488,14 @@ public class MetricsRepositoryComponentFactory extends AbstractComponentFactory 
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegistryName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isJmxPublish());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isSlf4jPublish());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isGangliaPublish());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGangliaAddress());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGangliaPort());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGangliaAddressingMode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGangliaTtl());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRegistryName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isJmxPublish());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isSlf4jPublish());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isGangliaPublish());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getGangliaAddress());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getGangliaPort());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getGangliaAddressingMode());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getGangliaTtl());
     return hash ^ super.hashCode();
   }
 

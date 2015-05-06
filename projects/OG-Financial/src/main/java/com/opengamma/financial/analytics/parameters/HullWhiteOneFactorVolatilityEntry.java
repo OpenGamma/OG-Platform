@@ -177,9 +177,9 @@ public final class HullWhiteOneFactorVolatilityEntry
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEndTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatility());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStartTenor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEndTenor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVolatility());
     return hash;
   }
 

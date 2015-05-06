@@ -293,10 +293,10 @@ public class LegalEntitySector implements LegalEntityFilter<LegalEntity>, Bean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(isUseSectorName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isUseClassificationName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifications());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassificationValueTypes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isUseSectorName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isUseClassificationName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifications());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassificationValueTypes());
     return hash;
   }
 

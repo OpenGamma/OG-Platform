@@ -423,16 +423,16 @@ public class WebPortfoliosData extends WebPerRequestData {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriPortfolioId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriNodeId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriPositionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolio());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getParentNode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUriPortfolioId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUriNodeId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUriPositionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPortfolio());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getParentNode());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNode());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVersioned());
     return hash ^ super.hashCode();
   }
 

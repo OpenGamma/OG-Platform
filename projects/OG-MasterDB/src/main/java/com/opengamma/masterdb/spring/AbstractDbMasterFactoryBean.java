@@ -242,11 +242,11 @@ public abstract class AbstractDbMasterFactoryBean<T> extends SpringFactoryBean<T
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsChangeManagerTopic());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxRetries());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsChangeManagerTopic());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaxRetries());
     return hash ^ super.hashCode();
   }
 

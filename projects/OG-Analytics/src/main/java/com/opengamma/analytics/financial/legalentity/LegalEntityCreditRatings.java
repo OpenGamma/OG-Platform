@@ -303,10 +303,10 @@ public class LegalEntityCreditRatings implements LegalEntityFilter<LegalEntity>,
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(isUseRating());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPerAgencyRatings());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isUseRatingDescription());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPerAgencyRatingDescriptions());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isUseRating());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPerAgencyRatings());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isUseRatingDescription());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPerAgencyRatingDescriptions());
     return hash;
   }
 

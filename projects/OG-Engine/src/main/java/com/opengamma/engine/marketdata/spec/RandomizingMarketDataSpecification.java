@@ -193,10 +193,10 @@ public final class RandomizingMarketDataSpecification implements ImmutableBean, 
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUpdateProbability());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxPercentageChange());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAverageCycleInterval());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUpdateProbability());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaxPercentageChange());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAverageCycleInterval());
     return hash;
   }
 

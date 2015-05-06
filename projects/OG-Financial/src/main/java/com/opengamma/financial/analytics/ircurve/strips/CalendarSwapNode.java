@@ -389,12 +389,12 @@ public class CalendarSwapNode extends CurveNode {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDateSetName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartDateNumber());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEndDateNumber());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSwapConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isUseFixings());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDateSetName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStartTenor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStartDateNumber());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEndDateNumber());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSwapConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isUseFixings());
     return hash ^ super.hashCode();
   }
 

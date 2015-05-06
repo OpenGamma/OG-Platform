@@ -155,8 +155,8 @@ public class RestComponent extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInstance());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInfo());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getInstance());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getInfo());
     return hash;
   }
 

@@ -368,12 +368,12 @@ public class ThreeLegBasisSwapNode extends CurveNode {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPayLegConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveLegConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSpreadLegConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isUseFixings());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStartTenor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityTenor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPayLegConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReceiveLegConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSpreadLegConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isUseFixings());
     return hash ^ super.hashCode();
   }
 

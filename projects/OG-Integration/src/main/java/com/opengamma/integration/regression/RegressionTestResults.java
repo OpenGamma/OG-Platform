@@ -28,6 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.util.ArgumentChecker;
+import java.util.Arrays;
 
 /**
  *
@@ -151,8 +152,7 @@ public final class RegressionTestResults implements ImmutableBean {
       RegressionTestResults other = (RegressionTestResults) obj;
       return JodaBeanUtils.equal(getBaseVersion(), other.getBaseVersion()) &&
           JodaBeanUtils.equal(getTestVersion(), other.getTestVersion()) &&
-          JodaBeanUtils.equal(getDifferences(), other.getDifferences()) &&
-          JodaBeanUtils.equal(getStatus(), other.getStatus());
+          JodaBeanUtils.equal(getDifferences(), other.getDifferences());
     }
     return false;
   }
@@ -160,10 +160,9 @@ public final class RegressionTestResults implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseVersion());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTestVersion());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDifferences());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStatus());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBaseVersion());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTestVersion());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDifferences());
     return hash;
   }
 
@@ -440,6 +439,16 @@ public final class RegressionTestResults implements ImmutableBean {
       JodaBeanUtils.notNull(differences, "differences");
       this._differences = differences;
       return this;
+    }
+
+    /**
+     * Sets the {@code differences} property in the builder
+     * from an array of objects.
+     * @param differences  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder differences(CalculationDifference... differences) {
+      return differences(Arrays.asList(differences));
     }
 
     //-----------------------------------------------------------------------

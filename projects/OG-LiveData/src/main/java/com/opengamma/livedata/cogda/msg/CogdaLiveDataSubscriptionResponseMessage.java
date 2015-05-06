@@ -97,7 +97,7 @@ public class CogdaLiveDataSubscriptionResponseMessage extends CogdaLiveDataComma
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshot());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSnapshot());
     return hash ^ super.hashCode();
   }
 

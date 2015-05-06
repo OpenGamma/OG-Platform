@@ -263,10 +263,10 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getKeys());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFilters());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuerName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingReference());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getKeys());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFilters());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIssuerName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingReference());
     return hash ^ super.hashCode();
   }
 

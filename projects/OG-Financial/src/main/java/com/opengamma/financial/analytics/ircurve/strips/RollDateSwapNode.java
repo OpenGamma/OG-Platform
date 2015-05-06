@@ -339,11 +339,11 @@ public class RollDateSwapNode extends CurveNode {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRollDateStartNumber());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRollDateEndNumber());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRollDateSwapConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isUseFixings());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStartTenor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRollDateStartNumber());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRollDateEndNumber());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRollDateSwapConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isUseFixings());
     return hash ^ super.hashCode();
   }
 

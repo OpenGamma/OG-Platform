@@ -683,24 +683,24 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCustomRates());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRateAveragingMethod());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRateCutoffDaysOffset());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCapRate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFloorRate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGearing());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSpreadSchedule());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSchedule());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFloatingReferenceRateId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFloatingRateType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getResetPeriodCalendars());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getResetPeriodBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getResetPeriodFrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getResetDateRelativeTo());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingDateCalendars());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingDateBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingDateOffset());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingDateOffsetType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCustomRates());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRateAveragingMethod());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRateCutoffDaysOffset());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCapRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFloorRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getGearing());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSpreadSchedule());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSchedule());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFloatingReferenceRateId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFloatingRateType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getResetPeriodCalendars());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getResetPeriodBusinessDayConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getResetPeriodFrequency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getResetDateRelativeTo());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingDateCalendars());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingDateBusinessDayConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingDateOffset());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingDateOffsetType());
     return hash ^ super.hashCode();
   }
 

@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.interestrate.future.calculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.provider.BondFuturesSecurityDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.future.provider.FuturesSecurityIssuerMethod;
 import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueBlackBondFuturesCubeSensitivity;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
@@ -20,31 +21,41 @@ import com.opengamma.util.tuple.Triple;
 /**
  * Computes the price for different types of futures. Calculator using a multi-curve and issuer provider.
  */
-public final class FuturesPriceBlackSensitivityBlackBondFuturesCalculator extends InstrumentDerivativeVisitorAdapter<BlackBondFuturesProviderInterface, PresentValueBlackBondFuturesCubeSensitivity> {
+public final class FuturesPriceBlackSensitivityBlackBondFuturesCalculator 
+    extends InstrumentDerivativeVisitorAdapter<BlackBondFuturesProviderInterface, PresentValueBlackBondFuturesCubeSensitivity> {
 
-  /**
-   * The unique instance of the calculator.
-   */
-  private static final FuturesPriceBlackSensitivityBlackBondFuturesCalculator INSTANCE = new FuturesPriceBlackSensitivityBlackBondFuturesCalculator();
+  /** The default instance of the calculator. */
+  private static final FuturesPriceBlackSensitivityBlackBondFuturesCalculator DEFAULT = 
+      new FuturesPriceBlackSensitivityBlackBondFuturesCalculator();
+  /** The method used to compute the future price. */
+  private final FuturesSecurityIssuerMethod _methodFutures;
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
   public static FuturesPriceBlackSensitivityBlackBondFuturesCalculator getInstance() {
-    return INSTANCE;
+    return DEFAULT;
   }
 
   /**
-   * Constructor.
+   * Default constructor.
    */
   private FuturesPriceBlackSensitivityBlackBondFuturesCalculator() {
+    _methodFutures = BondFuturesSecurityDiscountingMethod.getInstance();
+  }
+
+  /**
+   * Constructor from a particular bond futures method. The method is used to compute the price and price curve
+   * sensitivity of the underlying futures.
+   * @param methodFutures The method used to compute futures option.
+   */
+  public FuturesPriceBlackSensitivityBlackBondFuturesCalculator(FuturesSecurityIssuerMethod methodFutures) {
+    _methodFutures = methodFutures;
   }
 
   /** The Black function used in the pricing. */
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
-  /** The method used to compute the future price. */
-  private static final BondFuturesSecurityDiscountingMethod METHOD_FUTURE = BondFuturesSecurityDiscountingMethod.getInstance();
 
   //     -----     Futures options    -----
 
@@ -53,7 +64,7 @@ public final class FuturesPriceBlackSensitivityBlackBondFuturesCalculator extend
       final BlackBondFuturesProviderInterface black) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(black, "Black  data");
-    final double priceFutures = METHOD_FUTURE.price(security.getUnderlyingFuture(), black.getIssuerProvider());
+    final double priceFutures = _methodFutures.price(security.getUnderlyingFuture(), black.getIssuerProvider());
     // Forward sweep
     final double strike = security.getStrike();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, security.getExpirationTime(), security.isCall());

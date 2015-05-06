@@ -478,18 +478,18 @@ public class RedisHtsSnapshotJobDetailComponentFactory extends AbstractComponent
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseDir());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGroup());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getScheduler());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNormalizationRuleSetId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGlobalPrefix());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHtsMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSchemeBlackList());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataFieldBlackList());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBaseDir());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getGroup());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getScheduler());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNormalizationRuleSetId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getGlobalPrefix());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHtsMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRedisConnector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSchemeBlackList());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataFieldBlackList());
     return hash ^ super.hashCode();
   }
 

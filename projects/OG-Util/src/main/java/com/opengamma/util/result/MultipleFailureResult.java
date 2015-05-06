@@ -5,9 +5,11 @@
  */
 package com.opengamma.util.result;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -221,9 +223,9 @@ public final class MultipleFailureResult<T> extends Result<T> implements Immutab
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFailures());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStatus());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMessage());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFailures());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStatus());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMessage());
     return hash;
   }
 
@@ -463,6 +465,16 @@ public final class MultipleFailureResult<T> extends Result<T> implements Immutab
       JodaBeanUtils.notNull(failures, "failures");
       this._failures = failures;
       return this;
+    }
+
+    /**
+     * Sets the {@code failures} property in the builder
+     * from an array of objects.
+     * @param failures  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder<T> failures(Failure... failures) {
+      return failures(new LinkedHashSet<Failure>(Arrays.asList(failures)));
     }
 
     /**

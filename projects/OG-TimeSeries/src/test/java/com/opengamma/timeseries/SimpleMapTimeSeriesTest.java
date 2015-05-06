@@ -11,9 +11,6 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.timeseries.SimpleMapTimeSeries;
-import com.opengamma.timeseries.TimeSeries;
-
 /**
  * Test {@link SimpleMapTimeSeries}.
  */

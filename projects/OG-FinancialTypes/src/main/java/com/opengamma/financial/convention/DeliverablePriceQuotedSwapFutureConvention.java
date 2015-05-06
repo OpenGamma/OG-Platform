@@ -188,8 +188,8 @@ public class DeliverablePriceQuotedSwapFutureConvention extends ExchangeTradedFu
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSwapConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSwapConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
     return hash ^ super.hashCode();
   }
 

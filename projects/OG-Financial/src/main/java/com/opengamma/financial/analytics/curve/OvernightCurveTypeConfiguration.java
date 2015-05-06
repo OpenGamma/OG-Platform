@@ -117,7 +117,7 @@ public class OvernightCurveTypeConfiguration extends CurveTypeConfiguration {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConvention());
     return hash ^ super.hashCode();
   }
 

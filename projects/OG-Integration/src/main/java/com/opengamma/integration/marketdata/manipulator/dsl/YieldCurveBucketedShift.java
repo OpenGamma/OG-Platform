@@ -146,9 +146,9 @@ public final class YieldCurveBucketedShift implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStart());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEnd());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getShift());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStart());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEnd());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getShift());
     return hash;
   }
 

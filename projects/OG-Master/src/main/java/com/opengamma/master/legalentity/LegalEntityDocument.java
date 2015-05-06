@@ -177,8 +177,8 @@ public class LegalEntityDocument extends AbstractDocument implements Serializabl
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLegalEntity());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLegalEntity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     return hash ^ super.hashCode();
   }
 

@@ -197,9 +197,9 @@ public class SpreadCurveDefinition extends AbstractCurveDefinition {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstCurve());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecondCurve());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOperationName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFirstCurve());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecondCurve());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getOperationName());
     return hash ^ super.hashCode();
   }
 

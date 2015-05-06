@@ -285,12 +285,12 @@ public class FunctionCostsDocument extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigurationName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersion());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInvocationCost());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataInputCost());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataOutputCost());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConfigurationName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFunctionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVersion());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getInvocationCost());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataInputCost());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataOutputCost());
     return hash;
   }
 

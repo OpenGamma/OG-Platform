@@ -317,16 +317,16 @@ public final class YieldCurveData implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurveDayCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurveBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCashDayCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSwapDayCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSpotDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSwapFixedLegInterval());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCashData());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSwapData());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveDayCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurveBusinessDayConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCashDayCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSwapDayCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSpotDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRegionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSwapFixedLegInterval());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCashData());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSwapData());
     return hash;
   }
 

@@ -267,11 +267,11 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTarget());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInstrumentType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getQuoteType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getQuoteUnits());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTarget());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getInstrumentType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getQuoteType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getQuoteUnits());
     return hash;
   }
 

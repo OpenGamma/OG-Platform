@@ -214,9 +214,9 @@ public class InterpolatedCurveDefinition extends CurveDefinition {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInterpolatorName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRightExtrapolatorName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLeftExtrapolatorName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getInterpolatorName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRightExtrapolatorName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLeftExtrapolatorName());
     return hash ^ super.hashCode();
   }
 

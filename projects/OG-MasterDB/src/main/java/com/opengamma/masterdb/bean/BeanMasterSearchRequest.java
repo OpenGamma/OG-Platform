@@ -556,17 +556,17 @@ public class BeanMasterSearchRequest extends AbstractSearchRequest {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdSearch());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdValue());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdScheme());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIndexedProperties());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMainType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSubType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getActualType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrderSql());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObjectIds());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExternalIdSearch());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExternalIdValue());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExternalIdScheme());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAttributes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIndexedProperties());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMainType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSubType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getActualType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSortOrderSql());
     return hash ^ super.hashCode();
   }
 

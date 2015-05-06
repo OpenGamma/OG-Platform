@@ -162,7 +162,7 @@ public class ExchangeHistoryRequest extends AbstractHistoryRequest {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(isFullDetail());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isFullDetail());
     return hash ^ super.hashCode();
   }
 

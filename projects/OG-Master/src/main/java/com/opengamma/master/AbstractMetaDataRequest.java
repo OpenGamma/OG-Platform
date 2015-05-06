@@ -109,7 +109,7 @@ public abstract class AbstractMetaDataRequest extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
     return hash;
   }
 

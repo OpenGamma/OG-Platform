@@ -191,8 +191,8 @@ public class BillTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotionalCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotionalAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotionalCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotionalAmount());
     return hash ^ super.hashCode();
   }
 

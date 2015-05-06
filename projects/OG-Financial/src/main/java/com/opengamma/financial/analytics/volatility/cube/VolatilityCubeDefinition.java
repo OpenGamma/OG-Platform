@@ -357,12 +357,12 @@ public class VolatilityCubeDefinition<X, Y, Z> implements Bean, Serializable, Un
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCubeQuoteType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getXs());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getYs());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getZs());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCubeQuoteType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getXs());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getYs());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getZs());
     return hash;
   }
 

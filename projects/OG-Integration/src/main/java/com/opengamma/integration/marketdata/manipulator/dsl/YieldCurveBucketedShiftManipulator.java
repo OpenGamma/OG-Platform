@@ -35,6 +35,7 @@ import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
+import java.util.Arrays;
 
 /**
  * A {@link StructureManipulator} which performs a list of bucketed shifts on a {@link YieldCurve}.
@@ -174,8 +175,8 @@ public final class YieldCurveBucketedShiftManipulator implements ImmutableBean, 
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getShiftType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getShifts());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getShiftType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getShifts());
     return hash;
   }
 
@@ -393,6 +394,16 @@ public final class YieldCurveBucketedShiftManipulator implements ImmutableBean, 
     public Builder shifts(List<YieldCurveBucketedShift> shifts) {
       this._shifts = shifts;
       return this;
+    }
+
+    /**
+     * Sets the {@code shifts} property in the builder
+     * from an array of objects.
+     * @param shifts  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder shifts(YieldCurveBucketedShift... shifts) {
+      return shifts(Arrays.asList(shifts));
     }
 
     //-----------------------------------------------------------------------

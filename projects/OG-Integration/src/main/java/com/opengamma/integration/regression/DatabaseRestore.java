@@ -22,7 +22,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.impl.ConfigItem;
-import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.NamedSnapshot;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.ObjectId;
@@ -323,9 +323,8 @@ public class DatabaseRestore {
   }
 
   private void loadSnapshots() throws IOException {
-    List<ManageableMarketDataSnapshot> snapshots = readAll(RegressionUtils.MARKET_DATA_SNAPSHOT_MASTER_DATA);
-    for (ManageableMarketDataSnapshot snapshot : snapshots) {
-      snapshot.setUniqueId(null);
+    List<NamedSnapshot> snapshots = readAll(RegressionUtils.MARKET_DATA_SNAPSHOT_MASTER_DATA);
+    for (NamedSnapshot snapshot : snapshots) {
       _snapshotMaster.add(new MarketDataSnapshotDocument(snapshot));
     }
   }

@@ -310,11 +310,11 @@ public class BondFutureSecurity extends FutureSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBasket());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstNoticeDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLastNoticeDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstDeliveryDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLastDeliveryDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBasket());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFirstNoticeDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLastNoticeDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFirstDeliveryDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLastDeliveryDate());
     return hash ^ super.hashCode();
   }
 
