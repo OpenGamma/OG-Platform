@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.provider.description.interestrate;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +17,8 @@ import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
@@ -58,15 +59,15 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
   /**
    * Map of curve names to currencies.
    */
-  private Map<String, List<Currency>> _namesToCurrency;
+  private ListMultimap<String, Currency> _namesToCurrency;
   /**
    * Map of curve names to ibor indices.
    */
-  private Map<String, List<IborIndex>> _namesToIborIndex;
+  private ListMultimap<String, IborIndex> _namesToIborIndex;
   /**
    * Map of curve names to overnight indices.
    */
-  private Map<String, List<IndexON>> _namesToONIndex;
+  private ListMultimap<String, IndexON> _namesToONIndex;
 
   /**
    * Constructor with empty maps for discounting, forward and price index.
@@ -145,44 +146,26 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
    */
   private void setAllCurves() {
     _allCurves = new LinkedHashMap<>();
-    _namesToCurrency = new HashMap<>();
-    _namesToIborIndex = new HashMap<>();
-    _namesToONIndex = new HashMap<>();
+    _namesToCurrency = ArrayListMultimap.create();
+    _namesToIborIndex = ArrayListMultimap.create();
+    _namesToONIndex = ArrayListMultimap.create();
     final Set<Currency> ccySet = _discountingCurves.keySet();
     for (final Currency ccy : ccySet) {
       final String name = _discountingCurves.get(ccy).getName();
       _allCurves.put(name, _discountingCurves.get(ccy));
-      if (_namesToCurrency.containsKey(name)) {
-        _namesToCurrency.get(name).add(ccy);
-      } else {
-        ArrayList<Currency> tmp = new ArrayList<>();
-        tmp.add(ccy);
-        _namesToCurrency.put(name, tmp);
-      }
+      _namesToCurrency.put(name, ccy);
     }
     final Set<IborIndex> indexSet = _forwardIborCurves.keySet();
     for (final IborIndex index : indexSet) {
       final String name = _forwardIborCurves.get(index).getName();
       _allCurves.put(name, _forwardIborCurves.get(index));
-      if (_namesToIborIndex.containsKey(name)) {
-        _namesToIborIndex.get(name).add(index);
-      } else {
-        ArrayList<IborIndex> tmp = new ArrayList<>();
-        tmp.add(index);
-        _namesToIborIndex.put(name, tmp);
-      }
+      _namesToIborIndex.put(name, index);
     }
     final Set<IndexON> indexONSet = _forwardONCurves.keySet();
     for (final IndexON index : indexONSet) {
       final String name = _forwardONCurves.get(index).getName();
       _allCurves.put(name, _forwardONCurves.get(index));
-      if (_namesToONIndex.containsKey(name)) {
-        _namesToONIndex.get(name).add(index);
-      } else {
-        ArrayList<IndexON> tmp = new ArrayList<>();
-        tmp.add(index);
-        _namesToONIndex.put(name, tmp);
-      }
+      _namesToONIndex.put(name, index);
     }
   }
 
@@ -260,10 +243,6 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
    * @return The currencies.
    */
   public List<Currency> getCurrencyForName(final String name) {
-    List<Currency> list = _namesToCurrency.get(name);
-    if (list == null) {
-      return new ArrayList<>();
-    }
     return _namesToCurrency.get(name);
   }
 
@@ -274,10 +253,6 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
    * @return The ibor indices.
    */
   public List<IborIndex> getIborIndexForName(final String name) {
-    List<IborIndex> list = _namesToIborIndex.get(name);
-    if (list == null) {
-      return new ArrayList<>();
-    }
     return _namesToIborIndex.get(name);
   }
 
@@ -288,10 +263,6 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
    * @return The overnight indices.
    */
   public List<IndexON> getOvernightIndexForName(final String name) {
-    List<IndexON> list = _namesToONIndex.get(name);
-    if (list == null) {
-      return new ArrayList<>();
-    }
     return _namesToONIndex.get(name);
   }
 

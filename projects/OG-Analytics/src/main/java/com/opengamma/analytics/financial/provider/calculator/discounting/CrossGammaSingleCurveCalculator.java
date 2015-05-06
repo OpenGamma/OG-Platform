@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.discounting;
 
+import com.google.common.collect.Iterators;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -81,7 +82,7 @@ public class CrossGammaSingleCurveCalculator {
     ArgumentChecker.isTrue(multicurve.getAllNames().size() == 1,
         "provider should have only one curve for GammaSingleCurve computation");
     String name = multicurve.getAllNames().iterator().next();
-    Currency ccy = multicurve.getCurrencyForName(name).get(0);
+    Currency ccy = Iterators.getOnlyElement(multicurve.getCurrencyForName(name).iterator());
     YieldAndDiscountCurve curve = multicurve.getCurve(name);
     ArgumentChecker.isTrue(curve instanceof YieldCurve || curve instanceof DiscountCurve, 
         "curve should be YieldCurve or DiscountCurve");
