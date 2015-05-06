@@ -44,7 +44,7 @@ public final class IndexIborMaster {
    * Reference to the DKK CIBOR 6M index.
    */
   public static final String DKKCIBOR6M = "DKKCIBOR6M";
-  
+
   /**
    * Reference to the EUR EURIBOR 1M index.
    */
@@ -65,6 +65,10 @@ public final class IndexIborMaster {
    */
   public static final String EURIBOR12M = "EURIBOR12M";
 
+  /** Reference to the GBP LIBOR 1M index.
+   */
+  public static final String GBPLIBOR1M = "GBPLIBOR1M";
+
   /**
    * Reference to the GBP LIBOR 3M index.
    */
@@ -74,6 +78,10 @@ public final class IndexIborMaster {
    * Reference to the GBP LIBOR 6M index.
    */
   public static final String GBPLIBOR6M = "GBPLIBOR6M";
+
+  /** Reference to the JPY LIBOR 3M index.
+   */
+  public static final String JPYLIBOR1M = "JPYLIBOR1M";
 
   /**
    * Reference to the JPY LIBOR 3M index.
@@ -104,7 +112,7 @@ public final class IndexIborMaster {
    * Reference to the USD LIBOR 6M index.
    */
   public static final String USDLIBOR12M = "USDLIBOR12M";
-  
+
   /**
    * The method unique instance.
    */
@@ -173,6 +181,10 @@ public final class IndexIborMaster {
         new IborIndex(Currency.USD, Period.ofMonths(12), 2, DayCounts.ACT_360, BusinessDayConventions.MODIFIED_FOLLOWING,
             true, USDLIBOR12M));
     _ibor.put(
+        GBPLIBOR1M,
+        new IborIndex(Currency.GBP, Period.ofMonths(1), 0, DayCounts.ACT_365, BusinessDayConventions.MODIFIED_FOLLOWING,
+            true, GBPLIBOR1M));
+    _ibor.put(
         GBPLIBOR3M,
         new IborIndex(Currency.GBP, Period.ofMonths(3), 0, DayCounts.ACT_365, BusinessDayConventions.MODIFIED_FOLLOWING,
             true, GBPLIBOR3M));
@@ -189,12 +201,16 @@ public final class IndexIborMaster {
         new IborIndex(Currency.DKK, Period.ofMonths(6), 2, DayCounts.ACT_360, BusinessDayConventions.MODIFIED_FOLLOWING,
             true, DKKCIBOR6M));
     _ibor.put(
+        JPYLIBOR1M,
+        new IborIndex(Currency.JPY, Period.ofMonths(1), 2, DayCounts.ACT_360, BusinessDayConventions.MODIFIED_FOLLOWING,
+            true, JPYLIBOR1M));
+    _ibor.put(
         JPYLIBOR3M,
-        new IborIndex(Currency.JPY, Period.ofMonths(3), 2, DayCounts.ACT_365, BusinessDayConventions.MODIFIED_FOLLOWING,
+        new IborIndex(Currency.JPY, Period.ofMonths(3), 2, DayCounts.ACT_360, BusinessDayConventions.MODIFIED_FOLLOWING,
             true, JPYLIBOR3M));
     _ibor.put(
         JPYLIBOR6M,
-        new IborIndex(Currency.JPY, Period.ofMonths(6), 2, DayCounts.ACT_365, BusinessDayConventions.MODIFIED_FOLLOWING,
+        new IborIndex(Currency.JPY, Period.ofMonths(6), 2, DayCounts.ACT_360, BusinessDayConventions.MODIFIED_FOLLOWING,
             true, JPYLIBOR6M));
   }
 

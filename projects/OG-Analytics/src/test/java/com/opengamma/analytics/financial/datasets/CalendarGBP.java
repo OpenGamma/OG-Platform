@@ -25,7 +25,7 @@ public class CalendarGBP extends MondayToFridayCalendar {
    */
   public CalendarGBP(final String name) {
     super(name);
-    final int startYear = 2013;
+    final int startYear = 2012;
     final int endYear = 2063;
 
     for (int loopy = startYear; loopy <= endYear; loopy++) {
@@ -33,7 +33,7 @@ public class CalendarGBP extends MondayToFridayCalendar {
       addNonWorkingDay(LocalDate.of(loopy, 12, 25));
       addNonWorkingDay(LocalDate.of(loopy, 12, 26));
     }
-    final LocalDate easter[] = new LocalDate[] {LocalDate.of(2013, 3, 31), LocalDate.of(2014, 4, 20), LocalDate.of(2015, 4, 5),
+    final LocalDate easter[] = new LocalDate[] {LocalDate.of(2012, 4, 8), LocalDate.of(2013, 3, 31), LocalDate.of(2014, 4, 20), LocalDate.of(2015, 4, 5),
       LocalDate.of(2016, 3, 27), LocalDate.of(2017, 4, 16), LocalDate.of(2018, 4, 1), LocalDate.of(2019, 4, 21), LocalDate.of(2020, 4, 12),
       LocalDate.of(2021, 4, 4), LocalDate.of(2022, 4, 17), LocalDate.of(2023, 4, 9), LocalDate.of(2024, 3, 31), LocalDate.of(2025, 4, 20),
       LocalDate.of(2026, 4, 5), LocalDate.of(2027, 3, 28), LocalDate.of(2028, 4, 16), LocalDate.of(2029, 4, 1), LocalDate.of(2030, 4, 21),
@@ -45,36 +45,33 @@ public class CalendarGBP extends MondayToFridayCalendar {
       addNonWorkingDay(element.minusDays(2)); // Easter Friday
       addNonWorkingDay(element.plusDays(1)); // Easter Monday
     }
-    addNonWorkingDay(LocalDate.of(2014, 4, 18));
-    addNonWorkingDay(LocalDate.of(2014, 4, 21));
+
+    //bank holidays (ex. Christmas, new year and Easter)
+    addNonWorkingDay(LocalDate.of(2012, 5, 7));
+    addNonWorkingDay(LocalDate.of(2012, 6, 4));
+    addNonWorkingDay(LocalDate.of(2012, 6, 5));
+    addNonWorkingDay(LocalDate.of(2012, 8, 27));
+    addNonWorkingDay(LocalDate.of(2013, 5, 6));
+    addNonWorkingDay(LocalDate.of(2013, 5, 27));
+    addNonWorkingDay(LocalDate.of(2013, 8, 26));
     addNonWorkingDay(LocalDate.of(2014, 5, 5));
     addNonWorkingDay(LocalDate.of(2014, 5, 26));
     addNonWorkingDay(LocalDate.of(2014, 8, 25));
-    addNonWorkingDay(LocalDate.of(2015, 4, 3));
-    addNonWorkingDay(LocalDate.of(2015, 4, 6));
     addNonWorkingDay(LocalDate.of(2015, 5, 4));
     addNonWorkingDay(LocalDate.of(2015, 5, 25));
     addNonWorkingDay(LocalDate.of(2015, 8, 31));
-    addNonWorkingDay(LocalDate.of(2015, 12, 28));
-    addNonWorkingDay(LocalDate.of(2016, 3, 25));
-    addNonWorkingDay(LocalDate.of(2016, 3, 28));
+    addNonWorkingDay(LocalDate.of(2015, 12, 28)); //boxing day
     addNonWorkingDay(LocalDate.of(2016, 5, 2));
     addNonWorkingDay(LocalDate.of(2016, 5, 30));
     addNonWorkingDay(LocalDate.of(2016, 8, 29));
-    addNonWorkingDay(LocalDate.of(2016, 12, 27));
+    addNonWorkingDay(LocalDate.of(2016, 12, 27)); //Christmas Day (substitute day)
     addNonWorkingDay(LocalDate.of(2017, 1, 2));
-    addNonWorkingDay(LocalDate.of(2017, 4, 14));
-    addNonWorkingDay(LocalDate.of(2017, 4, 17));
     addNonWorkingDay(LocalDate.of(2017, 5, 1));
     addNonWorkingDay(LocalDate.of(2017, 5, 29));
     addNonWorkingDay(LocalDate.of(2017, 8, 28));
-    addNonWorkingDay(LocalDate.of(2018, 3, 30));
-    addNonWorkingDay(LocalDate.of(2018, 4, 2));
     addNonWorkingDay(LocalDate.of(2018, 5, 7));
     addNonWorkingDay(LocalDate.of(2018, 5, 28));
     addNonWorkingDay(LocalDate.of(2018, 8, 27));
-    addNonWorkingDay(LocalDate.of(2019, 4, 19));
-    addNonWorkingDay(LocalDate.of(2019, 4, 22));
     addNonWorkingDay(LocalDate.of(2019, 5, 6));
     addNonWorkingDay(LocalDate.of(2019, 5, 27));
     addNonWorkingDay(LocalDate.of(2019, 8, 26));

@@ -17,8 +17,9 @@ import com.opengamma.util.ArgumentChecker;
  * Given a data set {x[i], y[i]}, extrapolate {x[i], x[i] * y[i]} by a linear function by using polynomial coefficients 
  * obtained in ProductPiecewisePolynomialInterpolator1D. 
  * 
- * Even if the interpolator is clamped at (0,0), this extrapolator does not ensure the reuslting extrapolation curve goes through the origin. 
+ * Even if the interpolator is clamped at (0,0), this extrapolator does not ensure the resulting extrapolation curve goes through the origin. 
  * Thus a reference value is returned for Math.abs(value) < SMALL, where SMALL is defined in the super class. 
+ * Use {@link ZeroClampedProductExtrapolator1D} if one needs extrapolation such that the resulting curve go through the origin.  
  */
 public class ReciprocalExtrapolator1D extends ProductPolynomialExtrapolator1D {
   private static final long serialVersionUID = 1L;
@@ -79,9 +80,6 @@ public class ReciprocalExtrapolator1D extends ProductPolynomialExtrapolator1D {
       for (int j = 0; j < dim; ++j) {
         double[] coefs = coefMatrix.getRowVector(dim * indicator + j).getData();
         res[j] = getValue(coefs, xKey, knots[indicator]);
-
-        ArgumentChecker.isFalse(Double.isInfinite(res[j]), "Too large input");
-        ArgumentChecker.isFalse(Double.isNaN(res[j]), "Too large input");
       }
 
       return new DoubleMatrix1D(res);
@@ -110,9 +108,8 @@ public class ReciprocalExtrapolator1D extends ProductPolynomialExtrapolator1D {
     @Override
     public DoubleMatrix1D differentiateTwice(final PiecewisePolynomialResult pp, final double xKey) {
       ArgumentChecker.notNull(pp, "pp");
-      int nKnots = pp.getNumberOfIntervals() + 1;
       int dim = pp.getDimensions();
-      double[] result = new double[dim * (nKnots - 1)];
+      double[] result = new double[dim];
       return new DoubleMatrix1D(result);
     }
 

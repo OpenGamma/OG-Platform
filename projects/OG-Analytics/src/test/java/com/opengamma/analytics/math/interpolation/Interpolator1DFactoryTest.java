@@ -41,5 +41,14 @@ public class Interpolator1DFactoryTest {
     assertEquals(Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.getInterpolatorName(new LinearExtrapolator1D(new LinearInterpolator1D())));
     assertEquals(Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.getInterpolatorName(new FlatExtrapolator1D()));
     assertEquals(Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR, Interpolator1DFactory.getInterpolatorName(new ExponentialExtrapolator1D()));
+    assertEquals(Interpolator1DFactory.PRODUCT_NATURAL_CUBIC,
+        Interpolator1DFactory.getInterpolatorName(new ProductPiecewisePolynomialInterpolator1D(
+            new NaturalSplineInterpolator())));
+    assertEquals(Interpolator1DFactory.RECIPROCAL_EXTRAPOLATOR,
+        Interpolator1DFactory.getInterpolatorName(new ReciprocalExtrapolator1D(
+            Interpolator1DFactory.PRODUCT_NATURAL_CUBIC_INSTANCE)));
+    assertEquals(Interpolator1DFactory.PRODUCT_POLYNOMIAL_EXTRAPOLATOR,
+        Interpolator1DFactory.getInterpolatorName(new ProductPolynomialExtrapolator1D(
+            Interpolator1DFactory.PRODUCT_NATURAL_CUBIC_INSTANCE)));
   }
 }
