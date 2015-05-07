@@ -7,27 +7,37 @@ package com.opengamma.analytics.financial.provider.curve.inflation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.Multimap;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurve;
+import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.curve.MultiCurveBundle;
 import com.opengamma.analytics.financial.provider.curve.SingleCurveBundle;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.ParameterSensitivityInflationMatrixCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.ParameterSensitivityInflationUnderlyingMatrixCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
 import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
@@ -255,6 +265,68 @@ public class InflationDiscountBuildingRepository {
       blockBundle.add(name, blockOut, pDmCurveMatrix);
       loopc++;
     }
+  }
+
+  /**
+   * Build a block of curves.
+   *
+   * @param curveBundleList The bundles of curve data used in construction.
+   * @param knownData The known data (fx rates, other curves, model parameters, ...)
+   * @param currenciesByCurveName The discounting curves names map.
+   * @param iborIndicesByCurveName The forward curves names map.
+   * @param onIndicesByCurveName The forward curves names map.
+   * @param inflationByName The inflation curves names map.
+   * @param calculator The calculator of the value on which the calibration is done (usually
+   *   ParSpreadMarketQuoteCalculator (recommended) or converted present value).
+   * @param sensitivityCalculator The parameter sensitivity calculator.
+   * @return A pair with the calibrated yield curve bundle (including the known data) and the
+   *   CurveBuildingBlockBundle with the relevant inverse Jacobian Matrix.
+   */
+  public Pair<InflationProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDerivatives(
+      List<MultiCurveBundle<GeneratorYDCurve>> curveBundleList,
+      InflationProviderDiscount knownData,
+      Map<String, Currency> currenciesByCurveName,
+      Multimap<String, IborIndex> iborIndicesByCurveName,
+      Multimap<String, IndexON> onIndicesByCurveName,
+      Multimap<String, IndexPrice> inflationByName,
+      InstrumentDerivativeVisitor<ParameterInflationProviderInterface, Double> calculator,
+      InstrumentDerivativeVisitor<ParameterInflationProviderInterface, InflationSensitivity> sensitivityCalculator) {
+
+    // adapt arguments for the legacy version
+    @SuppressWarnings("unchecked")
+    MultiCurveBundle<GeneratorYDCurve>[] curveBundles =
+        curveBundleList.toArray(new MultiCurveBundle[curveBundleList.size()]);
+    LinkedHashMap<String, Currency> discountingMap = new LinkedHashMap<>(currenciesByCurveName);
+    LinkedHashMap<String, IborIndex[]> forwardIborMap = new LinkedHashMap<>();
+    LinkedHashMap<String, IndexON[]> forwardONMap = new LinkedHashMap<>();
+    LinkedHashMap<String, IndexPrice[]> inflationMap = new LinkedHashMap<>();
+
+    Map<String, Collection<IborIndex>> iborMap = iborIndicesByCurveName.asMap();
+
+    for (Map.Entry<String, Collection<IborIndex>> entry : iborMap.entrySet()) {
+      String curveName = entry.getKey();
+      Collection<IborIndex> iborIndices = entry.getValue();
+      forwardIborMap.put(curveName, iborIndices.toArray(new IborIndex[iborIndices.size()]));
+    }
+
+    Map<String, Collection<IndexPrice>> infMap = inflationByName.asMap();
+
+    for (Map.Entry<String, Collection<IndexPrice>> entry : infMap.entrySet()) {
+      String curveName = entry.getKey();
+      Collection<IndexPrice> index = entry.getValue();
+      inflationMap.put(curveName, index.toArray(new IndexPrice[index.size()]));
+    }
+
+    Map<String, Collection<IndexON>> onMap = onIndicesByCurveName.asMap();
+
+    for (Map.Entry<String, Collection<IndexON>> entry : onMap.entrySet()) {
+      String curveName = entry.getKey();
+      Collection<IndexON> onIndices = entry.getValue();
+      forwardONMap.put(curveName, onIndices.toArray(new IndexON[onIndices.size()]));
+    }
+
+    return makeCurvesFromDerivatives(curveBundles, knownData, new CurveBuildingBlockBundle(), discountingMap,
+                                     forwardONMap, forwardIborMap, inflationMap, calculator, sensitivityCalculator);
   }
 
   /**
