@@ -286,7 +286,10 @@ public class AnnuityCouponIborDefinition extends AnnuityCouponDefinition<CouponI
     final List<Coupon> resultList = new ArrayList<>();
     final CouponIborDefinition[] payments = getPayments();
     for (int loopcoupon = 0; loopcoupon < payments.length; loopcoupon++) {
-      if (!date.isAfter(payments[loopcoupon].getPaymentDate())) {
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      // if (!date.isAfter(payments[loopcoupon].getPaymentDate())) {
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      if (date.isBefore(payments[loopcoupon].getPaymentDate())) {
         resultList.add(payments[loopcoupon].toDerivative(date, indexFixingTS));
       }
     }
@@ -298,7 +301,10 @@ public class AnnuityCouponIborDefinition extends AnnuityCouponDefinition<CouponI
     ArgumentChecker.notNull(date, "date");
     final List<Coupon> resultList = new ArrayList<>();
     for (int loopcoupon = 0; loopcoupon < getPayments().length; loopcoupon++) {
-      if (!date.isAfter(getPayments()[loopcoupon].getPaymentDate())) {
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      // if (!date.isAfter(getPayments()[loopcoupon].getPaymentDate())) {
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      if (date.isBefore(getPayments()[loopcoupon].getPaymentDate())) {
         resultList.add(getPayments()[loopcoupon].toDerivative(date));
       }
     }

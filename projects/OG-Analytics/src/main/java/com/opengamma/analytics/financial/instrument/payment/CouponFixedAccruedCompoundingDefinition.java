@@ -5,11 +5,11 @@
  */
 package com.opengamma.analytics.financial.instrument.payment;
 
+import com.opengamma.analytics.util.time.TimeCalculator;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
-import com.opengamma.analytics.util.time.TimeCalculatorBUS252;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -133,7 +133,7 @@ public class CouponFixedAccruedCompoundingDefinition extends CouponDefinition {
     ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date {} is after payment date {}", date, getPaymentDate()); // Required: reference date <= payment date
     final String fundingCurveName = yieldCurveNames[0];
-    final double paymentTime = TimeCalculatorBUS252.getTimeBetween(date, getPaymentDate(), _calendar);
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
 
     return new CouponFixedAccruedCompounding(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), getRate(), getAccrualStartDate(), getAccrualEndDate());
   }
@@ -142,7 +142,7 @@ public class CouponFixedAccruedCompoundingDefinition extends CouponDefinition {
   public CouponFixedAccruedCompounding toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date {} is after payment date {}", date, getPaymentDate()); // Required: reference date <= payment date
-    final double paymentTime = TimeCalculatorBUS252.getTimeBetween(date, getPaymentDate(), _calendar);
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     return new CouponFixedAccruedCompounding(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getRate(), getAccrualStartDate(), getAccrualEndDate());
   }
 

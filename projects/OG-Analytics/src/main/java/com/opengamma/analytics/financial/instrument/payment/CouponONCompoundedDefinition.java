@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.opengamma.analytics.financial.interestrate.payments.derivative.*;
+import com.opengamma.analytics.util.time.TimeCalculatorBUS252;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
@@ -18,12 +21,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.util.time.TimeCalculatorBUS252;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
@@ -139,7 +137,7 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
    */
   public static CouponONCompoundedDefinition from(final IndexON index, final ZonedDateTime settlementDate, final ZonedDateTime fixingPeriodEndDate, final double notional,
       final int settlementDays, final Calendar calendar) {
-    final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(fixingPeriodEndDate, -1 + index.getPublicationLag() + settlementDays, calendar);
+    final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(fixingPeriodEndDate, index.getPublicationLag() + settlementDays, calendar);
     final double paymentYearFraction = index.getDayCount().getDayCountFraction(settlementDate, fixingPeriodEndDate, calendar);
     return new CouponONCompoundedDefinition(index.getCurrency(), paymentDate, settlementDate, fixingPeriodEndDate, paymentYearFraction, notional, index, settlementDate,
         fixingPeriodEndDate, calendar);
@@ -173,9 +171,10 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
    */
   public static CouponONCompoundedDefinition from(final GeneratorSwapFixedCompoundedONCompounded generator, final ZonedDateTime settlementDate, final ZonedDateTime fixingPeriodEndDate,
       final double notional) {
-    final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(fixingPeriodEndDate, -1 + generator.getIndex().getPublicationLag() + generator.getSpotLag(), generator.getOvernightCalendar());
-    final double paymentYearFraction = generator.getIndex().getDayCount().getDayCountFraction(settlementDate, fixingPeriodEndDate, generator.getOvernightCalendar());
-    return new CouponONCompoundedDefinition(generator.getIndex().getCurrency(), paymentDate, settlementDate, fixingPeriodEndDate, paymentYearFraction, notional, generator.getIndex(), settlementDate,
+    final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(fixingPeriodEndDate, generator.getIndex().getPublicationLag() + generator.getSpotLag(), generator.getOvernightCalendar());
+    final ZonedDateTime adjustedFixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(fixingPeriodEndDate, 0, generator.getOvernightCalendar());
+    final double paymentYearFraction = generator.getIndex().getDayCount().getDayCountFraction(settlementDate, adjustedFixingPeriodEndDate, generator.getOvernightCalendar());
+    return new CouponONCompoundedDefinition(generator.getIndex().getCurrency(), paymentDate, settlementDate, adjustedFixingPeriodEndDate, paymentYearFraction, notional, generator.getIndex(), settlementDate,
         fixingPeriodEndDate, generator.getOvernightCalendar());
   }
 
@@ -217,13 +216,13 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
    */
   @Deprecated
   @Override
-  public CouponONCompounded toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+  public CouponON toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
     final LocalDate firstPublicationDate = _fixingPeriodDates[_index.getPublicationLag()].toLocalDate(); // This is often one business day following the first fixing date
     ArgumentChecker.isTrue(date.toLocalDate().isBefore(firstPublicationDate),
         "toDerivative method without time series as argument is only valid at dates where the first fixing has not yet been published.");
     ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    final double paymentTime = TimeCalculatorBUS252.getTimeBetween(date, getPaymentDate(), _calendar);
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     final double[] fixingPeriodStartTimes = new double[_fixingPeriodDates.length - 1];
     final double[] fixingPeriodEndTimes = new double[_fixingPeriodDates.length - 1];
     //    DayCount dayCount = _index.getDayCount();
@@ -231,18 +230,30 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
       fixingPeriodStartTimes[i] = TimeCalculatorBUS252.getTimeBetween(date, _fixingPeriodDates[i], _calendar);
       fixingPeriodEndTimes[i] = TimeCalculatorBUS252.getTimeBetween(date, _fixingPeriodDates[i + 1], _calendar);
     }
-    final CouponONCompounded cpn = new CouponONCompounded(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTimes,
-        fixingPeriodEndTimes, _fixingPeriodAccrualFactors, getNotional(), yieldCurveNames[1]);
-    return cpn;
+    double accrualFactor = 0;
+
+    for (double factor : _fixingPeriodAccrualFactors) {
+      accrualFactor += factor;
+  }
+    return new CouponON(
+        getCurrency(),
+        paymentTime,
+        getPaymentYearFraction(),
+        getNotional(),
+        _index,
+        fixingPeriodStartTimes[0],
+        fixingPeriodEndTimes[fixingPeriodEndTimes.length - 1],
+        accrualFactor,
+        getNotional());
   }
 
   @Override
-  public CouponONCompounded toDerivative(final ZonedDateTime date) {
+  public CouponON toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
     final LocalDate firstPublicationDate = _fixingPeriodDates[_index.getPublicationLag()].toLocalDate(); // This is often one business day following the first fixing date
     ArgumentChecker.isTrue(date.toLocalDate().isBefore(firstPublicationDate),
         "toDerivative method without time series as argument is only valid at dates where the first fixing has not yet been published.");
-    final double paymentTime = TimeCalculatorBUS252.getTimeBetween(date, getPaymentDate(), _calendar);
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     final double[] fixingPeriodStartTimes = new double[_fixingPeriodDates.length - 1];
     final double[] fixingPeriodEndTimes = new double[_fixingPeriodDates.length - 1];
     for (int i = 0; i < _fixingPeriodDates.length - 1; i++) {
@@ -250,9 +261,21 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
       fixingPeriodEndTimes[i] = TimeCalculatorBUS252.getTimeBetween(date, _fixingPeriodDates[i + 1], _calendar);
     }
 
-    final CouponONCompounded cpn = new CouponONCompounded(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTimes,
-        fixingPeriodEndTimes, _fixingPeriodAccrualFactors, getNotional());
-    return cpn;
+    double accrualFactor = 0;
+
+    for (double factor : _fixingPeriodAccrualFactors) {
+      accrualFactor += factor;
+  }
+    return new CouponON(
+        getCurrency(),
+        paymentTime,
+        getPaymentYearFraction(),
+        getNotional(),
+        _index,
+        TimeCalculatorBUS252.getTimeBetween(date, date.isAfter(getAccrualStartDate()) ? date : getAccrualStartDate(), _calendar),
+        TimeCalculatorBUS252.getTimeBetween(date, date.isAfter(getAccrualEndDate()) ? date : getAccrualEndDate(), _calendar),
+        accrualFactor,
+        getNotional());
   }
 
   /**
@@ -305,7 +328,7 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
       fixedPeriod++;
     }
 
-    final double paymentTime = TimeCalculatorBUS252.getTimeBetween(valZdt, getPaymentDate(), _calendar);
+    final double paymentTime = TimeCalculator.getTimeBetween(valZdt, getPaymentDate());
     if (fixedPeriod < _fixingPeriodDates.length - 1) { // Some OIS period left
       // Check to see if a fixing is available on current date
       final Double fixedRate = indexFixingDateSeries.getValue(_fixingPeriodDates[fixedPeriod].toLocalDate());
@@ -370,14 +393,14 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
       accruedNotional *= Math.pow(1 + fixedRate, _fixingPeriodAccrualFactors[fixedPeriod]);
       fixedPeriod++;
     }
-    final double paymentTime = TimeCalculatorBUS252.getTimeBetween(valZdt, getPaymentDate(), _calendar);
+    final double paymentTime = TimeCalculator.getTimeBetween(valZdt, getPaymentDate());
     if (fixedPeriod < _fixingPeriodDates.length - 1) { // Some OIS period left
       // Check to see if a fixing is available on current date
-      final Double fixedRate = indexFixingDateSeries.getValue(_fixingPeriodDates[fixedPeriod].toLocalDate());
+			/*final Double fixedRate = indexFixingDateSeries.getValue(_fixingPeriodDates[fixedPeriod].toLocalDate());
       if (fixedRate != null) { // There is!
         accruedNotional *= Math.pow(1 + fixedRate, _fixingPeriodAccrualFactors[fixedPeriod]);
         fixedPeriod++;
-      }
+			}*/
       if (fixedPeriod < _fixingPeriodDates.length - 1) { // More OIS period left
         final double[] fixingAccrualFactorsLeft = new double[_fixingPeriodAccrualFactors.length - fixedPeriod];
         final double[] fixingPeriodStartTimes = new double[_fixingPeriodDates.length - 1 - fixedPeriod];
@@ -390,9 +413,21 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
         for (int loopperiod = 0; loopperiod < _fixingPeriodAccrualFactors.length - fixedPeriod; loopperiod++) {
           fixingAccrualFactorsLeft[loopperiod] = _fixingPeriodAccrualFactors[loopperiod + fixedPeriod];
         }
-        final CouponONCompounded cpn = new CouponONCompounded(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTimes,
-            fixingPeriodEndTimes, fixingAccrualFactorsLeft, accruedNotional);
-        return cpn;
+        double accrualFactor = 0;
+        for (int i = fixedPeriod; i < _fixingPeriodAccrualFactors.length; i++) {
+          double factor = _fixingPeriodAccrualFactors[i];
+          accrualFactor += factor;
+        }
+        return new CouponON(
+            getCurrency(),
+            paymentTime,
+            getPaymentYearFraction(),
+            getNotional(),
+            _index,
+            TimeCalculatorBUS252.getTimeBetween(valZdt, valZdt.isAfter(getAccrualStartDate()) ? valZdt : getAccrualStartDate(), _calendar),
+            TimeCalculatorBUS252.getTimeBetween(valZdt, valZdt.isAfter(getAccrualEndDate()) ? valZdt : getAccrualEndDate(), _calendar),
+            accrualFactor,
+            accruedNotional);
       }
       return new CouponFixed(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), (accruedNotional / getNotional() - 1.0)
           / getPaymentYearFraction());

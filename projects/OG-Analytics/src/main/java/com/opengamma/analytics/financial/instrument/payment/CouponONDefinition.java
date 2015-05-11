@@ -50,6 +50,8 @@ public class CouponONDefinition extends CouponDefinition implements InstrumentDe
    */
   private final Double[] _fixingPeriodAccrualFactor;
 
+  private final Calendar calendar;
+
   /**
    * Constructor from all the coupon details.
    * @param currency The payment currency.
@@ -72,7 +74,7 @@ public class CouponONDefinition extends CouponDefinition implements InstrumentDe
     ArgumentChecker.notNull(fixingPeriodEndDate, "CouponOISDefinition: fixingPeriodEndDate");
     ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "Coupon and index currencies are not compatible. Expected to be the same");
     _index = index;
-
+    this.calendar = calendar;
     final List<ZonedDateTime> fixingDateList = new ArrayList<>();
     final List<Double> fixingAccrualFactorList = new ArrayList<>();
 
@@ -293,10 +295,11 @@ public class CouponONDefinition extends CouponDefinition implements InstrumentDe
     // Accrue notional for fixings before today; up to and including yesterday
     int fixedPeriod = 0;
     int publicationLag = _index.getPublicationLag();
+    final LocalDate adjustedValDate = ScheduleCalculator.getAdjustedDate(valDate, publicationLag, calendar);
     double accruedNotional = getNotional();
     while ((fixedPeriod < _fixingPeriodDate.length - 1) &&
         ((fixedPeriod + publicationLag) < _fixingPeriodDate.length) &&
-        valDate.isAfter(_fixingPeriodDate[fixedPeriod + publicationLag].toLocalDate())) {
+        adjustedValDate.isAfter(_fixingPeriodDate[fixedPeriod].toLocalDate())) {
 
       final LocalDate currentDate = _fixingPeriodDate[fixedPeriod].toLocalDate();
       Double fixedRate = indexFixingDateSeries.getValue(currentDate);

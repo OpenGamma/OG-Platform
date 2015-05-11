@@ -5,11 +5,7 @@
  */
 package com.opengamma.analytics.financial.instrument.annuity;
 
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalTime;
-import org.threeten.bp.Period;
-import org.threeten.bp.ZoneId;
-import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.*;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.NotionalProvider;
@@ -207,7 +203,7 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
    * @return the unadjusted start date of the annuity.
    */
   protected ZonedDateTime getStartDate() {
-    ZonedDateTime startDate = _startDate.atTime(LocalTime.MIN).atZone(ZoneId.systemDefault());
+		ZonedDateTime startDate = _startDate.atTime(LocalTime.MIN).atZone(ZoneOffset.UTC);
     return startDate;
   }
   
@@ -216,7 +212,7 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
    * @return the unadjusted end date of the annuity.
    */
   protected ZonedDateTime getEndDate() {
-    ZonedDateTime endDate = _endDate.atTime(LocalTime.MIN).atZone(ZoneId.systemDefault());
+		ZonedDateTime endDate = _endDate.atTime(LocalTime.MIN).atZone(ZoneOffset.UTC);
     return endDate;
   }
   

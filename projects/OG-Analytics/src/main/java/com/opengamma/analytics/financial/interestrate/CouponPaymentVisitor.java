@@ -6,7 +6,9 @@
 package com.opengamma.analytics.financial.interestrate;
 
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
@@ -24,4 +26,13 @@ public class CouponPaymentVisitor extends InstrumentDerivativeVisitorAdapter<Voi
     return CurrencyAmount.of(payment.getCurrency(), payment.getNotionalAccrued() - payment.getNotional());
   }
 
+  @Override
+  public CurrencyAmount visitCouponOIS(final CouponON payment) {
+    return CurrencyAmount.of(payment.getCurrency(), payment.getNotionalAccrued() - payment.getNotional());
+  }
+
+  @Override
+  public CurrencyAmount visitCouponFixedAccruedCompounding(final CouponFixedAccruedCompounding payment) {
+    return CurrencyAmount.of(payment.getCurrency(), payment.getAmount());
+  }
 }

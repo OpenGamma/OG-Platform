@@ -347,7 +347,11 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
     final double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
     final LocalDate dayFixing = getFixingDate().toLocalDate();
     if (dayConversion.equals(dayFixing)) { // The fixing is on the reference date; if known the fixing is used and if not, the floating coupon is created.
-      final Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      // final Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
+      final ZonedDateTime rezonedFixingDate = dayFixing.atStartOfDay(ZoneOffset.UTC);
+      final Double fixedRate = indexFixingTimeSeries.getValue(rezonedFixingDate);
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////
       if (fixedRate != null) {
         return new CouponFixed(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixedRate);
       }
