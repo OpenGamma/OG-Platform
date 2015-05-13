@@ -65,8 +65,8 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbo
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
-import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionPremiumSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
@@ -572,13 +572,13 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitBondFuturesOptionMarginTransaction(BondFuturesOptionMarginTransaction option);
 
-  RESULT_TYPE visitBondFutureOptionPremiumSecurity(BondFutureOptionPremiumSecurity option, DATA_TYPE data);
+  RESULT_TYPE visitBondFutureOptionPremiumSecurity(BondFuturesOptionPremiumSecurity option, DATA_TYPE data);
 
-  RESULT_TYPE visitBondFutureOptionPremiumSecurity(BondFutureOptionPremiumSecurity option);
+  RESULT_TYPE visitBondFutureOptionPremiumSecurity(BondFuturesOptionPremiumSecurity option);
 
-  RESULT_TYPE visitBondFutureOptionPremiumTransaction(BondFutureOptionPremiumTransaction option, DATA_TYPE data);
+  RESULT_TYPE visitBondFutureOptionPremiumTransaction(BondFuturesOptionPremiumTransaction option, DATA_TYPE data);
 
-  RESULT_TYPE visitBondFutureOptionPremiumTransaction(BondFutureOptionPremiumTransaction option);
+  RESULT_TYPE visitBondFutureOptionPremiumTransaction(BondFuturesOptionPremiumTransaction option);
 
   RESULT_TYPE visitInterestRateFutureOptionMarginSecurity(InterestRateFutureOptionMarginSecurity option, DATA_TYPE data);
 

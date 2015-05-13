@@ -19,7 +19,6 @@ import com.opengamma.financial.analytics.model.bond.BondFunctions;
 import com.opengamma.financial.analytics.model.bondcleanprice.BondCleanPriceFunctions;
 import com.opengamma.financial.analytics.model.bondcurves.BondCurveFunctions;
 import com.opengamma.financial.analytics.model.bondcurves.inflationbondcurves.InflationBondCurveFunctions;
-import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionFunctions;
 import com.opengamma.financial.analytics.model.bondyield.BondYieldFunctions;
 import com.opengamma.financial.analytics.model.carrlee.CarrLeeFunctions;
 import com.opengamma.financial.analytics.model.curve.CurveFunctions;
@@ -33,7 +32,6 @@ import com.opengamma.financial.analytics.model.futureoption.FutureOptionFunction
 import com.opengamma.financial.analytics.model.fx.FXForwardPricingFunctions;
 import com.opengamma.financial.analytics.model.g2ppdiscounting.G2ppPricingFunctions;
 import com.opengamma.financial.analytics.model.hullwhitediscounting.HullWhitePricingFunctions;
-import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionFunctions;
 import com.opengamma.financial.analytics.model.option.OptionFunctions;
 import com.opengamma.financial.analytics.model.pnl.PNLFunctions;
 import com.opengamma.financial.analytics.model.sabr.SABRDiscountingPricingFunctions;
@@ -76,16 +74,6 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
   @Deprecated
   protected FunctionConfigurationSource bondFunctionConfiguration() {
     return BondFunctions.instance();
-  }
-
-  /**
-   * Adds deprecated bond functions.
-   * @return A configuration source containing deprecated bond future functions
-   * @deprecated The functions that are added are deprecated
-   */
-  @Deprecated
-  protected FunctionConfigurationSource bondFutureOptionFunctionConfiguration() {
-    return BondFutureOptionFunctions.instance();
   }
 
   /**
@@ -225,10 +213,6 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
     return FutureFunctions.deprecated();
   }
 
-  protected FunctionConfigurationSource irFutureOptionFunctionConfiguration() {
-    return IRFutureOptionFunctions.instance();
-  }
-
   /**
    * Adds general option functions.
    * @return A configuration source containing option functions
@@ -302,7 +286,6 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
   protected FunctionConfigurationSource createObject() {
     return CombiningFunctionConfigurationSource.of(super.createObject(),
         bondFunctionConfiguration(),
-        bondFutureOptionFunctionConfiguration(),
         bondCleanPriceFunctionConfiguration(),
         bondCurveFunctionConfiguration(),
         inflationbondCurveFunctionConfiguration(),
@@ -314,7 +297,6 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
         forexFunctionConfiguration(),
         futureFunctionConfiguration(),
         futureOptionFunctionConfiguration(),
-        irFutureOptionFunctionConfiguration(),
         optionFunctionConfiguration(),
         pnlFunctionConfiguration(),
         riskFactorFunctionConfiguration(),

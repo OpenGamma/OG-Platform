@@ -16,8 +16,8 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
-import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionPremiumSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionPremiumTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionMarginSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionMarginTransactionDefinition;
 import com.opengamma.core.position.Trade;
@@ -69,8 +69,8 @@ public class BondFutureOptionTradeConverter implements TradeConverter {
       final BondFuturesOptionMarginSecurityDefinition option = (BondFuturesOptionMarginSecurityDefinition) securityDefinition;
       return new BondFuturesOptionMarginTransactionDefinition(option, quantity, tradeDate, premium);
     }
-    final BondFutureOptionPremiumSecurityDefinition underlyingOption = (BondFutureOptionPremiumSecurityDefinition) securityDefinition;
-    return new BondFutureOptionPremiumTransactionDefinition(underlyingOption, quantity, tradeDate, premium);
+    final BondFuturesOptionPremiumSecurityDefinition underlyingOption = (BondFuturesOptionPremiumSecurityDefinition) securityDefinition;
+    return new BondFuturesOptionPremiumTransactionDefinition(underlyingOption, quantity, tradeDate, premium);
   }
   
   private static final Logger s_logger = LoggerFactory.getLogger(BondFutureOptionTradeConverter.class);

@@ -104,6 +104,41 @@ public class BondFuturesDataSets {
    */
   public static BondFuturesSecurityDefinition FVU1Definition() {
     return FVU1_DEFINITION;
+  }  
+
+  // 10 JGB - JBM5
+  private static final Currency JPY = Currency.JPY;
+  private static final Period PAYMENT_TENOR_JPY = Period.ofMonths(6);
+  private static final Calendar CALENDAR_JP = new MondayToFridayCalendar("A");
+  private static final DayCount DAY_COUNT_JP = DayCounts.ACT_ACT_ISDA;
+  private static final BusinessDayConvention BUSINESS_DAY_JP = BusinessDayConventions.FOLLOWING;
+  private static final boolean IS_EOM_JP = false;
+  private static final int SETTLEMENT_DAYS_JP = 1;
+  private static final YieldConvention YIELD_CONVENTION_JP = YieldConventionFactory.INSTANCE.getYieldConvention("STREET CONVENTION");
+  private static final int NB_BOND_JP = 1;
+  private static final Period[] BOND_TENOR_JP = new Period[] {Period.ofYears(10)};
+  private static final ZonedDateTime[] START_ACCRUAL_DATE_JP = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 6, 20) };
+  private static final double[] RATE_JP = new double[] {0.0200};
+  private static final double[] CONVERSION_FACTOR_JP = new double[] {0.73};
+  private static final String JP_GOVT = "JP GOVT";
+  private static final ZonedDateTime[] MATURITY_DATE_JP = new ZonedDateTime[NB_BOND_JP];
+  private static final BondFixedSecurityDefinition[] BASKET_DEFINITION_JP = new BondFixedSecurityDefinition[NB_BOND_JP];
+  static {
+    for (int loopbasket = 0; loopbasket < NB_BOND_JP; loopbasket++) {
+      MATURITY_DATE_JP[loopbasket] = START_ACCRUAL_DATE_JP[loopbasket].plus(BOND_TENOR_JP[loopbasket]);
+      BASKET_DEFINITION_JP[loopbasket] = BondFixedSecurityDefinition.from(JPY, MATURITY_DATE_JP[loopbasket], 
+          START_ACCRUAL_DATE_JP[loopbasket], PAYMENT_TENOR_JPY, RATE_JP[loopbasket], SETTLEMENT_DAYS_JP, CALENDAR_JP,
+          DAY_COUNT_JP, BUSINESS_DAY_JP, YIELD_CONVENTION_JP, IS_EOM_JP, JP_GOVT);
+    }
   }
+  private static final ZonedDateTime LAST_TRADING_DATE_JGB = DateUtils.getUTCDate(2015, 6, 11);
+  private static final ZonedDateTime FIRST_NOTICE_DATE_JGB = DateUtils.getUTCDate(2015, 6, 11);
+  private static final ZonedDateTime LAST_NOTICE_DATE_JGB = DateUtils.getUTCDate(2015, 6, 11);
+  private static final ZonedDateTime FIRST_DELIVERY_DATE_JGB = DateUtils.getUTCDate(2015, 6, 20);
+  private static final ZonedDateTime LAST_DELIVERY_DATE_JGB = DateUtils.getUTCDate(2015, 6, 20);
+  private static final double NOTIONAL_JGB = 100000000;
+  public static final BondFuturesSecurityDefinition JBM5_DEFINITION = 
+      new BondFuturesSecurityDefinition(LAST_TRADING_DATE_JGB, FIRST_NOTICE_DATE_JGB, LAST_NOTICE_DATE_JGB, 
+          FIRST_DELIVERY_DATE_JGB, LAST_DELIVERY_DATE_JGB, NOTIONAL_JGB, BASKET_DEFINITION_JP, CONVERSION_FACTOR_JP);
 
 }

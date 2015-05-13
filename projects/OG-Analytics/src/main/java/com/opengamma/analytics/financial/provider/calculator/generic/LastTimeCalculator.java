@@ -36,8 +36,8 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCou
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
-import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionPremiumSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
@@ -306,12 +306,12 @@ public class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter<Objec
   }
 
   @Override
-  public Double visitBondFutureOptionPremiumSecurity(final BondFutureOptionPremiumSecurity option) {
+  public Double visitBondFutureOptionPremiumSecurity(final BondFuturesOptionPremiumSecurity option) {
     return option.getExpirationTime();
   }
 
   @Override
-  public Double visitBondFutureOptionPremiumTransaction(final BondFutureOptionPremiumTransaction option) {
+  public Double visitBondFutureOptionPremiumTransaction(final BondFuturesOptionPremiumTransaction option) {
     return option.getUnderlyingOption().getExpirationTime();
   }
 

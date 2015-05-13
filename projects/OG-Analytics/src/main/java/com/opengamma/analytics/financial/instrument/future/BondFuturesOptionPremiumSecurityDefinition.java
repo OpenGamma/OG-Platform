@@ -10,8 +10,8 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
-import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
-import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionPremiumSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -19,12 +19,12 @@ import com.opengamma.util.money.Currency;
 /**
  * Description of an bond future option security with premium paid up-front (CBOT type). The option is of American type.
  */
-public class BondFutureOptionPremiumSecurityDefinition implements InstrumentDefinition<BondFutureOptionPremiumSecurity> {
+public class BondFuturesOptionPremiumSecurityDefinition implements InstrumentDefinition<BondFuturesOptionPremiumSecurity> {
 
   /**
    * Underlying future security.
    */
-  private final BondFutureDefinition _underlyingFuture;
+  private final BondFuturesSecurityDefinition _underlyingFuture;
   /**
    * Expiration date.
    */
@@ -45,7 +45,8 @@ public class BondFutureOptionPremiumSecurityDefinition implements InstrumentDefi
    * @param strike The option strike.
    * @param isCall The call (true) / put (false) flag.
    */
-  public BondFutureOptionPremiumSecurityDefinition(final BondFutureDefinition underlyingFuture, final ZonedDateTime expirationDate, final double strike, final boolean isCall) {
+  public BondFuturesOptionPremiumSecurityDefinition(final BondFuturesSecurityDefinition underlyingFuture, 
+      final ZonedDateTime expirationDate, final double strike, final boolean isCall) {
     ArgumentChecker.notNull(underlyingFuture, "underlying future");
     ArgumentChecker.notNull(expirationDate, "expiration");
     _underlyingFuture = underlyingFuture;
@@ -58,7 +59,7 @@ public class BondFutureOptionPremiumSecurityDefinition implements InstrumentDefi
    * Gets the underlying future security.
    * @return The underlying future security.
    */
-  public BondFutureDefinition getUnderlyingFuture() {
+  public BondFuturesSecurityDefinition getUnderlyingFuture() {
     return _underlyingFuture;
   }
 
@@ -103,12 +104,11 @@ public class BondFutureOptionPremiumSecurityDefinition implements InstrumentDefi
   }
 
   @Override
-  public BondFutureOptionPremiumSecurity toDerivative(final ZonedDateTime date) {
+  public BondFuturesOptionPremiumSecurity toDerivative(final ZonedDateTime date) {
     ArgumentChecker.isTrue(!date.isAfter(_expirationDate), "Date is after expiration date");
-    final Double referencePrice = 0.0; // FIXME Bond future should have a "Security" version, without transaction price.
-    final BondFuture underlyingFuture = _underlyingFuture.toDerivative(date, referencePrice);
+    final BondFuturesSecurity underlyingFuture = _underlyingFuture.toDerivative(date);
     final double expirationTime = TimeCalculator.getTimeBetween(date, _expirationDate);
-    return new BondFutureOptionPremiumSecurity(underlyingFuture, expirationTime, _strike, _isCall);
+    return new BondFuturesOptionPremiumSecurity(underlyingFuture, expirationTime, _strike, _isCall);
   }
 
   @Override
@@ -147,7 +147,7 @@ public class BondFutureOptionPremiumSecurityDefinition implements InstrumentDefi
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final BondFutureOptionPremiumSecurityDefinition other = (BondFutureOptionPremiumSecurityDefinition) obj;
+    final BondFuturesOptionPremiumSecurityDefinition other = (BondFuturesOptionPremiumSecurityDefinition) obj;
     if (!ObjectUtils.equals(_expirationDate, other._expirationDate)) {
       return false;
     }

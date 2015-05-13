@@ -57,8 +57,8 @@ import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositZeroDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
-import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionPremiumSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionPremiumTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.FutureInstrumentsDescriptionDataSet;
@@ -202,10 +202,12 @@ public class TestInstrumentDefinitionsAndDerivatives {
   public static final BondFixedTransactionDefinition BOND_FIXED_TRANSACTION = new BondFixedTransactionDefinition(BOND_FIXED_SECURITY, 100, SETTLE_DATE, -100);
   public static final BondIborSecurityDefinition BOND_IBOR_SECURITY = BondIborSecurityDefinition.from(SETTLE_DATE.plusYears(2), SETTLE_DATE, IBOR_INDEX_1, 2, FIXED_DAY_COUNT, BD, IS_EOM, "", C);
   public static final BondIborTransactionDefinition BOND_IBOR_TRANSACTION = new BondIborTransactionDefinition(BOND_IBOR_SECURITY, 100, SETTLE_DATE, -100);
-  public static final BondFutureDefinition BNDFUT_SECURITY_DEFINITION = FutureInstrumentsDescriptionDataSet.createBondFutureSecurityDefinition();
-  public static final BondFutureOptionPremiumSecurityDefinition BFO_SECURITY = FutureInstrumentsDescriptionDataSet.createBondFutureOptionPremiumSecurityDefinition();
-  public static final BondFutureOptionPremiumTransactionDefinition BFO_TRANSACTION = new BondFutureOptionPremiumTransactionDefinition(BFO_SECURITY, -100, BFO_SECURITY.getExpirationDate().minusMonths(
-      3), 100);
+//  public static final BondFutureDefinition BNDFUT_SECURITY_DEFINITION = 
+//      FutureInstrumentsDescriptionDataSet.createBondFutureSecurityDefinition();
+//  public static final BondFuturesOptionPremiumSecurityDefinition BFO_SECURITY = 
+//      FutureInstrumentsDescriptionDataSet.createBondFutureOptionPremiumSecurityDefinition();
+//  public static final BondFuturesOptionPremiumTransactionDefinition BFO_TRANSACTION = new BondFuturesOptionPremiumTransactionDefinition(BFO_SECURITY, -100, BFO_SECURITY.getExpirationDate().minusMonths(
+//      3), 100);
 
   public static final CashDefinition CASH = new CashDefinition(CUR, DateUtils.getUTCDate(2011, 1, 2), DateUtils.getUTCDate(2012, 1, 2), 1.0, 0.04, 1.0);
   public static final ForwardRateAgreementDefinition FRA = ForwardRateAgreementDefinition.from(SETTLE_DATE, SETTLE_DATE.plusMonths(3), NOTIONAL, IBOR_INDEX_1, FIXED_RATE, C);
@@ -286,11 +288,11 @@ public class TestInstrumentDefinitionsAndDerivatives {
     ALL_INSTRUMENTS.add(ANNUITY_COUPON_CMS);
     ALL_INSTRUMENTS.add(ANNUITY_IBOR_SPREAD_RECEIVE);
     ALL_INSTRUMENTS.add(ANNUITY_IBOR_SPREAD_PAY);
-    ALL_INSTRUMENTS.add(BFO_SECURITY);
-    ALL_INSTRUMENTS.add(BFO_TRANSACTION);
+//    ALL_INSTRUMENTS.add(BFO_SECURITY);
+//    ALL_INSTRUMENTS.add(BFO_TRANSACTION);
     ALL_INSTRUMENTS.add(BILL_SECURITY);
     ALL_INSTRUMENTS.add(BILL_TRANSACTION);
-    ALL_INSTRUMENTS.add(BNDFUT_SECURITY_DEFINITION);
+//    ALL_INSTRUMENTS.add(BNDFUT_SECURITY_DEFINITION);
     ALL_INSTRUMENTS.add(BOND_FIXED_SECURITY);
     ALL_INSTRUMENTS.add(BOND_FIXED_TRANSACTION);
     ALL_INSTRUMENTS.add(BOND_IBOR_SECURITY);
@@ -376,11 +378,11 @@ public class TestInstrumentDefinitionsAndDerivatives {
     ALL_DERIVATIVES.add(ANNUITY_COUPON_CMS.toDerivative(ANNUITY_COUPON_CMS.getPayments()[0].getFixingDate().minusDays(1), ts));
     ALL_DERIVATIVES.add(ANNUITY_IBOR_SPREAD_RECEIVE.toDerivative(ANNUITY_IBOR.getPayments()[0].getFixingDate().minusDays(1), ts));
     ALL_DERIVATIVES.add(ANNUITY_IBOR_SPREAD_PAY.toDerivative(ANNUITY_IBOR.getPayments()[0].getFixingDate().minusDays(1), ts));
-    ALL_DERIVATIVES.add(BFO_SECURITY.toDerivative(BFO_SECURITY.getUnderlyingFuture().getDeliveryLastDate().minusDays(1)));
-    ALL_DERIVATIVES.add(BFO_TRANSACTION.toDerivative(BFO_TRANSACTION.getUnderlyingOption().getUnderlyingFuture().getDeliveryLastDate().minusDays(1)));
+//    ALL_DERIVATIVES.add(BFO_SECURITY.toDerivative(BFO_SECURITY.getUnderlyingFuture().getDeliveryLastDate().minusDays(1)));
+//    ALL_DERIVATIVES.add(BFO_TRANSACTION.toDerivative(BFO_TRANSACTION.getUnderlyingOption().getUnderlyingFuture().getDeliveryLastDate().minusDays(1)));
     ALL_DERIVATIVES.add(BILL_SECURITY.toDerivative(BILL_SECURITY.getEndDate().minusDays(2)));
     ALL_DERIVATIVES.add(BILL_TRANSACTION.toDerivative(BILL_TRANSACTION.getSettlementDate()));
-    ALL_DERIVATIVES.add(BNDFUT_SECURITY_DEFINITION.toDerivative(BNDFUT_SECURITY_DEFINITION.getTradingLastDate(), 2.));
+//    ALL_DERIVATIVES.add(BNDFUT_SECURITY_DEFINITION.toDerivative(BNDFUT_SECURITY_DEFINITION.getTradingLastDate(), 2.));
     ALL_DERIVATIVES.add(BOND_FIXED_SECURITY.toDerivative(BOND_FIXED_SECURITY.getCoupons().getPayments()[0].getPaymentDate()));
     ALL_DERIVATIVES.add(BOND_FIXED_TRANSACTION.toDerivative(BOND_FIXED_TRANSACTION.getSettlementDate()));
     ALL_DERIVATIVES.add(BOND_IBOR_SECURITY.toDerivative(BOND_IBOR_SECURITY.getCoupons().getPayments()[0].getAccrualStartDate().minusDays(1), ts));

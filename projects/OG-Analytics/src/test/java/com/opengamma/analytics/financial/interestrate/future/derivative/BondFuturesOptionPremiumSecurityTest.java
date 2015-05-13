@@ -12,8 +12,8 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
-import com.opengamma.analytics.financial.instrument.future.FutureInstrumentsDescriptionDataSet;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesDataSets;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesSecurityDefinition;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
@@ -22,10 +22,10 @@ import com.opengamma.util.time.DateUtils;
  * Test.
  */
 @Test(groups = TestGroup.UNIT)
-public class BondFutureOptionPremiumSecurityTest {
+public class BondFuturesOptionPremiumSecurityTest {
 
   // 5-Year U.S. Treasury Note Futures: FVU1
-  private static final BondFutureDefinition FVU1_DEFINITION = FutureInstrumentsDescriptionDataSet.createBondFutureSecurityDefinition();
+  private static final BondFuturesSecurityDefinition FVU1_DEFINITION = BondFuturesDataSets.FVU1Definition();
   // Option
   private static final double STRIKE = 1.25;
   private static final boolean IS_CALL = true;
@@ -33,13 +33,14 @@ public class BondFutureOptionPremiumSecurityTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 17);
 
-  private static final BondFuture FVU1 = FVU1_DEFINITION.toDerivative(REFERENCE_DATE, 0.0);
+  private static final BondFuturesSecurity FVU1 = FVU1_DEFINITION.toDerivative(REFERENCE_DATE);
   private static final double EXPIRATION_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, EXPIRATION_DATE);
-  private static final BondFutureOptionPremiumSecurity FVU1_C125 = new BondFutureOptionPremiumSecurity(FVU1, EXPIRATION_TIME, STRIKE, IS_CALL);
+  private static final BondFuturesOptionPremiumSecurity FVU1_C125 = 
+      new BondFuturesOptionPremiumSecurity(FVU1, EXPIRATION_TIME, STRIKE, IS_CALL);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullFuture() {
-    new BondFutureOptionPremiumSecurity(null, EXPIRATION_TIME, STRIKE, IS_CALL);
+    new BondFuturesOptionPremiumSecurity(null, EXPIRATION_TIME, STRIKE, IS_CALL);
   }
 
   @Test
@@ -59,18 +60,18 @@ public class BondFutureOptionPremiumSecurityTest {
    */
   public void equalHash() {
     assertTrue(FVU1_C125.equals(FVU1_C125));
-    final BondFutureOptionPremiumSecurity other = new BondFutureOptionPremiumSecurity(FVU1, EXPIRATION_TIME, STRIKE, IS_CALL);
+    final BondFuturesOptionPremiumSecurity other = new BondFuturesOptionPremiumSecurity(FVU1, EXPIRATION_TIME, STRIKE, IS_CALL);
     assertTrue(FVU1_C125.equals(other));
     assertTrue(FVU1_C125.hashCode() == other.hashCode());
-    BondFutureOptionPremiumSecurity modified;
-    final BondFuture modifiedFuture = FVU1_DEFINITION.toDerivative(REFERENCE_DATE.plusDays(1), 0.0);
-    modified = new BondFutureOptionPremiumSecurity(modifiedFuture, EXPIRATION_TIME, STRIKE, IS_CALL);
+    BondFuturesOptionPremiumSecurity modified;
+    BondFuturesSecurity modifiedFuture = FVU1_DEFINITION.toDerivative(REFERENCE_DATE.plusDays(1));
+    modified = new BondFuturesOptionPremiumSecurity(modifiedFuture, EXPIRATION_TIME, STRIKE, IS_CALL);
     assertFalse(FVU1_C125.equals(modified));
-    modified = new BondFutureOptionPremiumSecurity(FVU1, EXPIRATION_TIME + 0.01, STRIKE, IS_CALL);
+    modified = new BondFuturesOptionPremiumSecurity(FVU1, EXPIRATION_TIME + 0.01, STRIKE, IS_CALL);
     assertFalse(FVU1_C125.equals(modified));
-    modified = new BondFutureOptionPremiumSecurity(FVU1, EXPIRATION_TIME, STRIKE + 0.1, IS_CALL);
+    modified = new BondFuturesOptionPremiumSecurity(FVU1, EXPIRATION_TIME, STRIKE + 0.1, IS_CALL);
     assertFalse(FVU1_C125.equals(modified));
-    modified = new BondFutureOptionPremiumSecurity(FVU1, EXPIRATION_TIME, STRIKE, !IS_CALL);
+    modified = new BondFuturesOptionPremiumSecurity(FVU1, EXPIRATION_TIME, STRIKE, !IS_CALL);
     assertFalse(FVU1_C125.equals(modified));
     assertFalse(FVU1_C125.equals(EXPIRATION_DATE));
     assertFalse(FVU1_C125.equals(null));

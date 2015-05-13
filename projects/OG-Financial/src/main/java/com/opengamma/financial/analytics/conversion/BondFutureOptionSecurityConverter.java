@@ -10,7 +10,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
-import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionMarginSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesSecurityDefinition;
 import com.opengamma.core.convention.ConventionSource;
@@ -83,11 +83,10 @@ public class BondFutureOptionSecurityConverter extends FinancialSecurityVisitorA
     final ZonedDateTime expirationDate = security.getExpiry().getExpiry();
     final double strike = security.getStrike();
     final boolean isCall = security.getOptionType() == OptionType.CALL ? true : false;
+    final BondFuturesSecurityDefinition underlyingFuture = _bondAndBondFutureConverter.getBondFuture(underlyingSecurity);
     if (security.isMargined()) {
-      final BondFuturesSecurityDefinition underlyingFuture = _bondAndBondFutureConverter.getBondFuture(underlyingSecurity);
       return new BondFuturesOptionMarginSecurityDefinition(underlyingFuture, expirationDate, expirationDate, strike, isCall);
     }
-    final BondFutureDefinition underlyingFuture = _underlyingConverter.visitBondFutureSecurity(underlyingSecurity);
-    return new BondFutureOptionPremiumSecurityDefinition(underlyingFuture, expirationDate, strike, isCall);
+    return new BondFuturesOptionPremiumSecurityDefinition(underlyingFuture, expirationDate, strike, isCall);
   }
 }

@@ -65,8 +65,8 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbo
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
-import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionPremiumSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
@@ -946,22 +946,22 @@ public abstract class InstrumentDerivativeVisitorSameMethodAdapter<DATA_TYPE, RE
   }
 
   @Override
-  public RESULT_TYPE visitBondFutureOptionPremiumSecurity(final BondFutureOptionPremiumSecurity option, final DATA_TYPE data) {
+  public RESULT_TYPE visitBondFutureOptionPremiumSecurity(final BondFuturesOptionPremiumSecurity option, final DATA_TYPE data) {
     return visit(option, data);
   }
 
   @Override
-  public RESULT_TYPE visitBondFutureOptionPremiumSecurity(final BondFutureOptionPremiumSecurity option) {
+  public RESULT_TYPE visitBondFutureOptionPremiumSecurity(final BondFuturesOptionPremiumSecurity option) {
     return visit(option);
   }
 
   @Override
-  public RESULT_TYPE visitBondFutureOptionPremiumTransaction(final BondFutureOptionPremiumTransaction option, final DATA_TYPE data) {
+  public RESULT_TYPE visitBondFutureOptionPremiumTransaction(final BondFuturesOptionPremiumTransaction option, final DATA_TYPE data) {
     return visit(option, data);
   }
 
   @Override
-  public RESULT_TYPE visitBondFutureOptionPremiumTransaction(final BondFutureOptionPremiumTransaction option) {
+  public RESULT_TYPE visitBondFutureOptionPremiumTransaction(final BondFuturesOptionPremiumTransaction option) {
     return visit(option);
   }
 

@@ -73,8 +73,8 @@ import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositZeroDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
-import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionPremiumSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionPremiumTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionMarginSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionMarginTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesSecurityDefinition;
@@ -359,12 +359,12 @@ public class InstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitBondFutureOptionPremiumSecurityDefinition(final BondFutureOptionPremiumSecurityDefinition bond, final T data) {
+    public String visitBondFutureOptionPremiumSecurityDefinition(final BondFuturesOptionPremiumSecurityDefinition bond, final T data) {
       return getValue(bond, true);
     }
 
     @Override
-    public String visitBondFutureOptionPremiumTransactionDefinition(final BondFutureOptionPremiumTransactionDefinition bond, final T data) {
+    public String visitBondFutureOptionPremiumTransactionDefinition(final BondFuturesOptionPremiumTransactionDefinition bond, final T data) {
       return getValue(bond, true);
     }
 
@@ -554,12 +554,12 @@ public class InstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitBondFutureOptionPremiumSecurityDefinition(final BondFutureOptionPremiumSecurityDefinition bond) {
+    public String visitBondFutureOptionPremiumSecurityDefinition(final BondFuturesOptionPremiumSecurityDefinition bond) {
       return getValue(bond, false);
     }
 
     @Override
-    public String visitBondFutureOptionPremiumTransactionDefinition(final BondFutureOptionPremiumTransactionDefinition bond) {
+    public String visitBondFutureOptionPremiumTransactionDefinition(final BondFuturesOptionPremiumTransactionDefinition bond) {
       return getValue(bond, false);
     }
 
