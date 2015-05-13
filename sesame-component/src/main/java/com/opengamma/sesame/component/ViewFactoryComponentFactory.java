@@ -5,28 +5,6 @@
  */
 package com.opengamma.sesame.component;
 
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import org.apache.shiro.concurrent.SubjectAwareExecutorService;
-import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.threeten.bp.Instant;
-
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Optional;
 import com.google.common.cache.CacheBuilder;
@@ -78,6 +56,7 @@ import com.opengamma.sesame.cache.source.CacheAwareSecuritySource;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.credit.IsdaCompliantCreditCurveFn;
 import com.opengamma.sesame.credit.IsdaCompliantYieldCurveFn;
+import com.opengamma.sesame.credit.measures.CreditBucketedCs01Fn;
 import com.opengamma.sesame.credit.measures.CreditCs01Fn;
 import com.opengamma.sesame.credit.measures.CreditPvFn;
 import com.opengamma.sesame.engine.ComponentMap;
@@ -100,6 +79,7 @@ import com.opengamma.sesame.fxforward.FXForwardPVFn;
 import com.opengamma.sesame.fxforward.FXForwardPnLSeriesFn;
 import com.opengamma.sesame.fxforward.FXForwardYCNSPnLSeriesFn;
 import com.opengamma.sesame.fxforward.FXForwardYieldCurveNodeSensitivitiesFn;
+import com.opengamma.sesame.fxrates.FxRatesFn;
 import com.opengamma.sesame.irs.DiscountingInterestRateSwapCalculatorFactory;
 import com.opengamma.sesame.irs.DiscountingInterestRateSwapFn;
 import com.opengamma.sesame.irs.InterestRateSwapFn;
@@ -108,6 +88,27 @@ import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.pnl.DefaultHistoricalPnLFXConverterFn;
 import com.opengamma.sesame.trade.TradeWrapper;
 import com.opengamma.util.auth.AuthUtils;
+import org.apache.shiro.concurrent.SubjectAwareExecutorService;
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.Instant;
+
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Component factory for creating {@link ViewFactory} instances.
@@ -259,7 +260,9 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
         IsdaCompliantYieldCurveFn.class,
         IsdaCompliantCreditCurveFn.class,
         CreditPvFn.class,
-        CreditCs01Fn.class);
+        CreditCs01Fn.class,
+        FxRatesFn.class,
+        CreditBucketedCs01Fn.class);
     return available;
   }
 
