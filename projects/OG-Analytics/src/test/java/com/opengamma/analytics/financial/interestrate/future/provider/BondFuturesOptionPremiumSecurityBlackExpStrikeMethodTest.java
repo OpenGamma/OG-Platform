@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.interestrate.future.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
@@ -15,6 +14,7 @@ import com.opengamma.analytics.financial.instrument.future.BondFuturesDataSets;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesSecurityDefinition;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionPremiumSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
@@ -35,8 +35,9 @@ import com.opengamma.util.time.DateUtils;
 public class BondFuturesOptionPremiumSecurityBlackExpStrikeMethodTest {
 
   /** Bond future option: JGB */
-  private static final BondFuturesSecurityDefinition JBM5_DEFINITION = BondFuturesDataSets.JBM5_DEFINITION;
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2015, 5, 12);
+  private static final BondFuturesSecurityDefinition JBM5_DEFINITION = BondFuturesDataSets.JBM5_DEFINITION;
+  private static final BondFuturesSecurity JBM5 = JBM5_DEFINITION.toDerivative(REFERENCE_DATE);
   private static final double STRIKE_147 = 1.47; // To be close to ATM for the data set used.
   private static final ZonedDateTime EXPIRY_DATE_OPT = DateUtils.getUTCDate(2015, 5, 31);
   private static final boolean IS_CALL = true;
@@ -76,7 +77,7 @@ public class BondFuturesOptionPremiumSecurityBlackExpStrikeMethodTest {
   }
 
   public void futurePrice() {
-    final double priceExpected = METHOD_FUTURE.price(CALL_JB_147.getUnderlyingFuture(), ISSUER_SPECIFIC_MULTICURVES);
+    final double priceExpected = METHOD_FUTURE.price(JBM5, ISSUER_SPECIFIC_MULTICURVES);
     final double priceComputed = METHOD_OPT.underlyingFuturePrice(CALL_JB_147, ISSUER_SPECIFIC_MULTICURVES);
     assertEquals("BondFuturesOptionPremiumSecurityBlackBondFuturesMethod: underlying futures price", priceExpected, priceComputed, TOLERANCE_RATE);
   }

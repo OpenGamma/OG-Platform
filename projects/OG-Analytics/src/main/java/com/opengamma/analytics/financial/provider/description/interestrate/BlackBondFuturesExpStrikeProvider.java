@@ -80,8 +80,7 @@ public class BlackBondFuturesExpStrikeProvider implements BlackBondFuturesProvid
   public double getVolatility(final double expiry, final double delay, final double strike, final double futuresPrice) {
     ArgumentChecker.isTrue(futuresPrice > 0, "negative futures price");
     ArgumentChecker.isTrue(strike > 0, "negative strike");
-    final double logMoneyness = Math.log(strike / futuresPrice);
-    return _parameters.getZValue(expiry, logMoneyness);
+    return _parameters.getZValue(expiry, strike);
   }
 
   /**

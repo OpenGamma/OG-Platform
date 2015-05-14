@@ -115,8 +115,10 @@ public class IssuerProviderDiscountDataSets {
   private static final String GBP_DSC_NAME = "GBP Dsc";
   private static final YieldAndDiscountCurve GBP_DSC = new YieldCurve(GBP_DSC_NAME, new InterpolatedDoublesCurve(GBP_DSC_TIME, GBP_DSC_RATE, LINEAR_FLAT, true, GBP_DSC_NAME));
 
-  private static final double[] JPY_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
-  private static final double[] JPY_DSC_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150 };
+  private static final double[] JPY_DSC_TIME = 
+      new double[] {0.003, 0.25, 0.5, 1.0, 2.0, 5.0, 10.0};
+  private static final double[] JPY_DSC_RATE = 
+      new double[] {0.0006, 0.0006, 0.0006, 0.0006, 0.0007, 0.0020, 0.0050 };
   private static final String JPY_DSC_NAME = "JPY Dsc";
   private static final YieldAndDiscountCurve JPY_DSC = new YieldCurve(JPY_DSC_NAME, 
       new InterpolatedDoublesCurve(JPY_DSC_TIME, JPY_DSC_RATE, LINEAR_FLAT, true, JPY_DSC_NAME));
@@ -145,8 +147,10 @@ public class IssuerProviderDiscountDataSets {
   private static final YieldAndDiscountCurve UK_GBP_CURVE = new YieldCurve(UK_GBP_CURVE_NAME, 
       new InterpolatedDoublesCurve(UK_GBP_TIME, UK_GBP_RATE, LINEAR_FLAT, true, UK_GBP_CURVE_NAME));
 
-  private static final double[] JPY_JP_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
-  private static final double[] JPY_JP_RATE = new double[] {0.0100, 0.0100, 0.0100, 0.0120, 0.0120, 0.0120 };
+  private static final double[] JPY_JP_TIME = 
+      new double[] {0.5, 1.0, 2.0, 5.0, 7.0, 10.0, 20.0 };
+  private static final double[] JPY_JP_RATE = 
+      new double[] {-0.0001, -0.0002, -0.0002, 0.0012, 0.0030, 0.0045, 0.0115 };
   private static final String JPY_JP_CURVE_NAME = "JPY " + JP_NAME;
   private static final YieldAndDiscountCurve JPY_JP_CURVE = new YieldCurve(JPY_JP_CURVE_NAME, 
       new InterpolatedDoublesCurve(JPY_JP_TIME, JPY_JP_RATE, LINEAR_FLAT, true, JPY_JP_CURVE_NAME));
@@ -181,10 +185,6 @@ public class IssuerProviderDiscountDataSets {
   private static final MulticurveProviderDiscount DISCOUNTING_CURVES_JPY = new MulticurveProviderDiscount();
   static {
     DISCOUNTING_CURVES_JPY.setCurve(JPY, JPY_DSC);
-    DISCOUNTING_CURVES.setCurve(USDLIBOR1M, USD_FWD1);
-    DISCOUNTING_CURVES.setCurve(EUR, EUR_DSC);
-    DISCOUNTING_CURVES.setCurve(EURIBOR3M, EUR_FWD3);
-    DISCOUNTING_CURVES.setCurve(GBP, GBP_DSC);
   }
   /** A set of issuer-specific curves for JP GOVT */
   private static final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> ISSUER_SPECIFIC_JP = 

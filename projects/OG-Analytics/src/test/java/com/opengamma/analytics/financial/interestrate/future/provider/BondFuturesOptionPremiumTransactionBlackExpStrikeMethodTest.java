@@ -73,7 +73,7 @@ public class BondFuturesOptionPremiumTransactionBlackExpStrikeMethodTest {
   private static final BondFuturesOptionPremiumTransaction BOND_FUTURE_OPTION_TRA_PUT =
       BOND_FUTURE_OPTION_TRA_PUT_DEFINITION.toDerivative(REFERENCE_DATE);
   
-  /** Black surface expiry/log-moneyness */
+  /** Black surface expiry/strike */
   final private static InterpolatedDoublesSurface BLACK_SURFACE_EXP_STRIKE = StandardDataSetsBlack.BLACK_SURFACE_BND_EXP_STRIKE;
   /** Curves for a specific issuer name */
   private static final IssuerProviderDiscount ISSUER_SPECIFIC_MULTICURVES = 
