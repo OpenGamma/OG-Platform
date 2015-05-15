@@ -19,13 +19,13 @@ import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.DefaultEngine;
 import com.opengamma.sesame.engine.Engine;
 import com.opengamma.sesame.engine.ViewFactory;
+import com.opengamma.sesame.equityindexoptions.EquityIndexOptionFn;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.marketdata.EmptyMarketDataFactory;
 import com.opengamma.sesame.marketdata.builders.MarketDataBuilders;
 import com.opengamma.sesame.marketdata.builders.MarketDataEnvironmentFactory;
 import com.opengamma.sesame.trade.TradeWrapper;
-import com.opengamma.solutions.library.tool.CreditPricer;
 
 /**
  * Configures a {@link Engine} instance and associated objects.
@@ -50,6 +50,7 @@ public class EngineModule extends AbstractModule {
     AvailableOutputs available = new AvailableOutputsImpl(ImmutableSet.of(Security.class, TradeWrapper.class));
     available.register(CreditCs01Fn.class);
     available.register(CreditPvFn.class);
+    available.register(EquityIndexOptionFn.class);
     return available;
   }
 

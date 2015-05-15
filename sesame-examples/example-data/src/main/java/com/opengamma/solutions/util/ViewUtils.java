@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.bethecoder.table.AsciiTableInstance;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
@@ -17,6 +19,7 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.sesame.engine.ResultItem;
 import com.opengamma.sesame.engine.ResultRow;
 import com.opengamma.sesame.engine.Results;
+import com.opengamma.sesame.trade.TradeWrapper;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
@@ -28,6 +31,13 @@ public final class ViewUtils {
 
   private ViewUtils() { /* private constructor */ }
 
+  private static final Logger s_logger = LoggerFactory.getLogger(ViewUtils.class);
+
+  /**
+   * Output multiple currency amounts as an ascii table
+   * @param label the label of the table
+   * @param result the result object
+   */
   public static void outputMultipleCurrencyAmount(String label, Result result) {
 
     if (result.isSuccess()) {
@@ -38,6 +48,11 @@ public final class ViewUtils {
     }
   }
 
+  /**
+   * Output bucketed sensitive as an ascii table
+   * @param label the label of the table
+   * @param result the result object
+   */
   public static void outputBucketedCurveSensitivities(String label, Result result) {
 
     if (result.isSuccess()) {
@@ -61,6 +76,10 @@ public final class ViewUtils {
 
   }
 
+  /**
+   * Output results as an ascii table
+   * @param results the results object
+   */
   public static String format(Results results) {
     String[] columnNames = results.getColumnNames().toArray(new String[results.getColumnNames().size()]);
     String[] headers = new String[columnNames.length + 1];
@@ -86,20 +105,29 @@ public final class ViewUtils {
   }
 
   private static String formatInput(Object input) {
+    if (input instanceof TradeWrapper) {
+      FinancialSecurity security = (FinancialSecurity) ((TradeWrapper) input).getSecurity();
+      return formatSecurity(security);
+    }
     if (input instanceof FinancialSecurity) {
       FinancialSecurity security = (FinancialSecurity) input;
-      if (!StringUtils.isBlank(security.getName())) {
-        return security.getName();
-      }
-      if (!security.getExternalIdBundle().isEmpty()) {
-        return security.getExternalIdBundle().toString();
-      }
-      if (security.getUniqueId() != null) {
-        return security.getUniqueId().toString();
-      }
-      return security.getSecurityType();
+      return formatSecurity(security);
+
     }
     return input.toString();
+  }
+
+  private static String formatSecurity(FinancialSecurity security) {
+    if (!StringUtils.isBlank(security.getName())) {
+      return security.getName();
+    }
+    if (!security.getExternalIdBundle().isEmpty()) {
+      return security.getExternalIdBundle().toString();
+    }
+    if (security.getUniqueId() != null) {
+      return security.getUniqueId().toString();
+    }
+    return security.getSecurityType();
   }
 
 }
