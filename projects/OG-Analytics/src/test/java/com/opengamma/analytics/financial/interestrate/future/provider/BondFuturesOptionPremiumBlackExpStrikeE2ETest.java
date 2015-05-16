@@ -7,6 +7,8 @@ package com.opengamma.analytics.financial.interestrate.future.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.LinkedHashMap;
+
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
@@ -14,22 +16,29 @@ import com.opengamma.analytics.financial.instrument.future.BondFuturesDataSets;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionPremiumTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesSecurityDefinition;
-import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
-import com.opengamma.analytics.financial.interestrate.payments.provider.PaymentFixedDiscountingMethod;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesExpStrikeProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * End-to-end test used for demo and integration checks. Previous run hard-coded numbers. 
  */
-public class BondFuturesOptionPremiumTransactionBlackExpStrikeE2ETest {
+public class BondFuturesOptionPremiumBlackExpStrikeE2ETest {
 
   /** Bond future option: JGB */
   private static final Currency JPY = Currency.JPY;
@@ -50,9 +59,6 @@ public class BondFuturesOptionPremiumTransactionBlackExpStrikeE2ETest {
       new BondFuturesOptionPremiumSecurityDefinition(JBM5_DEFINITION, EXPIRY_DATE_M_OPT, STRIKE_147, !IS_CALL);
   private static final BondFuturesOptionPremiumSecurityDefinition PUT_JBM_146_5_DEFINITION = 
       new BondFuturesOptionPremiumSecurityDefinition(JBM5_DEFINITION, EXPIRY_DATE_N_OPT, STRIKE_146_5, !IS_CALL);
-  private static final BondFuturesOptionPremiumSecurity CALL_JBM_147 = CALL_JBM_147_DEFINITION.toDerivative(REFERENCE_DATE);
-  private static final BondFuturesOptionPremiumSecurity PUT_JBM_147 = PUT_JBM_147_DEFINITION.toDerivative(REFERENCE_DATE);
-  private static final BondFuturesOptionPremiumSecurity PUT_JBM_146_5 = PUT_JBM_146_5_DEFINITION.toDerivative(REFERENCE_DATE);
 
   private static final int QUANTITY = 100;
   private static final ZonedDateTime PREMIUM_DATE = DateUtils.getUTCDate(2015, 5, 13);
@@ -87,20 +93,22 @@ public class BondFuturesOptionPremiumTransactionBlackExpStrikeE2ETest {
   private static final BlackBondFuturesExpStrikeProvider BLACK_EXP_STRIKE_BNDFUT =
       new BlackBondFuturesExpStrikeProvider(ISSUER_SPECIFIC_MULTICURVES, BLACK_SURFACE_EXP_STRIKE, LEGAL_ENTITY_JAPAN);
   /** Methods and calculators */
-  private static final BondFuturesOptionPremiumSecurityBlackBondFuturesMethod METHOD_OPT_SEC = 
-      BondFuturesOptionPremiumSecurityBlackBondFuturesMethod.getInstance();
   private static final BondFuturesOptionPremiumTransactionBlackBondFuturesMethod METHOD_OPT_TRA = 
       BondFuturesOptionPremiumTransactionBlackBondFuturesMethod.getInstance();
   private static final BondFuturesSecurityDiscountingMethod METHOD_FUTURES = 
       BondFuturesSecurityDiscountingMethod.getInstance();
-  private static final PaymentFixedDiscountingMethod METHOD_PAY_FIXED = 
-      PaymentFixedDiscountingMethod.getInstance();
+  private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = 
+      PresentValueCurveSensitivityDiscountingCalculator.getInstance();
+  private static final ParameterSensitivityParameterCalculator<ParameterProviderInterface> PSC = 
+      new ParameterSensitivityParameterCalculator<>(PVCSDC);
+
   
   /** Tolerances */
   private static final double TOLERANCE_PRICE = 1.0E-6;
   private static final double TOLERANCE_PV = 1.0E-2;
+  private static final double TOLERANCE_PV_APPROX = 1.0E+3;
   private static final double TOLERANCE_PV_DELTA = 1.0E+2;
-
+  private static final double BP1 = 1.0E-4;
 
   @Test
   public void futurePrice() {
@@ -123,7 +131,89 @@ public class BondFuturesOptionPremiumTransactionBlackExpStrikeE2ETest {
     assertEquals(pvPutM147Expected, pvPutM147Computed.getAmount(JPY), TOLERANCE_PV);    
     double pvPutU1465Expected = -49059917.8775; // Short the option
     MultipleCurrencyAmount pvPutU1465Computed = METHOD_OPT_TRA.presentValue(PUT_JBM_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT);
-    assertEquals(pvPutU1465Expected, pvPutU1465Computed.getAmount(JPY), TOLERANCE_PV);    
+    assertEquals(pvPutU1465Expected, pvPutU1465Computed.getAmount(JPY), TOLERANCE_PV);
   }
+  
+  /* Sensitivity to the zero-coupon rates of the curves. */
+  @Test
+  public void presentValueParameterSensitivity() {
+    MultipleCurrencyMulticurveSensitivity pvptsCallM147 = 
+        METHOD_OPT_TRA.presentValueCurveSensitivity(CALL_JBM_147_TRA, BLACK_EXP_STRIKE_BNDFUT);
+    MultipleCurrencyParameterSensitivity pvpsCallM147Computed = 
+        PSC.pointToParameterSensitivity(pvptsCallM147, BLACK_EXP_STRIKE_BNDFUT).multipliedBy(BP1); // ZR sensi to 1 bp
+    double[] deltaDscCM = {41391.172, 30092.939, 0.000, 0.000, 0.000, 0.000, 0.000};
+    double[] deltaGovtCM = {-1699.265, -5064.843, -30751.921, -66818.039, -4351376.994, -159578.927, 0.000}; // Check with delta
+    AssertSensitivityObjects.assertEquals("BondFuturesOptionPremiumBlackExpStrike - end-to-end test",
+        pvpsCallM147Computed, ps(deltaDscCM, deltaGovtCM), TOLERANCE_PV_DELTA);
+    MultipleCurrencyMulticurveSensitivity pvptsPutU1465 = 
+        METHOD_OPT_TRA.presentValueCurveSensitivity(PUT_JBM_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT);
+    MultipleCurrencyParameterSensitivity pvpsPutU1465Computed = 
+        PSC.pointToParameterSensitivity(pvptsPutU1465, BLACK_EXP_STRIKE_BNDFUT).multipliedBy(BP1); // ZR sensi to 1 bp
+    double[] deltaDscPN = {37313.254, 27195.120, 0.000, 0.000, 0.000, 0.000, 0.000};
+    double[] deltaGovtPN = {-1514.006, -4512.658, -27399.248, -59533.322, -3876975.908, -142181.121, 0.000};
+    AssertSensitivityObjects.assertEquals("BondFuturesOptionPremiumBlackExpStrike - end-to-end test",
+        pvpsPutU1465Computed, ps(deltaDscPN, deltaGovtPN), TOLERANCE_PV_DELTA);
+  }
+  
+  /* Delta of the PV. */
+  @Test
+  public void delta() {
+    double deltaPutM147Expected = -5433547105.474;
+    double deltaPutM147Computed = METHOD_OPT_TRA.presentValueDelta(PUT_JBM_147_TRA, BLACK_EXP_STRIKE_BNDFUT);
+    assertEquals(deltaPutM147Expected, deltaPutM147Computed, TOLERANCE_PV);
+  }
+  
+  /* Gamma of the PV. */
+  @Test
+  public void gamma() {
+    double gammaPutM147Expected = 381729633582.165;
+    double gammaPutM147Computed = METHOD_OPT_TRA.presentValueGamma(PUT_JBM_147_TRA, BLACK_EXP_STRIKE_BNDFUT);
+    assertEquals(gammaPutM147Expected, gammaPutM147Computed, TOLERANCE_PV);
+  }
+  
+  /* Vega of the PV. */
+  @Test
+  public void vega() {
+    double vegaPutM147Expected = 1328991007.568;
+    double vegaPutM147Computed = METHOD_OPT_TRA.presentValueVega(PUT_JBM_147_TRA, BLACK_EXP_STRIKE_BNDFUT);
+    assertEquals(vegaPutM147Expected, vegaPutM147Computed, TOLERANCE_PV);
+  }
+  
+  /* Check that the delta/gamma expansion approximate the change of PV */
+  @Test
+  public void deltaGammaExpansion() {
+    double priceFutures = METHOD_FUTURES.price(JBM5, ISSUER_SPECIFIC_MULTICURVES);
+    double delta = METHOD_OPT_TRA.presentValueDelta(PUT_JBM_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT);
+    double gamma = METHOD_OPT_TRA.presentValueGamma(PUT_JBM_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT);
+    double pv0 = METHOD_OPT_TRA.presentValue(PUT_JBM_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT).getAmount(JPY);
+    double shift = 1.0E-3; // 10 bp
+    double pvShifted = METHOD_OPT_TRA.presentValueFromUnderlyingPrice(
+        PUT_JBM_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT, priceFutures + shift).getAmount(JPY);
+    assertEquals(pvShifted, pv0 + delta * shift + 0.5 * gamma * shift * shift, TOLERANCE_PV_APPROX);
+  }
+  
+  /* Check that the delta/gamma expansion approximate the change of PV */
+  @Test
+  public void vegaExpansion() {
+    double vega = METHOD_OPT_TRA.presentValueVega(PUT_JBM_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT);
+    double pv0 = METHOD_OPT_TRA.presentValue(PUT_JBM_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT).getAmount(JPY);
+    double shift = 5.0E-4; // 5bp out of ~3% vol
+    InterpolatedDoublesSurface blackSurfaceShifted = BondFuturesOptionPremiumE2EDataSet.blackSurfaceBndExpStrike(shift);
+    BlackBondFuturesExpStrikeProvider providerVolShifted =
+        new BlackBondFuturesExpStrikeProvider(ISSUER_SPECIFIC_MULTICURVES, blackSurfaceShifted, LEGAL_ENTITY_JAPAN);
+    double pvShifted = METHOD_OPT_TRA.presentValue(PUT_JBM_146_5_TRA, providerVolShifted).getAmount(JPY);
+    assertEquals(pvShifted, pv0 + vega * shift, TOLERANCE_PV_APPROX);
+  }
+  
+  // create a parameter sensitivity from the arrays
+  private MultipleCurrencyParameterSensitivity ps(double[] deltaDsc, double[] deltaGovt) {
+    LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity = new LinkedHashMap<>();
+    sensitivity.put(ObjectsPair.of(ISSUER_SPECIFIC_MULTICURVES.getMulticurveProvider().getName(JPY), JPY),
+        new DoubleMatrix1D(deltaDsc));
+    sensitivity.put(ObjectsPair.of(ISSUER_SPECIFIC_MULTICURVES.getName(LEGAL_ENTITY_JAPAN), JPY), 
+        new DoubleMatrix1D( deltaGovt));
+    return new MultipleCurrencyParameterSensitivity(sensitivity);
+  }
+
   
 }

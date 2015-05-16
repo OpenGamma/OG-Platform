@@ -93,5 +93,17 @@ public class BondFuturesOptionPremiumE2EDataSet {
     0.035, 0.032, 0.031, 0.028, 0.0325, 0.0315, 0.0305, 0.0295 };
   public static final InterpolatedDoublesSurface BLACK_SURFACE_BND_EXP_STRIKE = InterpolatedDoublesSurface
       .from(EXPIRY_OPT_BNDFUT, STRIKE_OPT_BNDFUT, VOL_OPTBND_EXP_STRIKE, INTERPOLATOR_LINEAR_2D);
+  /**
+   * Returns the bond futures volatility surface shifted in parallel by a given amount.
+   * @param shift  The shift.
+   * @return  The volatility surface.
+   */
+  public static InterpolatedDoublesSurface blackSurfaceBndExpStrike(double shift) {
+    double[] volShifted = VOL_OPTBND_EXP_STRIKE.clone();
+    for(int i=0; i<volShifted.length; i++) {
+      volShifted[i] += shift;
+    }
+    return InterpolatedDoublesSurface.from(EXPIRY_OPT_BNDFUT, STRIKE_OPT_BNDFUT, volShifted, INTERPOLATOR_LINEAR_2D);
+  }
   
 }
