@@ -15,12 +15,12 @@ import com.opengamma.util.money.Currency;
 /**
  * Description of an bond future option with up-front margin security.
  */
-public class BondFutureOptionPremiumSecurity implements InstrumentDerivative {
+public class BondFuturesOptionPremiumSecurity implements InstrumentDerivative {
 
   /**
    * Underlying future security.
    */
-  private final BondFuture _underlyingFuture;
+  private final BondFuturesSecurity _underlyingFuture;
   /**
    * Expiration date.
    */
@@ -33,10 +33,6 @@ public class BondFutureOptionPremiumSecurity implements InstrumentDerivative {
    * Strike price.
    */
   private final double _strike;
-  /**
-   * The discounting curve name.
-   */
-  private String _discountingCurveName;
 
   /**
    * Constructor of the option future from the details.
@@ -45,25 +41,20 @@ public class BondFutureOptionPremiumSecurity implements InstrumentDerivative {
    * @param strike The option strike.
    * @param isCall The cap (true) / floor (false) flag.
    */
-  @SuppressWarnings("deprecation")
-  public BondFutureOptionPremiumSecurity(final BondFuture underlyingFuture, final double expirationTime, final double strike, final boolean isCall) {
+  public BondFuturesOptionPremiumSecurity(final BondFuturesSecurity underlyingFuture, final double expirationTime, 
+      final double strike, final boolean isCall) {
     ArgumentChecker.notNull(underlyingFuture, "underlying future");
     _underlyingFuture = underlyingFuture;
     _expirationTime = expirationTime;
     _strike = strike;
     _isCall = isCall;
-    try {
-      _discountingCurveName = underlyingFuture.getDiscountingCurveName();
-    } catch (final IllegalStateException e) {
-      _discountingCurveName = null;
-    }
   }
 
   /**
    * Gets the underlying future security.
    * @return The underlying future security.
    */
-  public BondFuture getUnderlyingFuture() {
+  public BondFuturesSecurity getUnderlyingFuture() {
     return _underlyingFuture;
   }
 
@@ -99,14 +90,6 @@ public class BondFutureOptionPremiumSecurity implements InstrumentDerivative {
     return _underlyingFuture.getCurrency();
   }
 
-  /**
-   * Gets the discounting curve name.
-   * @return The discounting curve name.
-   */
-  public String getDiscountingCurveName() {
-    return _discountingCurveName;
-  }
-
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     ArgumentChecker.notNull(visitor, "visitor");
@@ -122,8 +105,7 @@ public class BondFutureOptionPremiumSecurity implements InstrumentDerivative {
   @Override
   public int hashCode() {
     final int prime = 31;
-    int result = 1;
-    result = prime * result + (_discountingCurveName == null ? 0 : _discountingCurveName.hashCode());
+    int result = 0;
     long temp;
     temp = Double.doubleToLongBits(_expirationTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -145,10 +127,7 @@ public class BondFutureOptionPremiumSecurity implements InstrumentDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final BondFutureOptionPremiumSecurity other = (BondFutureOptionPremiumSecurity) obj;
-    if (!ObjectUtils.equals(_discountingCurveName, other._discountingCurveName)) {
-      return false;
-    }
+    final BondFuturesOptionPremiumSecurity other = (BondFuturesOptionPremiumSecurity) obj;
     if (Double.doubleToLongBits(_expirationTime) != Double.doubleToLongBits(other._expirationTime)) {
       return false;
     }

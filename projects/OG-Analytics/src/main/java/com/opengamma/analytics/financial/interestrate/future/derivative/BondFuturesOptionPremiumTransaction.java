@@ -16,12 +16,12 @@ import com.opengamma.util.money.Currency;
 /**
  * Description of transaction on an bond future option with up-front margin security.
  */
-public class BondFutureOptionPremiumTransaction implements InstrumentDerivative {
+public class BondFuturesOptionPremiumTransaction implements InstrumentDerivative {
 
   /**
    * The underlying option future security.
    */
-  private final BondFutureOptionPremiumSecurity _underlyingOption;
+  private final BondFuturesOptionPremiumSecurity _underlyingOption;
   /**
    * The quantity of the transaction. Can be positive or negative.
    */
@@ -38,7 +38,7 @@ public class BondFutureOptionPremiumTransaction implements InstrumentDerivative 
   * @param quantity The quantity of the transaction. Can be positive or negative.
   * @param premium The transaction premium.
   */
-  public BondFutureOptionPremiumTransaction(final BondFutureOptionPremiumSecurity underlyingOption, final int quantity, final PaymentFixed premium) {
+  public BondFuturesOptionPremiumTransaction(final BondFuturesOptionPremiumSecurity underlyingOption, final int quantity, final PaymentFixed premium) {
     ArgumentChecker.notNull(underlyingOption, "Underlying option");
     ArgumentChecker.notNull(premium, "Premium");
     _underlyingOption = underlyingOption;
@@ -50,7 +50,7 @@ public class BondFutureOptionPremiumTransaction implements InstrumentDerivative 
    * Gets the underlying option future security.
    * @return The underlying option.
    */
-  public BondFutureOptionPremiumSecurity getUnderlyingOption() {
+  public BondFuturesOptionPremiumSecurity getUnderlyingOption() {
     return _underlyingOption;
   }
 
@@ -99,7 +99,7 @@ public class BondFutureOptionPremiumTransaction implements InstrumentDerivative 
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final BondFutureOptionPremiumTransaction other = (BondFutureOptionPremiumTransaction) obj;
+    final BondFuturesOptionPremiumTransaction other = (BondFuturesOptionPremiumTransaction) obj;
     if (!ObjectUtils.equals(_premium, other._premium)) {
       return false;
     }

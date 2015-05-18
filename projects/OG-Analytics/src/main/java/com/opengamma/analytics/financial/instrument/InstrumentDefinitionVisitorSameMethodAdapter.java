@@ -61,8 +61,8 @@ import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositZeroDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
-import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionPremiumSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionPremiumTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionMarginSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionMarginTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesSecurityDefinition;
@@ -251,22 +251,22 @@ public abstract class InstrumentDefinitionVisitorSameMethodAdapter<DATA_TYPE, RE
   }
 
   @Override
-  public RESULT_TYPE visitBondFutureOptionPremiumSecurityDefinition(final BondFutureOptionPremiumSecurityDefinition bond, final DATA_TYPE data) {
+  public RESULT_TYPE visitBondFutureOptionPremiumSecurityDefinition(final BondFuturesOptionPremiumSecurityDefinition bond, final DATA_TYPE data) {
     return visit(bond, data);
   }
 
   @Override
-  public RESULT_TYPE visitBondFutureOptionPremiumSecurityDefinition(final BondFutureOptionPremiumSecurityDefinition bond) {
+  public RESULT_TYPE visitBondFutureOptionPremiumSecurityDefinition(final BondFuturesOptionPremiumSecurityDefinition bond) {
     return visit(bond);
   }
 
   @Override
-  public RESULT_TYPE visitBondFutureOptionPremiumTransactionDefinition(final BondFutureOptionPremiumTransactionDefinition bond, final DATA_TYPE data) {
+  public RESULT_TYPE visitBondFutureOptionPremiumTransactionDefinition(final BondFuturesOptionPremiumTransactionDefinition bond, final DATA_TYPE data) {
     return visit(bond, data);
   }
 
   @Override
-  public RESULT_TYPE visitBondFutureOptionPremiumTransactionDefinition(final BondFutureOptionPremiumTransactionDefinition bond) {
+  public RESULT_TYPE visitBondFutureOptionPremiumTransactionDefinition(final BondFuturesOptionPremiumTransactionDefinition bond) {
     return visit(bond);
   }
 

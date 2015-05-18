@@ -16,9 +16,13 @@ import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
  */
 public class StandardDataSetsBlack {
 
-  private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+  private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
+      Interpolator1DFactory.LINEAR, 
+      Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-  private static final Interpolator1D TIME_SQUARE_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.TIME_SQUARE, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+  private static final Interpolator1D TIME_SQUARE_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
+      Interpolator1DFactory.TIME_SQUARE, 
+      Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
 
   private static final GridInterpolator2D INTERPOLATOR_LINEAR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
@@ -35,6 +39,16 @@ public class StandardDataSetsBlack {
   private static final double[] VOL_EXP_LOGMONEY = new double[] {0.50, 0.49, 0.47, 0.48, 0.51, 0.45, 0.44, 0.42, 0.43, 0.46 };
   private static final InterpolatedDoublesSurface BLACK_SURFACE_EXP_LOGMONEY = InterpolatedDoublesSurface.from(EXPIRY2,
       LOGMONEY, VOL_EXP_LOGMONEY, INTERPOLATOR_TIMESQUARE_LINEAR_2D);
+
+  private static final double[] EXPIRY3 = new double[] {
+    19.0/365.0, 19.0/365.0, 19.0/365.0, 19.0/365.0, 
+    109.0/365.0, 109.0/365.0, 109.0/365.0, 109.0/365.0 };
+  private static final double[] STRIKE = new double[] {
+    145.0, 146.0, 147.0, 148.0, 145.0, 146.0, 147.0, 148.0 };
+  private static final double[] VOL_BND_EXP_STRIKE = new double[] {
+    0.035, 0.036, 0.037, 0.038, 0.0365, 0.0375, 0.0385, 0.0395 };
+  public static final InterpolatedDoublesSurface BLACK_SURFACE_BND_EXP_STRIKE = InterpolatedDoublesSurface.from(EXPIRY3,
+      STRIKE, VOL_BND_EXP_STRIKE, INTERPOLATOR_LINEAR_2D);
 
   /** Parameters surface in dimension expiry/log-moneyness. Flat in the moneyness dimension for testing purposes */
   private static final InterpolatedDoublesSurface BLACK_SURFACE_EXP_LOGMONEY_FLAT = InterpolatedDoublesSurface.from(EXPIRY2,

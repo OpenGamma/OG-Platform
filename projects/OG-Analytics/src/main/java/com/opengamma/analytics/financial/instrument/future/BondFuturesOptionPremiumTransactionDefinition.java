@@ -11,8 +11,8 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
-import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionPremiumSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.ArgumentChecker;
@@ -21,12 +21,12 @@ import com.opengamma.util.money.Currency;
 /**
  * Description of transaction on an bond future option security with premium paid up-front (CBOT type).
  */
-public class BondFutureOptionPremiumTransactionDefinition implements InstrumentDefinition<BondFutureOptionPremiumTransaction> {
+public class BondFuturesOptionPremiumTransactionDefinition implements InstrumentDefinition<BondFuturesOptionPremiumTransaction> {
 
   /**
    * The underlying option future security.
    */
-  private final BondFutureOptionPremiumSecurityDefinition _underlyingOption;
+  private final BondFuturesOptionPremiumSecurityDefinition _underlyingOption;
   /**
    * The quantity of the transaction. Can be positive or negative.
    */
@@ -47,7 +47,7 @@ public class BondFutureOptionPremiumTransactionDefinition implements InstrumentD
    * @param premiumDate The transaction date.
    * @param premiumAmount The transaction premium amount.
    */
-  public BondFutureOptionPremiumTransactionDefinition(final BondFutureOptionPremiumSecurityDefinition underlyingOption, final int quantity,
+  public BondFuturesOptionPremiumTransactionDefinition(final BondFuturesOptionPremiumSecurityDefinition underlyingOption, final int quantity,
       final ZonedDateTime premiumDate, final double premiumAmount) {
     ArgumentChecker.notNull(underlyingOption, "underlying option");
     ArgumentChecker.notNull(premiumDate, "premium date");
@@ -66,18 +66,18 @@ public class BondFutureOptionPremiumTransactionDefinition implements InstrumentD
    * @param tradePrice The transaction price.
    * @return The option.
    */
-  public static BondFutureOptionPremiumTransactionDefinition fromTradePrice(final BondFutureOptionPremiumSecurityDefinition underlyingOption, final int quantity,
+  public static BondFuturesOptionPremiumTransactionDefinition fromTradePrice(final BondFuturesOptionPremiumSecurityDefinition underlyingOption, final int quantity,
       final ZonedDateTime premiumDate, final double tradePrice) {
     ArgumentChecker.notNull(underlyingOption, "underlying option");
     final double premiumAmount = tradePrice * underlyingOption.getUnderlyingFuture().getNotional() * quantity;
-    return new BondFutureOptionPremiumTransactionDefinition(underlyingOption, quantity, premiumDate, premiumAmount);
+    return new BondFuturesOptionPremiumTransactionDefinition(underlyingOption, quantity, premiumDate, premiumAmount);
   }
 
   /**
    * Gets the underlying option future security.
    * @return The underlying.
    */
-  public BondFutureOptionPremiumSecurityDefinition getUnderlyingOption() {
+  public BondFuturesOptionPremiumSecurityDefinition getUnderlyingOption() {
     return _underlyingOption;
   }
 
@@ -114,14 +114,14 @@ public class BondFutureOptionPremiumTransactionDefinition implements InstrumentD
   }
 
   @Override
-  public BondFutureOptionPremiumTransaction toDerivative(final ZonedDateTime date) {
+  public BondFuturesOptionPremiumTransaction toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "Reference date");
-    final BondFutureOptionPremiumSecurity option = _underlyingOption.toDerivative(date);
+    final BondFuturesOptionPremiumSecurity option = _underlyingOption.toDerivative(date);
     final double premiumTime = TimeCalculator.getTimeBetween(date, _premium.getPaymentDate());
     if (premiumTime < 0) { // Premium payment in the past: it is represented by a 0 payment today.
-      return new BondFutureOptionPremiumTransaction(option, _quantity, new PaymentFixed(getCurrency(), 0, 0));
+      return new BondFuturesOptionPremiumTransaction(option, _quantity, new PaymentFixed(getCurrency(), 0, 0));
     }
-    return new BondFutureOptionPremiumTransaction(option, _quantity, _premium.toDerivative(date));
+    return new BondFuturesOptionPremiumTransaction(option, _quantity, _premium.toDerivative(date));
   }
 
   @Override
@@ -160,7 +160,7 @@ public class BondFutureOptionPremiumTransactionDefinition implements InstrumentD
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final BondFutureOptionPremiumTransactionDefinition other = (BondFutureOptionPremiumTransactionDefinition) obj;
+    final BondFuturesOptionPremiumTransactionDefinition other = (BondFuturesOptionPremiumTransactionDefinition) obj;
     if (!ObjectUtils.equals(_premium, other._premium)) {
       return false;
     }

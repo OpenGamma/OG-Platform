@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.provider.description;
 import static com.opengamma.util.money.Currency.EUR;
 import static com.opengamma.util.money.Currency.GBP;
 import static com.opengamma.util.money.Currency.USD;
+import static com.opengamma.util.money.Currency.JPY;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -61,6 +62,8 @@ public class IssuerProviderDiscountDataSets {
   private static final String UK_NAME = "UK GOVT";
   /** US government issuer name */
   private static final String US_NAME = "US GOVT";
+  /** US government issuer name */
+  private static final String JP_NAME = "JP GOVT";
 
   /** US government legal entity */
   private static final LegalEntity AUS_GOVT = new LegalEntity(AUS_NAME, AUS_NAME, Sets.newHashSet(CreditRating.of("AAA", "S&P", true)), Sector.of("Government"),
@@ -80,6 +83,10 @@ public class IssuerProviderDiscountDataSets {
   /** Italy government legal entity */
   private static final LegalEntity IT_GOVT = new LegalEntity(IT_NAME, IT_NAME, Sets.newHashSet(CreditRating.of("B", "S&P", true)), Sector.of("Government"), Region.of("Italy", Country.IT,
       Currency.EUR));
+  /** Japan government legal entity */
+  public static final LegalEntity JP_GOVT = new LegalEntity(JP_NAME, JP_NAME, 
+      Sets.newHashSet(CreditRating.of("B", "S&P", true)), Sector.of("Government"), Region.of("Japan", Country.JP,
+      Currency.JPY));
 
   private static final IndexIborMaster MASTER_IBOR_INDEX = IndexIborMaster.getInstance();
   private static final IborIndex EURIBOR3M = MASTER_IBOR_INDEX.getIndex("EURIBOR3M");
@@ -108,6 +115,14 @@ public class IssuerProviderDiscountDataSets {
   private static final String GBP_DSC_NAME = "GBP Dsc";
   private static final YieldAndDiscountCurve GBP_DSC = new YieldCurve(GBP_DSC_NAME, new InterpolatedDoublesCurve(GBP_DSC_TIME, GBP_DSC_RATE, LINEAR_FLAT, true, GBP_DSC_NAME));
 
+  private static final double[] JPY_DSC_TIME = 
+      new double[] {0.003, 0.25, 0.5, 1.0, 2.0, 5.0, 10.0};
+  private static final double[] JPY_DSC_RATE = 
+      new double[] {0.0006, 0.0006, 0.0006, 0.0006, 0.0007, 0.0020, 0.0050 };
+  private static final String JPY_DSC_NAME = "JPY Dsc";
+  private static final YieldAndDiscountCurve JPY_DSC = new YieldCurve(JPY_DSC_NAME, 
+      new InterpolatedDoublesCurve(JPY_DSC_TIME, JPY_DSC_RATE, LINEAR_FLAT, true, JPY_DSC_NAME));
+  
   private static final double[] USD_US_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
   private static final double[] USD_US_RATE = new double[] {0.0100, 0.0100, 0.0100, 0.0120, 0.0120, 0.0120 };
   private static final String USD_US_CURVE_NAME = "USD " + US_NAME;
@@ -131,6 +146,15 @@ public class IssuerProviderDiscountDataSets {
   private static final String UK_GBP_CURVE_NAME = "GBP " + UK_NAME;
   private static final YieldAndDiscountCurve UK_GBP_CURVE = new YieldCurve(UK_GBP_CURVE_NAME, 
       new InterpolatedDoublesCurve(UK_GBP_TIME, UK_GBP_RATE, LINEAR_FLAT, true, UK_GBP_CURVE_NAME));
+
+  private static final double[] JPY_JP_TIME = 
+      new double[] {0.5, 1.0, 2.0, 5.0, 7.0, 10.0, 20.0 };
+  private static final double[] JPY_JP_RATE = 
+      new double[] {-0.0001, -0.0002, -0.0002, 0.0012, 0.0030, 0.0045, 0.0115 };
+  private static final String JPY_JP_CURVE_NAME = "JPY " + JP_NAME;
+  private static final YieldAndDiscountCurve JPY_JP_CURVE = new YieldCurve(JPY_JP_CURVE_NAME, 
+      new InterpolatedDoublesCurve(JPY_JP_TIME, JPY_JP_RATE, LINEAR_FLAT, true, JPY_JP_CURVE_NAME));
+  
   // AUD
   private static final String AUD_DSC_NAME = "AUD Dsc";
   private static final YieldAndDiscountCurve AUD_DSC = new YieldCurve(AUD_DSC_NAME, new InterpolatedDoublesCurve(USD_DSC_TIME, USD_DSC_RATE, LINEAR_FLAT, true, AUD_DSC_NAME));
@@ -156,6 +180,17 @@ public class IssuerProviderDiscountDataSets {
     ISSUER_SPECIFIC.put(Pairs.of((Object) GER_NAME, SHORT_NAME_FILTER), GER_EUR_CURVE);
     ISSUER_SPECIFIC.put(Pairs.of((Object) UK_NAME, SHORT_NAME_FILTER), UK_GBP_CURVE);
     ISSUER_SPECIFIC.put(Pairs.of((Object) IT_NAME, SHORT_NAME_FILTER), BEL_EUR_CURVE);
+  }
+  /** A set of discounting curves for JPY */
+  private static final MulticurveProviderDiscount DISCOUNTING_CURVES_JPY = new MulticurveProviderDiscount();
+  static {
+    DISCOUNTING_CURVES_JPY.setCurve(JPY, JPY_DSC);
+  }
+  /** A set of issuer-specific curves for JP GOVT */
+  private static final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> ISSUER_SPECIFIC_JP = 
+      new LinkedHashMap<>();
+  static {
+    ISSUER_SPECIFIC_JP.put(Pairs.of((Object) JP_NAME, SHORT_NAME_FILTER), JPY_JP_CURVE);
   }
   private static final MulticurveProviderDiscount DISCOUNTING_CURVES_AUD = new MulticurveProviderDiscount();
   static {
@@ -230,7 +265,11 @@ public class IssuerProviderDiscountDataSets {
     USD_GOVT_6PC.put(Pairs.of((Object) US_NAME, SHORT_NAME_FILTER), US_USD_CURVE_6);
   }
   /** Curves for pricing bonds with issuer-specific risky curves */
-  private static final IssuerProviderDiscount ISSUER_SPECIFIC_MULTICURVE = new IssuerProviderDiscount(DISCOUNTING_CURVES, ISSUER_SPECIFIC);
+  private static final IssuerProviderDiscount ISSUER_SPECIFIC_MULTICURVE = 
+      new IssuerProviderDiscount(DISCOUNTING_CURVES, ISSUER_SPECIFIC);
+  /** Curves for pricing bonds with issuer-specific risky curves */
+  public static final IssuerProviderDiscount ISSUER_SPECIFIC_MULTICURVE_JP = 
+      new IssuerProviderDiscount(DISCOUNTING_CURVES_JPY, ISSUER_SPECIFIC_JP);
   /** Curves for pricing bonds with country-specific risky curves */
   private static final IssuerProviderDiscount COUNTRY_SPECIFIC_MULTICURVE = new IssuerProviderDiscount(DISCOUNTING_CURVES, COUNTRY_SPECIFIC);
   /** Curves for pricing bonds with currency-specific risky curves */

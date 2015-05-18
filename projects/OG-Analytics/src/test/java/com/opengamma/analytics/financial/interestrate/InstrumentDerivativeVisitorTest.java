@@ -74,8 +74,8 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbo
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
-import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionPremiumSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
@@ -715,22 +715,22 @@ public class InstrumentDerivativeVisitorTest {
     }
 
     @Override
-    public String visitBondFutureOptionPremiumSecurity(final BondFutureOptionPremiumSecurity option, final T data) {
+    public String visitBondFutureOptionPremiumSecurity(final BondFuturesOptionPremiumSecurity option, final T data) {
       return getValue(option, true);
     }
 
     @Override
-    public String visitBondFutureOptionPremiumSecurity(final BondFutureOptionPremiumSecurity option) {
+    public String visitBondFutureOptionPremiumSecurity(final BondFuturesOptionPremiumSecurity option) {
       return getValue(option, false);
     }
 
     @Override
-    public String visitBondFutureOptionPremiumTransaction(final BondFutureOptionPremiumTransaction option, final T data) {
+    public String visitBondFutureOptionPremiumTransaction(final BondFuturesOptionPremiumTransaction option, final T data) {
       return getValue(option, true);
     }
 
     @Override
-    public String visitBondFutureOptionPremiumTransaction(final BondFutureOptionPremiumTransaction option) {
+    public String visitBondFutureOptionPremiumTransaction(final BondFuturesOptionPremiumTransaction option) {
       return getValue(option, false);
     }
 

@@ -61,8 +61,8 @@ import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositZeroDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
-import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionPremiumSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionPremiumTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionMarginSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionMarginTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesSecurityDefinition;
@@ -553,14 +553,14 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @param data The data
    * @return The result
    */
-  RESULT_TYPE visitBondFutureOptionPremiumSecurityDefinition(BondFutureOptionPremiumSecurityDefinition bondFutureOption, DATA_TYPE data);
+  RESULT_TYPE visitBondFutureOptionPremiumSecurityDefinition(BondFuturesOptionPremiumSecurityDefinition bondFutureOption, DATA_TYPE data);
 
   /**
    * Bond future option with premium security method.
    * @param bondFutureOption Bond future future option with premium security
    * @return The result
    */
-  RESULT_TYPE visitBondFutureOptionPremiumSecurityDefinition(BondFutureOptionPremiumSecurityDefinition bondFutureOption);
+  RESULT_TYPE visitBondFutureOptionPremiumSecurityDefinition(BondFuturesOptionPremiumSecurityDefinition bondFutureOption);
 
   /**
    * Bond future option with premium transaction method that takes data.
@@ -568,14 +568,14 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @param data The data
    * @return The result
    */
-  RESULT_TYPE visitBondFutureOptionPremiumTransactionDefinition(BondFutureOptionPremiumTransactionDefinition bondFutureOption, DATA_TYPE data);
+  RESULT_TYPE visitBondFutureOptionPremiumTransactionDefinition(BondFuturesOptionPremiumTransactionDefinition bondFutureOption, DATA_TYPE data);
 
   /**
    * Bond future option with premium transaction method.
    * @param bondFutureOption A bond future option with premium transaction
    * @return The result
    */
-  RESULT_TYPE visitBondFutureOptionPremiumTransactionDefinition(BondFutureOptionPremiumTransactionDefinition bondFutureOption);
+  RESULT_TYPE visitBondFutureOptionPremiumTransactionDefinition(BondFuturesOptionPremiumTransactionDefinition bondFutureOption);
 
   /**
    * Bond future option with margin security method that takes data.
