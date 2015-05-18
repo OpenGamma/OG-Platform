@@ -8,7 +8,10 @@ package com.opengamma.analytics.financial.interestrate.future.calculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionPremiumSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.BondFutureOptionMarginSecurityBlackSmileMethod;
+import com.opengamma.analytics.financial.interestrate.future.provider.BondFuturesOptionPremiumSecurityBlackBondFuturesMethod;
 import com.opengamma.analytics.financial.interestrate.future.provider.FuturesSecurityIssuerMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesProviderInterface;
 import com.opengamma.util.ArgumentChecker;
@@ -23,7 +26,9 @@ public final class FuturesPriceBlackBondFuturesCalculator
   private static final FuturesPriceBlackBondFuturesCalculator DEFAULT = new FuturesPriceBlackBondFuturesCalculator();
   
   /** The method used to compute futures option */
-  private final BondFutureOptionMarginSecurityBlackSmileMethod _methodFuturesOption;
+  private final BondFutureOptionMarginSecurityBlackSmileMethod _methodFuturesOptionMargin;
+  private static final BondFuturesOptionPremiumSecurityBlackBondFuturesMethod METHOD_FUT_OPT_PREMIUM =
+      BondFuturesOptionPremiumSecurityBlackBondFuturesMethod.getInstance();
 
   /**
    * Gets the calculator instance.
@@ -37,7 +42,7 @@ public final class FuturesPriceBlackBondFuturesCalculator
    * Default constructor.
    */
   private FuturesPriceBlackBondFuturesCalculator() {
-    _methodFuturesOption = BondFutureOptionMarginSecurityBlackSmileMethod.getInstance();
+    _methodFuturesOptionMargin = BondFutureOptionMarginSecurityBlackSmileMethod.getInstance();
   }
 
   /**
@@ -46,7 +51,7 @@ public final class FuturesPriceBlackBondFuturesCalculator
    * @param methodFutures The method used to compute futures option.
    */
   public FuturesPriceBlackBondFuturesCalculator(FuturesSecurityIssuerMethod methodFutures) {
-    _methodFuturesOption = new BondFutureOptionMarginSecurityBlackSmileMethod(methodFutures);
+    _methodFuturesOptionMargin = new BondFutureOptionMarginSecurityBlackSmileMethod(methodFutures);
   }
 
   //     -----     Futures options    -----
@@ -56,7 +61,7 @@ public final class FuturesPriceBlackBondFuturesCalculator
       final BlackBondFuturesProviderInterface black) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(black, "black");
-    return _methodFuturesOption.price(security, black);
+    return _methodFuturesOptionMargin.price(security, black);
   }
   
   @Override
@@ -64,4 +69,19 @@ public final class FuturesPriceBlackBondFuturesCalculator
       BlackBondFuturesProviderInterface data) {
     return visitBondFuturesOptionMarginSecurity(option.getUnderlyingSecurity(), data);
   }
+
+  @Override
+  public Double visitBondFutureOptionPremiumSecurity(final BondFuturesOptionPremiumSecurity security, 
+      final BlackBondFuturesProviderInterface black) {
+    ArgumentChecker.notNull(security, "security");
+    ArgumentChecker.notNull(black, "black");
+    return METHOD_FUT_OPT_PREMIUM.price(security, black);
+  }
+  
+  @Override
+  public Double visitBondFutureOptionPremiumTransaction(BondFuturesOptionPremiumTransaction option, 
+      BlackBondFuturesProviderInterface black) {
+    return METHOD_FUT_OPT_PREMIUM.price(option.getUnderlyingOption(), black);
+  }
+  
 }
