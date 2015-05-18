@@ -14,44 +14,22 @@ import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static com.opengamma.sesame.config.ConfigBuilder.output;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.OffsetTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.format.DateTimeFormatter;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
-import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
-import com.opengamma.analytics.math.interpolation.Interpolator1D;
-import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.position.Counterparty;
@@ -59,13 +37,6 @@ import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.financial.analytics.curve.exposure.CurrencyExposureFunction;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
-import com.opengamma.financial.convention.businessday.BusinessDayConventions;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCounts;
-import com.opengamma.financial.convention.frequency.SimpleFrequency;
-import com.opengamma.financial.currency.CurrencyMatrix;
-import com.opengamma.financial.security.credit.StandardCDSSecurity;
-import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.OptionType;
@@ -78,36 +49,19 @@ import com.opengamma.sesame.ForwardCurveFn;
 import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.OutputNames;
-import com.opengamma.sesame.UnderlyingForwardCurveFn;
-import com.opengamma.sesame.config.FunctionModelConfig;
-import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.equity.StaticReplicationDataBundleFn;
 import com.opengamma.sesame.equity.StrikeDataBundleFn;
 import com.opengamma.sesame.equityindexoptions.DefaultEquityIndexOptionFn;
 import com.opengamma.sesame.equityindexoptions.EquityIndexOptionFn;
-import com.opengamma.sesame.fra.DiscountingFRACalculatorFactory;
-import com.opengamma.sesame.fra.DiscountingFRAFn;
-import com.opengamma.sesame.fra.FRACalculatorFactory;
-import com.opengamma.sesame.fra.FRAFn;
-import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
-import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.ForwardCurveId;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.sesame.marketdata.MulticurveId;
-import com.opengamma.sesame.marketdata.RawId;
 import com.opengamma.sesame.marketdata.VolatilitySurfaceId;
 import com.opengamma.sesame.trade.EquityIndexOptionTrade;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
-import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.Pair;
-import com.opengamma.util.tuple.Pairs;
-import com.sun.xml.internal.bind.v2.model.core.ID;
-
-import au.com.bytecode.opencsv.CSVReader;
 
 /**
  * Utility class for Equity Index Options views
@@ -168,8 +122,11 @@ public final class EquityIndexOptionViewUtils {
     builder.add(MulticurveId.of(bundleName), bundle);
   }
 
-  public static void parseVolatilitySurfaces(MarketDataEnvironmentBuilder builder, String volatilitySurfaces) {
-    builder.add(VolatilitySurfaceId.of("CALL_NK225"), getVolatilitySurface());
+  public static void parseVolatilitySurfaces(MarketDataEnvironmentBuilder builder, String volatilitySurfaces) throws IOException {
+    Map<String, VolUtils.VolRawData> vols = VolUtils.parseVols(volatilitySurfaces);
+    for(Map.Entry<String, VolUtils.VolRawData> surface : vols.entrySet()) {
+      builder.add(VolatilitySurfaceId.of(surface.getKey()), VolUtils.createVolatilitySurface(surface.getValue()));
+    }
   }
 
   public static void parseForwardCurves(MarketDataEnvironmentBuilder builder, String forwardCurves) throws IOException {
@@ -213,21 +170,6 @@ public final class EquityIndexOptionViewUtils {
                                                                        exchange);
     security.setName(underlyingId.getValue() + " " + optionType.toString() + " Option " + expiry.getExpiry().toString());
     return security;
-  }
-
-  private static VolatilitySurface getVolatilitySurface() {
-    Interpolator1D linearFlat =
-        CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR,
-                                                                Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-                                                                Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-    GridInterpolator2D interpolator2D = new GridInterpolator2D(linearFlat, linearFlat);
-    InterpolatedDoublesSurface surface = InterpolatedDoublesSurface.from(
-        new double[] {31d/356, 59d/365, 94d/365, 31d/356, 59d/365, 94d/365},
-        new double[] {4000, 10500, 12750, 4500, 10750, 13000},
-        new double[] {258.68/100, 78.7594/100, 39.8789/100, 239.8297/100, 76.0916/100, 38.2484/100},
-        interpolator2D
-    );
-    return new VolatilitySurface(surface);
   }
 
 }

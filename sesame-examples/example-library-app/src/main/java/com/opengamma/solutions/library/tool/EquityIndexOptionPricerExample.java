@@ -18,7 +18,6 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.solutions.library.engine.EngineModule;
-import com.opengamma.solutions.library.storage.DataLoadModule;
 import com.opengamma.solutions.library.storage.InMemoryStorageModule;
 import com.opengamma.solutions.library.storage.SourcesModule;
 import com.opengamma.solutions.util.ViewUtils;
@@ -30,9 +29,9 @@ import com.opengamma.util.time.DateUtils;
 public class EquityIndexOptionPricerExample {
 
   private static final Logger s_logger = LoggerFactory.getLogger(EquityIndexOptionPricerExample.class);
-  private static final String DISCOUNTING_CURVES = "data/curves/discounting-curves.csv";
-  private static final String FORWARD_CURVES = "data/curves/forward-curves.csv";
-  private static final String VOLATILITY_SURFACES = ""; //TODO add file
+  private static final String DISCOUNTING_CURVES = "equity-data/curves/discounting-curves.csv";
+  private static final String FORWARD_CURVES = "equity-data/curves/forward-curves.csv";
+  private static final String VOLATILITY_SURFACES = "equity-data/vols/surface.csv";
   private static final String TRADES = ""; //TODO add file
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 7, 22);
 

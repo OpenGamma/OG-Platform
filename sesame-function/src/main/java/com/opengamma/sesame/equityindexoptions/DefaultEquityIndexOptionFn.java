@@ -58,12 +58,30 @@ public class DefaultEquityIndexOptionFn implements EquityIndexOptionFn {
 
   @Override
   public Result<Double> calculateGamma(Environment env, EquityIndexOptionTrade trade) {
-    return calculateResult(env, trade, GAMMA_CALC);
+    Result<StaticReplicationDataBundle> dataResult = _dataProviderFn.getEquityIndexDataProvider(env, trade);
+    if (dataResult.isSuccess()) {
+      // Gamma should be multiply by spot underlying
+      double spot = dataResult.getValue().getForwardCurve().getSpot();
+      Result<Double> result = calculateResult(env, trade, GAMMA_CALC);
+      if (result.isSuccess()) {
+        return Result.success(result.getValue() * spot);
+      } else {
+        return Result.failure(result);
+      }
+    } else {
+      return Result.failure(dataResult);
+    }
   }
 
   @Override
   public Result<Double> calculateVega(Environment env, EquityIndexOptionTrade trade) {
-    return calculateResult(env, trade, VEGA_CALC);
+    Result<Double> result = calculateResult(env, trade, VEGA_CALC);
+    if (result.isSuccess()) {
+      // Vega should be divided 100
+      return Result.success(result.getValue() / 100);
+    } else {
+      return Result.failure(result);
+    }
   }
 
   @Override
@@ -84,7 +102,15 @@ public class DefaultEquityIndexOptionFn implements EquityIndexOptionFn {
     if (Result.allSuccessful(dataResult)) {
       StaticReplicationDataBundle bundle = dataResult.getValue();
       InstrumentDerivative derivative = createInstrumentDerivative(trade, env.getValuationTime());
-      return Result.success(SENSITIVITY_CALC.calcDeltaBucketed(derivative, bundle));
+      DoubleMatrix1D deltaBucketed = SENSITIVITY_CALC.calcDeltaBucketed(derivative, bundle);
+      // Bucketed PV01 needs to be divided by 10000 to align with the scaling of the PV01
+      double[] data = deltaBucketed.getData();
+      double[] scaledData = new double[data.length];
+      for (int i = 0; i < data.length; i++) {
+        scaledData[i] = data[i] / 10000;
+      }
+      DoubleMatrix1D scaled = new DoubleMatrix1D(scaledData);
+      return Result.success(scaled);
     } else {
       return Result.failure(dataResult);
     }

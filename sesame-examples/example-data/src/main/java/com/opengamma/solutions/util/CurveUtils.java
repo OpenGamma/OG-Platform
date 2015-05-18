@@ -11,17 +11,14 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
-import com.bethecoder.table.AsciiTableInstance;
 import com.google.common.collect.Lists;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -30,23 +27,13 @@ import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
-import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
-import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.sesame.engine.ResultItem;
-import com.opengamma.sesame.engine.ResultRow;
-import com.opengamma.sesame.engine.Results;
-import com.opengamma.sesame.trade.TradeWrapper;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.result.Result;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.Pair;
 
 import au.com.bytecode.opencsv.CSVReader;
 
 /**
- * Utility class for views
+ * Utility class for curves
  */
 public final class CurveUtils {
 
@@ -62,7 +49,8 @@ public final class CurveUtils {
    * Name,Tenor,Value
    * USD-Federal Funds,1D,0.05918
    * USD-Federal Funds,1W,0.06263
-   * USD-Federal Funds,2W,0.06415
+   * USD-Federal Funds,2M,0.06415
+   * USD-Federal Funds,1Y,0.07234
    *
    * @param file the data to be parsed
    * @return the parsed curve data by curve name
@@ -97,18 +85,26 @@ public final class CurveUtils {
           tenor = (years * 365) + "D";
         }
 
+        Tenor tenorValue;
+        try {
+          tenorValue = Tenor.parse("P" + tenor);
+        } catch (NumberFormatException e) {
+          s_logger.error("Invalid tenor {} for {}", tenor, name);
+          continue;
+        }
+
         String quote = line[2];
         double quoteValue;
         try {
           quoteValue = Double.parseDouble(quote);
         } catch (NumberFormatException e) {
-          s_logger.warn("Invalid quote {} for {} at {}", quote, name, tenor);
+          s_logger.error("Invalid quote {} for {} at {}", quote, name, tenor);
           continue;
         }
         if (!curveData.containsKey(name)) {
           curveData.put(name, new CurveRawData());
         }
-        curveData.get(name).add(Tenor.parse("P" + tenor), quoteValue);
+        curveData.get(name).add(tenorValue, quoteValue);
       }
     } catch (IOException e) {
       s_logger.error("Failed to parse curve data ", e);
