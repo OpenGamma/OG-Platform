@@ -6,10 +6,11 @@
 package com.opengamma.solutions.library.tool;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.HashMap;
 
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.CalculationArguments;
@@ -51,8 +52,8 @@ public class EquityIndexOptionPricer {
                        String volatilitySurfaces) throws IOException {
 
     CalculationArguments calculationArguments = CalculationArguments.builder().valuationTime(valuationTime).build();
-    List<Object> portfolio = EquityIndexOptionViewUtils.parseTrades(trades);
-    ViewConfig viewConfig = EquityIndexOptionViewUtils.createViewConfig();
+    HashMap<Object, String> portfolio = EquityIndexOptionViewUtils.parsePortfolio(trades);
+    ViewConfig viewConfig = EquityIndexOptionViewUtils.createViewConfig(portfolio.values());
 
     MarketDataEnvironmentBuilder marketData = new MarketDataEnvironmentBuilder();
     EquityIndexOptionViewUtils.parseDiscountingCurves(marketData, discountingCurves);
@@ -60,7 +61,7 @@ public class EquityIndexOptionPricer {
     EquityIndexOptionViewUtils.parseVolatilitySurfaces(marketData, volatilitySurfaces);
     marketData.valuationTime(valuationTime);
 
-    return _engine.runView(viewConfig, calculationArguments, marketData.build(), portfolio);
+    return _engine.runView(viewConfig, calculationArguments, marketData.build(), Lists.newArrayList(portfolio.keySet()));
   }
 
 }

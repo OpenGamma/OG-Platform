@@ -32,8 +32,8 @@ public class EquityIndexOptionPricerExample {
   private static final String DISCOUNTING_CURVES = "equity-data/curves/discounting-curves.csv";
   private static final String FORWARD_CURVES = "equity-data/curves/forward-curves.csv";
   private static final String VOLATILITY_SURFACES = "equity-data/vols/surface.csv";
-  private static final String TRADES = ""; //TODO add file
-  private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 7, 22);
+  private static final String TRADES = "equity-data/trades/equity-index-options.csv";
+  private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2015, 4, 27);
 
   /**
    * Entry point to running the Equity Index Option Pricer.
@@ -55,7 +55,6 @@ public class EquityIndexOptionPricerExample {
                                    FORWARD_CURVES,
                                    VOLATILITY_SURFACES);
     s_logger.info("Got results:\n" + ViewUtils.format(results));
-
   }
 
 }

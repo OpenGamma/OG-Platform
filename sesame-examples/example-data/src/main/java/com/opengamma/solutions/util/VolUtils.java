@@ -125,6 +125,11 @@ public final class VolUtils {
     return curveData;
   }
 
+  /**
+   * Create instance of {@link VolatilitySurface}
+   * @param data the {@link VolRawData} to create the surface from
+   * @return a VolatilitySurface
+   */
   public static VolatilitySurface createVolatilitySurface(VolRawData data) {
     Interpolator1D linearFlat =
         CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR,
@@ -194,8 +199,6 @@ public final class VolUtils {
       return _vols;
     }
 
-
   }
-
 
 }

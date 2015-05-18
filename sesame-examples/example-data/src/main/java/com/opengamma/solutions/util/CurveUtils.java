@@ -112,7 +112,11 @@ public final class CurveUtils {
     return curveData;
   }
 
-
+  /**
+   * Create instance of a {@link ForwardCurve}
+   * @param data the {@link CurveRawData} to create the curve from
+   * @return a ForwardCurve
+   */
   public static ForwardCurve createForwardCurve(CurveRawData data) {
     List<Tenor> tenors = Lists.newArrayList(data.getCurvePoint());
     double[] maturities = new double[tenors.size()];
@@ -132,6 +136,12 @@ public final class CurveUtils {
     return new ForwardCurve(InterpolatedDoublesCurve.from(maturities, prices, interpolator));
   }
 
+  /**
+   * Create instance of {@link YieldAndDiscountCurve}
+   * @param name name of the curve
+   * @param data the {@link CurveRawData} to create the curve from
+   * @return a YieldAndDiscountCurve
+   */
   public static YieldAndDiscountCurve createYieldCurve(String name, CurveRawData data) {
     List<Tenor> tenors = Lists.newArrayList(data.getCurvePoint());
     double[] ttm = new double[tenors.size()];
