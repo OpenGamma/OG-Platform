@@ -24,20 +24,20 @@ import com.opengamma.solutions.util.ViewUtils;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * Equity Index Option example
+ * Bond Future Option example
  */
-public class EquityIndexOptionPricerExample {
+public class BondFutureOptionPricerExample {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityIndexOptionPricerExample.class);
-  private static final String DISCOUNTING_CURVES = "equity-data/curves/discounting-curves.csv";
-  private static final String ISSUER_CURVES = "equity-data/curves/forward-curves.csv";
-  private static final String VOLATILITY_SURFACES = "equity-data/vols/surface.csv";
-  private static final String TRADES = "equity-data/trades/equity-index-options.csv";
+  private static final Logger s_logger = LoggerFactory.getLogger(BondFutureOptionPricerExample.class);
+  private static final String DISCOUNTING_CURVES = "bond-data/curves/discounting-curves.csv";
+  private static final String ISSUER_CURVES = "bond-data/curves/issuer-curves.csv";
+  private static final String VOLATILITY_SURFACES = "bond-data/vols/surface.csv";
+  private static final String TRADES = "bond-data/trades/bond-future-options.csv";
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2015, 4, 27);
 
   /**
-   * Entry point to running the Equity Index Option Pricer.
-   * Log PV results to the console
+   * Entry point to running the Bond Future Option Pricer.
+   * Log calculation results to the console
    * @param args, no args are need to run this tool
    */
   public static void main(String[] args) throws IOException {

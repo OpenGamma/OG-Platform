@@ -18,7 +18,10 @@ import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.financial.convention.ConventionBundleMaster;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.DefaultConventionBundleSource;
+import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.convention.ConventionMaster;
@@ -57,9 +60,8 @@ public class SourcesModule extends AbstractModule {
 
   @Override
   protected void configure() {
-    bind(ConventionBundleSource.class).to(NoOpConventionBundleSource.class);
   }
-  
+
   @Provides
   @Singleton
   public SecuritySource createSecuritySource(SecurityMaster securityMaster) {
@@ -93,6 +95,12 @@ public class SourcesModule extends AbstractModule {
   @Singleton
   public ConventionSource createConventionSource(ConventionMaster conventionMaster) {
     return new MasterConventionSource(conventionMaster);
+  }
+
+  @Provides
+  @Singleton
+  public ConventionBundleSource createConventionBundleSource(ConventionBundleMaster conventionBundleMaster) {
+    return new DefaultConventionBundleSource(conventionBundleMaster);
   }
 
   @Provides

@@ -115,23 +115,23 @@ public class BondFutureOptionBlackCalculator implements BondFutureOptionCalculat
                                                           HistoricalTimeSeriesBundle timeSeries) {
     Trade trade = tradeWrapper.getTrade();
     InstrumentDefinition<?> definition = converter.convert(trade);
-    final Security security = tradeWrapper.getSecurity();
-    final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle());
-    Double lastMarginPrice;
-    if (valTime.toLocalDate().equals(trade.getTradeDate())) {
-      lastMarginPrice = trade.getPremium();
-    } else {
-      if (ts == null) {
-        throw new OpenGammaRuntimeException("Could not get price time series for " + security);
-      }
-      final int length = ts.getTimeSeries().size();
-      if (length == 0) {
-        throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty");
-      }
-      lastMarginPrice = ts.getTimeSeries().getLatestValue();
-    }
-    
+
     if (definition instanceof InstrumentDefinitionWithData) {
+      final Security security = tradeWrapper.getSecurity();
+      final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle());
+      Double lastMarginPrice;
+      if (valTime.toLocalDate().equals(trade.getTradeDate())) {
+        lastMarginPrice = trade.getPremium();
+      } else {
+        if (ts == null) {
+          throw new OpenGammaRuntimeException("Could not get price time series for " + security);
+        }
+        final int length = ts.getTimeSeries().size();
+        if (length == 0) {
+          throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty");
+        }
+        lastMarginPrice = ts.getTimeSeries().getLatestValue();
+      }
       return ((InstrumentDefinitionWithData<?, Double>) definition).toDerivative(valTime, lastMarginPrice);
     } else {
       return definition.toDerivative(valTime);

@@ -148,6 +148,7 @@ import com.opengamma.sesame.bondfuture.BondFutureDiscountingCalculatorFactory;
 import com.opengamma.sesame.bondfuture.BondFutureFn;
 import com.opengamma.sesame.bondfuture.DefaultBondFutureFn;
 import com.opengamma.sesame.bondfutureoption.BlackBondFuturesProviderFn;
+import com.opengamma.sesame.bondfutureoption.BlackExpStrikeBondFuturesProviderFn;
 import com.opengamma.sesame.bondfutureoption.BondFutureOptionBlackCalculatorFactory;
 import com.opengamma.sesame.bondfutureoption.BondFutureOptionCalculatorFactory;
 import com.opengamma.sesame.bondfutureoption.BondFutureOptionFn;
@@ -325,7 +326,7 @@ public class BondMockSources {
                 BondFn.class, DiscountingBondFn.class,
                 BondFutureOptionFn.class, DefaultBondFutureOptionFn.class,
                 BondFutureOptionCalculatorFactory.class, BondFutureOptionBlackCalculatorFactory.class,
-                BlackBondFuturesProviderFn.class, TestBlackBondFuturesProviderFn.class,
+                BlackBondFuturesProviderFn.class, BlackExpStrikeBondFuturesProviderFn.class,
                 BondFutureFn.class, DefaultBondFutureFn.class,
                 HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
                 BondFutureCalculatorFactory.class, BondFutureDiscountingCalculatorFactory.class));
@@ -461,11 +462,11 @@ public class BondMockSources {
         .add(RawId.of(createId("Bill1").toBundle()), 0.01) //Yield
         .add(RawId.of(bondFutureId), futurePrices)
         .add(RawId.of(bondFutureOptionId), futurePrices)
-        .valuationTime(ZonedDateTime.now())
+        .valuationTime(VALUATION_TIME)
         .build();
   }
 
-  private static ExternalId createId(String ticker) {
+    private static ExternalId createId(String ticker) {
     return ExternalId.of(TICKER, ticker);
   }
 
@@ -708,7 +709,7 @@ public class BondMockSources {
 
     ZonedDateTime deliveryDate = DateUtils.getUTCDate(2014, 8, 18);
     Expiry expiry = new Expiry(deliveryDate);
-    String tradingExchange = "";
+    String tradingExchange = "XLON";
     String settlementExchange = "";
     double unitAmount = 1;
     Collection<BondFutureDeliverable> basket = new ArrayList<>();
@@ -740,7 +741,7 @@ public class BondMockSources {
 
   private static BondFutureOptionSecurity createBondFutureOptionSecurity() {
 
-    String tradingExchange = "";
+    String tradingExchange = "XLON";
     String settlementExchange = "";
     Expiry expiry = BOND_FUTURE_SECURITY.getExpiry();
     ExerciseType exerciseType = new EuropeanExerciseType();
