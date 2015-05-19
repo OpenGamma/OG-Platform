@@ -30,7 +30,7 @@ public class EquityIndexOptionPricerExample {
 
   private static final Logger s_logger = LoggerFactory.getLogger(EquityIndexOptionPricerExample.class);
   private static final String DISCOUNTING_CURVES = "equity-data/curves/discounting-curves.csv";
-  private static final String ISSUER_CURVES = "equity-data/curves/forward-curves.csv";
+  private static final String FORWARD_CURVES = "equity-data/curves/forward-curves.csv";
   private static final String VOLATILITY_SURFACES = "equity-data/vols/surface.csv";
   private static final String TRADES = "equity-data/trades/equity-index-options.csv";
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2015, 4, 27);
@@ -48,11 +48,11 @@ public class EquityIndexOptionPricerExample {
     modules.add(new EngineModule());
     Injector injector = Guice.createInjector(modules);
 
-    BondFutureOptionPricer pricer = injector.getInstance(BondFutureOptionPricer.class);
+    EquityIndexOptionPricer pricer = injector.getInstance(EquityIndexOptionPricer.class);
     Results results = pricer.price(VALUATION_TIME,
                                    TRADES,
                                    DISCOUNTING_CURVES,
-                                   ISSUER_CURVES,
+                                   FORWARD_CURVES,
                                    VOLATILITY_SURFACES);
     s_logger.info("Got results:\n" + ViewUtils.format(results));
   }
