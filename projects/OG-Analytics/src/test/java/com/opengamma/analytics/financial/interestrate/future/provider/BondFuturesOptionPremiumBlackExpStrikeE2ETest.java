@@ -62,8 +62,8 @@ public class BondFuturesOptionPremiumBlackExpStrikeE2ETest {
       new BondFuturesOptionPremiumSecurityDefinition(JBM5_DEFINITION, EXPIRY_DATE_M_OPT, STRIKE_147, IS_CALL);
   private static final BondFuturesOptionPremiumSecurityDefinition PUT_JBM_147_DEFINITION = 
       new BondFuturesOptionPremiumSecurityDefinition(JBM5_DEFINITION, EXPIRY_DATE_M_OPT, STRIKE_147, !IS_CALL);
-  private static final BondFuturesOptionPremiumSecurityDefinition PUT_JBM_146_5_DEFINITION = 
-      new BondFuturesOptionPremiumSecurityDefinition(JBM5_DEFINITION, EXPIRY_DATE_N_OPT, STRIKE_146_5, !IS_CALL);
+  private static final BondFuturesOptionPremiumSecurityDefinition PUT_JBN_146_5_DEFINITION = 
+      new BondFuturesOptionPremiumSecurityDefinition(JBU5_DEFINITION, EXPIRY_DATE_N_OPT, STRIKE_146_5, !IS_CALL);
 
   private static final int QUANTITY = 100;
   private static final ZonedDateTime PREMIUM_DATE = DateUtils.getUTCDate(2015, 5, 13);
@@ -81,10 +81,10 @@ public class BondFuturesOptionPremiumBlackExpStrikeE2ETest {
           -QUANTITY * NOTIONAL * PREMIUM_UNIT_PUT_JBM_147);
   private static final BondFuturesOptionPremiumTransaction PUT_JBM_147_TRA =
       PUT_JBM_147_TRA_DEFINITION.toDerivative(REFERENCE_DATE);
-  private static final BondFuturesOptionPremiumTransactionDefinition PUT_JBM_146_5_TRA_DEFINITION =
-      new BondFuturesOptionPremiumTransactionDefinition(PUT_JBM_146_5_DEFINITION, -QUANTITY, PREMIUM_DATE_2, 0);
-  private static final BondFuturesOptionPremiumTransaction PUT_JBM_146_5_TRA =
-      PUT_JBM_146_5_TRA_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final BondFuturesOptionPremiumTransactionDefinition PUT_JBN_146_5_TRA_DEFINITION =
+      new BondFuturesOptionPremiumTransactionDefinition(PUT_JBN_146_5_DEFINITION, -QUANTITY, PREMIUM_DATE_2, 0);
+  private static final BondFuturesOptionPremiumTransaction PUT_JBN_146_5_TRA =
+      PUT_JBN_146_5_TRA_DEFINITION.toDerivative(REFERENCE_DATE);
   
   /** Black surface expiry/strike */
   final private static InterpolatedDoublesSurface BLACK_SURFACE_EXP_STRIKE = 
@@ -136,10 +136,10 @@ public class BondFuturesOptionPremiumBlackExpStrikeE2ETest {
     double pvPutM147Expected = 1566468.8540;
     MultipleCurrencyAmount pvPutM147Computed = METHOD_OPT_TRA.presentValue(PUT_JBM_147_TRA, BLACK_EXP_STRIKE_BNDFUT);
     assertEquals(pvPutM147Expected, pvPutM147Computed.getAmount(JPY), TOLERANCE_PV);    
-    double pvPutU1465Expected = -49059917.8775; // Short the option
-    MultipleCurrencyAmount pvPutU1465Computed = METHOD_OPT_TRA.presentValue(PUT_JBM_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT);
+    double pvPutU1465Expected = -81090395.9457; // Short the option
+    MultipleCurrencyAmount pvPutU1465Computed = METHOD_OPT_TRA.presentValue(PUT_JBN_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT);
     assertEquals(pvPutU1465Expected, pvPutU1465Computed.getAmount(JPY), TOLERANCE_PV);
-    MultipleCurrencyAmount pvPutU1465Calculator = PUT_JBM_146_5_TRA
+    MultipleCurrencyAmount pvPutU1465Calculator = PUT_JBN_146_5_TRA
         .accept(PresentValueBlackBondFuturesOptionCalculator.getInstance(), BLACK_EXP_STRIKE_BNDFUT);
     assertEquals(pvPutU1465Expected, pvPutU1465Calculator.getAmount(JPY), TOLERANCE_PV);
   }
@@ -156,11 +156,11 @@ public class BondFuturesOptionPremiumBlackExpStrikeE2ETest {
     AssertSensitivityObjects.assertEquals("BondFuturesOptionPremiumBlackExpStrike - end-to-end test",
         pvpsCallM147Computed, ps(deltaDscCM, deltaGovtCM), TOLERANCE_PV_DELTA);
     MultipleCurrencyMulticurveSensitivity pvptsPutU1465 = 
-        METHOD_OPT_TRA.presentValueCurveSensitivity(PUT_JBM_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT);
+        METHOD_OPT_TRA.presentValueCurveSensitivity(PUT_JBN_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT);
     MultipleCurrencyParameterSensitivity pvpsPutU1465Computed = 
         PSC.pointToParameterSensitivity(pvptsPutU1465, BLACK_EXP_STRIKE_BNDFUT).multipliedBy(BP1); // ZR sensi to 1 bp
-    double[] deltaDscPN = {37313.254, 27195.120, 0.000, 0.000, 0.000, 0.000, 0.000};
-    double[] deltaGovtPN = {-1514.006, -4512.658, -27399.248, -59533.322, -3876975.908, -142181.121, 0.000};
+    double[] deltaDscPN = {510.164, 172102.284, 121028.501, 0.000, 0.000, 0.000, 0.000};
+    double[] deltaGovtPN = {-1932.522, -5617.214, -34020.187, -73950.143, -5118826.798, -689566.008, 0.000};
     AssertSensitivityObjects.assertEquals("BondFuturesOptionPremiumBlackExpStrike - end-to-end test",
         pvpsPutU1465Computed, ps(deltaDscPN, deltaGovtPN), TOLERANCE_PV_DELTA);
   }
@@ -192,26 +192,26 @@ public class BondFuturesOptionPremiumBlackExpStrikeE2ETest {
   /* Check that the delta/gamma expansion approximate the change of PV */
   @Test
   public void presentValueDeltaGammaExpansion() {
-    double priceFutures = METHOD_FUTURES.price(JBM5, ISSUER_SPECIFIC_MULTICURVES);
-    double delta = METHOD_OPT_TRA.presentValueDelta(PUT_JBM_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT);
-    double gamma = METHOD_OPT_TRA.presentValueGamma(PUT_JBM_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT);
-    double pv0 = METHOD_OPT_TRA.presentValue(PUT_JBM_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT).getAmount(JPY);
+    double priceFutures = METHOD_FUTURES.price(JBU5, ISSUER_SPECIFIC_MULTICURVES);
+    double delta = METHOD_OPT_TRA.presentValueDelta(PUT_JBN_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT);
+    double gamma = METHOD_OPT_TRA.presentValueGamma(PUT_JBN_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT);
+    double pv0 = METHOD_OPT_TRA.presentValue(PUT_JBN_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT).getAmount(JPY);
     double shift = 1.0E-3; // 10 bp
     double pvShifted = METHOD_OPT_TRA.presentValueFromUnderlyingPrice(
-        PUT_JBM_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT, priceFutures + shift).getAmount(JPY);
+        PUT_JBN_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT, priceFutures + shift).getAmount(JPY);
     assertEquals(pvShifted, pv0 + delta * shift + 0.5 * gamma * shift * shift, TOLERANCE_PV_APPROX);
   }
   
   /* Check that the delta/gamma expansion approximate the change of PV */
   @Test
   public void presentValueVegaExpansion() {
-    double vega = METHOD_OPT_TRA.presentValueVega(PUT_JBM_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT);
-    double pv0 = METHOD_OPT_TRA.presentValue(PUT_JBM_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT).getAmount(JPY);
+    double vega = METHOD_OPT_TRA.presentValueVega(PUT_JBN_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT);
+    double pv0 = METHOD_OPT_TRA.presentValue(PUT_JBN_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT).getAmount(JPY);
     double shift = 5.0E-4; // 5bp out of ~3% vol
     InterpolatedDoublesSurface blackSurfaceShifted = BondFuturesOptionPremiumE2EDataSet.blackSurfaceBndExpStrike(shift);
     BlackBondFuturesExpStrikeProvider providerVolShifted =
         new BlackBondFuturesExpStrikeProvider(ISSUER_SPECIFIC_MULTICURVES, blackSurfaceShifted, LEGAL_ENTITY_JAPAN);
-    double pvShifted = METHOD_OPT_TRA.presentValue(PUT_JBM_146_5_TRA, providerVolShifted).getAmount(JPY);
+    double pvShifted = METHOD_OPT_TRA.presentValue(PUT_JBN_146_5_TRA, providerVolShifted).getAmount(JPY);
     assertEquals(pvShifted, pv0 + vega * shift, TOLERANCE_PV_APPROX);
   }
   

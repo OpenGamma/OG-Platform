@@ -157,11 +157,11 @@ public class BondFuturesDataSets {
           DAY_COUNT_JP, BUSINESS_DAY_JP, YIELD_CONVENTION_JP, IS_EOM_JP, JP_GOVT);
     }
   }
-  private static final ZonedDateTime LAST_TRADING_DATE_U_JGB = DateUtils.getUTCDate(2015, 6, 11);
-  private static final ZonedDateTime FIRST_NOTICE_DATE_U_JGB = DateUtils.getUTCDate(2015, 6, 11);
-  private static final ZonedDateTime LAST_NOTICE_DATE_U_JGB = DateUtils.getUTCDate(2015, 6, 11);
-  private static final ZonedDateTime FIRST_DELIVERY_DATE_U_JGB = DateUtils.getUTCDate(2015, 6, 20);
-  private static final ZonedDateTime LAST_DELIVERY_DATE_U_JGB = DateUtils.getUTCDate(2015, 6, 20);
+  private static final ZonedDateTime LAST_TRADING_DATE_U_JGB = DateUtils.getUTCDate(2015, 9, 9);
+  private static final ZonedDateTime FIRST_NOTICE_DATE_U_JGB = DateUtils.getUTCDate(2015, 9, 9);
+  private static final ZonedDateTime LAST_NOTICE_DATE_U_JGB = DateUtils.getUTCDate(2015, 9, 9);
+  private static final ZonedDateTime FIRST_DELIVERY_DATE_U_JGB = DateUtils.getUTCDate(2015, 9, 18);
+  private static final ZonedDateTime LAST_DELIVERY_DATE_U_JGB = DateUtils.getUTCDate(2015, 9, 18);
   public static final BondFuturesSecurityDefinition JBU5_DEFINITION = 
       new BondFuturesSecurityDefinition(LAST_TRADING_DATE_U_JGB, FIRST_NOTICE_DATE_U_JGB, LAST_NOTICE_DATE_U_JGB, 
           FIRST_DELIVERY_DATE_U_JGB, LAST_DELIVERY_DATE_U_JGB, NOTIONAL_JGB, BASKET_DEFINITION_U_JP, CONVERSION_FACTOR_U_JP);
