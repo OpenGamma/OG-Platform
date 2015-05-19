@@ -13,6 +13,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.opengamma.core.security.Security;
+import com.opengamma.sesame.bondfutureoption.BondFutureOptionFn;
 import com.opengamma.sesame.credit.measures.CreditCs01Fn;
 import com.opengamma.sesame.credit.measures.CreditPvFn;
 import com.opengamma.sesame.engine.ComponentMap;
@@ -51,6 +52,7 @@ public class EngineModule extends AbstractModule {
     available.register(CreditCs01Fn.class);
     available.register(CreditPvFn.class);
     available.register(EquityIndexOptionFn.class);
+    available.register(BondFutureOptionFn.class);
     return available;
   }
 

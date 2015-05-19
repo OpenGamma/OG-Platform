@@ -5,12 +5,14 @@
  */
 package com.opengamma.sesame.marketdata.builders;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.sesame.marketdata.MarketDataBundle;
 import com.opengamma.sesame.marketdata.MarketDataId;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
@@ -32,13 +34,14 @@ public class VolatilitySurfaceMarketDataBuilder implements MarketDataBuilder {
   public Set<MarketDataRequirement> getSingleValueRequirements(SingleValueRequirement requirement,
                                                                ZonedDateTime valuationTime,
                                                                Set<? extends MarketDataRequirement> suppliedData) {
-    throw new UnsupportedOperationException();
+    return ImmutableSet.of();
+    //throw new UnsupportedOperationException();
   }
 
   @Override
   public Set<MarketDataRequirement> getTimeSeriesRequirements(TimeSeriesRequirement requirement,
                                                               Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> suppliedData) {
-    throw new UnsupportedOperationException();
+    return ImmutableSet.of();
   }
 
   @Override
@@ -47,6 +50,7 @@ public class VolatilitySurfaceMarketDataBuilder implements MarketDataBuilder {
                                                                   Set<SingleValueRequirement> requirements,
                                                                   MarketDataSource marketDataSource,
                                                                   CyclePerturbations cyclePerturbations) {
+    //TODO map or requirements to failure
     throw new UnsupportedOperationException();
   }
 
@@ -56,6 +60,7 @@ public class VolatilitySurfaceMarketDataBuilder implements MarketDataBuilder {
       Set<TimeSeriesRequirement> requirements,
       MarketDataSource marketDataSource,
       CyclePerturbations cyclePerturbations) {
+    //TODO map or requirements to failure
     throw new UnsupportedOperationException();
   }
 

@@ -3,17 +3,21 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.bondfutureoption;
+package com.opengamma.solutions.util;
 
 import static com.opengamma.sesame.config.ConfigBuilder.argument;
 import static com.opengamma.sesame.config.ConfigBuilder.arguments;
+import static com.opengamma.sesame.config.ConfigBuilder.column;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
+import static com.opengamma.sesame.config.ConfigBuilder.configureView;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.mockito.Mockito.mock;
+import static com.opengamma.sesame.config.ConfigBuilder.output;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,25 +26,22 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-import org.threeten.bp.Instant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.OffsetTime;
 import org.threeten.bp.Period;
+import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
-import com.opengamma.analytics.financial.legalentity.CreditRating;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.legalentity.LegalEntityShortName;
-import com.opengamma.analytics.financial.legalentity.Region;
-import com.opengamma.analytics.financial.legalentity.Sector;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
@@ -53,165 +54,208 @@ import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
-import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.convention.ConventionSource;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.core.position.impl.SimpleTrade;
-import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.curve.exposure.CurrencyExposureFunction;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
-import com.opengamma.financial.convention.ConventionBundleMaster;
-import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.convention.DefaultConventionBundleSource;
-import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
-import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
-import com.opengamma.master.region.RegionMaster;
-import com.opengamma.master.region.impl.InMemoryRegionMaster;
-import com.opengamma.master.region.impl.MasterRegionSource;
-import com.opengamma.master.region.impl.RegionFileReader;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
-import com.opengamma.master.security.impl.InMemorySecurityMaster;
-import com.opengamma.master.security.impl.MasterSecuritySource;
-import com.opengamma.service.ServiceContext;
-import com.opengamma.service.ThreadLocalServiceContext;
-import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.CurveSelector;
+import com.opengamma.sesame.CurveSelectorMulticurveBundleFn;
 import com.opengamma.sesame.DefaultFixingsFn;
-import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.DefaultForwardCurveFn;
+import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FixingsFn;
+import com.opengamma.sesame.ForwardCurveFn;
 import com.opengamma.sesame.IssuerProviderBundle;
 import com.opengamma.sesame.IssuerProviderFn;
 import com.opengamma.sesame.LookupIssuerProviderFn;
 import com.opengamma.sesame.MarketExposureSelector;
+import com.opengamma.sesame.MulticurveBundle;
+import com.opengamma.sesame.OutputNames;
+import com.opengamma.sesame.bondfutureoption.BlackBondFuturesProviderFn;
+import com.opengamma.sesame.bondfutureoption.BlackExpStrikeBondFuturesProviderFn;
+import com.opengamma.sesame.bondfutureoption.BondFutureOptionBlackCalculatorFactory;
+import com.opengamma.sesame.bondfutureoption.BondFutureOptionCalculatorFactory;
+import com.opengamma.sesame.bondfutureoption.BondFutureOptionFn;
+import com.opengamma.sesame.bondfutureoption.DefaultBondFutureOptionFn;
 import com.opengamma.sesame.config.FunctionModelConfig;
-import com.opengamma.sesame.engine.CalculationArguments;
-import com.opengamma.sesame.engine.ComponentMap;
-import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
-import com.opengamma.sesame.engine.FunctionRunner;
-import com.opengamma.sesame.graph.FunctionModel;
+import com.opengamma.sesame.config.ViewConfig;
+import com.opengamma.sesame.equity.StaticReplicationDataBundleFn;
+import com.opengamma.sesame.equity.StrikeDataBundleFn;
+import com.opengamma.sesame.equityindexoptions.DefaultEquityIndexOptionFn;
+import com.opengamma.sesame.equityindexoptions.EquityIndexOptionFn;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
-import com.opengamma.sesame.marketdata.EmptyMarketDataFactory;
-import com.opengamma.sesame.marketdata.EmptyMarketDataSpec;
+import com.opengamma.sesame.marketdata.ForwardCurveId;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.IssuerMulticurveId;
-import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
+import com.opengamma.sesame.marketdata.MulticurveId;
 import com.opengamma.sesame.marketdata.VolatilitySurfaceId;
-import com.opengamma.sesame.marketdata.builders.MarketDataBuilder;
-import com.opengamma.sesame.marketdata.builders.MarketDataBuilders;
-import com.opengamma.sesame.marketdata.builders.MarketDataEnvironmentFactory;
 import com.opengamma.sesame.trade.BondFutureOptionTrade;
-import com.opengamma.util.function.Function;
-import com.opengamma.util.i18n.Country;
+import com.opengamma.sesame.trade.EquityIndexOptionTrade;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.result.Result;
-import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
-/**
- * Test for bond future options using the black calculator.
- */
-@Test(groups = TestGroup.UNIT)
-public class BondFutureOptionFnTest {
+import au.com.bytecode.opencsv.CSVReader;
 
+/**
+ * Utility class for Bond Future Options views
+ */
+public final class BondFutureOptionViewUtils {
+
+  private BondFutureOptionViewUtils() { /* private constructor */ }
+  private static final Logger s_logger = LoggerFactory.getLogger(BondFutureOptionViewUtils.class);
   private static ExternalId BOND_ID = ExternalSchemes.isinSecurityId("10Y JGB");
   private static ExternalId BOND_FUTURE_ID = ExternalSchemes.isinSecurityId("JBU5");
   private static ExternalId BOND_FUTURE_OPTION_ID = ExternalSchemes.isinSecurityId("JBN_146_5");
   private static String JP_NAME = "JP GOVT";
 
-
-  private BondFutureOptionFn _function;
-  private FunctionRunner _functionRunner;
-  public static final ZonedDateTime VALUATION_TIME =  DateUtils.getUTCDate(2015, 5, 12);
-
-
-  private static final CalculationArguments ARGS =
-      CalculationArguments.builder()
-          .valuationTime(VALUATION_TIME)
-          .marketDataSpecification(EmptyMarketDataSpec.INSTANCE)
-          .build();
-  private static MarketDataEnvironment ENV = createMarketDataEnvironment();
+  /**
+   * Utility for creating a Bond Future Options specific view column
+   * @param currencies
+   */
+  public static ViewConfig createViewConfig(Collection<String> currencies) {
 
 
-  @BeforeClass
-  public void setUp() {
-
-    FunctionModelConfig config =
-        config(
-            arguments(
-                function(
-                    MarketExposureSelector.class,
-                    argument("exposureFunctions", ConfigLink.resolved(createExposureFunction())))),
-            implementations(
-                BlackBondFuturesProviderFn.class, BlackExpStrikeBondFuturesProviderFn.class,
-                BondFutureOptionFn.class, DefaultBondFutureOptionFn.class,
-                BondFutureOptionCalculatorFactory.class, BondFutureOptionBlackCalculatorFactory.class,
-                FixingsFn.class, DefaultFixingsFn.class,
-                IssuerProviderFn.class, LookupIssuerProviderFn.class,
-                CurveSelector.class, MarketExposureSelector.class,
-                HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class
-            ));
-
-    ImmutableMap<Class<?>, Object> components = generateBaseComponents();
-    VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
-    ServiceContext serviceContext = ServiceContext.of(components).with(VersionCorrectionProvider.class, vcProvider);
-    ThreadLocalServiceContext.init(serviceContext);
-    ComponentMap componentMap = ComponentMap.of(components);
-    _function = FunctionModel.build(BondFutureOptionFn.class,
-                                    config,
-                                    componentMap);
-    EmptyMarketDataFactory dataFactory = new EmptyMarketDataFactory();
-    ConfigLink<CurrencyMatrix> currencyMatrixLink = ConfigLink.resolved(componentMap.getComponent(CurrencyMatrix.class));
-    List<MarketDataBuilder> builders = MarketDataBuilders.standard(componentMap, "dataSource", currencyMatrixLink);
-    MarketDataEnvironmentFactory environmentFactory = new MarketDataEnvironmentFactory(dataFactory, builders);
-    _functionRunner = new FunctionRunner(environmentFactory);
+    return
+        configureView(
+            "Bond Future Options View",
+            config(
+                arguments(
+                    function(
+                        MarketExposureSelector.class,
+                        argument("exposureFunctions", ConfigLink.resolved(createExposureFunction(currencies))))),
+                implementations(
+                    BlackBondFuturesProviderFn.class, BlackExpStrikeBondFuturesProviderFn.class,
+                    BondFutureOptionFn.class, DefaultBondFutureOptionFn.class,
+                    BondFutureOptionCalculatorFactory.class, BondFutureOptionBlackCalculatorFactory.class,
+                    FixingsFn.class, DefaultFixingsFn.class,
+                    IssuerProviderFn.class, LookupIssuerProviderFn.class,
+                    CurveSelector.class, MarketExposureSelector.class,
+                    HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class)),
+            column(OutputNames.PRESENT_VALUE, output(OutputNames.PRESENT_VALUE, BondFutureOptionTrade.class)),
+            column(OutputNames.DELTA, output(OutputNames.DELTA, BondFutureOptionTrade.class)),
+            column(OutputNames.GAMMA, output(OutputNames.GAMMA, BondFutureOptionTrade.class)),
+            column(OutputNames.VEGA, output(OutputNames.VEGA, BondFutureOptionTrade.class)),
+            column(OutputNames.THETA, output(OutputNames.THETA, BondFutureOptionTrade.class))
+        );
   }
 
-  @Test
-  public void testPresentValue() {
+  /**
+   * Create discounting curves and add to the {@link MarketDataEnvironmentBuilder}
+   * @param builder the MarketDataEnvironmentBuilder
+   * @param discountingFile name of the discounting curves file
+   * @param issuerFile name of the issuer curves file
+   * @throws IOException
+   */
+  public static void parseCurves(MarketDataEnvironmentBuilder builder, String discountingFile, String issuerFile) throws IOException {
+    String bundleName = "MultiCurve";
+    //MulticurveProviderDiscount multicurve = new MulticurveProviderDiscount();
+    //Map<String, CurveUtils.CurveRawData> curves = CurveUtils.parseCurves(discountingFile);
+    //for(Map.Entry<String, CurveUtils.CurveRawData> curve : curves.entrySet()) {
+    //  YieldAndDiscountCurve yieldCurve = CurveUtils.createYieldCurve(curve.getKey() + " Discounting", curve.getValue());
+    //  multicurve.setCurve(Currency.of(curve.getKey()), yieldCurve);
+    //
+    //}
+    //MulticurveBundle bundle = new MulticurveBundle(multicurve, new CurveBuildingBlockBundle());
 
-    Result<MultipleCurrencyAmount> result = _functionRunner.runFunction(
-        ARGS, ENV,
-        new Function<Environment, Result<MultipleCurrencyAmount>>() {
-          @Override
-          public Result<MultipleCurrencyAmount> apply(Environment env) {
-            return _function.calculatePV(env, createBondFutureOptionTrade());
-          }
-        });
+    //TODO Issuer
 
-    assertThat(result.isSuccess(), is(true));
-    MultipleCurrencyAmount mca = result.getValue();
 
+    builder.add(IssuerMulticurveId.of(bundleName), createIssuerBundle());
   }
 
-  /* TEST DATA */
+  /**
+   * Create volatility surfaces and add to the {@link MarketDataEnvironmentBuilder}
+   * @param builder the MarketDataEnvironmentBuilder
+   * @param file the name of the volatility surface file
+   * @throws IOException
+   */
+  public static void parseVolatilitySurfaces(MarketDataEnvironmentBuilder builder, String file) throws IOException {
+    //Map<String, VolUtils.VolRawData> vols = VolUtils.parseVols(file);
+    //for(Map.Entry<String, VolUtils.VolRawData> surface : vols.entrySet()) {
+    //  builder.add(VolatilitySurfaceId.of(surface.getKey()), VolUtils.createVolatilitySurface(surface.getValue()));
+    //}
+
+    builder.add(VolatilitySurfaceId.of("TOKYO"), createVolatilitySurface());
+  }
+
+  /**
+   * Parse the input portfolio
+   * @param file the name of the portfolio file
+   * @param securityMaster
+   * @return map of trade to currency
+   * @throws IOException
+   */
+  public static HashMap<Object, String> parsePortfolio(String file, SecurityMaster securityMaster) throws IOException {
+
+    HashMap<Object, String> trades = new HashMap<>();
+    Reader curveReader = new BufferedReader(
+        new InputStreamReader(
+            new ClassPathResource(file).getInputStream()
+        )
+    );
+
+    try {
+      CSVReader csvReader = new CSVReader(curveReader);
+      String[] line;
+      csvReader.readNext(); // skip headers
+      while ((line = csvReader.readNext()) != null) {
+
+        //Security
+
+
+        //Trade
+
+
+        //trades.put(new EquityIndexOptionTrade(trade), currency.getCode());
+
+      }
+    } catch (IOException e) {
+      s_logger.error("Failed to parse trade data ", e);
+
+    }
+    securityMaster.add(new SecurityDocument(createGovernmentBondSecurity()));
+    securityMaster.add(new SecurityDocument(createBondFutureSecurity()));
+    trades.put(createBondFutureOptionTrade(), "JPY");
+    return trades;
+  }
+
+  private static ExposureFunctions createExposureFunction(Collection<String> currencies) {
+    List<String> exposureFunctions = ImmutableList.of(CurrencyExposureFunction.NAME);
+    ImmutableList<String> currencyList = ImmutableSet.copyOf(currencies).asList();
+    Map<ExternalId, String> idsToNames = new HashMap<>();
+    for (String currency : currencyList) {
+      idsToNames.put(ExternalId.of("CurrencyISO", currency), "MultiCurve");
+    }
+    return new ExposureFunctions("Exposure", exposureFunctions, idsToNames);
+  }
+
+
+  //TODO remove static data
 
   private static BondFutureOptionTrade createBondFutureOptionTrade() {
 
@@ -244,7 +288,7 @@ public class BondFutureOptionFnTest {
     return security;
   }
 
-  private static BondFutureSecurity createBondFutureSecurity() {
+  public static BondFutureSecurity createBondFutureSecurity() {
 
     Currency currency = Currency.JPY;
 
@@ -268,7 +312,7 @@ public class BondFutureOptionFnTest {
     return security;
   }
 
-  private static BondSecurity createGovernmentBondSecurity() {
+  public static BondSecurity createGovernmentBondSecurity() {
 
     String issuerName = "JP GOVT";
     String issuerDomicile = "JP";
@@ -303,66 +347,6 @@ public class BondFutureOptionFnTest {
     bond.setExternalIdBundle(BOND_ID.toBundle());
     return bond;
   }
-
-  private static ExposureFunctions createExposureFunction() {
-    List<String> exposureFunctions =  ImmutableList.of(CurrencyExposureFunction.NAME);
-    Map<ExternalId, String> idsToNames = new HashMap<>();
-    idsToNames.put(ExternalId.of("CurrencyISO", "JPY"), "IssuerMultiCurve");
-    return new ExposureFunctions("Exposure", exposureFunctions, idsToNames);
-  }
-
-  private static ImmutableMap<Class<?>, Object> generateBaseComponents() {
-    return generateComponentMap(getRegionSource(),
-                                mock(HolidaySource.class),
-                                mock(HistoricalTimeSeriesSource.class),
-                                getSecuritySource(),
-                                mock(ConfigSource.class),
-                                mock(ConventionSource.class),
-                                getConventionBundleSource(),
-                                mock(LegalEntitySource.class),
-                                mock(CurrencyMatrix.class));
-  }
-
-  private static RegionSource getRegionSource() {
-    RegionMaster master = new InMemoryRegionMaster();
-    RegionFileReader.createPopulated(master);
-    return new MasterRegionSource(master);
-  }
-
-  private static ConventionBundleSource getConventionBundleSource() {
-    ConventionBundleMaster master = new InMemoryConventionBundleMaster();
-    return new DefaultConventionBundleSource(master);
-  }
-
-  private static SecuritySource getSecuritySource() {
-
-    SecurityMaster master = new InMemorySecurityMaster();
-    master.add(new SecurityDocument(createGovernmentBondSecurity()));
-    master.add(new SecurityDocument(createBondFutureSecurity()));
-    return new MasterSecuritySource(master);
-  }
-
-  private static ImmutableMap<Class<?>, Object> generateComponentMap(Object... components) {
-    ImmutableMap.Builder<Class<?>, Object> builder = ImmutableMap.builder();
-    for (Object component : components) {
-      builder.put(component.getClass().getInterfaces()[0], component);
-    }
-    return builder.build();
-  }
-
-  private static MarketDataEnvironment createMarketDataEnvironment() {
-    MarketDataEnvironmentBuilder builder = new MarketDataEnvironmentBuilder();
-    builder.add(IssuerMulticurveId.of("IssuerMultiCurve"), createIssuerBundle());
-    builder.add(VolatilitySurfaceId.of("TOKYO"), createVolatilitySurface());
-    builder.valuationTime(VALUATION_TIME);
-    return builder.build();
-  }
-
-  private static LegalEntity JP_GOVT = new LegalEntity(JP_NAME,
-                                        JP_NAME,
-                                        Sets.newHashSet(CreditRating.of("B", "S&P", true)),
-                                        Sector.of("Government"),
-                                        Region.of("Japan", Country.JP, Currency.JPY));
 
   private static IssuerProviderBundle createIssuerBundle() {
     Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuer = new LinkedHashMap<>();
@@ -415,5 +399,7 @@ public class BondFutureOptionFnTest {
     );
     return new VolatilitySurface(surface);
   }
+
+
 
 }
