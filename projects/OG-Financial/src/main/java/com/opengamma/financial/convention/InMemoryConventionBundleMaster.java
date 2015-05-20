@@ -124,6 +124,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
 
     addDummyTreasuryBondConvention("MX");
     addDummyTreasuryBondConvention("UG");
+    addDummyTreasuryBondConvention("JP");
     addDummyCorporateBondConvention("JE"); // Jersey!!
     addDummyCorporateBondConvention("DK");
     addDummyCorporateBondConvention("KY");

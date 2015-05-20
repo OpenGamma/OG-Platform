@@ -16,9 +16,14 @@ import com.opengamma.analytics.financial.instrument.future.BondFuturesDataSets;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionPremiumTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesSecurityDefinition;
+import com.opengamma.analytics.financial.interestrate.future.calculator.DeltaBlackBondFuturesCalculator;
+import com.opengamma.analytics.financial.interestrate.future.calculator.GammaBlackBondFuturesCalculator;
+import com.opengamma.analytics.financial.interestrate.future.calculator.ThetaBlackBondFuturesCalculator;
+import com.opengamma.analytics.financial.interestrate.future.calculator.VegaBlackBondFuturesCalculator;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
+import com.opengamma.analytics.financial.provider.calculator.blackbondfutures.PresentValueBlackBondFuturesOptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesExpStrikeProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
@@ -57,8 +62,8 @@ public class BondFuturesOptionPremiumBlackExpStrikeE2ETest {
       new BondFuturesOptionPremiumSecurityDefinition(JBM5_DEFINITION, EXPIRY_DATE_M_OPT, STRIKE_147, IS_CALL);
   private static final BondFuturesOptionPremiumSecurityDefinition PUT_JBM_147_DEFINITION = 
       new BondFuturesOptionPremiumSecurityDefinition(JBM5_DEFINITION, EXPIRY_DATE_M_OPT, STRIKE_147, !IS_CALL);
-  private static final BondFuturesOptionPremiumSecurityDefinition PUT_JBM_146_5_DEFINITION = 
-      new BondFuturesOptionPremiumSecurityDefinition(JBM5_DEFINITION, EXPIRY_DATE_N_OPT, STRIKE_146_5, !IS_CALL);
+  private static final BondFuturesOptionPremiumSecurityDefinition PUT_JBN_146_5_DEFINITION = 
+      new BondFuturesOptionPremiumSecurityDefinition(JBU5_DEFINITION, EXPIRY_DATE_N_OPT, STRIKE_146_5, !IS_CALL);
 
   private static final int QUANTITY = 100;
   private static final ZonedDateTime PREMIUM_DATE = DateUtils.getUTCDate(2015, 5, 13);
@@ -76,10 +81,10 @@ public class BondFuturesOptionPremiumBlackExpStrikeE2ETest {
           -QUANTITY * NOTIONAL * PREMIUM_UNIT_PUT_JBM_147);
   private static final BondFuturesOptionPremiumTransaction PUT_JBM_147_TRA =
       PUT_JBM_147_TRA_DEFINITION.toDerivative(REFERENCE_DATE);
-  private static final BondFuturesOptionPremiumTransactionDefinition PUT_JBM_146_5_TRA_DEFINITION =
-      new BondFuturesOptionPremiumTransactionDefinition(PUT_JBM_146_5_DEFINITION, -QUANTITY, PREMIUM_DATE_2, 0);
-  private static final BondFuturesOptionPremiumTransaction PUT_JBM_146_5_TRA =
-      PUT_JBM_146_5_TRA_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final BondFuturesOptionPremiumTransactionDefinition PUT_JBN_146_5_TRA_DEFINITION =
+      new BondFuturesOptionPremiumTransactionDefinition(PUT_JBN_146_5_DEFINITION, -QUANTITY, PREMIUM_DATE_2, 0);
+  private static final BondFuturesOptionPremiumTransaction PUT_JBN_146_5_TRA =
+      PUT_JBN_146_5_TRA_DEFINITION.toDerivative(REFERENCE_DATE);
   
   /** Black surface expiry/strike */
   final private static InterpolatedDoublesSurface BLACK_SURFACE_EXP_STRIKE = 
@@ -93,6 +98,8 @@ public class BondFuturesOptionPremiumBlackExpStrikeE2ETest {
   private static final BlackBondFuturesExpStrikeProvider BLACK_EXP_STRIKE_BNDFUT =
       new BlackBondFuturesExpStrikeProvider(ISSUER_SPECIFIC_MULTICURVES, BLACK_SURFACE_EXP_STRIKE, LEGAL_ENTITY_JAPAN);
   /** Methods and calculators */
+  private static final BondFuturesOptionPremiumSecurityBlackBondFuturesMethod METHOD_OPT_SEC = 
+      BondFuturesOptionPremiumSecurityBlackBondFuturesMethod.getInstance();
   private static final BondFuturesOptionPremiumTransactionBlackBondFuturesMethod METHOD_OPT_TRA = 
       BondFuturesOptionPremiumTransactionBlackBondFuturesMethod.getInstance();
   private static final BondFuturesSecurityDiscountingMethod METHOD_FUTURES = 
@@ -115,9 +122,9 @@ public class BondFuturesOptionPremiumBlackExpStrikeE2ETest {
     double futuresPriceM5Expected = 1.46883113;
     double futuresPriceM5 = METHOD_FUTURES.price(JBM5, ISSUER_SPECIFIC_MULTICURVES);
     assertEquals(futuresPriceM5Expected, futuresPriceM5, TOLERANCE_PRICE);
-    double futuresPriceU5Expected = 1.46480431;
-    final double futuresPriceU5 = METHOD_FUTURES.price(JBU5, ISSUER_SPECIFIC_MULTICURVES);
-    assertEquals(futuresPriceU5Expected, futuresPriceU5, TOLERANCE_PV);
+    double futuresPriceU5Expected = 1.46222860;
+    double futuresPriceU5 = METHOD_FUTURES.price(JBU5, ISSUER_SPECIFIC_MULTICURVES);
+    assertEquals(futuresPriceU5Expected, futuresPriceU5, TOLERANCE_PRICE);
   }
   
   /* Present value for each option. */
@@ -128,10 +135,13 @@ public class BondFuturesOptionPremiumBlackExpStrikeE2ETest {
     assertEquals(pvCallM147Expected, pvCallM147Computed.getAmount(JPY), TOLERANCE_PV);
     double pvPutM147Expected = 1566468.8540;
     MultipleCurrencyAmount pvPutM147Computed = METHOD_OPT_TRA.presentValue(PUT_JBM_147_TRA, BLACK_EXP_STRIKE_BNDFUT);
-    assertEquals(pvPutM147Expected, pvPutM147Computed.getAmount(JPY), TOLERANCE_PV);    
-    double pvPutU1465Expected = -49059917.8775; // Short the option
-    MultipleCurrencyAmount pvPutU1465Computed = METHOD_OPT_TRA.presentValue(PUT_JBM_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT);
+    assertEquals(pvPutM147Expected, pvPutM147Computed.getAmount(JPY), TOLERANCE_PV);
+    double pvPutU1465Expected = -81090395.9457; // Short the option
+    MultipleCurrencyAmount pvPutU1465Computed = METHOD_OPT_TRA.presentValue(PUT_JBN_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT);
     assertEquals(pvPutU1465Expected, pvPutU1465Computed.getAmount(JPY), TOLERANCE_PV);
+    MultipleCurrencyAmount pvPutU1465Calculator = PUT_JBN_146_5_TRA
+        .accept(PresentValueBlackBondFuturesOptionCalculator.getInstance(), BLACK_EXP_STRIKE_BNDFUT);
+    assertEquals(pvPutU1465Expected, pvPutU1465Calculator.getAmount(JPY), TOLERANCE_PV);
   }
   
   /* Sensitivity to the zero-coupon rates of the curves. */
@@ -146,18 +156,18 @@ public class BondFuturesOptionPremiumBlackExpStrikeE2ETest {
     AssertSensitivityObjects.assertEquals("BondFuturesOptionPremiumBlackExpStrike - end-to-end test",
         pvpsCallM147Computed, ps(deltaDscCM, deltaGovtCM), TOLERANCE_PV_DELTA);
     MultipleCurrencyMulticurveSensitivity pvptsPutU1465 = 
-        METHOD_OPT_TRA.presentValueCurveSensitivity(PUT_JBM_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT);
+        METHOD_OPT_TRA.presentValueCurveSensitivity(PUT_JBN_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT);
     MultipleCurrencyParameterSensitivity pvpsPutU1465Computed = 
         PSC.pointToParameterSensitivity(pvptsPutU1465, BLACK_EXP_STRIKE_BNDFUT).multipliedBy(BP1); // ZR sensi to 1 bp
-    double[] deltaDscPN = {37313.254, 27195.120, 0.000, 0.000, 0.000, 0.000, 0.000};
-    double[] deltaGovtPN = {-1514.006, -4512.658, -27399.248, -59533.322, -3876975.908, -142181.121, 0.000};
+    double[] deltaDscPN = {510.164, 172102.284, 121028.501, 0.000, 0.000, 0.000, 0.000};
+    double[] deltaGovtPN = {-1932.522, -5617.214, -34020.187, -73950.143, -5118826.798, -689566.008, 0.000};
     AssertSensitivityObjects.assertEquals("BondFuturesOptionPremiumBlackExpStrike - end-to-end test",
         pvpsPutU1465Computed, ps(deltaDscPN, deltaGovtPN), TOLERANCE_PV_DELTA);
   }
   
   /* Delta of the PV. */
   @Test
-  public void delta() {
+  public void presentValueDelta() {
     double deltaPutM147Expected = -5433547105.474;
     double deltaPutM147Computed = METHOD_OPT_TRA.presentValueDelta(PUT_JBM_147_TRA, BLACK_EXP_STRIKE_BNDFUT);
     assertEquals(deltaPutM147Expected, deltaPutM147Computed, TOLERANCE_PV);
@@ -165,7 +175,7 @@ public class BondFuturesOptionPremiumBlackExpStrikeE2ETest {
   
   /* Gamma of the PV. */
   @Test
-  public void gamma() {
+  public void presentValueGamma() {
     double gammaPutM147Expected = 381729633582.165;
     double gammaPutM147Computed = METHOD_OPT_TRA.presentValueGamma(PUT_JBM_147_TRA, BLACK_EXP_STRIKE_BNDFUT);
     assertEquals(gammaPutM147Expected, gammaPutM147Computed, TOLERANCE_PV);
@@ -173,7 +183,7 @@ public class BondFuturesOptionPremiumBlackExpStrikeE2ETest {
   
   /* Vega of the PV. */
   @Test
-  public void vega() {
+  public void presentValueVega() {
     double vegaPutM147Expected = 1328991007.568;
     double vegaPutM147Computed = METHOD_OPT_TRA.presentValueVega(PUT_JBM_147_TRA, BLACK_EXP_STRIKE_BNDFUT);
     assertEquals(vegaPutM147Expected, vegaPutM147Computed, TOLERANCE_PV);
@@ -181,28 +191,104 @@ public class BondFuturesOptionPremiumBlackExpStrikeE2ETest {
   
   /* Check that the delta/gamma expansion approximate the change of PV */
   @Test
-  public void deltaGammaExpansion() {
-    double priceFutures = METHOD_FUTURES.price(JBM5, ISSUER_SPECIFIC_MULTICURVES);
-    double delta = METHOD_OPT_TRA.presentValueDelta(PUT_JBM_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT);
-    double gamma = METHOD_OPT_TRA.presentValueGamma(PUT_JBM_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT);
-    double pv0 = METHOD_OPT_TRA.presentValue(PUT_JBM_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT).getAmount(JPY);
+  public void presentValueDeltaGammaExpansion() {
+    double priceFutures = METHOD_FUTURES.price(JBU5, ISSUER_SPECIFIC_MULTICURVES);
+    double delta = METHOD_OPT_TRA.presentValueDelta(PUT_JBN_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT);
+    double gamma = METHOD_OPT_TRA.presentValueGamma(PUT_JBN_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT);
+    double pv0 = METHOD_OPT_TRA.presentValue(PUT_JBN_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT).getAmount(JPY);
     double shift = 1.0E-3; // 10 bp
     double pvShifted = METHOD_OPT_TRA.presentValueFromUnderlyingPrice(
-        PUT_JBM_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT, priceFutures + shift).getAmount(JPY);
+        PUT_JBN_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT, priceFutures + shift).getAmount(JPY);
     assertEquals(pvShifted, pv0 + delta * shift + 0.5 * gamma * shift * shift, TOLERANCE_PV_APPROX);
   }
   
   /* Check that the delta/gamma expansion approximate the change of PV */
   @Test
-  public void vegaExpansion() {
-    double vega = METHOD_OPT_TRA.presentValueVega(PUT_JBM_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT);
-    double pv0 = METHOD_OPT_TRA.presentValue(PUT_JBM_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT).getAmount(JPY);
+  public void presentValueVegaExpansion() {
+    double vega = METHOD_OPT_TRA.presentValueVega(PUT_JBN_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT);
+    double pv0 = METHOD_OPT_TRA.presentValue(PUT_JBN_146_5_TRA, BLACK_EXP_STRIKE_BNDFUT).getAmount(JPY);
     double shift = 5.0E-4; // 5bp out of ~3% vol
     InterpolatedDoublesSurface blackSurfaceShifted = BondFuturesOptionPremiumE2EDataSet.blackSurfaceBndExpStrike(shift);
     BlackBondFuturesExpStrikeProvider providerVolShifted =
         new BlackBondFuturesExpStrikeProvider(ISSUER_SPECIFIC_MULTICURVES, blackSurfaceShifted, LEGAL_ENTITY_JAPAN);
-    double pvShifted = METHOD_OPT_TRA.presentValue(PUT_JBM_146_5_TRA, providerVolShifted).getAmount(JPY);
+    double pvShifted = METHOD_OPT_TRA.presentValue(PUT_JBN_146_5_TRA, providerVolShifted).getAmount(JPY);
     assertEquals(pvShifted, pv0 + vega * shift, TOLERANCE_PV_APPROX);
+  }
+  
+  @Test
+  public void delta() {
+    double deltaPutM147Expected = -0.54335471;
+    double deltaPutM147Computed =
+        METHOD_OPT_SEC.delta(PUT_JBM_147_TRA.getUnderlyingOption(), BLACK_EXP_STRIKE_BNDFUT);
+    assertEquals(deltaPutM147Expected, deltaPutM147Computed, TOLERANCE_PRICE);
+    double deltaPutM147Calculator = PUT_JBM_147_TRA.getUnderlyingOption()
+        .accept(DeltaBlackBondFuturesCalculator.getInstance(), BLACK_EXP_STRIKE_BNDFUT);
+    assertEquals(deltaPutM147Expected, deltaPutM147Calculator, TOLERANCE_PRICE);
+
+    double deltaPutM1465Expected = -0.56391967;
+    double deltaPutM1465Computed =
+        METHOD_OPT_SEC.delta(PUT_JBN_146_5_TRA.getUnderlyingOption(), BLACK_EXP_STRIKE_BNDFUT);
+    assertEquals(deltaPutM1465Expected, deltaPutM1465Computed, TOLERANCE_PRICE);
+    double deltaPutM1465Calculator = PUT_JBN_146_5_TRA.getUnderlyingOption()
+        .accept(DeltaBlackBondFuturesCalculator.getInstance(), BLACK_EXP_STRIKE_BNDFUT);
+    assertEquals(deltaPutM1465Expected, deltaPutM1465Calculator, TOLERANCE_PRICE);
+  }
+  
+  @Test
+  public void gamma() {
+    double gammaPutM147Expected = 38.17296336;
+    double gammaPutM147Computed = 
+        METHOD_OPT_SEC.gamma(PUT_JBM_147_TRA.getUnderlyingOption(), BLACK_EXP_STRIKE_BNDFUT);
+    assertEquals(gammaPutM147Expected, gammaPutM147Computed, TOLERANCE_PRICE);
+    double gammaPutM147Calculator = PUT_JBM_147_TRA.getUnderlyingOption()
+        .accept(GammaBlackBondFuturesCalculator.getInstance(), BLACK_EXP_STRIKE_BNDFUT);
+    assertEquals(gammaPutM147Expected, gammaPutM147Calculator, TOLERANCE_PRICE);
+
+    double gammaPutM1465Expected = 23.70913668;
+    double gammaPutM1465Computed =
+        METHOD_OPT_SEC.gamma(PUT_JBN_146_5_TRA.getUnderlyingOption(), BLACK_EXP_STRIKE_BNDFUT);
+    assertEquals(gammaPutM1465Expected, gammaPutM1465Computed, TOLERANCE_PRICE);
+    double gammaPutM1465Calculator = PUT_JBN_146_5_TRA.getUnderlyingOption()
+        .accept(GammaBlackBondFuturesCalculator.getInstance(), BLACK_EXP_STRIKE_BNDFUT);
+    assertEquals(gammaPutM1465Expected, gammaPutM1465Calculator, TOLERANCE_PRICE);
+  }
+  
+  @Test
+  public void vega() {
+    double vegaPutM147Expected = 0.13289910;
+    double vegaPutM147Computed = 
+        METHOD_OPT_SEC.vega(PUT_JBM_147_TRA.getUnderlyingOption(), BLACK_EXP_STRIKE_BNDFUT);
+    assertEquals(vegaPutM147Expected, vegaPutM147Computed, TOLERANCE_PRICE);
+    double vegaPutM147Calculator = PUT_JBM_147_TRA.getUnderlyingOption()
+        .accept(VegaBlackBondFuturesCalculator.getInstance(), BLACK_EXP_STRIKE_BNDFUT);
+    assertEquals(vegaPutM147Expected, vegaPutM147Calculator, TOLERANCE_PRICE);
+
+    double vegaPutM1465Expected = 0.2109653;
+    double vegaPutM1465Computed =
+        METHOD_OPT_SEC.vega(PUT_JBN_146_5_TRA.getUnderlyingOption(), BLACK_EXP_STRIKE_BNDFUT);
+    assertEquals(vegaPutM1465Expected, vegaPutM1465Computed, TOLERANCE_PRICE);
+    double vegaPutM1465Calculator = PUT_JBN_146_5_TRA.getUnderlyingOption()
+        .accept(VegaBlackBondFuturesCalculator.getInstance(), BLACK_EXP_STRIKE_BNDFUT);
+    assertEquals(vegaPutM1465Expected, vegaPutM1465Calculator, TOLERANCE_PRICE);
+  }
+  
+  @Test
+  public void theta() {
+    double thetaPutM147Expected = -0.03957085;
+    double thetaPutM147Computed = 
+        METHOD_OPT_SEC.theta(PUT_JBM_147_TRA.getUnderlyingOption(), BLACK_EXP_STRIKE_BNDFUT);
+    assertEquals(thetaPutM147Expected, thetaPutM147Computed, TOLERANCE_PRICE);    
+    double thetaPutM147Calculator = PUT_JBM_147_TRA.getUnderlyingOption()
+        .accept(ThetaBlackBondFuturesCalculator.getInstance(), BLACK_EXP_STRIKE_BNDFUT);
+    assertEquals(thetaPutM147Expected, thetaPutM147Calculator, TOLERANCE_PRICE);
+
+    double thetaPutM1465Expected = -0.02435502;
+    double thetaPutM1465Computed =
+        METHOD_OPT_SEC.theta(PUT_JBN_146_5_TRA.getUnderlyingOption(), BLACK_EXP_STRIKE_BNDFUT);
+    assertEquals(thetaPutM1465Expected, thetaPutM1465Computed, TOLERANCE_PRICE);
+    double thetaPutM1465Calculator = PUT_JBN_146_5_TRA.getUnderlyingOption()
+        .accept(ThetaBlackBondFuturesCalculator.getInstance(), BLACK_EXP_STRIKE_BNDFUT);
+    assertEquals(thetaPutM1465Expected, thetaPutM1465Calculator, TOLERANCE_PRICE);
   }
   
   // create a parameter sensitivity from the arrays
@@ -214,6 +300,5 @@ public class BondFuturesOptionPremiumBlackExpStrikeE2ETest {
         new DoubleMatrix1D( deltaGovt));
     return new MultipleCurrencyParameterSensitivity(sensitivity);
   }
-
   
 }
