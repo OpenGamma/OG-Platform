@@ -1,0 +1,2 @@
+underlying,option type,exercise type,currency,strike,expiry,quantity
+JBU5,PUT,European,JPY,1.465,2015-06-30,-100

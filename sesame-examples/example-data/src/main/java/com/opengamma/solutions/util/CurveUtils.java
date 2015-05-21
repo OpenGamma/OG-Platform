@@ -79,7 +79,7 @@ public final class CurveUtils {
           tenor = (weeks * 7) + "D";
         } else if (tenor.endsWith("M")) {
           int months = Integer.parseInt(tenor.substring(0, tenor.length() - 1));
-          tenor = (months / 12 * 365) + "D";
+          tenor = Math.round(months / 12d * 365) + "D";
         } else if (tenor.endsWith("Y")) {
           int years = Integer.parseInt(tenor.substring(0, tenor.length() - 1));
           tenor = (years * 365) + "D";
@@ -160,6 +160,16 @@ public final class CurveUtils {
 
     InterpolatedDoublesCurve interpolatedCurve = InterpolatedDoublesCurve.from(ttm, rates, interpolator);
     return new YieldCurve(name, interpolatedCurve);
+  }
+
+  /**
+   * Create instance of {@link YieldAndDiscountCurve}
+   * @param name name of the curve
+   * @param data the {@link CurveRawData} to create the curve from
+   * @return a YieldAndDiscountCurve
+   */
+  public static YieldAndDiscountCurve createIssuerCurve(String name, CurveRawData data) {
+    return createYieldCurve(name, data);
   }
 
 

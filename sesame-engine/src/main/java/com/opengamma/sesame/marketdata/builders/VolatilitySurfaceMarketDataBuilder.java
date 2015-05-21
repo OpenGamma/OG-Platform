@@ -12,6 +12,7 @@ import java.util.Set;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.sesame.marketdata.MarketDataBundle;
 import com.opengamma.sesame.marketdata.MarketDataId;
@@ -22,6 +23,7 @@ import com.opengamma.sesame.marketdata.TimeSeriesRequirement;
 import com.opengamma.sesame.marketdata.VolatilitySurfaceId;
 import com.opengamma.sesame.marketdata.scenarios.CyclePerturbations;
 import com.opengamma.timeseries.date.DateTimeSeries;
+import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 
 /**
@@ -35,7 +37,6 @@ public class VolatilitySurfaceMarketDataBuilder implements MarketDataBuilder {
                                                                ZonedDateTime valuationTime,
                                                                Set<? extends MarketDataRequirement> suppliedData) {
     return ImmutableSet.of();
-    //throw new UnsupportedOperationException();
   }
 
   @Override
@@ -50,8 +51,15 @@ public class VolatilitySurfaceMarketDataBuilder implements MarketDataBuilder {
                                                                   Set<SingleValueRequirement> requirements,
                                                                   MarketDataSource marketDataSource,
                                                                   CyclePerturbations cyclePerturbations) {
-    //TODO map or requirements to failure
-    throw new UnsupportedOperationException();
+
+    ImmutableMap.Builder<SingleValueRequirement, Result<?>> resultsBuilder = ImmutableMap.builder();
+    for (SingleValueRequirement requirement : requirements) {
+      Result<Object> failure = Result.failure(FailureStatus.NOT_APPLICABLE,
+                                              "Building of vol surface isn't supported for requirement {}",
+                                              requirement);
+      resultsBuilder.put(requirement, failure);
+    }
+    return resultsBuilder.build();
   }
 
   @Override
@@ -60,8 +68,15 @@ public class VolatilitySurfaceMarketDataBuilder implements MarketDataBuilder {
       Set<TimeSeriesRequirement> requirements,
       MarketDataSource marketDataSource,
       CyclePerturbations cyclePerturbations) {
-    //TODO map or requirements to failure
-    throw new UnsupportedOperationException();
+
+    ImmutableMap.Builder<TimeSeriesRequirement, Result<? extends DateTimeSeries<LocalDate, ?>>> resultsBuilder = ImmutableMap.builder();
+    for (TimeSeriesRequirement requirement : requirements) {
+      Result<? extends DateTimeSeries<LocalDate, ?>> failure = Result.failure(FailureStatus.NOT_APPLICABLE,
+                                              "Building of vol surface isn't supported for requirement {}",
+                                              requirement);
+      resultsBuilder.put(requirement, failure);
+    }
+    return resultsBuilder.build();
   }
 
   @Override

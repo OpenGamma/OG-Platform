@@ -33,7 +33,10 @@ public class BondFutureOptionPricerExample {
   private static final String ISSUER_CURVES = "bond-data/curves/issuer-curves.csv";
   private static final String VOLATILITY_SURFACES = "bond-data/vols/surface.csv";
   private static final String TRADES = "bond-data/trades/bond-future-options.csv";
-  private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2015, 4, 27);
+  private static final String BOND_FUTURES = "bond-data/trades/bond-futures.csv";
+  private static final String BONDS = "bond-data/trades/bonds.csv";
+  private static final String HOLIDAYS = "bond-data/calendars/holidays.csv";
+  private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2015, 5, 12);
 
   /**
    * Entry point to running the Bond Future Option Pricer.
@@ -51,9 +54,12 @@ public class BondFutureOptionPricerExample {
     BondFutureOptionPricer pricer = injector.getInstance(BondFutureOptionPricer.class);
     Results results = pricer.price(VALUATION_TIME,
                                    TRADES,
+                                   BOND_FUTURES,
+                                   BONDS,
                                    DISCOUNTING_CURVES,
                                    ISSUER_CURVES,
-                                   VOLATILITY_SURFACES);
+                                   VOLATILITY_SURFACES,
+                                   HOLIDAYS);
     s_logger.info("Got results:\n" + ViewUtils.format(results));
   }
 

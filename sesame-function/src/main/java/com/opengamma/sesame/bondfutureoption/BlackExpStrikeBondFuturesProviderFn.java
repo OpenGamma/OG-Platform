@@ -9,6 +9,7 @@ import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurf
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesExpStrikeProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
+import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.IssuerProviderBundle;
@@ -38,11 +39,12 @@ public class BlackExpStrikeBondFuturesProviderFn implements BlackBondFuturesProv
   public Result<BlackBondFuturesProviderInterface> getBlackBondFuturesProvider(Environment env,
                                                                                BondFutureOptionTrade tradeWrapper) {
     BondFutureOptionSecurity security = tradeWrapper.getSecurity();
+    String volId = security.getOptionType() + "_" + security.getUnderlyingId().getValue();
     //TODO can we use a dummy legal entity here?
     LegalEntity legalEntity = new LegalEntity("", "", Sets.<CreditRating>newHashSet(), Sector.of(""), Region.of(""));
     Result<IssuerProviderBundle> bundleResult = _issuerProviderFn.getMulticurveBundle(env, tradeWrapper.getTrade());
     Result<VolatilitySurface> surfaceResult =
-        env.getMarketDataBundle().get(VolatilitySurfaceId.of(security.getTradingExchange()), VolatilitySurface.class);
+        env.getMarketDataBundle().get(VolatilitySurfaceId.of(volId), VolatilitySurface.class);
 
     if (Result.allSuccessful(bundleResult, surfaceResult)) {
       IssuerProviderDiscount multicurve = (IssuerProviderDiscount) bundleResult.getValue().getParameterIssuerProvider();
