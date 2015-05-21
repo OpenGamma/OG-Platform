@@ -62,6 +62,7 @@ import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.financial.analytics.curve.exposure.CurrencyExposureFunction;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
@@ -77,6 +78,7 @@ import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.sesame.CurveSelector;
@@ -128,17 +130,13 @@ public final class BondFutureOptionViewUtils {
 
   private BondFutureOptionViewUtils() { /* private constructor */ }
   private static final Logger s_logger = LoggerFactory.getLogger(BondFutureOptionViewUtils.class);
-  private static ExternalId BOND_ID = ExternalSchemes.isinSecurityId("10Y JGB");
-  private static ExternalId BOND_FUTURE_ID = ExternalSchemes.isinSecurityId("JBU5");
-  private static ExternalId BOND_FUTURE_OPTION_ID = ExternalSchemes.isinSecurityId("JBN_146_5");
-  private static String JP_NAME = "JP GOVT";
+  private static String CURVE_BUNDLE = "CurveBundle";
 
   /**
    * Utility for creating a Bond Future Options specific view column
    * @param currencies
    */
   public static ViewConfig createViewConfig(Collection<String> currencies) {
-
 
     return
         configureView(
@@ -172,20 +170,24 @@ public final class BondFutureOptionViewUtils {
    * @throws IOException
    */
   public static void parseCurves(MarketDataEnvironmentBuilder builder, String discountingFile, String issuerFile) throws IOException {
-    String bundleName = "MultiCurve";
-    //MulticurveProviderDiscount multicurve = new MulticurveProviderDiscount();
-    //Map<String, CurveUtils.CurveRawData> curves = CurveUtils.parseCurves(discountingFile);
-    //for(Map.Entry<String, CurveUtils.CurveRawData> curve : curves.entrySet()) {
-    //  YieldAndDiscountCurve yieldCurve = CurveUtils.createYieldCurve(curve.getKey() + " Discounting", curve.getValue());
-    //  multicurve.setCurve(Currency.of(curve.getKey()), yieldCurve);
-    //
-    //}
-    //MulticurveBundle bundle = new MulticurveBundle(multicurve, new CurveBuildingBlockBundle());
+    MulticurveProviderDiscount multicurve = new MulticurveProviderDiscount();
+    Map<String, CurveUtils.CurveRawData> discountingCurves = CurveUtils.parseCurves(discountingFile);
+    for(Map.Entry<String, CurveUtils.CurveRawData> curve : discountingCurves.entrySet()) {
+      YieldAndDiscountCurve yieldCurve = CurveUtils.createYieldCurve(curve.getKey() + " Discounting", curve.getValue());
+      multicurve.setCurve(Currency.of(curve.getKey()), yieldCurve);
+    }
 
-    //TODO Issuer
+    Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuer = new LinkedHashMap<>();
+    Map<String, CurveUtils.CurveRawData> issuerCurves = CurveUtils.parseCurves(issuerFile);
+    for(Map.Entry<String, CurveUtils.CurveRawData> curve : issuerCurves.entrySet()) {
+      YieldAndDiscountCurve yieldCurve = CurveUtils.createIssuerCurve(curve.getKey(), curve.getValue());
+      Pair<Object, LegalEntityFilter<LegalEntity>> key = Pairs.<Object, LegalEntityFilter<LegalEntity>>of(curve.getKey(), new LegalEntityShortName());
+      issuer.put(key, yieldCurve);
+    }
 
-
-    builder.add(IssuerMulticurveId.of(bundleName), createIssuerBundle());
+    IssuerProviderBundle issuerProviderBundle = new IssuerProviderBundle(new IssuerProviderDiscount(multicurve, issuer),
+                                                                         new CurveBuildingBlockBundle());
+    builder.add(IssuerMulticurveId.of(CURVE_BUNDLE), issuerProviderBundle);
   }
 
   /**
@@ -195,53 +197,179 @@ public final class BondFutureOptionViewUtils {
    * @throws IOException
    */
   public static void parseVolatilitySurfaces(MarketDataEnvironmentBuilder builder, String file) throws IOException {
-    //Map<String, VolUtils.VolRawData> vols = VolUtils.parseVols(file);
-    //for(Map.Entry<String, VolUtils.VolRawData> surface : vols.entrySet()) {
-    //  builder.add(VolatilitySurfaceId.of(surface.getKey()), VolUtils.createVolatilitySurface(surface.getValue()));
-    //}
-
-    builder.add(VolatilitySurfaceId.of("TOKYO"), createVolatilitySurface());
+    Map<String, VolUtils.VolRawData> vols = VolUtils.parseVols(file);
+    for(Map.Entry<String, VolUtils.VolRawData> surface : vols.entrySet()) {
+      builder.add(VolatilitySurfaceId.of(surface.getKey()), VolUtils.createVolatilitySurface(surface.getValue()));
+    }
   }
 
   /**
    * Parse the input portfolio
    * @param file the name of the portfolio file
-   * @param securityMaster
    * @return map of trade to currency
    * @throws IOException
    */
-  public static HashMap<Object, String> parsePortfolio(String file, SecurityMaster securityMaster) throws IOException {
+  public static HashMap<Object, String> parseBondFutureOptions(String file) throws IOException {
 
     HashMap<Object, String> trades = new HashMap<>();
-    Reader curveReader = new BufferedReader(
+    Reader reader = new BufferedReader(
         new InputStreamReader(
             new ClassPathResource(file).getInputStream()
         )
     );
 
     try {
-      CSVReader csvReader = new CSVReader(curveReader);
+      CSVReader csvReader = new CSVReader(reader);
       String[] line;
       csvReader.readNext(); // skip headers
       while ((line = csvReader.readNext()) != null) {
 
         //Security
-
+        ExternalId underlyingId = ExternalSchemes.isinSecurityId(line[0]);
+        OptionType optionType = OptionType.parse(line[1]);
+        ExerciseType exerciseType = ExerciseType.of(line[2]);
+        Currency currency = Currency.parse(line[3]);
+        double strike = Double.parseDouble(line[4]);
+        Expiry expiry = new Expiry(ZonedDateTime.of(LocalDate.parse(line[5]),
+                                                    LocalTime.of(0, 0),
+                                                    ZoneId.of("UTC")));
+        double pointValue = 1;
+        String exchange = currency.getCode();
+        boolean margined = false;
+        BondFutureOptionSecurity security = new BondFutureOptionSecurity(exchange, exchange, expiry,
+                                                                         exerciseType, underlyingId, pointValue, margined,
+                                                                         currency, strike, optionType);
+        security.setName(underlyingId.getValue() + " " +
+                             optionType.toString() + " Option " +
+                             expiry.getExpiry().toLocalDate().toString() + " " + strike);
 
         //Trade
+        Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
+        BigDecimal tradeQuantity = BigDecimal.valueOf(Long.parseLong(line[6]));
+        LocalDate tradeDate = LocalDate.now();
+        OffsetTime tradeTime = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
+        SimpleTrade trade = new SimpleTrade(security,
+                                            tradeQuantity,
+                                            counterparty,
+                                            tradeDate,
+                                            tradeTime);
+        trade.setPremium(0.0);
+        trade.setPremiumCurrency(currency);
 
-
-        //trades.put(new EquityIndexOptionTrade(trade), currency.getCode());
+        trades.put(new BondFutureOptionTrade(trade), currency.getCode());
 
       }
     } catch (IOException e) {
       s_logger.error("Failed to parse trade data ", e);
 
     }
-    securityMaster.add(new SecurityDocument(createGovernmentBondSecurity()));
-    securityMaster.add(new SecurityDocument(createBondFutureSecurity()));
-    trades.put(createBondFutureOptionTrade(), "JPY");
     return trades;
+  }
+
+  /**
+   * Parse the underlying bond futures
+   * @param file the name of the underlying bond futures file
+   * @param securityMaster
+   * @throws IOException
+   */
+  public static void parseBondFutures(String file, SecurityMaster securityMaster) throws IOException {
+
+    Reader reader = new BufferedReader(
+        new InputStreamReader(
+            new ClassPathResource(file).getInputStream()
+        )
+    );
+
+    try {
+      CSVReader csvReader = new CSVReader(reader);
+      String[] line;
+      csvReader.readNext(); // skip headers
+      while ((line = csvReader.readNext()) != null) {
+
+        Currency currency = Currency.of(line[3]);
+        Expiry expiry = new Expiry(ZonedDateTime.of(LocalDate.parse(line[4]), LocalTime.of(0, 0), ZoneId.of("UTC")));
+        String tradingExchange = currency.getCode();
+        String settlementExchange = currency.getCode();
+        double unitAmount = Double.parseDouble(line[7]);
+        Collection<BondFutureDeliverable> basket = new ArrayList<>();
+        ExternalIdBundle underlying = ExternalSchemes.isinSecurityId(line[1]).toBundle();
+        double conversion = Double.parseDouble(line[2]);
+        BondFutureDeliverable bondFutureDeliverable = new BondFutureDeliverable(underlying, conversion);
+        basket.add(bondFutureDeliverable);
+        ZonedDateTime firstDeliveryDate = ZonedDateTime.of(LocalDate.parse(line[5]), LocalTime.of(0, 0), ZoneId.of("UTC"));
+        ZonedDateTime lastDeliveryDate = ZonedDateTime.of(LocalDate.parse(line[6]), LocalTime.of(0, 0), ZoneId.of("UTC"));
+        String category = currency.getCode();
+        BondFutureSecurity security =  new BondFutureSecurity(expiry, tradingExchange, settlementExchange, currency, unitAmount, basket,
+                                                              firstDeliveryDate, lastDeliveryDate, category);
+        security.setExternalIdBundle(ExternalSchemes.isinSecurityId(line[0]).toBundle());
+        securityMaster.add(new SecurityDocument(security));
+
+      }
+    } catch (IOException e) {
+      s_logger.error("Failed to parse trade data ", e);
+
+    }
+  }
+
+  /**
+   * Parse the underlying bonds
+   * @param file the name of the underlying bonds file
+   * @param securityMaster
+   * @throws IOException
+   */
+  public static void parseBonds(String file, SecurityMaster securityMaster) throws IOException {
+
+    Reader reader = new BufferedReader(
+        new InputStreamReader(
+            new ClassPathResource(file).getInputStream()
+        )
+    );
+
+    try {
+      CSVReader csvReader = new CSVReader(reader);
+      String[] line;
+      csvReader.readNext(); // skip headers
+      while ((line = csvReader.readNext()) != null) {
+
+        String issuerName = line[1];
+        String issuerDomicile = line[2];
+        String issuerType = "";
+        Currency currency = Currency.of(line[3]);
+        YieldConvention yieldConvention = YieldConventionFactory.INSTANCE.getYieldConvention(line[4]);
+        DayCount dayCountConvention = DayCountFactory.of(line[5]);
+
+        Period couponPeriod = Period.parse("P" + line[6]);
+        String couponType = "";
+        double couponRate = Double.parseDouble(line[7]);
+        Frequency couponFrequency = PeriodFrequency.of(couponPeriod);
+
+        ZonedDateTime maturityDate = ZonedDateTime.of(LocalDate.parse(line[8]), LocalTime.of(0, 0), ZoneId.of("UTC"));
+        ZonedDateTime firstCouponDate = ZonedDateTime.of(LocalDate.parse(line[9]), LocalTime.of(0, 0), ZoneId.of("UTC"));
+        ZonedDateTime accrualDate = ZonedDateTime.of(LocalDate.parse(line[10]), LocalTime.of(0, 0), ZoneId.of("UTC"));
+        ZonedDateTime settlementDate = ZonedDateTime.of(LocalDate.parse(line[11]), LocalTime.of(0, 0), ZoneId.of("UTC"));
+        Expiry lastTradeDate = new Expiry(maturityDate);
+
+        double issuancePrice = 1.0;
+        double totalAmountIssued = 1.0;
+        double minimumAmount = 1.0;
+        double minimumIncrement = 1.0;
+        double parAmount = 1.0;
+        double redemptionValue = 1.0;
+
+        GovernmentBondSecurity security =
+            new GovernmentBondSecurity(issuerName, issuerType, issuerDomicile, issuerType, currency, yieldConvention,
+                                       lastTradeDate, couponType, couponRate, couponFrequency, dayCountConvention,
+                                       accrualDate, settlementDate, firstCouponDate, issuancePrice,
+                                       totalAmountIssued, minimumAmount, minimumIncrement, parAmount, redemptionValue);
+
+        security.setExternalIdBundle(ExternalSchemes.isinSecurityId(line[0]).toBundle());
+        securityMaster.add(new SecurityDocument(security));
+
+      }
+    } catch (IOException e) {
+      s_logger.error("Failed to parse trade data ", e);
+
+    }
   }
 
   private static ExposureFunctions createExposureFunction(Collection<String> currencies) {
@@ -249,157 +377,10 @@ public final class BondFutureOptionViewUtils {
     ImmutableList<String> currencyList = ImmutableSet.copyOf(currencies).asList();
     Map<ExternalId, String> idsToNames = new HashMap<>();
     for (String currency : currencyList) {
-      idsToNames.put(ExternalId.of("CurrencyISO", currency), "MultiCurve");
+      idsToNames.put(ExternalId.of("CurrencyISO", currency), CURVE_BUNDLE);
     }
     return new ExposureFunctions("Exposure", exposureFunctions, idsToNames);
   }
-
-
-  //TODO remove static data
-
-  private static BondFutureOptionTrade createBondFutureOptionTrade() {
-
-    Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
-    BigDecimal tradeQuantity = BigDecimal.valueOf(1);
-    LocalDate tradeDate = LocalDate.of(2000, 1, 1);
-    OffsetTime tradeTime = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
-    SimpleTrade trade = new SimpleTrade(createBondFutureOptionSecurity(), tradeQuantity, counterparty, tradeDate, tradeTime);
-    trade.setPremium(-10.0);
-    trade.setPremiumCurrency(Currency.JPY);
-    return new BondFutureOptionTrade(trade);
-  }
-
-  private static BondFutureOptionSecurity createBondFutureOptionSecurity() {
-
-    String tradingExchange = "TOKYO";
-    String settlementExchange = "";
-    Expiry expiry = new Expiry(DateUtils.getUTCDate(2015, 6, 30));
-    ExerciseType exerciseType = new EuropeanExerciseType();
-    ExternalId underlyingId = BOND_FUTURE_ID;
-    double pointValue = 1;
-    Currency currency = Currency.JPY;
-    double strike = 1.465;
-    OptionType optionType = OptionType.PUT;
-    boolean margined = false;
-    BondFutureOptionSecurity security = new BondFutureOptionSecurity(tradingExchange, settlementExchange, expiry,
-                                                                     exerciseType, underlyingId, pointValue, margined,
-                                                                     currency, strike, optionType);
-    security.setExternalIdBundle(BOND_FUTURE_OPTION_ID.toBundle());
-    return security;
-  }
-
-  public static BondFutureSecurity createBondFutureSecurity() {
-
-    Currency currency = Currency.JPY;
-
-    ZonedDateTime deliveryDate = DateUtils.getUTCDate(2015, 9, 20);
-    Expiry expiry = new Expiry(deliveryDate);
-    String tradingExchange = "TOKYO";
-    String settlementExchange = "";
-    double unitAmount = 100_000_000;
-    Collection<BondFutureDeliverable> basket = new ArrayList<>();
-    BondFutureDeliverable bondFutureDeliverable =
-        new BondFutureDeliverable(BOND_ID.toBundle(), 0.706302);
-    basket.add(bondFutureDeliverable);
-
-    ZonedDateTime firstDeliveryDate = deliveryDate;
-    ZonedDateTime lastDeliveryDate = deliveryDate;
-    String category = "test";
-
-    BondFutureSecurity security =  new BondFutureSecurity(expiry, tradingExchange, settlementExchange, currency, unitAmount, basket,
-                                                          firstDeliveryDate, lastDeliveryDate, category);
-    security.setExternalIdBundle(BOND_FUTURE_ID.toBundle());
-    return security;
-  }
-
-  public static BondSecurity createGovernmentBondSecurity() {
-
-    String issuerName = "JP GOVT";
-    String issuerDomicile = "JP";
-    String issuerType = "Sovereign";
-    Currency currency = Currency.JPY;
-    YieldConvention yieldConvention = YieldConventionFactory.INSTANCE.getYieldConvention("STREET CONVENTION");
-    DayCount dayCountConvention = DayCounts.ACT_ACT_ISDA;
-
-    Period couponPeriod = Period.parse("P6M");
-    String couponType = "Fixed";
-    double couponRate = 0.80; //TODO % or bp
-    Frequency couponFrequency = PeriodFrequency.of(couponPeriod);
-
-    ZonedDateTime maturityDate = DateUtils.getUTCDate(2022, 9, 20);
-    ZonedDateTime firstCouponDate = DateUtils.getUTCDate(2013, 3, 20);
-    ZonedDateTime interestAccrualDate = DateUtils.getUTCDate(2012, 9, 20);
-    ZonedDateTime settlementDate = DateUtils.getUTCDate(2022, 9, 20);
-    Expiry lastTradeDate = new Expiry(maturityDate);
-
-    double issuancePrice = 100.0;
-    double totalAmountIssued = 23499000000.0;
-    double minimumAmount = 0.01;
-    double minimumIncrement = 0.01;
-    double parAmount = 100;
-    double redemptionValue = 100;
-
-    GovernmentBondSecurity bond =
-        new GovernmentBondSecurity(issuerName, issuerType, issuerDomicile, issuerType, currency, yieldConvention,
-                                   lastTradeDate, couponType, couponRate, couponFrequency, dayCountConvention,
-                                   interestAccrualDate, settlementDate, firstCouponDate, issuancePrice,
-                                   totalAmountIssued, minimumAmount, minimumIncrement, parAmount, redemptionValue);
-    bond.setExternalIdBundle(BOND_ID.toBundle());
-    return bond;
-  }
-
-  private static IssuerProviderBundle createIssuerBundle() {
-    Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuer = new LinkedHashMap<>();
-    Pair<Object, LegalEntityFilter<LegalEntity>> key =
-        Pairs.<Object, LegalEntityFilter<LegalEntity>>of(JP_NAME, new LegalEntityShortName());
-    issuer.put(key, createIssuerCurve());
-    return new IssuerProviderBundle(new IssuerProviderDiscount(createDiscountingCurve(), issuer),
-                                    new CurveBuildingBlockBundle());
-  }
-
-  private static YieldAndDiscountCurve createIssuerCurve() {
-    String name = "JPY-JP-GOVT";
-    Interpolator1D linearFlat =
-        CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR,
-                                                                Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-                                                                Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-    double[] time = {0.5, 1.0, 2.0, 5.0, 7.0, 10.0, 20.0};
-    double[] zc = {-0.0001, -0.0002, -0.0002, 0.0012, 0.0030, 0.0045, 0.0115};
-    InterpolatedDoublesCurve curve =
-        new InterpolatedDoublesCurve(time, zc, linearFlat, true, name);
-    return new YieldCurve(name, curve);
-  }
-
-  private static MulticurveProviderDiscount createDiscountingCurve() {
-    String name = "JPY Discounting";
-    Interpolator1D linearFlat =
-        CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR,
-                                                                Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-                                                                Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-    double[] time = {0.003, 0.25, 0.5, 1.0, 2.0, 5.0, 10.0};
-    double[] zc = {0.0006, 0.0006, 0.0006, 0.0006, 0.0007, 0.0020, 0.0050};
-    InterpolatedDoublesCurve curve = new InterpolatedDoublesCurve(time, zc, linearFlat, true, name);
-
-    MulticurveProviderDiscount multicurve = new MulticurveProviderDiscount();
-    multicurve.setCurve(Currency.JPY, new YieldCurve(name, curve));
-    return multicurve;
-  }
-
-  private static VolatilitySurface createVolatilitySurface() {
-    Interpolator1D linearFlat =
-        CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR,
-                                                                Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-                                                                Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-    GridInterpolator2D interpolator2D = new GridInterpolator2D(linearFlat, linearFlat);
-    InterpolatedDoublesSurface surface = InterpolatedDoublesSurface.from(
-        new double[] {19.0/365.0, 19.0/365.0, 19.0/365.0, 19.0/365.0, 49.0/365.0, 49.0/365.0, 49.0/365.0, 49.0/365.0},
-        new double[] {1.45, 1.46, 1.47, 1.48, 1.45, 1.46, 1.47, 1.48},
-        new double[] {0.035, 0.032, 0.031, 0.028, 0.0325, 0.0315, 0.0305, 0.0295},
-        interpolator2D
-    );
-    return new VolatilitySurface(surface);
-  }
-
 
 
 }

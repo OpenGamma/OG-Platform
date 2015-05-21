@@ -11,6 +11,7 @@ import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
 
@@ -34,13 +35,9 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
-import com.opengamma.analytics.financial.legalentity.CreditRating;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.legalentity.LegalEntityShortName;
-import com.opengamma.analytics.financial.legalentity.Region;
-import com.opengamma.analytics.financial.legalentity.Sector;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
@@ -57,6 +54,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.holiday.impl.WeekendHolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.link.ConfigLink;
@@ -125,7 +123,6 @@ import com.opengamma.sesame.marketdata.builders.MarketDataBuilders;
 import com.opengamma.sesame.marketdata.builders.MarketDataEnvironmentFactory;
 import com.opengamma.sesame.trade.BondFutureOptionTrade;
 import com.opengamma.util.function.Function;
-import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -137,6 +134,7 @@ import com.opengamma.util.tuple.Pairs;
 
 /**
  * Test for bond future options using the black calculator.
+ * Validated against BondFuturesOptionPremiumBlackExpStrikeE2ETest
  */
 @Test(groups = TestGroup.UNIT)
 public class BondFutureOptionFnTest {
@@ -144,13 +142,23 @@ public class BondFutureOptionFnTest {
   private static ExternalId BOND_ID = ExternalSchemes.isinSecurityId("10Y JGB");
   private static ExternalId BOND_FUTURE_ID = ExternalSchemes.isinSecurityId("JBU5");
   private static ExternalId BOND_FUTURE_OPTION_ID = ExternalSchemes.isinSecurityId("JBN_146_5");
+  private static String VOL_ID = "PUT_" + BOND_FUTURE_ID.getValue();
   private static String JP_NAME = "JP GOVT";
 
+  /** Tolerances */
+  private static final double TOLERANCE_GREEKS = 1.0E-6;
+  private static final double TOLERANCE_PV = 1.0E-2;
+
+  /** Expected values validated against BondFuturesOptionPremiumBlackExpStrikeE2ETest */
+  public static final double EXPECTED_PV = -81090395.9457;
+  public static final double EXPECTED_DELTA = -0.56391967;
+  public static final double EXPECTED_GAMMA = 23.70913668;
+  public static final double EXPECTED_VEGA = 0.2109653;
+  public static final double EXPECTED_THETA = -0.02435502;
 
   private BondFutureOptionFn _function;
   private FunctionRunner _functionRunner;
   public static final ZonedDateTime VALUATION_TIME =  DateUtils.getUTCDate(2015, 5, 12);
-
 
   private static final CalculationArguments ARGS =
       CalculationArguments.builder()
@@ -158,7 +166,6 @@ public class BondFutureOptionFnTest {
           .marketDataSpecification(EmptyMarketDataSpec.INSTANCE)
           .build();
   private static MarketDataEnvironment ENV = createMarketDataEnvironment();
-
 
   @BeforeClass
   public void setUp() {
@@ -196,7 +203,6 @@ public class BondFutureOptionFnTest {
 
   @Test
   public void testPresentValue() {
-
     Result<MultipleCurrencyAmount> result = _functionRunner.runFunction(
         ARGS, ENV,
         new Function<Environment, Result<MultipleCurrencyAmount>>() {
@@ -205,10 +211,69 @@ public class BondFutureOptionFnTest {
             return _function.calculatePV(env, createBondFutureOptionTrade());
           }
         });
-
     assertThat(result.isSuccess(), is(true));
     MultipleCurrencyAmount mca = result.getValue();
+    assertThat(mca.getAmount(Currency.JPY), is(closeTo(EXPECTED_PV, TOLERANCE_PV)));
+  }
 
+  @Test
+  public void testDelta() {
+    Result<Double> result = _functionRunner.runFunction(
+        ARGS, ENV,
+        new Function<Environment, Result<Double>>() {
+          @Override
+          public Result<Double> apply(Environment env) {
+            return _function.calculateDelta(env, createBondFutureOptionTrade());
+          }
+        });
+    assertThat(result.isSuccess(), is(true));
+    Double delta = result.getValue();
+    assertThat(delta, is(closeTo(EXPECTED_DELTA, TOLERANCE_GREEKS)));
+  }
+
+  @Test
+  public void testGamma() {
+    Result<Double> result = _functionRunner.runFunction(
+        ARGS, ENV,
+        new Function<Environment, Result<Double>>() {
+          @Override
+          public Result<Double> apply(Environment env) {
+            return _function.calculateGamma(env, createBondFutureOptionTrade());
+          }
+        });
+    assertThat(result.isSuccess(), is(true));
+    Double gamma = result.getValue();
+    assertThat(gamma, is(closeTo(EXPECTED_GAMMA, TOLERANCE_GREEKS)));
+  }
+
+  @Test
+  public void testVega() {
+    Result<Double> result = _functionRunner.runFunction(
+        ARGS, ENV,
+        new Function<Environment, Result<Double>>() {
+          @Override
+          public Result<Double> apply(Environment env) {
+            return _function.calculateVega(env, createBondFutureOptionTrade());
+          }
+        });
+    assertThat(result.isSuccess(), is(true));
+    Double vega = result.getValue();
+    assertThat(vega, is(closeTo(EXPECTED_VEGA, TOLERANCE_GREEKS)));
+  }
+
+  @Test
+  public void testTheta() {
+    Result<Double> result = _functionRunner.runFunction(
+        ARGS, ENV,
+        new Function<Environment, Result<Double>>() {
+          @Override
+          public Result<Double> apply(Environment env) {
+            return _function.calculateTheta(env, createBondFutureOptionTrade());
+          }
+        });
+    assertThat(result.isSuccess(), is(true));
+    Double theta = result.getValue();
+    assertThat(theta, is(closeTo(EXPECTED_THETA, TOLERANCE_GREEKS)));
   }
 
   /* TEST DATA */
@@ -216,18 +281,18 @@ public class BondFutureOptionFnTest {
   private static BondFutureOptionTrade createBondFutureOptionTrade() {
 
     Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
-    BigDecimal tradeQuantity = BigDecimal.valueOf(1);
+    BigDecimal tradeQuantity = BigDecimal.valueOf(-100);
     LocalDate tradeDate = LocalDate.of(2000, 1, 1);
     OffsetTime tradeTime = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
     SimpleTrade trade = new SimpleTrade(createBondFutureOptionSecurity(), tradeQuantity, counterparty, tradeDate, tradeTime);
-    trade.setPremium(-10.0);
+    trade.setPremium(0.0);
     trade.setPremiumCurrency(Currency.JPY);
     return new BondFutureOptionTrade(trade);
   }
 
   private static BondFutureOptionSecurity createBondFutureOptionSecurity() {
 
-    String tradingExchange = "TOKYO";
+    String tradingExchange = "";
     String settlementExchange = "";
     Expiry expiry = new Expiry(DateUtils.getUTCDate(2015, 6, 30));
     ExerciseType exerciseType = new EuropeanExerciseType();
@@ -248,9 +313,8 @@ public class BondFutureOptionFnTest {
 
     Currency currency = Currency.JPY;
 
-    ZonedDateTime deliveryDate = DateUtils.getUTCDate(2015, 9, 20);
-    Expiry expiry = new Expiry(deliveryDate);
-    String tradingExchange = "TOKYO";
+    Expiry expiry = new Expiry(DateUtils.getUTCDate(2015, 9, 9));
+    String tradingExchange = "";
     String settlementExchange = "";
     double unitAmount = 100_000_000;
     Collection<BondFutureDeliverable> basket = new ArrayList<>();
@@ -258,8 +322,8 @@ public class BondFutureOptionFnTest {
         new BondFutureDeliverable(BOND_ID.toBundle(), 0.706302);
     basket.add(bondFutureDeliverable);
 
-    ZonedDateTime firstDeliveryDate = deliveryDate;
-    ZonedDateTime lastDeliveryDate = deliveryDate;
+    ZonedDateTime firstDeliveryDate = DateUtils.getUTCDate(2015, 9, 18);
+    ZonedDateTime lastDeliveryDate = DateUtils.getUTCDate(2015, 9, 18);
     String category = "test";
 
     BondFutureSecurity security =  new BondFutureSecurity(expiry, tradingExchange, settlementExchange, currency, unitAmount, basket,
@@ -279,7 +343,7 @@ public class BondFutureOptionFnTest {
 
     Period couponPeriod = Period.parse("P6M");
     String couponType = "Fixed";
-    double couponRate = 0.80; //TODO % or bp
+    double couponRate = 0.80;
     Frequency couponFrequency = PeriodFrequency.of(couponPeriod);
 
     ZonedDateTime maturityDate = DateUtils.getUTCDate(2022, 9, 20);
@@ -288,12 +352,12 @@ public class BondFutureOptionFnTest {
     ZonedDateTime settlementDate = DateUtils.getUTCDate(2022, 9, 20);
     Expiry lastTradeDate = new Expiry(maturityDate);
 
-    double issuancePrice = 100.0;
-    double totalAmountIssued = 23499000000.0;
-    double minimumAmount = 0.01;
-    double minimumIncrement = 0.01;
-    double parAmount = 100;
-    double redemptionValue = 100;
+    double issuancePrice = 1.0;
+    double totalAmountIssued = 1.0;
+    double minimumAmount = 1.0;
+    double minimumIncrement = 1.0;
+    double parAmount = 1.0;
+    double redemptionValue = 1.0;
 
     GovernmentBondSecurity bond =
         new GovernmentBondSecurity(issuerName, issuerType, issuerDomicile, issuerType, currency, yieldConvention,
@@ -313,7 +377,7 @@ public class BondFutureOptionFnTest {
 
   private static ImmutableMap<Class<?>, Object> generateBaseComponents() {
     return generateComponentMap(getRegionSource(),
-                                mock(HolidaySource.class),
+                                getHolidaySource(),
                                 mock(HistoricalTimeSeriesSource.class),
                                 getSecuritySource(),
                                 mock(ConfigSource.class),
@@ -321,6 +385,10 @@ public class BondFutureOptionFnTest {
                                 getConventionBundleSource(),
                                 mock(LegalEntitySource.class),
                                 mock(CurrencyMatrix.class));
+  }
+
+  private static HolidaySource getHolidaySource() {
+    return new WeekendHolidaySource();
   }
 
   private static RegionSource getRegionSource() {
@@ -353,16 +421,10 @@ public class BondFutureOptionFnTest {
   private static MarketDataEnvironment createMarketDataEnvironment() {
     MarketDataEnvironmentBuilder builder = new MarketDataEnvironmentBuilder();
     builder.add(IssuerMulticurveId.of("IssuerMultiCurve"), createIssuerBundle());
-    builder.add(VolatilitySurfaceId.of("TOKYO"), createVolatilitySurface());
+    builder.add(VolatilitySurfaceId.of(VOL_ID), createVolatilitySurface());
     builder.valuationTime(VALUATION_TIME);
     return builder.build();
   }
-
-  private static LegalEntity JP_GOVT = new LegalEntity(JP_NAME,
-                                        JP_NAME,
-                                        Sets.newHashSet(CreditRating.of("B", "S&P", true)),
-                                        Sector.of("Government"),
-                                        Region.of("Japan", Country.JP, Currency.JPY));
 
   private static IssuerProviderBundle createIssuerBundle() {
     Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuer = new LinkedHashMap<>();
