@@ -7,6 +7,7 @@ package com.opengamma.sesame.bondfuture;
 
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesTransactionDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -45,10 +46,9 @@ public class BondFutureDiscountingCalculator implements BondFutureCalculator {
   public BondFutureDiscountingCalculator(BondFutureTrade bondFutureTrade,
                                          ParameterIssuerProviderInterface curves,
                                          BondAndBondFutureTradeConverter bondFutureTradeConverter,
-                                         ZonedDateTime valuationTime,
-                                         HistoricalTimeSeriesBundle fixings) {
-    _derivative = createInstrumentDerivative(bondFutureTrade, bondFutureTradeConverter, valuationTime, fixings);
+                                         ZonedDateTime valuationTime) {
     _curves = curves;
+    _derivative = createInstrumentDerivative(bondFutureTrade, bondFutureTradeConverter, valuationTime);
   }
   
   @Override
@@ -71,11 +71,8 @@ public class BondFutureDiscountingCalculator implements BondFutureCalculator {
   
   private InstrumentDerivative createInstrumentDerivative(BondFutureTrade bondFutureTrade,
                                                           BondAndBondFutureTradeConverter converter,
-                                                          ZonedDateTime valuationTime,
-                                                          HistoricalTimeSeriesBundle fixings) {
-    final FinancialSecurity security = bondFutureTrade.getSecurity();
-    HistoricalTimeSeries fixingsTS = fixings.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle());
-    double lastMarginPrice = fixingsTS.getTimeSeries().getLatestValue();
+                                                          ZonedDateTime valuationTime) {
+    double lastMarginPrice = 0;
     InstrumentDefinition<?> definition = converter.convert(bondFutureTrade.getTrade());
     return ((BondFuturesTransactionDefinition) definition).toDerivative(valuationTime, lastMarginPrice);
   }

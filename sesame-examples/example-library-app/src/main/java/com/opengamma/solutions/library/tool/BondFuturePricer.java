@@ -27,13 +27,14 @@ import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.solutions.util.BondFutureOptionViewUtils;
+import com.opengamma.solutions.util.BondFutureViewUtils;
 import com.opengamma.solutions.util.CalendarUtils;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Sample Bond Future Option pricing method
+ * Sample Bond Future pricing method
  */
-public class BondFutureOptionPricer {
+public class BondFuturePricer {
 
   private final Engine _engine;
   private final RegionMaster _regionMaster;
@@ -41,17 +42,17 @@ public class BondFutureOptionPricer {
   private final HolidayMaster _holidayMaster;
 
   /**
-   * Create an instance of the Bond Future Option Pricer
+   * Create an instance of the Bond Future Pricer
    * @param engine the calculation engine.
    * @param regionMaster the region master to persist regions.
    * @param securityMaster the security master to persist underlying securities.
    * @param holidayMaster the holiday master to persist holidays.
    */
   @Inject
-  public BondFutureOptionPricer(Engine engine,
-                                RegionMaster regionMaster,
-                                SecurityMaster securityMaster,
-                                HolidayMaster holidayMaster) {
+  public BondFuturePricer(Engine engine,
+                          RegionMaster regionMaster,
+                          SecurityMaster securityMaster,
+                          HolidayMaster holidayMaster) {
     _engine = ArgumentChecker.notNull(engine, "engine");
     _regionMaster = ArgumentChecker.notNull(regionMaster, "regionMaster");
     _securityMaster = ArgumentChecker.notNull(securityMaster, "securityMaster");
@@ -62,7 +63,6 @@ public class BondFutureOptionPricer {
    * Bond Future Option price function
    * @param valuationTime ZoneDateTime valuation time
    * @param trades the path to the input trades file
-   * @param bondFutures the path to the underlying bond futures file
    * @param bonds the path to the underlying bonds file
    * @param discountingCurves the path to the discounting curve file
    * @param issuerCurves the path to the issuer curve file
@@ -72,7 +72,6 @@ public class BondFutureOptionPricer {
    */
   public Results price(ZonedDateTime valuationTime,
                        String trades,
-                       String bondFutures,
                        String bonds,
                        String discountingCurves,
                        String issuerCurves,
@@ -82,11 +81,10 @@ public class BondFutureOptionPricer {
     RegionFileReader.createPopulated(_regionMaster);
 
     CalculationArguments calculationArguments = CalculationArguments.builder().valuationTime(valuationTime).build();
-    HashMap<Object, String> portfolio = BondFutureOptionViewUtils.parseBondFutureOptions(trades, _securityMaster);
-    BondFutureOptionViewUtils.parseBondFutures(bondFutures, _securityMaster);
+    HashMap<Object, String> portfolio = BondFutureOptionViewUtils.parseBondFutures(trades, _securityMaster);
     BondFutureOptionViewUtils.parseBonds(bonds, _securityMaster);
     CalendarUtils.parseRegionCalendar(holidays, _holidayMaster);
-    ViewConfig viewConfig = BondFutureOptionViewUtils.createViewConfig(portfolio.values());
+    ViewConfig viewConfig = BondFutureViewUtils.createViewConfig(portfolio.values());
 
     MarketDataEnvironmentBuilder marketData = new MarketDataEnvironmentBuilder();
     BondFutureOptionViewUtils.parseCurves(marketData, discountingCurves, issuerCurves);

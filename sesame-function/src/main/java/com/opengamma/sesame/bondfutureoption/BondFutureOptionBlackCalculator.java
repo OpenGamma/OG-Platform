@@ -74,11 +74,13 @@ public class BondFutureOptionBlackCalculator implements BondFutureOptionCalculat
                                              ArgumentChecker.notNull(fixings, "fixings"));
     _black = ArgumentChecker.notNull(black, "black");
   }
-  
+
+  @Override
   public Result<MultipleCurrencyAmount> calculatePV() {
     return Result.success(_derivative.accept(PV_CALC, _black));
   }
-  
+
+  @Override
   public Result<MultipleCurrencyMulticurveSensitivity> calculatePV01() {
     return Result.success(_derivative.accept(PV01_CALC, _black));
   }

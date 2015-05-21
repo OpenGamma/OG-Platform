@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.bondfutureoption;
 
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.trade.BondFutureOptionTrade;
 import com.opengamma.util.ArgumentChecker;
@@ -78,5 +79,14 @@ public class DefaultBondFutureOptionFn implements BondFutureOptionFn {
       return Result.failure(calculatorResult);
     }
     return calculatorResult.getValue().calculateTheta();
+  }
+
+  @Override
+  public Result<MultipleCurrencyMulticurveSensitivity> calculatePV01(Environment env, BondFutureOptionTrade trade) {
+    Result<BondFutureOptionCalculator> calculatorResult = _bondFutureOptionCalculatorFactory.createCalculator(env, trade);
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return calculatorResult.getValue().calculatePV01();
   }
 }

@@ -94,6 +94,9 @@ import com.opengamma.sesame.LookupIssuerProviderFn;
 import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.OutputNames;
+import com.opengamma.sesame.bondfuture.BondFutureCalculatorFactory;
+import com.opengamma.sesame.bondfuture.BondFutureFn;
+import com.opengamma.sesame.bondfuture.DefaultBondFutureFn;
 import com.opengamma.sesame.bondfutureoption.BlackBondFuturesProviderFn;
 import com.opengamma.sesame.bondfutureoption.BlackExpStrikeBondFuturesProviderFn;
 import com.opengamma.sesame.bondfutureoption.BondFutureOptionBlackCalculatorFactory;
@@ -114,6 +117,7 @@ import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.sesame.marketdata.MulticurveId;
 import com.opengamma.sesame.marketdata.VolatilitySurfaceId;
 import com.opengamma.sesame.trade.BondFutureOptionTrade;
+import com.opengamma.sesame.trade.BondFutureTrade;
 import com.opengamma.sesame.trade.EquityIndexOptionTrade;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
@@ -155,10 +159,12 @@ public final class BondFutureOptionViewUtils {
                     CurveSelector.class, MarketExposureSelector.class,
                     HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class)),
             column(OutputNames.PRESENT_VALUE, output(OutputNames.PRESENT_VALUE, BondFutureOptionTrade.class)),
+            column(OutputNames.SECURITY_MODEL_PRICE, output(OutputNames.SECURITY_MODEL_PRICE, BondFutureOptionTrade.class)),
             column(OutputNames.DELTA, output(OutputNames.DELTA, BondFutureOptionTrade.class)),
             column(OutputNames.GAMMA, output(OutputNames.GAMMA, BondFutureOptionTrade.class)),
             column(OutputNames.VEGA, output(OutputNames.VEGA, BondFutureOptionTrade.class)),
-            column(OutputNames.THETA, output(OutputNames.THETA, BondFutureOptionTrade.class))
+            column(OutputNames.THETA, output(OutputNames.THETA, BondFutureOptionTrade.class)),
+            column(OutputNames.PV01, output(OutputNames.PV01, BondFutureOptionTrade.class))
         );
   }
 
@@ -206,10 +212,11 @@ public final class BondFutureOptionViewUtils {
   /**
    * Parse the input portfolio
    * @param file the name of the portfolio file
+   * @param securityMaster  to persists the security
    * @return map of trade to currency
    * @throws IOException
    */
-  public static HashMap<Object, String> parseBondFutureOptions(String file) throws IOException {
+  public static HashMap<Object, String> parseBondFutureOptions(String file, SecurityMaster securityMaster) throws IOException {
 
     HashMap<Object, String> trades = new HashMap<>();
     Reader reader = new BufferedReader(
@@ -242,6 +249,7 @@ public final class BondFutureOptionViewUtils {
         security.setName(underlyingId.getValue() + " " +
                              optionType.toString() + " Option " +
                              expiry.getExpiry().toLocalDate().toString() + " " + strike);
+        securityMaster.add(new SecurityDocument(security));
 
         //Trade
         Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
@@ -269,11 +277,12 @@ public final class BondFutureOptionViewUtils {
   /**
    * Parse the underlying bond futures
    * @param file the name of the underlying bond futures file
-   * @param securityMaster
+   * @param securityMaster to persists the security
    * @throws IOException
    */
-  public static void parseBondFutures(String file, SecurityMaster securityMaster) throws IOException {
+  public static HashMap<Object, String> parseBondFutures(String file, SecurityMaster securityMaster) throws IOException {
 
+    HashMap<Object, String> trades = new HashMap<>();
     Reader reader = new BufferedReader(
         new InputStreamReader(
             new ClassPathResource(file).getInputStream()
@@ -292,7 +301,8 @@ public final class BondFutureOptionViewUtils {
         String settlementExchange = currency.getCode();
         double unitAmount = Double.parseDouble(line[7]);
         Collection<BondFutureDeliverable> basket = new ArrayList<>();
-        ExternalIdBundle underlying = ExternalSchemes.isinSecurityId(line[1]).toBundle();
+        ExternalId id = ExternalSchemes.isinSecurityId(line[1]);
+        ExternalIdBundle underlying = id.toBundle();
         double conversion = Double.parseDouble(line[2]);
         BondFutureDeliverable bondFutureDeliverable = new BondFutureDeliverable(underlying, conversion);
         basket.add(bondFutureDeliverable);
@@ -302,19 +312,36 @@ public final class BondFutureOptionViewUtils {
         BondFutureSecurity security =  new BondFutureSecurity(expiry, tradingExchange, settlementExchange, currency, unitAmount, basket,
                                                               firstDeliveryDate, lastDeliveryDate, category);
         security.setExternalIdBundle(ExternalSchemes.isinSecurityId(line[0]).toBundle());
+        security.setName(line[0] + " Bond Future on " + id.getValue() + " " +
+                             expiry.getExpiry().toLocalDate().toString() + " " + unitAmount);
         securityMaster.add(new SecurityDocument(security));
+
+        //Trade
+        Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
+        BigDecimal tradeQuantity = BigDecimal.valueOf(1);
+        LocalDate tradeDate = LocalDate.of(1900,1,1);
+        OffsetTime tradeTime = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
+        SimpleTrade trade = new SimpleTrade(security,
+                                            tradeQuantity,
+                                            counterparty,
+                                            tradeDate,
+                                            tradeTime);
+        trade.setPremium(0.0);
+        trade.setPremiumCurrency(currency);
+
+        trades.put(new BondFutureTrade(trade), currency.getCode());
 
       }
     } catch (IOException e) {
       s_logger.error("Failed to parse trade data ", e);
-
     }
+    return trades;
   }
 
   /**
    * Parse the underlying bonds
    * @param file the name of the underlying bonds file
-   * @param securityMaster
+   * @param securityMaster to persists the security
    * @throws IOException
    */
   public static void parseBonds(String file, SecurityMaster securityMaster) throws IOException {

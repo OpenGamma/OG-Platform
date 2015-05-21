@@ -81,7 +81,7 @@ public final class VolUtils {
           tenor = (weeks * 7) + "D";
         } else if (tenor.endsWith("M")) {
           int months = Integer.parseInt(tenor.substring(0, tenor.length() - 1));
-          tenor = (months / 12 * 365) + "D";
+          tenor = Math.round(months / 12d * 365) + "D";
         } else if (tenor.endsWith("Y")) {
           int years = Integer.parseInt(tenor.substring(0, tenor.length() - 1));
           tenor = (years * 365) + "D";
