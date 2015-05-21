@@ -43,9 +43,7 @@ public final class CurveUtils {
 
   /**
    * Reads and parses curve data into in memory raw representation
-   * <p/>
    * The format of the file is simple csv with a header row:
-   * <p/>
    * Name,Tenor,Value
    * USD-Federal Funds,1D,0.05918
    * USD-Federal Funds,1W,0.06263

@@ -61,7 +61,7 @@ public class DefaultEquityIndexOptionFn implements EquityIndexOptionFn {
     Result<StaticReplicationDataBundle> dataResult = _dataProviderFn.getEquityIndexDataProvider(env, trade);
     if (dataResult.isSuccess()) {
       // Gamma should be multiply by spot underlying
-      double spot = dataResult.getValue().getForwardCurve().getSpot();
+      double spot = dataResult.getValue().getForwardCurve().getSpot() / 100;
       Result<Double> result = calculateResult(env, trade, GAMMA_CALC);
       if (result.isSuccess()) {
         return Result.success(result.getValue() * spot);

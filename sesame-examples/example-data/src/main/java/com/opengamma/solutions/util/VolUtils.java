@@ -43,9 +43,7 @@ public final class VolUtils {
 
   /**
    * Reads and parses volatility data into in memory raw representation
-   * <p/>
    * The format of the file is simple csv with a header row:
-   * <p/>
    * name,strike,vol,maturity
    * CALL_NK225,4000,258.68,31D
    * CALL_NK225,4500,239.8297,31D
