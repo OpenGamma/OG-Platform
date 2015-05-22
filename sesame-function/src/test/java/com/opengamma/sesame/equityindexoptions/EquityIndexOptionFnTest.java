@@ -41,7 +41,6 @@ import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolat
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -56,16 +55,15 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.curve.exposure.CurrencyExposureFunction;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
-import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.CurveSelector;
 import com.opengamma.sesame.CurveSelectorMulticurveBundleFn;
-import com.opengamma.sesame.DefaultCurveDefinitionFn;
 import com.opengamma.sesame.DefaultForwardCurveFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
@@ -370,11 +368,11 @@ public class EquityIndexOptionFnTest {
 
   @Test
   public void testBucketedPV01WithForwardCurve() {
-    Result<MultipleCurrencyParameterSensitivity> result = _functionRunner.runFunction(
+    Result<BucketedCurveSensitivities> result = _functionRunner.runFunction(
         ARGS, ENV,
-        new Function<Environment,Result<MultipleCurrencyParameterSensitivity>>() {
+        new Function<Environment,Result<BucketedCurveSensitivities>>() {
           @Override
-          public Result<MultipleCurrencyParameterSensitivity> apply(Environment env) {
+          public Result<BucketedCurveSensitivities> apply(Environment env) {
             return _functionForward.calculateBucketedPv01(env, EQUITY_INDEX_OPTION_TRADE);
           }
         });

@@ -7,6 +7,7 @@ package com.opengamma.sesame.equityindexoptions;
 
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.function.Output;
@@ -71,6 +72,6 @@ public interface EquityIndexOptionFn {
    * @return the Bucketed PV01 of the equity index option.
    */
   @Output(OutputNames.BUCKETED_PV01)
-  Result<MultipleCurrencyParameterSensitivity> calculateBucketedPv01(Environment env, EquityIndexOptionTrade trade);
+  Result<BucketedCurveSensitivities> calculateBucketedPv01(Environment env, EquityIndexOptionTrade trade);
 
 }

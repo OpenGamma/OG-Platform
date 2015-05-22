@@ -5,10 +5,13 @@
  */
 package com.opengamma.sesame.equityindexoptions;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.financial.equity.EquityDerivativeSensitivityCalculator;
 import com.opengamma.analytics.financial.equity.EquityOptionBlackPresentValueCalculator;
 import com.opengamma.analytics.financial.equity.EquityOptionBlackSpotDeltaCalculator;
@@ -19,18 +22,25 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.conversion.EquityOptionsConverter;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
+import com.opengamma.sesame.CurveMatrixLabeller;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.equity.StaticReplicationDataBundleFn;
 import com.opengamma.sesame.trade.EquityIndexOptionTrade;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Default implementation of the {@link EquityIndexOptionFn}.
@@ -111,23 +121,38 @@ public class DefaultEquityIndexOptionFn implements EquityIndexOptionFn {
   }
 
   @Override
-  public Result<MultipleCurrencyParameterSensitivity> calculateBucketedPv01(Environment env, EquityIndexOptionTrade trade) {
+  public Result<BucketedCurveSensitivities> calculateBucketedPv01(Environment env, EquityIndexOptionTrade trade) {
     Result<StaticReplicationDataBundle> dataResult = _dataProviderFn.getEquityIndexDataProvider(env, trade);
     if (Result.allSuccessful(dataResult)) {
-
       StaticReplicationDataBundle bundle = dataResult.getValue();
       InstrumentDerivative derivative = createInstrumentDerivative(trade, env.getValuationTime());
       DoubleMatrix1D deltaBucketed = SENSITIVITY_CALC.calcDeltaBucketed(derivative, bundle);
-
-      LinkedHashMap<String, DoubleMatrix1D> map = new LinkedHashMap<>();
       YieldAndDiscountCurve discountCurve = bundle.getDiscountCurve();
-      map.put(discountCurve.getName(), deltaBucketed);
-      SimpleParameterSensitivity sensitivity = new SimpleParameterSensitivity(map);
-      // Bucketed PV01 needs to be divided by 10000 to align with the scaling of the PV01
-      MultipleCurrencyParameterSensitivity mcps =
-          MultipleCurrencyParameterSensitivity.of(sensitivity.multipliedBy(BP), trade.getSecurity().getCurrency());
 
-      return Result.success(mcps);
+      if (discountCurve instanceof YieldCurve) {
+        Currency currency = trade.getSecurity().getCurrency();
+        String name = discountCurve.getName();
+        Double[] tenors = ((YieldCurve) discountCurve).getCurve().getXData();
+        ImmutableList.Builder<String> dayBuilder = ImmutableList.builder();
+
+        for (double tenor : tenors) {
+          String day = Math.round(tenor * 365) + "D";
+          dayBuilder.add(day);
+        }
+
+        LinkedHashMap<String, DoubleMatrix1D> map = new LinkedHashMap<>();
+        map.put(name, deltaBucketed);
+        SimpleParameterSensitivity sensitivity = new SimpleParameterSensitivity(map);
+        CurveMatrixLabeller labeller = new CurveMatrixLabeller(dayBuilder.build());
+        DoubleLabelledMatrix1D doubleLabelledMatrix1D =
+            labeller.labelMatrix(sensitivity.multipliedBy(BP).getSensitivity(name));
+        ImmutableMap.of(Pairs.of(name, currency),doubleLabelledMatrix1D);
+        return Result.success(BucketedCurveSensitivities.of(ImmutableMap.of(Pairs.of(name, currency),
+                                                                            doubleLabelledMatrix1D)));
+      } else {
+        return Result.failure(FailureStatus.INVALID_INPUT, "Can only handle YieldCurve instances of YieldAndDiscountCurve");
+      }
+
     } else {
       return Result.failure(dataResult);
     }
