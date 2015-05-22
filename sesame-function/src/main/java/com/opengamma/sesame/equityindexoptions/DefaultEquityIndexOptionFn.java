@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame.equityindexoptions;
 
+import java.util.LinkedHashMap;
+
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.equity.EquityDerivativeSensitivityCalculator;
@@ -16,8 +18,12 @@ import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.financial.analytics.conversion.EquityOptionsConverter;
+import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.equity.StaticReplicationDataBundleFn;
@@ -31,7 +37,8 @@ import com.opengamma.util.result.Result;
  */
 public class DefaultEquityIndexOptionFn implements EquityIndexOptionFn {
 
-  private final StaticReplicationDataBundleFn _dataProviderFn;
+  public static final double BP = 0.0001;
+  private StaticReplicationDataBundleFn _dataProviderFn;
   private static final EquityOptionBlackPresentValueCalculator PV_CALC = EquityOptionBlackPresentValueCalculator.getInstance();
 
   private static final EquityOptionBlackSpotDeltaCalculator DELTA_CALC = EquityOptionBlackSpotDeltaCalculator.getInstance();
@@ -104,20 +111,23 @@ public class DefaultEquityIndexOptionFn implements EquityIndexOptionFn {
   }
 
   @Override
-  public Result<DoubleMatrix1D> calculateBucketedPv01(Environment env, EquityIndexOptionTrade trade) {
+  public Result<MultipleCurrencyParameterSensitivity> calculateBucketedPv01(Environment env, EquityIndexOptionTrade trade) {
     Result<StaticReplicationDataBundle> dataResult = _dataProviderFn.getEquityIndexDataProvider(env, trade);
     if (Result.allSuccessful(dataResult)) {
+
       StaticReplicationDataBundle bundle = dataResult.getValue();
       InstrumentDerivative derivative = createInstrumentDerivative(trade, env.getValuationTime());
       DoubleMatrix1D deltaBucketed = SENSITIVITY_CALC.calcDeltaBucketed(derivative, bundle);
+
+      LinkedHashMap<String, DoubleMatrix1D> map = new LinkedHashMap<>();
+      YieldAndDiscountCurve discountCurve = bundle.getDiscountCurve();
+      map.put(discountCurve.getName(), deltaBucketed);
+      SimpleParameterSensitivity sensitivity = new SimpleParameterSensitivity(map);
       // Bucketed PV01 needs to be divided by 10000 to align with the scaling of the PV01
-      double[] data = deltaBucketed.getData();
-      double[] scaledData = new double[data.length];
-      for (int i = 0; i < data.length; i++) {
-        scaledData[i] = data[i] / 10000;
-      }
-      DoubleMatrix1D scaled = new DoubleMatrix1D(scaledData);
-      return Result.success(scaled);
+      MultipleCurrencyParameterSensitivity mcps =
+          MultipleCurrencyParameterSensitivity.of(sensitivity.multipliedBy(BP), trade.getSecurity().getCurrency());
+
+      return Result.success(mcps);
     } else {
       return Result.failure(dataResult);
     }

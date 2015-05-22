@@ -35,7 +35,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
@@ -62,8 +62,10 @@ import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
+import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.CurveSelector;
 import com.opengamma.sesame.CurveSelectorMulticurveBundleFn;
+import com.opengamma.sesame.DefaultCurveDefinitionFn;
 import com.opengamma.sesame.DefaultForwardCurveFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
@@ -111,7 +113,7 @@ public class EquityIndexOptionFnTest {
   /** Expected values validated Bloomberg */
   public static final double EXPECTED_PV = 9154.401186365934;
   public static final double EXPECTED_DELTA = 0.98394463838;
-  public static final double EXPECTED_GAMMA = 0.12257606586;
+  public static final double EXPECTED_GAMMA = 0.0012257606586;
   public static final double EXPECTED_VEGA = 3.0831672242;
   public static final double EXPECTED_PV01 = 0.1726179;
 
@@ -368,11 +370,11 @@ public class EquityIndexOptionFnTest {
 
   @Test
   public void testBucketedPV01WithForwardCurve() {
-    Result<DoubleMatrix1D> result = _functionRunner.runFunction(
+    Result<MultipleCurrencyParameterSensitivity> result = _functionRunner.runFunction(
         ARGS, ENV,
-        new Function<Environment,Result<DoubleMatrix1D>>() {
+        new Function<Environment,Result<MultipleCurrencyParameterSensitivity>>() {
           @Override
-          public Result<DoubleMatrix1D> apply(Environment env) {
+          public Result<MultipleCurrencyParameterSensitivity> apply(Environment env) {
             return _functionForward.calculateBucketedPv01(env, EQUITY_INDEX_OPTION_TRADE);
           }
         });
