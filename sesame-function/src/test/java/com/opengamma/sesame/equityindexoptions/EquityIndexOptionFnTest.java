@@ -11,6 +11,7 @@ import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
 
@@ -40,6 +41,7 @@ import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolat
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -90,6 +92,7 @@ import com.opengamma.sesame.marketdata.builders.MarketDataEnvironmentFactory;
 import com.opengamma.sesame.trade.EquityIndexOptionTrade;
 import com.opengamma.util.function.Function;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
@@ -100,6 +103,17 @@ import com.opengamma.util.time.Expiry;
  */
 @Test(groups = TestGroup.UNIT)
 public class EquityIndexOptionFnTest {
+
+  /** Tolerances */
+  private static final double TOLERANCE_GREEKS = 1.0E-6;
+  private static final double TOLERANCE_PV = 1.0E-2;
+
+  /** Expected values validated Bloomberg */
+  public static final double EXPECTED_PV = 9154.401186365934;
+  public static final double EXPECTED_DELTA = 0.98394463838;
+  public static final double EXPECTED_GAMMA = 0.12257606586;
+  public static final double EXPECTED_VEGA = 3.0831672242;
+  public static final double EXPECTED_PV01 = 0.1726179;
 
   private EquityIndexOptionFn _functionFlatForward;
   private EquityIndexOptionFn _functionForward;
@@ -119,10 +133,15 @@ public class EquityIndexOptionFnTest {
   private static final EquityIndexOptionTrade EQUITY_INDEX_OPTION_TRADE = createOptionTrade();
 
   private static final MulticurveBundle createBundle() {
+    Interpolator1D linearFlat =
+        CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR,
+                                                                Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+                                                                Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    double[] time = {0.003, 0.25, 0.5, 1.0, 2.0, 5.0, 10.0};
+    double[] zc = {0.0025, 0.0025, 0.0025, 0.0025, 0.0025, 0.0025, 0.0025};
+    InterpolatedDoublesCurve curve = new InterpolatedDoublesCurve(time, zc, linearFlat, true, JPY_DISCOUNTING);
     MulticurveProviderDiscount multicurve = new MulticurveProviderDiscount();
-    ConstantDoublesCurve curve = new ConstantDoublesCurve(0.25/100, JPY_DISCOUNTING);
-    YieldCurve yieldCurve = YieldCurve.from(curve);
-    multicurve.setCurve(Currency.JPY, yieldCurve);
+    multicurve.setCurve(Currency.JPY, new YieldCurve(JPY_DISCOUNTING, curve));
     return new MulticurveBundle(multicurve, new CurveBuildingBlockBundle());
   }
 
@@ -266,11 +285,11 @@ public class EquityIndexOptionFnTest {
 
   @Test
   public void testPresentValueWithFlatForwardCurve() {
-    Result<Double> result = _functionRunner.runFunction(
+    Result<CurrencyAmount> result = _functionRunner.runFunction(
         ARGS, ENV,
-        new Function<Environment, Result<Double>>() {
+        new Function<Environment, Result<CurrencyAmount>>() {
           @Override
-          public Result<Double> apply(Environment env) {
+          public Result<CurrencyAmount> apply(Environment env) {
             return _functionFlatForward.calculatePv(env, EQUITY_INDEX_OPTION_TRADE);
           }
         });
@@ -279,15 +298,16 @@ public class EquityIndexOptionFnTest {
 
   @Test
   public void testPresentValueWithForwardCurve() {
-    Result<Double> result = _functionRunner.runFunction(
+    Result<CurrencyAmount> result = _functionRunner.runFunction(
         ARGS, ENV,
-        new Function<Environment, Result<Double>>() {
+        new Function<Environment, Result<CurrencyAmount>>() {
           @Override
-          public Result<Double> apply(Environment env) {
+          public Result<CurrencyAmount> apply(Environment env) {
             return _functionForward.calculatePv(env, EQUITY_INDEX_OPTION_TRADE);
           }
         });
     assertThat(result.isSuccess(), is(true));
+    assertThat(result.getValue().getAmount(), is(closeTo(EXPECTED_PV, TOLERANCE_PV)));
   }
 
   @Test
@@ -301,6 +321,7 @@ public class EquityIndexOptionFnTest {
           }
         });
     assertThat(result.isSuccess(), is(true));
+    assertThat(result.getValue(), is(closeTo(EXPECTED_DELTA, TOLERANCE_GREEKS)));
   }
 
   @Test
@@ -314,6 +335,7 @@ public class EquityIndexOptionFnTest {
           }
         });
     assertThat(result.isSuccess(), is(true));
+    assertThat(result.getValue(), is(closeTo(EXPECTED_GAMMA, TOLERANCE_GREEKS)));
   }
 
   @Test
@@ -327,6 +349,7 @@ public class EquityIndexOptionFnTest {
           }
         });
     assertThat(result.isSuccess(), is(true));
+    assertThat(result.getValue(), is(closeTo(EXPECTED_VEGA, TOLERANCE_GREEKS)));
   }
 
   @Test
@@ -337,6 +360,20 @@ public class EquityIndexOptionFnTest {
           @Override
           public Result<Double> apply(Environment env) {
             return _functionForward.calculatePv01(env, EQUITY_INDEX_OPTION_TRADE);
+          }
+        });
+    assertThat(result.isSuccess(), is(true));
+    assertThat(result.getValue(), is(closeTo(EXPECTED_PV01, TOLERANCE_GREEKS)));
+  }
+
+  @Test
+  public void testBucketedPV01WithForwardCurve() {
+    Result<DoubleMatrix1D> result = _functionRunner.runFunction(
+        ARGS, ENV,
+        new Function<Environment,Result<DoubleMatrix1D>>() {
+          @Override
+          public Result<DoubleMatrix1D> apply(Environment env) {
+            return _functionForward.calculateBucketedPv01(env, EQUITY_INDEX_OPTION_TRADE);
           }
         });
     assertThat(result.isSuccess(), is(true));

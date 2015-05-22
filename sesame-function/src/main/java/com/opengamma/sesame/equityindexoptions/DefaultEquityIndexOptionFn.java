@@ -23,6 +23,7 @@ import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.equity.StaticReplicationDataBundleFn;
 import com.opengamma.sesame.trade.EquityIndexOptionTrade;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.result.Result;
 
 /**
@@ -47,8 +48,14 @@ public class DefaultEquityIndexOptionFn implements EquityIndexOptionFn {
   }
 
   @Override
-  public Result<Double> calculatePv(Environment env, EquityIndexOptionTrade trade) {
-    return calculateResult(env, trade, PV_CALC);
+  public Result<CurrencyAmount> calculatePv(Environment env, EquityIndexOptionTrade trade) {
+    Result<Double> result = calculateResult(env, trade, PV_CALC);
+    if (result.isSuccess()) {
+      CurrencyAmount amount = CurrencyAmount.of(trade.getSecurity().getCurrency(), result.getValue());
+      return Result.success(amount);
+    } else {
+      return Result.failure(result);
+    }
   }
 
   @Override
