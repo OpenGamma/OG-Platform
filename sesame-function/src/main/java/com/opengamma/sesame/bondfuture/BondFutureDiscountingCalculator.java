@@ -49,7 +49,8 @@ public class BondFutureDiscountingCalculator implements BondFutureCalculator {
       new ParameterSensitivityParameterCalculator<>(PVCSIC);
   private static final PV01CurveParametersCalculator<ParameterIssuerProviderInterface> PV01PC =
       new PV01CurveParametersCalculator<>(PVCSIC);
-  
+  public static final double BP = 0.0001;
+
   private final InstrumentDerivative _derivative;
   private final ParameterIssuerProviderInterface _curves;
   
@@ -76,7 +77,7 @@ public class BondFutureDiscountingCalculator implements BondFutureCalculator {
   @Override
   public Result<MultipleCurrencyParameterSensitivity> calculateBucketedPV01() {
     MultipleCurrencyParameterSensitivity sensitivity = PSSFC.calculateSensitivity(_derivative, _curves);
-    return Result.success(sensitivity);
+    return Result.success(sensitivity.multipliedBy(BP));
   }
 
   @Override
