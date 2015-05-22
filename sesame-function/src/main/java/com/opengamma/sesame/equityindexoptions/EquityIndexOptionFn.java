@@ -10,6 +10,7 @@ import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.trade.EquityIndexOptionTrade;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.result.Result;
 
 /**
@@ -24,7 +25,7 @@ public interface EquityIndexOptionFn {
    * @return the present value of the equity index option.
    */
   @Output(OutputNames.PRESENT_VALUE)
-  Result<Double> calculatePv(Environment env, EquityIndexOptionTrade trade);
+  Result<CurrencyAmount> calculatePv(Environment env, EquityIndexOptionTrade trade);
 
   /**
    * Calculates the delta of the equity index option.
