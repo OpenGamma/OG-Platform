@@ -23,7 +23,7 @@ import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
-import com.opengamma.analytics.util.amount.ReferenceAmount;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.service.ServiceContext;
@@ -57,7 +57,6 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Test for bond future options using the black calculator.
@@ -210,6 +209,17 @@ public class BondFutureOptionFnTest {
     assertThat(result.isSuccess(), is(true));
   }
 
-
+  @Test
+  public void testBucketedPV01() {
+    Result<MultipleCurrencyParameterSensitivity> result = _functionRunner.runFunction(
+        ARGS, ENV,
+        new Function<Environment,Result<MultipleCurrencyParameterSensitivity>>() {
+          @Override
+          public Result<MultipleCurrencyParameterSensitivity> apply(Environment env) {
+            return _function.calculateBucketedPV01(env, BOND_FUTURE_OPTION_TRADE);
+          }
+        });
+    assertThat(result.isSuccess(), is(true));
+  }
 
 }
