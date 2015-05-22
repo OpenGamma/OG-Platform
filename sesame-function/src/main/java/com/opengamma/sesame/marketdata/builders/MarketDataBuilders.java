@@ -126,6 +126,24 @@ public class MarketDataBuilders {
   }
 
   /**
+   * Creates a builder for volatility surface data.
+   *
+   * @return a builder for volatility surface data
+   */
+  public static VolatilitySurfaceMarketDataBuilder volSurface() {
+    return new VolatilitySurfaceMarketDataBuilder();
+  }
+
+  /**
+   * Creates a builder for forward curve data.
+   *
+   * @return a builder for forward curve data
+   */
+  public static ForwardCurveMarketDataBuilder forwardCurve() {
+    return new ForwardCurveMarketDataBuilder();
+  }
+
+  /**
    * Creates a builder for credit curve data.
    *
    * @return a builder for credit curve data
@@ -180,6 +198,8 @@ public class MarketDataBuilders {
                             fxRate(currencyMatrixLink),
                             security(),
                             creditCurve(),
-                            isdaYieldCurve());
+                            isdaYieldCurve(),
+                            volSurface(),
+                            forwardCurve());
   }
 }
