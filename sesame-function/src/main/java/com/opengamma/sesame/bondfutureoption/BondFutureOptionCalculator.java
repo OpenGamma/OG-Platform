@@ -6,6 +6,7 @@
 package com.opengamma.sesame.bondfutureoption;
 
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
 
@@ -55,4 +56,11 @@ public interface BondFutureOptionCalculator {
    * @return the theta of the bond future option.
    */
   Result<Double> calculateTheta();
+
+  /**
+   * Calculates the Bucketed PV01 of the bond future option.
+   * @return the Bucketed PV01 of the bond future option.
+   */
+  Result<MultipleCurrencyParameterSensitivity> calculateBucketedPV01();
+
 }

@@ -164,7 +164,8 @@ public final class BondFutureOptionViewUtils {
             column(OutputNames.GAMMA, output(OutputNames.GAMMA, BondFutureOptionTrade.class)),
             column(OutputNames.VEGA, output(OutputNames.VEGA, BondFutureOptionTrade.class)),
             column(OutputNames.THETA, output(OutputNames.THETA, BondFutureOptionTrade.class)),
-            column(OutputNames.PV01, output(OutputNames.PV01, BondFutureOptionTrade.class))
+            column(OutputNames.PV01, output(OutputNames.PV01, BondFutureOptionTrade.class)),
+            column(OutputNames.BUCKETED_PV01, output(OutputNames.BUCKETED_PV01, BondFutureOptionTrade.class))
         );
   }
 

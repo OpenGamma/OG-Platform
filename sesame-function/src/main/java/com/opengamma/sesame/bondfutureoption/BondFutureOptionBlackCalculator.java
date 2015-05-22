@@ -20,6 +20,8 @@ import com.opengamma.analytics.financial.provider.calculator.blackbondfutures.Pr
 import com.opengamma.analytics.financial.provider.calculator.blackbondfutures.PresentValueCurveSensitivityBlackBondFuturesOptionCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
@@ -40,6 +42,11 @@ public class BondFutureOptionBlackCalculator implements BondFutureOptionCalculat
   
   private static final PresentValueCurveSensitivityBlackBondFuturesOptionCalculator PV01_CALC = 
       new PresentValueCurveSensitivityBlackBondFuturesOptionCalculator();
+
+  private static final PresentValueCurveSensitivityBlackBondFuturesOptionCalculator PVCSBFC =
+      new PresentValueCurveSensitivityBlackBondFuturesOptionCalculator();
+  private static final ParameterSensitivityParameterCalculator<BlackBondFuturesProviderInterface> PSSFC =
+      new ParameterSensitivityParameterCalculator<>(PVCSBFC);
 
   private static final FuturesPriceBlackBondFuturesCalculator PRICE_CALC = FuturesPriceBlackBondFuturesCalculator.getInstance();
   
@@ -109,7 +116,12 @@ public class BondFutureOptionBlackCalculator implements BondFutureOptionCalculat
   public Result<Double> calculateTheta() {
     return Result.success(_derivative.accept(THETA_CALC, _black));
   }
-  
+
+  @Override
+  public Result<MultipleCurrencyParameterSensitivity> calculateBucketedPV01() {
+    return Result.success(PSSFC.calculateSensitivity(_derivative, _black));
+  }
+
   @SuppressWarnings("unchecked")
   private InstrumentDerivative createInstrumentDerivative(BondFutureOptionTrade tradeWrapper,
                                                           BondFutureOptionTradeConverter converter,
