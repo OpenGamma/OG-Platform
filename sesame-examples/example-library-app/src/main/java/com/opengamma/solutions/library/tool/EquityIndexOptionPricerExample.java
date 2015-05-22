@@ -6,12 +6,14 @@
 package com.opengamma.solutions.library.tool;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -33,7 +35,12 @@ public class EquityIndexOptionPricerExample {
   private static final String FORWARD_CURVES = "equity-data/curves/forward-curves.csv";
   private static final String VOLATILITY_SURFACES = "equity-data/vols/surface.csv";
   private static final String TRADES = "equity-data/trades/equity-index-options.csv";
-  private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2015, 4, 27);
+  private static final List<ZonedDateTime> VALUATION_TIMES =
+      ImmutableList.of(DateUtils.getUTCDate(2015, 4, 27),
+                       DateUtils.getUTCDate(2015, 4, 28),
+                       DateUtils.getUTCDate(2015, 4, 29),
+                       DateUtils.getUTCDate(2015, 5, 1),
+                       DateUtils.getUTCDate(2015, 6, 1));
 
   /**
    * Entry point to running the Equity Index Option Pricer.
@@ -49,12 +56,15 @@ public class EquityIndexOptionPricerExample {
     Injector injector = Guice.createInjector(modules);
 
     EquityIndexOptionPricer pricer = injector.getInstance(EquityIndexOptionPricer.class);
-    Results results = pricer.price(VALUATION_TIME,
-                                   TRADES,
-                                   DISCOUNTING_CURVES,
-                                   FORWARD_CURVES,
-                                   VOLATILITY_SURFACES);
-    s_logger.info("Got results:\n" + ViewUtils.format(results));
+    for (ZonedDateTime valuation : VALUATION_TIMES) {
+      Results results = pricer.price(valuation,
+                                     TRADES,
+                                     DISCOUNTING_CURVES,
+                                     FORWARD_CURVES,
+                                     VOLATILITY_SURFACES);
+      s_logger.info(valuation.toLocalDate() + " Got results:\n" + ViewUtils.format(results));
+    }
+
   }
 
 }
