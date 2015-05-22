@@ -13,10 +13,16 @@ import com.opengamma.analytics.financial.instrument.future.BondFuturesTransactio
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorDelegate;
+import com.opengamma.analytics.financial.interestrate.future.calculator.FuturesPriceIssuerCalculator;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesTransaction;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PV01CurveParametersCalculator;
+import com.opengamma.analytics.financial.provider.calculator.issuer.CleanPriceFromCurvesCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueCurveSensitivityIssuerCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueIssuerCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -34,13 +40,17 @@ import com.opengamma.util.tuple.Pair;
  */
 public class BondFutureDiscountingCalculator implements BondFutureCalculator {
 
+  /* calculators */
   private static final PresentValueIssuerCalculator PVIC = PresentValueIssuerCalculator.getInstance();
-  
-  private static final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, ReferenceAmount<Pair<String, Currency>>> PV01C =
-      new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityIssuerCalculator.getInstance());
+  private static final PresentValueCurveSensitivityIssuerCalculator PVCSIC =
+      PresentValueCurveSensitivityIssuerCalculator.getInstance();
+  private static final FuturesPriceIssuerCalculator FPIC = FuturesPriceIssuerCalculator.getInstance();
+    private static final ParameterSensitivityParameterCalculator<ParameterIssuerProviderInterface> PSSFC =
+      new ParameterSensitivityParameterCalculator<>(PVCSIC);
+  private static final PV01CurveParametersCalculator<ParameterIssuerProviderInterface> PV01PC =
+      new PV01CurveParametersCalculator<>(PVCSIC);
   
   private final InstrumentDerivative _derivative;
-  
   private final ParameterIssuerProviderInterface _curves;
   
   public BondFutureDiscountingCalculator(BondFutureTrade bondFutureTrade,
@@ -53,27 +63,34 @@ public class BondFutureDiscountingCalculator implements BondFutureCalculator {
   
   @Override
   public Result<MultipleCurrencyAmount> calculatePV() {
-    return Result.success(calculateResult(PVIC));
+    MultipleCurrencyAmount pv = _derivative.accept(PVIC, _curves);
+    return Result.success(pv);
   }
 
   @Override
   public Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01() {
-    return Result.success(calculateResult(PV01C));
+    ReferenceAmount<Pair<String, Currency>> pv01 = _derivative.accept(PV01PC, _curves);
+    return Result.success(pv01);
   }
 
-  private <T> T calculateResult(InstrumentDerivativeVisitorDelegate<ParameterIssuerProviderInterface, T> calculator) {
-    return _derivative.accept(calculator, _curves);
+  @Override
+  public Result<MultipleCurrencyParameterSensitivity> calculateBucketedPV01() {
+    MultipleCurrencyParameterSensitivity sensitivity = PSSFC.calculateSensitivity(_derivative, _curves);
+    return Result.success(sensitivity);
   }
 
-  private ReferenceAmount<Pair<String, Currency>> calculateResult(InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, ReferenceAmount<Pair<String, Currency>>> calculator) {
-    return _derivative.accept(calculator, _curves);
+  @Override
+  public Result<Double> calculateSecurityModelPrice() {
+    BondFuturesSecurity security = ((BondFuturesTransaction) _derivative).getUnderlyingSecurity();
+    Double price = security.accept(FPIC, _curves);
+    return Result.success(price);
   }
-  
+
   private InstrumentDerivative createInstrumentDerivative(BondFutureTrade bondFutureTrade,
                                                           BondAndBondFutureTradeConverter converter,
                                                           ZonedDateTime valuationTime) {
-    double lastMarginPrice = 0;
+    double lastPrice = 0;
     InstrumentDefinition<?> definition = converter.convert(bondFutureTrade.getTrade());
-    return ((BondFuturesTransactionDefinition) definition).toDerivative(valuationTime, lastMarginPrice);
+    return ((BondFuturesTransactionDefinition) definition).toDerivative(valuationTime, lastPrice);
   }
 }

@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.bondfuture;
 
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.trade.BondFutureTrade;
@@ -39,6 +40,25 @@ public class DefaultBondFutureFn implements BondFutureFn {
     Result<BondFutureDiscountingCalculator> calculatorResult = _bondFutureCalculatorFactory.createCalculator(env, bondFutureTrade);
     if (calculatorResult.isSuccess()) {
       return calculatorResult.getValue().calculatePV01();
+    }
+    return Result.failure(calculatorResult);
+  }
+
+  @Override
+  public Result<MultipleCurrencyParameterSensitivity> calculateBucketedPV01(Environment env,
+                                                                            BondFutureTrade bondFutureTrade) {
+    Result<BondFutureDiscountingCalculator> calculatorResult = _bondFutureCalculatorFactory.createCalculator(env, bondFutureTrade);
+    if (calculatorResult.isSuccess()) {
+      return calculatorResult.getValue().calculateBucketedPV01();
+    }
+    return Result.failure(calculatorResult);
+  }
+
+  @Override
+  public Result<Double> calculateSecurityModelPrice(Environment env, BondFutureTrade bondFutureTrade) {
+    Result<BondFutureDiscountingCalculator> calculatorResult = _bondFutureCalculatorFactory.createCalculator(env, bondFutureTrade);
+    if (calculatorResult.isSuccess()) {
+      return calculatorResult.getValue().calculateSecurityModelPrice();
     }
     return Result.failure(calculatorResult);
   }

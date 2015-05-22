@@ -108,7 +108,6 @@ import au.com.bytecode.opencsv.CSVReader;
 public final class BondFutureViewUtils {
 
   private BondFutureViewUtils() { /* private constructor */ }
-  private static final Logger s_logger = LoggerFactory.getLogger(BondFutureViewUtils.class);
   private static String CURVE_BUNDLE = "CurveBundle";
 
   /**
@@ -128,15 +127,13 @@ public final class BondFutureViewUtils {
                 implementations(
                     BondFutureFn.class, DefaultBondFutureFn.class,
                     BondFutureCalculatorFactory.class, BondFutureDiscountingCalculatorFactory.class,
-                    FixingsFn.class, DefaultFixingsFn.class,
                     IssuerProviderFn.class, LookupIssuerProviderFn.class,
                     CurveSelector.class, MarketExposureSelector.class,
                     HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class)),
             column(OutputNames.PRESENT_VALUE, output(OutputNames.PRESENT_VALUE, BondFutureOptionTrade.class)),
-            column(OutputNames.PV01, output(OutputNames.PV01, BondFutureOptionTrade.class))/*,
-            column(OutputNames.GAMMA, output(OutputNames.GAMMA, BondFutureOptionTrade.class)),
-            column(OutputNames.VEGA, output(OutputNames.VEGA, BondFutureOptionTrade.class)),
-            column(OutputNames.THETA, output(OutputNames.THETA, BondFutureOptionTrade.class))*/
+            column(OutputNames.SECURITY_MODEL_PRICE, output(OutputNames.SECURITY_MODEL_PRICE, BondFutureOptionTrade.class)),
+            column(OutputNames.PV01, output(OutputNames.PV01, BondFutureOptionTrade.class)),
+            column(OutputNames.BUCKETED_PV01, output(OutputNames.BUCKETED_PV01, BondFutureOptionTrade.class))
         );
   }
 
