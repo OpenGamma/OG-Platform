@@ -33,7 +33,8 @@ public class EquityIndexOptionPricerExample {
   private static final Logger s_logger = LoggerFactory.getLogger(EquityIndexOptionPricerExample.class);
   private static final String DISCOUNTING_CURVES = "equity-data/curves/discounting-curves.csv";
   private static final String FORWARD_CURVES = "equity-data/curves/forward-curves.csv";
-  private static final String VOLATILITY_SURFACES = "equity-data/vols/surface.csv";
+  private static final String VOLATILITY_SURFACES = "equity-data/vols/vol-surface.csv";
+  private static final String PRICE_SURFACES = "equity-data/vols/price-surface.csv";
   private static final String TRADES = "equity-data/trades/equity-index-options.csv";
   private static final List<ZonedDateTime> VALUATION_TIMES =
       ImmutableList.of(DateUtils.getUTCDate(2015, 4, 27),
@@ -61,9 +62,18 @@ public class EquityIndexOptionPricerExample {
                                      TRADES,
                                      DISCOUNTING_CURVES,
                                      FORWARD_CURVES,
-                                     VOLATILITY_SURFACES);
+                                     VOLATILITY_SURFACES,
+                                     false);
       s_logger.info(valuation.toLocalDate() + " Got results:\n" + ViewUtils.format(results));
     }
+
+    Results results = pricer.price(VALUATION_TIMES.get(0),
+                                   TRADES,
+                                   DISCOUNTING_CURVES,
+                                   FORWARD_CURVES,
+                                   PRICE_SURFACES,
+                                   true);
+    s_logger.info(VALUATION_TIMES.get(0) + " Got results:\n" + ViewUtils.format(results));
 
   }
 
