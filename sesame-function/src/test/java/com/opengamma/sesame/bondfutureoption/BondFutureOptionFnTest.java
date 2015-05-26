@@ -198,11 +198,11 @@ public class BondFutureOptionFnTest {
 
   @Test
   public void testPV01() {
-    Result<MultipleCurrencyMulticurveSensitivity> result = _functionRunner.runFunction(
+    Result<Double> result = _functionRunner.runFunction(
         ARGS, ENV,
-        new Function<Environment,Result<MultipleCurrencyMulticurveSensitivity>>() {
+        new Function<Environment, Result<Double>>() {
           @Override
-          public Result<MultipleCurrencyMulticurveSensitivity> apply(Environment env) {
+          public Result<Double> apply(Environment env) {
             return _function.calculatePV01(env, BOND_FUTURE_OPTION_TRADE);
           }
         });
@@ -213,7 +213,7 @@ public class BondFutureOptionFnTest {
   public void testBucketedPV01() {
     Result<MultipleCurrencyParameterSensitivity> result = _functionRunner.runFunction(
         ARGS, ENV,
-        new Function<Environment,Result<MultipleCurrencyParameterSensitivity>>() {
+        new Function<Environment, Result<MultipleCurrencyParameterSensitivity>>() {
           @Override
           public Result<MultipleCurrencyParameterSensitivity> apply(Environment env) {
             return _function.calculateBucketedPV01(env, BOND_FUTURE_OPTION_TRADE);

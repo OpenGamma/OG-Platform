@@ -25,7 +25,7 @@ public interface BondFutureOptionCalculator {
    * Calculates the PV01 of the bond future option.
    * @return the PV01 of the bond future option.
    */
-  Result<MultipleCurrencyMulticurveSensitivity> calculatePV01();
+  Result<Double> calculatePV01();
   
   /**
    * Calculates the model price of the bond future option.

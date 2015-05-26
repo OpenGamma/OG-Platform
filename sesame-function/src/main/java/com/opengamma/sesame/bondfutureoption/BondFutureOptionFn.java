@@ -80,7 +80,7 @@ public interface BondFutureOptionFn {
    * @return the PV01 of the bond future option.
    */
   @Output(OutputNames.PV01)
-  Result<MultipleCurrencyMulticurveSensitivity> calculatePV01(Environment env, BondFutureOptionTrade trade);
+  Result<Double> calculatePV01(Environment env, BondFutureOptionTrade trade);
 
   /**
    * Calculates the Bucketed PV01 of the bond future option.
@@ -88,7 +88,7 @@ public interface BondFutureOptionFn {
    * @param trade the bond future option trade, not null.
    * @return the Bucketed PV01 of the bond future option.
    */
-  @Output(OutputNames.PV01)
+  @Output(OutputNames.BUCKETED_PV01)
   Result<MultipleCurrencyParameterSensitivity> calculateBucketedPV01(Environment env, BondFutureOptionTrade trade);
 
 }

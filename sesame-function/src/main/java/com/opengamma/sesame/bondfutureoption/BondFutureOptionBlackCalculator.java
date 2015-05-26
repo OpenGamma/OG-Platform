@@ -8,6 +8,7 @@ package com.opengamma.sesame.bondfutureoption;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -30,6 +31,7 @@ import com.opengamma.financial.analytics.conversion.BondFutureOptionTradeConvert
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.sesame.trade.BondFutureOptionTrade;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
 
@@ -39,28 +41,19 @@ import com.opengamma.util.result.Result;
 public class BondFutureOptionBlackCalculator implements BondFutureOptionCalculator {
 
   private static final PresentValueBlackBondFuturesOptionCalculator PV_CALC = PresentValueBlackBondFuturesOptionCalculator.getInstance();
-  
-  private static final PresentValueCurveSensitivityBlackBondFuturesOptionCalculator PV01_CALC = 
-      new PresentValueCurveSensitivityBlackBondFuturesOptionCalculator();
-
   private static final PresentValueCurveSensitivityBlackBondFuturesOptionCalculator PVCSBFC =
       new PresentValueCurveSensitivityBlackBondFuturesOptionCalculator();
   private static final ParameterSensitivityParameterCalculator<BlackBondFuturesProviderInterface> PSSFC =
       new ParameterSensitivityParameterCalculator<>(PVCSBFC);
-
   private static final FuturesPriceBlackBondFuturesCalculator PRICE_CALC = FuturesPriceBlackBondFuturesCalculator.getInstance();
-  
   private static final DeltaBlackBondFuturesCalculator DELTA_CALC = DeltaBlackBondFuturesCalculator.getInstance();
-  
   private static final GammaBlackBondFuturesCalculator GAMMA_CALC = GammaBlackBondFuturesCalculator.getInstance();
-  
   private static final VegaBlackBondFuturesCalculator VEGA_CALC = VegaBlackBondFuturesCalculator.getInstance();
-  
   private static final ThetaBlackBondFuturesCalculator THETA_CALC = ThetaBlackBondFuturesCalculator.getInstance();
   
   private final InstrumentDerivative _derivative;
-  
   private final BlackBondFuturesProviderInterface _black;
+  private final Currency _currency;
   
   /**
    * Constructs a Black calculator for bond future options.
@@ -79,6 +72,7 @@ public class BondFutureOptionBlackCalculator implements BondFutureOptionCalculat
                                              ArgumentChecker.notNull(converter, "converter"),
                                              ArgumentChecker.notNull(valTime, "valTime"),
                                              ArgumentChecker.notNull(fixings, "fixings"));
+    _currency = trade.getSecurity().getCurrency();
     _black = ArgumentChecker.notNull(black, "black");
   }
 
@@ -88,8 +82,9 @@ public class BondFutureOptionBlackCalculator implements BondFutureOptionCalculat
   }
 
   @Override
-  public Result<MultipleCurrencyMulticurveSensitivity> calculatePV01() {
-    return Result.success(_derivative.accept(PV01_CALC, _black));
+  public Result<Double> calculatePV01() {
+    return Result.success(PSSFC.calculateSensitivity(_derivative, _black)
+                              .totalSensitivity(new FXMatrix(_currency), _currency));
   }
   
   @Override

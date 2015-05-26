@@ -83,7 +83,7 @@ public class DefaultBondFutureOptionFn implements BondFutureOptionFn {
   }
 
   @Override
-  public Result<MultipleCurrencyMulticurveSensitivity> calculatePV01(Environment env, BondFutureOptionTrade trade) {
+  public Result<Double> calculatePV01(Environment env, BondFutureOptionTrade trade) {
     Result<BondFutureOptionCalculator> calculatorResult = _bondFutureOptionCalculatorFactory.createCalculator(env, trade);
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
