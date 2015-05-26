@@ -52,19 +52,24 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.CurveSelector;
 import com.opengamma.sesame.CurveSelectorMulticurveBundleFn;
 import com.opengamma.sesame.DefaultForwardCurveFn;
+import com.opengamma.sesame.DefaultGridInterpolator2DFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.ForwardCurveFn;
+import com.opengamma.sesame.GridInterpolator2DFn;
 import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.OutputNames;
+import com.opengamma.sesame.config.ConfigBuilder;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.equity.StaticReplicationDataBundleFn;
 import com.opengamma.sesame.equity.StrikeDataBundleFn;
+import com.opengamma.sesame.equity.StrikeDataFromPriceBundleFn;
 import com.opengamma.sesame.equityindexoptions.DefaultEquityIndexOptionFn;
 import com.opengamma.sesame.equityindexoptions.EquityIndexOptionFn;
 import com.opengamma.sesame.marketdata.ForwardCurveId;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.sesame.marketdata.MulticurveId;
+import com.opengamma.sesame.marketdata.SurfaceId;
 import com.opengamma.sesame.marketdata.VolatilitySurfaceId;
 import com.opengamma.sesame.trade.EquityIndexOptionTrade;
 import com.opengamma.util.money.Currency;
@@ -82,31 +87,55 @@ public final class EquityIndexOptionViewUtils {
 
   /**
    * Utility for creating a Equity Index Options specific view column
-   * @param currencies
+   * @param currencies to be used in the creation of the exposure function
+   * @param priceSurface whether the surface is price based (true) or vol based (false)
    */
-  public static ViewConfig createViewConfig(Collection<String> currencies) {
+  public static ViewConfig createViewConfig(Collection<String> currencies, boolean priceSurface) {
 
-    return
-        configureView(
-            "Equity Index Options View",
-            config(
-                arguments(
-                    function(
-                        MarketExposureSelector.class,
-                        argument("exposureFunctions", ConfigLink.resolved(createExposureFunction(currencies))))),
-                implementations(
-                    EquityIndexOptionFn.class, DefaultEquityIndexOptionFn.class,
-                    StaticReplicationDataBundleFn.class, StrikeDataBundleFn.class,
-                    CurveSelector.class, MarketExposureSelector.class,
-                    ForwardCurveFn.class, DefaultForwardCurveFn.class,
-                    DiscountingMulticurveCombinerFn.class, CurveSelectorMulticurveBundleFn.class)),
-            column(OutputNames.PRESENT_VALUE, output(OutputNames.PRESENT_VALUE, EquityIndexOptionTrade.class)),
-            column(OutputNames.DELTA, output(OutputNames.DELTA, EquityIndexOptionTrade.class)),
-            column(OutputNames.GAMMA, output(OutputNames.GAMMA, EquityIndexOptionTrade.class)),
-            column(OutputNames.VEGA, output(OutputNames.VEGA, EquityIndexOptionTrade.class)),
-            column(OutputNames.PV01, output(OutputNames.PV01, EquityIndexOptionTrade.class)),
-            column(OutputNames.BUCKETED_PV01, output(OutputNames.BUCKETED_PV01, EquityIndexOptionTrade.class))
-        );
+
+    ConfigBuilder.Implementations implementations;
+    if (priceSurface) {
+      implementations = implementations(
+          GridInterpolator2DFn.class, DefaultGridInterpolator2DFn.class,
+          EquityIndexOptionFn.class, DefaultEquityIndexOptionFn.class,
+          StaticReplicationDataBundleFn.class, StrikeDataFromPriceBundleFn.class,
+          CurveSelector.class, MarketExposureSelector.class,
+          ForwardCurveFn.class, DefaultForwardCurveFn.class,
+          DiscountingMulticurveCombinerFn.class, CurveSelectorMulticurveBundleFn.class);
+    } else {
+      implementations = implementations(
+          EquityIndexOptionFn.class, DefaultEquityIndexOptionFn.class,
+          StaticReplicationDataBundleFn.class, StrikeDataBundleFn.class,
+          CurveSelector.class, MarketExposureSelector.class,
+          ForwardCurveFn.class, DefaultForwardCurveFn.class,
+          DiscountingMulticurveCombinerFn.class, CurveSelectorMulticurveBundleFn.class);
+    }
+
+    ViewConfig viewConfig = configureView(
+        "Equity Index Options View",
+        config(
+            arguments(
+                function(
+                    MarketExposureSelector.class,
+                    argument("exposureFunctions", ConfigLink.resolved(createExposureFunction(currencies)))),
+                function(
+                    DefaultGridInterpolator2DFn.class,
+                    argument("xInterpolatorName", "Linear"),
+                    argument("xLeftExtrapolatorName", "FlatExtrapolator"),
+                    argument("xRightExtrapolatorName", "FlatExtrapolator"),
+                    argument("yInterpolatorName", "Linear"),
+                    argument("yLeftExtrapolatorName", "FlatExtrapolator"),
+                    argument("yRightExtrapolatorName", "FlatExtrapolator"))),
+            implementations),
+        column(OutputNames.PRESENT_VALUE, output(OutputNames.PRESENT_VALUE, EquityIndexOptionTrade.class)),
+        column(OutputNames.DELTA, output(OutputNames.DELTA, EquityIndexOptionTrade.class)),
+        column(OutputNames.GAMMA, output(OutputNames.GAMMA, EquityIndexOptionTrade.class)),
+        column(OutputNames.VEGA, output(OutputNames.VEGA, EquityIndexOptionTrade.class)),
+        column(OutputNames.PV01, output(OutputNames.PV01, EquityIndexOptionTrade.class)),
+        column(OutputNames.BUCKETED_PV01, output(OutputNames.BUCKETED_PV01, EquityIndexOptionTrade.class))
+    );
+
+    return viewConfig;
   }
 
   /**
@@ -131,15 +160,45 @@ public final class EquityIndexOptionViewUtils {
   /**
    * Create volatility surfaces and add to the {@link MarketDataEnvironmentBuilder}
    * @param builder the MarketDataEnvironmentBuilder
-   * @param file the name of the volatility surface file
+   * @param file the name of the surface file
+   * @param priceSurface whether the surface is price based (true) or vol based (false)
    * @throws IOException
    */
-  public static void parseVolatilitySurfaces(MarketDataEnvironmentBuilder builder, String file) throws IOException {
-    Map<String, VolUtils.VolRawData> vols = VolUtils.parseVols(file);
-    for(Map.Entry<String, VolUtils.VolRawData> surface : vols.entrySet()) {
+  public static void parseSurfaces(MarketDataEnvironmentBuilder builder, String file, boolean priceSurface) throws IOException {
+    if (priceSurface) {
+      parsePriceSurfaces(builder, file);
+    } else {
+      parseVolatilitySurfaces(builder, file);
+    }
+  }
+
+  /**
+   * Create surfaces and add to the {@link MarketDataEnvironmentBuilder}
+   * @param builder the MarketDataEnvironmentBuilder
+   * @param file the name of the price surface file
+   * @throws IOException
+   */
+  private static void parsePriceSurfaces(MarketDataEnvironmentBuilder builder, String file) throws IOException {
+    Map<String, VolUtils.SurfaceRawData> vols = VolUtils.parseSurface(file);
+    for(Map.Entry<String, VolUtils.SurfaceRawData> surface : vols.entrySet()) {
+      builder.add(SurfaceId.of(surface.getKey()), VolUtils.createPriceSurface(surface.getValue()));
+    }
+  }
+
+  /**
+   * Create surfaces and add to the {@link MarketDataEnvironmentBuilder}
+   * @param builder the MarketDataEnvironmentBuilder
+   * @param file the name of the vol surface file
+   * @throws IOException
+   */
+  private static void parseVolatilitySurfaces(MarketDataEnvironmentBuilder builder, String file) throws IOException {
+    Map<String, VolUtils.SurfaceRawData> vols = VolUtils.parseSurface(file);
+    for(Map.Entry<String, VolUtils.SurfaceRawData> surface : vols.entrySet()) {
       builder.add(VolatilitySurfaceId.of(surface.getKey()), VolUtils.createVolatilitySurface(surface.getValue()));
     }
   }
+
+
 
   /**
    * Create forward curves and add to the {@link MarketDataEnvironmentBuilder}

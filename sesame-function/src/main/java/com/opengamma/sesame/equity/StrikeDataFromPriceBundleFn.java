@@ -27,6 +27,7 @@ import com.opengamma.sesame.marketdata.SurfaceId;
 import com.opengamma.sesame.trade.EquityIndexOptionTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 
 /**
@@ -85,7 +86,18 @@ public class StrikeDataFromPriceBundleFn implements StaticReplicationDataBundleF
         double forwardOptionPrice = optionPrice / discountCurve.getDiscountFactor(timeToExpiry);
         double forward = forwardCurve.getForward(timeToExpiry);
 
-        volData[i] = BlackFormulaRepository.impliedVolatility(forwardOptionPrice, forward, strikeData[i], timeToExpiry, isCall);
+        try {
+          volData[i] = BlackFormulaRepository.impliedVolatility(forwardOptionPrice,
+                                                                forward,
+                                                                strikeData[i],
+                                                                timeToExpiry,
+                                                                isCall);
+        } catch(Exception e) {
+          return Result.failure(FailureStatus.INVALID_INPUT, e,
+                                "Error constructing surface {} for price {} and strike {} at maturity {}. {}",
+                                volId, optionPrice, strikeData[i], timeToExpiry, e.getMessage());
+
+        }
       }
 
       InterpolatedDoublesSurface surface = InterpolatedDoublesSurface.from(timeData,
