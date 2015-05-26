@@ -50,12 +50,12 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  */
 public class DataLoader {
 
-  private final String _path;
-  private final SecurityMaster _securityMaster;
-  private final ConfigMaster _configMaster;
-  private final HolidayMaster _holidayMaster;
-  private final MarketDataSnapshotMaster _snapshotMaster;
-  private final ConventionMaster _conventionMaster;
+  protected final String _path;
+  protected final SecurityMaster _securityMaster;
+  protected final ConfigMaster _configMaster;
+  protected final HolidayMaster _holidayMaster;
+  protected final MarketDataSnapshotMaster _snapshotMaster;
+  protected final ConventionMaster _conventionMaster;
 
   /**
    * Initialise the DataLoadModule
@@ -137,28 +137,28 @@ public class DataLoader {
 
   }
 
-  private SecurityDocument loadSecurity(String path) {
+  protected SecurityDocument loadSecurity(String path) {
     return new SecurityDocument(loadBean(ManageableSecurity.class, "/securities/" + path, false));
   }
 
-  private HolidayDocument loadHoliday(Class clazz, String file, boolean isFudge) {
+  protected HolidayDocument loadHoliday(Class clazz, String file, boolean isFudge) {
     return new HolidayDocument((Holiday) loadBean(clazz, "/holidays/" + file, isFudge));
   }
 
-  private MarketDataSnapshotDocument loadSnapshots(Class clazz, String file, boolean isFudge) {
+  protected MarketDataSnapshotDocument loadSnapshots(Class clazz, String file, boolean isFudge) {
     return new MarketDataSnapshotDocument((NamedSnapshot) loadBean(clazz, "/snapshots/" + file, isFudge));
   }
 
-  private ConfigDocument loadConfig(Class clazz, String file, boolean isFudge) {
+  protected ConfigDocument loadConfig(Class clazz, String file, boolean isFudge) {
     String name = FilenameUtils.removeExtension(file);
     return new ConfigDocument(ConfigItem.of(loadBean(clazz, "/configs/" + file, isFudge), name, clazz));
   }
 
-  private ConventionDocument loadConvention(String file) {
+  protected ConventionDocument loadConvention(String file) {
     return new ConventionDocument(loadBean(ManageableConvention.class, "/conventions/" + file, false));
   }
 
-  private <T> T loadBean(Class<T> clazz, String path, boolean isFudge) {
+  protected <T> T loadBean(Class<T> clazz, String path, boolean isFudge) {
     InputStream resource = ClassLoader.getSystemResourceAsStream(_path + path);
     if (!isFudge) {
       return JodaBeanSerialization.deserializer().xmlReader().read(resource, clazz);

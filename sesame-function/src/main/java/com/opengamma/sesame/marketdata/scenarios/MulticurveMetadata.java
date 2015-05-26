@@ -8,6 +8,7 @@ package com.opengamma.sesame.marketdata.scenarios;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.SetMultimap;
+import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexDeposit;
@@ -56,21 +58,29 @@ public final class MulticurveMetadata {
   private final SetMultimap<Currency, String> _curveNamesByCurrency;
   private final Map<IndexDeposit, String> _curveNamesByIndex;
   private final Map<String, String> _curveNamesByIndexName;
-
+  private final ImmutableSet<String> _discountingCurveNames;
+  private final ImmutableSet<String> _forecastCurveNames;
+  
   private MulticurveMetadata(Set<String> curveNames,
                              SetMultimap<Currency, String> curveNamesByCurrency,
                              Map<IndexDeposit, String> curveNamesByIndex,
-                             Map<String, String> curveNamesByIndexName) {
+                             Map<String, String> curveNamesByIndexName,
+                             Set<String> discountingCurveNames,
+                             Set<String> forecastCurveNames) {
     _curveNames = curveNames;
     _curveNamesByCurrency = curveNamesByCurrency;
     _curveNamesByIndex = curveNamesByIndex;
     _curveNamesByIndexName = curveNamesByIndexName;
+    _discountingCurveNames = ImmutableSet.copyOf(discountingCurveNames);
+    _forecastCurveNames = ImmutableSet.copyOf(forecastCurveNames);
+
   }
 
   /**
    * Creates multicurve metadata from the configuration used to build the multicurve bundle.
    *
    * @param config the configuration for building the multicurve bundle
+   * @return the multicurve metadata
    */
   public static MulticurveMetadata forConfiguration(CurveConstructionConfiguration config) {
     ArgumentChecker.notNull(config, "config");
@@ -79,10 +89,14 @@ public final class MulticurveMetadata {
     ImmutableSet.Builder<String> nameBuilder = ImmutableSet.builder();
     ImmutableMap.Builder<IndexDeposit, String> indexBuilder = ImmutableMap.builder();
     ImmutableMap.Builder<String, String> indexNameBuilder = ImmutableMap.builder();
+    Set<String> discountingCurveNames = Sets.newHashSet();
+    Set<String> forecastingCurveNames = Sets.newHashSet();
 
     for (CurveGroupConfiguration groupConfig : config.getCurveGroups()) {
       Map<String, List<? extends CurveTypeConfiguration>> curveMap = groupConfig.getTypesForCurves();
 
+      discountingCurveNames.addAll(discountingCurves(curveMap));
+      forecastingCurveNames.addAll(forecastingCurves(curveMap));
       for (Map.Entry<String, List<? extends CurveTypeConfiguration>> entry : curveMap.entrySet()) {
         String curveName = entry.getKey();
         nameBuilder.add(curveName);
@@ -102,13 +116,16 @@ public final class MulticurveMetadata {
         nameBuilder.build(),
         currencyBuilder.build(),
         indexBuilder.build(),
-        indexNameBuilder.build());
+        indexNameBuilder.build(),
+        discountingCurveNames,
+        forecastingCurveNames);
   }
 
   /**
    * Creates multicurve metadata from an existing multicurve bundle.
    *
    * @param multicurve a multicurve bundle
+   * @return the multicurve metadata
    */
   public static MulticurveMetadata forMulticurve(MulticurveBundle multicurve) {
     ArgumentChecker.notNull(multicurve, "multicurve");
@@ -117,9 +134,14 @@ public final class MulticurveMetadata {
     ImmutableSetMultimap.Builder<Currency, String> currencyBuilder = ImmutableSetMultimap.builder();
     ImmutableMap.Builder<IndexDeposit, String> indexBuilder = ImmutableMap.builder();
     ImmutableMap.Builder<String, String> indexNameBuilder = ImmutableMap.builder();
+    Set<String> discountingCurveNames = Sets.newHashSet();
+    Set<String> forecastingCurveNames = Sets.newHashSet();
 
     for (Map.Entry<Currency, YieldAndDiscountCurve> entry : curves.getDiscountingCurves().entrySet()) {
-      currencyBuilder.put(entry.getKey(), entry.getValue().getName());
+      String curveName = entry.getValue().getName();
+      
+      currencyBuilder.put(entry.getKey(), curveName);
+      discountingCurveNames.add(curveName);
     }
     for (Map.Entry<IndexON, YieldAndDiscountCurve> entry : curves.getForwardONCurves().entrySet()) {
       IndexON index = entry.getKey();
@@ -127,6 +149,7 @@ public final class MulticurveMetadata {
       currencyBuilder.put(index.getCurrency(), curveName);
       indexBuilder.put(index, curveName);
       indexNameBuilder.put(index.getName(), curveName);
+      forecastingCurveNames.add(curveName);
     }
     for (Map.Entry<IborIndex, YieldAndDiscountCurve> entry : curves.getForwardIborCurves().entrySet()) {
       IborIndex index = entry.getKey();
@@ -134,12 +157,15 @@ public final class MulticurveMetadata {
       currencyBuilder.put(index.getCurrency(), curveName);
       indexBuilder.put(index, curveName);
       indexNameBuilder.put(index.getName(), curveName);
+      forecastingCurveNames.add(curveName);
     }
     return new MulticurveMetadata(
         ImmutableSet.copyOf(curves.getAllNames()),
         currencyBuilder.build(),
         indexBuilder.build(),
-        indexNameBuilder.build());
+        indexNameBuilder.build(),
+        discountingCurveNames,
+        forecastingCurveNames);
   }
 
   /**
@@ -179,6 +205,47 @@ public final class MulticurveMetadata {
       }
     }
     return currencies;
+  }
+
+  /**
+   * @param curveMap curve type configurations for each curve
+   * @return the names of the curves set up for discounting
+   */
+  private static Set<String> discountingCurves(Map<String, List<? extends CurveTypeConfiguration>> curveMap) {
+    Set<String> discountingCurveNames = new HashSet<>();
+
+    for (Entry<String, List<? extends CurveTypeConfiguration>> curve : curveMap.entrySet()) {
+      String curveName = curve.getKey();
+      List<? extends CurveTypeConfiguration> curveConfigs = curve.getValue();
+      
+      for (CurveTypeConfiguration curveConfig : curveConfigs) {
+        if (curveConfig instanceof DiscountingCurveTypeConfiguration) {
+          discountingCurveNames.add(curveName);
+        } 
+      }
+    }
+    return discountingCurveNames;
+  }
+  
+  /**
+   * @param curveMap curve type configurations for each curve
+   * @return the names of the curves set up for forecasting
+   */
+  private static Set<String> forecastingCurves(Map<String, List<? extends CurveTypeConfiguration>> curveMap) {
+    Set<String> forecastingCurveNames = new HashSet<>();
+
+    for (Entry<String, List<? extends CurveTypeConfiguration>> curve : curveMap.entrySet()) {
+      String curveName = curve.getKey();
+      List<? extends CurveTypeConfiguration> curveConfigs = curve.getValue();
+      
+      for (CurveTypeConfiguration curveConfig : curveConfigs) {
+        if (curveConfig instanceof IborCurveTypeConfiguration || 
+            curveConfig instanceof OvernightCurveTypeConfiguration) {
+          forecastingCurveNames.add(curveName);
+        } 
+      }
+    }
+    return forecastingCurveNames;
   }
 
   // it doesn't make sense for one curve to have multiple indices but the object model allows it
@@ -260,4 +327,23 @@ public final class MulticurveMetadata {
   public Map<String, String> getCurveNamesByIndexName() {
     return _curveNamesByIndexName;
   }
+  
+  /**
+   * Returns the names of the curves used for discounting
+   *
+   * @return the names of the curves used for discounting
+   */
+  public ImmutableSet<String> getDiscountingCurveNames() {
+    return _discountingCurveNames;
+  }
+  
+  /**
+   * Returns the names of the curves used for forecasting
+   *
+   * @return the names of the curves used for forecasting
+   */
+  public ImmutableSet<String> getForecastingCurveNames() {
+    return _forecastCurveNames;
+  }
+
 }
