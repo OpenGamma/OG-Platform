@@ -135,6 +135,15 @@ public class MarketDataBuilders {
   }
 
   /**
+   * Creates a builder for surface data.
+   *
+   * @return a builder for surface data
+   */
+  public static SurfaceMarketDataBuilder surface() {
+    return new SurfaceMarketDataBuilder();
+  }
+
+  /**
    * Creates a builder for forward curve data.
    *
    * @return a builder for forward curve data
@@ -200,6 +209,7 @@ public class MarketDataBuilders {
                             creditCurve(),
                             isdaYieldCurve(),
                             volSurface(),
+                            surface(),
                             forwardCurve());
   }
 }
