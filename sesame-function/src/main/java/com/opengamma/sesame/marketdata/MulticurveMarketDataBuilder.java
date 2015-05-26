@@ -7,14 +7,18 @@ package com.opengamma.sesame.marketdata;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
@@ -22,17 +26,25 @@ import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle
 import com.opengamma.analytics.financial.provider.curve.multicurve.MulticurveDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.ProviderUtils;
+import com.opengamma.financial.analytics.curve.AbstractCurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
+import com.opengamma.financial.analytics.curve.CurveDefinition;
+import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
 import com.opengamma.financial.analytics.curve.credit.CurveSpecificationBuilder;
+import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
+import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.sesame.CurveNodeConverterFn;
+import com.opengamma.sesame.CurveNodeId;
 import com.opengamma.sesame.CurveNodeInstrumentDefinitionFactory;
 import com.opengamma.sesame.MulticurveBundle;
+import com.opengamma.sesame.TenorCurveNodeId;
 import com.opengamma.sesame.marketdata.builders.MarketDataBuilder;
 import com.opengamma.sesame.marketdata.scenarios.CyclePerturbations;
 import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -141,7 +153,7 @@ public class MulticurveMarketDataBuilder
       CurveConstructionConfiguration bundleConfig,
       MarketDataRequirement bundleRequirement,
       CyclePerturbations cyclePerturbations) {
-
+    Map<String, List<? extends CurveNodeId>> nodeIds = nodeIds(bundleConfig);
     Set<Currency> currencies = getCurrencies(bundleConfig, valuationTime);
     FxMatrixId fxMatrixKey = FxMatrixId.of(currencies);
     Result<FXMatrix> fxMatrixResult = marketDataBundle.get(fxMatrixKey, FXMatrix.class);
@@ -170,8 +182,7 @@ public class MulticurveMarketDataBuilder
             DISCOUNTING_CALCULATOR,
             CURVE_SENSITIVITY_CALCULATOR);
 
-    // TODO include curve node IDs - PLT-591
-    return Result.success(new MulticurveBundle(calibratedCurves.getFirst(), calibratedCurves.getSecond()));
+    return Result.success(new MulticurveBundle(calibratedCurves.getFirst(), nodeIds, calibratedCurves.getSecond()));
   }
 
   /**
@@ -198,5 +209,40 @@ public class MulticurveMarketDataBuilder
       MulticurveProviderDiscount mergedBundle = ProviderUtils.mergeDiscountingProviders(parentBundles);
       return ProviderUtils.mergeDiscountingProviders(mergedBundle, fxMatrix);
     }
+  }
+  
+  /**
+   * Builds a map of curve name to a list of curve node IDs which identify the nodes by tenor or futures expiry.
+   */
+  private static Map<String, List<? extends CurveNodeId>> nodeIds(CurveConstructionConfiguration multicurveConfig) {
+    ImmutableMap.Builder<String, List<? extends CurveNodeId>> nodeMapBuilder = ImmutableMap.builder();
+
+    for (CurveGroupConfiguration groupConfig : multicurveConfig.getCurveGroups()) {
+      Set<AbstractCurveDefinition> curveDefinitions = groupConfig.resolveTypesForCurves().keySet();
+
+      for (AbstractCurveDefinition abstractCurveDefinition : curveDefinitions) {
+        if (abstractCurveDefinition instanceof CurveDefinition) {
+          CurveDefinition curveDefinition = (CurveDefinition) abstractCurveDefinition;
+          String curveName = curveDefinition.getName();
+          SortedSet<CurveNode> nodes = curveDefinition.getNodes();
+          ImmutableList.Builder<CurveNodeId> nodeListBuilder = ImmutableList.builder();
+
+          for (CurveNode node : nodes) {
+            if (node instanceof RateFutureNode) {
+              // TODO create FuturesExpiryCurveNodeId and add to nodeListBuilder
+              // RateFutureNode futureNode = (RateFutureNode) node;
+              throw new OpenGammaRuntimeException("Future nodes are not supported");
+            } else {
+              Tenor tenor = node.getResolvedMaturity();
+              TenorCurveNodeId nodeId = TenorCurveNodeId.of(tenor);
+              
+              nodeListBuilder.add(nodeId);
+            }
+          }
+          nodeMapBuilder.put(curveName, nodeListBuilder.build());
+        }
+      }
+    }
+    return nodeMapBuilder.build();
   }
 }

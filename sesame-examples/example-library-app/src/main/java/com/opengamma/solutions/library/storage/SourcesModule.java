@@ -6,6 +6,7 @@
 package com.opengamma.solutions.library.storage;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Provider;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.opengamma.core.config.ConfigSource;
@@ -36,7 +37,6 @@ import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSerie
 import com.opengamma.master.historicaltimeseries.impl.MasterHistoricalTimeSeriesSource;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.impl.MasterHolidaySource;
-import com.opengamma.master.holiday.impl.SimpleInMemoryHolidayStore;
 import com.opengamma.master.legalentity.LegalEntityMaster;
 import com.opengamma.master.legalentity.impl.MasterLegalEntitySource;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
@@ -58,6 +58,16 @@ import com.opengamma.master.security.impl.MasterSecuritySource;
  */
 public class SourcesModule extends AbstractModule {
 
+  private final Provider<HistoricalTimeSeriesSource> _externalTimeSeriesSource;
+
+  public SourcesModule(Provider<HistoricalTimeSeriesSource> externalTimeSeriesSource) {
+    _externalTimeSeriesSource = externalTimeSeriesSource;
+  }
+
+  public SourcesModule() {
+    _externalTimeSeriesSource = null;
+  }
+  
   @Override
   protected void configure() {
   }
@@ -86,9 +96,13 @@ public class SourcesModule extends AbstractModule {
   
   @Provides
   @Singleton
-  public HistoricalTimeSeriesSource createHtsSource(HistoricalTimeSeriesMaster master, 
-                                                    HistoricalTimeSeriesResolver resolver) {
-    return new MasterHistoricalTimeSeriesSource(master, resolver);
+  public HistoricalTimeSeriesSource createHtsSource(HistoricalTimeSeriesMaster timeSeriesMaster, 
+      HistoricalTimeSeriesResolver resolver) {
+    if (_externalTimeSeriesSource == null) {
+      return new MasterHistoricalTimeSeriesSource(timeSeriesMaster, resolver);
+    } else {
+      return _externalTimeSeriesSource.get();
+    }
   }
   
   @Provides
