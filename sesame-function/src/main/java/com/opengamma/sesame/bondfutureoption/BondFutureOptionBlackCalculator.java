@@ -54,6 +54,7 @@ public class BondFutureOptionBlackCalculator implements BondFutureOptionCalculat
   private final InstrumentDerivative _derivative;
   private final BlackBondFuturesProviderInterface _black;
   private final Currency _currency;
+  public static final double BP = 0.0001;
   
   /**
    * Constructs a Black calculator for bond future options.
@@ -83,7 +84,7 @@ public class BondFutureOptionBlackCalculator implements BondFutureOptionCalculat
 
   @Override
   public Result<Double> calculatePV01() {
-    return Result.success(PSSFC.calculateSensitivity(_derivative, _black)
+    return Result.success(PSSFC.calculateSensitivity(_derivative, _black).multipliedBy(BP)
                               .totalSensitivity(new FXMatrix(_currency), _currency));
   }
   
@@ -114,7 +115,7 @@ public class BondFutureOptionBlackCalculator implements BondFutureOptionCalculat
 
   @Override
   public Result<MultipleCurrencyParameterSensitivity> calculateBucketedPV01() {
-    return Result.success(PSSFC.calculateSensitivity(_derivative, _black));
+    return Result.success(PSSFC.calculateSensitivity(_derivative, _black).multipliedBy(BP));
   }
 
   @SuppressWarnings("unchecked")
