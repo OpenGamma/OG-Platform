@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame.equityindexoptions;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 import org.threeten.bp.ZonedDateTime;
@@ -23,12 +22,10 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.conversion.EquityOptionsConverter;
-import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.sesame.CurveMatrixLabeller;

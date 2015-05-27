@@ -60,14 +60,16 @@ public class BondFutureOptionBlackCalculatorFactory implements BondFutureOptionC
   }
 
   /**
-   * Is a time series of margin prices required. Not required if valued on trade date
+   * Is a time series of margin prices required.
+   * Not required if valued on trade date or if the security is not margined
    *
    * @param valuationDate the valuation date
    * @param trade the trade date
    * @return true if required, else false
    */
   private static boolean requiresTimeSeries(LocalDate valuationDate, BondFutureOptionTrade trade) {
-    return !valuationDate.equals(trade.getTrade().getTradeDate());
+    boolean requiresTimeSeries = !valuationDate.equals(trade.getTrade().getTradeDate()) && trade.getSecurity().isMargined();
+    return requiresTimeSeries;
   }
 
   private Result<HistoricalTimeSeriesBundle> getTimeSeries(Environment env, BondFutureOptionTrade trade) {

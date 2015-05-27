@@ -8,6 +8,7 @@ package com.opengamma.sesame.bondfutureoption;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -20,6 +21,8 @@ import com.opengamma.analytics.financial.provider.calculator.blackbondfutures.Pr
 import com.opengamma.analytics.financial.provider.calculator.blackbondfutures.PresentValueCurveSensitivityBlackBondFuturesOptionCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
@@ -28,6 +31,7 @@ import com.opengamma.financial.analytics.conversion.BondFutureOptionTradeConvert
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.sesame.trade.BondFutureOptionTrade;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
 
@@ -37,23 +41,19 @@ import com.opengamma.util.result.Result;
 public class BondFutureOptionBlackCalculator implements BondFutureOptionCalculator {
 
   private static final PresentValueBlackBondFuturesOptionCalculator PV_CALC = PresentValueBlackBondFuturesOptionCalculator.getInstance();
-  
-  private static final PresentValueCurveSensitivityBlackBondFuturesOptionCalculator PV01_CALC = 
+  private static final PresentValueCurveSensitivityBlackBondFuturesOptionCalculator PVCSBFC =
       new PresentValueCurveSensitivityBlackBondFuturesOptionCalculator();
-
+  private static final ParameterSensitivityParameterCalculator<BlackBondFuturesProviderInterface> PSSFC =
+      new ParameterSensitivityParameterCalculator<>(PVCSBFC);
   private static final FuturesPriceBlackBondFuturesCalculator PRICE_CALC = FuturesPriceBlackBondFuturesCalculator.getInstance();
-  
   private static final DeltaBlackBondFuturesCalculator DELTA_CALC = DeltaBlackBondFuturesCalculator.getInstance();
-  
   private static final GammaBlackBondFuturesCalculator GAMMA_CALC = GammaBlackBondFuturesCalculator.getInstance();
-  
   private static final VegaBlackBondFuturesCalculator VEGA_CALC = VegaBlackBondFuturesCalculator.getInstance();
-  
   private static final ThetaBlackBondFuturesCalculator THETA_CALC = ThetaBlackBondFuturesCalculator.getInstance();
   
   private final InstrumentDerivative _derivative;
-  
   private final BlackBondFuturesProviderInterface _black;
+  private final Currency _currency;
   
   /**
    * Constructs a Black calculator for bond future options.
@@ -72,15 +72,19 @@ public class BondFutureOptionBlackCalculator implements BondFutureOptionCalculat
                                              ArgumentChecker.notNull(converter, "converter"),
                                              ArgumentChecker.notNull(valTime, "valTime"),
                                              ArgumentChecker.notNull(fixings, "fixings"));
+    _currency = trade.getSecurity().getCurrency();
     _black = ArgumentChecker.notNull(black, "black");
   }
-  
+
+  @Override
   public Result<MultipleCurrencyAmount> calculatePV() {
     return Result.success(_derivative.accept(PV_CALC, _black));
   }
-  
-  public Result<MultipleCurrencyMulticurveSensitivity> calculatePV01() {
-    return Result.success(_derivative.accept(PV01_CALC, _black));
+
+  @Override
+  public Result<Double> calculatePV01() {
+    return Result.success(PSSFC.calculateSensitivity(_derivative, _black)
+                              .totalSensitivity(new FXMatrix(_currency), _currency));
   }
   
   @Override
@@ -107,7 +111,12 @@ public class BondFutureOptionBlackCalculator implements BondFutureOptionCalculat
   public Result<Double> calculateTheta() {
     return Result.success(_derivative.accept(THETA_CALC, _black));
   }
-  
+
+  @Override
+  public Result<MultipleCurrencyParameterSensitivity> calculateBucketedPV01() {
+    return Result.success(PSSFC.calculateSensitivity(_derivative, _black));
+  }
+
   @SuppressWarnings("unchecked")
   private InstrumentDerivative createInstrumentDerivative(BondFutureOptionTrade tradeWrapper,
                                                           BondFutureOptionTradeConverter converter,
@@ -115,23 +124,23 @@ public class BondFutureOptionBlackCalculator implements BondFutureOptionCalculat
                                                           HistoricalTimeSeriesBundle timeSeries) {
     Trade trade = tradeWrapper.getTrade();
     InstrumentDefinition<?> definition = converter.convert(trade);
-    final Security security = tradeWrapper.getSecurity();
-    final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle());
-    Double lastMarginPrice;
-    if (valTime.toLocalDate().equals(trade.getTradeDate())) {
-      lastMarginPrice = trade.getPremium();
-    } else {
-      if (ts == null) {
-        throw new OpenGammaRuntimeException("Could not get price time series for " + security);
-      }
-      final int length = ts.getTimeSeries().size();
-      if (length == 0) {
-        throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty");
-      }
-      lastMarginPrice = ts.getTimeSeries().getLatestValue();
-    }
-    
+
     if (definition instanceof InstrumentDefinitionWithData) {
+      final Security security = tradeWrapper.getSecurity();
+      final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle());
+      Double lastMarginPrice;
+      if (valTime.toLocalDate().equals(trade.getTradeDate())) {
+        lastMarginPrice = trade.getPremium();
+      } else {
+        if (ts == null) {
+          throw new OpenGammaRuntimeException("Could not get price time series for " + security);
+        }
+        final int length = ts.getTimeSeries().size();
+        if (length == 0) {
+          throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty");
+        }
+        lastMarginPrice = ts.getTimeSeries().getLatestValue();
+      }
       return ((InstrumentDefinitionWithData<?, Double>) definition).toDerivative(valTime, lastMarginPrice);
     } else {
       return definition.toDerivative(valTime);

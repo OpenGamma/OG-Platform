@@ -41,6 +41,7 @@ import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolat
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;

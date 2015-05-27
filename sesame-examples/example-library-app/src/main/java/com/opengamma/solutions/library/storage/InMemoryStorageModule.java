@@ -8,6 +8,8 @@ package com.opengamma.solutions.library.storage;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.opengamma.financial.convention.ConventionBundleMaster;
+import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.InMemoryConfigMaster;
 import com.opengamma.master.convention.ConventionMaster;
@@ -105,6 +107,12 @@ public class InMemoryStorageModule extends AbstractModule {
   @Singleton
   public PortfolioMaster createPortfolioMaster() {
     return new InMemoryPortfolioMaster();
+  }
+
+  @Provides
+  @Singleton
+  public ConventionBundleMaster createConventionBundleMaster() {
+    return new InMemoryConventionBundleMaster();
   }
 
 }
