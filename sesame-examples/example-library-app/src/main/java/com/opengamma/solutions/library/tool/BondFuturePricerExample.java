@@ -31,7 +31,6 @@ public class BondFuturePricerExample {
   private static final Logger s_logger = LoggerFactory.getLogger(BondFuturePricerExample.class);
   private static final String DISCOUNTING_CURVES = "bond-data/curves/discounting-curves.csv";
   private static final String ISSUER_CURVES = "bond-data/curves/issuer-curves.csv";
-  private static final String VOLATILITY_SURFACES = "bond-data/vols/surface.csv";
   private static final String TRADES = "bond-data/trades/bond-futures.csv";
   private static final String BONDS = "bond-data/trades/bonds.csv";
   private static final String HOLIDAYS = "bond-data/calendars/holidays.csv";
@@ -56,7 +55,6 @@ public class BondFuturePricerExample {
                                    BONDS,
                                    DISCOUNTING_CURVES,
                                    ISSUER_CURVES,
-                                   VOLATILITY_SURFACES,
                                    HOLIDAYS);
     s_logger.info("Got results:\n" + ViewUtils.format(results));
   }

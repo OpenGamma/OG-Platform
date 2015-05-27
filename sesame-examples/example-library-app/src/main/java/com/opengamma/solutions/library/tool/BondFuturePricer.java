@@ -66,7 +66,6 @@ public class BondFuturePricer {
    * @param bonds the path to the underlying bonds file
    * @param discountingCurves the path to the discounting curve file
    * @param issuerCurves the path to the issuer curve file
-   * @param volatilitySurfaces the path to the volatility surface file
    * @param holidays the path to the holidays file
    * @return calculation results for an Bond Future Option
    */
@@ -75,7 +74,6 @@ public class BondFuturePricer {
                        String bonds,
                        String discountingCurves,
                        String issuerCurves,
-                       String volatilitySurfaces,
                        String holidays) throws IOException {
 
     RegionFileReader.createPopulated(_regionMaster);
@@ -88,7 +86,6 @@ public class BondFuturePricer {
 
     MarketDataEnvironmentBuilder marketData = new MarketDataEnvironmentBuilder();
     BondFutureOptionViewUtils.parseCurves(marketData, discountingCurves, issuerCurves);
-    BondFutureOptionViewUtils.parseVolatilitySurfaces(marketData, volatilitySurfaces);
     marketData.valuationTime(valuationTime);
 
     // This is needed to ensure that the version correction provided is after the population of the masters
