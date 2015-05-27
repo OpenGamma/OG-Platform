@@ -42,23 +42,25 @@ public class EquityIndexOptionPricer {
    * @param trades the path to the input trades file
    * @param discountingCurves the path to the discounting curve file
    * @param forwardCurves the path to the forward curve file
-   * @param volatilitySurfaces the path to the volatility surface file
+   * @param surfaces the path to the surface file
+   * @param priceSurface whether the surface is price based (true) or vol based (false)
    * @return Results containing PV for an Equity Index Option
    */
   public Results price(ZonedDateTime valuationTime,
                        String trades,
                        String discountingCurves,
                        String forwardCurves,
-                       String volatilitySurfaces) throws IOException {
+                       String surfaces,
+                       boolean priceSurface) throws IOException {
 
     CalculationArguments calculationArguments = CalculationArguments.builder().valuationTime(valuationTime).build();
     HashMap<Object, String> portfolio = EquityIndexOptionViewUtils.parsePortfolio(trades);
-    ViewConfig viewConfig = EquityIndexOptionViewUtils.createViewConfig(portfolio.values());
+    ViewConfig viewConfig = EquityIndexOptionViewUtils.createViewConfig(portfolio.values(), priceSurface);
 
     MarketDataEnvironmentBuilder marketData = new MarketDataEnvironmentBuilder();
     EquityIndexOptionViewUtils.parseDiscountingCurves(marketData, discountingCurves);
     EquityIndexOptionViewUtils.parseForwardCurves(marketData, forwardCurves);
-    EquityIndexOptionViewUtils.parseVolatilitySurfaces(marketData, volatilitySurfaces);
+    EquityIndexOptionViewUtils.parseSurfaces(marketData, surfaces, priceSurface);
     marketData.valuationTime(valuationTime);
 
     return _engine.runView(viewConfig, calculationArguments, marketData.build(), Lists.newArrayList(portfolio.keySet()));

@@ -175,8 +175,8 @@ public final class BondFutureOptionViewUtils {
    * @throws IOException
    */
   public static void parseVolatilitySurfaces(MarketDataEnvironmentBuilder builder, String file) throws IOException {
-    Map<String, VolUtils.VolRawData> vols = VolUtils.parseVols(file);
-    for(Map.Entry<String, VolUtils.VolRawData> surface : vols.entrySet()) {
+    Map<String, VolUtils.SurfaceRawData> vols = VolUtils.parseSurface(file);
+    for(Map.Entry<String, VolUtils.SurfaceRawData> surface : vols.entrySet()) {
       builder.add(VolatilitySurfaceId.of(surface.getKey()), VolUtils.createVolatilitySurface(surface.getValue()));
     }
   }
