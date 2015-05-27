@@ -87,7 +87,8 @@ public final class CurveUtils {
         try {
           tenorValue = Tenor.parse("P" + tenor);
         } catch (NumberFormatException e) {
-          s_logger.error("Invalid tenor {} for {}", tenor, name);
+          s_logger.error("Invalid tenor {} for {} in file {}. Input tenor values should contain and end with one of the following D, W, M and Y",
+                         tenor, name, file);
           continue;
         }
 

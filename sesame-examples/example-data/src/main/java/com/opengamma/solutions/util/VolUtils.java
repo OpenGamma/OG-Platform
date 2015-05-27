@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +25,6 @@ import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
-import com.opengamma.sesame.marketdata.VolatilitySurfaceId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
 
@@ -89,7 +87,8 @@ public final class VolUtils {
         try {
           tenorValue = Tenor.parse("P" + tenor);
         } catch (NumberFormatException e) {
-          s_logger.error("Invalid tenor {} for {}", tenor, name);
+          s_logger.error("Invalid tenor {} for {} in file {}. Input tenor values should contain and end with one of the following D, W, M and Y",
+                         tenor, name, file);
           continue;
         }
 

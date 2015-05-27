@@ -199,7 +199,7 @@ public final class EquityIndexOptionViewUtils {
                              optionType.toString() + " Option " +
                              expiry.getExpiry().toLocalDate().toString() + " " + strike);
 
-        //Trade
+        //Trade - various elements of the trade object are not used in these examples so can be hard coded
         Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
         BigDecimal tradeQuantity = BigDecimal.valueOf(1);
         LocalDate tradeDate = LocalDate.now();

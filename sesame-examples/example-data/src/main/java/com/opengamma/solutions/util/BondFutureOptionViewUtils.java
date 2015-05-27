@@ -43,17 +43,9 @@ import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.legalentity.LegalEntityShortName;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
-import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
-import com.opengamma.analytics.math.interpolation.Interpolator1D;
-import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.position.Counterparty;
@@ -63,18 +55,14 @@ import com.opengamma.financial.analytics.curve.exposure.CurrencyExposureFunction
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
-import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
-import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
@@ -82,45 +70,28 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.sesame.CurveSelector;
-import com.opengamma.sesame.CurveSelectorMulticurveBundleFn;
 import com.opengamma.sesame.DefaultFixingsFn;
-import com.opengamma.sesame.DefaultForwardCurveFn;
-import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FixingsFn;
-import com.opengamma.sesame.ForwardCurveFn;
 import com.opengamma.sesame.IssuerProviderBundle;
 import com.opengamma.sesame.IssuerProviderFn;
 import com.opengamma.sesame.LookupIssuerProviderFn;
 import com.opengamma.sesame.MarketExposureSelector;
-import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.OutputNames;
-import com.opengamma.sesame.bondfuture.BondFutureCalculatorFactory;
-import com.opengamma.sesame.bondfuture.BondFutureFn;
-import com.opengamma.sesame.bondfuture.DefaultBondFutureFn;
 import com.opengamma.sesame.bondfutureoption.BlackBondFuturesProviderFn;
 import com.opengamma.sesame.bondfutureoption.BlackExpStrikeBondFuturesProviderFn;
 import com.opengamma.sesame.bondfutureoption.BondFutureOptionBlackCalculatorFactory;
 import com.opengamma.sesame.bondfutureoption.BondFutureOptionCalculatorFactory;
 import com.opengamma.sesame.bondfutureoption.BondFutureOptionFn;
 import com.opengamma.sesame.bondfutureoption.DefaultBondFutureOptionFn;
-import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewConfig;
-import com.opengamma.sesame.equity.StaticReplicationDataBundleFn;
-import com.opengamma.sesame.equity.StrikeDataBundleFn;
-import com.opengamma.sesame.equityindexoptions.DefaultEquityIndexOptionFn;
-import com.opengamma.sesame.equityindexoptions.EquityIndexOptionFn;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
-import com.opengamma.sesame.marketdata.ForwardCurveId;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.IssuerMulticurveId;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
-import com.opengamma.sesame.marketdata.MulticurveId;
 import com.opengamma.sesame.marketdata.VolatilitySurfaceId;
 import com.opengamma.sesame.trade.BondFutureOptionTrade;
 import com.opengamma.sesame.trade.BondFutureTrade;
-import com.opengamma.sesame.trade.EquityIndexOptionTrade;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
@@ -252,7 +223,7 @@ public final class BondFutureOptionViewUtils {
                              expiry.getExpiry().toLocalDate().toString() + " " + strike);
         securityMaster.add(new SecurityDocument(security));
 
-        //Trade
+        //Trade - various elements of the trade object are not used in these examples so can be hard coded
         Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
         BigDecimal tradeQuantity = BigDecimal.valueOf(Long.parseLong(line[6]));
         LocalDate tradeDate = LocalDate.now();
@@ -317,7 +288,7 @@ public final class BondFutureOptionViewUtils {
                              expiry.getExpiry().toLocalDate().toString() + " " + unitAmount);
         securityMaster.add(new SecurityDocument(security));
 
-        //Trade
+        //Trade - various elements of the trade object are not used in these examples so can be hard coded
         Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
         BigDecimal tradeQuantity = BigDecimal.valueOf(1);
         LocalDate tradeDate = LocalDate.of(1900,1,1);
@@ -359,6 +330,7 @@ public final class BondFutureOptionViewUtils {
       csvReader.readNext(); // skip headers
       while ((line = csvReader.readNext()) != null) {
 
+        //Security - various elements of the bond object are not used in these examples so can be hard coded
         String issuerName = line[1];
         String issuerDomicile = line[2];
         String issuerType = "";
