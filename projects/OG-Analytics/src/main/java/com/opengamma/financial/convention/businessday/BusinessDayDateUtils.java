@@ -13,12 +13,62 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Utilities for managing the business day convention.
  * <p>
  * This is a thread-safe static utility class.
  */
+class CacheItem {
+
+  private final Map<LocalDate, Integer> distanceCache = new ConcurrentHashMap<>();
+  private LocalDate minDate = null;
+  private LocalDate maxDate = null;
+
+  public CacheItem(LocalDate minDate, LocalDate maxDate, Calendar calendar) {
+    distanceCache.put(minDate, 0);
+    this.minDate = minDate;
+    this.maxDate = minDate;
+    update(maxDate, calendar);
+  }
+
+  public void update(LocalDate date, Calendar calendar) {
+
+    int minIndex = distanceCache.get(minDate);
+    LocalDate min = minDate;
+    while (!min.isBefore(date)) {
+      min = min.minusDays(1);
+      if (calendar.isWorkingDay(min)) {
+        distanceCache.put(min, --minIndex);
+        minDate = min;
+      }
+    }
+
+    int maxIndex = distanceCache.get(maxDate);
+    LocalDate max = maxDate;
+    while (!max.isAfter(date)) {
+      max = max.plusDays(1);
+      if (calendar.isWorkingDay(max)) {
+        distanceCache.put(max, ++maxIndex);
+        maxDate = max;
+      }
+    }
+  }
+
+  public int getIndex(LocalDate date, Calendar calendar) {
+    while (!calendar.isWorkingDay(date)) {
+      date = date.plusDays(1);
+    }
+    update(date, calendar);
+    return distanceCache.get(date);
+  }
+}
+
 public class BusinessDayDateUtils {
+
+  private static final Map<String, CacheItem> CACHE = new ConcurrentHashMap<>();
 
   /**
    * Restricted constructor.
@@ -92,6 +142,14 @@ public class BusinessDayDateUtils {
       throw new OpenGammaRuntimeException("d2 must be on or after d1: have d1 = " + firstDate + " and d2 = " + secondDate);
     }
     ArgumentChecker.notNull(calendar, "calendar");
+
+    CacheItem cacheItem = CACHE.get(calendar.getName());
+    if (cacheItem == null) {
+      cacheItem = new CacheItem(firstDate, secondDate, calendar);
+      CACHE.put(calendar.getName(), cacheItem);
+    }
+    return cacheItem.getIndex(secondDate, calendar) - cacheItem.getIndex(firstDate, calendar);
+		/* the original OG code
     LocalDate date = firstDate;
     while (!calendar.isWorkingDay(date)) {
       date = date.plusDays(1);
@@ -104,7 +162,7 @@ public class BusinessDayDateUtils {
       }
       date = date.plusDays(1);
     }
-    return count;
+		return count;*/
   }
 
   /**

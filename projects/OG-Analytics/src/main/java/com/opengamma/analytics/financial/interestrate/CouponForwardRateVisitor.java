@@ -5,9 +5,8 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.*;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
 /**
@@ -33,4 +32,13 @@ public class CouponForwardRateVisitor extends InstrumentDerivativeVisitorAdapter
     return (forwardCurve.getDiscountFactor(payment.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(payment.getFixingPeriodEndTime()) - 1) / payment.getFixingAccrualFactor();
   }
 
+  @Override
+  public Double visitFixedCouponAnnuity(final AnnuityCouponFixed fixedCouponAnnuity, final YieldCurveBundle curves) {
+    return 0.0;
+  }
+
+  @Override
+  public Double visitCouponFixed(final CouponFixed payment, final YieldCurveBundle curves) {
+    return 0.0;
+  }
 }

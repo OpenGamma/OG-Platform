@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.instrument.fra;
 
+import com.opengamma.financial.convention.daycount.ActualActualISMA99;
 import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
@@ -85,8 +86,8 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
     ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "index currency different from payment currency");
     _index = index;
     _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(fixingDate, _index.getSpotLag(), calendar);
-    _fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate, index.getTenor(), index.getBusinessDayConvention(), calendar,
-        index.isEndOfMonth());
+    _fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(accrualEndDate, index.getBusinessDayConvention(), calendar,
+                                                              _index.getSpotLag());
     _fixingPeriodAccrualFactor = index.getDayCount().getDayCountFraction(_fixingPeriodStartDate, _fixingPeriodEndDate, calendar);
     _rate = rate;
     _calendar = calendar;
@@ -304,7 +305,7 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curve names are required");
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
+    final DayCount actAct = new ActualActualISMA99();
     final String fundingCurveName = yieldCurveNames[0];
     final String forwardCurveName = yieldCurveNames[1];
     final ZonedDateTime zonedDate = date.toLocalDate().atStartOfDay(ZoneOffset.UTC);
@@ -328,7 +329,7 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least one curve required");
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
+    final DayCount actAct = new ActualActualISMA99();
     final String fundingCurveName = yieldCurveNames[0];
     final String forwardCurveName = yieldCurveNames[1];
     final ZonedDateTime zonedDate = date.toLocalDate().atStartOfDay(ZoneOffset.UTC);
@@ -369,7 +370,7 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
     ArgumentChecker.isTrue(date.isBefore(getFixingDate()), 
         "Do not have any fixing data but are asking for a derivative after the fixing date " + getFixingDate() + " " + date);
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
+    final DayCount actAct = new ActualActualISMA99();
     final ZonedDateTime zonedDate = date.toLocalDate().atStartOfDay(ZoneOffset.UTC);
     final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate(), _calendar);
     // Ibor is not fixed yet, all the details are required.
@@ -384,7 +385,7 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
   public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
+    final DayCount actAct = new ActualActualISMA99();
     final ZonedDateTime zonedDate = date.toLocalDate().atStartOfDay(ZoneOffset.UTC);
     final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate(), _calendar);
     if (date.isAfter(getFixingDate()) || (date.equals(getFixingDate()))) {

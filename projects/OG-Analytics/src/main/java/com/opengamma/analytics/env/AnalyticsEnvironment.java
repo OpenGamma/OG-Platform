@@ -7,6 +7,7 @@ package com.opengamma.analytics.env;
 
 import java.util.Map;
 
+import com.opengamma.financial.convention.daycount.ActualActualISMA99;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.PropertyDefinition;
@@ -14,7 +15,6 @@ import org.joda.beans.PropertyDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.FixedAnnuityDefinitionBuilder;
 import com.opengamma.analytics.financial.instrument.annuity.FloatingAnnuityDefinitionBuilder;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.ArgumentChecker;
 
 import org.joda.beans.Bean;
@@ -45,7 +45,7 @@ public final class AnalyticsEnvironment implements ImmutableBean {
    * </ul>
    */
   public static final AnalyticsEnvironment DEFAULT = AnalyticsEnvironment.builder()
-      .modelDayCount(DayCounts.ACT_ACT_ISDA)
+      .modelDayCount(new ActualActualISMA99())
       .fixedAnnuityDefinitionBuilder(new FixedAnnuityDefinitionBuilder())
       .floatingAnnuityDefinitionBuilder(new FloatingAnnuityDefinitionBuilder())
       .build();

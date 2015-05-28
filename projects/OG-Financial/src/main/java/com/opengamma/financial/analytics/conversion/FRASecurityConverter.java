@@ -6,7 +6,7 @@
 package com.opengamma.financial.analytics.conversion;
 
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -72,8 +72,8 @@ public class FRASecurityConverter extends FinancialSecurityVisitorAdapter<Instru
   @Override
   public ForwardRateAgreementDefinition visitForwardRateAgreementSecurity(final ForwardRateAgreementSecurity security) {
     ArgumentChecker.notNull(security, "security");
-    final ZonedDateTime accrualStartDate = security.getStartDate().atStartOfDay(ZoneId.systemDefault());
-    final ZonedDateTime accrualEndDate = security.getEndDate().atStartOfDay(ZoneId.systemDefault());
+		final ZonedDateTime accrualStartDate = security.getStartDate().atStartOfDay(ZoneOffset.UTC);
+		final ZonedDateTime accrualEndDate = security.getEndDate().atStartOfDay(ZoneOffset.UTC);
     final double notional = security.getAmount();
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCalendars().toArray(new ExternalId[security.getCalendars().size()]));
     final Calendar paymentCalendar = security.getPaymentCalendars() != null ?
@@ -105,7 +105,7 @@ public class FRASecurityConverter extends FinancialSecurityVisitorAdapter<Instru
       return ForwardRateAgreementDefinition.from(accrualStartDate, 
           accrualEndDate, 
           notional,
-          fixingDate.atStartOfDay(ZoneId.systemDefault()),
+					fixingDate.atStartOfDay(ZoneOffset.UTC),
           iborIndex,
           security.getRate(),
           calendar, 

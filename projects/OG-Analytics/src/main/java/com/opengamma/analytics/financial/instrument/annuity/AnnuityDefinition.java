@@ -218,7 +218,10 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
     ArgumentChecker.notNull(date, "date");
     final List<Payment> resultList = new ArrayList<>();
     for (int loopcoupon = 0; loopcoupon < _payments.length; loopcoupon++) {
-      if (!date.isAfter(_payments[loopcoupon].getPaymentDate())) {
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      // !date.isAfter(_payments[loopcoupon].getPaymentDate())
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      if (date.isBefore(_payments[loopcoupon].getPaymentDate())) {
         resultList.add(_payments[loopcoupon].toDerivative(date));
       }
     }
@@ -232,8 +235,11 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
     ArgumentChecker.notNull(indexFixingTS, "index fixing time series");
     final List<Payment> resultList = new ArrayList<>();
     for (final P payment : _payments) {
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      // !date.isAfter(payment.getPaymentDate())
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////
       //TODO check this
-      if (!date.isAfter(payment.getPaymentDate())) {
+      if (date.isBefore(payment.getPaymentDate())) {
         if (payment instanceof InstrumentDefinitionWithData) {
           resultList.add(((InstrumentDefinitionWithData<? extends Payment, DoubleTimeSeries<ZonedDateTime>>) payment).toDerivative(date, indexFixingTS));
         } else {

@@ -57,7 +57,11 @@ public class CouponFixedAccruedCompounding extends Coupon {
     _fixedRate = rate;
     _accrualStartDate = null;
     _accrualEndDate = null;
-    _amount = notional * Math.pow(1 + rate, paymentYearFraction);
+    _amount = notional * getAmount(rate, paymentYearFraction);
+  }
+
+  private double getAmount(final double rate, final double paymentYearFraction) {
+    return Math.pow(1 + rate, paymentYearFraction) - 1;
   }
 
   /**
@@ -73,7 +77,7 @@ public class CouponFixedAccruedCompounding extends Coupon {
     _fixedRate = rate;
     _accrualStartDate = null;
     _accrualEndDate = null;
-    _amount = notional * Math.pow(1 + rate, paymentYearFraction);
+    _amount = notional * getAmount(rate, paymentYearFraction);
   }
 
   /**
@@ -93,7 +97,7 @@ public class CouponFixedAccruedCompounding extends Coupon {
       final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
     _fixedRate = rate;
-    _amount = notional * Math.pow(1 + rate, paymentYearFraction);
+    _amount = notional * getAmount(rate, paymentYearFraction);
     _accrualStartDate = accrualStartDate;
     _accrualEndDate = accrualEndDate;
   }
@@ -112,7 +116,7 @@ public class CouponFixedAccruedCompounding extends Coupon {
       final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate) {
     super(currency, paymentTime, paymentYearFraction, notional);
     _fixedRate = rate;
-    _amount = notional * Math.pow(1 + rate, paymentYearFraction);
+    _amount = notional * getAmount(rate, paymentYearFraction);
     _accrualStartDate = accrualStartDate;
     _accrualEndDate = accrualEndDate;
   }

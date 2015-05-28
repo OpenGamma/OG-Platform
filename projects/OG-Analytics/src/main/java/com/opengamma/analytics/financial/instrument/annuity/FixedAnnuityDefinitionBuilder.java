@@ -79,8 +79,11 @@ public class FixedAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionBuil
     CouponDefinition[] coupons;
     ZonedDateTime[] accrualEndDates = getAccrualEndDates();
     ZonedDateTime startDate = getStartDate();
-    //    startDate = getAccrualPeriodAdjustmentParameters().getBusinessDayConvention().adjustDate(
-    //        getAccrualPeriodAdjustmentParameters().getCalendar(), startDate);
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // uncommented startDate adjustment
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    startDate = getAccrualPeriodAdjustmentParameters().getBusinessDayConvention().adjustDate(
+        getAccrualPeriodAdjustmentParameters().getCalendar(), startDate);
     ZonedDateTime[] accrualStartDates = ScheduleCalculator.getStartDates(startDate, accrualEndDates);
 
     ZonedDateTime[] paymentDates;

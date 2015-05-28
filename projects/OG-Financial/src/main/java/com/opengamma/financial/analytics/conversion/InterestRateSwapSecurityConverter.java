@@ -5,8 +5,15 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedCompoundedONCompounded;
+import com.opengamma.analytics.financial.instrument.payment.*;
+import com.opengamma.analytics.financial.instrument.swap.*;
+import com.opengamma.financial.convention.*;
+import com.opengamma.financial.security.swap.*;
+import com.opengamma.util.money.Currency;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
@@ -27,23 +34,12 @@ import com.opengamma.analytics.financial.instrument.annuity.OffsetType;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexDeposit;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
-import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
-import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
-import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
 import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.curve.ConverterUtils;
-import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
-import com.opengamma.financial.convention.IborIndexConvention;
-import com.opengamma.financial.convention.OvernightIndexConvention;
-import com.opengamma.financial.convention.StubType;
-import com.opengamma.financial.convention.VanillaIborLegConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -62,12 +58,13 @@ import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.irs.NotionalExchange;
 import com.opengamma.financial.security.irs.StubCalculationMethod;
 import com.opengamma.financial.security.lookup.irs.InterestRateSwapNotionalAmountVisitor;
-import com.opengamma.financial.security.swap.FloatingRateType;
-import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
+
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 /**
  *
@@ -102,7 +99,9 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
   @Override
   public InstrumentDefinition<?> visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
     ArgumentChecker.notNull(security, "swap security");
-
+    if (security.getLegs().get(0).getNotional().getCurrency().equals(Currency.BRL)) {
+      return getBrazilianSwapDefinition(security);
+    }
     LocalDate startDate = security.getEffectiveDate();
     LocalDate endDate = security.getUnadjustedMaturityDate();
     AnnuityDefinition<?> payLeg = getAnnuityDefinition(true, startDate, endDate, security.getNotionalExchange(), security.getPayLeg());
@@ -131,18 +130,23 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     final boolean payLegFixed = isLegFixed(swap.getPayLeg(), payLeg);
     final boolean receiveLegFixed = isLegFixed(swap.getReceiveLeg(), receiveLeg);
 
-    if (payLegFixed && !receiveLegFixed && checkPaymentDefinitionType(receiveLeg)) {
+    InterestRateSwapLeg swapSecurityFloatLeg = null;
+
+    if (payLegFixed && !receiveLegFixed) {
       fixedFloatSwap.fixedLegAnnuity = getFixedLegAnnuity(payLeg);
       fixedFloatSwap.floatingLegAnnuity = receiveLeg;
-      fixedFloatSwap.floatingRateType = ((FloatingInterestRateSwapLeg) swap.getReceiveLeg()).getFloatingRateType();
-    } else if (!payLegFixed && receiveLegFixed && checkPaymentDefinitionType(payLeg)) {
+      swapSecurityFloatLeg = swap.getReceiveLeg();
+    } else if (!payLegFixed && receiveLegFixed) {
       fixedFloatSwap.fixedLegAnnuity = getFixedLegAnnuity(receiveLeg);
       fixedFloatSwap.floatingLegAnnuity = payLeg;
-      fixedFloatSwap.floatingRateType = ((FloatingInterestRateSwapLeg) swap.getPayLeg()).getFloatingRateType();
+      swapSecurityFloatLeg = swap.getPayLeg();
     } else {
       return null;
     }
     
+    if (checkPaymentDefinitionType(fixedFloatSwap.floatingLegAnnuity)) {
+      fixedFloatSwap.floatingRateType = ((FloatingInterestRateSwapLeg) swapSecurityFloatLeg).getFloatingRateType();
+    }
     return fixedFloatSwap;
   }
   
@@ -151,7 +155,9 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     FixedFloatSwapHelper fixedFloatSwap = getFixedFloatLeg(swap, payLeg, receiveLeg);
     
     if (fixedFloatSwap != null) {
-      if (fixedFloatSwap.floatingRateType.isIbor()) {
+      if (fixedFloatSwap.floatingRateType == null) {
+        return new SwapCouponFixedCouponDefinition(fixedFloatSwap.fixedLegAnnuity, (AnnuityDefinition<? extends CouponDefinition>) fixedFloatSwap.floatingLegAnnuity);
+      } else if (fixedFloatSwap.floatingRateType.isIbor()) {
         return new SwapFixedIborDefinition(fixedFloatSwap.fixedLegAnnuity, getIborLegAnnuity(fixedFloatSwap.floatingLegAnnuity));
       } else if (fixedFloatSwap.floatingRateType.isOis()) {
         return new SwapFixedONDefinition(fixedFloatSwap.fixedLegAnnuity, getONLegAnnuity(fixedFloatSwap.floatingLegAnnuity));
@@ -309,6 +315,10 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
         index(index).
         resetDateAdjustmentParameters(resetDateParameters).
         resetRelativeTo(floatLeg.getResetDateRelativeTo()).
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////
+            // added the reset frequency
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////
+            resetPeriodFrequency(getTenor(((FloatingInterestRateSwapLeg) leg).getResetPeriodFrequency())).
         fixingDateAdjustmentParameters(fixingDateParameters).
         compoundingMethod(compoundingMethod).
         startStub(startStub).
@@ -638,5 +648,75 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
         rollDateAdjuster = RollConvention.NONE.getRollDateAdjuster(0);
     }
     return rollDateAdjuster;
+  }
+
+  private CouponDefinition createNotionalExchangeCoupon(Currency currency, ZonedDateTime date, double notional) {
+    return new CouponFixedDefinition(currency, date, date, date, 1.0, notional, 1.0);
+  }
+
+  private SwapDefinition getBrazilianSwapDefinition(final InterestRateSwapSecurity swapSecurity) {
+
+    final LocalDate 					effectiveDate	= swapSecurity.getEffectiveDate();
+    final LocalDate 					maturityDate 	= swapSecurity.getUnadjustedMaturityDate();
+    final InterestRateSwapLeg 			payLeg 			= swapSecurity.getPayLeg();
+    final InterestRateSwapLeg 			receiveLeg 		= swapSecurity.getReceiveLeg();
+    final boolean 						payFixed		= payLeg instanceof FixedInterestRateSwapLeg;
+    final FixedInterestRateSwapLeg 		fixedLeg 		= (FixedInterestRateSwapLeg) (payFixed ? payLeg : receiveLeg);
+    final FloatingInterestRateSwapLeg	floatLeg 		= (FloatingInterestRateSwapLeg) (payFixed ? receiveLeg : payLeg);
+
+    final IndexDeposit 	index 		= getONIndex(floatLeg);
+    final Calendar 		calendar 	= new HolidaySourceCalendarAdapter(_holidaySource, floatLeg.getAccrualPeriodCalendars().toArray(new ExternalId[floatLeg.getAccrualPeriodCalendars().size()]));
+    final double 		notional 	= ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
+    final ZonedDateTime effective	= effectiveDate.atStartOfDay(ZoneOffset.UTC);
+    final ZonedDateTime maturity 	= maturityDate.atStartOfDay(ZoneOffset.UTC);
+    final double 		fixedRate 	= fixedLeg.getRate().getInitialRate();
+
+
+    final GeneratorSwapFixedCompoundedONCompounded generator = new GeneratorSwapFixedCompoundedONCompounded(
+        index.getName(),
+        (IndexON)index,
+        fixedLeg.getDayCountConvention(),
+        fixedLeg.getAccrualPeriodBusinessDayConvention(),
+        false,
+        0, // ??
+        0, // ??
+        calendar);
+
+    List<CouponDefinition> fixedCoupons = new ArrayList<>();
+    List<CouponDefinition> floatCoupons = new ArrayList<>();
+
+    NotionalExchange notionalExchange  = swapSecurity.getNotionalExchange();
+
+    ZonedDateTime notionalExchangeDate = notionalExchange.isExchangeInitialNotional() ? effective : (notionalExchange.isExchangeFinalNotional() ? maturity : null);
+
+    if (notionalExchangeDate != null) {
+      fixedCoupons.add(createNotionalExchangeCoupon(generator.getIndex().getCurrency(), notionalExchangeDate, (payFixed ? -1.0 : 1.0) * notional));
+      floatCoupons.add(createNotionalExchangeCoupon(generator.getIndex().getCurrency(), notionalExchangeDate, (payFixed ? 1.0 : -1.0) * notional));
+    }
+
+    final CouponONCompoundedDefinition couponON = CouponONCompoundedDefinition.from(
+        generator,
+        effective,
+        maturity,
+        (payFixed ? 1.0 : -1.0) * notional);
+
+    final CouponFixedAccruedCompoundingDefinition couponFixed = new CouponFixedAccruedCompoundingDefinition(
+        couponON.getCurrency(),
+        couponON.getPaymentDate(),
+        couponON.getAccrualStartDate(),
+        couponON.getAccrualEndDate(),
+        couponON.getPaymentYearFraction(),
+        (payFixed ? -1.0 : 1.0) * notional,
+        fixedRate,
+        calendar);
+
+    fixedCoupons.add(couponFixed);
+
+    floatCoupons.add(couponON);
+
+    return new SwapDefinition(
+        new AnnuityDefinition<>(fixedCoupons.toArray(new CouponDefinition[fixedCoupons.size()]), calendar),
+        new AnnuityDefinition<>(floatCoupons.toArray(new CouponDefinition[floatCoupons.size()]), calendar)
+    );
   }
 }
