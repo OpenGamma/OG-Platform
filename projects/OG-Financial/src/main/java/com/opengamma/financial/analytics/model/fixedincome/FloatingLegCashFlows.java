@@ -155,6 +155,9 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
       if (forwardRates.get(i) != null) {
         builder.forwardRate(forwardRates.get(i));
       }
+      if (fixedRates.get(i) != null) {
+        builder.fixedRate(fixedRates.get(i));
+      }
       cashFlows.add((FloatingCashFlowDetails) builder.build());
     }
     
