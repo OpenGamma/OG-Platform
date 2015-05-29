@@ -58,7 +58,7 @@ import com.opengamma.util.time.Tenor;
 /**
  * Helper methods for testing {@link MarketDataFilter} implementations operating on {@link MulticurveBundle}.
  */
-class MulticurveFilterTestUtils {
+public class MulticurveFilterTestUtils {
 
   static final String USD_DISCOUNTING = "USD Discounting";
   static final String GBP_DISCOUNTING = "GBP Discounting";
