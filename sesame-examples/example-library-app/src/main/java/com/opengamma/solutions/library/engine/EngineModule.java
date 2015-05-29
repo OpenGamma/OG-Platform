@@ -12,7 +12,11 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.opengamma.core.link.ConfigLink;
+import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.security.Security;
+import com.opengamma.financial.currency.CurrencyMatrix;
+import com.opengamma.sesame.bondfuture.BondFutureFn;
 import com.opengamma.sesame.bondfuture.BondFutureFn;
 import com.opengamma.sesame.bondfutureoption.BondFutureOptionFn;
 import com.opengamma.sesame.credit.measures.CreditCs01Fn;
@@ -21,10 +25,13 @@ import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.DefaultEngine;
 import com.opengamma.sesame.engine.Engine;
 import com.opengamma.sesame.engine.ViewFactory;
+import com.opengamma.sesame.fra.FRAFn;
 import com.opengamma.sesame.equityindexoptions.EquityIndexOptionFn;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
-import com.opengamma.sesame.marketdata.EmptyMarketDataFactory;
+import com.opengamma.sesame.irfuture.InterestRateFutureFn;
+import com.opengamma.sesame.irs.InterestRateSwapFn;
+import com.opengamma.sesame.marketdata.SnapshotMarketDataFactory;
 import com.opengamma.sesame.marketdata.builders.MarketDataBuilders;
 import com.opengamma.sesame.marketdata.builders.MarketDataEnvironmentFactory;
 import com.opengamma.sesame.trade.TradeWrapper;
@@ -52,6 +59,9 @@ public class EngineModule extends AbstractModule {
     AvailableOutputs available = new AvailableOutputsImpl(ImmutableSet.of(Security.class, TradeWrapper.class));
     available.register(CreditCs01Fn.class);
     available.register(CreditPvFn.class);
+    available.register(InterestRateSwapFn.class);
+    available.register(FRAFn.class);
+    available.register(InterestRateFutureFn.class);
     available.register(EquityIndexOptionFn.class);
     available.register(BondFutureOptionFn.class);
     available.register(BondFutureFn.class);
@@ -63,11 +73,13 @@ public class EngineModule extends AbstractModule {
    *
    * @param viewFactory the view factory
    * @param marketData the MarketDataEnvironmentFactory
+   * @param service the executor service
    * @return the engine
    */
   @Provides
   @Singleton
-  public Engine createEngine(ViewFactory viewFactory, MarketDataEnvironmentFactory marketData, ExecutorService service) {
+  public Engine createEngine(ViewFactory viewFactory, MarketDataEnvironmentFactory marketData, 
+      ExecutorService service) {
     return new DefaultEngine(viewFactory, marketData, service);
   }
 
@@ -75,12 +87,20 @@ public class EngineModule extends AbstractModule {
    * Create the MarketDataEnvironmentFactory instance
    *
    * @param componentMap the ComponentMap
+   * @param snapshotSource the snapshot source
    * @return the MarketDataEnvironmentFactory
    */
   @Provides
   @Singleton
-  public MarketDataEnvironmentFactory createEngine(ComponentMap componentMap) {
-    return new MarketDataEnvironmentFactory(new EmptyMarketDataFactory(), MarketDataBuilders.raw(componentMap, "BLOOMBERG"));
+  public MarketDataEnvironmentFactory createEngine(ComponentMap componentMap, MarketDataSnapshotSource snapshotSource) {
+    String currencyMatrixName = "CurrencyMatrix";
+    ConfigLink<CurrencyMatrix> currencyMatrixLink  = ConfigLink.resolvable(currencyMatrixName, CurrencyMatrix.class);
+
+    return new MarketDataEnvironmentFactory(
+        new SnapshotMarketDataFactory(snapshotSource), 
+        MarketDataBuilders.raw(componentMap, "DEFAULT"),
+        MarketDataBuilders.multicurve(componentMap, currencyMatrixLink),
+        MarketDataBuilders.fxMatrix());
   }
 
   /**

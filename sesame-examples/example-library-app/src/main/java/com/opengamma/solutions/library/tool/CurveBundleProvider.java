@@ -21,13 +21,22 @@ import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.MulticurveBundle;
+import com.opengamma.sesame.config.ViewConfig;
+import com.opengamma.sesame.engine.CalculationArguments;
 import com.opengamma.sesame.engine.ComponentMap;
+import com.opengamma.sesame.engine.Engine;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
-import com.opengamma.sesame.marketdata.*;
+import com.opengamma.sesame.marketdata.MarketDataEnvironment;
+import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
+import com.opengamma.sesame.marketdata.MarketDataRequirement;
+import com.opengamma.sesame.marketdata.MulticurveId;
+import com.opengamma.sesame.marketdata.ScenarioMarketDataEnvironment;
+import com.opengamma.sesame.marketdata.SingleValueRequirement;
+import com.opengamma.sesame.marketdata.SnapshotMarketDataFactory;
 import com.opengamma.sesame.marketdata.builders.MarketDataBuilder;
 import com.opengamma.sesame.marketdata.builders.MarketDataBuilders;
 import com.opengamma.sesame.marketdata.builders.MarketDataEnvironmentFactory;
-import com.opengamma.sesame.marketdata.scenarios.SinglePerturbationMapping;
+import com.opengamma.sesame.marketdata.scenarios.ScenarioDefinition;
 import com.opengamma.sesame.marketdata.scenarios.SingleScenarioDefinition;
 import com.opengamma.solutions.library.storage.DataLoader;
 import com.opengamma.util.ArgumentChecker;
@@ -35,7 +44,6 @@ import com.opengamma.util.ArgumentChecker;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZonedDateTime;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -48,6 +56,7 @@ public class CurveBundleProvider {
   private final RegionMaster _regionMaster;
   private final ComponentMap _componentMap;
   private final MarketDataSnapshotSource _snapshotSource;
+  private final Engine _engine;
 
   /**
    * Create an instance of the Curve Bundle Provider
@@ -55,17 +64,19 @@ public class CurveBundleProvider {
    * @param regionMaster regions master
    * @param snapshotSource market data snapshot source
    * @param componentMap component map to build the MarketDataEnvironment
-   *
+   * @param engine awesome calculator
    */
   @Inject
   public CurveBundleProvider(DataLoader dataload,
                              RegionMaster regionMaster,
                              MarketDataSnapshotSource snapshotSource,
-                             ComponentMap componentMap) {
+                             ComponentMap componentMap,
+                             Engine engine) {
     _dataload =  ArgumentChecker.notNull(dataload, "dataload");
     _regionMaster = ArgumentChecker.notNull(regionMaster, "regionMaster");
     _componentMap = ArgumentChecker.notNull(componentMap, "componentMap");
     _snapshotSource = ArgumentChecker.notNull(snapshotSource, "snapshotSource");
+    _engine = ArgumentChecker.notNull(engine, "engine");
   }
 
 
@@ -120,4 +131,47 @@ public class CurveBundleProvider {
     return (MulticurveBundle) marketData.getData().get(requirement);
   }
 
+  /**
+   * Return a curve bundle for each scenario, as a ScenarioMarketDataEnvironment, derived from the scenario definition.
+   * 
+   * @param snapshotName the name of the data snapshot
+   * @param valuationTime zone data time valuation time
+   * @param config view configuration of the engine that will run the curve calibration on each scenario
+   * @param scenarioDefinition scenario definition as a list of single scenarios for which the market data will be
+   * calibrated separately
+   * @param trades the list of relevant trades which drives the market data requirements
+   * @return ScenarioMarketDataEnvironment a container for the market data for each single scenario
+   */
+  public ScenarioMarketDataEnvironment buildScenarioMarketDataEnvironment(String snapshotName,
+      ZonedDateTime valuationTime,
+      ViewConfig config,
+      ScenarioDefinition scenarioDefinition,
+      List<?> trades) {
+    _dataload.populateMulticurveData();
+    
+    RegionFileReader.createPopulated(_regionMaster);
+    ServiceContext serviceContext =
+        ThreadLocalServiceContext.getInstance().with(VersionCorrectionProvider.class,
+            new FixedInstantVersionCorrectionProvider(Instant.now()));
+    ThreadLocalServiceContext.init(serviceContext);
+    ManageableMarketDataSnapshot snapshot = _snapshotSource.getSingle(ManageableMarketDataSnapshot.class,
+        snapshotName,
+        VersionCorrection.LATEST);
+    MarketDataSpecification marketDataSpec = UserMarketDataSpecification.of(snapshot.getUniqueId());
+    MarketDataEnvironment suppliedData = 
+        MarketDataEnvironmentBuilder.empty().toBuilder().valuationTime(valuationTime).build();
+    CalculationArguments calculationArguments = CalculationArguments
+        .builder()
+        .marketDataSpecification(marketDataSpec)
+        .valuationTime(valuationTime)
+        .build();
+
+    return _engine.buildScenarioMarketData(
+        config,
+        suppliedData,
+        scenarioDefinition,
+        calculationArguments,
+        trades);
+  }
+  
 }
