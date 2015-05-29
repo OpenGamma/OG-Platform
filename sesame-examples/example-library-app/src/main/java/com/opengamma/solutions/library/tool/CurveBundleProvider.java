@@ -131,9 +131,7 @@ public class CurveBundleProvider {
     return (MulticurveBundle) marketData.getData().get(requirement);
   }
 
-  public ScenarioMarketDataEnvironment buildScenarioMarketDataEnvironment(String bundleName,
-      String snapshotName,
-      String currencyMatrixName,
+  public ScenarioMarketDataEnvironment buildScenarioMarketDataEnvironment(String snapshotName,
       ZonedDateTime valuationTime,
       ViewConfig config,
       ScenarioDefinition scenarioDefinition,
@@ -156,14 +154,13 @@ public class CurveBundleProvider {
         .marketDataSpecification(marketDataSpec)
         .valuationTime(valuationTime)
         .build();
-    ScenarioMarketDataEnvironment resolvedMarketData = _engine.buildScenarioMarketData(
+
+    return _engine.buildScenarioMarketData(
         config,
         suppliedData,
         scenarioDefinition,
         calculationArguments,
         trades);
-
-    return resolvedMarketData;
   }
   
 }
