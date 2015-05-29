@@ -131,6 +131,17 @@ public class CurveBundleProvider {
     return (MulticurveBundle) marketData.getData().get(requirement);
   }
 
+  /**
+   * Return a curve bundle for each scenario, as a ScenarioMarketDataEnvironment, derived from the scenario definition.
+   * 
+   * @param snapshotName the name of the data snapshot
+   * @param valuationTime zone data time valuation time
+   * @param config view configuration of the engine that will run the curve calibration on each scenario
+   * @param scenarioDefinition scenario definition as a list of single scenarios for which the market data will be
+   * calibrated separately
+   * @param trades the list of relevant trades which drives the market data requirements
+   * @return ScenarioMarketDataEnvironment a container for the market data for each single scenario
+   */
   public ScenarioMarketDataEnvironment buildScenarioMarketDataEnvironment(String snapshotName,
       ZonedDateTime valuationTime,
       ViewConfig config,
