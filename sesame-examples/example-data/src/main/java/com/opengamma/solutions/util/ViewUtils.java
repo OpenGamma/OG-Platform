@@ -15,6 +15,10 @@ import org.slf4j.LoggerFactory;
 import com.bethecoder.table.AsciiTableInstance;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
+import com.opengamma.financial.analytics.model.fixedincome.FixedCashFlowDetails;
+import com.opengamma.financial.analytics.model.fixedincome.FixedLegCashFlows;
+import com.opengamma.financial.analytics.model.fixedincome.FloatingCashFlowDetails;
+import com.opengamma.financial.analytics.model.fixedincome.FloatingLegCashFlows;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.sesame.engine.ResultItem;
 import com.opengamma.sesame.engine.ResultRow;
@@ -116,6 +120,65 @@ public final class ViewUtils {
     StringBuilder sb = new StringBuilder(AsciiTableInstance.get().getTable(headers, rows));
     sb.append(System.lineSeparator());
     sb.append("Calculated in ").append(results.getViewTimer().getTotalDuration().toMillis()).append("ms");
+    return sb.toString();
+  }
+
+  /**
+   * Output trade cashflows as an ascii table (1 table per set of cashflows)
+   *
+   * @param results the results
+   */
+  public static String formatCashflows(Results results) {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < results.getRows().size(); i++) {
+      ResultRow row = results.get(i);
+      sb.append(formatCashflows(row));
+    }
+    return sb.toString();
+  }
+
+  /**
+   * Output trade cashflows as an ascii table (1 table per set of cashflows)
+   *
+   * @param resultRow a results row
+   */
+  public static String formatCashflows(ResultRow resultRow) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(formatInput(resultRow.getInput()));
+    for (int j = 0; j < resultRow.getItems().size(); j++) {
+      ResultItem result = resultRow.get(j);
+      if (result.getResult().isSuccess()) {
+        Object value = result.getResult().getValue();
+        if (value instanceof FixedLegCashFlows) {
+          FixedLegCashFlows fixedLegCashFlows = (FixedLegCashFlows) value;
+          String[] headers = new String[]{"start accrual date", "end accrual date", "df", "payment date", "payment amount", "present value", "notional", "fixed rate"};
+          String[][] rows = new String[fixedLegCashFlows.getNumberOfCashFlows()][headers.length];
+          for (int k = 0; k < fixedLegCashFlows.getNumberOfCashFlows(); k++) {
+            FixedCashFlowDetails flowDetails = fixedLegCashFlows.getCashFlowDetails().get(k);
+            rows[k] = new String[]{flowDetails.getAccrualStartDate().toString(), flowDetails.getAccrualEndDate().toString(), String.valueOf(
+                flowDetails.getDf()),
+                flowDetails.getPaymentDate().toString(), flowDetails.getProjectedAmount().toString(), flowDetails.getPresentValue().toString(),
+                flowDetails.getNotional().toString(), String.valueOf(flowDetails.getRate())};
+          }
+          sb.append(new StringBuilder(AsciiTableInstance.get().getTable(headers, rows)));
+        } else if (value instanceof FloatingLegCashFlows) {
+          FloatingLegCashFlows legCashFlows = (FloatingLegCashFlows) value;
+          String[] headers = new String[]{"start accrual date", "end accrual date", "fixing year fraction", "df", "payment date", "payment amount", "present value", "notional", "rate"};
+          String[][] rows = new String[legCashFlows.getNumberOfCashFlows()][headers.length];
+          for (int k = 0; k < legCashFlows.getNumberOfCashFlows(); k++) {
+            FloatingCashFlowDetails flowDetails = legCashFlows.getCashFlowDetails().get(k);
+            rows[k] = new String[]{flowDetails.getAccrualStartDate().toString(), flowDetails.getAccrualEndDate().toString(), String.valueOf(
+                flowDetails.getFixingYearFrac()),
+                String.valueOf(flowDetails.getDf()),
+                flowDetails.getPaymentDate().toString(), flowDetails.getProjectedAmount().toString(),
+                flowDetails.getPresentValue().toString(), flowDetails.getNotional().toString(),
+                // rate can be missing if for instance we have a compounded period containing multiple sub periods
+                String.valueOf(flowDetails.getFixedRate() != null ? flowDetails.getFixedRate() : flowDetails.getForwardRate() != null ? flowDetails.getForwardRate() : "n/a")};
+          }
+          sb.append(new StringBuilder(AsciiTableInstance.get().getTable(headers, rows)));
+        }
+      }
+    }
     return sb.toString();
   }
 
