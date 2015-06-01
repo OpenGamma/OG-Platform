@@ -1,9 +1,8 @@
-package com.opengamma.sesame.web.curves;
+package com.opengamma.sesame.web.pricing;
 
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.gson.Gson;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecificationParser;
@@ -15,13 +14,14 @@ import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.component.ViewRunnerComponentFactory;
+import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.CalculationArguments;
-import com.opengamma.sesame.engine.RemoteViewRunner;
 import com.opengamma.sesame.engine.ResultItem;
 import com.opengamma.sesame.engine.ResultRow;
 import com.opengamma.sesame.engine.Results;
+import com.opengamma.sesame.engine.ViewFactory;
 import com.opengamma.sesame.engine.ViewRunner;
 import com.opengamma.sesame.irs.DefaultInterestRateSwapConverterFn;
 import com.opengamma.sesame.irs.DiscountingInterestRateSwapCalculatorFactory;
@@ -38,6 +38,7 @@ import com.opengamma.sesame.marketdata.SingleValueRequirement;
 import com.opengamma.sesame.marketdata.builders.MarketDataEnvironmentFactory;
 import com.opengamma.sesame.marketdata.scenarios.SingleScenarioDefinition;
 import com.opengamma.sesame.trade.InterestRateSwapTrade;
+import com.opengamma.sesame.web.curves.CurveBundleResource;
 import com.opengamma.util.ArgumentChecker;
 import org.joda.beans.Bean;
 import org.joda.beans.ser.JodaBeanSer;
@@ -48,7 +49,6 @@ import org.threeten.bp.ZonedDateTime;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import java.net.URI;
 import java.util.List;
 import java.util.Set;
 
@@ -64,31 +64,29 @@ import static com.opengamma.sesame.config.ConfigBuilder.implementations;
  * REST endpoint to obtain a curve bundle
  */
 @Path("swappricing/{bundle}/{spec}")
-public class SwapPricingResource  {
+public class SwapPricingResource {
 
-  /** Builds market data in response to specified requirements */
+  /**
+   * Builds market data in response to specified requirements
+   */
   private final MarketDataEnvironmentFactory _environmentFactory;
+
+  private final ViewRunnerComponentFactory _viewRunnerComponentFactory;
 
   private static final Logger s_logger = LoggerFactory.getLogger(CurveBundleResource.class);
 
   /**
-   * @param environmentFactory builds market data in response to specified requirements
-   * @param _viewRunnerComponentFactory
+   * @param environmentFactory         builds market data in response to specified requirements
+   * @param viewRunnerComponentFactory
    */
-  public SwapPricingResource(MarketDataEnvironmentFactory environmentFactory, ViewRunnerComponentFactory _viewRunnerComponentFactory) {
+  public SwapPricingResource(MarketDataEnvironmentFactory environmentFactory, ViewRunnerComponentFactory viewRunnerComponentFactory) {
+    _viewRunnerComponentFactory = ArgumentChecker.notNull(viewRunnerComponentFactory, "viewRunnerFactory");
     _environmentFactory = ArgumentChecker.notNull(environmentFactory, "environmentFactory");
   }
 
-  /**
-   *
-   * @param bundle Curve Construction Config
-   * @param spec Data source
-   * @param input Swap in Body of POST
-   * @return PV
-   */
   @POST
   public String priceSwap(@PathParam("bundle") String bundle,
-                          @PathParam("spec") String spec, String input){
+                          @PathParam("spec") String spec, String input) {
 
     Bean trade = JodaBeanSer.COMPACT.jsonReader().read(input);
 
@@ -103,16 +101,12 @@ public class SwapPricingResource  {
 
     String swapPv = resultItem.getResult().getValue().toString();
 
-    Gson gson = new Gson();
-
     return swapPv;
   }
 
-  private Results getSwapPv(List<InterestRateSwapTrade> portfolio, String spec, String bundle){
+  private Results getSwapPv(List<InterestRateSwapTrade> portfolio, String spec, String bundle) {
 
-
-    ViewRunner viewRunner = new RemoteViewRunner(URI.create("http://localhost:8080/jax"));
-
+    MarketDataEnvironment marketDataEnvironment = MarketDataEnvironmentBuilder.empty();
     MarketDataSpecification marketDataSpec = MarketDataSpecificationParser.parse(spec);
     ZonedDateTime valuationTime = ZonedDateTime.now();
     MarketDataEnvironment suppliedData = MarketDataEnvironmentBuilder.empty();
@@ -137,12 +131,17 @@ public class SwapPricingResource  {
 
     ViewConfig viewConfig = createViewConfig(exposureFns, currencyMatrix);
 
-    Results results = viewRunner.runView(viewConfig,calculationArguments,marketData,portfolio);
+    ViewFactory viewRunnerFactory = _viewRunnerComponentFactory.getViewFactory();
+    ViewRunner viewRunner = (ViewRunner) viewRunnerFactory.createView(viewConfig, EngineUtils.getInputTypes(portfolio));
+
+    Results results = viewRunner.runView(viewConfig, calculationArguments, marketDataEnvironment, portfolio);
+
+
+    // Results results = viewRunner.runView(viewConfig,calculationArguments,marketData,portfolio);
 
     return results;
 
   }
-
 
   private ViewConfig createViewConfig(ConfigLink<ExposureFunctions> exposureConfig, ConfigLink<CurrencyMatrix> currencyMatrixLink) {
     return
@@ -150,15 +149,12 @@ public class SwapPricingResource  {
             "IRS Remote view",
             createInterestRateSwapViewColumn(OutputNames.PRESENT_VALUE,
                 exposureConfig,
-                currencyMatrixLink),
-            createInterestRateSwapViewColumn(OutputNames.PAR_RATE,
-                exposureConfig,
                 currencyMatrixLink));
   }
 
   private ViewColumn createInterestRateSwapViewColumn(String output,
-                                                            ConfigLink<ExposureFunctions> exposureConfig,
-                                                            ConfigLink<CurrencyMatrix> currencyMatrixLink) {
+                                                      ConfigLink<ExposureFunctions> exposureConfig,
+                                                      ConfigLink<CurrencyMatrix> currencyMatrixLink) {
     ArgumentChecker.notNull(output, "output");
     ArgumentChecker.notNull(exposureConfig, "exposureConfig");
     ArgumentChecker.notNull(currencyMatrixLink, "currencyMatrixLink");
@@ -181,6 +177,4 @@ public class SwapPricingResource  {
                     InterestRateSwapConverterFn.class, DefaultInterestRateSwapConverterFn.class,
                     InterestRateSwapCalculatorFactory.class, DiscountingInterestRateSwapCalculatorFactory.class)));
   }
-
-
 }

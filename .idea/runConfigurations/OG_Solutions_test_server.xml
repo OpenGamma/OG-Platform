@@ -3,7 +3,7 @@
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
     <option name="MAIN_CLASS_NAME" value="com.opengamma.component.OpenGammaComponentServer" />
     <option name="VM_PARAMETERS" value="-Dlogback.configurationFile=com/opengamma/util/warn-logback.xml" />
-    <option name="PROGRAM_PARAMETERS" value="classpath:fullstack/fullstack-integration-lx-1-dev.properties" />
+    <option name="PROGRAM_PARAMETERS" value="classpath:custom-config/fullstack/fullstack.properties" />
     <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
     <option name="ALTERNATIVE_JRE_PATH" value="" />
