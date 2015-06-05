@@ -15,6 +15,8 @@ public class QuantileCalculationMethodTest {
   public static final NearestIndexQuantileMethod QUANTILE_NEAREST_INDEX = NearestIndexQuantileMethod.DEFAULT;
   public static final SampleInterpolationQuantileMethod QUANTILE_SAMPLE_INTERPOLATION = 
       SampleInterpolationQuantileMethod.DEFAULT;
+  public static final SamplePlusOneInterpolationQuantileMethod QUANTILE_SAMPLE1_INTERPOLATION = 
+      SamplePlusOneInterpolationQuantileMethod.DEFAULT;
   public static final MidwayInterpolationQuantileMethod QUANTILE_MIDWAY_INTERPOLATION = 
       MidwayInterpolationQuantileMethod.DEFAULT;
 
@@ -59,13 +61,23 @@ public class QuantileCalculationMethodTest {
   }
   
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void interpolation_wrong_quantile_large() {
+  public void interpolation_wrong_quantile_1() {
     QUANTILE_SAMPLE_INTERPOLATION.quantileFromSorted(1.01, SAMPLE_SORTED_100);
   }
   
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void interpolation_wrong_quantile_0() {
     QUANTILE_SAMPLE_INTERPOLATION.quantileFromSorted(0.0, SAMPLE_SORTED_100);
+  }
+  
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void interpolation_wrong_quantile_small() {
+    QUANTILE_SAMPLE_INTERPOLATION.quantileFromSorted(1.0E-4, SAMPLE_SORTED_100);
+  }
+  
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void interpolation_wrong_quantile_large() {
+    QUANTILE_MIDWAY_INTERPOLATION.quantileFromSorted(1.0 - 1.0E-4, SAMPLE_SORTED_100);
   }
   
   @Test
@@ -104,10 +116,9 @@ public class QuantileCalculationMethodTest {
   }
   
   @Test
-  public void index_nearest_0001_100() {
-    double level = 0.001;
-    double quantileExpected = SAMPLE_SORTED_100[0];
-    double quantileComputed = QUANTILE_NEAREST_INDEX.quantileFromSorted(level, SAMPLE_SORTED_100);
+  public void index_nearest_001_100() {
+    double quantileExpected = SAMPLE_SORTED_100[0]; // Java index start at 0.
+    double quantileComputed = QUANTILE_NEAREST_INDEX.quantileFromSorted(0.001, SAMPLE_SORTED_100);
     assertEquals(quantileComputed, quantileExpected, TOLERANCE_QUANTILE);
   }
 
@@ -130,6 +141,20 @@ public class QuantileCalculationMethodTest {
     double pi1 = (double) indexCeil / (double) SAMPLE_SIZE_123;
     double quantileExpected = quantileFloor + (LEVEL - pi) / (pi1 - pi) * (quantileCeil - quantileFloor);
     double quantileComputed = QUANTILE_SAMPLE_INTERPOLATION.quantileFromSorted(LEVEL, SAMPLE_SORTED_123);
+    assertEquals(quantileComputed, quantileExpected, TOLERANCE_QUANTILE);
+  }
+  
+  @Test
+  public void interpolation_samplePlusOne_095_123() {
+    double indexDouble = LEVEL * (SAMPLE_SIZE_123 + 1);
+    int indexCeil = (int) Math.ceil(indexDouble);
+    int indexFloor = (int) Math.floor(indexDouble);
+    double quantileCeil = SAMPLE_SORTED_123[indexCeil - 1]; // Java index start at 0.
+    double quantileFloor = SAMPLE_SORTED_123[indexFloor - 1];
+    double pi = (double) indexFloor / (double) (SAMPLE_SIZE_123 + 1);
+    double pi1 = (double) indexCeil / (double) (SAMPLE_SIZE_123 + 1);
+    double quantileExpected = quantileFloor + (LEVEL - pi) / (pi1 - pi) * (quantileCeil - quantileFloor);
+    double quantileComputed = QUANTILE_SAMPLE1_INTERPOLATION.quantileFromSorted(LEVEL, SAMPLE_SORTED_123);
     assertEquals(quantileComputed, quantileExpected, TOLERANCE_QUANTILE);
   }
   
