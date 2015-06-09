@@ -13,15 +13,12 @@ import com.opengamma.sesame.CurveSelectorMulticurveBundleFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.OutputNames;
-import com.opengamma.sesame.component.ViewRunnerComponentFactory;
-import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.CalculationArguments;
 import com.opengamma.sesame.engine.ResultItem;
 import com.opengamma.sesame.engine.ResultRow;
 import com.opengamma.sesame.engine.Results;
-import com.opengamma.sesame.engine.ViewFactory;
 import com.opengamma.sesame.engine.ViewRunner;
 import com.opengamma.sesame.irs.DefaultInterestRateSwapConverterFn;
 import com.opengamma.sesame.irs.DiscountingInterestRateSwapCalculatorFactory;
@@ -61,7 +58,7 @@ import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 
 /**
- * REST endpoint to obtain a curve bundle
+ * REST endpoint to price a swap
  */
 @Path("swappricing/{bundle}/{spec}")
 public class SwapPricingResource {
@@ -71,16 +68,16 @@ public class SwapPricingResource {
    */
   private final MarketDataEnvironmentFactory _environmentFactory;
 
-  private final ViewRunnerComponentFactory _viewRunnerComponentFactory;
+  private final ViewRunner _viewRunner;
 
   private static final Logger s_logger = LoggerFactory.getLogger(CurveBundleResource.class);
 
   /**
    * @param environmentFactory         builds market data in response to specified requirements
-   * @param viewRunnerComponentFactory
+   * @param viewRunner
    */
-  public SwapPricingResource(MarketDataEnvironmentFactory environmentFactory, ViewRunnerComponentFactory viewRunnerComponentFactory) {
-    _viewRunnerComponentFactory = ArgumentChecker.notNull(viewRunnerComponentFactory, "viewRunnerFactory");
+  public SwapPricingResource(MarketDataEnvironmentFactory environmentFactory, ViewRunner viewRunner) {
+    _viewRunner = ArgumentChecker.notNull(viewRunner, "viewRunnerFactory");
     _environmentFactory = ArgumentChecker.notNull(environmentFactory, "environmentFactory");
   }
 
@@ -88,16 +85,20 @@ public class SwapPricingResource {
   public String priceSwap(@PathParam("bundle") String bundle,
                           @PathParam("spec") String spec, String input) {
 
+    List<InterestRateSwapTrade> portfolio;
+
     Bean trade = JodaBeanSer.COMPACT.jsonReader().read(input);
 
-    List<InterestRateSwapTrade> portfolio =
-        ImmutableList.<InterestRateSwapTrade>of((InterestRateSwapTrade) trade);
-
+    try {
+      portfolio = ImmutableList.<InterestRateSwapTrade>of((InterestRateSwapTrade) trade);
+    } catch(IllegalArgumentException e) {
+      throw new IllegalArgumentException("Error in submitted trade: " + e);
+    }
     Results swapResults = getSwapPv(portfolio, spec, bundle);
 
     ResultRow row = swapResults.get(0);
 
-    ResultItem resultItem = row.get(swapResults.getColumnIndex("Present Value"));
+    ResultItem resultItem = row.get(swapResults.getColumnIndex(OutputNames.PRESENT_VALUE));
 
     String swapPv = resultItem.getResult().getValue().toString();
 
@@ -131,13 +132,8 @@ public class SwapPricingResource {
 
     ViewConfig viewConfig = createViewConfig(exposureFns, currencyMatrix);
 
-    ViewFactory viewRunnerFactory = _viewRunnerComponentFactory.getViewFactory();
-    ViewRunner viewRunner = (ViewRunner) viewRunnerFactory.createView(viewConfig, EngineUtils.getInputTypes(portfolio));
+    Results results = _viewRunner.runView(viewConfig, calculationArguments, marketDataEnvironment, portfolio);
 
-    Results results = viewRunner.runView(viewConfig, calculationArguments, marketDataEnvironment, portfolio);
-
-
-    // Results results = viewRunner.runView(viewConfig,calculationArguments,marketData,portfolio);
 
     return results;
 

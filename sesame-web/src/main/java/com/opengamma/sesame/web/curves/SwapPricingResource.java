@@ -75,7 +75,7 @@ public class SwapPricingResource  {
    * @param environmentFactory builds market data in response to specified requirements
    * @param _viewRunnerComponentFactory
    */
-  public SwapPricingResource(MarketDataEnvironmentFactory environmentFactory, ViewRunnerComponentFactory _viewRunnerComponentFactory) {
+  public SwapPricingResource(MarketDataEnvironmentFactory environmentFactory, ViewRunner _viewRunnerComponentFactory) {
     _environmentFactory = ArgumentChecker.notNull(environmentFactory, "environmentFactory");
   }
 
