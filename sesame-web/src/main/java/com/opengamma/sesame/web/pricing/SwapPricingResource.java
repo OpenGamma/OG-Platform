@@ -114,7 +114,6 @@ public class SwapPricingResource {
 
   private Results getSwapPv(List<InterestRateSwapTrade> portfolio, String spec, String bundle, String exposureFunctions) {
 
-    MarketDataEnvironment marketDataEnvironment = MarketDataEnvironmentBuilder.empty();
     MarketDataSpecification marketDataSpec = MarketDataSpecificationParser.parse(spec);
     ZonedDateTime valuationTime = ZonedDateTime.now();
     MarketDataEnvironment suppliedData = MarketDataEnvironmentBuilder.empty();
@@ -139,7 +138,7 @@ public class SwapPricingResource {
 
     ViewConfig viewConfig = createViewConfig(exposureFns, currencyMatrix);
 
-    Results results = _viewRunner.runView(viewConfig, calculationArguments, marketDataEnvironment, portfolio);
+    Results results = _viewRunner.runView(viewConfig, calculationArguments, marketData, portfolio);
 
 
     return results;
