@@ -46,6 +46,8 @@ import org.threeten.bp.ZonedDateTime;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.List;
 import java.util.Set;
 
@@ -60,7 +62,7 @@ import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 /**
  * REST endpoint to price a swap
  */
-@Path("swappricing/{bundle}/{spec}")
+@Path("swappricing/{bundle}/{spec}/{exposureFns}")
 public class SwapPricingResource {
 
   /**
@@ -70,20 +72,25 @@ public class SwapPricingResource {
 
   private final ViewRunner _viewRunner;
 
+  private final String _currencyMatrix;
+
   private static final Logger s_logger = LoggerFactory.getLogger(CurveBundleResource.class);
 
   /**
    * @param environmentFactory         builds market data in response to specified requirements
    * @param viewRunner
    */
-  public SwapPricingResource(MarketDataEnvironmentFactory environmentFactory, ViewRunner viewRunner) {
+  public SwapPricingResource(MarketDataEnvironmentFactory environmentFactory, ViewRunner viewRunner, String currencyMatrix) {
     _viewRunner = ArgumentChecker.notNull(viewRunner, "viewRunnerFactory");
     _environmentFactory = ArgumentChecker.notNull(environmentFactory, "environmentFactory");
+    _currencyMatrix = currencyMatrix;
   }
 
   @POST
   public String priceSwap(@PathParam("bundle") String bundle,
-                          @PathParam("spec") String spec, String input) {
+                          @PathParam("spec") String spec,
+                          @PathParam("exposureFns") String exposureFns,
+                          String input) throws UnsupportedEncodingException {
 
     List<InterestRateSwapTrade> portfolio;
 
@@ -94,7 +101,7 @@ public class SwapPricingResource {
     } catch(IllegalArgumentException e) {
       throw new IllegalArgumentException("Error in submitted trade: " + e);
     }
-    Results swapResults = getSwapPv(portfolio, spec, bundle);
+    Results swapResults = getSwapPv(portfolio, spec, bundle, URLDecoder.decode(exposureFns,"UTF-8"));
 
     ResultRow row = swapResults.get(0);
 
@@ -105,7 +112,7 @@ public class SwapPricingResource {
     return swapPv;
   }
 
-  private Results getSwapPv(List<InterestRateSwapTrade> portfolio, String spec, String bundle) {
+  private Results getSwapPv(List<InterestRateSwapTrade> portfolio, String spec, String bundle, String exposureFunctions) {
 
     MarketDataEnvironment marketDataEnvironment = MarketDataEnvironmentBuilder.empty();
     MarketDataSpecification marketDataSpec = MarketDataSpecificationParser.parse(spec);
@@ -127,8 +134,8 @@ public class SwapPricingResource {
             .marketDataSpecification(marketDataSpec)
             .build();
 
-    ConfigLink<ExposureFunctions> exposureFns = ConfigLink.resolvable("GBP CSA Exposure Functions For Swaps", ExposureFunctions.class);
-    ConfigLink<CurrencyMatrix> currencyMatrix = ConfigLink.resolvable("BloombergLiveData", CurrencyMatrix.class);
+    ConfigLink<ExposureFunctions> exposureFns = ConfigLink.resolvable(exposureFunctions, ExposureFunctions.class);
+    ConfigLink<CurrencyMatrix> currencyMatrix = ConfigLink.resolvable(_currencyMatrix, CurrencyMatrix.class);
 
     ViewConfig viewConfig = createViewConfig(exposureFns, currencyMatrix);
 
@@ -144,6 +151,21 @@ public class SwapPricingResource {
         configureView(
             "IRS Remote view",
             createInterestRateSwapViewColumn(OutputNames.PRESENT_VALUE,
+                exposureConfig,
+                currencyMatrixLink),
+            createInterestRateSwapViewColumn(OutputNames.PAY_LEG_PRESENT_VALUE,
+                exposureConfig,
+                currencyMatrixLink),
+            createInterestRateSwapViewColumn(OutputNames.RECEIVE_LEG_PRESENT_VALUE,
+                exposureConfig,
+                currencyMatrixLink),
+            createInterestRateSwapViewColumn(OutputNames.PAR_RATE,
+                exposureConfig,
+                currencyMatrixLink),
+            createInterestRateSwapViewColumn(OutputNames.PAY_LEG_CASH_FLOWS,
+                exposureConfig,
+                currencyMatrixLink),
+            createInterestRateSwapViewColumn(OutputNames.RECEIVE_LEG_CASH_FLOWS,
                 exposureConfig,
                 currencyMatrixLink));
   }
