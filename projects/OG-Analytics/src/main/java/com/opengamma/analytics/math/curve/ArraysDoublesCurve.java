@@ -318,6 +318,7 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   public ArraysDoublesCurve(final DoublesPair[] data, final boolean isSorted, final String name) {
     super(name);
     ArgumentChecker.notNull(data, "data");
+    ArgumentChecker.notNull(data, "data");
     _n = data.length;
     _xData = new double[_n];
     _yData = new double[_n];
@@ -409,7 +410,6 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   //-------------------------------------------------------------------------
   @Override
   public synchronized Double[] getXData() {
-    System.out.println("Ran sync code");
     if (_xDataObject != null) {
       return _xDataObject;
     }
@@ -422,7 +422,6 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
 
   @Override
   public synchronized Double[] getYData() {
-    System.out.println("Ran sync code");
     if (_yDataObject != null) {
       return _yDataObject;
     }
