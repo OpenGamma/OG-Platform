@@ -41,7 +41,16 @@ public final class AllDiscountCurvesFilter implements MarketDataFilter, Immutabl
 
   @Override
   public Set<MulticurveMatchDetails> apply(MarketDataId<?> marketDataId) {
-    return ImmutableSet.of();
+    MulticurveId id = (MulticurveId) marketDataId;
+
+    MulticurveMetadata metadata = MulticurveMetadata.forConfiguration(id.resolveConfig());
+    Set<MulticurveMatchDetails> filter = Sets.newHashSet();
+    Set<String> curves = metadata.getDiscountingCurveNames();
+
+    for (String curveName : curves) {
+      filter.add(StandardMatchDetails.multicurve(curveName));
+    }
+    return ImmutableSet.copyOf(filter);
   }
 
   @Override
