@@ -39,8 +39,8 @@ public class AllDiscountCurvesFilterTest {
     Set<MulticurveMatchDetails> discountingMatches = discountingFilter.apply(multicurveId);
     Set<MulticurveMatchDetails> expectedDiscountingMatches =
         ImmutableSet.of(
-            // this is currently empty because the MulticurveMetadata currently does not
-            // hold meta data of whether a curve is a discounting curve
+            StandardMatchDetails.multicurve(MulticurveFilterTestUtils.USD_DISCOUNTING),
+            StandardMatchDetails.multicurve(MulticurveFilterTestUtils.GBP_DISCOUNTING)
         );
     assertEquals(expectedDiscountingMatches, discountingMatches);
   }
