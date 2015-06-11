@@ -5,20 +5,6 @@
  */
 package com.opengamma.sesame.marketdata;
 
-import static com.opengamma.util.result.ResultTestUtils.assertSuccess;
-import static org.mockito.Mockito.mock;
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertTrue;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.testng.annotations.Test;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.ZonedDateTime;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -46,6 +32,19 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.LocalDateRange;
+import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.opengamma.util.result.ResultTestUtils.assertSuccess;
+import static org.mockito.Mockito.mock;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 @Test(groups = TestGroup.UNIT)
 public class FxRateMarketDataBuilderTest {
