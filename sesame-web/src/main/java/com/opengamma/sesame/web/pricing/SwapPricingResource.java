@@ -46,6 +46,7 @@ import org.threeten.bp.ZonedDateTime;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.List;
@@ -62,7 +63,7 @@ import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 /**
  * REST endpoint to price a swap
  */
-@Path("swappricing/{bundle}/{spec}/{exposureFns}")
+@Path("swappricing")
 public class SwapPricingResource {
 
   /**
@@ -80,13 +81,14 @@ public class SwapPricingResource {
    * @param environmentFactory         builds market data in response to specified requirements
    * @param viewRunner
    */
-  public SwapPricingResource(MarketDataEnvironmentFactory environmentFactory, ViewRunner viewRunner, String currencyMatrix) {
+  public SwapPricingResource(MarketDataEnvironmentFactory environmentFactory, ViewRunner viewRunner, String currencyMatrix){
     _viewRunner = ArgumentChecker.notNull(viewRunner, "viewRunnerFactory");
     _environmentFactory = ArgumentChecker.notNull(environmentFactory, "environmentFactory");
     _currencyMatrix = currencyMatrix;
   }
 
   @POST
+  @Path("{bundle}/{spec}/{exposureFns}")
   public String priceSwap(@PathParam("bundle") String bundle,
                           @PathParam("spec") String spec,
                           @PathParam("exposureFns") String exposureFns,
@@ -110,6 +112,28 @@ public class SwapPricingResource {
     String swapPv = resultItem.getResult().getValue().toString();
 
     return swapPv;
+  }
+
+  @POST
+  @Path("json/{bundle}/{spec}/{exposureFns}")
+  @Produces("application/json")
+  public String priceSwapJson(@PathParam("bundle") String bundle,
+                          @PathParam("spec") String spec,
+                          @PathParam("exposureFns") String exposureFns,
+                          String input) throws UnsupportedEncodingException{
+
+    List<InterestRateSwapTrade> portfolio;
+    Bean trade = JodaBeanSer.COMPACT.jsonReader().read(input);
+
+    try {
+      portfolio = ImmutableList.<InterestRateSwapTrade>of((InterestRateSwapTrade) trade);
+    } catch(IllegalArgumentException e) {
+      throw new IllegalArgumentException("Error in submitted trade: " + e);
+    }
+    Results swapResults = getSwapPv(portfolio, spec, bundle, URLDecoder.decode(exposureFns,"UTF-8"));
+    String res = JodaBeanSer.PRETTY.jsonWriter().write(swapResults);
+    return res;
+
   }
 
   private Results getSwapPv(List<InterestRateSwapTrade> portfolio, String spec, String bundle, String exposureFunctions) {
