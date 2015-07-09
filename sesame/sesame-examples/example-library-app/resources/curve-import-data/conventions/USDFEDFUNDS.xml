@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.convention.OvernightIndexConvention">
+ <externalIdBundle>
+  <externalIds>
+   <item>CONVENTION~USDFEDFUNDS</item>
+  </externalIds>
+ </externalIdBundle>
+ <attributes/>
+ <name>USDFEDFUNDS</name>
+ <dayCount>Actual/360</dayCount>
+ <publicationLag>1</publicationLag>
+ <currency>USD</currency>
+ <regionCalendar>FINANCIAL_REGION~US</regionCalendar>
+</bean>

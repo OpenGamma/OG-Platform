@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.analytics.curve.CurveConstructionConfiguration">
+ <name>USD_FF_DSCON-OISFFS_L3M-FRAIRS_L1M-BS_L6M-BS</name>
+ <curveGroups>
+  <item>
+   <order>0</order>
+   <typesForCurves>
+    <entry key="USD-FRAL3M-IRSL3M-NCS">
+     <item type="IborCurveTypeConfiguration">
+      <convention>OG_TICKER~USDLIBOR3M</convention>
+      <tenor>P3M</tenor>
+     </item>
+    </entry>
+    <entry key="USD-OIS-FFS-NCS">
+     <item type="DiscountingCurveTypeConfiguration">
+      <reference>USD</reference>
+     </item>
+     <item type="OvernightCurveTypeConfiguration">
+      <convention>OG_TICKER~USDFEDFUNDS</convention>
+     </item>
+    </entry>
+   </typesForCurves>
+  </item>
+  <item>
+   <order>2</order>
+   <typesForCurves>
+    <entry key="USD-FRAL6M-BSL3ML6M-NCS">
+     <item type="IborCurveTypeConfiguration">
+      <convention>OG_TICKER~USDLIBOR6M</convention>
+      <tenor>P6M</tenor>
+     </item>
+    </entry>
+   </typesForCurves>
+  </item>
+  <item>
+   <order>3</order>
+   <typesForCurves>
+    <entry key="USD-IRSL1M-BSL1ML3M-NCS">
+     <item type="IborCurveTypeConfiguration">
+      <convention>OG_TICKER~USDLIBOR1M</convention>
+      <tenor>P1M</tenor>
+     </item>
+    </entry>
+   </typesForCurves>
+  </item>
+ </curveGroups>
+ <exogenousConfigurations/>
+</bean>

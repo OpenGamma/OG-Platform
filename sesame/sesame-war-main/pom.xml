@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.opengamma.platform</groupId>
+    <artifactId>og-platform-public</artifactId>
+    <version>2.17.0-SNAPSHOT</version>
+    <relativePath></relativePath>
+  </parent>
+  <artifactId>sesame-war-main</artifactId>
+  <packaging>war</packaging>
+  <name>Sesame-War-Main</name>
+  <description>Main war file for the calculation engine</description>
+
+  <!-- ==================================================================== -->
+  <inceptionYear>2014</inceptionYear>
+  <licenses>
+    <license>
+      <name>Proprietary OpenGamma licensing</name>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <!-- ==================================================================== -->
+  <!-- override to ensure deployment to dedicated repository -->
+  <distributionManagement>
+    <repository>
+      <id>og-sesame-release</id>
+      <name>OpenGamma sesame maven repository</name>
+      <url>${og-sesame-release.url}</url>
+    </repository>
+    <snapshotRepository>
+      <id>og-sesame-snapshot</id>
+      <name>OpenGamma sesame snapshot maven repository</name>
+      <url>${og-sesame-snapshot.url}</url>
+    </snapshotRepository>
+  </distributionManagement>
+
+  <!-- ==================================================================== -->
+  <dependencies>
+    <!-- OpenGamma dependencies -->
+    <dependency>
+      <groupId>com.opengamma.platform</groupId>
+      <artifactId>sesame-web</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
+  <properties>
+    <failOnMissingWebXml></failOnMissingWebXml>
+  </properties>
+</project>

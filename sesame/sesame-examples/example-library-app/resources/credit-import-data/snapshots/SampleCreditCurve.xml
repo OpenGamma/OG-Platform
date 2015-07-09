@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.analytics.isda.credit.CreditCurveDataSnapshot">
+   <name>Sample Credit Curve</name>
+   <creditCurves>
+      <entry>
+         <item>
+            <curveName>Pepsico Inc</curveName>
+            <currency>USD</currency>
+            <seniority>SNRFOR</seniority>
+            <restructuring>XR</restructuring>
+         </item>
+         <item>
+            <curveConventionLink type="com.opengamma.core.link.ResolvedConventionLink">
+               <convention type="com.opengamma.financial.convention.IsdaCreditCurveConvention">
+                  <externalIdBundle>
+                     <externalIds/>
+                  </externalIdBundle>
+                  <attributes/>
+                  <name>USD Isda Credit Curve Convention</name>
+                  <stepIn>1</stepIn>
+                  <cashSettle>3</cashSettle>
+                  <payAccOnDefault>true</payAccOnDefault>
+                  <couponInterval>P3M</couponInterval>
+                  <stubType>FRONTSHORT</stubType>
+                  <protectFromStartOfDay>true</protectFromStartOfDay>
+                  <businessDayConvention>Following</businessDayConvention>
+                  <regionId>FINANCIAL_REGION~US</regionId>
+                  <accrualDayCount>Actual/360</accrualDayCount>
+                  <curveDayCount>Actual/365</curveDayCount>
+               </convention>
+            </curveConventionLink>
+            <cdsQuotes>
+               <entry key="P6M" type="ParSpreadQuote">
+                  <parSpread>0.002</parSpread>
+               </entry>
+               <entry key="P1Y" type="ParSpreadQuote">
+                  <parSpread>0.004</parSpread>
+               </entry>
+               <entry key="P2Y" type="ParSpreadQuote">
+                  <parSpread>0.006</parSpread>
+               </entry>
+               <entry key="P3Y" type="ParSpreadQuote">
+                  <parSpread>0.008</parSpread>
+               </entry>
+               <entry key="P4Y" type="ParSpreadQuote">
+                  <parSpread>0.01</parSpread>
+               </entry>
+               <entry key="P5Y" type="ParSpreadQuote">
+                  <parSpread>0.012</parSpread>
+               </entry>
+               <entry key="P7Y" type="ParSpreadQuote">
+                  <parSpread>0.014</parSpread>
+               </entry>
+               <entry key="P10Y" type="ParSpreadQuote">
+                  <parSpread>0.016</parSpread>
+               </entry>
+               <entry key="P20Y" type="ParSpreadQuote">
+                  <parSpread>0.018</parSpread>
+               </entry>
+               <entry key="P30Y" type="ParSpreadQuote">
+                  <parSpread>0.02</parSpread>
+               </entry>
+            </cdsQuotes>
+            <recoveryRate>0.4</recoveryRate>
+         </item>
+      </entry>
+      <entry>
+         <item>
+            <curveName>Hess Corp</curveName>
+            <currency>USD</currency>
+            <seniority>SNRFOR</seniority>
+            <restructuring>XR</restructuring>
+         </item>
+         <item>
+            <curveConventionLink type="ResolvedConventionLink">
+               <convention type="IsdaCreditCurveConvention">
+                  <externalIdBundle>
+                     <externalIds/>
+                  </externalIdBundle>
+                  <attributes/>
+                  <name>USD Isda Credit Curve Convention</name>
+                  <stepIn>1</stepIn>
+                  <cashSettle>3</cashSettle>
+                  <payAccOnDefault>true</payAccOnDefault>
+                  <couponInterval>P3M</couponInterval>
+                  <stubType>FRONTSHORT</stubType>
+                  <protectFromStartOfDay>true</protectFromStartOfDay>
+                  <businessDayConvention>Following</businessDayConvention>
+                  <regionId>FINANCIAL_REGION~US</regionId>
+                  <accrualDayCount>Actual/360</accrualDayCount>
+                  <curveDayCount>Actual/365</curveDayCount>
+               </convention>
+            </curveConventionLink>
+            <cdsQuotes>
+               <entry key="P6M" type="ParSpreadQuote">
+                  <parSpread>0.002</parSpread>
+               </entry>
+               <entry key="P1Y" type="ParSpreadQuote">
+                  <parSpread>0.004</parSpread>
+               </entry>
+               <entry key="P2Y" type="ParSpreadQuote">
+                  <parSpread>0.006</parSpread>
+               </entry>
+               <entry key="P3Y" type="ParSpreadQuote">
+                  <parSpread>0.008</parSpread>
+               </entry>
+               <entry key="P4Y" type="ParSpreadQuote">
+                  <parSpread>0.01</parSpread>
+               </entry>
+               <entry key="P5Y" type="ParSpreadQuote">
+                  <parSpread>0.012</parSpread>
+               </entry>
+               <entry key="P7Y" type="ParSpreadQuote">
+                  <parSpread>0.014</parSpread>
+               </entry>
+               <entry key="P10Y" type="ParSpreadQuote">
+                  <parSpread>0.016</parSpread>
+               </entry>
+               <entry key="P20Y" type="ParSpreadQuote">
+                  <parSpread>0.018</parSpread>
+               </entry>
+               <entry key="P30Y" type="ParSpreadQuote">
+                  <parSpread>0.02</parSpread>
+               </entry>
+            </cdsQuotes>
+            <recoveryRate>0.4</recoveryRate>
+         </item>
+      </entry>
+      <entry>
+         <item>
+            <curveName>Alcoa Inc</curveName>
+            <currency>USD</currency>
+            <seniority>SNRFOR</seniority>
+            <restructuring>XR</restructuring>
+         </item>
+         <item>
+            <curveConventionLink type="ResolvedConventionLink">
+               <convention type="IsdaCreditCurveConvention">
+                  <externalIdBundle>
+                     <externalIds/>
+                  </externalIdBundle>
+                  <attributes/>
+                  <name>USD Isda Credit Curve Convention</name>
+                  <stepIn>1</stepIn>
+                  <cashSettle>3</cashSettle>
+                  <payAccOnDefault>true</payAccOnDefault>
+                  <couponInterval>P3M</couponInterval>
+                  <stubType>FRONTSHORT</stubType>
+                  <protectFromStartOfDay>true</protectFromStartOfDay>
+                  <businessDayConvention>Following</businessDayConvention>
+                  <regionId>FINANCIAL_REGION~US</regionId>
+                  <accrualDayCount>Actual/360</accrualDayCount>
+                  <curveDayCount>Actual/365</curveDayCount>
+               </convention>
+            </curveConventionLink>
+            <cdsQuotes>
+               <entry key="P6M" type="ParSpreadQuote">
+                  <parSpread>0.002</parSpread>
+               </entry>
+               <entry key="P1Y" type="ParSpreadQuote">
+                  <parSpread>0.004</parSpread>
+               </entry>
+               <entry key="P2Y" type="ParSpreadQuote">
+                  <parSpread>0.006</parSpread>
+               </entry>
+               <entry key="P3Y" type="ParSpreadQuote">
+                  <parSpread>0.008</parSpread>
+               </entry>
+               <entry key="P4Y" type="ParSpreadQuote">
+                  <parSpread>0.01</parSpread>
+               </entry>
+               <entry key="P5Y" type="ParSpreadQuote">
+                  <parSpread>0.012</parSpread>
+               </entry>
+               <entry key="P7Y" type="ParSpreadQuote">
+                  <parSpread>0.014</parSpread>
+               </entry>
+               <entry key="P10Y" type="ParSpreadQuote">
+                  <parSpread>0.016</parSpread>
+               </entry>
+               <entry key="P20Y" type="ParSpreadQuote">
+                  <parSpread>0.018</parSpread>
+               </entry>
+               <entry key="P30Y" type="ParSpreadQuote">
+                  <parSpread>0.02</parSpread>
+               </entry>
+            </cdsQuotes>
+            <recoveryRate>0.4</recoveryRate>
+         </item>
+      </entry>
+      <entry>
+         <item>
+            <curveName>CocaCola Co</curveName>
+            <currency>USD</currency>
+            <seniority>SNRFOR</seniority>
+            <restructuring>XR</restructuring>
+         </item>
+         <item>
+            <curveConventionLink type="ResolvedConventionLink">
+               <convention type="IsdaCreditCurveConvention">
+                  <externalIdBundle>
+                     <externalIds/>
+                  </externalIdBundle>
+                  <attributes/>
+                  <name>USD Isda Credit Curve Convention</name>
+                  <stepIn>1</stepIn>
+                  <cashSettle>3</cashSettle>
+                  <payAccOnDefault>true</payAccOnDefault>
+                  <couponInterval>P3M</couponInterval>
+                  <stubType>FRONTSHORT</stubType>
+                  <protectFromStartOfDay>true</protectFromStartOfDay>
+                  <businessDayConvention>Following</businessDayConvention>
+                  <regionId>FINANCIAL_REGION~US</regionId>
+                  <accrualDayCount>Actual/360</accrualDayCount>
+                  <curveDayCount>Actual/365</curveDayCount>
+               </convention>
+            </curveConventionLink>
+            <cdsQuotes>
+               <entry key="P6M" type="ParSpreadQuote">
+                  <parSpread>0.002</parSpread>
+               </entry>
+               <entry key="P1Y" type="ParSpreadQuote">
+                  <parSpread>0.004</parSpread>
+               </entry>
+               <entry key="P2Y" type="ParSpreadQuote">
+                  <parSpread>0.006</parSpread>
+               </entry>
+               <entry key="P3Y" type="ParSpreadQuote">
+                  <parSpread>0.008</parSpread>
+               </entry>
+               <entry key="P4Y" type="ParSpreadQuote">
+                  <parSpread>0.01</parSpread>
+               </entry>
+               <entry key="P5Y" type="ParSpreadQuote">
+                  <parSpread>0.012</parSpread>
+               </entry>
+               <entry key="P7Y" type="ParSpreadQuote">
+                  <parSpread>0.014</parSpread>
+               </entry>
+               <entry key="P10Y" type="ParSpreadQuote">
+                  <parSpread>0.016</parSpread>
+               </entry>
+               <entry key="P20Y" type="ParSpreadQuote">
+                  <parSpread>0.018</parSpread>
+               </entry>
+               <entry key="P30Y" type="ParSpreadQuote">
+                  <parSpread>0.02</parSpread>
+               </entry>
+            </cdsQuotes>
+            <recoveryRate>0.4</recoveryRate>
+         </item>
+      </entry>
+   </creditCurves>
+</bean>
