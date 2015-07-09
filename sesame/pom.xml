@@ -5,19 +5,13 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <!--
-    This POM is a build script solely intended to allow the specified modules to be managed as one
-    No artifact is deployed or installed
-  -->
   <parent>
-    <groupId>com.opengamma</groupId>
-    <artifactId>corporate-parent</artifactId>
-    <version>1.1.8</version>
-    <relativePath></relativePath>
+    <groupId>com.opengamma.platform</groupId>
+    <artifactId>og-platform</artifactId>
+    <version>2.17.0-SNAPSHOT</version>
+    <relativePath>..</relativePath>
   </parent>  
-  <groupId>com.opengamma.platform</groupId>
   <artifactId>sesame-dev</artifactId>
-  <version>2.17.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Sesame-Dev</name>
   <description>OpenGamma Sesame aggregator project</description>
@@ -26,15 +20,11 @@
   <inceptionYear>2013</inceptionYear>
   <licenses>
     <license>
-      <name>Proprietary OpenGamma licensing</name>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
-  <scm>
-    <connection>scm:git:https://github.com/OpenGamma/Sesame.git</connection>
-    <developerConnection>scm:git:https://github.com/OpenGamma/Sesame.git</developerConnection>
-    <url>https://github.com/OpenGamma/Sesame</url>
-  </scm>
 
   <!-- ==================================================================== -->
   <modules>
@@ -85,11 +75,15 @@
 
   <!-- ==================================================================== -->
   <properties>
+    <!-- Version properties -->
+    <maven-checkstyle-plugin.version>2.10</maven-checkstyle-plugin.version><!-- downgrade to fix site plugin -->
     <!-- Properties for maven-javadoc-plugin -->
-    <windowtitle>OpenGamma Sesame project Engine API</windowtitle>
-    <doctitle><![CDATA[<h1>OpenGamma Sesame project Engine API</h1>]]></doctitle>
-    <header><![CDATA[<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\\\(","\\\\)"] ],processEscapes: true} });</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>]]></header>
-    <bottom><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>Additional documentation can be found at <a href="http://docs.opengamma.com">docs.opengamma.com</a>.</i>]]></bottom>
+    <windowtitle>OpenGamma Platform, Sesame subproject API</windowtitle>
+    <doctitle><![CDATA[<h1>OpenGamma Platform, Sesame subproject API</h1>]]></doctitle>
+    <javadoc.footer.license>Released under the Apache License, Version 2.0</javadoc.footer.license>
+    <!-- Properties for clirr-maven-plugin -->
+    <clirr-maven-plugin.version>2.6.1</clirr-maven-plugin.version>
+    <comparisonVersion>2.1.0</comparisonVersion>
     <!-- Properties for maven-install-plugin -->
     <maven.install.skip>true</maven.install.skip>
     <!-- Properties for maven-deploy-plugin -->
