@@ -74,9 +74,9 @@ public class MappingIsdaCompliantYieldCurveFn implements IsdaCompliantYieldCurve
       Double[] rawRates = ((DiscountCurve) curve).getCurve().getYData();
 
       // Convert discount factors
-      Double zeroRates[] = new Double[rawRates.length];
+      Double[] zeroRates = new Double[rawRates.length];
       for (int i = 0; i < rawRates.length; ++i) {
-        if (tenors[i] <= 0 ) {
+        if (tenors[i] <= 0) {
           throw new IllegalArgumentException("Mapping to the ISDA compliant yield curve does not handle time <= 0");
         }
         zeroRates[i] = -Math.log(rawRates[i]) / tenors[i];

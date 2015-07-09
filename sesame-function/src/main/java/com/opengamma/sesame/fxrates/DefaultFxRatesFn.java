@@ -63,6 +63,6 @@ public class DefaultFxRatesFn implements FxRatesFn {
 
   @Override
   public Result<Map<Currency, Double>> getFxRates(Environment env, TradeWrapper trade) {
-    return getFxRates(env, trade.getSecurity()) ;
+    return getFxRates(env, trade.getSecurity());
   }
 }

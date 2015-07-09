@@ -143,7 +143,7 @@ public class DefaultEquityIndexOptionFn implements EquityIndexOptionFn {
         CurveMatrixLabeller labeller = new CurveMatrixLabeller(dayBuilder.build());
         DoubleLabelledMatrix1D doubleLabelledMatrix1D =
             labeller.labelMatrix(sensitivity.multipliedBy(BP).getSensitivity(name));
-        ImmutableMap.of(Pairs.of(name, currency),doubleLabelledMatrix1D);
+        ImmutableMap.of(Pairs.of(name, currency), doubleLabelledMatrix1D);
         return Result.success(BucketedCurveSensitivities.of(ImmutableMap.of(Pairs.of(name, currency),
                                                                             doubleLabelledMatrix1D)));
       } else {

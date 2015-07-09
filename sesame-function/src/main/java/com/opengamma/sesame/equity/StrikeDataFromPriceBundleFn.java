@@ -79,7 +79,7 @@ public class StrikeDataFromPriceBundleFn implements StaticReplicationDataBundleF
       Double[] strikeData = rawSurface.getYData();
       Double[] volData = new Double[priceData.length];
 
-      for (int i = 0; i < priceData.length; i ++) {
+      for (int i = 0; i < priceData.length; i++) {
 
         double timeToExpiry = timeData[i];
         double optionPrice = priceData[i];
@@ -92,7 +92,7 @@ public class StrikeDataFromPriceBundleFn implements StaticReplicationDataBundleF
                                                                 strikeData[i],
                                                                 timeToExpiry,
                                                                 isCall);
-        } catch(Exception e) {
+        } catch (Exception e) {
           return Result.failure(FailureStatus.INVALID_INPUT, e,
                                 "Error constructing surface {} for price {} and strike {} at maturity {}. {}",
                                 volId, optionPrice, strikeData[i], timeToExpiry, e.getMessage());

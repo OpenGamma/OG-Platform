@@ -81,7 +81,7 @@ public class SwapPricingResource {
    * @param environmentFactory         builds market data in response to specified requirements
    * @param viewRunner
    */
-  public SwapPricingResource(MarketDataEnvironmentFactory environmentFactory, ViewRunner viewRunner, String currencyMatrix){
+  public SwapPricingResource(MarketDataEnvironmentFactory environmentFactory, ViewRunner viewRunner, String currencyMatrix) {
     _viewRunner = ArgumentChecker.notNull(viewRunner, "viewRunnerFactory");
     _environmentFactory = ArgumentChecker.notNull(environmentFactory, "environmentFactory");
     _currencyMatrix = currencyMatrix;
@@ -100,10 +100,10 @@ public class SwapPricingResource {
 
     try {
       portfolio = ImmutableList.<InterestRateSwapTrade>of((InterestRateSwapTrade) trade);
-    } catch(IllegalArgumentException e) {
+    } catch (IllegalArgumentException e) {
       throw new IllegalArgumentException("Error in submitted trade: " + e);
     }
-    Results swapResults = getSwapPv(portfolio, spec, bundle, URLDecoder.decode(exposureFns,"UTF-8"));
+    Results swapResults = getSwapPv(portfolio, spec, bundle, URLDecoder.decode(exposureFns, "UTF-8"));
 
     ResultRow row = swapResults.get(0);
 
@@ -120,17 +120,17 @@ public class SwapPricingResource {
   public String priceSwapJson(@PathParam("bundle") String bundle,
                           @PathParam("spec") String spec,
                           @PathParam("exposureFns") String exposureFns,
-                          String input) throws UnsupportedEncodingException{
+                          String input) throws UnsupportedEncodingException {
 
     List<InterestRateSwapTrade> portfolio;
     Bean trade = JodaBeanSer.COMPACT.jsonReader().read(input);
 
     try {
       portfolio = ImmutableList.<InterestRateSwapTrade>of((InterestRateSwapTrade) trade);
-    } catch(IllegalArgumentException e) {
+    } catch (IllegalArgumentException e) {
       throw new IllegalArgumentException("Error in submitted trade: " + e);
     }
-    Results swapResults = getSwapPv(portfolio, spec, bundle, URLDecoder.decode(exposureFns,"UTF-8"));
+    Results swapResults = getSwapPv(portfolio, spec, bundle, URLDecoder.decode(exposureFns, "UTF-8"));
     String res = JodaBeanSer.PRETTY.jsonWriter().write(swapResults);
     return res;
 
