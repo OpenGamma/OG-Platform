@@ -1,4 +1,4 @@
-OpenGamma Platform 2.8
-----------------------
+OpenGamma Platform
+------------------
 
-This is the v2.8 release of the platform.
+Release notes added here.
