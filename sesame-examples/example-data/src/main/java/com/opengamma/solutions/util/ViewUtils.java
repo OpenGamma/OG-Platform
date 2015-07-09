@@ -71,7 +71,7 @@ public final class ViewUtils {
         Pair pair = (Pair) entry.getKey();
         DoubleLabelledMatrix1D matrix = (DoubleLabelledMatrix1D) sensitivities.get(pair);
         System.out.println("  " + pair.getFirst().toString() + ": " + pair.getSecond().toString());
-        for (int i=0; i < matrix.getLabels().length; i++) {
+        for (int i = 0; i < matrix.getLabels().length; i++) {
           System.out.println("    " + matrix.getLabels()[i].toString() + ": " + matrix.getValues()[i]);
         }
       }
@@ -100,20 +100,20 @@ public final class ViewUtils {
           Object value = result.getResult().getValue();
           if (value instanceof BucketedCurveSensitivities) {
             Map<Pair<String, Currency>, DoubleLabelledMatrix1D> sensitivities = ((BucketedCurveSensitivities) value).getSensitivities();
-            rows[i][j+1] = "";
+            rows[i][j + 1] = "";
             for (Map.Entry<Pair<String, Currency>, DoubleLabelledMatrix1D> entry : sensitivities.entrySet()) {
-              rows[i][j+1] += entry.getKey().toString() + " - ";
+              rows[i][j + 1] += entry.getKey().toString() + " - ";
               DoubleLabelledMatrix1D matrix = entry.getValue();
 
-              for (int k =0; k < matrix.getLabels().length; k++) {
-                rows[i][j+1] += matrix.getLabels()[k].toString() + ":" + matrix.getValues()[k] + ", ";
+              for (int k = 0; k < matrix.getLabels().length; k++) {
+                rows[i][j + 1] += matrix.getLabels()[k].toString() + ":" + matrix.getValues()[k] + ", ";
               }
             }
           } else {
-            rows[i][j+1] = result.getResult().getValue().toString();
+            rows[i][j + 1] = result.getResult().getValue().toString();
           }
         } else {
-          rows[i][j+1] = "[FAIL] " + result.getResult().getFailureMessage();
+          rows[i][j + 1] = "[FAIL] " + result.getResult().getFailureMessage();
         }
       }
     }

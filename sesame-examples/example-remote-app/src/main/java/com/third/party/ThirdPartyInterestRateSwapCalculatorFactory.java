@@ -34,7 +34,7 @@ public class ThirdPartyInterestRateSwapCalculatorFactory implements InterestRate
 
   @Override
   public Result<InterestRateSwapCalculator> createCalculator(Environment environment, InterestRateSwapTrade trade) {
-      Result<MulticurveBundle> bundleResult = _discountingMulticurveCombinerFn.getMulticurveBundle(environment,trade);
+    Result<MulticurveBundle> bundleResult = _discountingMulticurveCombinerFn.getMulticurveBundle(environment, trade);
 
     if (bundleResult.isSuccess()) {
       InterestRateSwapCalculator calculator = new ThirdPartyInterestRateSwapCalculator(trade.getSecurity(),

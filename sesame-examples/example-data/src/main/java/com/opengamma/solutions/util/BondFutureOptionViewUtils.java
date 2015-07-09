@@ -136,8 +136,7 @@ public final class BondFutureOptionViewUtils {
             column(OutputNames.VEGA, output(OutputNames.VEGA, BondFutureOptionTrade.class)),
             column(OutputNames.THETA, output(OutputNames.THETA, BondFutureOptionTrade.class)),
             column(OutputNames.PV01, output(OutputNames.PV01, BondFutureOptionTrade.class)),
-            column(OutputNames.BUCKETED_PV01, output(OutputNames.BUCKETED_PV01, BondFutureOptionTrade.class))
-        );
+            column(OutputNames.BUCKETED_PV01, output(OutputNames.BUCKETED_PV01, BondFutureOptionTrade.class)));
   }
 
   /**
@@ -150,14 +149,14 @@ public final class BondFutureOptionViewUtils {
   public static void parseCurves(MarketDataEnvironmentBuilder builder, String discountingFile, String issuerFile) throws IOException {
     MulticurveProviderDiscount multicurve = new MulticurveProviderDiscount();
     Map<String, CurveUtils.CurveRawData> discountingCurves = CurveUtils.parseCurves(discountingFile);
-    for(Map.Entry<String, CurveUtils.CurveRawData> curve : discountingCurves.entrySet()) {
+    for (Map.Entry<String, CurveUtils.CurveRawData> curve : discountingCurves.entrySet()) {
       YieldAndDiscountCurve yieldCurve = CurveUtils.createYieldCurve(curve.getKey() + " Discounting", curve.getValue());
       multicurve.setCurve(Currency.of(curve.getKey()), yieldCurve);
     }
 
     Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuer = new LinkedHashMap<>();
     Map<String, CurveUtils.CurveRawData> issuerCurves = CurveUtils.parseCurves(issuerFile);
-    for(Map.Entry<String, CurveUtils.CurveRawData> curve : issuerCurves.entrySet()) {
+    for (Map.Entry<String, CurveUtils.CurveRawData> curve : issuerCurves.entrySet()) {
       YieldAndDiscountCurve yieldCurve = CurveUtils.createIssuerCurve(curve.getKey(), curve.getValue());
       Pair<Object, LegalEntityFilter<LegalEntity>> key = Pairs.<Object, LegalEntityFilter<LegalEntity>>of(curve.getKey(), new LegalEntityShortName());
       issuer.put(key, yieldCurve);
@@ -176,7 +175,7 @@ public final class BondFutureOptionViewUtils {
    */
   public static void parseVolatilitySurfaces(MarketDataEnvironmentBuilder builder, String file) throws IOException {
     Map<String, VolUtils.SurfaceRawData> vols = VolUtils.parseSurface(file);
-    for(Map.Entry<String, VolUtils.SurfaceRawData> surface : vols.entrySet()) {
+    for (Map.Entry<String, VolUtils.SurfaceRawData> surface : vols.entrySet()) {
       builder.add(VolatilitySurfaceId.of(surface.getKey()), VolUtils.createVolatilitySurface(surface.getValue()));
     }
   }
@@ -291,7 +290,7 @@ public final class BondFutureOptionViewUtils {
         //Trade - various elements of the trade object are not used in these examples so can be hard coded
         Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
         BigDecimal tradeQuantity = BigDecimal.valueOf(1);
-        LocalDate tradeDate = LocalDate.of(1900,1,1);
+        LocalDate tradeDate = LocalDate.of(1900, 1, 1);
         OffsetTime tradeTime = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
         SimpleTrade trade = new SimpleTrade(security,
                                             tradeQuantity,

@@ -82,7 +82,7 @@ public class FxForwardViewUtils {
    * Create an instance of a Fx Forward Trade
    * @return FXForwardTrade
    */
-  private static FXForwardTrade createFxForwardTrade(){
+  private static FXForwardTrade createFxForwardTrade() {
 
     Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
     BigDecimal tradeQuantity = BigDecimal.valueOf(1);
@@ -102,7 +102,7 @@ public class FxForwardViewUtils {
    * Create an instance of a Fx Forward Security
    * @return FXForwardSecurity
    */
-  private static FXForwardSecurity createFxForwardSecurity(){
+  private static FXForwardSecurity createFxForwardSecurity() {
 
     Currency payCurrency = Currency.GBP;
     Currency recCurrency = Currency.USD;

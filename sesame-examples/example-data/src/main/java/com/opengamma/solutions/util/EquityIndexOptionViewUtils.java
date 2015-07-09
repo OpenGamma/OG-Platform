@@ -148,7 +148,7 @@ public final class EquityIndexOptionViewUtils {
     String bundleName = "MultiCurve";
     MulticurveProviderDiscount multicurve = new MulticurveProviderDiscount();
     Map<String, CurveUtils.CurveRawData> curves = CurveUtils.parseCurves(file);
-    for(Map.Entry<String, CurveUtils.CurveRawData> curve : curves.entrySet()) {
+    for (Map.Entry<String, CurveUtils.CurveRawData> curve : curves.entrySet()) {
       YieldAndDiscountCurve yieldCurve = CurveUtils.createYieldCurve(curve.getKey() + " Discounting", curve.getValue());
       multicurve.setCurve(Currency.of(curve.getKey()), yieldCurve);
 
@@ -180,7 +180,7 @@ public final class EquityIndexOptionViewUtils {
    */
   private static void parsePriceSurfaces(MarketDataEnvironmentBuilder builder, String file) throws IOException {
     Map<String, VolUtils.SurfaceRawData> vols = VolUtils.parseSurface(file);
-    for(Map.Entry<String, VolUtils.SurfaceRawData> surface : vols.entrySet()) {
+    for (Map.Entry<String, VolUtils.SurfaceRawData> surface : vols.entrySet()) {
       builder.add(SurfaceId.of(surface.getKey()), VolUtils.createPriceSurface(surface.getValue()));
     }
   }
@@ -193,12 +193,10 @@ public final class EquityIndexOptionViewUtils {
    */
   private static void parseVolatilitySurfaces(MarketDataEnvironmentBuilder builder, String file) throws IOException {
     Map<String, VolUtils.SurfaceRawData> vols = VolUtils.parseSurface(file);
-    for(Map.Entry<String, VolUtils.SurfaceRawData> surface : vols.entrySet()) {
+    for (Map.Entry<String, VolUtils.SurfaceRawData> surface : vols.entrySet()) {
       builder.add(VolatilitySurfaceId.of(surface.getKey()), VolUtils.createVolatilitySurface(surface.getValue()));
     }
   }
-
-
 
   /**
    * Create forward curves and add to the {@link MarketDataEnvironmentBuilder}
@@ -208,7 +206,7 @@ public final class EquityIndexOptionViewUtils {
    */
   public static void parseForwardCurves(MarketDataEnvironmentBuilder builder, String file) throws IOException {
     Map<String, CurveUtils.CurveRawData> curves = CurveUtils.parseCurves(file);
-    for(Map.Entry<String, CurveUtils.CurveRawData> curve : curves.entrySet()) {
+    for (Map.Entry<String, CurveUtils.CurveRawData> curve : curves.entrySet()) {
       builder.add(ForwardCurveId.of(curve.getKey()), CurveUtils.createForwardCurve(curve.getValue()));
     }
   }
