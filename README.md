@@ -58,7 +58,7 @@ These can be skipped to save time if desired:
 
 ### Examples
 
-For examples to introduce the system, see the sesame/sesame-examples folder.
+For examples to introduce the system, see the [sesame/sesame-examples folder](tree/master/sesame/sesame-examples).
 
 
 ___

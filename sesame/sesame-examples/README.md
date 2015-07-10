@@ -1,10 +1,10 @@
-OG-Solutions
-============
+OG-Platform Examples
+--------------------
 
-Business Solutions Toolkit and Demo Applications
+Business Solutions Toolkit and Demo Applications for OpenGamma Platform.
 
 Getting started
-===============
+---------------
 
 1 - [Getting started](docs/getting-started.rst)<br/>
 2 - Running the [example remote view client](docs/remote-view-client.rst)<br/>
