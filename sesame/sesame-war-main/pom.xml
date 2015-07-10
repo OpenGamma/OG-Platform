@@ -26,21 +26,6 @@
   </licenses>
 
   <!-- ==================================================================== -->
-  <!-- override to ensure deployment to dedicated repository -->
-  <distributionManagement>
-    <repository>
-      <id>og-sesame-release</id>
-      <name>OpenGamma sesame maven repository</name>
-      <url>${og-sesame-release.url}</url>
-    </repository>
-    <snapshotRepository>
-      <id>og-sesame-snapshot</id>
-      <name>OpenGamma sesame snapshot maven repository</name>
-      <url>${og-sesame-snapshot.url}</url>
-    </snapshotRepository>
-  </distributionManagement>
-
-  <!-- ==================================================================== -->
   <dependencies>
     <!-- OpenGamma dependencies -->
     <dependency>
@@ -52,5 +37,9 @@
 
   <properties>
     <failOnMissingWebXml></failOnMissingWebXml>
+    <!-- Properties for maven-install-plugin -->
+    <maven.install.skip>true</maven.install.skip>
+    <!-- Properties for maven-deploy-plugin -->
+    <maven.deploy.skip>true</maven.deploy.skip>
   </properties>
 </project>
