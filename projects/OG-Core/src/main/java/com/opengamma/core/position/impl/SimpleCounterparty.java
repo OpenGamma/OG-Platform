@@ -8,6 +8,7 @@ package com.opengamma.core.position.impl;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -45,7 +46,7 @@ public class SimpleCounterparty extends DirectBean
   /**
    * The counterparty identifier.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private ExternalId _externalId;
 
   /**
@@ -83,55 +84,12 @@ public class SimpleCounterparty extends DirectBean
     return SimpleCounterparty.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1699764666:  // externalId
-        return getExternalId();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1699764666:  // externalId
-        setExternalId((ExternalId) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_externalId, "externalId");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SimpleCounterparty other = (SimpleCounterparty) obj;
-      return JodaBeanUtils.equal(getExternalId(), other.getExternalId());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalId());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the counterparty identifier.
    * @return the value of the property, not null
    */
+  @Override
   public ExternalId getExternalId() {
     return _externalId;
   }
@@ -151,6 +109,48 @@ public class SimpleCounterparty extends DirectBean
    */
   public final Property<ExternalId> externalId() {
     return metaBean().externalId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public SimpleCounterparty clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SimpleCounterparty other = (SimpleCounterparty) obj;
+      return JodaBeanUtils.equal(getExternalId(), other.getExternalId());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExternalId());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("SimpleCounterparty{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("externalId").append('=').append(JodaBeanUtils.toString(getExternalId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -212,6 +212,31 @@ public class SimpleCounterparty extends DirectBean
      */
     public final MetaProperty<ExternalId> externalId() {
       return _externalId;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1699764666:  // externalId
+          return ((SimpleCounterparty) bean).getExternalId();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1699764666:  // externalId
+          ((SimpleCounterparty) bean).setExternalId((ExternalId) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((SimpleCounterparty) bean)._externalId, "externalId");
     }
 
   }

@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.threeten.bp.Clock;
-import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;

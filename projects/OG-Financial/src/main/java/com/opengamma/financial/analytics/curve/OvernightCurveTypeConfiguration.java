@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.curve;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -68,51 +69,6 @@ public class OvernightCurveTypeConfiguration extends CurveTypeConfiguration {
     return OvernightCurveTypeConfiguration.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 2039569265:  // convention
-        return getConvention();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 2039569265:  // convention
-        setConvention((ExternalId) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_convention, "convention");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      OvernightCurveTypeConfiguration other = (OvernightCurveTypeConfiguration) obj;
-      return JodaBeanUtils.equal(getConvention(), other.getConvention()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConvention());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the convention of the index.
@@ -137,6 +93,51 @@ public class OvernightCurveTypeConfiguration extends CurveTypeConfiguration {
    */
   public final Property<ExternalId> convention() {
     return metaBean().convention().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public OvernightCurveTypeConfiguration clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      OvernightCurveTypeConfiguration other = (OvernightCurveTypeConfiguration) obj;
+      return JodaBeanUtils.equal(getConvention(), other.getConvention()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConvention());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("OvernightCurveTypeConfiguration{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("convention").append('=').append(JodaBeanUtils.toString(getConvention())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -198,6 +199,32 @@ public class OvernightCurveTypeConfiguration extends CurveTypeConfiguration {
      */
     public final MetaProperty<ExternalId> convention() {
       return _convention;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 2039569265:  // convention
+          return ((OvernightCurveTypeConfiguration) bean).getConvention();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 2039569265:  // convention
+          ((OvernightCurveTypeConfiguration) bean).setConvention((ExternalId) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((OvernightCurveTypeConfiguration) bean)._convention, "convention");
+      super.validate(bean);
     }
 
   }

@@ -1,114 +1,102 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.core.marketdatasnapshot;
 
+import java.io.Serializable;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
-
-import com.opengamma.util.money.Currency;
+import org.joda.beans.Bean;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.ImmutableBean;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * A key used to identify a volatility cube.
  * <p>
  * This class is immutable and thread-safe.
  */
-public class VolatilityCubeKey extends StructuredMarketDataKey implements Comparable<VolatilityCubeKey> {
+@BeanDefinition
+public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketDataKey, Comparable<VolatilityCubeKey>, Serializable {
 
   /** Serialization version. */
-  private static final long serialVersionUID = 2L;
+  private static final long serialVersionUID = 3L;
 
   /**
-   * The currency.
+   * The cube definition name.
    */
-  private final Currency _currency;
+  @PropertyDefinition
+  private final String _definitionName;
   /**
-   * The curve name.
+   * The cube specification name.
    */
-  private final String _name;
+  @PropertyDefinition
+  private final String _specificationName;
+  /**
+   * The quote type.
+   */
+  @PropertyDefinition
+  private final String _quoteType;
+  /**
+   * The quote units.
+   */
+  @PropertyDefinition
+  private final String _quoteUnits;
 
   /**
-   * Creates an instance with a currency and name.
-   * 
-   * @param currency  the currency
-   * @param name  the name
+   * Creates an instance.
+   *
+   * @param definitionName  the name
+   * @param specificationName  the name
+   * @param quoteType the quote type
+   * @param quoteUnits the quote units
+   * @return the volatility cube key, not null
    */
-  public VolatilityCubeKey(Currency currency, String name) {
-    _currency = currency;
-    _name = name;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the currency.
-   * 
-   * @return the currency
-   */
-  public Currency getCurrency() {
-    return _currency;
-  }
-
-  /**
-   * Gets the name.
-   * 
-   * @return the name
-   */
-  public String getName() {
-    return _name;
+  public static VolatilityCubeKey of(final String definitionName, final String specificationName, final String quoteType, final String quoteUnits) {
+    return new VolatilityCubeKey(definitionName, specificationName, quoteType, quoteUnits);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Compares this key to another, by currency then name.
-   * 
+   *
    * @param other  the other key, not null
    * @return the comparison value
    */
   @Override
-  public int compareTo(VolatilityCubeKey other) {
-    int currCompare = _currency.compareTo(other.getCurrency());
-    if (currCompare != 0) {
-      return currCompare;
+  public int compareTo(final VolatilityCubeKey other) {
+    if (other == null) {
+      throw new NullPointerException();
     }
-    return _name.compareTo(other.getName());
-  }
-
-  /**
-   * Checks if this key equals another.
-   * <p>
-   * This checks the currency and name.
-   * 
-   * @param object  the object to compare to, null returns false
-   * @return true if equal
-   */
-  @Override
-  public boolean equals(Object object) {
-    if (object == this) {
-      return true;
+    int i = ObjectUtils.compare(_definitionName, other._definitionName);
+    if (i != 0) {
+      return i;
     }
-    if (object instanceof VolatilityCubeKey) {
-      VolatilityCubeKey other = (VolatilityCubeKey) object;
-      return ObjectUtils.equals(getCurrency(), other.getCurrency()) &&
-              ObjectUtils.equals(getName(), other.getName());
+    i = ObjectUtils.compare(_specificationName, other._specificationName);
+    if (i != 0) {
+      return i;
     }
-    return false;
-  }
-
-  /**
-   * Returns a suitable hash code.
-   * 
-   * @return the hash code
-   */
-  @Override
-  public int hashCode() {
-    return ObjectUtils.hashCode(getCurrency()) ^ ObjectUtils.hashCode(getName());
+    i = ObjectUtils.compare(_quoteType, other._quoteType);
+    if (i != 0) {
+      return i;
+    }
+    return ObjectUtils.compare(_quoteUnits, other._quoteUnits);
   }
 
   @Override
@@ -118,22 +106,438 @@ public class VolatilityCubeKey extends StructuredMarketDataKey implements Compar
 
   public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
     final MutableFudgeMsg msg = serializer.newMessage();
-    msg.add("currency", _currency.getCode());
-    msg.add("name", _name);
+    msg.add("definitionName", _definitionName);
+    msg.add("specificationName", _specificationName);
+    msg.add("quoteType", _quoteType);
+    msg.add("quoteUnits", _quoteUnits);
     return msg;
   }
 
   public static VolatilityCubeKey fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    Currency currency = Currency.of(msg.getString("currency"));
-    String name = msg.getString("name");
-    return new VolatilityCubeKey(currency, name);
+    return new VolatilityCubeKey(msg.getString("definitionName"), msg.getString("specificationName"), msg.getString("quoteType"), msg.getString("quoteUnits"));
+  }
+
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code VolatilityCubeKey}.
+   * @return the meta-bean, not null
+   */
+  public static VolatilityCubeKey.Meta meta() {
+    return VolatilityCubeKey.Meta.INSTANCE;
+  }
+
+  static {
+    JodaBeanUtils.registerMetaBean(VolatilityCubeKey.Meta.INSTANCE);
+  }
+
+  /**
+   * Returns a builder used to create an instance of the bean.
+   * @return the builder, not null
+   */
+  public static VolatilityCubeKey.Builder builder() {
+    return new VolatilityCubeKey.Builder();
+  }
+
+  private VolatilityCubeKey(
+      String definitionName,
+      String specificationName,
+      String quoteType,
+      String quoteUnits) {
+    this._definitionName = definitionName;
+    this._specificationName = specificationName;
+    this._quoteType = quoteType;
+    this._quoteUnits = quoteUnits;
+  }
+
+  @Override
+  public VolatilityCubeKey.Meta metaBean() {
+    return VolatilityCubeKey.Meta.INSTANCE;
+  }
+
+  @Override
+  public <R> Property<R> property(String propertyName) {
+    return metaBean().<R>metaProperty(propertyName).createProperty(this);
+  }
+
+  @Override
+  public Set<String> propertyNames() {
+    return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the cube definition name.
+   * @return the value of the property
+   */
+  public String getDefinitionName() {
+    return _definitionName;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the cube specification name.
+   * @return the value of the property
+   */
+  public String getSpecificationName() {
+    return _specificationName;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the quote type.
+   * @return the value of the property
+   */
+  public String getQuoteType() {
+    return _quoteType;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the quote units.
+   * @return the value of the property
+   */
+  public String getQuoteUnits() {
+    return _quoteUnits;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Returns a builder that allows this bean to be mutated.
+   * @return the mutable builder, not null
+   */
+  public Builder toBuilder() {
+    return new Builder(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      VolatilityCubeKey other = (VolatilityCubeKey) obj;
+      return JodaBeanUtils.equal(getDefinitionName(), other.getDefinitionName()) &&
+          JodaBeanUtils.equal(getSpecificationName(), other.getSpecificationName()) &&
+          JodaBeanUtils.equal(getQuoteType(), other.getQuoteType()) &&
+          JodaBeanUtils.equal(getQuoteUnits(), other.getQuoteUnits());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDefinitionName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSpecificationName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getQuoteType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getQuoteUnits());
+    return hash;
   }
 
   @Override
   public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("VolatilityCubeKey{");
+    buf.append("definitionName").append('=').append(getDefinitionName()).append(',').append(' ');
+    buf.append("specificationName").append('=').append(getSpecificationName()).append(',').append(' ');
+    buf.append("quoteType").append('=').append(getQuoteType()).append(',').append(' ');
+    buf.append("quoteUnits").append('=').append(JodaBeanUtils.toString(getQuoteUnits()));
+    buf.append('}');
+    return buf.toString();
   }
-  
-  
 
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code VolatilityCubeKey}.
+   */
+  public static final class Meta extends DirectMetaBean {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code definitionName} property.
+     */
+    private final MetaProperty<String> _definitionName = DirectMetaProperty.ofImmutable(
+        this, "definitionName", VolatilityCubeKey.class, String.class);
+    /**
+     * The meta-property for the {@code specificationName} property.
+     */
+    private final MetaProperty<String> _specificationName = DirectMetaProperty.ofImmutable(
+        this, "specificationName", VolatilityCubeKey.class, String.class);
+    /**
+     * The meta-property for the {@code quoteType} property.
+     */
+    private final MetaProperty<String> _quoteType = DirectMetaProperty.ofImmutable(
+        this, "quoteType", VolatilityCubeKey.class, String.class);
+    /**
+     * The meta-property for the {@code quoteUnits} property.
+     */
+    private final MetaProperty<String> _quoteUnits = DirectMetaProperty.ofImmutable(
+        this, "quoteUnits", VolatilityCubeKey.class, String.class);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
+        this, null,
+        "definitionName",
+        "specificationName",
+        "quoteType",
+        "quoteUnits");
+
+    /**
+     * Restricted constructor.
+     */
+    private Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -962772354:  // definitionName
+          return _definitionName;
+        case -583993810:  // specificationName
+          return _specificationName;
+        case -1482972202:  // quoteType
+          return _quoteType;
+        case 1273091667:  // quoteUnits
+          return _quoteUnits;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public VolatilityCubeKey.Builder builder() {
+      return new VolatilityCubeKey.Builder();
+    }
+
+    @Override
+    public Class<? extends VolatilityCubeKey> beanType() {
+      return VolatilityCubeKey.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<?>> metaPropertyMap() {
+      return _metaPropertyMap$;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code definitionName} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<String> definitionName() {
+      return _definitionName;
+    }
+
+    /**
+     * The meta-property for the {@code specificationName} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<String> specificationName() {
+      return _specificationName;
+    }
+
+    /**
+     * The meta-property for the {@code quoteType} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<String> quoteType() {
+      return _quoteType;
+    }
+
+    /**
+     * The meta-property for the {@code quoteUnits} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<String> quoteUnits() {
+      return _quoteUnits;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -962772354:  // definitionName
+          return ((VolatilityCubeKey) bean).getDefinitionName();
+        case -583993810:  // specificationName
+          return ((VolatilityCubeKey) bean).getSpecificationName();
+        case -1482972202:  // quoteType
+          return ((VolatilityCubeKey) bean).getQuoteType();
+        case 1273091667:  // quoteUnits
+          return ((VolatilityCubeKey) bean).getQuoteUnits();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      metaProperty(propertyName);
+      if (quiet) {
+        return;
+      }
+      throw new UnsupportedOperationException("Property cannot be written: " + propertyName);
+    }
+
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The bean-builder for {@code VolatilityCubeKey}.
+   */
+  public static final class Builder extends DirectFieldsBeanBuilder<VolatilityCubeKey> {
+
+    private String _definitionName;
+    private String _specificationName;
+    private String _quoteType;
+    private String _quoteUnits;
+
+    /**
+     * Restricted constructor.
+     */
+    private Builder() {
+    }
+
+    /**
+     * Restricted copy constructor.
+     * @param beanToCopy  the bean to copy from, not null
+     */
+    private Builder(VolatilityCubeKey beanToCopy) {
+      this._definitionName = beanToCopy.getDefinitionName();
+      this._specificationName = beanToCopy.getSpecificationName();
+      this._quoteType = beanToCopy.getQuoteType();
+      this._quoteUnits = beanToCopy.getQuoteUnits();
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -962772354:  // definitionName
+          return _definitionName;
+        case -583993810:  // specificationName
+          return _specificationName;
+        case -1482972202:  // quoteType
+          return _quoteType;
+        case 1273091667:  // quoteUnits
+          return _quoteUnits;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
+    public Builder set(String propertyName, Object newValue) {
+      switch (propertyName.hashCode()) {
+        case -962772354:  // definitionName
+          this._definitionName = (String) newValue;
+          break;
+        case -583993810:  // specificationName
+          this._specificationName = (String) newValue;
+          break;
+        case -1482972202:  // quoteType
+          this._quoteType = (String) newValue;
+          break;
+        case 1273091667:  // quoteUnits
+          this._quoteUnits = (String) newValue;
+          break;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.setString(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
+      return this;
+    }
+
+    @Override
+    public VolatilityCubeKey build() {
+      return new VolatilityCubeKey(
+          _definitionName,
+          _specificationName,
+          _quoteType,
+          _quoteUnits);
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Sets the {@code definitionName} property in the builder.
+     * @param definitionName  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder definitionName(String definitionName) {
+      this._definitionName = definitionName;
+      return this;
+    }
+
+    /**
+     * Sets the {@code specificationName} property in the builder.
+     * @param specificationName  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder specificationName(String specificationName) {
+      this._specificationName = specificationName;
+      return this;
+    }
+
+    /**
+     * Sets the {@code quoteType} property in the builder.
+     * @param quoteType  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder quoteType(String quoteType) {
+      this._quoteType = quoteType;
+      return this;
+    }
+
+    /**
+     * Sets the {@code quoteUnits} property in the builder.
+     * @param quoteUnits  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder quoteUnits(String quoteUnits) {
+      this._quoteUnits = quoteUnits;
+      return this;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public String toString() {
+      StringBuilder buf = new StringBuilder(160);
+      buf.append("VolatilityCubeKey.Builder{");
+      buf.append("definitionName").append('=').append(JodaBeanUtils.toString(_definitionName)).append(',').append(' ');
+      buf.append("specificationName").append('=').append(JodaBeanUtils.toString(_specificationName)).append(',').append(' ');
+      buf.append("quoteType").append('=').append(JodaBeanUtils.toString(_quoteType)).append(',').append(' ');
+      buf.append("quoteUnits").append('=').append(JodaBeanUtils.toString(_quoteUnits));
+      buf.append('}');
+      return buf.toString();
+    }
+
+  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }

@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine.view.compilation;
 
-import static com.opengamma.lambdava.streams.Lambdava.merge;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,12 +38,18 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
 
   public CompiledViewDefinitionImpl(final VersionCorrection versionCorrection, final String identifier, final ViewDefinition viewDefinition, final Portfolio portfolio,
       final Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations, final Instant earliestValidity, final Instant latestValidity) {
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    assert !versionCorrection.containsLatest();
+    ArgumentChecker.notNull(identifier, "identifier");
+    ArgumentChecker.notNull(viewDefinition, "viewDefinition");
+    ArgumentChecker.notNull(compiledCalculationConfigurations, "compiledCalculationConfigurations");
     _versionCorrection = versionCorrection;
     _identifier = identifier;
     _viewDefinition = viewDefinition;
     _portfolio = portfolio;
     _compiledCalculationConfigurations = new HashMap<>();
     for (final CompiledViewCalculationConfiguration compiledCalculationConfiguration : compiledCalculationConfigurations) {
+      ArgumentChecker.notNull(compiledCalculationConfiguration, "compiledCalculationConfiguration");
       _compiledCalculationConfigurations.put(compiledCalculationConfiguration.getName(), compiledCalculationConfiguration);
     }
     _earliestValidity = earliestValidity;
@@ -119,7 +123,7 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
   public Map<ValueSpecification, Set<ValueRequirement>> getTerminalValuesRequirements() {
     final Map<ValueSpecification, Set<ValueRequirement>> allRequirements = new HashMap<>();
     for (final CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledCalculationConfigurations()) {
-      merge(allRequirements, compiledCalcConfig.getTerminalOutputSpecifications());
+      allRequirements.putAll(compiledCalcConfig.getTerminalOutputSpecifications());
     }
     return Collections.unmodifiableMap(allRequirements);
   }
@@ -146,7 +150,7 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
   /**
    * Checks whether the compilation results encapsulated in an instance are valid for a specific cycle. Note that this does not ensure that the view definition used for compilation is still
    * up-to-date.
-   *
+   * 
    * @param viewDefinition the compiled view definition instance, not null
    * @param valuationTime the valuation time, not null
    * @return true if the compilation results are valid for the valuation time

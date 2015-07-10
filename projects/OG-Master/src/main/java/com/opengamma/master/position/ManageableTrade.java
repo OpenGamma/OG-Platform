@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -67,7 +68,7 @@ public class ManageableTrade extends DirectBean
   /**
    * The quantity. This field must not be null for the object to be valid.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private BigDecimal _quantity;
   /**
    * The link referencing the security, not null.
@@ -83,7 +84,7 @@ public class ManageableTrade extends DirectBean
   /**
    * The trade date.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private LocalDate _tradeDate;
   /**
    * The trade time with offset, null if not known.
@@ -245,144 +246,6 @@ public class ManageableTrade extends DirectBean
     return ManageableTrade.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case -108882834:  // parentPositionId
-        return getParentPositionId();
-      case -1285004149:  // quantity
-        return getQuantity();
-      case 807992154:  // securityLink
-        return getSecurityLink();
-      case 432285776:  // counterpartyExternalId
-        return getCounterpartyExternalId();
-      case 752419634:  // tradeDate
-        return getTradeDate();
-      case 752903761:  // tradeTime
-        return getTradeTime();
-      case -318452137:  // premium
-        return getPremium();
-      case 1136581512:  // premiumCurrency
-        return getPremiumCurrency();
-      case 651701925:  // premiumDate
-        return getPremiumDate();
-      case 652186052:  // premiumTime
-        return getPremiumTime();
-      case 405645655:  // attributes
-        return getAttributes();
-      case 3079276:  // deal
-        return getDeal();
-      case 205149932:  // providerId
-        return getProviderId();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case -108882834:  // parentPositionId
-        setParentPositionId((UniqueId) newValue);
-        return;
-      case -1285004149:  // quantity
-        setQuantity((BigDecimal) newValue);
-        return;
-      case 807992154:  // securityLink
-        setSecurityLink((ManageableSecurityLink) newValue);
-        return;
-      case 432285776:  // counterpartyExternalId
-        setCounterpartyExternalId((ExternalId) newValue);
-        return;
-      case 752419634:  // tradeDate
-        setTradeDate((LocalDate) newValue);
-        return;
-      case 752903761:  // tradeTime
-        setTradeTime((OffsetTime) newValue);
-        return;
-      case -318452137:  // premium
-        setPremium((Double) newValue);
-        return;
-      case 1136581512:  // premiumCurrency
-        setPremiumCurrency((Currency) newValue);
-        return;
-      case 651701925:  // premiumDate
-        setPremiumDate((LocalDate) newValue);
-        return;
-      case 652186052:  // premiumTime
-        setPremiumTime((OffsetTime) newValue);
-        return;
-      case 405645655:  // attributes
-        setAttributes((Map<String, String>) newValue);
-        return;
-      case 3079276:  // deal
-        setDeal((Deal) newValue);
-        return;
-      case 205149932:  // providerId
-        setProviderId((ExternalId) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_securityLink, "securityLink");
-    JodaBeanUtils.notNull(_counterpartyExternalId, "counterpartyExternalId");
-    JodaBeanUtils.notNull(_attributes, "attributes");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ManageableTrade other = (ManageableTrade) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getParentPositionId(), other.getParentPositionId()) &&
-          JodaBeanUtils.equal(getQuantity(), other.getQuantity()) &&
-          JodaBeanUtils.equal(getSecurityLink(), other.getSecurityLink()) &&
-          JodaBeanUtils.equal(getCounterpartyExternalId(), other.getCounterpartyExternalId()) &&
-          JodaBeanUtils.equal(getTradeDate(), other.getTradeDate()) &&
-          JodaBeanUtils.equal(getTradeTime(), other.getTradeTime()) &&
-          JodaBeanUtils.equal(getPremium(), other.getPremium()) &&
-          JodaBeanUtils.equal(getPremiumCurrency(), other.getPremiumCurrency()) &&
-          JodaBeanUtils.equal(getPremiumDate(), other.getPremiumDate()) &&
-          JodaBeanUtils.equal(getPremiumTime(), other.getPremiumTime()) &&
-          JodaBeanUtils.equal(getAttributes(), other.getAttributes()) &&
-          JodaBeanUtils.equal(getDeal(), other.getDeal()) &&
-          JodaBeanUtils.equal(getProviderId(), other.getProviderId());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getParentPositionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getQuantity());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLink());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCounterpartyExternalId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPremium());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDeal());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProviderId());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the unique identifier of the trade.
@@ -439,7 +302,7 @@ public class ManageableTrade extends DirectBean
   //-----------------------------------------------------------------------
   /**
    * Gets the quantity. This field must not be null for the object to be valid.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public BigDecimal getQuantity() {
     return _quantity;
@@ -447,9 +310,10 @@ public class ManageableTrade extends DirectBean
 
   /**
    * Sets the quantity. This field must not be null for the object to be valid.
-   * @param quantity  the new value of the property
+   * @param quantity  the new value of the property, not null
    */
   public void setQuantity(BigDecimal quantity) {
+    JodaBeanUtils.notNull(quantity, "quantity");
     this._quantity = quantity;
   }
 
@@ -519,7 +383,7 @@ public class ManageableTrade extends DirectBean
   //-----------------------------------------------------------------------
   /**
    * Gets the trade date.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public LocalDate getTradeDate() {
     return _tradeDate;
@@ -527,9 +391,10 @@ public class ManageableTrade extends DirectBean
 
   /**
    * Sets the trade date.
-   * @param tradeDate  the new value of the property
+   * @param tradeDate  the new value of the property, not null
    */
   public void setTradeDate(LocalDate tradeDate) {
+    JodaBeanUtils.notNull(tradeDate, "tradeDate");
     this._tradeDate = tradeDate;
   }
 
@@ -681,9 +546,10 @@ public class ManageableTrade extends DirectBean
    * Sets the general purpose trade attributes.
    * These can be used to add arbitrary additional information to the object
    * and for aggregating in portfolios.
-   * @param attributes  the new value of the property
+   * @param attributes  the new value of the property, not null
    */
   public void setAttributes(Map<String, String> attributes) {
+    JodaBeanUtils.notNull(attributes, "attributes");
     this._attributes.clear();
     this._attributes.putAll(attributes);
   }
@@ -761,6 +627,87 @@ public class ManageableTrade extends DirectBean
    */
   public final Property<ExternalId> providerId() {
     return metaBean().providerId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ManageableTrade clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ManageableTrade other = (ManageableTrade) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getParentPositionId(), other.getParentPositionId()) &&
+          JodaBeanUtils.equal(getQuantity(), other.getQuantity()) &&
+          JodaBeanUtils.equal(getSecurityLink(), other.getSecurityLink()) &&
+          JodaBeanUtils.equal(getCounterpartyExternalId(), other.getCounterpartyExternalId()) &&
+          JodaBeanUtils.equal(getTradeDate(), other.getTradeDate()) &&
+          JodaBeanUtils.equal(getTradeTime(), other.getTradeTime()) &&
+          JodaBeanUtils.equal(getPremium(), other.getPremium()) &&
+          JodaBeanUtils.equal(getPremiumCurrency(), other.getPremiumCurrency()) &&
+          JodaBeanUtils.equal(getPremiumDate(), other.getPremiumDate()) &&
+          JodaBeanUtils.equal(getPremiumTime(), other.getPremiumTime()) &&
+          JodaBeanUtils.equal(getAttributes(), other.getAttributes()) &&
+          JodaBeanUtils.equal(getDeal(), other.getDeal()) &&
+          JodaBeanUtils.equal(getProviderId(), other.getProviderId());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getParentPositionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getQuantity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityLink());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCounterpartyExternalId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPremium());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPremiumCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPremiumDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPremiumTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAttributes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDeal());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProviderId());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(480);
+    buf.append("ManageableTrade{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("parentPositionId").append('=').append(JodaBeanUtils.toString(getParentPositionId())).append(',').append(' ');
+    buf.append("quantity").append('=').append(JodaBeanUtils.toString(getQuantity())).append(',').append(' ');
+    buf.append("securityLink").append('=').append(JodaBeanUtils.toString(getSecurityLink())).append(',').append(' ');
+    buf.append("counterpartyExternalId").append('=').append(JodaBeanUtils.toString(getCounterpartyExternalId())).append(',').append(' ');
+    buf.append("tradeDate").append('=').append(JodaBeanUtils.toString(getTradeDate())).append(',').append(' ');
+    buf.append("tradeTime").append('=').append(JodaBeanUtils.toString(getTradeTime())).append(',').append(' ');
+    buf.append("premium").append('=').append(JodaBeanUtils.toString(getPremium())).append(',').append(' ');
+    buf.append("premiumCurrency").append('=').append(JodaBeanUtils.toString(getPremiumCurrency())).append(',').append(' ');
+    buf.append("premiumDate").append('=').append(JodaBeanUtils.toString(getPremiumDate())).append(',').append(' ');
+    buf.append("premiumTime").append('=').append(JodaBeanUtils.toString(getPremiumTime())).append(',').append(' ');
+    buf.append("attributes").append('=').append(JodaBeanUtils.toString(getAttributes())).append(',').append(' ');
+    buf.append("deal").append('=').append(JodaBeanUtils.toString(getDeal())).append(',').append(' ');
+    buf.append("providerId").append('=').append(JodaBeanUtils.toString(getProviderId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -1031,6 +978,101 @@ public class ManageableTrade extends DirectBean
      */
     public final MetaProperty<ExternalId> providerId() {
       return _providerId;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return ((ManageableTrade) bean).getUniqueId();
+        case -108882834:  // parentPositionId
+          return ((ManageableTrade) bean).getParentPositionId();
+        case -1285004149:  // quantity
+          return ((ManageableTrade) bean).getQuantity();
+        case 807992154:  // securityLink
+          return ((ManageableTrade) bean).getSecurityLink();
+        case 432285776:  // counterpartyExternalId
+          return ((ManageableTrade) bean).getCounterpartyExternalId();
+        case 752419634:  // tradeDate
+          return ((ManageableTrade) bean).getTradeDate();
+        case 752903761:  // tradeTime
+          return ((ManageableTrade) bean).getTradeTime();
+        case -318452137:  // premium
+          return ((ManageableTrade) bean).getPremium();
+        case 1136581512:  // premiumCurrency
+          return ((ManageableTrade) bean).getPremiumCurrency();
+        case 651701925:  // premiumDate
+          return ((ManageableTrade) bean).getPremiumDate();
+        case 652186052:  // premiumTime
+          return ((ManageableTrade) bean).getPremiumTime();
+        case 405645655:  // attributes
+          return ((ManageableTrade) bean).getAttributes();
+        case 3079276:  // deal
+          return ((ManageableTrade) bean).getDeal();
+        case 205149932:  // providerId
+          return ((ManageableTrade) bean).getProviderId();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          ((ManageableTrade) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case -108882834:  // parentPositionId
+          ((ManageableTrade) bean).setParentPositionId((UniqueId) newValue);
+          return;
+        case -1285004149:  // quantity
+          ((ManageableTrade) bean).setQuantity((BigDecimal) newValue);
+          return;
+        case 807992154:  // securityLink
+          ((ManageableTrade) bean).setSecurityLink((ManageableSecurityLink) newValue);
+          return;
+        case 432285776:  // counterpartyExternalId
+          ((ManageableTrade) bean).setCounterpartyExternalId((ExternalId) newValue);
+          return;
+        case 752419634:  // tradeDate
+          ((ManageableTrade) bean).setTradeDate((LocalDate) newValue);
+          return;
+        case 752903761:  // tradeTime
+          ((ManageableTrade) bean).setTradeTime((OffsetTime) newValue);
+          return;
+        case -318452137:  // premium
+          ((ManageableTrade) bean).setPremium((Double) newValue);
+          return;
+        case 1136581512:  // premiumCurrency
+          ((ManageableTrade) bean).setPremiumCurrency((Currency) newValue);
+          return;
+        case 651701925:  // premiumDate
+          ((ManageableTrade) bean).setPremiumDate((LocalDate) newValue);
+          return;
+        case 652186052:  // premiumTime
+          ((ManageableTrade) bean).setPremiumTime((OffsetTime) newValue);
+          return;
+        case 405645655:  // attributes
+          ((ManageableTrade) bean).setAttributes((Map<String, String>) newValue);
+          return;
+        case 3079276:  // deal
+          ((ManageableTrade) bean).setDeal((Deal) newValue);
+          return;
+        case 205149932:  // providerId
+          ((ManageableTrade) bean).setProviderId((ExternalId) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ManageableTrade) bean)._quantity, "quantity");
+      JodaBeanUtils.notNull(((ManageableTrade) bean)._securityLink, "securityLink");
+      JodaBeanUtils.notNull(((ManageableTrade) bean)._counterpartyExternalId, "counterpartyExternalId");
+      JodaBeanUtils.notNull(((ManageableTrade) bean)._tradeDate, "tradeDate");
+      JodaBeanUtils.notNull(((ManageableTrade) bean)._attributes, "attributes");
     }
 
   }

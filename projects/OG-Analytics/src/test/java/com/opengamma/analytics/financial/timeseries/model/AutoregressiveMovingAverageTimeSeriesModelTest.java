@@ -18,10 +18,12 @@ import com.opengamma.analytics.financial.timeseries.analysis.AutocovarianceFunct
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class AutoregressiveMovingAverageTimeSeriesModelTest {
   private static final double MEAN = 0;
   private static final double STD = 0.1;

@@ -7,6 +7,7 @@ package com.opengamma.financial.security.option;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -20,6 +21,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
@@ -27,6 +29,7 @@ import com.opengamma.util.time.Expiry;
  * A security for commodity future options.
  */
 @BeanDefinition
+@SecurityDescription(type = CommodityFutureOptionSecurity.SECURITY_TYPE, description = "Commodity future option")
 public class CommodityFutureOptionSecurity extends FinancialSecurity {
 
   /** Serialization version. */
@@ -124,113 +127,6 @@ public class CommodityFutureOptionSecurity extends FinancialSecurity {
   @Override
   public CommodityFutureOptionSecurity.Meta metaBean() {
     return CommodityFutureOptionSecurity.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -661485980:  // tradingExchange
-        return getTradingExchange();
-      case 389497452:  // settlementExchange
-        return getSettlementExchange();
-      case -1289159373:  // expiry
-        return getExpiry();
-      case -466331342:  // exerciseType
-        return getExerciseType();
-      case -771625640:  // underlyingId
-        return getUnderlyingId();
-      case 1257391553:  // pointValue
-        return getPointValue();
-      case 575402001:  // currency
-        return getCurrency();
-      case -891985998:  // strike
-        return getStrike();
-      case 1373587791:  // optionType
-        return getOptionType();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -661485980:  // tradingExchange
-        setTradingExchange((String) newValue);
-        return;
-      case 389497452:  // settlementExchange
-        setSettlementExchange((String) newValue);
-        return;
-      case -1289159373:  // expiry
-        setExpiry((Expiry) newValue);
-        return;
-      case -466331342:  // exerciseType
-        setExerciseType((ExerciseType) newValue);
-        return;
-      case -771625640:  // underlyingId
-        setUnderlyingId((ExternalId) newValue);
-        return;
-      case 1257391553:  // pointValue
-        setPointValue((Double) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((Currency) newValue);
-        return;
-      case -891985998:  // strike
-        setStrike((Double) newValue);
-        return;
-      case 1373587791:  // optionType
-        setOptionType((OptionType) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_tradingExchange, "tradingExchange");
-    JodaBeanUtils.notNull(_settlementExchange, "settlementExchange");
-    JodaBeanUtils.notNull(_expiry, "expiry");
-    JodaBeanUtils.notNull(_exerciseType, "exerciseType");
-    JodaBeanUtils.notNull(_underlyingId, "underlyingId");
-    JodaBeanUtils.notNull(_currency, "currency");
-    JodaBeanUtils.notNull(_optionType, "optionType");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CommodityFutureOptionSecurity other = (CommodityFutureOptionSecurity) obj;
-      return JodaBeanUtils.equal(getTradingExchange(), other.getTradingExchange()) &&
-          JodaBeanUtils.equal(getSettlementExchange(), other.getSettlementExchange()) &&
-          JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
-          JodaBeanUtils.equal(getExerciseType(), other.getExerciseType()) &&
-          JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
-          JodaBeanUtils.equal(getPointValue(), other.getPointValue()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
-          JodaBeanUtils.equal(getOptionType(), other.getOptionType()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradingExchange());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementExchange());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExpiry());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPointValue());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOptionType());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -466,6 +362,75 @@ public class CommodityFutureOptionSecurity extends FinancialSecurity {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public CommodityFutureOptionSecurity clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CommodityFutureOptionSecurity other = (CommodityFutureOptionSecurity) obj;
+      return JodaBeanUtils.equal(getTradingExchange(), other.getTradingExchange()) &&
+          JodaBeanUtils.equal(getSettlementExchange(), other.getSettlementExchange()) &&
+          JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
+          JodaBeanUtils.equal(getExerciseType(), other.getExerciseType()) &&
+          JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
+          JodaBeanUtils.equal(getPointValue(), other.getPointValue()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
+          JodaBeanUtils.equal(getOptionType(), other.getOptionType()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTradingExchange());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementExchange());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiry());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPointValue());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStrike());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getOptionType());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(320);
+    buf.append("CommodityFutureOptionSecurity{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("tradingExchange").append('=').append(JodaBeanUtils.toString(getTradingExchange())).append(',').append(' ');
+    buf.append("settlementExchange").append('=').append(JodaBeanUtils.toString(getSettlementExchange())).append(',').append(' ');
+    buf.append("expiry").append('=').append(JodaBeanUtils.toString(getExpiry())).append(',').append(' ');
+    buf.append("exerciseType").append('=').append(JodaBeanUtils.toString(getExerciseType())).append(',').append(' ');
+    buf.append("underlyingId").append('=').append(JodaBeanUtils.toString(getUnderlyingId())).append(',').append(' ');
+    buf.append("pointValue").append('=').append(JodaBeanUtils.toString(getPointValue())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(getStrike())).append(',').append(' ');
+    buf.append("optionType").append('=').append(JodaBeanUtils.toString(getOptionType())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code CommodityFutureOptionSecurity}.
    */
@@ -652,6 +617,78 @@ public class CommodityFutureOptionSecurity extends FinancialSecurity {
      */
     public final MetaProperty<OptionType> optionType() {
       return _optionType;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -661485980:  // tradingExchange
+          return ((CommodityFutureOptionSecurity) bean).getTradingExchange();
+        case 389497452:  // settlementExchange
+          return ((CommodityFutureOptionSecurity) bean).getSettlementExchange();
+        case -1289159373:  // expiry
+          return ((CommodityFutureOptionSecurity) bean).getExpiry();
+        case -466331342:  // exerciseType
+          return ((CommodityFutureOptionSecurity) bean).getExerciseType();
+        case -771625640:  // underlyingId
+          return ((CommodityFutureOptionSecurity) bean).getUnderlyingId();
+        case 1257391553:  // pointValue
+          return ((CommodityFutureOptionSecurity) bean).getPointValue();
+        case 575402001:  // currency
+          return ((CommodityFutureOptionSecurity) bean).getCurrency();
+        case -891985998:  // strike
+          return ((CommodityFutureOptionSecurity) bean).getStrike();
+        case 1373587791:  // optionType
+          return ((CommodityFutureOptionSecurity) bean).getOptionType();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -661485980:  // tradingExchange
+          ((CommodityFutureOptionSecurity) bean).setTradingExchange((String) newValue);
+          return;
+        case 389497452:  // settlementExchange
+          ((CommodityFutureOptionSecurity) bean).setSettlementExchange((String) newValue);
+          return;
+        case -1289159373:  // expiry
+          ((CommodityFutureOptionSecurity) bean).setExpiry((Expiry) newValue);
+          return;
+        case -466331342:  // exerciseType
+          ((CommodityFutureOptionSecurity) bean).setExerciseType((ExerciseType) newValue);
+          return;
+        case -771625640:  // underlyingId
+          ((CommodityFutureOptionSecurity) bean).setUnderlyingId((ExternalId) newValue);
+          return;
+        case 1257391553:  // pointValue
+          ((CommodityFutureOptionSecurity) bean).setPointValue((Double) newValue);
+          return;
+        case 575402001:  // currency
+          ((CommodityFutureOptionSecurity) bean).setCurrency((Currency) newValue);
+          return;
+        case -891985998:  // strike
+          ((CommodityFutureOptionSecurity) bean).setStrike((Double) newValue);
+          return;
+        case 1373587791:  // optionType
+          ((CommodityFutureOptionSecurity) bean).setOptionType((OptionType) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((CommodityFutureOptionSecurity) bean)._tradingExchange, "tradingExchange");
+      JodaBeanUtils.notNull(((CommodityFutureOptionSecurity) bean)._settlementExchange, "settlementExchange");
+      JodaBeanUtils.notNull(((CommodityFutureOptionSecurity) bean)._expiry, "expiry");
+      JodaBeanUtils.notNull(((CommodityFutureOptionSecurity) bean)._exerciseType, "exerciseType");
+      JodaBeanUtils.notNull(((CommodityFutureOptionSecurity) bean)._underlyingId, "underlyingId");
+      JodaBeanUtils.notNull(((CommodityFutureOptionSecurity) bean)._currency, "currency");
+      JodaBeanUtils.notNull(((CommodityFutureOptionSecurity) bean)._optionType, "optionType");
+      super.validate(bean);
     }
 
   }

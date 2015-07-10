@@ -14,11 +14,13 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of Forex Swap instruments.
  */
+@Test(groups = TestGroup.UNIT)
 public class ForexSwapTest {
 
   private static final Currency CUR_1 = Currency.EUR;
@@ -76,30 +78,4 @@ public class ForexSwapTest {
     assertFalse(FX_SWAP.equals(null));
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Tests the class equal and hashCode
-   */
-  public void equalHashDeprecated() {
-    final String curve1 = "Discounting EUR";
-    final String curve2 = "Discounting USD";
-    final String[] names = new String[] {curve1, curve2};
-    final ForexDefinition fxNearDefinition = new ForexDefinition(CUR_1, CUR_2, NEAR_DATE, NOMINAL_1, FX_RATE);
-    final ForexDefinition fxFarDefinition = new ForexDefinition(CUR_1, CUR_2, FAR_DATE, -NOMINAL_1, FX_RATE + FORWARD_POINTS);
-    final Forex fxNear = fxNearDefinition.toDerivative(REFERENCE_DATE, names);
-    final Forex fxFar = fxFarDefinition.toDerivative(REFERENCE_DATE, names);
-    final ForexSwap fxSwap = new ForexSwap(fxNear, fxFar);
-    assertTrue(fxSwap.equals(fxSwap));
-    final ForexSwap newFxSwap = new ForexSwap(fxNear, fxFar);
-    assertTrue(fxSwap.equals(newFxSwap));
-    assertTrue(fxSwap.hashCode() == newFxSwap.hashCode());
-    ForexSwap modifiedFxSwap;
-    modifiedFxSwap = new ForexSwap(fxFar, fxFar);
-    assertFalse(fxSwap.equals(modifiedFxSwap));
-    modifiedFxSwap = new ForexSwap(fxNear, fxNear);
-    assertFalse(fxSwap.equals(modifiedFxSwap));
-    assertFalse(fxSwap.equals(fxNear));
-    assertFalse(fxSwap.equals(null));
-  }
 }

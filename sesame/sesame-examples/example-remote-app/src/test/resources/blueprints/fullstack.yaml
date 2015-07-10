@@ -1,0 +1,40 @@
+name: OpenGamma Sesame minimal
+
+location: ${deployment.location}
+
+description: >
+  Deploys a minimal OpenGamma Sesame server. The deployment has no broker, database
+  or market data source.
+
+services:
+- id: fullstack
+  type: io.cloudsoft.opengamma.sesame.entity.Fullstack
+  brooklyn.config:
+    configuration:
+    - source: classpath://config/minimal/fullstack/common-metrics.ini
+      destination: config/fullstack/
+    - source: classpath://config/minimal/fullstack/fullstack.ini
+      destination: config/fullstack/
+    - source: classpath://config/minimal/fullstack/fullstack.properties
+      destination: config/fullstack/
+    - source: classpath://config/minimal/fullstack/in-memory.ini
+      destination: config/fullstack/
+    - source: classpath://config/minimal/fullstack/fullstack-logback.xml
+      destination: config/fullstack/
+
+    replacements:
+      REPLACE-JETTY-PORT: $brooklyn:component("this", "").attributeWhenReady("opengamma.server.jettyPort")
+      REPLACE-JETTY-SECURE-PORT: $brooklyn:component("this", "").attributeWhenReady("opengamma.server.jettySecurePort")
+
+    postLaunchActions:
+    - obtain:
+        resources:
+        - source: /home/brooklyn/import-data.zip
+          destination: "" # relative to run directory
+          explode: true
+    - runTool:
+        tool: "database-restore-tool.sh"
+        arguments:
+        - $brooklyn:formatString("-c http://127.0.0.1:%s",
+              component("this", "").attributeWhenReady("opengamma.server.jettyPort"))
+        - "-d import-data/"

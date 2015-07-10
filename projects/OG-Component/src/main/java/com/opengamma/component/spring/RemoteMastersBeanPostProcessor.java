@@ -10,6 +10,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -33,6 +34,8 @@ import com.opengamma.engine.calcnode.stats.FunctionCostsMaster;
 import com.opengamma.engine.calcnode.stats.RemoteFunctionCostsMaster;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.RemoteConfigMaster;
+import com.opengamma.master.convention.ConventionMaster;
+import com.opengamma.master.convention.impl.RemoteConventionMaster;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.impl.RemoteExchangeMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
@@ -68,6 +71,7 @@ public class RemoteMastersBeanPostProcessor extends DirectBean implements BeanFa
     _remoteWrappers.put(RegionMaster.class, RemoteRegionMaster.class);
     _remoteWrappers.put(MarketDataSnapshotMaster.class, RemoteMarketDataSnapshotMaster.class);
     _remoteWrappers.put(SecurityMaster.class, RemoteSecurityMaster.class);
+    _remoteWrappers.put(ConventionMaster.class, RemoteConventionMaster.class);
     _remoteWrappers.put(PositionMaster.class, RemotePositionMaster.class);
     _remoteWrappers.put(PortfolioMaster.class, RemotePortfolioMaster.class);
     _remoteWrappers.put(HistoricalTimeSeriesMaster.class, RemoteHistoricalTimeSeriesMaster.class);
@@ -120,44 +124,6 @@ public class RemoteMastersBeanPostProcessor extends DirectBean implements BeanFa
     return RemoteMastersBeanPostProcessor.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -332625701:  // baseUri
-        return getBaseUri();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -332625701:  // baseUri
-        setBaseUri((URI) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      RemoteMastersBeanPostProcessor other = (RemoteMastersBeanPostProcessor) obj;
-      return JodaBeanUtils.equal(getBaseUri(), other.getBaseUri());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseUri());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the remote URI.
@@ -181,6 +147,48 @@ public class RemoteMastersBeanPostProcessor extends DirectBean implements BeanFa
    */
   public final Property<URI> baseUri() {
     return metaBean().baseUri().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public RemoteMastersBeanPostProcessor clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      RemoteMastersBeanPostProcessor other = (RemoteMastersBeanPostProcessor) obj;
+      return JodaBeanUtils.equal(getBaseUri(), other.getBaseUri());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBaseUri());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("RemoteMastersBeanPostProcessor{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("baseUri").append('=').append(JodaBeanUtils.toString(getBaseUri())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -242,6 +250,26 @@ public class RemoteMastersBeanPostProcessor extends DirectBean implements BeanFa
      */
     public final MetaProperty<URI> baseUri() {
       return _baseUri;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -332625701:  // baseUri
+          return ((RemoteMastersBeanPostProcessor) bean).getBaseUri();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -332625701:  // baseUri
+          ((RemoteMastersBeanPostProcessor) bean).setBaseUri((URI) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

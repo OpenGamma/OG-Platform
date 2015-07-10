@@ -7,6 +7,7 @@ package com.opengamma.livedata.cogda.msg;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -58,65 +59,6 @@ public abstract class CogdaCommandResponseMessage extends DirectBean {
   @Override
   public CogdaCommandResponseMessage.Meta metaBean() {
     return CogdaCommandResponseMessage.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -764983747:  // correlationId
-        return getCorrelationId();
-      case 60604628:  // genericResult
-        return getGenericResult();
-      case 653058492:  // userMessage
-        return getUserMessage();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -764983747:  // correlationId
-        setCorrelationId((Long) newValue);
-        return;
-      case 60604628:  // genericResult
-        setGenericResult((CogdaCommandResponseResult) newValue);
-        return;
-      case 653058492:  // userMessage
-        setUserMessage((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_correlationId, "correlationId");
-    JodaBeanUtils.notNull(_genericResult, "genericResult");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CogdaCommandResponseMessage other = (CogdaCommandResponseMessage) obj;
-      return JodaBeanUtils.equal(getCorrelationId(), other.getCorrelationId()) &&
-          JodaBeanUtils.equal(getGenericResult(), other.getGenericResult()) &&
-          JodaBeanUtils.equal(getUserMessage(), other.getUserMessage());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrelationId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGenericResult());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserMessage());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -197,6 +139,54 @@ public abstract class CogdaCommandResponseMessage extends DirectBean {
    */
   public final Property<String> userMessage() {
     return metaBean().userMessage().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public CogdaCommandResponseMessage clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CogdaCommandResponseMessage other = (CogdaCommandResponseMessage) obj;
+      return (getCorrelationId() == other.getCorrelationId()) &&
+          JodaBeanUtils.equal(getGenericResult(), other.getGenericResult()) &&
+          JodaBeanUtils.equal(getUserMessage(), other.getUserMessage());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCorrelationId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getGenericResult());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUserMessage());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("CogdaCommandResponseMessage{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("correlationId").append('=').append(JodaBeanUtils.toString(getCorrelationId())).append(',').append(' ');
+    buf.append("genericResult").append('=').append(JodaBeanUtils.toString(getGenericResult())).append(',').append(' ');
+    buf.append("userMessage").append('=').append(JodaBeanUtils.toString(getUserMessage())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -290,6 +280,42 @@ public abstract class CogdaCommandResponseMessage extends DirectBean {
      */
     public final MetaProperty<String> userMessage() {
       return _userMessage;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -764983747:  // correlationId
+          return ((CogdaCommandResponseMessage) bean).getCorrelationId();
+        case 60604628:  // genericResult
+          return ((CogdaCommandResponseMessage) bean).getGenericResult();
+        case 653058492:  // userMessage
+          return ((CogdaCommandResponseMessage) bean).getUserMessage();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -764983747:  // correlationId
+          ((CogdaCommandResponseMessage) bean).setCorrelationId((Long) newValue);
+          return;
+        case 60604628:  // genericResult
+          ((CogdaCommandResponseMessage) bean).setGenericResult((CogdaCommandResponseResult) newValue);
+          return;
+        case 653058492:  // userMessage
+          ((CogdaCommandResponseMessage) bean).setUserMessage((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((CogdaCommandResponseMessage) bean)._correlationId, "correlationId");
+      JodaBeanUtils.notNull(((CogdaCommandResponseMessage) bean)._genericResult, "genericResult");
     }
 
   }

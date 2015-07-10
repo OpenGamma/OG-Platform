@@ -33,8 +33,9 @@ public class SimplePositionComparator implements Comparator<Position> {
     }
   }
   
+  @SuppressWarnings("deprecation")
   public ExternalId getBestIdentifier(ExternalIdBundle idBundle) {
-    ExternalScheme[] schemes = {ExternalSchemes.BLOOMBERG_TICKER, ExternalSchemes.BLOOMBERG_TICKER_WEAK, ExternalSchemes.BLOOMBERG_TCM, 
+    ExternalScheme[] schemes = {ExternalSchemes.BLOOMBERG_TICKER, ExternalSchemes.BLOOMBERG_TICKER_WEAK, ExternalSchemes.BLOOMBERG_TCM,
                                 ExternalSchemes.ACTIVFEED_TICKER, ExternalSchemes.RIC, ExternalSchemes.ISIN, ExternalSchemes.CUSIP};
     for (ExternalScheme scheme : schemes) {
       ExternalId externalId = idBundle.getExternalId(scheme);

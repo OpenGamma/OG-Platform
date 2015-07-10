@@ -9,6 +9,7 @@ package com.opengamma.master.historicaltimeseries;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -177,58 +178,6 @@ public class HistoricalTimeSeriesGetFilter extends DirectBean implements Seriali
     return HistoricalTimeSeriesGetFilter.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 239226785:  // earliestDate
-        return getEarliestDate();
-      case -125315115:  // latestDate
-        return getLatestDate();
-      case -667790489:  // maxPoints
-        return getMaxPoints();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 239226785:  // earliestDate
-        setEarliestDate((LocalDate) newValue);
-        return;
-      case -125315115:  // latestDate
-        setLatestDate((LocalDate) newValue);
-        return;
-      case -667790489:  // maxPoints
-        setMaxPoints((Integer) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      HistoricalTimeSeriesGetFilter other = (HistoricalTimeSeriesGetFilter) obj;
-      return JodaBeanUtils.equal(getEarliestDate(), other.getEarliestDate()) &&
-          JodaBeanUtils.equal(getLatestDate(), other.getLatestDate()) &&
-          JodaBeanUtils.equal(getMaxPoints(), other.getMaxPoints());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEarliestDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLatestDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxPoints());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the earliest date to return, inclusive, null means far past.
@@ -317,6 +266,54 @@ public class HistoricalTimeSeriesGetFilter extends DirectBean implements Seriali
    */
   public final Property<Integer> maxPoints() {
     return metaBean().maxPoints().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public HistoricalTimeSeriesGetFilter clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      HistoricalTimeSeriesGetFilter other = (HistoricalTimeSeriesGetFilter) obj;
+      return JodaBeanUtils.equal(getEarliestDate(), other.getEarliestDate()) &&
+          JodaBeanUtils.equal(getLatestDate(), other.getLatestDate()) &&
+          JodaBeanUtils.equal(getMaxPoints(), other.getMaxPoints());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEarliestDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLatestDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaxPoints());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("HistoricalTimeSeriesGetFilter{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("earliestDate").append('=').append(JodaBeanUtils.toString(getEarliestDate())).append(',').append(' ');
+    buf.append("latestDate").append('=').append(JodaBeanUtils.toString(getLatestDate())).append(',').append(' ');
+    buf.append("maxPoints").append('=').append(JodaBeanUtils.toString(getMaxPoints())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -410,6 +407,36 @@ public class HistoricalTimeSeriesGetFilter extends DirectBean implements Seriali
      */
     public final MetaProperty<Integer> maxPoints() {
       return _maxPoints;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 239226785:  // earliestDate
+          return ((HistoricalTimeSeriesGetFilter) bean).getEarliestDate();
+        case -125315115:  // latestDate
+          return ((HistoricalTimeSeriesGetFilter) bean).getLatestDate();
+        case -667790489:  // maxPoints
+          return ((HistoricalTimeSeriesGetFilter) bean).getMaxPoints();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 239226785:  // earliestDate
+          ((HistoricalTimeSeriesGetFilter) bean).setEarliestDate((LocalDate) newValue);
+          return;
+        case -125315115:  // latestDate
+          ((HistoricalTimeSeriesGetFilter) bean).setLatestDate((LocalDate) newValue);
+          return;
+        case -667790489:  // maxPoints
+          ((HistoricalTimeSeriesGetFilter) bean).setMaxPoints((Integer) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

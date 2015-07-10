@@ -452,11 +452,10 @@ CREATE TABLE sec_coupontype (
  );
 
 CREATE TABLE sec_stubtype (
-     id bigint NOT NULL,
-     name varchar(255) NOT NULL UNIQUE,
-     PRIMARY KEY (id)
- );
-
+    id bigint NOT NULL,
+    name varchar(255) NOT NULL UNIQUE,
+    PRIMARY KEY (id)
+);
 
 CREATE TABLE sec_bond (
     id bigint NOT NULL,
@@ -579,7 +578,6 @@ CREATE TABLE sec_commodity_forward (
     unit_amount double precision,
     underlying_scheme varchar(255),
     underlying_identifier varchar(255),
-
     contract_category_id bigint NOT NULL,
     PRIMARY KEY (id),
     CONSTRAINT sec_fk_commodity_forward2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
@@ -742,7 +740,6 @@ CREATE TABLE sec_fxforward (
   CONSTRAINT sec_fk_fxforward2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
   CONSTRAINT sec_fk_fxforward_pay2currency FOREIGN KEY (pay_currency_id) REFERENCES sec_currency (id),
   CONSTRAINT sec_fk_fxforward_rcv2currency FOREIGN KEY (receive_currency_id) REFERENCES sec_currency (id)
-
 );
 CREATE INDEX ix_sec_fxforward_security_id ON sec_fxforward(security_id);
 
@@ -857,7 +854,6 @@ CREATE TABLE sec_security_attribute (
 CREATE INDEX ix_sec_security_attr_security_oid ON sec_security_attribute(security_oid);
 CREATE INDEX ix_sec_security_attr_key ON sec_security_attribute(attr_key);
 
-
 CREATE TABLE sec_cds (
   id bigint NOT NULL,
   security_id bigint NOT NULL,
@@ -878,7 +874,6 @@ CREATE TABLE sec_cds (
   underlying_currency_id bigint NOT NULL,
   underlying_seniority varchar(255) NOT NULL,
   restructuring_clause varchar(255) NOT NULL,
-
   PRIMARY KEY (id),
   CONSTRAINT sec_fk_cds2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
   CONSTRAINT sec_fk_cds2currency FOREIGN KEY (currency_id) REFERENCES sec_currency (id),
@@ -890,16 +885,16 @@ CREATE TABLE sec_cds (
 );
 
 CREATE TABLE sec_debt_seniority (
-  id bigint NOT NULL,
-  name varchar(255) NOT NULL UNIQUE,
-  PRIMARY KEY (id)
- );
+    id bigint NOT NULL,
+    name varchar(255) NOT NULL UNIQUE,
+    PRIMARY KEY (id)
+);
 
 CREATE TABLE  sec_restructuring_clause (
-  id bigint NOT NULL,
-  name varchar(255) NOT NULL UNIQUE,
-  PRIMARY KEY (id)
- );
+    id bigint NOT NULL,
+    name varchar(255) NOT NULL UNIQUE,
+    PRIMARY KEY (id)
+);
 
  CREATE TABLE sec_credit_default_swap (
    id bigint NOT NULL,
@@ -948,7 +943,6 @@ CREATE TABLE  sec_restructuring_clause (
    stdvanilla_cashsettlement_date timestamp without time zone,
    stdvanilla_ashsettlement_date_zone varchar(50),
    stdvanilla_adjust_cashsettlement_date boolean,
-
    PRIMARY KEY (id),
    CONSTRAINT sec_fk_creditdefaultswap2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
    CONSTRAINT sec_fk_creditdefaultswap2debtseniority FOREIGN KEY (debt_seniority_id) REFERENCES sec_debt_seniority(id),
@@ -958,10 +952,10 @@ CREATE TABLE  sec_restructuring_clause (
    CONSTRAINT sec_fk_creditdefaultswap2daycount FOREIGN KEY (daycount_convention_id) REFERENCES sec_daycount (id),
    CONSTRAINT sec_fk_creditdefaultswap2businessdayconvention FOREIGN KEY (businessday_convention_id) REFERENCES sec_businessdayconvention (id),
    CONSTRAINT sec_fk_creditdefaultswap2currency FOREIGN KEY (notional_currency_id) REFERENCES sec_currency (id)
- );
- CREATE INDEX ix_sec_creditdefaultswap_security_id ON sec_credit_default_swap(security_id);
+);
+CREATE INDEX ix_sec_creditdefaultswap_security_id ON sec_credit_default_swap(security_id);
 
- CREATE TABLE sec_cashflow (
+CREATE TABLE sec_cashflow (
     id bigint NOT NULL,
     security_id bigint NOT NULL,
     currency_id bigint NOT NULL,
@@ -972,7 +966,7 @@ CREATE TABLE  sec_restructuring_clause (
     PRIMARY KEY (id),
     CONSTRAINT sec_fk_cashflow2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
     CONSTRAINT sec_fk_cashflow2currency FOREIGN KEY (currency_id) REFERENCES sec_currency (id)
- );
+);
 
 CREATE TABLE sec_equity_index_futureoption (
     id bigint NOT NULL,
@@ -1078,7 +1072,6 @@ CREATE TABLE sec_credit_default_swap_option (
     exercise_type varchar(32) NOT NULL,
     underlying_scheme varchar(255) NOT NULL,
     underlying_identifier varchar(255) NOT NULL,
-
     PRIMARY KEY (id),
     CONSTRAINT sec_fk_creditdefaultswapoption2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
     CONSTRAINT sec_fk_creditdefaultswapoption2currency FOREIGN KEY (currency_id) REFERENCES sec_currency(id)

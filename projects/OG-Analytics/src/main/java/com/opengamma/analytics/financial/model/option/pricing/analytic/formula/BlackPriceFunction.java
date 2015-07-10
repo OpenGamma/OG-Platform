@@ -45,6 +45,7 @@ public class BlackPriceFunction implements OptionPriceFunction<BlackFunctionData
    * [3] the derivative with respect to the strike.
    */
   //TODO Refactor the method call to have the price as output and the derivatives as an array (like getPriceAdjoint2).
+  // TODO: [PLAT-6343]Add the derivative to the time to expiry (theta)
   public double[] getPriceAdjoint(final EuropeanVanillaOption option, final BlackFunctionData data) {
     /**
      * The array storing the price and derivatives.
@@ -175,7 +176,7 @@ public class BlackPriceFunction implements OptionPriceFunction<BlackFunctionData
     double kappaKappaBar2 = d1KappaKappa * d1Bar + d2KappaKappa * d2Bar;
     double kappaV = -Math.log(forward / strike) / (volblack * volblack) - 0.5;
     double kappaVV = 2 * Math.log(forward / strike) / (volblack * volblack * volblack);
-    double d1TotVV = density1 * (-(kappa + volblack) * (kappaV + 1) * (kappaV + 1) + kappaVV);
+    double d1TotVV = density1 * omega * (-(kappa + volblack) * (kappaV + 1) * (kappaV + 1) + kappaVV);
     double d2TotVV = d2KappaKappa * kappaV * kappaV + d2Kappa * kappaVV;
     double vVbar2 = d1Bar * d1TotVV + d2Bar * d2TotVV;
     double volVolBar2 = vVbar2 * timeToExpiry;

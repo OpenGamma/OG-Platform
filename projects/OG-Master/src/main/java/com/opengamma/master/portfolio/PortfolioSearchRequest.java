@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -194,95 +195,6 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
     return PortfolioSearchRequest.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -397882735:  // portfolioObjectIds
-        return getPortfolioObjectIds();
-      case 2068534039:  // nodeObjectIds
-        return getNodeObjectIds();
-      case 3373707:  // name
-        return getName();
-      case -26774448:  // sortOrder
-        return getSortOrder();
-      case 95472323:  // depth
-        return getDepth();
-      case 81400994:  // includePositions
-        return isIncludePositions();
-      case 1941332754:  // visibility
-        return getVisibility();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -397882735:  // portfolioObjectIds
-        setPortfolioObjectIds((List<ObjectId>) newValue);
-        return;
-      case 2068534039:  // nodeObjectIds
-        setNodeObjectIds((List<ObjectId>) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case -26774448:  // sortOrder
-        setSortOrder((PortfolioSearchSortOrder) newValue);
-        return;
-      case 95472323:  // depth
-        setDepth((Integer) newValue);
-        return;
-      case 81400994:  // includePositions
-        setIncludePositions((Boolean) newValue);
-        return;
-      case 1941332754:  // visibility
-        setVisibility((DocumentVisibility) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_sortOrder, "sortOrder");
-    JodaBeanUtils.notNull(_visibility, "visibility");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      PortfolioSearchRequest other = (PortfolioSearchRequest) obj;
-      return JodaBeanUtils.equal(getPortfolioObjectIds(), other.getPortfolioObjectIds()) &&
-          JodaBeanUtils.equal(getNodeObjectIds(), other.getNodeObjectIds()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getSortOrder(), other.getSortOrder()) &&
-          JodaBeanUtils.equal(getDepth(), other.getDepth()) &&
-          JodaBeanUtils.equal(isIncludePositions(), other.isIncludePositions()) &&
-          JodaBeanUtils.equal(getVisibility(), other.getVisibility()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioObjectIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNodeObjectIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDepth());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIncludePositions());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVisibility());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the set of portfolio object identifiers, null to not limit by portfolio object identifiers.
@@ -466,6 +378,69 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public PortfolioSearchRequest clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      PortfolioSearchRequest other = (PortfolioSearchRequest) obj;
+      return JodaBeanUtils.equal(getPortfolioObjectIds(), other.getPortfolioObjectIds()) &&
+          JodaBeanUtils.equal(getNodeObjectIds(), other.getNodeObjectIds()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getSortOrder(), other.getSortOrder()) &&
+          (getDepth() == other.getDepth()) &&
+          (isIncludePositions() == other.isIncludePositions()) &&
+          JodaBeanUtils.equal(getVisibility(), other.getVisibility()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPortfolioObjectIds());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNodeObjectIds());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDepth());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isIncludePositions());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVisibility());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(256);
+    buf.append("PortfolioSearchRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("portfolioObjectIds").append('=').append(JodaBeanUtils.toString(getPortfolioObjectIds())).append(',').append(' ');
+    buf.append("nodeObjectIds").append('=').append(JodaBeanUtils.toString(getNodeObjectIds())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("sortOrder").append('=').append(JodaBeanUtils.toString(getSortOrder())).append(',').append(' ');
+    buf.append("depth").append('=').append(JodaBeanUtils.toString(getDepth())).append(',').append(' ');
+    buf.append("includePositions").append('=').append(JodaBeanUtils.toString(isIncludePositions())).append(',').append(' ');
+    buf.append("visibility").append('=').append(JodaBeanUtils.toString(getVisibility())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code PortfolioSearchRequest}.
    */
@@ -622,6 +597,64 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
      */
     public final MetaProperty<DocumentVisibility> visibility() {
       return _visibility;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -397882735:  // portfolioObjectIds
+          return ((PortfolioSearchRequest) bean).getPortfolioObjectIds();
+        case 2068534039:  // nodeObjectIds
+          return ((PortfolioSearchRequest) bean).getNodeObjectIds();
+        case 3373707:  // name
+          return ((PortfolioSearchRequest) bean).getName();
+        case -26774448:  // sortOrder
+          return ((PortfolioSearchRequest) bean).getSortOrder();
+        case 95472323:  // depth
+          return ((PortfolioSearchRequest) bean).getDepth();
+        case 81400994:  // includePositions
+          return ((PortfolioSearchRequest) bean).isIncludePositions();
+        case 1941332754:  // visibility
+          return ((PortfolioSearchRequest) bean).getVisibility();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -397882735:  // portfolioObjectIds
+          ((PortfolioSearchRequest) bean).setPortfolioObjectIds((List<ObjectId>) newValue);
+          return;
+        case 2068534039:  // nodeObjectIds
+          ((PortfolioSearchRequest) bean).setNodeObjectIds((List<ObjectId>) newValue);
+          return;
+        case 3373707:  // name
+          ((PortfolioSearchRequest) bean).setName((String) newValue);
+          return;
+        case -26774448:  // sortOrder
+          ((PortfolioSearchRequest) bean).setSortOrder((PortfolioSearchSortOrder) newValue);
+          return;
+        case 95472323:  // depth
+          ((PortfolioSearchRequest) bean).setDepth((Integer) newValue);
+          return;
+        case 81400994:  // includePositions
+          ((PortfolioSearchRequest) bean).setIncludePositions((Boolean) newValue);
+          return;
+        case 1941332754:  // visibility
+          ((PortfolioSearchRequest) bean).setVisibility((DocumentVisibility) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((PortfolioSearchRequest) bean)._sortOrder, "sortOrder");
+      JodaBeanUtils.notNull(((PortfolioSearchRequest) bean)._visibility, "visibility");
+      super.validate(bean);
     }
 
   }

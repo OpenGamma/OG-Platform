@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -81,39 +82,130 @@ public class HistoricalTimeSeriesInfoMetaDataResult extends AbstractMetaDataResu
     return HistoricalTimeSeriesInfoMetaDataResult.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 894268163:  // dataFields
-        return getDataFields();
-      case 791883950:  // dataSources
-        return getDataSources();
-      case 1942087704:  // dataProviders
-        return getDataProviders();
-      case -576554374:  // observationTimes
-        return getObservationTimes();
-    }
-    return super.propertyGet(propertyName, quiet);
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the list if valid data fields.
+   * This is only populated if requested.
+   * @return the value of the property, not null
+   */
+  public List<String> getDataFields() {
+    return _dataFields;
   }
 
-  @SuppressWarnings("unchecked")
+  /**
+   * Sets the list if valid data fields.
+   * This is only populated if requested.
+   * @param dataFields  the new value of the property, not null
+   */
+  public void setDataFields(List<String> dataFields) {
+    JodaBeanUtils.notNull(dataFields, "dataFields");
+    this._dataFields.clear();
+    this._dataFields.addAll(dataFields);
+  }
+
+  /**
+   * Gets the the {@code dataFields} property.
+   * This is only populated if requested.
+   * @return the property, not null
+   */
+  public final Property<List<String>> dataFields() {
+    return metaBean().dataFields().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the list if valid data sources.
+   * This is only populated if requested.
+   * @return the value of the property, not null
+   */
+  public List<String> getDataSources() {
+    return _dataSources;
+  }
+
+  /**
+   * Sets the list if valid data sources.
+   * This is only populated if requested.
+   * @param dataSources  the new value of the property, not null
+   */
+  public void setDataSources(List<String> dataSources) {
+    JodaBeanUtils.notNull(dataSources, "dataSources");
+    this._dataSources.clear();
+    this._dataSources.addAll(dataSources);
+  }
+
+  /**
+   * Gets the the {@code dataSources} property.
+   * This is only populated if requested.
+   * @return the property, not null
+   */
+  public final Property<List<String>> dataSources() {
+    return metaBean().dataSources().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the list if valid data providers.
+   * This is only populated if requested.
+   * @return the value of the property, not null
+   */
+  public List<String> getDataProviders() {
+    return _dataProviders;
+  }
+
+  /**
+   * Sets the list if valid data providers.
+   * This is only populated if requested.
+   * @param dataProviders  the new value of the property, not null
+   */
+  public void setDataProviders(List<String> dataProviders) {
+    JodaBeanUtils.notNull(dataProviders, "dataProviders");
+    this._dataProviders.clear();
+    this._dataProviders.addAll(dataProviders);
+  }
+
+  /**
+   * Gets the the {@code dataProviders} property.
+   * This is only populated if requested.
+   * @return the property, not null
+   */
+  public final Property<List<String>> dataProviders() {
+    return metaBean().dataProviders().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the list if valid observation times.
+   * This is only populated if requested.
+   * @return the value of the property, not null
+   */
+  public List<String> getObservationTimes() {
+    return _observationTimes;
+  }
+
+  /**
+   * Sets the list if valid observation times.
+   * This is only populated if requested.
+   * @param observationTimes  the new value of the property, not null
+   */
+  public void setObservationTimes(List<String> observationTimes) {
+    JodaBeanUtils.notNull(observationTimes, "observationTimes");
+    this._observationTimes.clear();
+    this._observationTimes.addAll(observationTimes);
+  }
+
+  /**
+   * Gets the the {@code observationTimes} property.
+   * This is only populated if requested.
+   * @return the property, not null
+   */
+  public final Property<List<String>> observationTimes() {
+    return metaBean().observationTimes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 894268163:  // dataFields
-        setDataFields((List<String>) newValue);
-        return;
-      case 791883950:  // dataSources
-        setDataSources((List<String>) newValue);
-        return;
-      case 1942087704:  // dataProviders
-        setDataProviders((List<String>) newValue);
-        return;
-      case -576554374:  // observationTimes
-        setObservationTimes((List<String>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
+  public HistoricalTimeSeriesInfoMetaDataResult clone() {
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override
@@ -135,127 +227,33 @@ public class HistoricalTimeSeriesInfoMetaDataResult extends AbstractMetaDataResu
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataFields());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSources());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataProviders());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTimes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataFields());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataSources());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataProviders());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObservationTimes());
     return hash ^ super.hashCode();
   }
 
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the list if valid data fields.
-   * This is only populated if requested.
-   * @return the value of the property
-   */
-  public List<String> getDataFields() {
-    return _dataFields;
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("HistoricalTimeSeriesInfoMetaDataResult{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
   }
 
-  /**
-   * Sets the list if valid data fields.
-   * This is only populated if requested.
-   * @param dataFields  the new value of the property
-   */
-  public void setDataFields(List<String> dataFields) {
-    this._dataFields.clear();
-    this._dataFields.addAll(dataFields);
-  }
-
-  /**
-   * Gets the the {@code dataFields} property.
-   * This is only populated if requested.
-   * @return the property, not null
-   */
-  public final Property<List<String>> dataFields() {
-    return metaBean().dataFields().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the list if valid data sources.
-   * This is only populated if requested.
-   * @return the value of the property
-   */
-  public List<String> getDataSources() {
-    return _dataSources;
-  }
-
-  /**
-   * Sets the list if valid data sources.
-   * This is only populated if requested.
-   * @param dataSources  the new value of the property
-   */
-  public void setDataSources(List<String> dataSources) {
-    this._dataSources.clear();
-    this._dataSources.addAll(dataSources);
-  }
-
-  /**
-   * Gets the the {@code dataSources} property.
-   * This is only populated if requested.
-   * @return the property, not null
-   */
-  public final Property<List<String>> dataSources() {
-    return metaBean().dataSources().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the list if valid data providers.
-   * This is only populated if requested.
-   * @return the value of the property
-   */
-  public List<String> getDataProviders() {
-    return _dataProviders;
-  }
-
-  /**
-   * Sets the list if valid data providers.
-   * This is only populated if requested.
-   * @param dataProviders  the new value of the property
-   */
-  public void setDataProviders(List<String> dataProviders) {
-    this._dataProviders.clear();
-    this._dataProviders.addAll(dataProviders);
-  }
-
-  /**
-   * Gets the the {@code dataProviders} property.
-   * This is only populated if requested.
-   * @return the property, not null
-   */
-  public final Property<List<String>> dataProviders() {
-    return metaBean().dataProviders().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the list if valid observation times.
-   * This is only populated if requested.
-   * @return the value of the property
-   */
-  public List<String> getObservationTimes() {
-    return _observationTimes;
-  }
-
-  /**
-   * Sets the list if valid observation times.
-   * This is only populated if requested.
-   * @param observationTimes  the new value of the property
-   */
-  public void setObservationTimes(List<String> observationTimes) {
-    this._observationTimes.clear();
-    this._observationTimes.addAll(observationTimes);
-  }
-
-  /**
-   * Gets the the {@code observationTimes} property.
-   * This is only populated if requested.
-   * @return the property, not null
-   */
-  public final Property<List<String>> observationTimes() {
-    return metaBean().observationTimes().createProperty(this);
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("dataFields").append('=').append(JodaBeanUtils.toString(getDataFields())).append(',').append(' ');
+    buf.append("dataSources").append('=').append(JodaBeanUtils.toString(getDataSources())).append(',').append(' ');
+    buf.append("dataProviders").append('=').append(JodaBeanUtils.toString(getDataProviders())).append(',').append(' ');
+    buf.append("observationTimes").append('=').append(JodaBeanUtils.toString(getObservationTimes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -369,6 +367,51 @@ public class HistoricalTimeSeriesInfoMetaDataResult extends AbstractMetaDataResu
      */
     public final MetaProperty<List<String>> observationTimes() {
       return _observationTimes;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 894268163:  // dataFields
+          return ((HistoricalTimeSeriesInfoMetaDataResult) bean).getDataFields();
+        case 791883950:  // dataSources
+          return ((HistoricalTimeSeriesInfoMetaDataResult) bean).getDataSources();
+        case 1942087704:  // dataProviders
+          return ((HistoricalTimeSeriesInfoMetaDataResult) bean).getDataProviders();
+        case -576554374:  // observationTimes
+          return ((HistoricalTimeSeriesInfoMetaDataResult) bean).getObservationTimes();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 894268163:  // dataFields
+          ((HistoricalTimeSeriesInfoMetaDataResult) bean).setDataFields((List<String>) newValue);
+          return;
+        case 791883950:  // dataSources
+          ((HistoricalTimeSeriesInfoMetaDataResult) bean).setDataSources((List<String>) newValue);
+          return;
+        case 1942087704:  // dataProviders
+          ((HistoricalTimeSeriesInfoMetaDataResult) bean).setDataProviders((List<String>) newValue);
+          return;
+        case -576554374:  // observationTimes
+          ((HistoricalTimeSeriesInfoMetaDataResult) bean).setObservationTimes((List<String>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((HistoricalTimeSeriesInfoMetaDataResult) bean)._dataFields, "dataFields");
+      JodaBeanUtils.notNull(((HistoricalTimeSeriesInfoMetaDataResult) bean)._dataSources, "dataSources");
+      JodaBeanUtils.notNull(((HistoricalTimeSeriesInfoMetaDataResult) bean)._dataProviders, "dataProviders");
+      JodaBeanUtils.notNull(((HistoricalTimeSeriesInfoMetaDataResult) bean)._observationTimes, "observationTimes");
+      super.validate(bean);
     }
 
   }

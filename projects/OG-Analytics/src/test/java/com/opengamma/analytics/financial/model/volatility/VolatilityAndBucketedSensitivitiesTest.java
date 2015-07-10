@@ -11,9 +11,12 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class VolatilityAndBucketedSensitivitiesTest {
   private static final double VOL = 0.34;
   private static final double[][] SENSITIVITIES = new double[][] {new double[] {0.1, 0.2, 0.3}, new double[] {0.4, 0.5, 0.6}};

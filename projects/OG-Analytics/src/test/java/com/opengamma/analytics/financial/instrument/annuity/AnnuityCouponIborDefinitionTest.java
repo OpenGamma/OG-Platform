@@ -23,25 +23,30 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class AnnuityCouponIborDefinitionTest {
   //Libor3m
   private static final Period INDEX_TENOR = Period.ofMonths(3);
   private static final PeriodFrequency INDEX_FREQUENCY = PeriodFrequency.QUARTERLY;
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final DayCount DAY_COUNT = DayCounts.ACT_360;
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final boolean IS_EOM = true;
   private static final Currency CUR = Currency.EUR;
   private static final IborIndex INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM, "Ibor");
@@ -126,7 +131,7 @@ public class AnnuityCouponIborDefinitionTest {
   public void testFrom() {
     final ZonedDateTime settleDate = DateUtils.getUTCDate(2014, 3, 20);
     final Period indexTenor = Period.ofMonths(3);
-    final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+    final DayCount dayCount = DayCounts.ACT_360;
     final IborIndex index = new IborIndex(CUR, indexTenor, SETTLEMENT_DAYS, dayCount, BUSINESS_DAY, IS_EOM, "Ibor");
     final AnnuityCouponIborDefinition iborAnnuity = AnnuityCouponIborDefinition.from(settleDate, Period.ofYears(1), NOTIONAL, index, IS_PAYER, CALENDAR);
     final ZonedDateTime[] paymentDates = new ZonedDateTime[] {DateUtils.getUTCDate(2014, 6, 20), DateUtils.getUTCDate(2014, 9, 22), DateUtils.getUTCDate(2014, 12, 22),
@@ -177,58 +182,6 @@ public class AnnuityCouponIborDefinitionTest {
     }
     modifiedIborAnnuity = new AnnuityCouponIborDefinition(couponsModified, INDEX, CALENDAR);
     assertFalse(iborAnnuity.equals(modifiedIborAnnuity));
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  public void testToDerivativeAfterFixingDeprecated() {
-    final String fundingCurve = "Funding";
-    final String forwardCurve = "Forward";
-    final String[] curves = {fundingCurve, forwardCurve };
-    final Payment[] couponIborConverted = new Payment[PAYMENT_DATES.length];
-    ZonedDateTime date = REFERENCE_DATE.plusMonths(1);
-    for (int loopcpn = 0; loopcpn < PAYMENT_DATES.length; loopcpn++) {
-      couponIborConverted[loopcpn] = IBOR_ANNUITY.getNthPayment(loopcpn).toDerivative(date, FIXING_TS, curves);
-    }
-    Annuity<Payment> referenceAnnuity = new Annuity<>(couponIborConverted);
-    Annuity<? extends Payment> convertedDefinition = IBOR_ANNUITY.toDerivative(date, FIXING_TS, curves);
-    assertEquals(referenceAnnuity, convertedDefinition);
-    assertTrue(convertedDefinition.getNthPayment(0) instanceof CouponFixed);
-    assertEquals(((CouponFixed) convertedDefinition.getNthPayment(0)).getFixedRate(), FIXING_RATE, 0);
-    for (int i = 1; i < PAYMENT_DATES.length; i++) {
-      assertTrue(convertedDefinition.getNthPayment(i) instanceof CouponIbor);
-    }
-    date = REFERENCE_DATE;
-    for (int loopcpn = 0; loopcpn < PAYMENT_DATES.length; loopcpn++) {
-      couponIborConverted[loopcpn] = IBOR_ANNUITY.getNthPayment(loopcpn).toDerivative(date, FIXING_TS, curves);
-    }
-    referenceAnnuity = new Annuity<>(couponIborConverted);
-    convertedDefinition = IBOR_ANNUITY.toDerivative(date, FIXING_TS, curves);
-    assertEquals(referenceAnnuity, convertedDefinition);
-    assertTrue(convertedDefinition.getNthPayment(0) instanceof CouponFixed);
-    assertEquals(((CouponFixed) convertedDefinition.getNthPayment(0)).getFixedRate(), FIXING_RATE, 0);
-    for (int i = 1; i < PAYMENT_DATES.length; i++) {
-      assertTrue(convertedDefinition.getNthPayment(i) instanceof CouponIbor);
-    }
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  public void testToDerivativeBeforeFixingDeprecated() {
-    final String fundingCurve = "Funding";
-    final String forwardCurve = "Forward";
-    final String[] curves = {fundingCurve, forwardCurve };
-    final Payment[] couponIborConverted = new Payment[PAYMENT_DATES.length];
-    final ZonedDateTime date = REFERENCE_DATE.minusDays(1);
-    for (int loopcpn = 0; loopcpn < PAYMENT_DATES.length; loopcpn++) {
-      couponIborConverted[loopcpn] = IBOR_ANNUITY.getNthPayment(loopcpn).toDerivative(date, FIXING_TS, curves);
-    }
-    final Annuity<Payment> referenceAnnuity = new Annuity<>(couponIborConverted);
-    final Annuity<? extends Payment> convertedDefinition = IBOR_ANNUITY.toDerivative(date, FIXING_TS, curves);
-    assertEquals(referenceAnnuity, convertedDefinition);
-    for (int i = 0; i < PAYMENT_DATES.length; i++) {
-      assertTrue(convertedDefinition.getNthPayment(i) instanceof CouponIbor);
-    }
   }
 
   @Test

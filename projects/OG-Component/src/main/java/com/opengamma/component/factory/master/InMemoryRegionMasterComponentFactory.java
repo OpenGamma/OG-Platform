@@ -5,9 +5,12 @@
  */
 package com.opengamma.component.factory.master;
 
+import static com.opengamma.component.factory.master.DBMasterComponentUtils.isValidJmsConfiguration;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -45,6 +48,13 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
    */
   @PropertyDefinition(validate = "notNull")
   private String _classifier;
+  
+  /**
+   * Whether to use change management. If true, requires jms settings to be non-null.
+   */
+  @PropertyDefinition
+  private boolean _enableChangeManagement = true;
+
   /**
    * The flag determining whether the component should be published by REST (default true).
    */
@@ -74,7 +84,7 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
     // create
     String scheme = (getUniqueIdScheme() != null ? getUniqueIdScheme() : InMemoryRegionMaster.DEFAULT_OID_SCHEME);
     ChangeManager cm = new BasicChangeManager();
-    if (getJmsChangeManagerTopic() != null) {
+    if (isEnableChangeManagement() && isValidJmsConfiguration(getClassifier(), getClass(), getJmsConnector(), getJmsChangeManagerTopic())) {
       cm = new JmsChangeManager(getJmsConnector(), getJmsChangeManagerTopic());
       repo.registerLifecycle((Lifecycle) cm);
       if (getJmsConnector().getClientBrokerUri() != null) {
@@ -116,79 +126,6 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
     return InMemoryRegionMasterComponentFactory.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -614707837:  // publishRest
-        return isPublishRest();
-      case -1495762275:  // jmsConnector
-        return getJmsConnector();
-      case -758086398:  // jmsChangeManagerTopic
-        return getJmsChangeManagerTopic();
-      case -1737146991:  // uniqueIdScheme
-        return getUniqueIdScheme();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -614707837:  // publishRest
-        setPublishRest((Boolean) newValue);
-        return;
-      case -1495762275:  // jmsConnector
-        setJmsConnector((JmsConnector) newValue);
-        return;
-      case -758086398:  // jmsChangeManagerTopic
-        setJmsChangeManagerTopic((String) newValue);
-        return;
-      case -1737146991:  // uniqueIdScheme
-        setUniqueIdScheme((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      InMemoryRegionMasterComponentFactory other = (InMemoryRegionMasterComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
-          JodaBeanUtils.equal(getJmsChangeManagerTopic(), other.getJmsChangeManagerTopic()) &&
-          JodaBeanUtils.equal(getUniqueIdScheme(), other.getUniqueIdScheme()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsChangeManagerTopic());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the classifier that the factory should publish under.
@@ -213,6 +150,31 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
    */
   public final Property<String> classifier() {
     return metaBean().classifier().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets whether to use change management. If true, requires jms settings to be non-null.
+   * @return the value of the property
+   */
+  public boolean isEnableChangeManagement() {
+    return _enableChangeManagement;
+  }
+
+  /**
+   * Sets whether to use change management. If true, requires jms settings to be non-null.
+   * @param enableChangeManagement  the new value of the property
+   */
+  public void setEnableChangeManagement(boolean enableChangeManagement) {
+    this._enableChangeManagement = enableChangeManagement;
+  }
+
+  /**
+   * Gets the the {@code enableChangeManagement} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> enableChangeManagement() {
+    return metaBean().enableChangeManagement().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -316,6 +278,66 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public InMemoryRegionMasterComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      InMemoryRegionMasterComponentFactory other = (InMemoryRegionMasterComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          (isEnableChangeManagement() == other.isEnableChangeManagement()) &&
+          (isPublishRest() == other.isPublishRest()) &&
+          JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
+          JodaBeanUtils.equal(getJmsChangeManagerTopic(), other.getJmsChangeManagerTopic()) &&
+          JodaBeanUtils.equal(getUniqueIdScheme(), other.getUniqueIdScheme()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isEnableChangeManagement());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsChangeManagerTopic());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("InMemoryRegionMasterComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("enableChangeManagement").append('=').append(JodaBeanUtils.toString(isEnableChangeManagement())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("jmsConnector").append('=').append(JodaBeanUtils.toString(getJmsConnector())).append(',').append(' ');
+    buf.append("jmsChangeManagerTopic").append('=').append(JodaBeanUtils.toString(getJmsChangeManagerTopic())).append(',').append(' ');
+    buf.append("uniqueIdScheme").append('=').append(JodaBeanUtils.toString(getUniqueIdScheme())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code InMemoryRegionMasterComponentFactory}.
    */
@@ -330,6 +352,11 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
      */
     private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
         this, "classifier", InMemoryRegionMasterComponentFactory.class, String.class);
+    /**
+     * The meta-property for the {@code enableChangeManagement} property.
+     */
+    private final MetaProperty<Boolean> _enableChangeManagement = DirectMetaProperty.ofReadWrite(
+        this, "enableChangeManagement", InMemoryRegionMasterComponentFactory.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code publishRest} property.
      */
@@ -356,6 +383,7 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
+        "enableChangeManagement",
         "publishRest",
         "jmsConnector",
         "jmsChangeManagerTopic",
@@ -372,6 +400,8 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;
+        case 981110710:  // enableChangeManagement
+          return _enableChangeManagement;
         case -614707837:  // publishRest
           return _publishRest;
         case -1495762275:  // jmsConnector
@@ -409,6 +439,14 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
     }
 
     /**
+     * The meta-property for the {@code enableChangeManagement} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> enableChangeManagement() {
+      return _enableChangeManagement;
+    }
+
+    /**
      * The meta-property for the {@code publishRest} property.
      * @return the meta-property, not null
      */
@@ -438,6 +476,57 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
      */
     public final MetaProperty<String> uniqueIdScheme() {
       return _uniqueIdScheme;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((InMemoryRegionMasterComponentFactory) bean).getClassifier();
+        case 981110710:  // enableChangeManagement
+          return ((InMemoryRegionMasterComponentFactory) bean).isEnableChangeManagement();
+        case -614707837:  // publishRest
+          return ((InMemoryRegionMasterComponentFactory) bean).isPublishRest();
+        case -1495762275:  // jmsConnector
+          return ((InMemoryRegionMasterComponentFactory) bean).getJmsConnector();
+        case -758086398:  // jmsChangeManagerTopic
+          return ((InMemoryRegionMasterComponentFactory) bean).getJmsChangeManagerTopic();
+        case -1737146991:  // uniqueIdScheme
+          return ((InMemoryRegionMasterComponentFactory) bean).getUniqueIdScheme();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((InMemoryRegionMasterComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case 981110710:  // enableChangeManagement
+          ((InMemoryRegionMasterComponentFactory) bean).setEnableChangeManagement((Boolean) newValue);
+          return;
+        case -614707837:  // publishRest
+          ((InMemoryRegionMasterComponentFactory) bean).setPublishRest((Boolean) newValue);
+          return;
+        case -1495762275:  // jmsConnector
+          ((InMemoryRegionMasterComponentFactory) bean).setJmsConnector((JmsConnector) newValue);
+          return;
+        case -758086398:  // jmsChangeManagerTopic
+          ((InMemoryRegionMasterComponentFactory) bean).setJmsChangeManagerTopic((String) newValue);
+          return;
+        case -1737146991:  // uniqueIdScheme
+          ((InMemoryRegionMasterComponentFactory) bean).setUniqueIdScheme((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((InMemoryRegionMasterComponentFactory) bean)._classifier, "classifier");
+      super.validate(bean);
     }
 
   }

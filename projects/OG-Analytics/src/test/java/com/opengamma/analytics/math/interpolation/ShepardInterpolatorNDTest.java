@@ -11,9 +11,12 @@ import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ShepardInterpolatorNDTest extends InterpolatorNDTestCase {
   private static final InterpolatorND INTERPOLATOR = new ShepardInterpolatorND(3.0);
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);

@@ -7,6 +7,7 @@ package com.opengamma.masterdb.security.hibernate.cds;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -65,65 +66,6 @@ public class CDSIndexComponentBean extends DirectBean {
   @Override
   public CDSIndexComponentBean.Meta metaBean() {
     return CDSIndexComponentBean.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1657678854:  // obligor
-        return getObligor();
-      case -791592328:  // weight
-        return getWeight();
-      case -1383424194:  // bondId
-        return getBondId();
-      case 3373707:  // name
-        return getName();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1657678854:  // obligor
-        setObligor((ExternalIdBean) newValue);
-        return;
-      case -791592328:  // weight
-        setWeight((Double) newValue);
-        return;
-      case -1383424194:  // bondId
-        setBondId((ExternalIdBean) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CDSIndexComponentBean other = (CDSIndexComponentBean) obj;
-      return JodaBeanUtils.equal(getObligor(), other.getObligor()) &&
-          JodaBeanUtils.equal(getWeight(), other.getWeight()) &&
-          JodaBeanUtils.equal(getBondId(), other.getBondId()) &&
-          JodaBeanUtils.equal(getName(), other.getName());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObligor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getWeight());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBondId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -224,6 +166,57 @@ public class CDSIndexComponentBean extends DirectBean {
    */
   public final Property<String> name() {
     return metaBean().name().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public CDSIndexComponentBean clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CDSIndexComponentBean other = (CDSIndexComponentBean) obj;
+      return JodaBeanUtils.equal(getObligor(), other.getObligor()) &&
+          JodaBeanUtils.equal(getWeight(), other.getWeight()) &&
+          JodaBeanUtils.equal(getBondId(), other.getBondId()) &&
+          JodaBeanUtils.equal(getName(), other.getName());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObligor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getWeight());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBondId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("CDSIndexComponentBean{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("obligor").append('=').append(JodaBeanUtils.toString(getObligor())).append(',').append(' ');
+    buf.append("weight").append('=').append(JodaBeanUtils.toString(getWeight())).append(',').append(' ');
+    buf.append("bondId").append('=').append(JodaBeanUtils.toString(getBondId())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -333,6 +326,41 @@ public class CDSIndexComponentBean extends DirectBean {
      */
     public final MetaProperty<String> name() {
       return _name;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1657678854:  // obligor
+          return ((CDSIndexComponentBean) bean).getObligor();
+        case -791592328:  // weight
+          return ((CDSIndexComponentBean) bean).getWeight();
+        case -1383424194:  // bondId
+          return ((CDSIndexComponentBean) bean).getBondId();
+        case 3373707:  // name
+          return ((CDSIndexComponentBean) bean).getName();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1657678854:  // obligor
+          ((CDSIndexComponentBean) bean).setObligor((ExternalIdBean) newValue);
+          return;
+        case -791592328:  // weight
+          ((CDSIndexComponentBean) bean).setWeight((Double) newValue);
+          return;
+        case -1383424194:  // bondId
+          ((CDSIndexComponentBean) bean).setBondId((ExternalIdBean) newValue);
+          return;
+        case 3373707:  // name
+          ((CDSIndexComponentBean) bean).setName((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

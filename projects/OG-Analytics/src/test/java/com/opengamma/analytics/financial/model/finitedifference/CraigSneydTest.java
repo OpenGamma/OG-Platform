@@ -7,9 +7,12 @@ package com.opengamma.analytics.financial.model.finitedifference;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * NOT WORKING 
  */
+@Test(groups = TestGroup.UNIT)
 public class CraigSneydTest {
 
   private static final HestonPDETestCase HESTON_TESTER = new HestonPDETestCase();

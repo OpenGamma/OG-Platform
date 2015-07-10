@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -41,8 +40,13 @@ import com.opengamma.id.ExternalScheme;
  */
 public class EquityForwardCurveFromFutureCurveFunction extends AbstractFunction.NonCompiledInvoker {
 
-  private static final Set<ExternalScheme> s_validSchemes = ImmutableSet.of(ExternalSchemes.BLOOMBERG_TICKER, ExternalSchemes.BLOOMBERG_TICKER_WEAK, ExternalSchemes.ACTIVFEED_TICKER);
-  
+  private static final Set<ExternalScheme> s_validSchemes = ImmutableSet.of(
+      ExternalSchemes.BLOOMBERG_TICKER,
+      ExternalSchemes.BLOOMBERG_TICKER_WEAK,
+      ExternalSchemes.BLOOMBERG_BUID,
+      ExternalSchemes.BLOOMBERG_BUID_WEAK,
+      ExternalSchemes.ACTIVFEED_TICKER);
+
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
@@ -87,6 +91,7 @@ public class EquityForwardCurveFromFutureCurveFunction extends AbstractFunction.
     }
     return false;
   }
+
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = createValueProperties()
@@ -106,27 +111,26 @@ public class EquityForwardCurveFromFutureCurveFunction extends AbstractFunction.
     final ValueProperties constraints = desiredValue.getConstraints();
 
     // curve
-    final Set<String> curveNames = constraints.getValues(ValuePropertyNames.CURVE);
-    if (curveNames == null || curveNames.size() != 1) {
+    final String curveName = constraints.getStrictValue(ValuePropertyNames.CURVE);
+    if (curveName == null) {
       return null;
     }
-    final String curveName = Iterables.getOnlyElement(curveNames);
 
     // interpolator
-    final Set<String> interpolatorNames = constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR);
-    if (interpolatorNames == null || interpolatorNames.size() != 1) {
+    final String interpolatorName = constraints.getStrictValue(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR);
+    if (interpolatorName == null) {
       return null;
     }
 
     // interpolator left extrapolator
-    final Set<String> leftExtrapolatorNames = constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR);
-    if (leftExtrapolatorNames == null || leftExtrapolatorNames.size() != 1) {
+    final String leftExtrapolatorName = constraints.getStrictValue(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR);
+    if (leftExtrapolatorName == null) {
       return null;
     }
 
     // interpolator right extrapolator
-    final Set<String> rightExtrapolatorNames = constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR);
-    if (rightExtrapolatorNames == null || rightExtrapolatorNames.size() != 1) {
+    final String rightExtrapolatorName = constraints.getStrictValue(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR);
+    if (rightExtrapolatorName == null) {
       return null;
     }
 

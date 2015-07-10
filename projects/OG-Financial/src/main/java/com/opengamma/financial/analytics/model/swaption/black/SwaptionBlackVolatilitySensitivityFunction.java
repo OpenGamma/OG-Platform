@@ -11,8 +11,8 @@ import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.PresentValueBlackSwaptionSensitivity;
 import com.opengamma.analytics.financial.interestrate.PresentValueBlackSwaptionSensitivityBlackCalculator;
+import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueSwaptionSurfaceSensitivity;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -26,19 +26,23 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 @Deprecated
 public class SwaptionBlackVolatilitySensitivityFunction extends SwaptionBlackFunction {
+  /** The value vega calculator */
   private static final PresentValueBlackSwaptionSensitivityBlackCalculator CALCULATOR = PresentValueBlackSwaptionSensitivityBlackCalculator.getInstance();
 
+  /**
+   * Sets the value requirement name to {@link ValueRequirementNames#VALUE_VEGA}
+   */
   public SwaptionBlackVolatilitySensitivityFunction() {
     super(ValueRequirementNames.VALUE_VEGA);
   }
 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative swaption, final YieldCurveWithBlackSwaptionBundle data, final ValueSpecification spec) {
-    final PresentValueBlackSwaptionSensitivity sensitivities = swaption.accept(CALCULATOR, data);
+    final PresentValueSwaptionSurfaceSensitivity sensitivities = swaption.accept(CALCULATOR, data);
     final HashMap<DoublesPair, Double> result = sensitivities.getSensitivity().getMap();
     if (result.size() != 1) {
       throw new OpenGammaRuntimeException("Expecting only one result for Black value vega");
     }
-    return Collections.singleton(new ComputedValue(spec, result.values().iterator().next()));
+    return Collections.singleton(new ComputedValue(spec, result.values().iterator().next() / 100));
   }
 }

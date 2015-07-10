@@ -12,11 +12,13 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.DoubleFunction1D;
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class LaguerrePolynomialFunctionTest {
   private static final DoubleFunction1D L0 = new DoubleFunction1D() {
 

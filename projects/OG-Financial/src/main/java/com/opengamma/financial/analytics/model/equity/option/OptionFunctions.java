@@ -11,6 +11,7 @@ import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.model.equity.futures.EquityNetMarketValueFunction;
 import com.opengamma.financial.analytics.model.futureoption.BarrierOptionDistanceDefaults;
 import com.opengamma.financial.analytics.model.futureoption.BarrierOptionDistanceFunction;
 
@@ -54,7 +55,7 @@ public class OptionFunctions extends AbstractFunctionConfigurationBean {
   }
 
   /**
-   * Function repository configuration source for the default functions contained in this package.
+   * Function repository configuration source for the default function for equity barrier options contained in this package.
    */
   public static class Defaults extends AbstractFunctionConfigurationBean {
 
@@ -124,9 +125,9 @@ public class OptionFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(EquityOptionBlackVommaFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackValueDeltaFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackValueGammaFunction.class));
-    
+
     functions.add(functionConfiguration(EquityOptionBlackBasicPresentValueFunction.class));
-    
+
     functions.add(functionConfiguration(ListedEquityOptionBlackPresentValueFunction.class));
     functions.add(functionConfiguration(ListedEquityOptionBlackImpliedVolFunction.class));
     functions.add(functionConfiguration(ListedEquityOptionBlackRhoFunction.class));
@@ -139,8 +140,18 @@ public class OptionFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(ListedEquityOptionBlackVommaFunction.class));
     functions.add(functionConfiguration(ListedEquityOptionBlackValueDeltaFunction.class));
     functions.add(functionConfiguration(ListedEquityOptionBlackValueGammaFunction.class));
-    
-    
+    functions.add(functionConfiguration(ListedEquityOptionBjerksundStenslandPresentValueFunction.class));
+    functions.add(functionConfiguration(ListedEquityOptionBjerksundStenslandGreeksFunction.class));
+    functions.add(functionConfiguration(ListedEquityOptionBjerksundStenslandImpliedVolFunction.class));
+    functions.add(functionConfiguration(ListedEquityOptionBjerksundStenslandValueDeltaFunction.class));
+    functions.add(functionConfiguration(ListedEquityOptionBjerksundStenslandValueGammaFunction.class));
+    functions.add(functionConfiguration(ListedEquityOptionBjerksundStenslandScenarioPnLFunction.class));
+    functions.add(functionConfiguration(ListedEquityOptionRollGeskeWhaleyPresentValueFunction.class));
+    functions.add(functionConfiguration(ListedEquityOptionRollGeskeWhaleyGreeksFunction.class));
+    functions.add(functionConfiguration(ListedEquityOptionRollGeskeWhaleyImpliedVolFunction.class));
+    functions.add(functionConfiguration(ListedEquityOptionRollGeskeWhaleyValueDeltaFunction.class));
+    functions.add(functionConfiguration(ListedEquityOptionRollGeskeWhaleyValueGammaFunction.class));
+    functions.add(functionConfiguration(ListedEquityOptionRollGeskeWhaleyScenarioPnLFunction.class));
     functions.add(functionConfiguration(EquityOptionForwardValueFunction.class));
     functions.add(functionConfiguration(EquityOptionSpotIndexFunction.class));
     functions.add(functionConfiguration(EquityVanillaBarrierOptionForwardValueFunction.class));
@@ -162,6 +173,9 @@ public class OptionFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(PositionGreeksFunction.class, ValueRequirementNames.POSITION_WEIGHTED_VEGA, ValueRequirementNames.WEIGHTED_VEGA));
     functions.add(functionConfiguration(WeightedVegaFunction.class));
     functions.add(functionConfiguration(EquityVanillaBarrierOptionDistanceFunction.class));
+    functions.add(functionConfiguration(NetCapitalFunction.class));
+    functions.add(functionConfiguration(EquityNetCapitalFunction.class));
+    functions.add(functionConfiguration(EquityNetMarketValueFunction.class));
   }
 
 }

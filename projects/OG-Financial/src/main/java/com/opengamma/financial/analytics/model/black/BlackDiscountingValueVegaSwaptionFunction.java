@@ -16,7 +16,7 @@ import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.PresentValueBlackSwaptionSensitivity;
+import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueSwaptionSurfaceSensitivity;
 import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueBlackSensitivityBlackSwaptionCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProviderInterface;
@@ -37,7 +37,7 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public class BlackDiscountingValueVegaSwaptionFunction extends BlackDiscountingSwaptionFunction {
   /** The value vega calculator */
-  private static final InstrumentDerivativeVisitor<BlackSwaptionFlatProviderInterface, PresentValueBlackSwaptionSensitivity> CALCULATOR =
+  private static final InstrumentDerivativeVisitor<BlackSwaptionFlatProviderInterface, PresentValueSwaptionSurfaceSensitivity> CALCULATOR =
       PresentValueBlackSensitivityBlackSwaptionCalculator.getInstance();
 
   /**
@@ -56,7 +56,7 @@ public class BlackDiscountingValueVegaSwaptionFunction extends BlackDiscountingS
           final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
           final FXMatrix fxMatrix) {
         final BlackSwaptionFlatProvider blackData = getBlackSurface(executionContext, inputs, target, fxMatrix);
-        final PresentValueBlackSwaptionSensitivity sensitivities = derivative.accept(CALCULATOR, blackData);
+        final PresentValueSwaptionSurfaceSensitivity sensitivities = derivative.accept(CALCULATOR, blackData);
         final double vega = sensitivities.getSensitivity().toSingleValue();
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final ValueProperties properties = desiredValue.getConstraints().copy().get();

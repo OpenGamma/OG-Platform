@@ -13,13 +13,17 @@ import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
+import com.opengamma.analytics.math.differentiation.ScalarFirstOrderDifferentiator;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DCubicSplineDataBundle;
+import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class Extrapolator1DNodeSensitivityCalculatorTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final FlatExtrapolator1D FLAT_INTERPOLATOR = new FlatExtrapolator1D();
@@ -41,7 +45,7 @@ public class Extrapolator1DNodeSensitivityCalculatorTest {
   };
 
   static {
-    final double[] t = new double[] {0.0, 0.5, 1.0, 2.0, 3.0, 5.0, 7.0, 10.0, 15.0, 17.5, 20.0, 25.0, 30.0};
+    final double[] t = new double[] {0.0, 0.5, 1.0, 2.0, 3.0, 5.0, 7.0, 10.0, 15.0, 17.5, 20.0, 25.0, 30.0 };
     final int n = t.length;
     final double[] r = new double[n];
     for (int i = 0; i < n; i++) {
@@ -107,5 +111,32 @@ public class Extrapolator1DNodeSensitivityCalculatorTest {
         assertEquals(sensitivityFD[j], sensitivity[j], EPS);
       }
     }
+  }
+
+  @Test
+  public void firstDerivativeTest() {
+    double a = 1.0;
+    double b = 1.5;
+    double c = -0.5;
+    double[] x = new double[] {0., 2., 5. };
+    int n = x.length;
+    double[] y = new double[n];
+    for (int i = 0; i < n; i++) {
+      y[i] = a + b * x[i] + c * x[i] * x[i];
+    }
+    Interpolator1D interpolator = new NaturalCubicSplineInterpolator1D();
+    Interpolator1DDataBundle db = interpolator.getDataBundle(x, y);
+    Double grad = interpolator.firstDerivative(db, x[n - 1]);
+    Function1D<Double, Double> func = interpolator.getFunction(db);
+    ScalarFirstOrderDifferentiator diff = new ScalarFirstOrderDifferentiator();
+    Function1D<Double, Boolean> domain = new Function1D<Double, Boolean>() {
+      @Override
+      public Boolean evaluate(Double x) {
+        return x <= 5.0;
+      }
+    };
+    Function1D<Double, Double> gradFunc = diff.differentiate(func, domain);
+
+    assertEquals(gradFunc.evaluate(x[n - 1]), grad, 1e-8);
   }
 }

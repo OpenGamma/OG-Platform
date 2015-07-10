@@ -8,6 +8,7 @@ package com.opengamma.master.holiday;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -104,6 +105,9 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
       case TRADING:
         setName(holiday.getExchangeExternalId().getValue());
         break;
+      case CUSTOM:
+        setName(holiday.getCustomExternalId().getValue());
+        break;
       default:
         throw new IllegalArgumentException("Unsupported holiday type");
     }
@@ -126,66 +130,6 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
   @Override
   public HolidayDocument.Meta metaBean() {
     return HolidayDocument.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1091905624:  // holiday
-        return getHoliday();
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case 3373707:  // name
-        return getName();
-      case 205149932:  // providerId
-        return getProviderId();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1091905624:  // holiday
-        setHoliday((ManageableHoliday) newValue);
-        return;
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case 205149932:  // providerId
-        setProviderId((ExternalId) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      HolidayDocument other = (HolidayDocument) obj;
-      return JodaBeanUtils.equal(getHoliday(), other.getHoliday()) &&
-          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getProviderId(), other.getProviderId()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHoliday());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProviderId());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -298,6 +242,60 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public HolidayDocument clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      HolidayDocument other = (HolidayDocument) obj;
+      return JodaBeanUtils.equal(getHoliday(), other.getHoliday()) &&
+          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getProviderId(), other.getProviderId()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHoliday());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProviderId());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("HolidayDocument{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("holiday").append('=').append(JodaBeanUtils.toString(getHoliday())).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("providerId").append('=').append(JodaBeanUtils.toString(getProviderId())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code HolidayDocument}.
    */
@@ -404,6 +402,41 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
      */
     public final MetaProperty<ExternalId> providerId() {
       return _providerId;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1091905624:  // holiday
+          return ((HolidayDocument) bean).getHoliday();
+        case -294460212:  // uniqueId
+          return ((HolidayDocument) bean).getUniqueId();
+        case 3373707:  // name
+          return ((HolidayDocument) bean).getName();
+        case 205149932:  // providerId
+          return ((HolidayDocument) bean).getProviderId();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1091905624:  // holiday
+          ((HolidayDocument) bean).setHoliday((ManageableHoliday) newValue);
+          return;
+        case -294460212:  // uniqueId
+          ((HolidayDocument) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case 3373707:  // name
+          ((HolidayDocument) bean).setName((String) newValue);
+          return;
+        case 205149932:  // providerId
+          ((HolidayDocument) bean).setProviderId((ExternalId) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

@@ -7,7 +7,6 @@ package com.opengamma.masterdb;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
-import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -25,6 +24,7 @@ import org.threeten.bp.Instant;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+import com.google.common.collect.Iterables;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
@@ -57,7 +57,9 @@ import com.opengamma.util.paging.PagingRequest;
  *
  * @param <D>  the type of the document
  */
-public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> extends AbstractDbMaster implements AbstractMaster<D>, MetricProducer {
+public abstract class AbstractDocumentDbMaster<D extends AbstractDocument>
+    extends AbstractDbMaster
+    implements AbstractMaster<D>, MetricProducer, ConfigurableDbChangeProvidingMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDocumentDbMaster.class);
@@ -114,6 +116,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    *
    * @return the change manager, not null
    */
+  @Override
   public ChangeManager getChangeManager() {
     return _changeManager;
   }
@@ -123,6 +126,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    *
    * @param changeManager  the change manager, not null
    */
+  @Override
   public void setChangeManager(final ChangeManager changeManager) {
     ArgumentChecker.notNull(changeManager, "changeManager");
     _changeManager = changeManager;
@@ -200,7 +204,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    */
   protected DbMapSqlParameterSource argsGetByOidInstants(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
     final long docOid = extractOid(objectId);
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource args = createParameterSource()
       .addValue("doc_oid", docOid)
       .addTimestamp("version_as_of", versionCorrection.getVersionAsOf())
       .addTimestamp("corrected_to", versionCorrection.getCorrectedTo());
@@ -242,7 +246,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * @return the SQL arguments, not null
    */
   protected DbMapSqlParameterSource argsGetById(final UniqueId uniqueId) {
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource args = createParameterSource()
       .addValue("doc_oid", extractOid(uniqueId))
       .addValue("doc_id", extractRowId(uniqueId));
     return args;
@@ -287,7 +291,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * @return the SQL arguments, not null
    */
   protected DbMapSqlParameterSource argsHistory(final AbstractHistoryRequest request) {
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource args = createParameterSource()
       .addValue("doc_oid", extractOid(request.getObjectId()))
       .addTimestampNullIgnored("versions_from_instant", request.getVersionsFromInstant())
       .addTimestampNullIgnored("versions_to_instant", request.getVersionsToInstant())
@@ -575,7 +579,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
           updateCorrectionToInstant(storedDocument);
 
           final List<D> orderedReplacementDocuments = MasterUtils.adjustVersionInstants(now, storedVersionFrom, storedVersionTo, replacementDocuments);
-          final List<D> newVersions = newArrayList();
+          final List<UniqueId> newIds = newArrayList();
           if (orderedReplacementDocuments.isEmpty()) {
             // since we don't have replacement documents we rather act as versionRemove than versionReplace
             final D previousDocument = getPreviousDocument(uniqueId.getObjectId(), now, storedVersionFrom);
@@ -589,7 +593,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
               previousDocument.setVersionToInstant(storedVersionFrom);
               previousDocument.setUniqueId(uniqueId.getUniqueId().toLatest());
               insert(previousDocument);
-              newVersions.add(previousDocument);
+              newIds.add(previousDocument.getUniqueId());
               changeManager().entityChanged(ChangeType.CHANGED, storedDocument.getObjectId(), storedVersionFrom, storedVersionTo, now);
             } else {
               changeManager().entityChanged(ChangeType.REMOVED, storedDocument.getObjectId(), null, null, now);
@@ -598,11 +602,11 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
             for (final D replacementDocument : orderedReplacementDocuments) {
               replacementDocument.setUniqueId(uniqueId.getUniqueId().toLatest());
               insert(replacementDocument);
-              newVersions.add(replacementDocument);
+              newIds.add(replacementDocument.getUniqueId());
             }
             changeManager().entityChanged(ChangeType.CHANGED, storedDocument.getObjectId(), storedVersionFrom, storedVersionTo, now);
           }
-          return MasterUtils.mapToUniqueIDs(newVersions);
+          return newIds;
         }
       });
     } finally {
@@ -785,8 +789,8 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
               replacementDocument.setUniqueId(objectId.getObjectId().atLatestVersion());
               insert(replacementDocument);
             }
-            final Instant versionFromInstant = functional(orderedReplacementDocuments).first().getVersionFromInstant();
-            final Instant versionToInstant = functional(orderedReplacementDocuments).last().getVersionToInstant();
+            Instant versionFromInstant = orderedReplacementDocuments.get(0).getVersionFromInstant();
+            Instant versionToInstant = Iterables.getLast(orderedReplacementDocuments).getVersionToInstant();
             changeManager().entityChanged(ChangeType.CHANGED, objectId.getObjectId(), versionFromInstant, versionToInstant, now);
             return MasterUtils.mapToUniqueIDs(orderedReplacementDocuments);
           }
@@ -861,8 +865,8 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
                 replacementDocument.setUniqueId(objectId.getObjectId().atLatestVersion());
                 insert(replacementDocument);
               }
-              final Instant versionFromInstant = functional(orderedReplacementDocuments).first().getVersionFromInstant();
-              final Instant versionToInstant = functional(orderedReplacementDocuments).last().getVersionToInstant();
+              Instant versionFromInstant = orderedReplacementDocuments.get(0).getVersionFromInstant();
+              Instant versionToInstant = Iterables.getLast(orderedReplacementDocuments).getVersionToInstant();
               changeManager().entityChanged(ChangeType.CHANGED, objectId.getObjectId(), versionFromInstant, versionToInstant, now);
               return MasterUtils.mapToUniqueIDs(orderedReplacementDocuments);
             }
@@ -952,7 +956,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * @param document  the document to update, not null
    */
   protected void updateVersionToInstant(final D document) {
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource args = createParameterSource()
       .addValue("doc_id", extractRowId(document.getUniqueId()))
       .addTimestamp("ver_to_instant", document.getVersionToInstant())
       .addValue("max_instant", DbDateUtils.MAX_SQL_TIMESTAMP);
@@ -985,7 +989,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * @param document  the document to update, not null
    */
   protected void updateCorrectionToInstant(final AbstractDocument document) {
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource args = createParameterSource()
       .addValue("doc_id", extractRowId(document.getUniqueId()))
       .addTimestamp("corr_to_instant", document.getCorrectionToInstant())
       .addValue("max_instant", DbDateUtils.MAX_SQL_TIMESTAMP);

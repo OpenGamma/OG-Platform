@@ -202,7 +202,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
       historyRequest.setPagingRequest(PagingRequest.ONE);
       ExchangeHistoryResult historyResult = data().getExchangeMaster().history(historyRequest);
       if (historyResult.getDocuments().size() == 0) {
-        return null;
+        throw ex;
       }
       data().setExchange(historyResult.getFirstDocument());
     }
@@ -214,6 +214,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     ExchangeSearchRequest searchRequest = new ExchangeSearchRequest();

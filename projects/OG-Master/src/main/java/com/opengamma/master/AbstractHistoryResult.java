@@ -84,16 +84,7 @@ public abstract class AbstractHistoryResult<D extends AbstractDocument> extends 
     return AbstractHistoryResult.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
+  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -111,9 +102,28 @@ public abstract class AbstractHistoryResult<D extends AbstractDocument> extends 
     return hash ^ super.hashCode();
   }
 
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(32);
+    buf.append("AbstractHistoryResult{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+  }
+
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code AbstractHistoryResult}.
+   * @param <D>  the type
    */
   public static class Meta<D extends AbstractDocument> extends AbstractDocumentsResult.Meta<D> {
     /**

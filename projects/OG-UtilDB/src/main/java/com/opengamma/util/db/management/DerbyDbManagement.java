@@ -191,9 +191,8 @@ public final class DerbyDbManagement extends AbstractDbManagement {
     @Override
     public void create(String catalog) {
       if (!catalogExists(catalog)) {
-        try {
-          Connection conn = connect(catalog + ";create=true");
-          conn.close();
+        try (Connection conn = connect(catalog + ";create=true")) {
+          // connect is all that is needed
         } catch (SQLException e) {
           throw new OpenGammaRuntimeException("Cannot create Derby DB", e);
         }

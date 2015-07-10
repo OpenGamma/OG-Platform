@@ -6,7 +6,6 @@
 package com.opengamma.financial.fudgemsg;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +19,7 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.target.ComputationTargetReference;
@@ -169,7 +169,7 @@ import com.opengamma.util.money.Currency;
       if (stripInstrumentTypeFields.size() != curveExposureNameFields.size()) {
         throw new OpenGammaRuntimeException("Should never happen");
       }
-      final Map<StripInstrumentType, String[]> exposures = new HashMap<StripInstrumentType, String[]>();
+      final Map<StripInstrumentType, String[]> exposures = Maps.newLinkedHashMap();
       for (int i = 0; i < stripInstrumentTypeFields.size(); i++) {
         final String stripName = deserializer.fieldValueToObject(String.class, stripInstrumentTypeFields.get(i));
         final List<FudgeField> namesField = ((FudgeMsg) curveExposureNameFields.get(i).getValue()).getAllByName(PER_INSTRUMENT_FIELD_NAME);

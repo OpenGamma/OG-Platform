@@ -10,9 +10,12 @@ import static org.testng.AssertJUnit.assertNull;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class Interpolator1DFactoryTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -35,10 +38,17 @@ public class Interpolator1DFactoryTest {
     assertEquals(Interpolator1DFactory.STEP, Interpolator1DFactory.getInterpolatorName(Interpolator1DFactory.getInterpolator(Interpolator1DFactory.STEP)));
     assertEquals(Interpolator1DFactory.STEP_UPPER, Interpolator1DFactory.getInterpolatorName(Interpolator1DFactory.getInterpolator(Interpolator1DFactory.STEP_UPPER)));
     assertEquals(Interpolator1DFactory.TIME_SQUARE, Interpolator1DFactory.getInterpolatorName(Interpolator1DFactory.getInterpolator(Interpolator1DFactory.TIME_SQUARE)));
-    assertEquals(Interpolator1DFactory.ISDA_INTERPOLATOR, Interpolator1DFactory.getInterpolatorName(Interpolator1DFactory.getInterpolator(Interpolator1DFactory.ISDA_INTERPOLATOR)));
-    assertEquals(Interpolator1DFactory.ISDA_EXTRAPOLATOR, Interpolator1DFactory.getInterpolatorName(Interpolator1DFactory.getInterpolator(Interpolator1DFactory.ISDA_EXTRAPOLATOR)));
     assertEquals(Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.getInterpolatorName(new LinearExtrapolator1D(new LinearInterpolator1D())));
     assertEquals(Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.getInterpolatorName(new FlatExtrapolator1D()));
     assertEquals(Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR, Interpolator1DFactory.getInterpolatorName(new ExponentialExtrapolator1D()));
+    assertEquals(Interpolator1DFactory.PRODUCT_NATURAL_CUBIC,
+        Interpolator1DFactory.getInterpolatorName(new ProductPiecewisePolynomialInterpolator1D(
+            new NaturalSplineInterpolator())));
+    assertEquals(Interpolator1DFactory.RECIPROCAL_EXTRAPOLATOR,
+        Interpolator1DFactory.getInterpolatorName(new ReciprocalExtrapolator1D(
+            Interpolator1DFactory.PRODUCT_NATURAL_CUBIC_INSTANCE)));
+    assertEquals(Interpolator1DFactory.PRODUCT_POLYNOMIAL_EXTRAPOLATOR,
+        Interpolator1DFactory.getInterpolatorName(new ProductPolynomialExtrapolator1D(
+            Interpolator1DFactory.PRODUCT_NATURAL_CUBIC_INSTANCE)));
   }
 }

@@ -48,6 +48,7 @@ import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
 import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.security.CurrenciesVisitor;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.money.Currency;
@@ -117,7 +118,7 @@ public class FXForwardPointsYCNSFunction extends FXForwardPointsFunction {
         final Set<ValueRequirement> requirements = new HashSet<>();
         final FinancialSecurity security = (FinancialSecurity) target.getTrade().getSecurity();
         final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-        final Collection<Currency> currencies = FinancialSecurityUtils.getCurrencies(security, securitySource);
+        final Collection<Currency> currencies = CurrenciesVisitor.getCurrencies(security, securitySource);
         if (currencies.size() > 1) {
           final Iterator<Currency> iter = currencies.iterator();
           final Currency initialCurrency = iter.next();

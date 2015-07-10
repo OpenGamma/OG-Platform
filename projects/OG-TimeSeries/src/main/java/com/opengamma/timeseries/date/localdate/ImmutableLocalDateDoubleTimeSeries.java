@@ -163,13 +163,7 @@ public final class ImmutableLocalDateDoubleTimeSeries
    * @param values  the values, not null
    */
   private static void validate(int[] times, double[] values) {
-    if (times == null || values == null) {
-      throw new NullPointerException("Array must not be null");
-    }
-    // check lengths
-    if (times.length != values.length) {
-      throw new IllegalArgumentException("Arrays are of different sizes: " + times.length + ", " + values.length);
-    }
+    validateLength(times, values);
     // check dates are ordered
     int maxTime = Integer.MIN_VALUE;
     for (int time : times) {
@@ -178,6 +172,22 @@ public final class ImmutableLocalDateDoubleTimeSeries
         throw new IllegalArgumentException("dates must be ordered");
       }
       maxTime = time;
+    }
+  }
+
+  /**
+   * Validates the data but not the content of the dates.
+   *
+   * @param times  the times, not null
+   * @param values  the values, not null
+   */
+  private static void validateLength(int[] times, double[] values) {
+    if (times == null || values == null) {
+      throw new NullPointerException("Array must not be null");
+    }
+    // check lengths
+    if (times.length != values.length) {
+      throw new IllegalArgumentException("Arrays are of different sizes: " + times.length + ", " + values.length);
     }
   }
 
@@ -291,15 +301,39 @@ public final class ImmutableLocalDateDoubleTimeSeries
 
   //-------------------------------------------------------------------------
   @Override
-  public LocalDateDoubleTimeSeries subSeriesFast(int startTime, int endTime) {
+  public LocalDateDoubleTimeSeries subSeriesFast(int startTime, boolean includeStart, int endTime, boolean includeEnd) {
+    if (endTime < startTime) {
+      throw new IllegalArgumentException("Invalid subSeries: endTime < startTime");
+    }
+    // special case for start equals end
+    if (startTime == endTime) {
+      if (includeStart && includeEnd) {
+        int pos = Arrays.binarySearch(_times, startTime);
+        if (pos >= 0) {
+          return new ImmutableLocalDateDoubleTimeSeries(new int[] {startTime}, new double[] {_values[pos]});
+        }
+      }
+      return EMPTY_SERIES;
+    }
+    // special case when this is empty
     if (isEmpty()) {
       return EMPTY_SERIES;
     }
+    // normalize to include start and exclude end
+    if (includeStart == false) {
+      startTime++;
+    }
+    if (includeEnd) {
+      if (endTime != Integer.MAX_VALUE) {
+        endTime++;
+      }
+    }
+    // calculate
     int startPos = Arrays.binarySearch(_times, startTime);
-    int endPos = (endTime == Integer.MIN_VALUE) ? _times.length : Arrays.binarySearch(_times, endTime);
     startPos = startPos >= 0 ? startPos : -(startPos + 1);
+    int endPos = Arrays.binarySearch(_times, endTime);
     endPos = endPos >= 0 ? endPos : -(endPos + 1);
-    if (endPos > _times.length) {
+    if (includeEnd && endTime == Integer.MAX_VALUE) {
       endPos = _times.length;
     }
     int[] timesArray = Arrays.copyOfRange(_times, startPos, endPos);
@@ -358,6 +392,17 @@ public final class ImmutableLocalDateDoubleTimeSeries
   @Override
   public LocalDateDoubleTimeSeriesBuilder toBuilder() {
     return builder().putAll(this);
+  }
+
+  /**
+   * Obtain a new time-series with the same times and new values
+   *
+   * @param values the new values, not null
+   * @return time series, not null
+   */
+  public LocalDateDoubleTimeSeries withValues(double[] values) {
+    validateLength(_times, values);
+    return new ImmutableLocalDateDoubleTimeSeries(_times, values.clone()); // immutable, so can share times
   }
 
 }

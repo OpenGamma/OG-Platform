@@ -9,15 +9,13 @@ import java.util.List;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.FloatingRateNoteSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
-import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
-import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
-import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
-import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
-import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
-import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
+import com.opengamma.financial.security.credit.IndexCDSSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
@@ -62,7 +60,7 @@ public final class UnderlyingExternalIdVisitor extends FinancialSecurityVisitorA
   //-------------------------------------------------------------------------
   /**
    * Gets the set of underlying identifiers that were found.
-   * 
+   *
    * @return the underlying identifiers, not null
    */
   public Set<ExternalIdBundle> getUnderlyings() {
@@ -71,30 +69,40 @@ public final class UnderlyingExternalIdVisitor extends FinancialSecurityVisitorA
 
   //-------------------------------------------------------------------------
   @Override
-  public Void visitEquitySecurity(EquitySecurity security) {
+  public Void visitEquitySecurity(final EquitySecurity security) {
+    return null;
+  }
+
+  @Override
+  public Void visitBillSecurity(final BillSecurity security) {
+    return null;
+  }
+
+  @Override
+  public Void visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
+    return null;
+  }
+
+  @Override
+  public Void visitCorporateBondSecurity(final CorporateBondSecurity security) {
+    return null;
+  }
+
+  @Override
+  public Void visitInflationBondSecurity(final InflationBondSecurity security) {
     return null;
   }
   
   @Override
-  public Void visitGovernmentBondSecurity(GovernmentBondSecurity security) {
+  public Void visitAgricultureFutureSecurity(final AgricultureFutureSecurity security) {
     return null;
   }
 
   @Override
-  public Void visitCorporateBondSecurity(CorporateBondSecurity security) {
-    return null;
-  }
-
-  @Override
-  public Void visitAgricultureFutureSecurity(AgricultureFutureSecurity security) {
-    return null;
-  }
-
-  @Override
-  public Void visitBondFutureSecurity(BondFutureSecurity security) {
-    List<BondFutureDeliverable> basketList = security.getBasket();
-    for (BondFutureDeliverable deliverable : basketList) {
-      ExternalIdBundle identifiers = deliverable.getIdentifiers();
+  public Void visitBondFutureSecurity(final BondFutureSecurity security) {
+    final List<BondFutureDeliverable> basketList = security.getBasket();
+    for (final BondFutureDeliverable deliverable : basketList) {
+      final ExternalIdBundle identifiers = deliverable.getIdentifiers();
       if (identifiers != null) {
         _underlyings.add(identifiers);
       }
@@ -103,8 +111,8 @@ public final class UnderlyingExternalIdVisitor extends FinancialSecurityVisitorA
   }
 
   @Override
-  public Void visitEnergyFutureSecurity(EnergyFutureSecurity security) {
-    ExternalId identifier = security.getUnderlyingId();
+  public Void visitEnergyFutureSecurity(final EnergyFutureSecurity security) {
+    final ExternalId identifier = security.getUnderlyingId();
     if (identifier != null) {
       _underlyings.add(ExternalIdBundle.of(identifier));
     }
@@ -112,13 +120,13 @@ public final class UnderlyingExternalIdVisitor extends FinancialSecurityVisitorA
   }
 
   @Override
-  public Void visitFXFutureSecurity(FXFutureSecurity security) {
+  public Void visitFXFutureSecurity(final FXFutureSecurity security) {
     return null;
   }
 
   @Override
-  public Void visitIndexFutureSecurity(IndexFutureSecurity security) {
-    ExternalId identifier = security.getUnderlyingId();
+  public Void visitIndexFutureSecurity(final IndexFutureSecurity security) {
+    final ExternalId identifier = security.getUnderlyingId();
     if (identifier != null) {
       _underlyings.add(ExternalIdBundle.of(identifier));
     }
@@ -126,8 +134,8 @@ public final class UnderlyingExternalIdVisitor extends FinancialSecurityVisitorA
   }
 
   @Override
-  public Void visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
-    ExternalId identifier = security.getUnderlyingId();
+  public Void visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+    final ExternalId identifier = security.getUnderlyingId();
     if (identifier != null) {
       _underlyings.add(ExternalIdBundle.of(identifier));
     }
@@ -135,8 +143,8 @@ public final class UnderlyingExternalIdVisitor extends FinancialSecurityVisitorA
   }
 
   @Override
-  public Void visitMetalFutureSecurity(MetalFutureSecurity security) {
-    ExternalId identifier = security.getUnderlyingId();
+  public Void visitMetalFutureSecurity(final MetalFutureSecurity security) {
+    final ExternalId identifier = security.getUnderlyingId();
     if (identifier != null) {
       _underlyings.add(ExternalIdBundle.of(identifier));
     }
@@ -144,8 +152,8 @@ public final class UnderlyingExternalIdVisitor extends FinancialSecurityVisitorA
   }
 
   @Override
-  public Void visitStockFutureSecurity(StockFutureSecurity security) {
-    ExternalId identifier = security.getUnderlyingId();
+  public Void visitStockFutureSecurity(final StockFutureSecurity security) {
+    final ExternalId identifier = security.getUnderlyingId();
     if (identifier != null) {
       _underlyings.add(ExternalIdBundle.of(identifier));
     }
@@ -153,8 +161,8 @@ public final class UnderlyingExternalIdVisitor extends FinancialSecurityVisitorA
   }
 
   @Override
-  public Void visitEquityFutureSecurity(EquityFutureSecurity security) {
-    ExternalId identifier = security.getUnderlyingId();
+  public Void visitEquityFutureSecurity(final EquityFutureSecurity security) {
+    final ExternalId identifier = security.getUnderlyingId();
     if (identifier != null) {
       _underlyings.add(ExternalIdBundle.of(identifier));
     }
@@ -162,8 +170,8 @@ public final class UnderlyingExternalIdVisitor extends FinancialSecurityVisitorA
   }
 
   @Override
-  public Void visitEquityIndexDividendFutureSecurity(EquityIndexDividendFutureSecurity security) {
-    ExternalId identifier = security.getUnderlyingId();
+  public Void visitEquityIndexDividendFutureSecurity(final EquityIndexDividendFutureSecurity security) {
+    final ExternalId identifier = security.getUnderlyingId();
     if (identifier != null) {
       _underlyings.add(ExternalIdBundle.of(identifier));
     }
@@ -171,8 +179,8 @@ public final class UnderlyingExternalIdVisitor extends FinancialSecurityVisitorA
   }
 
   @Override
-  public Void visitEquityOptionSecurity(EquityOptionSecurity equityOptionSecurity) {
-    ExternalId identifier = equityOptionSecurity.getUnderlyingId();
+  public Void visitEquityOptionSecurity(final EquityOptionSecurity equityOptionSecurity) {
+    final ExternalId identifier = equityOptionSecurity.getUnderlyingId();
     if (identifier != null) {
       _underlyings.add(ExternalIdBundle.of(identifier));
     }
@@ -180,8 +188,8 @@ public final class UnderlyingExternalIdVisitor extends FinancialSecurityVisitorA
   }
 
   @Override
-  public Void visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security) {
-    ExternalId identifier = security.getUnderlyingId();
+  public Void visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
+    final ExternalId identifier = security.getUnderlyingId();
     if (identifier != null) {
       _underlyings.add(ExternalIdBundle.of(identifier));
     }
@@ -189,8 +197,8 @@ public final class UnderlyingExternalIdVisitor extends FinancialSecurityVisitorA
   }
 
   @Override
-  public Void visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {
-    ExternalId underlyingIdentifier = security.getUnderlyingId();
+  public Void visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
+    final ExternalId underlyingIdentifier = security.getUnderlyingId();
     if (underlyingIdentifier != null) {
       _underlyings.add(ExternalIdBundle.of(underlyingIdentifier));
     }
@@ -199,7 +207,7 @@ public final class UnderlyingExternalIdVisitor extends FinancialSecurityVisitorA
 
   @Override
   public Void visitEquityIndexFutureOptionSecurity(final EquityIndexFutureOptionSecurity security) {
-    ExternalId underlyingIdentifier = security.getUnderlyingId();
+    final ExternalId underlyingIdentifier = security.getUnderlyingId();
     if (underlyingIdentifier != null) {
       _underlyings.add(ExternalIdBundle.of(underlyingIdentifier));
     }
@@ -208,7 +216,7 @@ public final class UnderlyingExternalIdVisitor extends FinancialSecurityVisitorA
 
   @Override
   public Void visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
-    ExternalId underlyingIdentifier = security.getUnderlyingId();
+    final ExternalId underlyingIdentifier = security.getUnderlyingId();
     if (underlyingIdentifier != null) {
       _underlyings.add(ExternalIdBundle.of(underlyingIdentifier));
     }
@@ -216,8 +224,8 @@ public final class UnderlyingExternalIdVisitor extends FinancialSecurityVisitorA
   }
 
   @Override
-  public Void visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity security) {
-    ExternalId underlyingIdentifier = security.getUnderlyingId();
+  public Void visitCommodityFutureOptionSecurity(final CommodityFutureOptionSecurity security) {
+    final ExternalId underlyingIdentifier = security.getUnderlyingId();
     if (underlyingIdentifier != null) {
       _underlyings.add(ExternalIdBundle.of(underlyingIdentifier));
     }
@@ -225,8 +233,8 @@ public final class UnderlyingExternalIdVisitor extends FinancialSecurityVisitorA
   }
 
   @Override
-  public Void visitFxFutureOptionSecurity(FxFutureOptionSecurity security) {
-    ExternalId underlyingIdentifier = security.getUnderlyingId();
+  public Void visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
+    final ExternalId underlyingIdentifier = security.getUnderlyingId();
     if (underlyingIdentifier != null) {
       _underlyings.add(ExternalIdBundle.of(underlyingIdentifier));
     }
@@ -234,8 +242,8 @@ public final class UnderlyingExternalIdVisitor extends FinancialSecurityVisitorA
   }
 
   @Override
-  public Void visitBondFutureOptionSecurity(BondFutureOptionSecurity security) {
-    ExternalId underlyingIdentifier = security.getUnderlyingId();
+  public Void visitBondFutureOptionSecurity(final BondFutureOptionSecurity security) {
+    final ExternalId underlyingIdentifier = security.getUnderlyingId();
     if (underlyingIdentifier != null) {
       _underlyings.add(ExternalIdBundle.of(underlyingIdentifier));
     }
@@ -243,8 +251,8 @@ public final class UnderlyingExternalIdVisitor extends FinancialSecurityVisitorA
   }
 
   @Override
-  public Void visitFederalFundsFutureSecurity(FederalFundsFutureSecurity security) {
-    ExternalId identifier = security.getUnderlyingId();
+  public Void visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
+    final ExternalId identifier = security.getUnderlyingId();
     if (identifier != null) {
       _underlyings.add(ExternalIdBundle.of(identifier));
     }
@@ -252,8 +260,8 @@ public final class UnderlyingExternalIdVisitor extends FinancialSecurityVisitorA
   }
 
   @Override
-  public Void visitCreditDefaultSwapIndexSecurity(CreditDefaultSwapIndexSecurity security) {
-    ExternalId identifier = security.getReferenceEntity();
+  public Void visitCreditDefaultSwapIndexSecurity(final CreditDefaultSwapIndexSecurity security) {
+    final ExternalId identifier = security.getReferenceEntity();
     if (identifier != null) {
       _underlyings.add(ExternalIdBundle.of(identifier));
     }
@@ -261,10 +269,24 @@ public final class UnderlyingExternalIdVisitor extends FinancialSecurityVisitorA
   }
 
   @Override
-  public Void visitCreditDefaultSwapOptionSecurity(CreditDefaultSwapOptionSecurity security) {
-    ExternalId identifier = security.getUnderlyingId();
+  public Void visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
+    final ExternalId identifier = security.getUnderlyingId();
     if (identifier != null) {
       _underlyings.add(ExternalIdBundle.of(identifier));
+    }
+    return null;
+  }
+
+  @Override
+  public Void visitFloatingRateNoteSecurity(final FloatingRateNoteSecurity security) {
+    return null; //TODO the index?
+  }
+
+  @Override
+  public Void visitIndexCDSSecurity(final IndexCDSSecurity security) {
+    final ExternalIdBundle identifier = security.getUnderlyingIndex().resolve().getExternalIdBundle();
+    if (identifier != null) {
+      _underlyings.add(identifier);
     }
     return null;
   }

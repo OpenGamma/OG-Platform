@@ -175,7 +175,7 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
       historyRequest.setPagingRequest(PagingRequest.ONE);
       PortfolioHistoryResult historyResult = data().getPortfolioMaster().history(historyRequest);
       if (historyResult.getDocuments().size() == 0) {
-        return null;
+        throw ex;
       }
       data().setPortfolio(historyResult.getFirstDocument());
       data().setNode(historyResult.getFirstDocument().getPortfolio().getRootNode());
@@ -188,6 +188,7 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     PortfolioSearchRequest searchRequest = new PortfolioSearchRequest();

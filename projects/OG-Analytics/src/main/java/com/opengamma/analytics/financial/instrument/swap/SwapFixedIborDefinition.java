@@ -43,7 +43,7 @@ public class SwapFixedIborDefinition extends SwapDefinition {
    */
   public SwapFixedIborDefinition(final AnnuityCouponFixedDefinition fixedLeg, final AnnuityDefinition<? extends PaymentDefinition> iborLeg) {
     super(fixedLeg, iborLeg);
-    ArgumentChecker.isTrue(fixedLeg.getCurrency().equals(iborLeg.getCurrency()), "legs should have the same currency");
+    ArgumentChecker.isTrue(iborLeg instanceof AnnuityCouponIborDefinition, "iborLeg should be of the type AnnuityCouponIborDefinition");
   }
 
   /**
@@ -53,7 +53,6 @@ public class SwapFixedIborDefinition extends SwapDefinition {
    */
   public SwapFixedIborDefinition(final AnnuityCouponFixedDefinition fixedLeg, final AnnuityCouponIborDefinition iborLeg) {
     super(fixedLeg, iborLeg);
-    ArgumentChecker.isTrue(fixedLeg.getCurrency().equals(iborLeg.getCurrency()), "legs should have the same currency");
   }
 
   /**
@@ -175,6 +174,16 @@ public class SwapFixedIborDefinition extends SwapDefinition {
   }
 
   /**
+   * Creates a new swap with the same characteristics, except that the fixed coupon rate of all coupons is the one given.
+   * @param rate The rate.
+   * @return The new swap.
+   */
+  public SwapFixedIborDefinition withRate(final double rate) {
+    final AnnuityCouponFixedDefinition legFixedRate = getFixedLeg().withRate(rate);
+    return new SwapFixedIborDefinition(legFixedRate, getSecondLeg());
+  }
+
+  /**
    * The fixed leg of the swap.
    * @return Fixed leg.
    */
@@ -207,33 +216,6 @@ public class SwapFixedIborDefinition extends SwapDefinition {
     final AnnuityCouponFixedDefinition fixedLegTrimmed = getFixedLeg().trimStart(trimDate);
     final AnnuityCouponIborDefinition iborLegTrimmed = getIborLeg().trimStart(trimDate);
     return new SwapFixedIborDefinition(fixedLegTrimmed, iborLegTrimmed);
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @SuppressWarnings("unchecked")
-  @Override
-  public SwapFixedCoupon<Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    final Annuity<CouponFixed> fixedLeg = getFixedLeg().toDerivative(date, yieldCurveNames);
-    final Annuity<? extends Coupon> iborLeg = getIborLeg().toDerivative(date, yieldCurveNames);
-    return new SwapFixedCoupon<>(fixedLeg, (Annuity<Coupon>) iborLeg);
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @SuppressWarnings("unchecked")
-  @Override
-  public SwapFixedCoupon<Coupon> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(indexDataTS, "index data time series array");
-    final Annuity<CouponFixed> fixedLeg = getFixedLeg().toDerivative(date, yieldCurveNames);
-    final Annuity<? extends Coupon> iborLeg = getIborLeg().toDerivative(date, indexDataTS[0], yieldCurveNames);
-    return new SwapFixedCoupon<>(fixedLeg, (Annuity<Coupon>) iborLeg);
   }
 
   @SuppressWarnings("unchecked")

@@ -6,8 +6,8 @@
 package com.opengamma.core.marketdatasnapshot.impl;
 
 import java.util.Map;
-import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -19,11 +19,15 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Maps;
 import com.opengamma.core.marketdatasnapshot.CurveKey;
 import com.opengamma.core.marketdatasnapshot.CurveSnapshot;
+import com.opengamma.core.marketdatasnapshot.NamedSnapshot;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.SurfaceKey;
+import com.opengamma.core.marketdatasnapshot.SurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
@@ -44,47 +48,59 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
   /**
    * The unique identifier of the snapshot. This must be null when adding to a master and not null when retrieved from a master.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private UniqueId _uniqueId;
 
   /**
-   * The name of the snapshot intended for display purposes. This field must not be null for the object to be valid.
+   * The name of the snapshot intended for display purposes.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private String _name;
 
   /**
    * The name of the view on which this snapshot was based
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private String _basisViewName;
 
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private ManageableUnstructuredMarketDataSnapshot _globalValues;
 
   /**
    * The yield curves in this snapshot
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private Map<YieldCurveKey, YieldCurveSnapshot> _yieldCurves;
 
   /**
    * The yield curves in this snapshot
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private Map<CurveKey, CurveSnapshot> _curves;
 
   /**
    * The vol cubes in this snapshot
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private Map<VolatilityCubeKey, VolatilityCubeSnapshot> _volatilityCubes;
 
   /**
    * The vol surfaces in this snapshot
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> _volatilitySurfaces = Maps.newHashMap(); //Initialize in order to handle old format
+
+  /**
+   * The surfaces in this snapshot
+   */
+  @PropertyDefinition(overrideGet = true)
+  private Map<SurfaceKey, SurfaceSnapshot> _surfaces;
+
+  /**
+   * The valuation time of the snapshot
+   */
+  @PropertyDefinition(get = "manual")
+  private Instant _valuationTime;
 
   /**
    * Creates a snapshot
@@ -102,7 +118,6 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
    */
   public ManageableMarketDataSnapshot(final String name, final UnstructuredMarketDataSnapshot globalValues,
       final Map<YieldCurveKey, YieldCurveSnapshot> yieldCurves) {
-    super();
     _name = name;
     _globalValues = (globalValues != null) ? new ManageableUnstructuredMarketDataSnapshot(globalValues) : null;
     _yieldCurves = yieldCurves;
@@ -120,7 +135,6 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
   public ManageableMarketDataSnapshot(final String name, final UnstructuredMarketDataSnapshot globalValues,
       final Map<YieldCurveKey, YieldCurveSnapshot> yieldCurves, final Map<VolatilitySurfaceKey,
       VolatilitySurfaceSnapshot> volatilitySurfaces, final Map<VolatilityCubeKey, VolatilityCubeSnapshot> volatilityCubes) {
-    super();
     _name = name;
     _globalValues = (globalValues != null) ? new ManageableUnstructuredMarketDataSnapshot(globalValues) : null;
     _yieldCurves = yieldCurves;
@@ -129,20 +143,19 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
     _volatilityCubes = volatilityCubes;
   }
 
-    /**
-     * Creates a snapshot.
-     *
-     * @param name the name of the snapshot
-     * @param globalValues the snapshot for the global scope
-     * @param yieldCurves the yield curves
-     * @param curves the curves
-     * @param volatilitySurfaces the volatility surfaces
-     * @param volatilityCubes the volatility cubes
-     */
+  /**
+   * Creates a snapshot.
+   *
+   * @param name the name of the snapshot
+   * @param globalValues the snapshot for the global scope
+   * @param yieldCurves the yield curves
+   * @param curves the curves
+   * @param volatilitySurfaces the volatility surfaces
+   * @param volatilityCubes the volatility cubes
+   */
   public ManageableMarketDataSnapshot(final String name, final UnstructuredMarketDataSnapshot globalValues,
       final Map<YieldCurveKey, YieldCurveSnapshot> yieldCurves, final Map<CurveKey, CurveSnapshot> curves, final Map<VolatilitySurfaceKey,
       VolatilitySurfaceSnapshot> volatilitySurfaces, final Map<VolatilityCubeKey, VolatilityCubeSnapshot> volatilityCubes) {
-    super();
     _name = name;
     _globalValues = (globalValues != null) ? new ManageableUnstructuredMarketDataSnapshot(globalValues) : null;
     _yieldCurves = yieldCurves;
@@ -151,9 +164,76 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
     _volatilityCubes = volatilityCubes;
   }
 
+  /**
+   * Creates a snapshot.
+   *
+   * @param name the name of the snapshot
+   * @param globalValues the snapshot for the global scope
+   * @param yieldCurves the yield curves
+   * @param curves the curves
+   * @param volatilitySurfaces the volatility surfaces
+   * @param volatilityCubes the volatility cubes
+   * @param surfaces the surfaces
+   */
+  public ManageableMarketDataSnapshot(final String name, final UnstructuredMarketDataSnapshot globalValues,
+      final Map<YieldCurveKey, YieldCurveSnapshot> yieldCurves, final Map<CurveKey, CurveSnapshot> curves,
+      final Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> volatilitySurfaces,
+      final Map<VolatilityCubeKey, VolatilityCubeSnapshot> volatilityCubes,
+      final Map<SurfaceKey, SurfaceSnapshot> surfaces) {
+    _name = name;
+    _globalValues = (globalValues != null) ? new ManageableUnstructuredMarketDataSnapshot(globalValues) : null;
+    _yieldCurves = yieldCurves;
+    _curves = curves;
+    _volatilitySurfaces = volatilitySurfaces;
+    _volatilityCubes = volatilityCubes;
+    _surfaces = surfaces;
+  }
+
   public ManageableMarketDataSnapshot(final StructuredMarketDataSnapshot copyFrom) {
-    this(copyFrom.getName(), copyFrom.getGlobalValues(), copyFrom.getYieldCurves(), copyFrom.getCurves(),  copyFrom.getVolatilitySurfaces(), copyFrom.getVolatilityCubes());
+    this(copyFrom.getName(), copyFrom.getGlobalValues(), copyFrom.getYieldCurves(), copyFrom.getCurves(), copyFrom.getVolatilitySurfaces(),
+        copyFrom.getVolatilityCubes(), copyFrom.getSurfaces());
     _basisViewName = copyFrom.getBasisViewName();
+    _valuationTime = copyFrom.getValuationTime();
+  }
+
+  @Override
+  public NamedSnapshot withUniqueId(UniqueId uniqueId) {
+    // As this is a mutable object, we just update and return it
+    setUniqueId(uniqueId);
+    return this;
+  }
+
+  /**
+   * Gets the valuation time of the snapshot
+   * @return the valuation time of the snapshot, or null if
+   * no valuation time could be inferred from the snapshot
+   */
+  @Override
+  public Instant getValuationTime() {
+    //[PLAT-1393] manual implementation provided for backwards compatibility.
+    //older versions took the valuation time from the yieldCurves
+    if (_valuationTime != null) {
+      return _valuationTime;
+    }
+    Instant latestTimestamp = null;
+    final Map<YieldCurveKey, YieldCurveSnapshot> yieldCurves = getYieldCurves();
+    if (yieldCurves != null) {
+      for (final YieldCurveSnapshot yieldCurveSnapshot : yieldCurves.values()) {
+        if (latestTimestamp == null || latestTimestamp.isBefore(yieldCurveSnapshot.getValuationTime())) {
+          latestTimestamp = yieldCurveSnapshot.getValuationTime();
+        }
+      }
+    }
+    final Map<CurveKey, CurveSnapshot> curves = getCurves();
+    if (curves != null) {
+      for (final CurveSnapshot curveSnapshot : curves.values()) {
+        if (latestTimestamp == null || latestTimestamp.isBefore(curveSnapshot.getValuationTime())) {
+          latestTimestamp = curveSnapshot.getValuationTime();
+        }
+      }
+    }
+    return latestTimestamp;
+
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -175,99 +255,12 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
     return ManageableMarketDataSnapshot.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case 3373707:  // name
-        return getName();
-      case 858810670:  // basisViewName
-        return getBasisViewName();
-      case -591591771:  // globalValues
-        return getGlobalValues();
-      case 119589713:  // yieldCurves
-        return getYieldCurves();
-      case -1349116572:  // curves
-        return getCurves();
-      case -2137883207:  // volatilityCubes
-        return getVolatilityCubes();
-      case -1329840981:  // volatilitySurfaces
-        return getVolatilitySurfaces();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case 858810670:  // basisViewName
-        setBasisViewName((String) newValue);
-        return;
-      case -591591771:  // globalValues
-        setGlobalValues((ManageableUnstructuredMarketDataSnapshot) newValue);
-        return;
-      case 119589713:  // yieldCurves
-        setYieldCurves((Map<YieldCurveKey, YieldCurveSnapshot>) newValue);
-        return;
-      case -1349116572:  // curves
-        setCurves((Map<CurveKey, CurveSnapshot>) newValue);
-        return;
-      case -2137883207:  // volatilityCubes
-        setVolatilityCubes((Map<VolatilityCubeKey, VolatilityCubeSnapshot>) newValue);
-        return;
-      case -1329840981:  // volatilitySurfaces
-        setVolatilitySurfaces((Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ManageableMarketDataSnapshot other = (ManageableMarketDataSnapshot) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getBasisViewName(), other.getBasisViewName()) &&
-          JodaBeanUtils.equal(getGlobalValues(), other.getGlobalValues()) &&
-          JodaBeanUtils.equal(getYieldCurves(), other.getYieldCurves()) &&
-          JodaBeanUtils.equal(getCurves(), other.getCurves()) &&
-          JodaBeanUtils.equal(getVolatilityCubes(), other.getVolatilityCubes()) &&
-          JodaBeanUtils.equal(getVolatilitySurfaces(), other.getVolatilitySurfaces());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBasisViewName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGlobalValues());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getYieldCurves());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurves());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityCubes());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilitySurfaces());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the unique identifier of the snapshot. This must be null when adding to a master and not null when retrieved from a master.
    * @return the value of the property
    */
+  @Override
   public UniqueId getUniqueId() {
     return _uniqueId;
   }
@@ -290,15 +283,16 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the name of the snapshot intended for display purposes. This field must not be null for the object to be valid.
+   * Gets the name of the snapshot intended for display purposes.
    * @return the value of the property
    */
+  @Override
   public String getName() {
     return _name;
   }
 
   /**
-   * Sets the name of the snapshot intended for display purposes. This field must not be null for the object to be valid.
+   * Sets the name of the snapshot intended for display purposes.
    * @param name  the new value of the property
    */
   public void setName(String name) {
@@ -318,6 +312,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
    * Gets the name of the view on which this snapshot was based
    * @return the value of the property
    */
+  @Override
   public String getBasisViewName() {
     return _basisViewName;
   }
@@ -343,6 +338,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
    * Gets the globalValues.
    * @return the value of the property
    */
+  @Override
   public ManageableUnstructuredMarketDataSnapshot getGlobalValues() {
     return _globalValues;
   }
@@ -368,6 +364,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
    * Gets the yield curves in this snapshot
    * @return the value of the property
    */
+  @Override
   public Map<YieldCurveKey, YieldCurveSnapshot> getYieldCurves() {
     return _yieldCurves;
   }
@@ -393,6 +390,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
    * Gets the yield curves in this snapshot
    * @return the value of the property
    */
+  @Override
   public Map<CurveKey, CurveSnapshot> getCurves() {
     return _curves;
   }
@@ -418,6 +416,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
    * Gets the vol cubes in this snapshot
    * @return the value of the property
    */
+  @Override
   public Map<VolatilityCubeKey, VolatilityCubeSnapshot> getVolatilityCubes() {
     return _volatilityCubes;
   }
@@ -443,6 +442,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
    * Gets the vol surfaces in this snapshot
    * @return the value of the property
    */
+  @Override
   public Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> getVolatilitySurfaces() {
     return _volatilitySurfaces;
   }
@@ -461,6 +461,118 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
    */
   public final Property<Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot>> volatilitySurfaces() {
     return metaBean().volatilitySurfaces().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the surfaces in this snapshot
+   * @return the value of the property
+   */
+  @Override
+  public Map<SurfaceKey, SurfaceSnapshot> getSurfaces() {
+    return _surfaces;
+  }
+
+  /**
+   * Sets the surfaces in this snapshot
+   * @param surfaces  the new value of the property
+   */
+  public void setSurfaces(Map<SurfaceKey, SurfaceSnapshot> surfaces) {
+    this._surfaces = surfaces;
+  }
+
+  /**
+   * Gets the the {@code surfaces} property.
+   * @return the property, not null
+   */
+  public final Property<Map<SurfaceKey, SurfaceSnapshot>> surfaces() {
+    return metaBean().surfaces().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Sets the valuation time of the snapshot
+   * @param valuationTime  the new value of the property
+   */
+  public void setValuationTime(Instant valuationTime) {
+    this._valuationTime = valuationTime;
+  }
+
+  /**
+   * Gets the the {@code valuationTime} property.
+   * @return the property, not null
+   */
+  public final Property<Instant> valuationTime() {
+    return metaBean().valuationTime().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ManageableMarketDataSnapshot clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ManageableMarketDataSnapshot other = (ManageableMarketDataSnapshot) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getBasisViewName(), other.getBasisViewName()) &&
+          JodaBeanUtils.equal(getGlobalValues(), other.getGlobalValues()) &&
+          JodaBeanUtils.equal(getYieldCurves(), other.getYieldCurves()) &&
+          JodaBeanUtils.equal(getCurves(), other.getCurves()) &&
+          JodaBeanUtils.equal(getVolatilityCubes(), other.getVolatilityCubes()) &&
+          JodaBeanUtils.equal(getVolatilitySurfaces(), other.getVolatilitySurfaces()) &&
+          JodaBeanUtils.equal(getSurfaces(), other.getSurfaces()) &&
+          JodaBeanUtils.equal(getValuationTime(), other.getValuationTime());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBasisViewName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getGlobalValues());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getYieldCurves());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurves());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVolatilityCubes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVolatilitySurfaces());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSurfaces());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(352);
+    buf.append("ManageableMarketDataSnapshot{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("basisViewName").append('=').append(JodaBeanUtils.toString(getBasisViewName())).append(',').append(' ');
+    buf.append("globalValues").append('=').append(JodaBeanUtils.toString(getGlobalValues())).append(',').append(' ');
+    buf.append("yieldCurves").append('=').append(JodaBeanUtils.toString(getYieldCurves())).append(',').append(' ');
+    buf.append("curves").append('=').append(JodaBeanUtils.toString(getCurves())).append(',').append(' ');
+    buf.append("volatilityCubes").append('=').append(JodaBeanUtils.toString(getVolatilityCubes())).append(',').append(' ');
+    buf.append("volatilitySurfaces").append('=').append(JodaBeanUtils.toString(getVolatilitySurfaces())).append(',').append(' ');
+    buf.append("surfaces").append('=').append(JodaBeanUtils.toString(getSurfaces())).append(',').append(' ');
+    buf.append("valuationTime").append('=').append(JodaBeanUtils.toString(getValuationTime())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -518,6 +630,17 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
     private final MetaProperty<Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot>> _volatilitySurfaces = DirectMetaProperty.ofReadWrite(
         this, "volatilitySurfaces", ManageableMarketDataSnapshot.class, (Class) Map.class);
     /**
+     * The meta-property for the {@code surfaces} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Map<SurfaceKey, SurfaceSnapshot>> _surfaces = DirectMetaProperty.ofReadWrite(
+        this, "surfaces", ManageableMarketDataSnapshot.class, (Class) Map.class);
+    /**
+     * The meta-property for the {@code valuationTime} property.
+     */
+    private final MetaProperty<Instant> _valuationTime = DirectMetaProperty.ofReadWrite(
+        this, "valuationTime", ManageableMarketDataSnapshot.class, Instant.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -529,7 +652,9 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
         "yieldCurves",
         "curves",
         "volatilityCubes",
-        "volatilitySurfaces");
+        "volatilitySurfaces",
+        "surfaces",
+        "valuationTime");
 
     /**
      * Restricted constructor.
@@ -556,6 +681,10 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
           return _volatilityCubes;
         case -1329840981:  // volatilitySurfaces
           return _volatilitySurfaces;
+        case -1615615642:  // surfaces
+          return _surfaces;
+        case 113591406:  // valuationTime
+          return _valuationTime;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -638,6 +767,88 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
      */
     public final MetaProperty<Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot>> volatilitySurfaces() {
       return _volatilitySurfaces;
+    }
+
+    /**
+     * The meta-property for the {@code surfaces} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Map<SurfaceKey, SurfaceSnapshot>> surfaces() {
+      return _surfaces;
+    }
+
+    /**
+     * The meta-property for the {@code valuationTime} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Instant> valuationTime() {
+      return _valuationTime;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return ((ManageableMarketDataSnapshot) bean).getUniqueId();
+        case 3373707:  // name
+          return ((ManageableMarketDataSnapshot) bean).getName();
+        case 858810670:  // basisViewName
+          return ((ManageableMarketDataSnapshot) bean).getBasisViewName();
+        case -591591771:  // globalValues
+          return ((ManageableMarketDataSnapshot) bean).getGlobalValues();
+        case 119589713:  // yieldCurves
+          return ((ManageableMarketDataSnapshot) bean).getYieldCurves();
+        case -1349116572:  // curves
+          return ((ManageableMarketDataSnapshot) bean).getCurves();
+        case -2137883207:  // volatilityCubes
+          return ((ManageableMarketDataSnapshot) bean).getVolatilityCubes();
+        case -1329840981:  // volatilitySurfaces
+          return ((ManageableMarketDataSnapshot) bean).getVolatilitySurfaces();
+        case -1615615642:  // surfaces
+          return ((ManageableMarketDataSnapshot) bean).getSurfaces();
+        case 113591406:  // valuationTime
+          return ((ManageableMarketDataSnapshot) bean).getValuationTime();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          ((ManageableMarketDataSnapshot) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case 3373707:  // name
+          ((ManageableMarketDataSnapshot) bean).setName((String) newValue);
+          return;
+        case 858810670:  // basisViewName
+          ((ManageableMarketDataSnapshot) bean).setBasisViewName((String) newValue);
+          return;
+        case -591591771:  // globalValues
+          ((ManageableMarketDataSnapshot) bean).setGlobalValues((ManageableUnstructuredMarketDataSnapshot) newValue);
+          return;
+        case 119589713:  // yieldCurves
+          ((ManageableMarketDataSnapshot) bean).setYieldCurves((Map<YieldCurveKey, YieldCurveSnapshot>) newValue);
+          return;
+        case -1349116572:  // curves
+          ((ManageableMarketDataSnapshot) bean).setCurves((Map<CurveKey, CurveSnapshot>) newValue);
+          return;
+        case -2137883207:  // volatilityCubes
+          ((ManageableMarketDataSnapshot) bean).setVolatilityCubes((Map<VolatilityCubeKey, VolatilityCubeSnapshot>) newValue);
+          return;
+        case -1329840981:  // volatilitySurfaces
+          ((ManageableMarketDataSnapshot) bean).setVolatilitySurfaces((Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot>) newValue);
+          return;
+        case -1615615642:  // surfaces
+          ((ManageableMarketDataSnapshot) bean).setSurfaces((Map<SurfaceKey, SurfaceSnapshot>) newValue);
+          return;
+        case 113591406:  // valuationTime
+          ((ManageableMarketDataSnapshot) bean).setValuationTime((Instant) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

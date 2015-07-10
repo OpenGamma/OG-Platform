@@ -9,8 +9,8 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.ComputationTargetTypeMap;
-import com.opengamma.lambdava.functions.Function2;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.function.BinaryOperator;
 
 /**
  * Default implementation of {@link ComputationTargetCollapser} that allows delegate instances to be registered for known target types.
@@ -44,9 +44,9 @@ public class DefaultComputationTargetCollapser implements ComputationTargetColla
   }
 
   private final ComputationTargetTypeMap<ComputationTargetCollapser> _collapsers = new ComputationTargetTypeMap<ComputationTargetCollapser>(
-      new Function2<ComputationTargetCollapser, ComputationTargetCollapser, ComputationTargetCollapser>() {
+      new BinaryOperator<ComputationTargetCollapser>() {
         @Override
-        public ComputationTargetCollapser execute(final ComputationTargetCollapser a, final ComputationTargetCollapser b) {
+        public ComputationTargetCollapser apply(ComputationTargetCollapser a, ComputationTargetCollapser b) {
           return new ChainedCollapser(a, b);
         }
       });

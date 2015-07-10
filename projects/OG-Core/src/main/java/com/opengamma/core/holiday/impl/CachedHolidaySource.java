@@ -5,6 +5,7 @@
  */
 package com.opengamma.core.holiday.impl;
 
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -27,7 +28,9 @@ import com.opengamma.util.map.Map3;
 import com.opengamma.util.money.Currency;
 
 /**
- * A cached {@link HolidaySource} using a concurrent hash map and no eviction policy. This is better than having no cache but is not very efficient. Also does not listen for changes to the underlying
+ * A cached {@link HolidaySource} using a concurrent hash map and
+ * no eviction policy. This is better than having no cache but is
+ * not very efficient. Also does not listen for changes to the underlying
  * data.
  */
 public class CachedHolidaySource extends AbstractSource<Holiday> implements HolidaySource {
@@ -35,11 +38,13 @@ public class CachedHolidaySource extends AbstractSource<Holiday> implements Holi
   private static final Object NULL = new Object();
 
   private final HolidaySource _underlying;
-  private final ConcurrentMap<UniqueId, Object> _getHoliday1 = new ConcurrentHashMap<UniqueId, Object>();
-  private final Map2<VersionCorrection, ObjectId, Object> _getHoliday2 = new HashMap2<VersionCorrection, ObjectId, Object>(HashMap2.WEAK_KEYS);
-  private final ConcurrentMap<Currency, ConcurrentMap<LocalDate, Object>> _isHoliday1 = new ConcurrentHashMap<Currency, ConcurrentMap<LocalDate, Object>>();
-  private final Map3<LocalDate, HolidayType, ExternalIdBundle, Object> _isHoliday2 = new HashMap3<LocalDate, HolidayType, ExternalIdBundle, Object>();
-  private final Map3<LocalDate, HolidayType, ExternalId, Object> _isHoliday3 = new HashMap3<LocalDate, HolidayType, ExternalId, Object>();
+  private final ConcurrentMap<UniqueId, Object> _getHoliday1 = new ConcurrentHashMap<>();
+  private final Map2<VersionCorrection, ObjectId, Object> _getHoliday2 = new HashMap2<>(HashMap2.WEAK_KEYS);
+  private final ConcurrentMap<Currency, Object> _getHoliday3 = new ConcurrentHashMap<>();
+  private final Map2<HolidayType, ExternalIdBundle, Object> _getHoliday4 = new HashMap2<>(HashMap2.WEAK_KEYS);
+  private final ConcurrentMap<Currency, ConcurrentMap<LocalDate, Object>> _isHoliday1 = new ConcurrentHashMap<>();
+  private final Map3<LocalDate, HolidayType, ExternalIdBundle, Object> _isHoliday2 = new HashMap3<>();
+  private final Map3<LocalDate, HolidayType, ExternalId, Object> _isHoliday3 = new HashMap3<>();
 
   public CachedHolidaySource(final HolidaySource underlying) {
     ArgumentChecker.notNull(underlying, "underlying");
@@ -108,10 +113,51 @@ public class CachedHolidaySource extends AbstractSource<Holiday> implements Holi
   }
 
   @Override
+  public Collection<Holiday> get(Currency currency) {
+    Object result = _getHoliday3.get(currency);
+    if (result != null) {
+      return getOrThrow(result);
+    }
+    try {
+      Collection<Holiday> holidays = getUnderlying().get(currency);
+      result = _getHoliday3.putIfAbsent(currency, holidays);
+      if (result != null) {
+        return getOrThrow(result);
+      } else {
+        return holidays;
+      }
+    } catch (RuntimeException ex) {
+      _getHoliday3.putIfAbsent(currency, ex);
+      throw ex;
+    }
+  }
+
+  @Override
+  public Collection<Holiday> get(HolidayType holidayType,
+                                 ExternalIdBundle regionOrExchangeIds) {
+    Object result = _getHoliday4.get(holidayType, regionOrExchangeIds);
+    if (result != null) {
+      return getOrThrow(result);
+    }
+    try {
+      Collection<Holiday> holidays = getUnderlying().get(holidayType, regionOrExchangeIds);
+      result = _getHoliday4.putIfAbsent(holidayType, regionOrExchangeIds, safeNull(holidays));
+      if (result != null) {
+        return getOrThrow(result);
+      } else {
+        return holidays;
+      }
+    } catch (RuntimeException ex) {
+      _getHoliday4.putIfAbsent(holidayType, regionOrExchangeIds, ex);
+      throw ex;
+    }
+  }
+
+  @Override
   public boolean isHoliday(final LocalDate dateToCheck, final Currency currency) {
     ConcurrentMap<LocalDate, Object> dates = _isHoliday1.get(currency);
     if (dates == null) {
-      dates = new ConcurrentHashMap<LocalDate, Object>();
+      dates = new ConcurrentHashMap<>();
       final ConcurrentMap<LocalDate, Object> existing = _isHoliday1.putIfAbsent(currency, dates);
       if (existing != null) {
         dates = existing;
@@ -163,4 +209,26 @@ public class CachedHolidaySource extends AbstractSource<Holiday> implements Holi
     }
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    CachedHolidaySource that = (CachedHolidaySource) o;
+
+    if (!_underlying.equals(that._underlying)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return _underlying.hashCode();
+  }
 }

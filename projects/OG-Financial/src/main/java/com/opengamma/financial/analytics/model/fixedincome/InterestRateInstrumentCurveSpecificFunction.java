@@ -19,7 +19,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
@@ -37,9 +36,9 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.BondFutureSecurityConverter;
 import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
+import com.opengamma.financial.analytics.conversion.CashFlowSecurityConverter;
 import com.opengamma.financial.analytics.conversion.CashSecurityConverter;
 import com.opengamma.financial.analytics.conversion.FRASecurityConverterDeprecated;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
@@ -66,19 +65,27 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Base function for calculating curve-specific risk factors for interest-rate instruments without optionality.
- * 
+ *
  * @deprecated Use descendants of {@link MultiCurvePricingFunction}
  */
 @Deprecated
 public abstract class InterestRateInstrumentCurveSpecificFunction extends AbstractFunction.NonCompiledInvoker {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateInstrumentCurveSpecificFunction.class);
   /** The requested curve property */
   protected static final String PROPERTY_REQUESTED_CURVE = ValuePropertyNames.OUTPUT_RESERVED_PREFIX + "RequestedCurve";
-
+  /** The value requirement produced by this function */
   private final String _valueRequirement;
+  /** Converts securities to instrument definitions */
   private FinancialSecurityVisitor<InstrumentDefinition<?>> _visitor;
+  /** Converts instrument definitions to instrument derivatives */
   private FixedIncomeConverterDataProvider _definitionConverter;
+  /** A source for curve calculation configurations */
+  private ConfigDBCurveCalculationConfigSource _curveCalculationConfigSource;
 
+  /**
+   * @param valueRequirement The value requirement produced by this function, not null
+   */
   public InterestRateInstrumentCurveSpecificFunction(final String valueRequirement) {
     ArgumentChecker.notNull(valueRequirement, "value requirement");
     _valueRequirement = valueRequirement;
@@ -88,25 +95,30 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
   public void init(final FunctionCompilationContext context) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context); // TODO [PLAT-5966] Remove
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, regionSource);
+    final CashFlowSecurityConverter cashFlowConverter = new CashFlowSecurityConverter();
     final FRASecurityConverterDeprecated fraConverter = new FRASecurityConverterDeprecated(holidaySource, regionSource, conventionSource);
     final SwapSecurityConverterDeprecated swapConverter = new SwapSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, false);
     final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
     final InterestRateFutureSecurityConverterDeprecated irFutureConverter = new InterestRateFutureSecurityConverterDeprecated(holidaySource, conventionSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
-    _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter)
-        .swapSecurityVisitor(swapConverter).interestRateFutureSecurityVisitor(irFutureConverter).bondSecurityVisitor(bondConverter)
+    _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
+        .cashSecurityVisitor(cashConverter)
+        .cashFlowSecurityVisitor(cashFlowConverter)
+        .fraSecurityVisitor(fraConverter)
+        .swapSecurityVisitor(swapConverter)
+        .interestRateFutureSecurityVisitor(irFutureConverter)
+        .bondSecurityVisitor(bondConverter)
         .bondFutureSecurityVisitor(bondFutureConverter).create();
-    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
-    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, securitySource, timeSeriesResolver);
+    _curveCalculationConfigSource = ConfigDBCurveCalculationConfigSource.init(context, this);
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-      final Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
@@ -120,9 +132,7 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
       throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
     }
     final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
-    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
-    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
+    final MultiCurveCalculationConfig curveCalculationConfig = _curveCalculationConfigSource.getConfig(curveCalculationConfigName);
     if (curveCalculationConfig == null) {
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
@@ -155,8 +165,8 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
     if (security instanceof SwapSecurity) {
       try {
         final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity(security);
-        return type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD
-            || type == InterestRateInstrumentType.SWAP_IBOR_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_OIS;
+        return type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD || type == InterestRateInstrumentType.SWAP_IBOR_IBOR ||
+            type == InterestRateInstrumentType.SWAP_FIXED_OIS;
       } catch (final OpenGammaRuntimeException ogre) {
         return false;
       }
@@ -194,15 +204,12 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
       s_logger.debug("Must specify a curve name");
       return null;
     }
-    final Set<String> curveCalculationConfigNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
+    final String curveCalculationConfigName = constraints.getStrictValue(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    if (curveCalculationConfigName == null) {
       s_logger.debug("Must specify a curve calculation config");
       return null;
     }
-    final String curveCalculationConfigName = curveCalculationConfigNames.iterator().next();
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
-    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
+    final MultiCurveCalculationConfig curveCalculationConfig = _curveCalculationConfigSource.getConfig(curveCalculationConfigName);
     if (curveCalculationConfig == null) {
       s_logger.debug("Could not find curve calculation configuration named " + curveCalculationConfigName);
       return null;
@@ -235,7 +242,7 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
       return null;
     }
     final String curve = curveNames.iterator().next();
-    final Set<ValueRequirement> curveRequirements = YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource);
+    final Set<ValueRequirement> curveRequirements = YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, _curveCalculationConfigSource);
     final Set<ValueRequirement> requirements = Sets.newHashSetWithExpectedSize(curveRequirements.size());
     for (final ValueRequirement curveRequirement : curveRequirements) {
       final ValueProperties.Builder properties = curveRequirement.getConstraints().copy();
@@ -255,29 +262,22 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
     }
   }
 
-  protected abstract Set<ComputedValue> getResults(final InstrumentDerivative derivative, final String curveName, final YieldCurveBundle curves,
-      final String curveCalculationConfigName, final String curveCalculationMethod, final FunctionInputs inputs, final ComputationTarget target,
-      final ValueSpecification resultSpec);
+  protected abstract Set<ComputedValue> getResults(final InstrumentDerivative derivative, final String curveName, final YieldCurveBundle curves, final String curveCalculationConfigName,
+      final String curveCalculationMethod, final FunctionInputs inputs, final ComputationTarget target, final ValueSpecification resultSpec);
 
   protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
     final Security security = target.getSecurity();
     final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
-    final ValueProperties.Builder properties = createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, currency)
-        .with(ValuePropertyNames.CURVE_CURRENCY, currency)
-        .withAny(ValuePropertyNames.CURVE)
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    final ValueProperties.Builder properties = createValueProperties().with(ValuePropertyNames.CURRENCY, currency).with(ValuePropertyNames.CURVE_CURRENCY, currency)
+        .withAny(ValuePropertyNames.CURVE).withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     return properties;
   }
 
   protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final String curveName, final String curveCalculationConfigName) {
     final Security security = target.getSecurity();
     final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
-    final ValueProperties.Builder properties = createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, currency)
-        .with(ValuePropertyNames.CURVE_CURRENCY, currency)
-        .with(ValuePropertyNames.CURVE, curveName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName);
+    final ValueProperties.Builder properties = createValueProperties().with(ValuePropertyNames.CURRENCY, currency).with(ValuePropertyNames.CURVE_CURRENCY, currency)
+        .with(ValuePropertyNames.CURVE, curveName).with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName);
     return properties;
   }
 
@@ -292,4 +292,9 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
   protected FinancialSecurityVisitor<InstrumentDefinition<?>> getVisitor() {
     return _visitor;
   }
+
+  protected ConfigDBCurveCalculationConfigSource getCurveCalculationConfigSource() {
+    return _curveCalculationConfigSource;
+  }
+
 }

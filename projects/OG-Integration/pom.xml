@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.opengamma.platform</groupId>
     <artifactId>og-platform-public</artifactId>
-    <version>2.1.0</version>
+    <version>2.17.0-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
   <artifactId>og-integration</artifactId>
@@ -43,11 +43,20 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-compress</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.ant</groupId>
+      <artifactId>ant-compress</artifactId>
+      <version>1.2</version>
+    </dependency>
+    <dependency>
       <groupId>com.opengamma.platform</groupId>
       <artifactId>og-bloomberg</artifactId>
       <version>${project.version}</version>
     </dependency>
-
     <dependency>
       <groupId>org.quartz-scheduler</groupId>
       <artifactId>quartz</artifactId>
@@ -66,18 +75,21 @@
       <groupId>org.jdesktop</groupId>
       <artifactId>appframework</artifactId>
       <version>1.0.3</version>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.swinglabs.swingx</groupId>
       <artifactId>swingx-core</artifactId>
       <version>1.6.5</version>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.apache.derby</groupId>
       <artifactId>derby</artifactId>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.miglayout</groupId>
+      <artifactId>miglayout</artifactId>
+      <version>3.7.3.1</version>
     </dependency>
 
     <dependency>
@@ -97,7 +109,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>license-maven-plugin</artifactId>
-        <version>1.5</version>
+        <version>1.6</version>
         <reportSets>
           <reportSet>
             <id>single</id>
@@ -118,6 +130,7 @@
                 <licenseMerge>New BSD License|BSD 3-clause</licenseMerge>
               </licenseMerges>
               <useMissingFile>true</useMissingFile>
+              <useRepositoryMissingFiles>false</useRepositoryMissingFiles>
             </configuration>
           </reportSet>
         </reportSets>

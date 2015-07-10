@@ -30,6 +30,7 @@ import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecu
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -44,7 +45,7 @@ public class FXOptionBlackPnLCurveDefaults extends DefaultPropertyFunction {
     ArgumentChecker.isTrue(currencyCurveConfigAndDiscountingCurveNames.length % 3 == 0, "Must have a curve calculation configuration name and curve name per currency");
     _currencyCurveConfigAndDiscountingCurveNames = new HashMap<String, Pair<String, String>>();
     for (int i = 0; i < currencyCurveConfigAndDiscountingCurveNames.length; i += 3) {
-      final Pair<String, String> pair = Pair.of(currencyCurveConfigAndDiscountingCurveNames[i + 1], currencyCurveConfigAndDiscountingCurveNames[i + 2]);
+      final Pair<String, String> pair = Pairs.of(currencyCurveConfigAndDiscountingCurveNames[i + 1], currencyCurveConfigAndDiscountingCurveNames[i + 2]);
       _currencyCurveConfigAndDiscountingCurveNames.put(currencyCurveConfigAndDiscountingCurveNames[i], pair);
     }
   }

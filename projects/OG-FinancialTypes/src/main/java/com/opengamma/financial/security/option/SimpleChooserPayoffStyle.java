@@ -7,6 +7,7 @@ package com.opengamma.financial.security.option;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -89,66 +90,6 @@ public class SimpleChooserPayoffStyle extends PayoffStyle {
     return SimpleChooserPayoffStyle.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 2023159397:  // chooseDate
-        return getChooseDate();
-      case 205707631:  // underlyingStrike
-        return getUnderlyingStrike();
-      case -191465744:  // underlyingExpiry
-        return getUnderlyingExpiry();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 2023159397:  // chooseDate
-        setChooseDate((ZonedDateTime) newValue);
-        return;
-      case 205707631:  // underlyingStrike
-        setUnderlyingStrike((Double) newValue);
-        return;
-      case -191465744:  // underlyingExpiry
-        setUnderlyingExpiry((Expiry) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_chooseDate, "chooseDate");
-    JodaBeanUtils.notNull(_underlyingExpiry, "underlyingExpiry");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SimpleChooserPayoffStyle other = (SimpleChooserPayoffStyle) obj;
-      return JodaBeanUtils.equal(getChooseDate(), other.getChooseDate()) &&
-          JodaBeanUtils.equal(getUnderlyingStrike(), other.getUnderlyingStrike()) &&
-          JodaBeanUtils.equal(getUnderlyingExpiry(), other.getUnderlyingExpiry()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getChooseDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingStrike());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingExpiry());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the choose date.
@@ -224,6 +165,57 @@ public class SimpleChooserPayoffStyle extends PayoffStyle {
    */
   public final Property<Expiry> underlyingExpiry() {
     return metaBean().underlyingExpiry().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public SimpleChooserPayoffStyle clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SimpleChooserPayoffStyle other = (SimpleChooserPayoffStyle) obj;
+      return JodaBeanUtils.equal(getChooseDate(), other.getChooseDate()) &&
+          JodaBeanUtils.equal(getUnderlyingStrike(), other.getUnderlyingStrike()) &&
+          JodaBeanUtils.equal(getUnderlyingExpiry(), other.getUnderlyingExpiry()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getChooseDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingStrike());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingExpiry());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("SimpleChooserPayoffStyle{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("chooseDate").append('=').append(JodaBeanUtils.toString(getChooseDate())).append(',').append(' ');
+    buf.append("underlyingStrike").append('=').append(JodaBeanUtils.toString(getUnderlyingStrike())).append(',').append(' ');
+    buf.append("underlyingExpiry").append('=').append(JodaBeanUtils.toString(getUnderlyingExpiry())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -317,6 +309,43 @@ public class SimpleChooserPayoffStyle extends PayoffStyle {
      */
     public final MetaProperty<Expiry> underlyingExpiry() {
       return _underlyingExpiry;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 2023159397:  // chooseDate
+          return ((SimpleChooserPayoffStyle) bean).getChooseDate();
+        case 205707631:  // underlyingStrike
+          return ((SimpleChooserPayoffStyle) bean).getUnderlyingStrike();
+        case -191465744:  // underlyingExpiry
+          return ((SimpleChooserPayoffStyle) bean).getUnderlyingExpiry();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 2023159397:  // chooseDate
+          ((SimpleChooserPayoffStyle) bean).setChooseDate((ZonedDateTime) newValue);
+          return;
+        case 205707631:  // underlyingStrike
+          ((SimpleChooserPayoffStyle) bean).setUnderlyingStrike((Double) newValue);
+          return;
+        case -191465744:  // underlyingExpiry
+          ((SimpleChooserPayoffStyle) bean).setUnderlyingExpiry((Expiry) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((SimpleChooserPayoffStyle) bean)._chooseDate, "chooseDate");
+      JodaBeanUtils.notNull(((SimpleChooserPayoffStyle) bean)._underlyingExpiry, "underlyingExpiry");
+      super.validate(bean);
     }
 
   }

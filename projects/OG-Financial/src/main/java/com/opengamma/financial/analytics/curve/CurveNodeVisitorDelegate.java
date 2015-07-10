@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.analytics.curve;
 
+import com.opengamma.financial.analytics.ircurve.strips.BillNode;
+import com.opengamma.financial.analytics.ircurve.strips.BondNode;
+import com.opengamma.financial.analytics.ircurve.strips.CalendarSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
@@ -13,8 +16,13 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.FXSwapNode;
+import com.opengamma.financial.analytics.ircurve.strips.PeriodicallyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
+import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
+import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
+import com.opengamma.financial.analytics.ircurve.strips.ThreeLegBasisSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.util.ArgumentChecker;
 
@@ -36,6 +44,21 @@ public class CurveNodeVisitorDelegate<T> implements CurveNodeVisitor<T> {
   }
 
   @Override
+  public T visitBillNode(final BillNode node) {
+    return _delegate.visitBillNode(node);
+  }
+
+  @Override
+  public T visitBondNode(final BondNode node) {
+    return _delegate.visitBondNode(node);
+  }
+
+  @Override
+  public T visitCalendarSwapNode(final CalendarSwapNode node) {
+    return _delegate.visitCalendarSwapNode(node);
+  }
+
+  @Override
   public T visitCashNode(final CashNode node) {
     return _delegate.visitCashNode(node);
   }
@@ -43,6 +66,11 @@ public class CurveNodeVisitorDelegate<T> implements CurveNodeVisitor<T> {
   @Override
   public T visitContinuouslyCompoundedRateNode(final ContinuouslyCompoundedRateNode node) {
     return _delegate.visitContinuouslyCompoundedRateNode(node);
+  }
+
+  @Override
+  public T visitPeriodicallyCompoundedRateNode(final PeriodicallyCompoundedRateNode node) {
+    return _delegate.visitPeriodicallyCompoundedRateNode(node);
   }
 
   @Override
@@ -71,6 +99,20 @@ public class CurveNodeVisitorDelegate<T> implements CurveNodeVisitor<T> {
   }
 
   @Override
+  public T visitFXSwapNode(FXSwapNode node) {
+    return _delegate.visitFXSwapNode(node);
+  }
+  @Override
+  public T visitRollDateFRANode(final RollDateFRANode node) {
+    return _delegate.visitRollDateFRANode(node);
+  }
+
+  @Override
+  public T visitRollDateSwapNode(final RollDateSwapNode node) {
+    return _delegate.visitRollDateSwapNode(node);
+  }
+
+  @Override
   public T visitRateFutureNode(final RateFutureNode node) {
     return _delegate.visitRateFutureNode(node);
   }
@@ -78,6 +120,11 @@ public class CurveNodeVisitorDelegate<T> implements CurveNodeVisitor<T> {
   @Override
   public T visitSwapNode(final SwapNode node) {
     return _delegate.visitSwapNode(node);
+  }
+
+  @Override
+  public T visitThreeLegBasisSwapNode(final ThreeLegBasisSwapNode node) {
+    return _delegate.visitThreeLegBasisSwapNode(node);
   }
 
   @Override

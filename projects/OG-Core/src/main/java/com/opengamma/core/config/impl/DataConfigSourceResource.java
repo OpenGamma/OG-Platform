@@ -103,9 +103,9 @@ public class DataConfigSourceResource extends AbstractDataResource {
     final Class<?> type = ReflectionUtils.loadClass(typeStr);
     final VersionCorrection versionCorrection = (versionCorrectionStr != null) ? VersionCorrection.parse(versionCorrectionStr) : VersionCorrection.LATEST;
     if (name == null) {
-      return responseOkFudge(configItemCollectionResult(getConfigSource().getAll(type, versionCorrection)));
+      return responseOkObject(configItemCollectionResult(getConfigSource().getAll(type, versionCorrection)));
     } else {
-      return responseOkFudge(configItemCollectionResult(getConfigSource().get(type, name, versionCorrection)));
+      return responseOkObject(configItemCollectionResult(getConfigSource().get(type, name, versionCorrection)));
     }
   }
 
@@ -139,7 +139,7 @@ public class DataConfigSourceResource extends AbstractDataResource {
     @PathParam("uid") final String uidStr) {
     final UniqueId uid = UniqueId.parse(uidStr);
     final ConfigItem<?> result = getConfigSource().get(uid);
-    return responseOkFudge(configItemResult(result));
+    return responseOkObject(configItemResult(result));
   }
 
   /**
@@ -164,7 +164,7 @@ public class DataConfigSourceResource extends AbstractDataResource {
     final ObjectId objectId = ObjectId.parse(idStr);
     final VersionCorrection versionCorrection = VersionCorrection.parse(versionCorrectionStr);
     final ConfigItem<?> result = getConfigSource().get(objectId, versionCorrection);
-    return responseOkFudge(configItemResult(result));
+    return responseOkObject(configItemResult(result));
   }
 
 
@@ -180,8 +180,7 @@ public class DataConfigSourceResource extends AbstractDataResource {
     ArgumentChecker.notNull(baseUri, "baseUri");
     ArgumentChecker.notNull(objectId, "objectId");
     final UriBuilder bld = UriBuilder.fromUri(baseUri).path("configs/{oid}/{versionCorrection}");
-    versionCorrection = versionCorrection != null ? versionCorrection : VersionCorrection.LATEST;
-    return bld.build(objectId, versionCorrection);
+    return bld.build(objectId, VersionCorrection.of(versionCorrection));
   }
 
   @GET
@@ -192,7 +191,7 @@ public class DataConfigSourceResource extends AbstractDataResource {
     @QueryParam("name") final String name) {
     final Class<?> type = ReflectionUtils.loadClass(typeStr);
     final VersionCorrection versionCorrection = (versionCorrectionStr != null) ? VersionCorrection.parse(versionCorrectionStr) : VersionCorrection.LATEST;
-    return responseOkFudge(configValueResult(type, getConfigSource().getSingle(type, name, versionCorrection)));
+    return responseOkObject(configValueResult(type, getConfigSource().getSingle(type, name, versionCorrection)));
   }
 
   /**
@@ -226,7 +225,7 @@ public class DataConfigSourceResource extends AbstractDataResource {
     @QueryParam("versionCorrection") final String versionCorrectionStr) {
     final Class<?> type = ReflectionUtils.loadClass(typeStr);
     final VersionCorrection versionCorrection = (versionCorrectionStr != null) ? VersionCorrection.parse(versionCorrectionStr) : VersionCorrection.LATEST;
-    return responseOkFudge(configItemCollectionResult(getConfigSource().getAll(type, versionCorrection)));
+    return responseOkObject(configItemCollectionResult(getConfigSource().getAll(type, versionCorrection)));
   }
 
   /**
@@ -259,7 +258,7 @@ public class DataConfigSourceResource extends AbstractDataResource {
     @QueryParam("versionCorrection") final String versionCorrectionStr) {
     final Class<?> type = ReflectionUtils.loadClass(typeStr);
     final VersionCorrection versionCorrection = (versionCorrectionStr != null) ? VersionCorrection.parse(versionCorrectionStr) : VersionCorrection.LATEST;
-    return responseOkFudge(configItemCollectionResult(getConfigSource().getAll(type, versionCorrection)));
+    return responseOkObject(configItemCollectionResult(getConfigSource().getAll(type, versionCorrection)));
   }
 
   public static <T> URI uriPut(final URI baseUri) {

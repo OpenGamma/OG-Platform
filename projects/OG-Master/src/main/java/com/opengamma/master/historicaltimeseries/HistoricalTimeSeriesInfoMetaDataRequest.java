@@ -7,6 +7,7 @@ package com.opengamma.master.historicaltimeseries;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -73,66 +74,6 @@ public class HistoricalTimeSeriesInfoMetaDataRequest extends AbstractMetaDataReq
   @Override
   public HistoricalTimeSeriesInfoMetaDataRequest.Meta metaBean() {
     return HistoricalTimeSeriesInfoMetaDataRequest.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 894268163:  // dataFields
-        return isDataFields();
-      case 791883950:  // dataSources
-        return isDataSources();
-      case 1942087704:  // dataProviders
-        return isDataProviders();
-      case -576554374:  // observationTimes
-        return isObservationTimes();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 894268163:  // dataFields
-        setDataFields((Boolean) newValue);
-        return;
-      case 791883950:  // dataSources
-        setDataSources((Boolean) newValue);
-        return;
-      case 1942087704:  // dataProviders
-        setDataProviders((Boolean) newValue);
-        return;
-      case -576554374:  // observationTimes
-        setObservationTimes((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      HistoricalTimeSeriesInfoMetaDataRequest other = (HistoricalTimeSeriesInfoMetaDataRequest) obj;
-      return JodaBeanUtils.equal(isDataFields(), other.isDataFields()) &&
-          JodaBeanUtils.equal(isDataSources(), other.isDataSources()) &&
-          JodaBeanUtils.equal(isDataProviders(), other.isDataProviders()) &&
-          JodaBeanUtils.equal(isObservationTimes(), other.isObservationTimes()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(isDataFields());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isDataSources());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isDataProviders());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isObservationTimes());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -233,6 +174,60 @@ public class HistoricalTimeSeriesInfoMetaDataRequest extends AbstractMetaDataReq
    */
   public final Property<Boolean> observationTimes() {
     return metaBean().observationTimes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public HistoricalTimeSeriesInfoMetaDataRequest clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      HistoricalTimeSeriesInfoMetaDataRequest other = (HistoricalTimeSeriesInfoMetaDataRequest) obj;
+      return (isDataFields() == other.isDataFields()) &&
+          (isDataSources() == other.isDataSources()) &&
+          (isDataProviders() == other.isDataProviders()) &&
+          (isObservationTimes() == other.isObservationTimes()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(isDataFields());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isDataSources());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isDataProviders());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isObservationTimes());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("HistoricalTimeSeriesInfoMetaDataRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("dataFields").append('=').append(JodaBeanUtils.toString(isDataFields())).append(',').append(' ');
+    buf.append("dataSources").append('=').append(JodaBeanUtils.toString(isDataSources())).append(',').append(' ');
+    buf.append("dataProviders").append('=').append(JodaBeanUtils.toString(isDataProviders())).append(',').append(' ');
+    buf.append("observationTimes").append('=').append(JodaBeanUtils.toString(isObservationTimes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -342,6 +337,41 @@ public class HistoricalTimeSeriesInfoMetaDataRequest extends AbstractMetaDataReq
      */
     public final MetaProperty<Boolean> observationTimes() {
       return _observationTimes;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 894268163:  // dataFields
+          return ((HistoricalTimeSeriesInfoMetaDataRequest) bean).isDataFields();
+        case 791883950:  // dataSources
+          return ((HistoricalTimeSeriesInfoMetaDataRequest) bean).isDataSources();
+        case 1942087704:  // dataProviders
+          return ((HistoricalTimeSeriesInfoMetaDataRequest) bean).isDataProviders();
+        case -576554374:  // observationTimes
+          return ((HistoricalTimeSeriesInfoMetaDataRequest) bean).isObservationTimes();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 894268163:  // dataFields
+          ((HistoricalTimeSeriesInfoMetaDataRequest) bean).setDataFields((Boolean) newValue);
+          return;
+        case 791883950:  // dataSources
+          ((HistoricalTimeSeriesInfoMetaDataRequest) bean).setDataSources((Boolean) newValue);
+          return;
+        case 1942087704:  // dataProviders
+          ((HistoricalTimeSeriesInfoMetaDataRequest) bean).setDataProviders((Boolean) newValue);
+          return;
+        case -576554374:  // observationTimes
+          ((HistoricalTimeSeriesInfoMetaDataRequest) bean).setObservationTimes((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

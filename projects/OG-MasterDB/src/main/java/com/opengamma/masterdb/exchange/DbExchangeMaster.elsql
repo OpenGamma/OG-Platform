@@ -48,7 +48,7 @@
     exg_exchange main
     INNER JOIN cte_docs ON main.id = cte_docs.id
   ORDER BY
-    main.@INCLUDE(:sort_order),
+    main.@VALUE(:sort_order),
     main.id
 
 
@@ -61,7 +61,7 @@
       exg_exchange
     @INCLUDE(SearchWhere)
     ORDER BY
-      @INCLUDE(:sort_order),
+      @VALUE(:sort_order),
       exg_exchange.id
 
 
@@ -81,7 +81,7 @@
     @AND(:name)
       UPPER(name) @LIKE UPPER(:name)
     @AND(:sql_search_object_ids)
-      oid IN ( @INCLUDE(:sql_search_object_ids) )
+      oid IN ( @VALUE(:sql_search_object_ids) )
     @AND(:sql_search_external_ids_type = EXACT)
       id IN ( @INCLUDE(SelectKeyValuesExact) )
     @AND(:sql_search_external_ids_type = ALL)
@@ -112,7 +112,7 @@
         exchange_id
       HAVING
         COUNT(exchange_id) >= :id_search_size
-    ) AS a, (
+    ) a, (
       SELECT
         exchange_id AS total_doc_id,
         COUNT(exchange_id) AS total_count
@@ -124,7 +124,7 @@
         AND exg_exchange.corr_from_instant <= :corrected_to_instant AND exg_exchange.corr_to_instant > :corrected_to_instant
       GROUP BY
         exchange_id
-    ) AS b
+    ) b
   WHERE matched_doc_id = total_doc_id
     AND matched_count = total_count
 
@@ -166,7 +166,7 @@
   FROM
     exg_idkey
   WHERE
-    @INCLUDE(:sql_search_external_ids)
+    @VALUE(:sql_search_external_ids)
 
 
 -- ==========================================================================

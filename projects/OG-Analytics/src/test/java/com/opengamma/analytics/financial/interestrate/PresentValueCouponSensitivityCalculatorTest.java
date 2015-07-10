@@ -21,15 +21,17 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * @deprecated This class tests deprecated functionality.
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class PresentValueCouponSensitivityCalculatorTest {
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private static final PresentValueCouponSensitivityCalculator PVCSC = PresentValueCouponSensitivityCalculator.getInstance();
@@ -66,8 +68,8 @@ public class PresentValueCouponSensitivityCalculatorTest {
 
   @Test
   public void testFRA() {
-    final IborIndex index = new IborIndex(CUR, Period.ofMonths(1), 2, DayCountFactory.INSTANCE.getDayCount("Actual/365"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
+    final IborIndex index = new IborIndex(CUR, Period.ofMonths(1), 2, DayCounts.ACT_365,
+        BusinessDayConventions.FOLLOWING, true);
     final double paymentTime = 0.5;
     final double fixingPeriodStartTime = paymentTime - 2. / 365;
     final double fixingPeriodEndTime = 7. / 12;
@@ -90,8 +92,8 @@ public class PresentValueCouponSensitivityCalculatorTest {
 
   //  @Test
   //  public void testFutures() {
-  //    final IborIndex iborIndex = new IborIndex(CUR, Period.ofMonths(1), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
-  //        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
+  //    final IborIndex iborIndex = new IborIndex(CUR, Period.ofMonths(1), 2, new MondayToFridayCalendar("A"), DayCounts.ACT_365,
+  //        BusinessDayConventions.FOLLOWING, true);
   //    final double lastTradingTime = 1.468;
   //    final double fixingPeriodStartTime = 1.467;
   //    final double fixingPeriodEndTime = 1.75;

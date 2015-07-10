@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -93,109 +94,6 @@ public abstract class CommodityForwardSecurityBean extends SecurityBean {
   @Override
   public CommodityForwardSecurityBean.Meta metaBean() {
     return CommodityForwardSecurityBean.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1289159373:  // expiry
-        return getExpiry();
-      case 575402001:  // currency
-        return getCurrency();
-      case 1673913084:  // unitAmount
-        return getUnitAmount();
-      case -292854225:  // unitName
-        return getUnitName();
-      case 2053402093:  // unitNumber
-        return getUnitNumber();
-      case -1770633379:  // underlying
-        return getUnderlying();
-      case -1396196922:  // basket
-        return getBasket();
-      case 1755448466:  // firstDeliveryDate
-        return getFirstDeliveryDate();
-      case -233366664:  // lastDeliveryDate
-        return getLastDeliveryDate();
-      case 50511102:  // category
-        return getCategory();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1289159373:  // expiry
-        setExpiry((ExpiryBean) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((CurrencyBean) newValue);
-        return;
-      case 1673913084:  // unitAmount
-        setUnitAmount((Double) newValue);
-        return;
-      case -292854225:  // unitName
-        setUnitName((UnitBean) newValue);
-        return;
-      case 2053402093:  // unitNumber
-        setUnitNumber((Double) newValue);
-        return;
-      case -1770633379:  // underlying
-        setUnderlying((ExternalIdBean) newValue);
-        return;
-      case -1396196922:  // basket
-        setBasket((Set<FutureBundleBean>) newValue);
-        return;
-      case 1755448466:  // firstDeliveryDate
-        setFirstDeliveryDate((ZonedDateTimeBean) newValue);
-        return;
-      case -233366664:  // lastDeliveryDate
-        setLastDeliveryDate((ZonedDateTimeBean) newValue);
-        return;
-      case 50511102:  // category
-        setCategory((ContractCategoryBean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CommodityForwardSecurityBean other = (CommodityForwardSecurityBean) obj;
-      return JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getUnitAmount(), other.getUnitAmount()) &&
-          JodaBeanUtils.equal(getUnitName(), other.getUnitName()) &&
-          JodaBeanUtils.equal(getUnitNumber(), other.getUnitNumber()) &&
-          JodaBeanUtils.equal(getUnderlying(), other.getUnderlying()) &&
-          JodaBeanUtils.equal(getBasket(), other.getBasket()) &&
-          JodaBeanUtils.equal(getFirstDeliveryDate(), other.getFirstDeliveryDate()) &&
-          JodaBeanUtils.equal(getLastDeliveryDate(), other.getLastDeliveryDate()) &&
-          JodaBeanUtils.equal(getCategory(), other.getCategory()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExpiry());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnitAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnitName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnitNumber());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBasket());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstDeliveryDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLastDeliveryDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCategory());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -449,6 +347,45 @@ public abstract class CommodityForwardSecurityBean extends SecurityBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CommodityForwardSecurityBean other = (CommodityForwardSecurityBean) obj;
+      return JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getUnitAmount(), other.getUnitAmount()) &&
+          JodaBeanUtils.equal(getUnitName(), other.getUnitName()) &&
+          JodaBeanUtils.equal(getUnitNumber(), other.getUnitNumber()) &&
+          JodaBeanUtils.equal(getUnderlying(), other.getUnderlying()) &&
+          JodaBeanUtils.equal(getBasket(), other.getBasket()) &&
+          JodaBeanUtils.equal(getFirstDeliveryDate(), other.getFirstDeliveryDate()) &&
+          JodaBeanUtils.equal(getLastDeliveryDate(), other.getLastDeliveryDate()) &&
+          JodaBeanUtils.equal(getCategory(), other.getCategory()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiry());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnitAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnitName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnitNumber());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBasket());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFirstDeliveryDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLastDeliveryDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCategory());
+    return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code CommodityForwardSecurityBean}.
    */
@@ -652,6 +589,72 @@ public abstract class CommodityForwardSecurityBean extends SecurityBean {
      */
     public final MetaProperty<ContractCategoryBean> category() {
       return _category;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1289159373:  // expiry
+          return ((CommodityForwardSecurityBean) bean).getExpiry();
+        case 575402001:  // currency
+          return ((CommodityForwardSecurityBean) bean).getCurrency();
+        case 1673913084:  // unitAmount
+          return ((CommodityForwardSecurityBean) bean).getUnitAmount();
+        case -292854225:  // unitName
+          return ((CommodityForwardSecurityBean) bean).getUnitName();
+        case 2053402093:  // unitNumber
+          return ((CommodityForwardSecurityBean) bean).getUnitNumber();
+        case -1770633379:  // underlying
+          return ((CommodityForwardSecurityBean) bean).getUnderlying();
+        case -1396196922:  // basket
+          return ((CommodityForwardSecurityBean) bean).getBasket();
+        case 1755448466:  // firstDeliveryDate
+          return ((CommodityForwardSecurityBean) bean).getFirstDeliveryDate();
+        case -233366664:  // lastDeliveryDate
+          return ((CommodityForwardSecurityBean) bean).getLastDeliveryDate();
+        case 50511102:  // category
+          return ((CommodityForwardSecurityBean) bean).getCategory();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1289159373:  // expiry
+          ((CommodityForwardSecurityBean) bean).setExpiry((ExpiryBean) newValue);
+          return;
+        case 575402001:  // currency
+          ((CommodityForwardSecurityBean) bean).setCurrency((CurrencyBean) newValue);
+          return;
+        case 1673913084:  // unitAmount
+          ((CommodityForwardSecurityBean) bean).setUnitAmount((Double) newValue);
+          return;
+        case -292854225:  // unitName
+          ((CommodityForwardSecurityBean) bean).setUnitName((UnitBean) newValue);
+          return;
+        case 2053402093:  // unitNumber
+          ((CommodityForwardSecurityBean) bean).setUnitNumber((Double) newValue);
+          return;
+        case -1770633379:  // underlying
+          ((CommodityForwardSecurityBean) bean).setUnderlying((ExternalIdBean) newValue);
+          return;
+        case -1396196922:  // basket
+          ((CommodityForwardSecurityBean) bean).setBasket((Set<FutureBundleBean>) newValue);
+          return;
+        case 1755448466:  // firstDeliveryDate
+          ((CommodityForwardSecurityBean) bean).setFirstDeliveryDate((ZonedDateTimeBean) newValue);
+          return;
+        case -233366664:  // lastDeliveryDate
+          ((CommodityForwardSecurityBean) bean).setLastDeliveryDate((ZonedDateTimeBean) newValue);
+          return;
+        case 50511102:  // category
+          ((CommodityForwardSecurityBean) bean).setCategory((ContractCategoryBean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

@@ -6,6 +6,7 @@
 package com.opengamma.core.holiday.impl;
 
 import java.net.URI;
+import java.util.Collection;
 
 import org.threeten.bp.LocalDate;
 
@@ -52,6 +53,26 @@ public class RemoteHolidaySource extends AbstractRemoteSource<Holiday> implement
     
     URI uri = DataHolidaySourceResource.uriGet(getBaseUri(), objectId, versionCorrection);
     return accessRemote(uri).get(Holiday.class);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public Collection<Holiday> get(HolidayType holidayType,
+                                 ExternalIdBundle regionOrExchangeIds) {
+    ArgumentChecker.notNull(holidayType, "holidayType");
+    ArgumentChecker.notNull(regionOrExchangeIds, "regionOrExchangeIds");
+
+    URI uri = DataHolidaySourceResource.uriGet(getBaseUri(), holidayType, regionOrExchangeIds);
+    return accessRemote(uri).get(Collection.class);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public Collection<Holiday> get(Currency currency) {
+    ArgumentChecker.notNull(currency, "currency");
+
+    URI uri = DataHolidaySourceResource.uriGet(getBaseUri(), currency);
+    return accessRemote(uri).get(Collection.class);
   }
 
   //-------------------------------------------------------------------------

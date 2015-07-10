@@ -14,8 +14,10 @@ import java.util.Map;
 
 /**
  * Utilities.
+ * @deprecated Each pair class already implements the interface
  */
 @SuppressWarnings("rawtypes")
+@Deprecated
 public class TuplesUtil {
 
   public static Map.Entry pairToEntry(final Pair pair) {

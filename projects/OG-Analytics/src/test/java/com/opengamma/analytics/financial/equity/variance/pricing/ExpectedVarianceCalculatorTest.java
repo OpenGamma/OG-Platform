@@ -7,6 +7,8 @@ package com.opengamma.analytics.financial.equity.variance.pricing;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceConverter;
@@ -16,10 +18,12 @@ import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilit
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ExpectedVarianceCalculatorTest {
   private static final double TOL = 1e-10;
   private static final double SPOT = 80;

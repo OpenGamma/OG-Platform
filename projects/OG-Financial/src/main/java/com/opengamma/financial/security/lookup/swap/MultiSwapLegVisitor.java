@@ -17,6 +17,7 @@ import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapLegVisitor;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -75,7 +76,7 @@ import com.opengamma.util.tuple.Pair;
     if (payFixed && receiveFixed) {
       firstValue = payLeg.accept(new FixedVisitor());
       secondValue = receiveLeg.accept(new FixedVisitor());
-      return Pair.of(firstValue, secondValue);
+      return Pairs.of(firstValue, secondValue);
     }
 
     if (payFixed) {
@@ -88,7 +89,7 @@ import com.opengamma.util.tuple.Pair;
       firstValue = payLeg.accept(new FloatingPayVisitor());
       secondValue = receiveLeg.accept(new OtherVisitor());
     }
-    return Pair.of(firstValue, secondValue);
+    return Pairs.of(firstValue, secondValue);
 
   }
 

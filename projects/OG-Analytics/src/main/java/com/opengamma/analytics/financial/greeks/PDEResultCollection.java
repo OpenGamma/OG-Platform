@@ -20,6 +20,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * 
@@ -297,7 +298,7 @@ public class PDEResultCollection implements Iterable<Pair<Greek, double[]>> {
     @Override
     public Pair<Greek, double[]> next() {
       final Map.Entry<Greek, double[]> nextEntry = _backingIterator.next();
-      return Pair.<Greek, double[]>of(nextEntry.getKey(), nextEntry.getValue());
+      return Pairs.<Greek, double[]>of(nextEntry.getKey(), nextEntry.getValue());
     }
 
     @Override

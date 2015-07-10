@@ -17,17 +17,19 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the CouponIborRatchetDefinition constructor and toDerivatives.
  */
+@Test(groups = TestGroup.UNIT)
 public class CouponIborRatchetDefinitionTest {
 
   private static final Currency CUR = Currency.EUR;
@@ -35,8 +37,8 @@ public class CouponIborRatchetDefinitionTest {
 
   private static final Period TENOR_IBOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
-  private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final DayCount DAY_COUNT_INDEX = DayCounts.ACT_360;
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final boolean IS_EOM = true;
   private static final IborIndex INDEX_IBOR = new IborIndex(CUR, TENOR_IBOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM, "Ibor");
 
@@ -44,7 +46,7 @@ public class CouponIborRatchetDefinitionTest {
   private static final ZonedDateTime ACCRUAL_START_DATE = ScheduleCalculator.getAdjustedDate(FIXING_DATE, SETTLEMENT_DAYS, CALENDAR);
   private static final ZonedDateTime ACCRUAL_END_DATE = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, TENOR_IBOR, BUSINESS_DAY, CALENDAR, IS_EOM);
   private static final ZonedDateTime PAYMENT_DATE = ACCRUAL_END_DATE;
-  private static final DayCount DAY_COUNT_PAYMENT = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+  private static final DayCount DAY_COUNT_PAYMENT = DayCounts.ACT_365;
   private static final double ACCRUAL_FACTOR = DAY_COUNT_PAYMENT.getDayCountFraction(ACCRUAL_START_DATE, ACCRUAL_END_DATE);
   private static final double[] MAIN_COEF = new double[] {0.4, 0.5, 0.0010 };
   private static final double[] FLOOR_COEF = new double[] {0.75, 0.00, 0.00 };
@@ -109,22 +111,6 @@ public class CouponIborRatchetDefinitionTest {
     assertFalse("Ratchet Ibor Coupon: equal/hash", RATCHET_IBOR_DEFINITION.equals(modified));
     modified = new CouponIborRatchetDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX_IBOR, MAIN_COEF, FLOOR_COEF, new double[3], CALENDAR);
     assertFalse("Ratchet Ibor Coupon: equal/hash", RATCHET_IBOR_DEFINITION.equals(modified));
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Test the toDerivative of Ratchet coupon with no fixing rate available.
-   */
-  public void toDerivativesNoFixingDeprecated() {
-    final CouponIborRatchet cpnConverted = RATCHET_IBOR_DEFINITION.toDerivative(REFERENCE_DATE, CURVES);
-    final double paymentTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, PAYMENT_DATE);
-    final double fixingTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, RATCHET_IBOR_DEFINITION.getFixingDate());
-    final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, RATCHET_IBOR_DEFINITION.getFixingPeriodStartDate());
-    final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, RATCHET_IBOR_DEFINITION.getFixingPeriodEndDate());
-    final CouponIborRatchet cpnExpected = new CouponIborRatchet(CUR, paymentTime, DISCOUNTING_CURVE_NAME, ACCRUAL_FACTOR, NOTIONAL, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
-        RATCHET_IBOR_DEFINITION.getFixingPeriodAccrualFactor(), FORWARD_CURVE_NAME, INDEX_IBOR, MAIN_COEF, FLOOR_COEF, CAP_COEF);
-    assertEquals("Ratchet Ibor Coupon: toDerivatives", cpnExpected, cpnConverted);
   }
 
   @Test

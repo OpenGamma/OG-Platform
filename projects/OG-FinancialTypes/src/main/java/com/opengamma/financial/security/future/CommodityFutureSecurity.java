@@ -7,6 +7,7 @@ package com.opengamma.financial.security.future;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -71,52 +72,6 @@ public abstract class CommodityFutureSecurity extends FutureSecurity {
     return CommodityFutureSecurity.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 2053402093:  // unitNumber
-        return getUnitNumber();
-      case -292854225:  // unitName
-        return getUnitName();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 2053402093:  // unitNumber
-        setUnitNumber((Double) newValue);
-        return;
-      case -292854225:  // unitName
-        setUnitName((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CommodityFutureSecurity other = (CommodityFutureSecurity) obj;
-      return JodaBeanUtils.equal(getUnitNumber(), other.getUnitNumber()) &&
-          JodaBeanUtils.equal(getUnitName(), other.getUnitName()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnitNumber());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnitName());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets quantity of unit.
@@ -165,6 +120,49 @@ public abstract class CommodityFutureSecurity extends FutureSecurity {
    */
   public final Property<String> unitName() {
     return metaBean().unitName().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CommodityFutureSecurity other = (CommodityFutureSecurity) obj;
+      return JodaBeanUtils.equal(getUnitNumber(), other.getUnitNumber()) &&
+          JodaBeanUtils.equal(getUnitName(), other.getUnitName()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnitNumber());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnitName());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("CommodityFutureSecurity{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("unitNumber").append('=').append(JodaBeanUtils.toString(getUnitNumber())).append(',').append(' ');
+    buf.append("unitName").append('=').append(JodaBeanUtils.toString(getUnitName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -242,6 +240,31 @@ public abstract class CommodityFutureSecurity extends FutureSecurity {
      */
     public final MetaProperty<String> unitName() {
       return _unitName;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 2053402093:  // unitNumber
+          return ((CommodityFutureSecurity) bean).getUnitNumber();
+        case -292854225:  // unitName
+          return ((CommodityFutureSecurity) bean).getUnitName();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 2053402093:  // unitNumber
+          ((CommodityFutureSecurity) bean).setUnitNumber((Double) newValue);
+          return;
+        case -292854225:  // unitName
+          ((CommodityFutureSecurity) bean).setUnitName((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

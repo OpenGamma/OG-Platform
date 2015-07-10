@@ -14,8 +14,6 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collections;
 
-import net.sf.ehcache.CacheManager;
-
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -23,17 +21,24 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.master.holiday.ManageableHoliday;
+import com.opengamma.service.ServiceContext;
+import com.opengamma.service.ThreadLocalServiceContext;
+import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
+
+import net.sf.ehcache.CacheManager;
 
 /**
  * Test.
@@ -55,11 +60,22 @@ public class EHCachingMasterHolidaySourceTest {
   @BeforeClass
   public void setUpClass() {
     _cacheManager = EHCacheUtils.createTestCacheManager(EHCachingMasterHolidaySourceTest.class);
-  }
+    ThreadLocalServiceContext.init(ServiceContext.of(VersionCorrectionProvider.class, new VersionCorrectionProvider() {
+      @Override
+      public VersionCorrection getPortfolioVersionCorrection() {
+        return VersionCorrection.LATEST;
+      }
+
+      @Override
+      public VersionCorrection getConfigVersionCorrection() {
+        return VersionCorrection.LATEST;
+      }
+    }));  }
 
   @AfterClass
   public void tearDownClass() {
     EHCacheUtils.shutdownQuiet(_cacheManager);
+    ThreadLocalServiceContext.init(ServiceContext.of(ImmutableMap.<Class<?>, Object>of()));
   }
 
   @BeforeMethod

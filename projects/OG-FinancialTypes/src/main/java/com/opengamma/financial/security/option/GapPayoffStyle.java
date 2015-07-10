@@ -7,6 +7,7 @@ package com.opengamma.financial.security.option;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -72,45 +73,6 @@ public class GapPayoffStyle extends PayoffStyle {
     return GapPayoffStyle.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -786681338:  // payment
-        return getPayment();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -786681338:  // payment
-        setPayment((Double) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      GapPayoffStyle other = (GapPayoffStyle) obj;
-      return JodaBeanUtils.equal(getPayment(), other.getPayment()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPayment());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the payment.
@@ -134,6 +96,51 @@ public class GapPayoffStyle extends PayoffStyle {
    */
   public final Property<Double> payment() {
     return metaBean().payment().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public GapPayoffStyle clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      GapPayoffStyle other = (GapPayoffStyle) obj;
+      return JodaBeanUtils.equal(getPayment(), other.getPayment()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPayment());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("GapPayoffStyle{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("payment").append('=').append(JodaBeanUtils.toString(getPayment())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -195,6 +202,26 @@ public class GapPayoffStyle extends PayoffStyle {
      */
     public final MetaProperty<Double> payment() {
       return _payment;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -786681338:  // payment
+          return ((GapPayoffStyle) bean).getPayment();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -786681338:  // payment
+          ((GapPayoffStyle) bean).setPayment((Double) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

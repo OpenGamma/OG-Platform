@@ -14,22 +14,25 @@ import org.fudgemsg.FudgeContext;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.cache.ViewComputationCache;
 import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.builder.TestDependencyGraphBuilder;
+import com.opengamma.engine.depgraph.builder.TestDependencyGraphBuilder.NodeBuilder;
+import com.opengamma.engine.depgraph.impl.DependencyGraphExplorerImpl;
+import com.opengamma.engine.depgraph.impl.DependencyGraphImpl;
+import com.opengamma.engine.depgraph.impl.DependencyNodeFunctionImpl;
+import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
-import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.cycle.LiveDataDeltaCalculator;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.TestGroup;
 
@@ -41,61 +44,41 @@ public class LiveDataDeltaCalculatorTest {
 
   FunctionCompilationContext _context = new FunctionCompilationContext();
 
-  DependencyGraph _graph = getTestGraph();
-  DependencyNode _node0;
-  DependencyNode _node1;
-  DependencyNode _node2;
-  DependencyNode _node3;
-  DependencyNode _node4;
+  DependencyGraph _graph;
+  DependencyNode[] _node = new DependencyNode[5];
+  ValueSpecification[] _value = new ValueSpecification[_node.length];
 
   ViewComputationCache _cache;
   ViewComputationCache _previousCache;
-  LiveDataDeltaCalculator _deltaCalculator;
 
   @BeforeMethod
   public void setUp() {
-    final InMemoryViewComputationCacheSource source = new InMemoryViewComputationCacheSource (FudgeContext.GLOBAL_DEFAULT);
+    createTestGraph();
+    final InMemoryViewComputationCacheSource source = new InMemoryViewComputationCacheSource(FudgeContext.GLOBAL_DEFAULT);
     _cache = source.getCache(UniqueId.of("Test", "ViewCycle", "1"), "Default");
     _previousCache = source.getCache(UniqueId.of("Test", "ViewCycle", "0"), "Default");
-    _deltaCalculator = new LiveDataDeltaCalculator(
-        _graph,
-        _cache,
-        _previousCache);
-
   }
 
-  private ComputationTarget getTarget(final String name) {
-    return new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("testdomain", name));
+  private LiveDataDeltaCalculator deltaCalculator() {
+    return deltaCalculator(Collections.<ValueSpecification>emptySet());
   }
 
-  private DependencyNode createNode(final String name, final Set<DependencyNode> inputNodes) {
-    final ComputationTarget target = getTarget(name);
-    final DependencyNode node = new DependencyNode(target);
-    final ValueSpecification output;
-    if (inputNodes.isEmpty()) {
-      final MarketDataSourcingFunction msdf = MarketDataSourcingFunction.INSTANCE;
-      output = new ValueSpecification(name, target.toSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION, msdf.getUniqueId()).get());
-      node.setFunction(new ParameterizedFunction(msdf, msdf.getDefaultParameters()));
-    } else {
-      final MockFunction mock = new MockFunction(target);
-      output = new ValueSpecification(name, target.toSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION, mock.getUniqueId()).get());
-      node.setFunction(mock);
-      mock.addResult(new ComputedValue(output, null));
-    }
-    node.addOutputValue(output);
-    node.addInputNodes(inputNodes);
-    return node;
+  private LiveDataDeltaCalculator deltaCalculator(final Set<ValueSpecification> dirtySpecifications) {
+    return new LiveDataDeltaCalculator(_graph, _cache, _previousCache, dirtySpecifications);
   }
 
-  private void put(final ViewComputationCache cache, final DependencyNode node, final Object value) {
-    final ValueSpecification spec = node.getOutputValues().iterator().next();
-    cache.putSharedValue(new ComputedValue(spec, value));
+  private ComputationTargetSpecification getTarget(final String name) {
+    return new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("testdomain", name));
+  }
+
+  private void put(final ViewComputationCache cache, final int id, final Object value) {
+    cache.putSharedValue(new ComputedValue(_value[id], value));
   }
 
   /**
-   * @return The test graph
-   *
-   *         <pre>
+   * Creates the test graph (data flows downwards - 0 & 1 are market data nodes)
+   * 
+   * <pre>
    *         0   1
    *          \ / \
    *           2   3
@@ -103,79 +86,103 @@ public class LiveDataDeltaCalculatorTest {
    *             4
    * </pre>
    */
-  private DependencyGraph getTestGraph() {
-    final DependencyGraph graph = new DependencyGraph("test");
-    _node0 = createNode("Node0", Collections.<DependencyNode>emptySet());
-    _node1 = createNode("Node1", Collections.<DependencyNode>emptySet());
-    _node2 = createNode("Node2", Sets.newHashSet(_node0, _node1));
-    _node3 = createNode("Node3", Sets.newHashSet(_node1));
-    _node4 = createNode("Node4", Sets.newHashSet(_node2, _node3));
-    graph.addDependencyNode(_node0);
-    graph.addDependencyNode(_node1);
-    graph.addDependencyNode(_node2);
-    graph.addDependencyNode(_node3);
-    graph.addDependencyNode(_node4);
-    return graph;
+  private void createTestGraph() {
+    final TestDependencyGraphBuilder gb = new TestDependencyGraphBuilder("test");
+    NodeBuilder n0 = gb.addNode(MarketDataSourcingFunction.INSTANCE, getTarget("Node0"));
+    NodeBuilder n1 = gb.addNode(MarketDataSourcingFunction.INSTANCE, getTarget("Node1"));
+    NodeBuilder n2 = gb.addNode(DependencyNodeFunctionImpl.of("Mock", EmptyFunctionParameters.INSTANCE), getTarget("Node2"));
+    NodeBuilder n3 = gb.addNode(DependencyNodeFunctionImpl.of("Mock", EmptyFunctionParameters.INSTANCE), getTarget("Node3"));
+    NodeBuilder n4 = gb.addNode(DependencyNodeFunctionImpl.of("Mock", EmptyFunctionParameters.INSTANCE), getTarget("Node4"));
+    _value[0] = n0.addOutput("MarketValue");
+    n2.addInput(_value[0]);
+    _value[1] = n1.addOutput("MarketValue");
+    n2.addInput(_value[1]);
+    n3.addInput(_value[1]);
+    _value[2] = n2.addOutput("IntermediateValue");
+    n4.addInput(_value[2]);
+    _value[3] = n3.addOutput("IntermediateValue");
+    n4.addInput(_value[3]);
+    _value[4] = n4.addTerminalOutput("TerminalValue");
+    _graph = gb.buildGraph();
+    final DependencyGraphExplorer dge = new DependencyGraphExplorerImpl(_graph);
+    for (int i = 0; i < _value.length; i++) {
+      _node[i] = dge.getNodeProducing(_value[i]);
+    }
   }
 
   public void noChangeA() {
-    put(_cache, _node0, 6.0);
-    put(_previousCache, _node0, 6.0);
-
-    _deltaCalculator.computeDelta();
-
-    assertEquals(_graph.getDependencyNodes(), _deltaCalculator.getUnchangedNodes());
-    assertEquals(Collections.emptySet(), _deltaCalculator.getChangedNodes());
+    final LiveDataDeltaCalculator deltaCalculator = deltaCalculator();
+    put(_cache, 0, 6.0);
+    put(_previousCache, 0, 6.0);
+    deltaCalculator.computeDelta();
+    assertEquals(ImmutableSet.copyOf(DependencyGraphImpl.getDependencyNodes(_graph)), deltaCalculator.getUnchangedNodes());
+    assertEquals(Collections.emptySet(), deltaCalculator.getChangedNodes());
   }
 
   public void noChangeB() {
-    put(_cache, _node1, 6.0);
-    put(_previousCache, _node1, 6.0);
-
-    _deltaCalculator.computeDelta();
-
-    assertEquals(_graph.getDependencyNodes(), _deltaCalculator.getUnchangedNodes());
-    assertEquals(Collections.emptySet(), _deltaCalculator.getChangedNodes());
+    final LiveDataDeltaCalculator deltaCalculator = deltaCalculator();
+    put(_cache, 1, 6.0);
+    put(_previousCache, 1, 6.0);
+    deltaCalculator.computeDelta();
+    assertEquals(ImmutableSet.copyOf(DependencyGraphImpl.getDependencyNodes(_graph)), deltaCalculator.getUnchangedNodes());
+    assertEquals(Collections.emptySet(), deltaCalculator.getChangedNodes());
   }
 
   public void noChangeC() {
-    put(_cache, _node2, 6.0);
-    put(_previousCache, _node2, 6.0);
-
-    _deltaCalculator.computeDelta();
-
-    assertEquals(_graph.getDependencyNodes(), _deltaCalculator.getUnchangedNodes());
-    assertEquals(Collections.emptySet(), _deltaCalculator.getChangedNodes());
+    final LiveDataDeltaCalculator deltaCalculator = deltaCalculator();
+    put(_cache, 2, 6.0);
+    put(_previousCache, 2, 6.0);
+    deltaCalculator.computeDelta();
+    assertEquals(ImmutableSet.copyOf(DependencyGraphImpl.getDependencyNodes(_graph)), deltaCalculator.getUnchangedNodes());
+    assertEquals(Collections.emptySet(), deltaCalculator.getChangedNodes());
   }
 
   public void changeA() {
-    put(_cache, _node0, 6.0);
-    put(_previousCache, _node0, 7.0);
-
-    _deltaCalculator.computeDelta();
-
-    assertEquals(Sets.newHashSet(_node1, _node3), _deltaCalculator.getUnchangedNodes());
-    assertEquals(Sets.newHashSet(_node0, _node2, _node4), _deltaCalculator.getChangedNodes());
+    final LiveDataDeltaCalculator deltaCalculator = deltaCalculator();
+    put(_cache, 0, 6.0);
+    put(_previousCache, 0, 7.0);
+    deltaCalculator.computeDelta();
+    assertEquals(Sets.newHashSet(_node[1], _node[3]), deltaCalculator.getUnchangedNodes());
+    assertEquals(Sets.newHashSet(_node[0], _node[2], _node[4]), deltaCalculator.getChangedNodes());
   }
 
   public void changeB() {
-    put(_cache, _node1, 6.0);
-    put(_previousCache, _node1, 7.0);
-
-    _deltaCalculator.computeDelta();
-
-    assertEquals(Sets.newHashSet(_node0), _deltaCalculator.getUnchangedNodes());
-    assertEquals(Sets.newHashSet(_node1, _node2, _node3, _node4), _deltaCalculator.getChangedNodes());
+    final LiveDataDeltaCalculator deltaCalculator = deltaCalculator();
+    put(_cache, 1, 6.0);
+    put(_previousCache, 1, 7.0);
+    deltaCalculator.computeDelta();
+    assertEquals(Sets.newHashSet(_node[0]), deltaCalculator.getUnchangedNodes());
+    assertEquals(Sets.newHashSet(_node[1], _node[2], _node[3], _node[4]), deltaCalculator.getChangedNodes());
   }
 
   public void changeC() {
-    put(_cache, _node2, 6.0);
-    put(_previousCache, _node2, 7.0);
+    final LiveDataDeltaCalculator deltaCalculator = deltaCalculator();
+    put(_cache, 2, 6.0);
+    put(_previousCache, 2, 7.0);
+    deltaCalculator.computeDelta();
+    assertEquals(ImmutableSet.copyOf(DependencyGraphImpl.getDependencyNodes(_graph)), deltaCalculator.getUnchangedNodes());
+    assertEquals(Collections.emptySet(), deltaCalculator.getChangedNodes());
+  }
 
-    _deltaCalculator.computeDelta();
+  public void parameterChangeA() {
+    final LiveDataDeltaCalculator deltaCalculator = deltaCalculator(Collections.singleton(_value[2]));
+    deltaCalculator.computeDelta();
+    assertEquals(Sets.newHashSet(_node[0], _node[1], _node[3]), deltaCalculator.getUnchangedNodes());
+    assertEquals(Sets.newHashSet(_node[2], _node[4]), deltaCalculator.getChangedNodes());
+  }
 
-    assertEquals(_graph.getDependencyNodes(), _deltaCalculator.getUnchangedNodes());
-    assertEquals(Collections.emptySet(), _deltaCalculator.getChangedNodes());
+  public void parameterChangeB() {
+    final LiveDataDeltaCalculator deltaCalculator = deltaCalculator(Collections.singleton(_value[3]));
+    deltaCalculator.computeDelta();
+    assertEquals(Sets.newHashSet(_node[0], _node[1], _node[2]), deltaCalculator.getUnchangedNodes());
+    assertEquals(Sets.newHashSet(_node[3], _node[4]), deltaCalculator.getChangedNodes());
+  }
+
+  public void parameterChangeC() {
+    final LiveDataDeltaCalculator deltaCalculator = deltaCalculator(Collections.singleton(_value[4]));
+    deltaCalculator.computeDelta();
+    assertEquals(Sets.newHashSet(_node[0], _node[1], _node[2], _node[3]), deltaCalculator.getUnchangedNodes());
+    assertEquals(Sets.newHashSet(_node[4]), deltaCalculator.getChangedNodes());
   }
 
 }

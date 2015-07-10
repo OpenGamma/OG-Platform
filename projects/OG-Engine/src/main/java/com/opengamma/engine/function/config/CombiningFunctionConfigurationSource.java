@@ -10,9 +10,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.threeten.bp.Instant;
+
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.DummyChangeManager;
+import com.opengamma.core.change.PassthroughChangeManager;
+
 /**
- * Combines the function configuration from two or more sources into a single configuration
- * object.
+ * Combines the function configuration from two or more sources into a single configuration object.
  */
 public class CombiningFunctionConfigurationSource implements FunctionConfigurationSource {
 
@@ -54,7 +59,7 @@ public class CombiningFunctionConfigurationSource implements FunctionConfigurati
    * <p>
    * Any nulls in the combined sources are ignored. Any sources that are themselves {@code CombinedRepositoryConfigurationSource} instances are expanded and their members used directly in the
    * composite.
-   *
+   * 
    * @param sources the sources to combine, may contain nulls
    * @return the composite source, not null
    */
@@ -90,12 +95,31 @@ public class CombiningFunctionConfigurationSource implements FunctionConfigurati
   }
 
   @Override
-  public FunctionConfigurationBundle getFunctionConfiguration() {
+  public FunctionConfigurationBundle getFunctionConfiguration(final Instant version) {
     final List<FunctionConfiguration> configs = new ArrayList<FunctionConfiguration>();
     for (final FunctionConfigurationSource source : getSources()) {
-      configs.addAll(source.getFunctionConfiguration().getFunctions());
+      configs.addAll(source.getFunctionConfiguration(version).getFunctions());
     }
     return new FunctionConfigurationBundle(configs);
+  }
+
+  @Override
+  public ChangeManager changeManager() {
+    PassthroughChangeManager changeManager = null;
+    for (FunctionConfigurationSource source : getSources()) {
+      final ChangeManager cm = source.changeManager();
+      if (cm != DummyChangeManager.INSTANCE) {
+        if (changeManager == null) {
+          changeManager = new PassthroughChangeManager();
+        }
+        changeManager.addChangeManager(cm);
+      }
+    }
+    if (changeManager == null) {
+      return DummyChangeManager.INSTANCE;
+    } else {
+      return changeManager;
+    }
   }
 
 }

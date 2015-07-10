@@ -11,6 +11,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
@@ -34,6 +35,10 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
    */
   private final boolean _isLong;
   /**
+   * Flag indicating if the option is a call (true) or put (false).
+   */
+  private final boolean _isCall;
+  /**
    * The cash settlement date of the swaption.
    */
   private final ZonedDateTime _settlementDate;
@@ -56,22 +61,24 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
   private SwaptionCashFixedIborDefinition(final ZonedDateTime expiryDate, final SwapFixedIborDefinition underlyingSwap, final boolean isCall, final boolean isLong) {
     ArgumentChecker.notNull(expiryDate, "expiry date");
     ArgumentChecker.notNull(underlyingSwap, "underlying swap");
-    ArgumentChecker.isTrue(isCall == underlyingSwap.getFixedLeg().isPayer(), "Call flag not in line with underlying");
     //TODO do we need to check that the swaption expiry is consistent with the underlying swap?
     _underlyingSwap = underlyingSwap;
     _currency = underlyingSwap.getCurrency();
     _isLong = isLong;
+    _isCall = isCall;
     _settlementDate = underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate();
     _expiry = new Expiry(expiryDate);
   }
 
   /**
-   * Builder from the expiry date, the underlying swap and the long/short flqg.
+   * Builder from the expiry date, the underlying swap and the long/short flag.
    * @param expiryDate The expiry date.
    * @param underlyingSwap The underlying swap.
    * @param isLong The long (true) / short (false) flag.
    * @return The swaption.
+   * @deprecated This relies on the {@link AnnuityDefinition#isPayer()} method to determine if the swaption is a call or a put, which is deprecated
    */
+  @Deprecated
   public static SwaptionCashFixedIborDefinition from(final ZonedDateTime expiryDate, final SwapFixedIborDefinition underlyingSwap, final boolean isLong) {
     ArgumentChecker.notNull(expiryDate, "expiry date");
     ArgumentChecker.notNull(underlyingSwap, "underlying swap");
@@ -80,20 +87,18 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
   }
 
   /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
+   * Builder from the expiry date, the underlying swap, a call/put flag and the long/short flag.
+   * @param expiryDate The expiry date.
+   * @param underlyingSwap The underlying swap.
+   * @param isCall True if the swaption is a call (i.e. the underlying swap is a payer)
+   * @param isLong The long (true) / short (false) flag.
+   * @return The swaption.
    */
-  @Deprecated
-  @Override
-  public SwaptionCashFixedIbor toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(dateTime, "date");
-    final LocalDate dayConversion = dateTime.toLocalDate();
-    ArgumentChecker.isTrue(!dayConversion.isAfter(getExpiry().getExpiry().toLocalDate()), "date is after expiry date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    final double expiryTime = TimeCalculator.getTimeBetween(dateTime, _expiry.getExpiry());
-    final double settlementTime = TimeCalculator.getTimeBetween(dateTime, _settlementDate);
-    final SwapFixedCoupon<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(dateTime, yieldCurveNames);
-    return SwaptionCashFixedIbor.from(expiryTime, underlyingSwap, settlementTime, _isLong);
+  public static SwaptionCashFixedIborDefinition from(final ZonedDateTime expiryDate, final SwapFixedIborDefinition underlyingSwap, final boolean isCall, final boolean isLong) {
+    ArgumentChecker.notNull(expiryDate, "expiry date");
+    ArgumentChecker.notNull(underlyingSwap, "underlying swap");
+    // Implementation note: cash-settle swaptions underlying have the same rate on all coupons and standard conventions.
+    return new SwaptionCashFixedIborDefinition(expiryDate, underlyingSwap, isCall, isLong);
   }
 
   @Override
@@ -104,7 +109,7 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
     final double expiryTime = TimeCalculator.getTimeBetween(dateTime, _expiry.getExpiry());
     final double settlementTime = TimeCalculator.getTimeBetween(dateTime, _settlementDate);
     final SwapFixedCoupon<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(dateTime);
-    return SwaptionCashFixedIbor.from(expiryTime, underlyingSwap, settlementTime, _isLong);
+    return SwaptionCashFixedIbor.from(expiryTime, underlyingSwap, settlementTime, _isCall, _isLong);
   }
 
 
@@ -118,10 +123,18 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
 
   /**
    * Gets the isLong flag.
-   * @return The Long (true)/Short (false) flag.
+   * @return True if the swaption is long
    */
   public boolean isLong() {
     return _isLong;
+  }
+
+  /**
+   * Gets the call/put flag
+   * @return True if the swaption is a call
+   */
+  public boolean isCall() {
+    return _isCall;
   }
 
   /**
@@ -173,6 +186,7 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
     final int prime = 31;
     int result = 1;
     result = prime * result + _expiry.hashCode();
+    result = prime * result + (_isCall ? 1231 : 1237);
     result = prime * result + (_isLong ? 1231 : 1237);
     result = prime * result + _underlyingSwap.hashCode();
     return result;
@@ -190,10 +204,13 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
       return false;
     }
     final SwaptionCashFixedIborDefinition other = (SwaptionCashFixedIborDefinition) obj;
-    if (!ObjectUtils.equals(_expiry, other._expiry)) {
+    if (_isCall != other._isCall) {
       return false;
     }
     if (_isLong != other._isLong) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_expiry, other._expiry)) {
       return false;
     }
     if (!ObjectUtils.equals(_underlyingSwap, other._underlyingSwap)) {

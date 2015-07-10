@@ -7,6 +7,7 @@ package com.opengamma.financial.sensitivities;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -97,65 +98,6 @@ public class FactorExposureData extends DirectBean {
   @Override
   public FactorExposureData.Meta metaBean() {
     return FactorExposureData.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 42976526:  // factorSetId
-        return getFactorSetId();
-      case 1802550569:  // factorType
-        return getFactorType();
-      case 1802348666:  // factorName
-        return getFactorName();
-      case 3386882:  // node
-        return getNode();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 42976526:  // factorSetId
-        setFactorSetId((Long) newValue);
-        return;
-      case 1802550569:  // factorType
-        setFactorType((FactorType) newValue);
-        return;
-      case 1802348666:  // factorName
-        setFactorName((String) newValue);
-        return;
-      case 3386882:  // node
-        setNode((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      FactorExposureData other = (FactorExposureData) obj;
-      return JodaBeanUtils.equal(getFactorSetId(), other.getFactorSetId()) &&
-          JodaBeanUtils.equal(getFactorType(), other.getFactorType()) &&
-          JodaBeanUtils.equal(getFactorName(), other.getFactorName()) &&
-          JodaBeanUtils.equal(getNode(), other.getNode());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFactorSetId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFactorType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFactorName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNode());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -256,6 +198,57 @@ public class FactorExposureData extends DirectBean {
    */
   public final Property<String> node() {
     return metaBean().node().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public FactorExposureData clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FactorExposureData other = (FactorExposureData) obj;
+      return (getFactorSetId() == other.getFactorSetId()) &&
+          JodaBeanUtils.equal(getFactorType(), other.getFactorType()) &&
+          JodaBeanUtils.equal(getFactorName(), other.getFactorName()) &&
+          JodaBeanUtils.equal(getNode(), other.getNode());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFactorSetId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFactorType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFactorName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNode());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("FactorExposureData{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("factorSetId").append('=').append(JodaBeanUtils.toString(getFactorSetId())).append(',').append(' ');
+    buf.append("factorType").append('=').append(JodaBeanUtils.toString(getFactorType())).append(',').append(' ');
+    buf.append("factorName").append('=').append(JodaBeanUtils.toString(getFactorName())).append(',').append(' ');
+    buf.append("node").append('=').append(JodaBeanUtils.toString(getNode())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -365,6 +358,41 @@ public class FactorExposureData extends DirectBean {
      */
     public final MetaProperty<String> node() {
       return _node;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 42976526:  // factorSetId
+          return ((FactorExposureData) bean).getFactorSetId();
+        case 1802550569:  // factorType
+          return ((FactorExposureData) bean).getFactorType();
+        case 1802348666:  // factorName
+          return ((FactorExposureData) bean).getFactorName();
+        case 3386882:  // node
+          return ((FactorExposureData) bean).getNode();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 42976526:  // factorSetId
+          ((FactorExposureData) bean).setFactorSetId((Long) newValue);
+          return;
+        case 1802550569:  // factorType
+          ((FactorExposureData) bean).setFactorType((FactorType) newValue);
+          return;
+        case 1802348666:  // factorName
+          ((FactorExposureData) bean).setFactorName((String) newValue);
+          return;
+        case 3386882:  // node
+          ((FactorExposureData) bean).setNode((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

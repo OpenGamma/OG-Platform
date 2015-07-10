@@ -7,6 +7,7 @@ package com.opengamma.master;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -143,65 +144,6 @@ public abstract class AbstractDocument extends DirectBean
     return AbstractDocument.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 2006263519:  // versionFromInstant
-        return getVersionFromInstant();
-      case 1577022702:  // versionToInstant
-        return getVersionToInstant();
-      case 1808757913:  // correctionFromInstant
-        return getCorrectionFromInstant();
-      case 973465896:  // correctionToInstant
-        return getCorrectionToInstant();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 2006263519:  // versionFromInstant
-        setVersionFromInstant((Instant) newValue);
-        return;
-      case 1577022702:  // versionToInstant
-        setVersionToInstant((Instant) newValue);
-        return;
-      case 1808757913:  // correctionFromInstant
-        setCorrectionFromInstant((Instant) newValue);
-        return;
-      case 973465896:  // correctionToInstant
-        setCorrectionToInstant((Instant) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      AbstractDocument other = (AbstractDocument) obj;
-      return JodaBeanUtils.equal(getVersionFromInstant(), other.getVersionFromInstant()) &&
-          JodaBeanUtils.equal(getVersionToInstant(), other.getVersionToInstant()) &&
-          JodaBeanUtils.equal(getCorrectionFromInstant(), other.getCorrectionFromInstant()) &&
-          JodaBeanUtils.equal(getCorrectionToInstant(), other.getCorrectionToInstant());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionFromInstant());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionToInstant());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrectionFromInstant());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrectionToInstant());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the start of an interval that the version of the document is accurate for.
@@ -321,6 +263,57 @@ public abstract class AbstractDocument extends DirectBean
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public AbstractDocument clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      AbstractDocument other = (AbstractDocument) obj;
+      return JodaBeanUtils.equal(getVersionFromInstant(), other.getVersionFromInstant()) &&
+          JodaBeanUtils.equal(getVersionToInstant(), other.getVersionToInstant()) &&
+          JodaBeanUtils.equal(getCorrectionFromInstant(), other.getCorrectionFromInstant()) &&
+          JodaBeanUtils.equal(getCorrectionToInstant(), other.getCorrectionToInstant());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVersionFromInstant());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVersionToInstant());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCorrectionFromInstant());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCorrectionToInstant());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("AbstractDocument{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("versionFromInstant").append('=').append(JodaBeanUtils.toString(getVersionFromInstant())).append(',').append(' ');
+    buf.append("versionToInstant").append('=').append(JodaBeanUtils.toString(getVersionToInstant())).append(',').append(' ');
+    buf.append("correctionFromInstant").append('=').append(JodaBeanUtils.toString(getCorrectionFromInstant())).append(',').append(' ');
+    buf.append("correctionToInstant").append('=').append(JodaBeanUtils.toString(getCorrectionToInstant())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code AbstractDocument}.
    */
@@ -427,6 +420,41 @@ public abstract class AbstractDocument extends DirectBean
      */
     public final MetaProperty<Instant> correctionToInstant() {
       return _correctionToInstant;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 2006263519:  // versionFromInstant
+          return ((AbstractDocument) bean).getVersionFromInstant();
+        case 1577022702:  // versionToInstant
+          return ((AbstractDocument) bean).getVersionToInstant();
+        case 1808757913:  // correctionFromInstant
+          return ((AbstractDocument) bean).getCorrectionFromInstant();
+        case 973465896:  // correctionToInstant
+          return ((AbstractDocument) bean).getCorrectionToInstant();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 2006263519:  // versionFromInstant
+          ((AbstractDocument) bean).setVersionFromInstant((Instant) newValue);
+          return;
+        case 1577022702:  // versionToInstant
+          ((AbstractDocument) bean).setVersionToInstant((Instant) newValue);
+          return;
+        case 1808757913:  // correctionFromInstant
+          ((AbstractDocument) bean).setCorrectionFromInstant((Instant) newValue);
+          return;
+        case 973465896:  // correctionToInstant
+          ((AbstractDocument) bean).setCorrectionToInstant((Instant) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

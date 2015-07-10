@@ -17,6 +17,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.LinkedListMultimap;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolated;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
@@ -26,6 +27,7 @@ import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefini
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttribute;
+import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeET;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
 import com.opengamma.analytics.financial.instrument.index.GeneratorBill;
 import com.opengamma.analytics.financial.instrument.index.GeneratorBondFixed;
@@ -40,6 +42,9 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
+import com.opengamma.analytics.financial.legalentity.LegalEntityShortName;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator;
@@ -47,31 +52,33 @@ import com.opengamma.analytics.financial.provider.calculator.issuer.ParSpreadMar
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueIssuerCalculator;
 import com.opengamma.analytics.financial.provider.curve.issuer.IssuerDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *  Build of curve in several blocks with relevant Jacobian matrices.
- *  Here we build
+ *  Here we build a discount curve as usual using OIS instruments and simultaneously we are building a governmental discount curve using US Bonds, bills and notes.
  */
+@Test(groups = TestGroup.UNIT)
 public class MulticurveBuildingDiscountingBillNoteBondUSDTest {
 
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2012, 8, 22);
@@ -93,12 +100,11 @@ public class MulticurveBuildingDiscountingBillNoteBondUSDTest {
   private static final IndexON INDEX_ON_USD = GENERATOR_OIS_USD.getIndex();
   private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_USD = new GeneratorDepositON("USD Deposit ON", USD, NYC, INDEX_ON_USD.getDayCount());
   private static final String NAME_COUNTERPART = "US GOVT";
-  private static final Pair<String, Currency> US_USD = new ObjectsPair<>(NAME_COUNTERPART, USD);
-  private static final DayCount DAY_COUNT_ON = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount DAY_COUNT_ON = DayCounts.ACT_360;
   private static final GeneratorDepositONCounterpart GENERATOR_DEPOSIT_ON_USGOVT = new GeneratorDepositONCounterpart("US GOVT Deposit ON", USD, NYC, DAY_COUNT_ON, NAME_COUNTERPART);
 
   private static final YieldConvention YIELD_BILL_USGOVT = YieldConventionFactory.INSTANCE.getYieldConvention("INTEREST@MTY");
-  private static final DayCount DAY_COUNT_BILL_USGOVT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount DAY_COUNT_BILL_USGOVT = DayCounts.ACT_360;
   private static final int SPOT_LAG_BILL = 1;
   private static final ZonedDateTime[] BILL_MATURITY = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 9, 28), DateUtils.getUTCDate(2012, 11, 30), DateUtils.getUTCDate(2013, 2, 28) };
   private static final int NB_BILL = BILL_MATURITY.length;
@@ -121,7 +127,7 @@ public class MulticurveBuildingDiscountingBillNoteBondUSDTest {
   // USA, Bond 2.75 15aug2042 30Y (ISIN US912810QX90)
 
   private static final YieldConvention YIELD_BOND_USGOVT = YieldConventionFactory.INSTANCE.getYieldConvention("INTEREST@MTY");
-  private static final DayCount DAY_COUNT_BOND_USGOVT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount DAY_COUNT_BOND_USGOVT = DayCounts.ACT_360;
   private static final Period BOND_PAYMENT_TENOR = Period.ofMonths(6);
   private static final ZonedDateTime[] BOND_START_ACCRUAL_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 07, 31), DateUtils.getUTCDate(2012, 8, 15), DateUtils.getUTCDate(2012, 07, 31),
     DateUtils.getUTCDate(2012, 07, 31), DateUtils.getUTCDate(2012, 8, 15), DateUtils.getUTCDate(2012, 8, 15) };
@@ -132,7 +138,7 @@ public class MulticurveBuildingDiscountingBillNoteBondUSDTest {
   private static final int SETTLEMENT_DAYS_US = 3;
   private static final boolean IS_EOM_FIXED = false;
   private static final String REPO_TYPE = "General collateral";
-  private static final BusinessDayConvention BOND_BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention BOND_BUSINESS_DAY = BusinessDayConventions.FOLLOWING;
   private static final BondFixedSecurityDefinition[] BOND_SECURITY = new BondFixedSecurityDefinition[NB_BOND];
   private static final GeneratorBondFixed[] GENERATOR_BOND = new GeneratorBondFixed[NB_BOND];
   static {
@@ -172,17 +178,27 @@ public class MulticurveBuildingDiscountingBillNoteBondUSDTest {
   }
 
   /** Market values for the govt USD bill curve */
-  private static final double[] GOVTUS_USD_MARKET_QUOTES = new double[] {0.0010, 0.0015, 0.0020, 0.0015, 0.99642, 0.9981, 0.99587, 0.99466, 0.99496, 0.98489 };
+  private static final double[] GOVTUS_USD_MARKET_QUOTES = 
+      new double[] {0.0010, 0.0015, 0.0020, 0.0015, 0.99642, 0.9981, 0.99587, 0.99466, 0.99496, 0.98489 };
   /** Generators for the govt USD curve */
-  private static final GeneratorInstrument<? extends GeneratorAttribute>[] GOVTUS_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_USGOVT, GENERATOR_BILL[0], GENERATOR_BILL[1],
-    GENERATOR_BILL[2], GENERATOR_BOND[0], GENERATOR_BOND[1], GENERATOR_BOND[2], GENERATOR_BOND[3], GENERATOR_BOND[4], GENERATOR_BOND[5] };
+  private static final int NB_ON_GOVT = 1;
+  private static final int NB_BILL_GOVT = 3;
+  private static final GeneratorInstrument<? extends GeneratorAttribute>[] GOVTUS_USD_GENERATORS = 
+      new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_USGOVT, 
+    GENERATOR_BILL[0], GENERATOR_BILL[1], GENERATOR_BILL[2], 
+    GENERATOR_BOND[0], GENERATOR_BOND[1], GENERATOR_BOND[2], GENERATOR_BOND[3], GENERATOR_BOND[4], GENERATOR_BOND[5] };
   /** Tenors for the govt USD curve */
-  private static final Period[] GOVTUS_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(0), Period.ofDays(0), Period.ofDays(0), Period.ofDays(0), Period.ofDays(0), Period.ofDays(0),
-    Period.ofDays(0), Period.ofDays(0), Period.ofDays(0), Period.ofDays(0) };
-  private static final GeneratorAttributeIR[] GOVTUS_USD_ATTR = new GeneratorAttributeIR[GOVTUS_USD_TENOR.length];
+  private static final Period[] GOVTUS_USD_TENOR = new Period[] {Period.ofDays(0) };
+  private static final GeneratorAttribute[] GOVTUS_USD_ATTR = new GeneratorAttribute[GOVTUS_USD_GENERATORS.length];
   static {
-    for (int loopins = 0; loopins < GOVTUS_USD_TENOR.length; loopins++) {
+    for (int loopins = 0; loopins < NB_ON_GOVT; loopins++) {
       GOVTUS_USD_ATTR[loopins] = new GeneratorAttributeIR(GOVTUS_USD_TENOR[loopins]);
+    }
+    for (int loopins = NB_ON_GOVT; loopins < NB_ON_GOVT + NB_BILL_GOVT; loopins++) {
+      GOVTUS_USD_ATTR[loopins] = new GeneratorAttributeET(false);
+    }
+    for (int loopins = NB_ON_GOVT + NB_BILL_GOVT; loopins < GOVTUS_USD_GENERATORS.length; loopins++) {
+      GOVTUS_USD_ATTR[loopins] = new GeneratorAttributeET(true);
     }
   }
 
@@ -199,11 +215,11 @@ public class MulticurveBuildingDiscountingBillNoteBondUSDTest {
   private static final GeneratorYDCurve[][][] GENERATORS_UNITS = new GeneratorYDCurve[NB_BLOCKS][][];
   private static final String[][][] NAMES_UNITS = new String[NB_BLOCKS][][];
   private static final MulticurveProviderDiscount KNOWN_MULTICURVES = new MulticurveProviderDiscount(FX_MATRIX);
-  private static final IssuerProviderDiscount KNOWN_DATA = new IssuerProviderDiscount(KNOWN_MULTICURVES, new HashMap<Pair<String, Currency>, YieldAndDiscountCurve>());
+  private static final IssuerProviderDiscount KNOWN_DATA = new IssuerProviderDiscount(KNOWN_MULTICURVES, new HashMap<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve>());
   private static final LinkedHashMap<String, Currency> DSC_MAP = new LinkedHashMap<>();
   private static final LinkedHashMap<String, IndexON[]> FWD_ON_MAP = new LinkedHashMap<>();
   private static final LinkedHashMap<String, IborIndex[]> FWD_IBOR_MAP = new LinkedHashMap<>();
-  private static final LinkedHashMap<String, Pair<String, Currency>> DSC_ISS_MAP = new LinkedHashMap<>();
+  private static final LinkedListMultimap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> DSC_ISS_MAP = LinkedListMultimap.create();
 
   static {
     DEFINITIONS_DSC_USD = getDefinitions(DSC_USD_MARKET_QUOTES, DSC_USD_GENERATORS, DSC_USD_ATTR);
@@ -222,11 +238,11 @@ public class MulticurveBuildingDiscountingBillNoteBondUSDTest {
     NAMES_UNITS[0][1] = new String[] {CURVE_NAME_GOVTUS_USD };
     DSC_MAP.put(CURVE_NAME_DSC_USD, USD);
     FWD_ON_MAP.put(CURVE_NAME_DSC_USD, new IndexON[] {INDEX_ON_USD });
-    DSC_ISS_MAP.put(CURVE_NAME_GOVTUS_USD, US_USD);
+    DSC_ISS_MAP.put(CURVE_NAME_GOVTUS_USD, Pairs.of((Object) NAME_COUNTERPART, (LegalEntityFilter<LegalEntity>) new LegalEntityShortName()));
   }
 
   @SuppressWarnings({"unchecked", "rawtypes" })
-  public static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final GeneratorAttribute[] attribute) {
+  private static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final GeneratorAttribute[] attribute) {
     final InstrumentDefinition<?>[] definitions = new InstrumentDefinition<?>[marketQuotes.length];
     for (int loopmv = 0; loopmv < marketQuotes.length; loopmv++) {
       definitions[loopmv] = generators[loopmv].generateInstrument(NOW, marketQuotes[loopmv], NOTIONAL, attribute[loopmv]);
@@ -255,7 +271,7 @@ public class MulticurveBuildingDiscountingBillNoteBondUSDTest {
   @Test
   public void curveConstruction() {
     for (int loopblock = 0; loopblock < NB_BLOCKS; loopblock++) {
-      curveConstructionTest(DEFINITIONS_UNITS[loopblock], CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(loopblock).getFirst(), false, loopblock);
+      curveConstructionCode(DEFINITIONS_UNITS[loopblock], CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(loopblock).getFirst(), false, loopblock);
     }
   }
 
@@ -274,7 +290,7 @@ public class MulticurveBuildingDiscountingBillNoteBondUSDTest {
 
   }
 
-  public void curveConstructionTest(final InstrumentDefinition<?>[][][] definitions, final IssuerProviderDiscount curves, final boolean withToday, final int block) {
+  private void curveConstructionCode(final InstrumentDefinition<?>[][][] definitions, final IssuerProviderDiscount curves, final boolean withToday, final int block) {
     final int nbBlocks = definitions.length;
     for (int loopblock = 0; loopblock < nbBlocks; loopblock++) {
       final InstrumentDerivative[][] instruments = convert(definitions[loopblock], loopblock, withToday);
@@ -291,8 +307,8 @@ public class MulticurveBuildingDiscountingBillNoteBondUSDTest {
 
   @SuppressWarnings("unchecked")
   private static Pair<IssuerProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions, final GeneratorYDCurve[][] curveGenerators,
-      final String[][] curveNames, final IssuerProviderDiscount knownData, final InstrumentDerivativeVisitor<IssuerProviderInterface, Double> calculator,
-      final InstrumentDerivativeVisitor<IssuerProviderInterface, MulticurveSensitivity> sensitivityCalculator, final boolean withToday) {
+      final String[][] curveNames, final IssuerProviderDiscount knownData, final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, Double> calculator,
+      final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, MulticurveSensitivity> sensitivityCalculator, final boolean withToday) {
     final int nUnits = definitions.length;
     final MultiCurveBundle<GeneratorYDCurve>[] curveBundles = new MultiCurveBundle[nUnits];
     for (int i = 0; i < nUnits; i++) {

@@ -1,9 +1,11 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention.daycount;
+
+import static com.opengamma.financial.convention.businessday.BusinessDayDateUtils.getDaysBetween;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
@@ -15,6 +17,8 @@ import com.opengamma.util.ArgumentChecker;
  * The Business/252 day count. The number of good business days between two days is counted and then divided by 252.
  */
 public class BusinessTwoFiveTwo extends StatelessDayCount {
+
+  private static final double TWO_FIVE_TWO = 252.0;
   private static final long serialVersionUID = 1L;
 
   @Override
@@ -29,21 +33,8 @@ public class BusinessTwoFiveTwo extends StatelessDayCount {
 
   @Override
   public double getDayCountFraction(final LocalDate firstDate, final LocalDate secondDate, final Calendar calendar) {
-    testDates(firstDate, secondDate);
-    ArgumentChecker.notNull(calendar, "calendar");
-    LocalDate date = firstDate;
-    while (!calendar.isWorkingDay(date)) {
-      date = date.plusDays(1);
-    }
-    date = date.plusDays(1);
-    int count = 0;
-    while (!date.isAfter(secondDate)) {
-      if (calendar.isWorkingDay(date)) {
-        count++;
-      }
-      date = date.plusDays(1);
-    }
-    return count / 252.;
+    // Arguments are checked in BusinessDays
+    return getDaysBetween(firstDate, secondDate, calendar) / TWO_FIVE_TWO;
   }
 
   @Override
@@ -54,13 +45,12 @@ public class BusinessTwoFiveTwo extends StatelessDayCount {
   }
 
   @Override
-  public double getAccruedInterest(final LocalDate previousCouponDate, final LocalDate date, final LocalDate nextCouponDate, final double coupon,
-      final double paymentsPerYear) {
+  public double getAccruedInterest(final LocalDate previousCouponDate, final LocalDate date, final LocalDate nextCouponDate, final double coupon, final double paymentsPerYear) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public String getConventionName() {
+  public String getName() {
     return "Business/252";
   }
 

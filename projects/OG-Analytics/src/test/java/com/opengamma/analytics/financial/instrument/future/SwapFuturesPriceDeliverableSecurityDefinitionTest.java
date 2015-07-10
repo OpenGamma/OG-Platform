@@ -21,11 +21,13 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the description of Deliverable Interest Rate Swap Futures as traded on CME.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwapFuturesPriceDeliverableSecurityDefinitionTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
@@ -76,24 +78,6 @@ public class SwapFuturesPriceDeliverableSecurityDefinitionTest {
   public void from() {
     final SwapFuturesPriceDeliverableSecurityDefinition futuresDefinition = SwapFuturesPriceDeliverableSecurityDefinition.from(EFFECTIVE_DATE, USD6MLIBOR3M, TENOR, NOTIONAL, RATE);
     assertEquals("DeliverableSwapFuturesSecurityDefinition: from", SWAP_FUTURES_SECURITY_DEFINITION, futuresDefinition);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Tests the toDerivative method.
-   */
-  public void toDerivativeDeprecated() {
-    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 9, 21);
-    final String dscName = "USD Discounting";
-    final String fwd3Name = "USD Forward 3M";
-    final String[] curveNames = {dscName, fwd3Name };
-    final SwapFixedCoupon<? extends Coupon> underlying = SWAP_DEFINITION.toDerivative(referenceDate, curveNames);
-    final double expiryTime = TimeCalculator.getTimeBetween(referenceDate, LAST_TRADING_DATE);
-    final double deliveryTime = TimeCalculator.getTimeBetween(referenceDate, EFFECTIVE_DATE);
-    final SwapFuturesPriceDeliverableSecurity futuresExpected = new SwapFuturesPriceDeliverableSecurity(expiryTime, deliveryTime, underlying, NOTIONAL);
-    final SwapFuturesPriceDeliverableSecurity futuresConverted = SWAP_FUTURES_SECURITY_DEFINITION.toDerivative(referenceDate, curveNames);
-    assertEquals("DeliverableSwapFuturesSecurityDefinition: toDerivative", futuresExpected, futuresConverted);
   }
 
   @Test

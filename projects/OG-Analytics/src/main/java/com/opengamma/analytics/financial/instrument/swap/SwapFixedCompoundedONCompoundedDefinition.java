@@ -78,7 +78,7 @@ public class SwapFixedCompoundedONCompoundedDefinition extends SwapDefinition {
 
   private static SwapFixedCompoundedONCompoundedDefinition from(final CouponONCompoundedDefinition onCoupon, final double notionalSigned, final double fixedRate, final Calendar calendar) {
     final CouponFixedAccruedCompoundingDefinition cpnFixed = new CouponFixedAccruedCompoundingDefinition(onCoupon.getCurrency(), onCoupon.getPaymentDate(), onCoupon.getAccrualStartDate(), onCoupon
-        .getAccrualEndDate(), onCoupon.getPaymentYearFraction(), notionalSigned, fixedRate);
+        .getAccrualEndDate(), onCoupon.getPaymentYearFraction(), notionalSigned, fixedRate, calendar);
     return new SwapFixedCompoundedONCompoundedDefinition(cpnFixed, onCoupon, calendar);
   }
 
@@ -106,33 +106,6 @@ public class SwapFixedCompoundedONCompoundedDefinition extends SwapDefinition {
    */
   public Currency getCurrency() {
     return getFirstLeg().getCurrency();
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @SuppressWarnings("unchecked")
-  @Deprecated
-  @Override
-  public Swap<CouponFixedAccruedCompounding, ? extends Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    final Annuity<CouponFixedAccruedCompounding> fixedLeg = (Annuity<CouponFixedAccruedCompounding>) getFixedLeg().toDerivative(date, yieldCurveNames);
-    final Annuity<? extends Payment> iborLeg = getONLeg().toDerivative(date, yieldCurveNames);
-    return new Swap<>(fixedLeg, iborLeg);
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @SuppressWarnings("unchecked")
-  @Deprecated
-  @Override
-  public Swap<CouponFixedAccruedCompounding, ? extends Payment> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(indexDataTS, "index data time series array");
-    final Annuity<CouponFixedAccruedCompounding> fixedLeg = (Annuity<CouponFixedAccruedCompounding>) getFixedLeg().toDerivative(date, yieldCurveNames);
-    final Annuity<? extends Payment> iborLeg = getONLeg().toDerivative(date, indexDataTS[0], yieldCurveNames);
-    return new Swap<>(fixedLeg, iborLeg);
   }
 
   @Override

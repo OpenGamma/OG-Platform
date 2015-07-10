@@ -9,23 +9,26 @@ import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.provider.ForexDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.analytics.financial.interestrate.cash.provider.CashDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.cash.provider.DepositIborDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
-import com.opengamma.analytics.financial.interestrate.fra.provider.ForwardRateAgreementDiscountingProviderMethod;
+import com.opengamma.analytics.financial.interestrate.fra.provider.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedCouponDiscountingMethod;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * Computes the par rate for different instrument. The meaning of "par rate" is instrument dependent.
  */
-public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, Double> {
+public final class ParRateDiscountingCalculator extends 
+  InstrumentDerivativeVisitorAdapter<ParameterProviderInterface, Double> {
 
   /**
    * The unique instance of the calculator.
@@ -50,9 +53,9 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
    * The methods and calculators.
    */
   private static final PresentValueDiscountingCalculator PVC = PresentValueDiscountingCalculator.getInstance();
-  private static final PresentValueMarketQuoteSensitivityDiscountingCalculator PVMQSC = PresentValueMarketQuoteSensitivityDiscountingCalculator.getInstance();
   private static final CashDiscountingMethod METHOD_DEPO = CashDiscountingMethod.getInstance();
-  private static final ForwardRateAgreementDiscountingProviderMethod METHOD_FRA = ForwardRateAgreementDiscountingProviderMethod.getInstance();
+  private static final DepositIborDiscountingMethod METHOD_IBOR = DepositIborDiscountingMethod.getInstance();
+  private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
   private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
   private static final InterestRateFutureSecurityDiscountingMethod METHOD_IR_FUT = InterestRateFutureSecurityDiscountingMethod.getInstance();
   private static final ForexDiscountingMethod METHOD_FOREX = ForexDiscountingMethod.getInstance();
@@ -60,15 +63,32 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
   //     -----     Deposit     ------
 
   @Override
-  public Double visitCash(final Cash deposit, final MulticurveProviderInterface multicurves) {
-    return METHOD_DEPO.parRate(deposit, multicurves);
+  public Double visitCash(final Cash deposit, final ParameterProviderInterface multicurves) {
+    return METHOD_DEPO.parRate(deposit, multicurves.getMulticurveProvider());
+  }
+
+  @Override
+  public Double visitDepositIbor(final DepositIbor deposit, final ParameterProviderInterface multicurves) {
+    return METHOD_IBOR.parRate(deposit, multicurves.getMulticurveProvider());
   }
 
   //     -----     Payment/Coupon     ------
 
   @Override
-  public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final MulticurveProviderInterface multicurves) {
-    return METHOD_FRA.parRate(fra, multicurves);
+  public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final ParameterProviderInterface multicurves) {
+    return METHOD_FRA.parRate(fra, multicurves.getMulticurveProvider());
+  }
+
+  @Override
+  public Double visitCouponIborSpread(final CouponIborSpread payment, final ParameterProviderInterface data) {
+    double fwd = data.getMulticurveProvider().getSimplyCompoundForwardRate(payment.getIndex(), payment.getFixingPeriodStartTime(),
+        payment.getFixingPeriodEndTime(), payment.getFixingAccrualFactor());
+    return fwd;
+  }
+
+  @Override
+  public Double visitCapFloorIbor(final CapFloorIbor payment, final ParameterProviderInterface data) {
+    return visitCouponIborSpread(payment.toCoupon(), data);
   }
 
   //     -----     Swap     -----
@@ -80,9 +100,9 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
    * @return The par swap rate. If the fixed leg has been set up with some fixed payments these are ignored for the purposes of finding the swap rate
    */
   @Override
-  public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final MulticurveProviderInterface multicurves) {
+  public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final ParameterProviderInterface multicurves) {
     final double pvSecond = swap.getSecondLeg().accept(PVC, multicurves).getAmount(swap.getSecondLeg().getCurrency()) * Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional());
-    final double pvbp = METHOD_SWAP.presentValueBasisPoint(swap, multicurves);
+    final double pvbp = METHOD_SWAP.presentValueBasisPoint(swap, multicurves.getMulticurveProvider());
     return pvSecond / pvbp;
   }
 
@@ -94,8 +114,8 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
    * @param multicurves The multi-curves provider.
    * @return The modified rate.
    */
-  public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final DayCount dayCount, final MulticurveProviderInterface multicurves) {
-    final double pvbp = METHOD_SWAP.presentValueBasisPoint(swap, dayCount, multicurves);
+  public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final DayCount dayCount, final ParameterProviderInterface multicurves) {
+    final double pvbp = METHOD_SWAP.presentValueBasisPoint(swap, dayCount, multicurves.getMulticurveProvider());
     return visitFixedCouponSwap(swap, pvbp, multicurves);
   }
 
@@ -107,36 +127,21 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
    * @param multicurves The multi-curves provider.
    * @return The modified rate.
    */
-  public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final double pvbp, final MulticurveProviderInterface multicurves) {
+  public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final double pvbp, final ParameterProviderInterface multicurves) {
     final double pvSecond = swap.getSecondLeg().accept(PVC, multicurves).getAmount(swap.getSecondLeg().getCurrency()) * Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional());
     return pvSecond / pvbp;
-  }
-
-  /**
-   * For swaps the ParSpread is the spread to be added on each coupon of the first leg to obtain a present value of zero.
-   * It is computed as the opposite of the present value of the swap in currency of the first leg divided by the present value of a basis point
-   * of the first leg (as computed by the {@link PresentValueMarketQuoteSensitivityDiscountingCalculator}).
-   * @param swap The swap.
-   * @param multicurves The multi-curves provider.
-   * @return The par spread.
-   */
-  @Override
-  public Double visitSwap(final Swap<?, ?> swap, final MulticurveProviderInterface multicurves) {
-    ArgumentChecker.notNull(multicurves, "Market");
-    ArgumentChecker.notNull(swap, "Swap");
-    return -multicurves.getFxRates().convert(swap.accept(PVC, multicurves), swap.getFirstLeg().getCurrency()).getAmount() / swap.getFirstLeg().accept(PVMQSC, multicurves);
   }
 
   //     -----     Futures     -----
 
   @Override
-  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity futures, final MulticurveProviderInterface multicurves) {
-    return METHOD_IR_FUT.parRate(futures, multicurves);
+  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity futures, final ParameterProviderInterface multicurves) {
+    return METHOD_IR_FUT.parRate(futures, multicurves.getMulticurveProvider());
   }
 
   @Override
-  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final MulticurveProviderInterface multicurves) {
-    return METHOD_IR_FUT.parRate(futures.getUnderlying(), multicurves);
+  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final ParameterProviderInterface multicurves) {
+    return METHOD_IR_FUT.parRate(futures.getUnderlyingSecurity(), multicurves.getMulticurveProvider());
   }
 
   //     -----     Forex     ------
@@ -148,8 +153,8 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
    * @return The forward forex rate.
    */
   @Override
-  public Double visitForex(final Forex forex, final MulticurveProviderInterface multicurves) {
-    return METHOD_FOREX.forwardForexRate(forex, multicurves);
+  public Double visitForex(final Forex forex, final ParameterProviderInterface multicurves) {
+    return METHOD_FOREX.forwardForexRate(forex, multicurves.getMulticurveProvider());
   }
 
 }

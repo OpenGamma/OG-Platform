@@ -20,8 +20,9 @@ import com.google.common.collect.Iterators;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.lambdava.functions.Function3;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.function.Function;
+import com.opengamma.util.tuple.Triple;
 
 /**
  * A collection of historical time-series objects. The time-series are keyed by the originally requested data field
@@ -183,12 +184,13 @@ public final class HistoricalTimeSeriesBundle {
     return e.iterator();
   }
 
-  protected HistoricalTimeSeriesBundle apply(final Function3<String, ExternalIdBundle, HistoricalTimeSeries, HistoricalTimeSeries> function) {
+  protected HistoricalTimeSeriesBundle apply(final Function<Triple<String, ExternalIdBundle, HistoricalTimeSeries>, HistoricalTimeSeries> function) {
     final HistoricalTimeSeriesBundle result = new HistoricalTimeSeriesBundle();
     for (Map.Entry<String, Entry> fieldTimeSeries : _data.entrySet()) {
       final Entry newEntry = new Entry();
       for (Map.Entry<ExternalIdBundle, HistoricalTimeSeries> timeSeries : fieldTimeSeries.getValue()._timeSeries.entrySet()) {
-        newEntry._timeSeries.put(timeSeries.getKey(), function.execute(fieldTimeSeries.getKey(), timeSeries.getKey(), timeSeries.getValue()));
+        newEntry._timeSeries.put(timeSeries.getKey(), function.apply(
+            Triple.of(fieldTimeSeries.getKey(), timeSeries.getKey(), timeSeries.getValue())));
       }
       result._data.put(fieldTimeSeries.getKey(), newEntry);
     }

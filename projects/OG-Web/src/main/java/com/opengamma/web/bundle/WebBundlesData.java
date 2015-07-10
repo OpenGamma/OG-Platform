@@ -8,25 +8,25 @@ package com.opengamma.web.bundle;
 import java.util.Map;
 
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.UriInfo;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.web.WebPerRequestData;
 
 /**
  * Data class for web-based bundles.
  */
 @BeanDefinition
-public class WebBundlesData extends DirectBean {
+public class WebBundlesData extends WebPerRequestData {
 
   /**
    * The bundle manager factory.
@@ -65,11 +65,6 @@ public class WebBundlesData extends DirectBean {
   @PropertyDefinition
   private ScriptTag _scriptTag;
   /**
-   * The JSR-311 URI information.
-   */
-  @PropertyDefinition
-  private UriInfo _uriInfo;
-  /**
    * HttpHeaders information.
    */
   @PropertyDefinition
@@ -97,100 +92,6 @@ public class WebBundlesData extends DirectBean {
   @Override
   public WebBundlesData.Meta metaBean() {
     return WebBundlesData.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1984241087:  // bundleManagerFactory
-        return getBundleManagerFactory();
-      case 1459962059:  // bundleManager
-        return getBundleManager();
-      case 862647990:  // devBundleManager
-        return getDevBundleManager();
-      case -369448763:  // compressor
-        return getCompressor();
-      case 3357091:  // mode
-        return getMode();
-      case 1997897769:  // styleTag
-        return getStyleTag();
-      case 249937615:  // scriptTag
-        return getScriptTag();
-      case -173275078:  // uriInfo
-        return getUriInfo();
-      case 1649792478:  // httpHeaders
-        return getHttpHeaders();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1984241087:  // bundleManagerFactory
-        setBundleManagerFactory((BundleManagerFactory) newValue);
-        return;
-      case 1459962059:  // bundleManager
-        setBundleManager((BundleManager) newValue);
-        return;
-      case 862647990:  // devBundleManager
-        setDevBundleManager((BundleManager) newValue);
-        return;
-      case -369448763:  // compressor
-        setCompressor((BundleCompressor) newValue);
-        return;
-      case 3357091:  // mode
-        setMode((DeployMode) newValue);
-        return;
-      case 1997897769:  // styleTag
-        setStyleTag((StyleTag) newValue);
-        return;
-      case 249937615:  // scriptTag
-        setScriptTag((ScriptTag) newValue);
-        return;
-      case -173275078:  // uriInfo
-        setUriInfo((UriInfo) newValue);
-        return;
-      case 1649792478:  // httpHeaders
-        setHttpHeaders((HttpHeaders) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      WebBundlesData other = (WebBundlesData) obj;
-      return JodaBeanUtils.equal(getBundleManagerFactory(), other.getBundleManagerFactory()) &&
-          JodaBeanUtils.equal(getBundleManager(), other.getBundleManager()) &&
-          JodaBeanUtils.equal(getDevBundleManager(), other.getDevBundleManager()) &&
-          JodaBeanUtils.equal(getCompressor(), other.getCompressor()) &&
-          JodaBeanUtils.equal(getMode(), other.getMode()) &&
-          JodaBeanUtils.equal(getStyleTag(), other.getStyleTag()) &&
-          JodaBeanUtils.equal(getScriptTag(), other.getScriptTag()) &&
-          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
-          JodaBeanUtils.equal(getHttpHeaders(), other.getHttpHeaders());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBundleManagerFactory());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBundleManager());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDevBundleManager());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCompressor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStyleTag());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getScriptTag());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHttpHeaders());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -373,31 +274,6 @@ public class WebBundlesData extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the JSR-311 URI information.
-   * @return the value of the property
-   */
-  public UriInfo getUriInfo() {
-    return _uriInfo;
-  }
-
-  /**
-   * Sets the JSR-311 URI information.
-   * @param uriInfo  the new value of the property
-   */
-  public void setUriInfo(UriInfo uriInfo) {
-    this._uriInfo = uriInfo;
-  }
-
-  /**
-   * Gets the the {@code uriInfo} property.
-   * @return the property, not null
-   */
-  public final Property<UriInfo> uriInfo() {
-    return metaBean().uriInfo().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets httpHeaders information.
    * @return the value of the property
    */
@@ -422,10 +298,76 @@ public class WebBundlesData extends DirectBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public WebBundlesData clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      WebBundlesData other = (WebBundlesData) obj;
+      return JodaBeanUtils.equal(getBundleManagerFactory(), other.getBundleManagerFactory()) &&
+          JodaBeanUtils.equal(getBundleManager(), other.getBundleManager()) &&
+          JodaBeanUtils.equal(getDevBundleManager(), other.getDevBundleManager()) &&
+          JodaBeanUtils.equal(getCompressor(), other.getCompressor()) &&
+          JodaBeanUtils.equal(getMode(), other.getMode()) &&
+          JodaBeanUtils.equal(getStyleTag(), other.getStyleTag()) &&
+          JodaBeanUtils.equal(getScriptTag(), other.getScriptTag()) &&
+          JodaBeanUtils.equal(getHttpHeaders(), other.getHttpHeaders()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBundleManagerFactory());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBundleManager());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDevBundleManager());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCompressor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMode());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStyleTag());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getScriptTag());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHttpHeaders());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(288);
+    buf.append("WebBundlesData{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("bundleManagerFactory").append('=').append(JodaBeanUtils.toString(getBundleManagerFactory())).append(',').append(' ');
+    buf.append("bundleManager").append('=').append(JodaBeanUtils.toString(getBundleManager())).append(',').append(' ');
+    buf.append("devBundleManager").append('=').append(JodaBeanUtils.toString(getDevBundleManager())).append(',').append(' ');
+    buf.append("compressor").append('=').append(JodaBeanUtils.toString(getCompressor())).append(',').append(' ');
+    buf.append("mode").append('=').append(JodaBeanUtils.toString(getMode())).append(',').append(' ');
+    buf.append("styleTag").append('=').append(JodaBeanUtils.toString(getStyleTag())).append(',').append(' ');
+    buf.append("scriptTag").append('=').append(JodaBeanUtils.toString(getScriptTag())).append(',').append(' ');
+    buf.append("httpHeaders").append('=').append(JodaBeanUtils.toString(getHttpHeaders())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code WebBundlesData}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static class Meta extends WebPerRequestData.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -467,11 +409,6 @@ public class WebBundlesData extends DirectBean {
     private final MetaProperty<ScriptTag> _scriptTag = DirectMetaProperty.ofReadWrite(
         this, "scriptTag", WebBundlesData.class, ScriptTag.class);
     /**
-     * The meta-property for the {@code uriInfo} property.
-     */
-    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(
-        this, "uriInfo", WebBundlesData.class, UriInfo.class);
-    /**
      * The meta-property for the {@code httpHeaders} property.
      */
     private final MetaProperty<HttpHeaders> _httpHeaders = DirectMetaProperty.ofReadWrite(
@@ -480,7 +417,7 @@ public class WebBundlesData extends DirectBean {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "bundleManagerFactory",
         "bundleManager",
         "devBundleManager",
@@ -488,7 +425,6 @@ public class WebBundlesData extends DirectBean {
         "mode",
         "styleTag",
         "scriptTag",
-        "uriInfo",
         "httpHeaders");
 
     /**
@@ -514,8 +450,6 @@ public class WebBundlesData extends DirectBean {
           return _styleTag;
         case 249937615:  // scriptTag
           return _scriptTag;
-        case -173275078:  // uriInfo
-          return _uriInfo;
         case 1649792478:  // httpHeaders
           return _httpHeaders;
       }
@@ -595,19 +529,66 @@ public class WebBundlesData extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code uriInfo} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<UriInfo> uriInfo() {
-      return _uriInfo;
-    }
-
-    /**
      * The meta-property for the {@code httpHeaders} property.
      * @return the meta-property, not null
      */
     public final MetaProperty<HttpHeaders> httpHeaders() {
       return _httpHeaders;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1984241087:  // bundleManagerFactory
+          return ((WebBundlesData) bean).getBundleManagerFactory();
+        case 1459962059:  // bundleManager
+          return ((WebBundlesData) bean).getBundleManager();
+        case 862647990:  // devBundleManager
+          return ((WebBundlesData) bean).getDevBundleManager();
+        case -369448763:  // compressor
+          return ((WebBundlesData) bean).getCompressor();
+        case 3357091:  // mode
+          return ((WebBundlesData) bean).getMode();
+        case 1997897769:  // styleTag
+          return ((WebBundlesData) bean).getStyleTag();
+        case 249937615:  // scriptTag
+          return ((WebBundlesData) bean).getScriptTag();
+        case 1649792478:  // httpHeaders
+          return ((WebBundlesData) bean).getHttpHeaders();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1984241087:  // bundleManagerFactory
+          ((WebBundlesData) bean).setBundleManagerFactory((BundleManagerFactory) newValue);
+          return;
+        case 1459962059:  // bundleManager
+          ((WebBundlesData) bean).setBundleManager((BundleManager) newValue);
+          return;
+        case 862647990:  // devBundleManager
+          ((WebBundlesData) bean).setDevBundleManager((BundleManager) newValue);
+          return;
+        case -369448763:  // compressor
+          ((WebBundlesData) bean).setCompressor((BundleCompressor) newValue);
+          return;
+        case 3357091:  // mode
+          ((WebBundlesData) bean).setMode((DeployMode) newValue);
+          return;
+        case 1997897769:  // styleTag
+          ((WebBundlesData) bean).setStyleTag((StyleTag) newValue);
+          return;
+        case 249937615:  // scriptTag
+          ((WebBundlesData) bean).setScriptTag((ScriptTag) newValue);
+          return;
+        case 1649792478:  // httpHeaders
+          ((WebBundlesData) bean).setHttpHeaders((HttpHeaders) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

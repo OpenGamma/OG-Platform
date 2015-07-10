@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -8,6 +8,7 @@ package com.opengamma.financial.tool;
 import java.io.Closeable;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -20,13 +21,13 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.batch.BatchMaster;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
-import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -34,15 +35,14 @@ import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.helper.AvailableOutputsProvider;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.convention.ConventionMaster;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.convention.ConventionMaster;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.holiday.HolidayMaster;
+import com.opengamma.master.legalentity.LegalEntityMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
-import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.region.RegionMaster;
@@ -66,11 +66,6 @@ public class ToolContext extends DirectBean implements Closeable {
   @PropertyDefinition(set = "manual")
   private Object _contextManager;
 
-  /**
-   * The batch master.
-   */
-  @PropertyDefinition
-  private BatchMaster _batchMaster;
   /**
    * The config master.
    */
@@ -107,10 +102,10 @@ public class ToolContext extends DirectBean implements Closeable {
   @PropertyDefinition
   private PortfolioMaster _portfolioMaster;
   /**
-   * The organization master.
+   * The legal entity master.
    */
   @PropertyDefinition
-  private OrganizationMaster _organizationMaster;
+  private LegalEntityMaster _legalEntityMaster;
   /**
    * The historical time-series master.
    */
@@ -162,7 +157,7 @@ public class ToolContext extends DirectBean implements Closeable {
    * The organization source.
    */
   @PropertyDefinition
-  private OrganizationSource _organizationSource;
+  private LegalEntitySource _legalEntitySource;
   /**
    * The historical time-series source.
    */
@@ -272,254 +267,6 @@ public class ToolContext extends DirectBean implements Closeable {
     return ToolContext.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 295862014:  // contextManager
-        return getContextManager();
-      case -252634564:  // batchMaster
-        return getBatchMaster();
-      case 10395716:  // configMaster
-        return getConfigMaster();
-      case -652001691:  // exchangeMaster
-        return getExchangeMaster();
-      case 246258906:  // holidayMaster
-        return getHolidayMaster();
-      case -1820969354:  // regionMaster
-        return getRegionMaster();
-      case -887218750:  // securityMaster
-        return getSecurityMaster();
-      case -1840419605:  // positionMaster
-        return getPositionMaster();
-      case -772274742:  // portfolioMaster
-        return getPortfolioMaster();
-      case -1158737547:  // organizationMaster
-        return getOrganizationMaster();
-      case 173967376:  // historicalTimeSeriesMaster
-        return getHistoricalTimeSeriesMaster();
-      case 2090650860:  // marketDataSnapshotMaster
-        return getMarketDataSnapshotMaster();
-      case 41113907:  // conventionMaster
-        return getConventionMaster();
-      case 195157501:  // configSource
-        return getConfigSource();
-      case -467239906:  // exchangeSource
-        return getExchangeSource();
-      case 431020691:  // holidaySource
-        return getHolidaySource();
-      case -1636207569:  // regionSource
-        return getRegionSource();
-      case -702456965:  // securitySource
-        return getSecuritySource();
-      case -1655657820:  // positionSource
-        return getPositionSource();
-      case -973975762:  // organizationSource
-        return getOrganizationSource();
-      case 358729161:  // historicalTimeSeriesSource
-        return getHistoricalTimeSeriesSource();
-      case -2019554651:  // marketDataSnapshotSource
-        return getMarketDataSnapshotSource();
-      case -1281578674:  // conventionBundleSource
-        return getConventionBundleSource();
-      case 225875692:  // conventionSource
-        return getConventionSource();
-      case 809869649:  // securityProvider
-        return getSecurityProvider();
-      case -903470221:  // securityLoader
-        return getSecurityLoader();
-      case -1592479713:  // historicalTimeSeriesProvider
-        return getHistoricalTimeSeriesProvider();
-      case 157715905:  // historicalTimeSeriesLoader
-        return getHistoricalTimeSeriesLoader();
-      case -1697555603:  // viewProcessor
-        return getViewProcessor();
-      case -1252442368:  // avaliableOutputsProvider
-        return getAvaliableOutputsProvider();
-      case -2085248523:  // functionConfigSource
-        return getFunctionConfigSource();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 295862014:  // contextManager
-        setContextManager((Object) newValue);
-        return;
-      case -252634564:  // batchMaster
-        setBatchMaster((BatchMaster) newValue);
-        return;
-      case 10395716:  // configMaster
-        setConfigMaster((ConfigMaster) newValue);
-        return;
-      case -652001691:  // exchangeMaster
-        setExchangeMaster((ExchangeMaster) newValue);
-        return;
-      case 246258906:  // holidayMaster
-        setHolidayMaster((HolidayMaster) newValue);
-        return;
-      case -1820969354:  // regionMaster
-        setRegionMaster((RegionMaster) newValue);
-        return;
-      case -887218750:  // securityMaster
-        setSecurityMaster((SecurityMaster) newValue);
-        return;
-      case -1840419605:  // positionMaster
-        setPositionMaster((PositionMaster) newValue);
-        return;
-      case -772274742:  // portfolioMaster
-        setPortfolioMaster((PortfolioMaster) newValue);
-        return;
-      case -1158737547:  // organizationMaster
-        setOrganizationMaster((OrganizationMaster) newValue);
-        return;
-      case 173967376:  // historicalTimeSeriesMaster
-        setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
-        return;
-      case 2090650860:  // marketDataSnapshotMaster
-        setMarketDataSnapshotMaster((MarketDataSnapshotMaster) newValue);
-        return;
-      case 41113907:  // conventionMaster
-        setConventionMaster((ConventionMaster) newValue);
-        return;
-      case 195157501:  // configSource
-        setConfigSource((ConfigSource) newValue);
-        return;
-      case -467239906:  // exchangeSource
-        setExchangeSource((ExchangeSource) newValue);
-        return;
-      case 431020691:  // holidaySource
-        setHolidaySource((HolidaySource) newValue);
-        return;
-      case -1636207569:  // regionSource
-        setRegionSource((RegionSource) newValue);
-        return;
-      case -702456965:  // securitySource
-        setSecuritySource((SecuritySource) newValue);
-        return;
-      case -1655657820:  // positionSource
-        setPositionSource((PositionSource) newValue);
-        return;
-      case -973975762:  // organizationSource
-        setOrganizationSource((OrganizationSource) newValue);
-        return;
-      case 358729161:  // historicalTimeSeriesSource
-        setHistoricalTimeSeriesSource((HistoricalTimeSeriesSource) newValue);
-        return;
-      case -2019554651:  // marketDataSnapshotSource
-        setMarketDataSnapshotSource((MarketDataSnapshotSource) newValue);
-        return;
-      case -1281578674:  // conventionBundleSource
-        setConventionBundleSource((ConventionBundleSource) newValue);
-        return;
-      case 225875692:  // conventionSource
-        setConventionSource((ConventionSource) newValue);
-        return;
-      case 809869649:  // securityProvider
-        setSecurityProvider((SecurityProvider) newValue);
-        return;
-      case -903470221:  // securityLoader
-        setSecurityLoader((SecurityLoader) newValue);
-        return;
-      case -1592479713:  // historicalTimeSeriesProvider
-        setHistoricalTimeSeriesProvider((HistoricalTimeSeriesProvider) newValue);
-        return;
-      case 157715905:  // historicalTimeSeriesLoader
-        setHistoricalTimeSeriesLoader((HistoricalTimeSeriesLoader) newValue);
-        return;
-      case -1697555603:  // viewProcessor
-        setViewProcessor((ViewProcessor) newValue);
-        return;
-      case -1252442368:  // avaliableOutputsProvider
-        setAvaliableOutputsProvider((AvailableOutputsProvider) newValue);
-        return;
-      case -2085248523:  // functionConfigSource
-        setFunctionConfigSource((FunctionConfigurationSource) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ToolContext other = (ToolContext) obj;
-      return JodaBeanUtils.equal(getContextManager(), other.getContextManager()) &&
-          JodaBeanUtils.equal(getBatchMaster(), other.getBatchMaster()) &&
-          JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
-          JodaBeanUtils.equal(getExchangeMaster(), other.getExchangeMaster()) &&
-          JodaBeanUtils.equal(getHolidayMaster(), other.getHolidayMaster()) &&
-          JodaBeanUtils.equal(getRegionMaster(), other.getRegionMaster()) &&
-          JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
-          JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
-          JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
-          JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
-          JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) &&
-          JodaBeanUtils.equal(getConventionMaster(), other.getConventionMaster()) &&
-          JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
-          JodaBeanUtils.equal(getExchangeSource(), other.getExchangeSource()) &&
-          JodaBeanUtils.equal(getHolidaySource(), other.getHolidaySource()) &&
-          JodaBeanUtils.equal(getRegionSource(), other.getRegionSource()) &&
-          JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
-          JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
-          JodaBeanUtils.equal(getOrganizationSource(), other.getOrganizationSource()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
-          JodaBeanUtils.equal(getMarketDataSnapshotSource(), other.getMarketDataSnapshotSource()) &&
-          JodaBeanUtils.equal(getConventionBundleSource(), other.getConventionBundleSource()) &&
-          JodaBeanUtils.equal(getConventionSource(), other.getConventionSource()) &&
-          JodaBeanUtils.equal(getSecurityProvider(), other.getSecurityProvider()) &&
-          JodaBeanUtils.equal(getSecurityLoader(), other.getSecurityLoader()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesProvider(), other.getHistoricalTimeSeriesProvider()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesLoader(), other.getHistoricalTimeSeriesLoader()) &&
-          JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
-          JodaBeanUtils.equal(getAvaliableOutputsProvider(), other.getAvaliableOutputsProvider()) &&
-          JodaBeanUtils.equal(getFunctionConfigSource(), other.getFunctionConfigSource());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getContextManager());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBatchMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidaySource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionBundleSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesLoader());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAvaliableOutputsProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionConfigSource());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the manager that created this context. This is used by the {@link #close()} method.
@@ -535,31 +282,6 @@ public class ToolContext extends DirectBean implements Closeable {
    */
   public final Property<Object> contextManager() {
     return metaBean().contextManager().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the batch master.
-   * @return the value of the property
-   */
-  public BatchMaster getBatchMaster() {
-    return _batchMaster;
-  }
-
-  /**
-   * Sets the batch master.
-   * @param batchMaster  the new value of the property
-   */
-  public void setBatchMaster(BatchMaster batchMaster) {
-    this._batchMaster = batchMaster;
-  }
-
-  /**
-   * Gets the the {@code batchMaster} property.
-   * @return the property, not null
-   */
-  public final Property<BatchMaster> batchMaster() {
-    return metaBean().batchMaster().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -739,27 +461,27 @@ public class ToolContext extends DirectBean implements Closeable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the organization master.
+   * Gets the legal entity master.
    * @return the value of the property
    */
-  public OrganizationMaster getOrganizationMaster() {
-    return _organizationMaster;
+  public LegalEntityMaster getLegalEntityMaster() {
+    return _legalEntityMaster;
   }
 
   /**
-   * Sets the organization master.
-   * @param organizationMaster  the new value of the property
+   * Sets the legal entity master.
+   * @param legalEntityMaster  the new value of the property
    */
-  public void setOrganizationMaster(OrganizationMaster organizationMaster) {
-    this._organizationMaster = organizationMaster;
+  public void setLegalEntityMaster(LegalEntityMaster legalEntityMaster) {
+    this._legalEntityMaster = legalEntityMaster;
   }
 
   /**
-   * Gets the the {@code organizationMaster} property.
+   * Gets the the {@code legalEntityMaster} property.
    * @return the property, not null
    */
-  public final Property<OrganizationMaster> organizationMaster() {
-    return metaBean().organizationMaster().createProperty(this);
+  public final Property<LegalEntityMaster> legalEntityMaster() {
+    return metaBean().legalEntityMaster().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -992,24 +714,24 @@ public class ToolContext extends DirectBean implements Closeable {
    * Gets the organization source.
    * @return the value of the property
    */
-  public OrganizationSource getOrganizationSource() {
-    return _organizationSource;
+  public LegalEntitySource getLegalEntitySource() {
+    return _legalEntitySource;
   }
 
   /**
    * Sets the organization source.
-   * @param organizationSource  the new value of the property
+   * @param legalEntitySource  the new value of the property
    */
-  public void setOrganizationSource(OrganizationSource organizationSource) {
-    this._organizationSource = organizationSource;
+  public void setLegalEntitySource(LegalEntitySource legalEntitySource) {
+    this._legalEntitySource = legalEntitySource;
   }
 
   /**
-   * Gets the the {@code organizationSource} property.
+   * Gets the the {@code legalEntitySource} property.
    * @return the property, not null
    */
-  public final Property<OrganizationSource> organizationSource() {
-    return metaBean().organizationSource().createProperty(this);
+  public final Property<LegalEntitySource> legalEntitySource() {
+    return metaBean().legalEntitySource().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -1288,6 +1010,135 @@ public class ToolContext extends DirectBean implements Closeable {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public ToolContext clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ToolContext other = (ToolContext) obj;
+      return JodaBeanUtils.equal(getContextManager(), other.getContextManager()) &&
+          JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
+          JodaBeanUtils.equal(getExchangeMaster(), other.getExchangeMaster()) &&
+          JodaBeanUtils.equal(getHolidayMaster(), other.getHolidayMaster()) &&
+          JodaBeanUtils.equal(getRegionMaster(), other.getRegionMaster()) &&
+          JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
+          JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
+          JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
+          JodaBeanUtils.equal(getLegalEntityMaster(), other.getLegalEntityMaster()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
+          JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) &&
+          JodaBeanUtils.equal(getConventionMaster(), other.getConventionMaster()) &&
+          JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
+          JodaBeanUtils.equal(getExchangeSource(), other.getExchangeSource()) &&
+          JodaBeanUtils.equal(getHolidaySource(), other.getHolidaySource()) &&
+          JodaBeanUtils.equal(getRegionSource(), other.getRegionSource()) &&
+          JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
+          JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
+          JodaBeanUtils.equal(getLegalEntitySource(), other.getLegalEntitySource()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
+          JodaBeanUtils.equal(getMarketDataSnapshotSource(), other.getMarketDataSnapshotSource()) &&
+          JodaBeanUtils.equal(getConventionBundleSource(), other.getConventionBundleSource()) &&
+          JodaBeanUtils.equal(getConventionSource(), other.getConventionSource()) &&
+          JodaBeanUtils.equal(getSecurityProvider(), other.getSecurityProvider()) &&
+          JodaBeanUtils.equal(getSecurityLoader(), other.getSecurityLoader()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesProvider(), other.getHistoricalTimeSeriesProvider()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesLoader(), other.getHistoricalTimeSeriesLoader()) &&
+          JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
+          JodaBeanUtils.equal(getAvaliableOutputsProvider(), other.getAvaliableOutputsProvider()) &&
+          JodaBeanUtils.equal(getFunctionConfigSource(), other.getFunctionConfigSource());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getContextManager());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExchangeMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHolidayMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRegionMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLegalEntityMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConventionMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExchangeSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHolidaySource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRegionSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLegalEntitySource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConventionBundleSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConventionSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityProvider());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesProvider());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesLoader());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAvaliableOutputsProvider());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFunctionConfigSource());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(992);
+    buf.append("ToolContext{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("contextManager").append('=').append(JodaBeanUtils.toString(getContextManager())).append(',').append(' ');
+    buf.append("configMaster").append('=').append(JodaBeanUtils.toString(getConfigMaster())).append(',').append(' ');
+    buf.append("exchangeMaster").append('=').append(JodaBeanUtils.toString(getExchangeMaster())).append(',').append(' ');
+    buf.append("holidayMaster").append('=').append(JodaBeanUtils.toString(getHolidayMaster())).append(',').append(' ');
+    buf.append("regionMaster").append('=').append(JodaBeanUtils.toString(getRegionMaster())).append(',').append(' ');
+    buf.append("securityMaster").append('=').append(JodaBeanUtils.toString(getSecurityMaster())).append(',').append(' ');
+    buf.append("positionMaster").append('=').append(JodaBeanUtils.toString(getPositionMaster())).append(',').append(' ');
+    buf.append("portfolioMaster").append('=').append(JodaBeanUtils.toString(getPortfolioMaster())).append(',').append(' ');
+    buf.append("legalEntityMaster").append('=').append(JodaBeanUtils.toString(getLegalEntityMaster())).append(',').append(' ');
+    buf.append("historicalTimeSeriesMaster").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesMaster())).append(',').append(' ');
+    buf.append("marketDataSnapshotMaster").append('=').append(JodaBeanUtils.toString(getMarketDataSnapshotMaster())).append(',').append(' ');
+    buf.append("conventionMaster").append('=').append(JodaBeanUtils.toString(getConventionMaster())).append(',').append(' ');
+    buf.append("configSource").append('=').append(JodaBeanUtils.toString(getConfigSource())).append(',').append(' ');
+    buf.append("exchangeSource").append('=').append(JodaBeanUtils.toString(getExchangeSource())).append(',').append(' ');
+    buf.append("holidaySource").append('=').append(JodaBeanUtils.toString(getHolidaySource())).append(',').append(' ');
+    buf.append("regionSource").append('=').append(JodaBeanUtils.toString(getRegionSource())).append(',').append(' ');
+    buf.append("securitySource").append('=').append(JodaBeanUtils.toString(getSecuritySource())).append(',').append(' ');
+    buf.append("positionSource").append('=').append(JodaBeanUtils.toString(getPositionSource())).append(',').append(' ');
+    buf.append("legalEntitySource").append('=').append(JodaBeanUtils.toString(getLegalEntitySource())).append(',').append(' ');
+    buf.append("historicalTimeSeriesSource").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesSource())).append(',').append(' ');
+    buf.append("marketDataSnapshotSource").append('=').append(JodaBeanUtils.toString(getMarketDataSnapshotSource())).append(',').append(' ');
+    buf.append("conventionBundleSource").append('=').append(JodaBeanUtils.toString(getConventionBundleSource())).append(',').append(' ');
+    buf.append("conventionSource").append('=').append(JodaBeanUtils.toString(getConventionSource())).append(',').append(' ');
+    buf.append("securityProvider").append('=').append(JodaBeanUtils.toString(getSecurityProvider())).append(',').append(' ');
+    buf.append("securityLoader").append('=').append(JodaBeanUtils.toString(getSecurityLoader())).append(',').append(' ');
+    buf.append("historicalTimeSeriesProvider").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesProvider())).append(',').append(' ');
+    buf.append("historicalTimeSeriesLoader").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesLoader())).append(',').append(' ');
+    buf.append("viewProcessor").append('=').append(JodaBeanUtils.toString(getViewProcessor())).append(',').append(' ');
+    buf.append("avaliableOutputsProvider").append('=').append(JodaBeanUtils.toString(getAvaliableOutputsProvider())).append(',').append(' ');
+    buf.append("functionConfigSource").append('=').append(JodaBeanUtils.toString(getFunctionConfigSource())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ToolContext}.
    */
@@ -1302,11 +1153,6 @@ public class ToolContext extends DirectBean implements Closeable {
      */
     private final MetaProperty<Object> _contextManager = DirectMetaProperty.ofReadWrite(
         this, "contextManager", ToolContext.class, Object.class);
-    /**
-     * The meta-property for the {@code batchMaster} property.
-     */
-    private final MetaProperty<BatchMaster> _batchMaster = DirectMetaProperty.ofReadWrite(
-        this, "batchMaster", ToolContext.class, BatchMaster.class);
     /**
      * The meta-property for the {@code configMaster} property.
      */
@@ -1343,10 +1189,10 @@ public class ToolContext extends DirectBean implements Closeable {
     private final MetaProperty<PortfolioMaster> _portfolioMaster = DirectMetaProperty.ofReadWrite(
         this, "portfolioMaster", ToolContext.class, PortfolioMaster.class);
     /**
-     * The meta-property for the {@code organizationMaster} property.
+     * The meta-property for the {@code legalEntityMaster} property.
      */
-    private final MetaProperty<OrganizationMaster> _organizationMaster = DirectMetaProperty.ofReadWrite(
-        this, "organizationMaster", ToolContext.class, OrganizationMaster.class);
+    private final MetaProperty<LegalEntityMaster> _legalEntityMaster = DirectMetaProperty.ofReadWrite(
+        this, "legalEntityMaster", ToolContext.class, LegalEntityMaster.class);
     /**
      * The meta-property for the {@code historicalTimeSeriesMaster} property.
      */
@@ -1393,10 +1239,10 @@ public class ToolContext extends DirectBean implements Closeable {
     private final MetaProperty<PositionSource> _positionSource = DirectMetaProperty.ofReadWrite(
         this, "positionSource", ToolContext.class, PositionSource.class);
     /**
-     * The meta-property for the {@code organizationSource} property.
+     * The meta-property for the {@code legalEntitySource} property.
      */
-    private final MetaProperty<OrganizationSource> _organizationSource = DirectMetaProperty.ofReadWrite(
-        this, "organizationSource", ToolContext.class, OrganizationSource.class);
+    private final MetaProperty<LegalEntitySource> _legalEntitySource = DirectMetaProperty.ofReadWrite(
+        this, "legalEntitySource", ToolContext.class, LegalEntitySource.class);
     /**
      * The meta-property for the {@code historicalTimeSeriesSource} property.
      */
@@ -1458,7 +1304,6 @@ public class ToolContext extends DirectBean implements Closeable {
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "contextManager",
-        "batchMaster",
         "configMaster",
         "exchangeMaster",
         "holidayMaster",
@@ -1466,7 +1311,7 @@ public class ToolContext extends DirectBean implements Closeable {
         "securityMaster",
         "positionMaster",
         "portfolioMaster",
-        "organizationMaster",
+        "legalEntityMaster",
         "historicalTimeSeriesMaster",
         "marketDataSnapshotMaster",
         "conventionMaster",
@@ -1476,7 +1321,7 @@ public class ToolContext extends DirectBean implements Closeable {
         "regionSource",
         "securitySource",
         "positionSource",
-        "organizationSource",
+        "legalEntitySource",
         "historicalTimeSeriesSource",
         "marketDataSnapshotSource",
         "conventionBundleSource",
@@ -1500,8 +1345,6 @@ public class ToolContext extends DirectBean implements Closeable {
       switch (propertyName.hashCode()) {
         case 295862014:  // contextManager
           return _contextManager;
-        case -252634564:  // batchMaster
-          return _batchMaster;
         case 10395716:  // configMaster
           return _configMaster;
         case -652001691:  // exchangeMaster
@@ -1516,8 +1359,8 @@ public class ToolContext extends DirectBean implements Closeable {
           return _positionMaster;
         case -772274742:  // portfolioMaster
           return _portfolioMaster;
-        case -1158737547:  // organizationMaster
-          return _organizationMaster;
+        case -1944474242:  // legalEntityMaster
+          return _legalEntityMaster;
         case 173967376:  // historicalTimeSeriesMaster
           return _historicalTimeSeriesMaster;
         case 2090650860:  // marketDataSnapshotMaster
@@ -1536,8 +1379,8 @@ public class ToolContext extends DirectBean implements Closeable {
           return _securitySource;
         case -1655657820:  // positionSource
           return _positionSource;
-        case -973975762:  // organizationSource
-          return _organizationSource;
+        case -1759712457:  // legalEntitySource
+          return _legalEntitySource;
         case 358729161:  // historicalTimeSeriesSource
           return _historicalTimeSeriesSource;
         case -2019554651:  // marketDataSnapshotSource
@@ -1586,14 +1429,6 @@ public class ToolContext extends DirectBean implements Closeable {
      */
     public final MetaProperty<Object> contextManager() {
       return _contextManager;
-    }
-
-    /**
-     * The meta-property for the {@code batchMaster} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<BatchMaster> batchMaster() {
-      return _batchMaster;
     }
 
     /**
@@ -1653,11 +1488,11 @@ public class ToolContext extends DirectBean implements Closeable {
     }
 
     /**
-     * The meta-property for the {@code organizationMaster} property.
+     * The meta-property for the {@code legalEntityMaster} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<OrganizationMaster> organizationMaster() {
-      return _organizationMaster;
+    public final MetaProperty<LegalEntityMaster> legalEntityMaster() {
+      return _legalEntityMaster;
     }
 
     /**
@@ -1733,11 +1568,11 @@ public class ToolContext extends DirectBean implements Closeable {
     }
 
     /**
-     * The meta-property for the {@code organizationSource} property.
+     * The meta-property for the {@code legalEntitySource} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<OrganizationSource> organizationSource() {
-      return _organizationSource;
+    public final MetaProperty<LegalEntitySource> legalEntitySource() {
+      return _legalEntitySource;
     }
 
     /**
@@ -1826,6 +1661,171 @@ public class ToolContext extends DirectBean implements Closeable {
      */
     public final MetaProperty<FunctionConfigurationSource> functionConfigSource() {
       return _functionConfigSource;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 295862014:  // contextManager
+          return ((ToolContext) bean).getContextManager();
+        case 10395716:  // configMaster
+          return ((ToolContext) bean).getConfigMaster();
+        case -652001691:  // exchangeMaster
+          return ((ToolContext) bean).getExchangeMaster();
+        case 246258906:  // holidayMaster
+          return ((ToolContext) bean).getHolidayMaster();
+        case -1820969354:  // regionMaster
+          return ((ToolContext) bean).getRegionMaster();
+        case -887218750:  // securityMaster
+          return ((ToolContext) bean).getSecurityMaster();
+        case -1840419605:  // positionMaster
+          return ((ToolContext) bean).getPositionMaster();
+        case -772274742:  // portfolioMaster
+          return ((ToolContext) bean).getPortfolioMaster();
+        case -1944474242:  // legalEntityMaster
+          return ((ToolContext) bean).getLegalEntityMaster();
+        case 173967376:  // historicalTimeSeriesMaster
+          return ((ToolContext) bean).getHistoricalTimeSeriesMaster();
+        case 2090650860:  // marketDataSnapshotMaster
+          return ((ToolContext) bean).getMarketDataSnapshotMaster();
+        case 41113907:  // conventionMaster
+          return ((ToolContext) bean).getConventionMaster();
+        case 195157501:  // configSource
+          return ((ToolContext) bean).getConfigSource();
+        case -467239906:  // exchangeSource
+          return ((ToolContext) bean).getExchangeSource();
+        case 431020691:  // holidaySource
+          return ((ToolContext) bean).getHolidaySource();
+        case -1636207569:  // regionSource
+          return ((ToolContext) bean).getRegionSource();
+        case -702456965:  // securitySource
+          return ((ToolContext) bean).getSecuritySource();
+        case -1655657820:  // positionSource
+          return ((ToolContext) bean).getPositionSource();
+        case -1759712457:  // legalEntitySource
+          return ((ToolContext) bean).getLegalEntitySource();
+        case 358729161:  // historicalTimeSeriesSource
+          return ((ToolContext) bean).getHistoricalTimeSeriesSource();
+        case -2019554651:  // marketDataSnapshotSource
+          return ((ToolContext) bean).getMarketDataSnapshotSource();
+        case -1281578674:  // conventionBundleSource
+          return ((ToolContext) bean).getConventionBundleSource();
+        case 225875692:  // conventionSource
+          return ((ToolContext) bean).getConventionSource();
+        case 809869649:  // securityProvider
+          return ((ToolContext) bean).getSecurityProvider();
+        case -903470221:  // securityLoader
+          return ((ToolContext) bean).getSecurityLoader();
+        case -1592479713:  // historicalTimeSeriesProvider
+          return ((ToolContext) bean).getHistoricalTimeSeriesProvider();
+        case 157715905:  // historicalTimeSeriesLoader
+          return ((ToolContext) bean).getHistoricalTimeSeriesLoader();
+        case -1697555603:  // viewProcessor
+          return ((ToolContext) bean).getViewProcessor();
+        case -1252442368:  // avaliableOutputsProvider
+          return ((ToolContext) bean).getAvaliableOutputsProvider();
+        case -2085248523:  // functionConfigSource
+          return ((ToolContext) bean).getFunctionConfigSource();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 295862014:  // contextManager
+          ((ToolContext) bean).setContextManager((Object) newValue);
+          return;
+        case 10395716:  // configMaster
+          ((ToolContext) bean).setConfigMaster((ConfigMaster) newValue);
+          return;
+        case -652001691:  // exchangeMaster
+          ((ToolContext) bean).setExchangeMaster((ExchangeMaster) newValue);
+          return;
+        case 246258906:  // holidayMaster
+          ((ToolContext) bean).setHolidayMaster((HolidayMaster) newValue);
+          return;
+        case -1820969354:  // regionMaster
+          ((ToolContext) bean).setRegionMaster((RegionMaster) newValue);
+          return;
+        case -887218750:  // securityMaster
+          ((ToolContext) bean).setSecurityMaster((SecurityMaster) newValue);
+          return;
+        case -1840419605:  // positionMaster
+          ((ToolContext) bean).setPositionMaster((PositionMaster) newValue);
+          return;
+        case -772274742:  // portfolioMaster
+          ((ToolContext) bean).setPortfolioMaster((PortfolioMaster) newValue);
+          return;
+        case -1944474242:  // legalEntityMaster
+          ((ToolContext) bean).setLegalEntityMaster((LegalEntityMaster) newValue);
+          return;
+        case 173967376:  // historicalTimeSeriesMaster
+          ((ToolContext) bean).setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
+          return;
+        case 2090650860:  // marketDataSnapshotMaster
+          ((ToolContext) bean).setMarketDataSnapshotMaster((MarketDataSnapshotMaster) newValue);
+          return;
+        case 41113907:  // conventionMaster
+          ((ToolContext) bean).setConventionMaster((ConventionMaster) newValue);
+          return;
+        case 195157501:  // configSource
+          ((ToolContext) bean).setConfigSource((ConfigSource) newValue);
+          return;
+        case -467239906:  // exchangeSource
+          ((ToolContext) bean).setExchangeSource((ExchangeSource) newValue);
+          return;
+        case 431020691:  // holidaySource
+          ((ToolContext) bean).setHolidaySource((HolidaySource) newValue);
+          return;
+        case -1636207569:  // regionSource
+          ((ToolContext) bean).setRegionSource((RegionSource) newValue);
+          return;
+        case -702456965:  // securitySource
+          ((ToolContext) bean).setSecuritySource((SecuritySource) newValue);
+          return;
+        case -1655657820:  // positionSource
+          ((ToolContext) bean).setPositionSource((PositionSource) newValue);
+          return;
+        case -1759712457:  // legalEntitySource
+          ((ToolContext) bean).setLegalEntitySource((LegalEntitySource) newValue);
+          return;
+        case 358729161:  // historicalTimeSeriesSource
+          ((ToolContext) bean).setHistoricalTimeSeriesSource((HistoricalTimeSeriesSource) newValue);
+          return;
+        case -2019554651:  // marketDataSnapshotSource
+          ((ToolContext) bean).setMarketDataSnapshotSource((MarketDataSnapshotSource) newValue);
+          return;
+        case -1281578674:  // conventionBundleSource
+          ((ToolContext) bean).setConventionBundleSource((ConventionBundleSource) newValue);
+          return;
+        case 225875692:  // conventionSource
+          ((ToolContext) bean).setConventionSource((ConventionSource) newValue);
+          return;
+        case 809869649:  // securityProvider
+          ((ToolContext) bean).setSecurityProvider((SecurityProvider) newValue);
+          return;
+        case -903470221:  // securityLoader
+          ((ToolContext) bean).setSecurityLoader((SecurityLoader) newValue);
+          return;
+        case -1592479713:  // historicalTimeSeriesProvider
+          ((ToolContext) bean).setHistoricalTimeSeriesProvider((HistoricalTimeSeriesProvider) newValue);
+          return;
+        case 157715905:  // historicalTimeSeriesLoader
+          ((ToolContext) bean).setHistoricalTimeSeriesLoader((HistoricalTimeSeriesLoader) newValue);
+          return;
+        case -1697555603:  // viewProcessor
+          ((ToolContext) bean).setViewProcessor((ViewProcessor) newValue);
+          return;
+        case -1252442368:  // avaliableOutputsProvider
+          ((ToolContext) bean).setAvaliableOutputsProvider((AvailableOutputsProvider) newValue);
+          return;
+        case -2085248523:  // functionConfigSource
+          ((ToolContext) bean).setFunctionConfigSource((FunctionConfigurationSource) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

@@ -1058,7 +1058,7 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod {
 
     final List<DoublesPair> listDfSensi = new ArrayList<>();
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
-      final DoublesPair dfSensi = new DoublesPair(cft[loopcf], -cft[loopcf] * dfLMM[loopcf] * dfLMMBar[loopcf]);
+      final DoublesPair dfSensi = DoublesPair.of(cft[loopcf], -cft[loopcf] * dfLMM[loopcf] * dfLMMBar[loopcf]);
       listDfSensi.add(dfSensi);
     }
     final Map<String, List<DoublesPair>> pvsDF = new HashMap<>();

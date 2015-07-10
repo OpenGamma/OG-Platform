@@ -5,11 +5,13 @@
  */
 package com.opengamma.bbg.component;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -21,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.bbg.BloombergConnector;
+import com.opengamma.bbg.config.BloombergFieldOverride;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.referencedata.cache.EHValueCachingReferenceDataProvider;
 import com.opengamma.bbg.referencedata.cache.InMemoryInvalidFieldCachingReferenceDataProvider;
@@ -28,11 +31,15 @@ import com.opengamma.bbg.referencedata.cache.MongoDBInvalidFieldCachingReference
 import com.opengamma.bbg.referencedata.cache.MongoDBValueCachingReferenceDataProvider;
 import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider;
 import com.opengamma.bbg.referencedata.impl.DataReferenceDataProviderResource;
+import com.opengamma.bbg.referencedata.impl.PatchableReferenceDataProvider;
 import com.opengamma.bbg.referencedata.impl.RemoteReferenceDataProvider;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
+import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.config.impl.ConfigItem;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.mongo.MongoConnector;
 
 /**
@@ -69,6 +76,13 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
    */
   @PropertyDefinition
   private CacheManager _cacheManager;
+  
+  /**
+   * A config source. If specified, overrides will be pulled from
+   * here.
+   */
+  @PropertyDefinition
+  private ConfigSource _configSource;
 
   //-------------------------------------------------------------------------
   @Override
@@ -90,23 +104,54 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
    * @return the provider, not null
    */
   protected ReferenceDataProvider initReferenceDataProvider(ComponentRepository repo) {
-    BloombergConnector bloombergConnector = getBloombergConnector();
-    BloombergReferenceDataProvider underlying = new BloombergReferenceDataProvider(bloombergConnector);
+    BloombergReferenceDataProvider underlying = createBloombergReferenceDataProvider();
     repo.registerLifecycle(underlying);
+    
+    ReferenceDataProvider effectiveProvider = underlying;
+    if (getConfigSource() != null) {
+      effectiveProvider = applyFieldOverrides(effectiveProvider);
+    }
     
     MongoConnector mongoConnector = getMongoConnector();
     CacheManager cacheManager = getCacheManager();
     if (mongoConnector != null) {
-      MongoDBInvalidFieldCachingReferenceDataProvider fieldCached = new MongoDBInvalidFieldCachingReferenceDataProvider(underlying, mongoConnector);
+      MongoDBInvalidFieldCachingReferenceDataProvider fieldCached = new MongoDBInvalidFieldCachingReferenceDataProvider(effectiveProvider, mongoConnector);
       return new MongoDBValueCachingReferenceDataProvider(fieldCached, mongoConnector);
       
     } else if (cacheManager != null) {
-      ReferenceDataProvider fieldCached = new InMemoryInvalidFieldCachingReferenceDataProvider(underlying);  // TODO: EHcached version
+      ReferenceDataProvider fieldCached = new InMemoryInvalidFieldCachingReferenceDataProvider(effectiveProvider);  // TODO: EHcached version
       return new EHValueCachingReferenceDataProvider(fieldCached, cacheManager);
       
     } else {
-      return new InMemoryInvalidFieldCachingReferenceDataProvider(underlying);
+      return new InMemoryInvalidFieldCachingReferenceDataProvider(effectiveProvider);
     }
+  }
+
+  protected BloombergReferenceDataProvider createBloombergReferenceDataProvider() {
+    BloombergReferenceDataProvider underlying = new BloombergReferenceDataProvider(getBloombergConnector());
+    return underlying;
+  }
+
+  /**
+   * Loads overrides from the config source and applies them to the passed 
+   * reference data provider via a wrapper (a {@link PatchableReferenceDataProvider}).
+   * @param underlying the provider to patch
+   * @return a patched provider
+   */
+  private PatchableReferenceDataProvider applyFieldOverrides(ReferenceDataProvider underlying) {
+    Collection<ConfigItem<BloombergFieldOverride>> overrideItems = getConfigSource().getAll(BloombergFieldOverride.class, VersionCorrection.LATEST);
+    
+    PatchableReferenceDataProvider patchableReferenceDataProvider = new PatchableReferenceDataProvider(underlying);
+    
+    for (ConfigItem<BloombergFieldOverride> configItem : overrideItems) {
+      BloombergFieldOverride fieldOverride = configItem.getValue();
+      
+      patchableReferenceDataProvider.setPatch(fieldOverride.getBloombergId(), fieldOverride.getFieldName(), fieldOverride.getOverrideValue());
+      
+    }
+    return patchableReferenceDataProvider;
+
+
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -126,80 +171,6 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
   @Override
   public BloombergReferenceDataProviderComponentFactory.Meta metaBean() {
     return BloombergReferenceDataProviderComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -614707837:  // publishRest
-        return isPublishRest();
-      case 2061648978:  // bloombergConnector
-        return getBloombergConnector();
-      case 224118201:  // mongoConnector
-        return getMongoConnector();
-      case -1452875317:  // cacheManager
-        return getCacheManager();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -614707837:  // publishRest
-        setPublishRest((Boolean) newValue);
-        return;
-      case 2061648978:  // bloombergConnector
-        setBloombergConnector((BloombergConnector) newValue);
-        return;
-      case 224118201:  // mongoConnector
-        setMongoConnector((MongoConnector) newValue);
-        return;
-      case -1452875317:  // cacheManager
-        setCacheManager((CacheManager) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_bloombergConnector, "bloombergConnector");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      BloombergReferenceDataProviderComponentFactory other = (BloombergReferenceDataProviderComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          JodaBeanUtils.equal(getBloombergConnector(), other.getBloombergConnector()) &&
-          JodaBeanUtils.equal(getMongoConnector(), other.getMongoConnector()) &&
-          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBloombergConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMongoConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -340,6 +311,94 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
 
   //-----------------------------------------------------------------------
   /**
+   * Gets a config source. If specified, overrides will be pulled from
+   * here.
+   * @return the value of the property
+   */
+  public ConfigSource getConfigSource() {
+    return _configSource;
+  }
+
+  /**
+   * Sets a config source. If specified, overrides will be pulled from
+   * here.
+   * @param configSource  the new value of the property
+   */
+  public void setConfigSource(ConfigSource configSource) {
+    this._configSource = configSource;
+  }
+
+  /**
+   * Gets the the {@code configSource} property.
+   * here.
+   * @return the property, not null
+   */
+  public final Property<ConfigSource> configSource() {
+    return metaBean().configSource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public BloombergReferenceDataProviderComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      BloombergReferenceDataProviderComponentFactory other = (BloombergReferenceDataProviderComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          (isPublishRest() == other.isPublishRest()) &&
+          JodaBeanUtils.equal(getBloombergConnector(), other.getBloombergConnector()) &&
+          JodaBeanUtils.equal(getMongoConnector(), other.getMongoConnector()) &&
+          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
+          JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBloombergConnector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMongoConnector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("BloombergReferenceDataProviderComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("bloombergConnector").append('=').append(JodaBeanUtils.toString(getBloombergConnector())).append(',').append(' ');
+    buf.append("mongoConnector").append('=').append(JodaBeanUtils.toString(getMongoConnector())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
+    buf.append("configSource").append('=').append(JodaBeanUtils.toString(getConfigSource())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code BloombergReferenceDataProviderComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -374,6 +433,11 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
     private final MetaProperty<CacheManager> _cacheManager = DirectMetaProperty.ofReadWrite(
         this, "cacheManager", BloombergReferenceDataProviderComponentFactory.class, CacheManager.class);
     /**
+     * The meta-property for the {@code configSource} property.
+     */
+    private final MetaProperty<ConfigSource> _configSource = DirectMetaProperty.ofReadWrite(
+        this, "configSource", BloombergReferenceDataProviderComponentFactory.class, ConfigSource.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -382,7 +446,8 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
         "publishRest",
         "bloombergConnector",
         "mongoConnector",
-        "cacheManager");
+        "cacheManager",
+        "configSource");
 
     /**
      * Restricted constructor.
@@ -403,6 +468,8 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
           return _mongoConnector;
         case -1452875317:  // cacheManager
           return _cacheManager;
+        case 195157501:  // configSource
+          return _configSource;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -461,6 +528,66 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
      */
     public final MetaProperty<CacheManager> cacheManager() {
       return _cacheManager;
+    }
+
+    /**
+     * The meta-property for the {@code configSource} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ConfigSource> configSource() {
+      return _configSource;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((BloombergReferenceDataProviderComponentFactory) bean).getClassifier();
+        case -614707837:  // publishRest
+          return ((BloombergReferenceDataProviderComponentFactory) bean).isPublishRest();
+        case 2061648978:  // bloombergConnector
+          return ((BloombergReferenceDataProviderComponentFactory) bean).getBloombergConnector();
+        case 224118201:  // mongoConnector
+          return ((BloombergReferenceDataProviderComponentFactory) bean).getMongoConnector();
+        case -1452875317:  // cacheManager
+          return ((BloombergReferenceDataProviderComponentFactory) bean).getCacheManager();
+        case 195157501:  // configSource
+          return ((BloombergReferenceDataProviderComponentFactory) bean).getConfigSource();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((BloombergReferenceDataProviderComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -614707837:  // publishRest
+          ((BloombergReferenceDataProviderComponentFactory) bean).setPublishRest((Boolean) newValue);
+          return;
+        case 2061648978:  // bloombergConnector
+          ((BloombergReferenceDataProviderComponentFactory) bean).setBloombergConnector((BloombergConnector) newValue);
+          return;
+        case 224118201:  // mongoConnector
+          ((BloombergReferenceDataProviderComponentFactory) bean).setMongoConnector((MongoConnector) newValue);
+          return;
+        case -1452875317:  // cacheManager
+          ((BloombergReferenceDataProviderComponentFactory) bean).setCacheManager((CacheManager) newValue);
+          return;
+        case 195157501:  // configSource
+          ((BloombergReferenceDataProviderComponentFactory) bean).setConfigSource((ConfigSource) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((BloombergReferenceDataProviderComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((BloombergReferenceDataProviderComponentFactory) bean)._bloombergConnector, "bloombergConnector");
+      super.validate(bean);
     }
 
   }

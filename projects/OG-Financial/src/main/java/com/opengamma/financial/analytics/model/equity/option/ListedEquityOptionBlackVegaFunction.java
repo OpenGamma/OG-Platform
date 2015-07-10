@@ -41,7 +41,7 @@ public class ListedEquityOptionBlackVegaFunction extends ListedEquityOptionBlack
   protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
-    final double vega = derivative.accept(CALCULATOR, market);
+    final double vega = derivative.accept(CALCULATOR, market) / 100.;
     return Collections.singleton(new ComputedValue(resultSpec, vega));
   }
 

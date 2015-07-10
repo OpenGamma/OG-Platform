@@ -11,6 +11,7 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  * Converter for {@link VolatilityCubeData} objects.
  */
+@SuppressWarnings("rawtypes")
 public class VolatilityCubeDataConverter implements ResultConverter<VolatilityCubeData> {
 
   @Override
@@ -25,9 +26,7 @@ public class VolatilityCubeDataConverter implements ResultConverter<VolatilityCu
 
   @Override
   public String convertToText(final ResultConverterCache context, final ValueSpecification valueSpec, final VolatilityCubeData value) {
-    return "Volatility Cube data (" + value.getDataPoints().size() + " volatility points, " + value.getATMStrikes().size()
-        + " strikes, " + value.getOtherData().size() + " other data points " + ")";
-
+    return "Volatility Cube data (" + value.size() + " volatility points " + ")";
   }
 
   @Override

@@ -14,7 +14,6 @@ import java.util.Set;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 
-
 /**
  * The type of a computation target that must be resolved within the context of outer types.
  */
@@ -57,13 +56,12 @@ import com.opengamma.util.ArgumentChecker;
 
   };
 
-  /**
-   * Creates a new instance.
-   * 
-   * @param outerType the type(s) of the outer context object(s), not null
-   * @param innerType the type(s) of the target object(s), not null
-   */
-  public NestedComputationTargetType(final ComputationTargetType outerType, final ComputationTargetType innerType) {
+  private NestedComputationTargetType(final List<ComputationTargetType> target) {
+    super(NestedComputationTargetType.class.getName().hashCode() * 31 + target.hashCode());
+    _target = target;
+  }
+
+  private static List<ComputationTargetType> copy(final ComputationTargetType outerType, final ComputationTargetType innerType) {
     final List<ComputationTargetType> copy = new LinkedList<ComputationTargetType>();
     if (outerType.accept(s_construct, copy)) {
       copy.add(outerType);
@@ -72,7 +70,17 @@ import com.opengamma.util.ArgumentChecker;
       copy.add(innerType);
     }
     ArgumentChecker.isTrue(copy.size() >= 2, "target");
-    _target = Collections.unmodifiableList(new ArrayList<ComputationTargetType>(copy));
+    return Collections.unmodifiableList(new ArrayList<ComputationTargetType>(copy));
+  }
+
+  /**
+   * Creates a new instance.
+   * 
+   * @param outerType the type(s) of the outer context object(s), not null
+   * @param innerType the type(s) of the target object(s), not null
+   */
+  public NestedComputationTargetType(final ComputationTargetType outerType, final ComputationTargetType innerType) {
+    this(copy(outerType, innerType));
   }
 
   protected List<ComputationTargetType> getTypes() {
@@ -279,11 +287,6 @@ import com.opengamma.util.ArgumentChecker;
     } else {
       return false;
     }
-  }
-
-  @Override
-  public int hashCode() {
-    return NestedComputationTargetType.class.hashCode() * 31 + getTypes().hashCode();
   }
 
 }

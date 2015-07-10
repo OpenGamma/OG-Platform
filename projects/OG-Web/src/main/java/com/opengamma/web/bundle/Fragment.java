@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -95,51 +96,6 @@ public class Fragment extends DirectBean implements BundleNode {
     return Fragment.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 116076:  // uri
-        return getUri();
-      case 3433509:  // path
-        return getPath();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 116076:  // uri
-        setUri((URI) newValue);
-        return;
-      case 3433509:  // path
-        setPath((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      Fragment other = (Fragment) obj;
-      return JodaBeanUtils.equal(getUri(), other.getUri()) &&
-          JodaBeanUtils.equal(getPath(), other.getPath());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUri());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPath());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the internal URI of the fragment
@@ -188,6 +144,51 @@ public class Fragment extends DirectBean implements BundleNode {
    */
   public final Property<String> path() {
     return metaBean().path().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public Fragment clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      Fragment other = (Fragment) obj;
+      return JodaBeanUtils.equal(getUri(), other.getUri()) &&
+          JodaBeanUtils.equal(getPath(), other.getPath());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUri());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPath());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("Fragment{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("uri").append('=').append(JodaBeanUtils.toString(getUri())).append(',').append(' ');
+    buf.append("path").append('=').append(JodaBeanUtils.toString(getPath())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -265,6 +266,31 @@ public class Fragment extends DirectBean implements BundleNode {
      */
     public final MetaProperty<String> path() {
       return _path;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 116076:  // uri
+          return ((Fragment) bean).getUri();
+        case 3433509:  // path
+          return ((Fragment) bean).getPath();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 116076:  // uri
+          ((Fragment) bean).setUri((URI) newValue);
+          return;
+        case 3433509:  // path
+          ((Fragment) bean).setPath((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

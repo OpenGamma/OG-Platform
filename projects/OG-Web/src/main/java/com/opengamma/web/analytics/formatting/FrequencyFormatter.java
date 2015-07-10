@@ -19,7 +19,7 @@ import com.opengamma.financial.convention.frequency.Frequency;
 
   @Override
   public Object formatCell(Frequency frequency, ValueSpecification valueSpec, Object inlineKey) {
-    return frequency.getConventionName();
+    return frequency.getName();
   }
 
   @Override

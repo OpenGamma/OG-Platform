@@ -70,11 +70,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 
   private static boolean isOtc(Security security) {
     if (security instanceof FinancialSecurity) {
-      Boolean isOTC = ((FinancialSecurity) security).accept(new OtcSecurityVisitor());
-      if (isOTC == null) {
-        return false;
-      }
-      return isOTC;
+      return ((FinancialSecurity) security).accept(new OtcSecurityVisitor());
     } else {
       return false;
     }

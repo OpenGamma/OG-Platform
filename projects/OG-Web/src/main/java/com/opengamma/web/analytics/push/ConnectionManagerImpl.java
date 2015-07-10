@@ -125,6 +125,7 @@ public class ConnectionManagerImpl implements ConnectionManager {
     if (connection == null) {
       throw new DataNotFoundException("Unknown client ID: " + clientId);
     }
+    userId = ("permissive".equals(userId) ? null : userId);
     if (!Objects.equal(userId, connection.getUserId())) {
       throw new DataNotFoundException("User ID " + userId + " is not associated with client ID " + clientId);
     }

@@ -27,10 +27,12 @@ import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.util.monitor.OperationTimer;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SABRModelFitterTest {
 
   protected Logger _logger = LoggerFactory.getLogger(SABRModelFitterTest.class);
@@ -56,14 +58,14 @@ public class SABRModelFitterTest {
   private static SmileModelFitter<SABRFormulaData> NOISY_FITTER;
 
   static {
-    STRIKES = new double[] {0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.07};
+    STRIKES = new double[] {0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.07 };
     final int n = STRIKES.length;
     MARKETDATA = new EuropeanOptionMarketData[n];
     NOISY_MARKETDATA = new EuropeanOptionMarketData[n];
     CLEAN_VOLS = new double[n];
     NOISY_VOLS = new double[n];
     ERRORS = new double[n];
-    Arrays.fill(ERRORS, 0.0001); //1bps error
+    Arrays.fill(ERRORS, 0.0001); // 1bps error
 
     for (int i = 0; i < n; i++) {
       final EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKES[i], T, true);
@@ -78,7 +80,7 @@ public class SABRModelFitterTest {
   @Test
   public void testExactFit() {
 
-    final double[] start = new double[] {0.1, 0.7, 0.0, 0.3};
+    final double[] start = new double[] {0.1, 0.7, 0.0, 0.3 };
     final LeastSquareResultsWithTransform results = FITTER.solve(new DoubleMatrix1D(start));
     final double[] res = results.getModelParameters().getData();
     final double eps = 1e-6;
@@ -91,7 +93,7 @@ public class SABRModelFitterTest {
 
   @Test
   public void testExactFitOddStart() {
-    final double[] start = new double[] {0.01, 0.99, 0.9, 0.4};
+    final double[] start = new double[] {0.01, 0.99, 0.9, 0.4 };
     final LeastSquareResultsWithTransform results = FITTER.solve(new DoubleMatrix1D(start));
     final double[] res = results.getModelParameters().getData();
     final double eps = 1e-6;
@@ -104,7 +106,7 @@ public class SABRModelFitterTest {
 
   @Test
   public void testExactFitWithFixedBeta() {
-    final double[] start = new double[] {0.1, 0.5, 0.0, 0.3};
+    final double[] start = new double[] {0.1, 0.5, 0.0, 0.3 };
     final BitSet fixed = new BitSet();
     fixed.set(1);
     final LeastSquareResultsWithTransform results = FITTER.solve(new DoubleMatrix1D(start), fixed);
@@ -120,7 +122,7 @@ public class SABRModelFitterTest {
   @Test
   public void testFitWithFixedWrongBeta() {
 
-    final double[] start = new double[] {0.1, 0.8, 0.0, 0.3};
+    final double[] start = new double[] {0.1, 0.8, 0.0, 0.3 };
     final BitSet fixed = new BitSet();
     fixed.set(1);
     final LeastSquareResultsWithTransform results = FITTER.solve(new DoubleMatrix1D(start), fixed);
@@ -128,7 +130,7 @@ public class SABRModelFitterTest {
     final double eps = 1e-6;
     assertEquals(0.8, res[1], eps);
 
-    final double bpError = 35.0; //35 bps error
+    final double bpError = 35.0; // 35 bps error
     final int n = MARKETDATA.length;
     final double exChi2 = bpError * bpError * n;
     assertTrue("chi^2 " + results.getChiSq(), results.getChiSq() < exChi2);
@@ -137,7 +139,7 @@ public class SABRModelFitterTest {
   @Test
   public void testNoisyFit() {
 
-    final double[] start = new double[] {0.1, 0.7, 0.0, 0.3};
+    final double[] start = new double[] {0.1, 0.7, 0.0, 0.3 };
     final LeastSquareResultsWithTransform results = NOISY_FITTER.solve(new DoubleMatrix1D(start));
     final double[] res = results.getModelParameters().getData();
     final double eps = 1e-2;
@@ -148,8 +150,8 @@ public class SABRModelFitterTest {
     assertTrue(results.getChiSq() < 7);
   }
 
-  //SABRModelFitterTest - 813ms-processing 1000 cycles fitting SABR smile
-  //Disable test before commit
+  // SABRModelFitterTest - 813ms-processing 1000 cycles fitting SABR smile
+  // Disable test before commit
   @Test(enabled = false)
   public void fitTimeTest() {
     final int hotspotWarmupCycles = 200;
@@ -166,14 +168,14 @@ public class SABRModelFitterTest {
     }
   }
 
-  //SABRModelFitterTest - 1555ms-processing 1000 cycles fitting SABR smile - old
+  // SABRModelFitterTest - 1555ms-processing 1000 cycles fitting SABR smile - old
   @SuppressWarnings("deprecation")
   @Test
   public void testOldMethod() {
-    //set to 1 and 0 before commit
+    // set to 1 and 0 before commit
     final int hotspotWarmupCycles = 1;
     final int benchmarkCycles = 0;
-    final double[] start = new double[] {0.1, 0.7, 0.0, 0.3};
+    final double[] start = new double[] {0.1, 0.7, 0.0, 0.3 };
     final BitSet fixed = new BitSet();
     final SABRNonLinearLeastSquareFitter fitter = new SABRNonLinearLeastSquareFitter(SABR);
     final int n = NOISY_MARKETDATA.length;
@@ -207,5 +209,7 @@ public class SABRModelFitterTest {
     assertEquals(NU, res[3], eps);
     assertTrue(lsRes.getChiSq() < 7);
   }
+
+
 
 }

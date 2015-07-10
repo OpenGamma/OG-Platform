@@ -26,13 +26,18 @@ import com.opengamma.util.ArgumentChecker;
 //CSOFF
 public class SwapDefinition implements InstrumentDefinitionWithData<Swap<? extends Payment, ? extends Payment>, ZonedDateTimeDoubleTimeSeries[]> {
   //CSON
+  /** The first swap leg */
   private final AnnuityDefinition<? extends PaymentDefinition> _firstLeg;
+  /** The second swap leg */
   private final AnnuityDefinition<? extends PaymentDefinition> _secondLeg;
 
+  /**
+   * @param firstLeg The first swap leg, not null
+   * @param secondLeg The second swap leg, not null
+   */
   public SwapDefinition(final AnnuityDefinition<? extends PaymentDefinition> firstLeg, final AnnuityDefinition<? extends PaymentDefinition> secondLeg) {
     ArgumentChecker.notNull(firstLeg, "first leg");
     ArgumentChecker.notNull(secondLeg, "second leg");
-    ArgumentChecker.isTrue((firstLeg.isPayer() != secondLeg.isPayer()), "both legs have same payer flag");
     _firstLeg = firstLeg;
     _secondLeg = secondLeg;
   }
@@ -101,33 +106,6 @@ public class SwapDefinition implements InstrumentDefinitionWithData<Swap<? exten
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitSwapDefinition(this);
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @SuppressWarnings({"unchecked", "rawtypes" })
-  @Override
-  public Swap<? extends Payment, ? extends Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    final Annuity<? extends Payment> firstLeg = getFirstLeg().toDerivative(date, yieldCurveNames);
-    final Annuity<? extends Payment> secondLeg = getSecondLeg().toDerivative(date, yieldCurveNames);
-    return new Swap(firstLeg, secondLeg);
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Swap<? extends Payment, ? extends Payment> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] data, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(data, "index data time series array");
-    ArgumentChecker.isTrue(data.length >= 2, "Generic swaps require two time series");
-    final Annuity<? extends Payment> firstLeg = getFirstLeg().toDerivative(date, data[0], yieldCurveNames);
-    final Annuity<? extends Payment> secondLeg = getSecondLeg().toDerivative(date, data[1], yieldCurveNames);
-    return new Swap<>(firstLeg, secondLeg);
   }
 
   @Override

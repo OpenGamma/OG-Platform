@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.MemoryUtils;
+import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
@@ -32,6 +33,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Algorithm state. A context object is used by a single job thread. The root context is not used by any builder thread. The synchronization on the collation methods only is therefore sufficient.
@@ -70,6 +72,10 @@ import com.opengamma.util.tuple.Pair;
 
   public FunctionExclusionGroups getFunctionExclusionGroups() {
     return getBuilder().getFunctionExclusionGroups();
+  }
+
+  public CompiledFunctionDefinition getFunctionDefinition(final String functionId) {
+    return getBuilder().getFunctionResolver().getFunction(functionId);
   }
 
   // Operations
@@ -169,8 +175,7 @@ import com.opengamma.util.tuple.Pair;
     ExceptionWrapper.createAndPut(t, _exceptions);
   }
 
-  public ResolvedValueProducer resolveRequirement(final ValueRequirement rawRequirement, final ResolveTask dependent,
-      final Collection<FunctionExclusionGroup> functionExclusion) {
+  public ResolvedValueProducer resolveRequirement(final ValueRequirement rawRequirement, final ResolveTask dependent, final Collection<FunctionExclusionGroup> functionExclusion) {
     final ValueRequirement requirement = simplifyType(rawRequirement);
     s_logger.debug("Resolve requirement {}", requirement);
     if ((dependent != null) && dependent.hasParent(requirement)) {
@@ -225,8 +230,7 @@ import com.opengamma.util.tuple.Pair;
     }
   }
 
-  public ResolveTask getOrCreateTaskResolving(final ValueRequirement valueRequirement, final ResolveTask parentTask,
-      final Collection<FunctionExclusionGroup> functionExclusion) {
+  public ResolveTask getOrCreateTaskResolving(final ValueRequirement valueRequirement, final ResolveTask parentTask, final Collection<FunctionExclusionGroup> functionExclusion) {
     final ResolveTask newTask = new ResolveTask(valueRequirement, parentTask, functionExclusion);
     do {
       ResolveTask task;
@@ -305,13 +309,21 @@ import com.opengamma.util.tuple.Pair;
             task.getValue().addRef(); // We're holding the task lock
           }
         }
-        return Pair.of(resultTasks, resultProducers);
+        return Pairs.of(resultTasks, resultProducers);
       } else {
         return null;
       }
     } while (true);
   }
 
+  /**
+   * Fetches an existing resolution of the given value specification.
+   * <p>
+   * The {@code valueSpecification} parameter must be normalized.
+   * 
+   * @param valueSpecification the specification to search for, not null
+   * @return the resolved value, or null if not resolved
+   */
   public ResolvedValue getProduction(final ValueSpecification valueSpecification) {
     return getBuilder().getResolvedValue(valueSpecification);
   }
@@ -409,6 +421,16 @@ import com.opengamma.util.tuple.Pair;
     } while (true);
   }
 
+  /**
+   * Declares a task that has been created to deliver a potential resolution.
+   * <p>
+   * The {@code valueSpecification} parameter must be normalized
+   * 
+   * @param valueSpecification the tentative resolution the value producer will attempt to deliver, not null
+   * @param task the task to perform the resolution, not null
+   * @param producer the value producer managed by the task which will deliver the value specification, not null
+   * @return an existing producer, otherwise null if the new task is now declared for the work
+   */
   public ResolvedValueProducer declareTaskProducing(final ValueSpecification valueSpecification, final ResolveTask task, final ResolvedValueProducer producer) {
     do {
       final MapEx<ResolveTask, ResolvedValueProducer> tasks = getBuilder().getOrCreateTasks(valueSpecification);
@@ -493,6 +515,8 @@ import com.opengamma.util.tuple.Pair;
 
   /**
    * Simplifies the type based on the associated {@link ComputationTargetResolver}.
+   * <p>
+   * This returns a normalized form of the value specification.
    * 
    * @param valueSpec the specification to process, not null
    * @return the possibly simplified specification, not null

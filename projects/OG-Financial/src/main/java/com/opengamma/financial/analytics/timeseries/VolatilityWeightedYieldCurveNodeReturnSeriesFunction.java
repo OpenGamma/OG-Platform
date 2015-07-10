@@ -48,7 +48,7 @@ public class VolatilityWeightedYieldCurveNodeReturnSeriesFunction extends YieldC
   @Override
   protected LocalDateDoubleTimeSeries getReturnSeries(LocalDateDoubleTimeSeries ts, ValueRequirement desiredValue) {
     double lambda = Double.parseDouble(desiredValue.getConstraint(VolatilityWeightingFunctionUtils.VOLATILITY_WEIGHTING_LAMBDA_PROPERTY));
-    TimeSeriesWeightedVolatilityOperator weightedVolOp = new TimeSeriesWeightedVolatilityOperator(lambda);
+    TimeSeriesWeightedVolatilityOperator weightedVolOp = TimeSeriesWeightedVolatilityOperator.relative(lambda);
     LocalDateDoubleTimeSeries weightedVolSeries = (LocalDateDoubleTimeSeries) weightedVolOp.evaluate(ts);
     return (LocalDateDoubleTimeSeries) RELATIVE_WEIGHTED_DIFFERENCE.evaluate(ts, weightedVolSeries);
   }

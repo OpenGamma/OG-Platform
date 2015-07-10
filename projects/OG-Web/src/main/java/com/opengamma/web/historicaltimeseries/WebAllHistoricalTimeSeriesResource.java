@@ -6,11 +6,13 @@
 package com.opengamma.web.historicaltimeseries;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -43,7 +45,7 @@ import com.opengamma.core.id.ExternalIdDisplayComparatorUtils;
 import com.opengamma.core.id.ExternalIdWithDatesDisplayComparator;
 import com.opengamma.core.id.ExternalIdWithDatesDisplayComparatorUtils;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundleWithDates;
+import com.opengamma.id.ExternalIdWithDates;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -144,11 +146,13 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
     if (data().getUriInfo().getQueryParameters().size() > 0) {
       ExternalIdWithDatesDisplayComparator comparator = ExternalIdWithDatesDisplayComparatorUtils.getComparator(data().getConfigSource(), ExternalIdDisplayComparatorUtils.DEFAULT_CONFIG_NAME);
       HistoricalTimeSeriesInfoSearchResult searchResult = data().getHistoricalTimeSeriesMaster().search(searchRequest);
+      Map<String, List<ExternalIdWithDates>> sorted = new HashMap<>();
       for (HistoricalTimeSeriesInfoDocument doc : searchResult.getDocuments()) {
-        // replace ids with one's sorted the way we want.
-        ExternalIdBundleWithDates withCustomIdOrdering = doc.getInfo().getExternalIdBundle().withCustomIdOrdering(comparator);
-        doc.getInfo().setExternalIdBundle(withCustomIdOrdering);
+        List<ExternalIdWithDates> list = new ArrayList<>(doc.getInfo().getExternalIdBundle().getExternalIds());
+        Collections.sort(list, comparator);
+        sorted.put(doc.getUniqueId().toString(), list);
       }
+      out.put("sortedIds", sorted);
       out.put("searchResult", searchResult);
       out.put("paging", new WebPaging(searchResult.getPaging(), data().getUriInfo()));
     }
@@ -355,8 +359,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
       historyRequest.setPagingRequest(PagingRequest.ONE);
       HistoricalTimeSeriesInfoHistoryResult historyResult = data().getHistoricalTimeSeriesMaster().history(historyRequest);
       if (historyResult.getDocuments().size() == 0) {
-        // None found in history either; just return
-        return null;
+        throw ex;
       }
       info = historyResult.getFirstDocument();
     }
@@ -381,6 +384,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
    * Creates the output root data.
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     HistoricalTimeSeriesInfoSearchRequest searchRequest = new HistoricalTimeSeriesInfoSearchRequest();

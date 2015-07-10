@@ -44,7 +44,11 @@ public class InterestRateInstrumentDefaultPropertiesFunction extends DefaultProp
     ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT,
     ValueRequirementNames.PV01,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-    ValueRequirementNames.VALUE_THETA};
+    ValueRequirementNames.VALUE_THETA,
+    ValueRequirementNames.SWAP_PAY_LEG_DETAILS,
+    ValueRequirementNames.SWAP_RECEIVE_LEG_DETAILS,
+    ValueRequirementNames.PAY_LEG_PRESENT_VALUE,
+    ValueRequirementNames.RECEIVE_LEG_PRESENT_VALUE};
   private final boolean _includeIRFutures;
   private final Map<String, String> _currencyAndCurveConfigNames;
 
@@ -76,7 +80,7 @@ public class InterestRateInstrumentDefaultPropertiesFunction extends DefaultProp
       return false;
     }
     if (security instanceof SwapSecurity) {
-      if (!InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)) {
+      if (!InterestRateInstrumentType.isFixedIncomeInstrumentType(security)) {
         return false;
       }
       final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity(security);

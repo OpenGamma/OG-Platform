@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -105,30 +106,37 @@ public class FudgeMapWrapper extends DirectBean {
     return FudgeMapWrapper.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 106428633:  // pairs
-        return getPairs();
-    }
-    return super.propertyGet(propertyName, quiet);
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the map pairs.
+   * @return the value of the property, not null
+   */
+  public List<Pair<?, ?>> getPairs() {
+    return _pairs;
   }
 
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 106428633:  // pairs
-        setPairs((List<Pair<?, ?>>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
+  /**
+   * Sets the map pairs.
+   * @param pairs  the new value of the property, not null
+   */
+  public void setPairs(List<Pair<?, ?>> pairs) {
+    JodaBeanUtils.notNull(pairs, "pairs");
+    this._pairs.clear();
+    this._pairs.addAll(pairs);
   }
 
+  /**
+   * Gets the the {@code pairs} property.
+   * @return the property, not null
+   */
+  public final Property<List<Pair<?, ?>>> pairs() {
+    return metaBean().pairs().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_pairs, "pairs");
-    super.validate();
+  public FudgeMapWrapper clone() {
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override
@@ -146,34 +154,25 @@ public class FudgeMapWrapper extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPairs());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPairs());
     return hash;
   }
 
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the map pairs.
-   * @return the value of the property, not null
-   */
-  public List<Pair<?, ?>> getPairs() {
-    return _pairs;
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("FudgeMapWrapper{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
   }
 
-  /**
-   * Sets the map pairs.
-   * @param pairs  the new value of the property
-   */
-  public void setPairs(List<Pair<?, ?>> pairs) {
-    this._pairs.clear();
-    this._pairs.addAll(pairs);
-  }
-
-  /**
-   * Gets the the {@code pairs} property.
-   * @return the property, not null
-   */
-  public final Property<List<Pair<?, ?>>> pairs() {
-    return metaBean().pairs().createProperty(this);
+  protected void toString(StringBuilder buf) {
+    buf.append("pairs").append('=').append(JodaBeanUtils.toString(getPairs())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -236,6 +235,32 @@ public class FudgeMapWrapper extends DirectBean {
      */
     public final MetaProperty<List<Pair<?, ?>>> pairs() {
       return _pairs;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 106428633:  // pairs
+          return ((FudgeMapWrapper) bean).getPairs();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 106428633:  // pairs
+          ((FudgeMapWrapper) bean).setPairs((List<Pair<?, ?>>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((FudgeMapWrapper) bean)._pairs, "pairs");
     }
 
   }

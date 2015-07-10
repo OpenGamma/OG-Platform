@@ -13,10 +13,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.option.pricing.analytic.BjerksundStenslandModel;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class AmericanExchangeOptionFunctionProviderTest {
   private static final BinomialTreeOptionPricingModel _model = new BinomialTreeOptionPricingModel();
   private static final TrinomialTreeOptionPricingModel _modelTri = new TrinomialTreeOptionPricingModel();

@@ -151,109 +151,6 @@ public class CouponONDefinition extends CouponDefinition implements InstrumentDe
     return _fixingPeriodAccrualFactor;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public CouponON toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    final LocalDate firstPublicationDate = _fixingPeriodDate[_index.getPublicationLag()].toLocalDate(); // This is often one business day following the first fixing date
-    ArgumentChecker.isTrue(date.toLocalDate().isBefore(firstPublicationDate),
-        "toDerivative method without time series as argument is only valid at dates where the first fixing has not yet been published.");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(date, _fixingPeriodDate[0]);
-    final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(date, _fixingPeriodDate[_fixingPeriodDate.length - 1]);
-    double fixingAccrualFactorTotal = 0.0;
-    for (final Double element : _fixingPeriodAccrualFactor) {
-      fixingAccrualFactorTotal += element;
-    }
-    final CouponON cpn = new CouponON(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTime,
-        fixingPeriodEndTime, fixingAccrualFactorTotal, getNotional(), yieldCurveNames[1]);
-    return cpn;
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Coupon toDerivative(final ZonedDateTime valZdt, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
-    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    ArgumentChecker.notNull(valZdt, "valZdt - valuation date as ZonedDateTime");
-    final LocalDate valDate = valZdt.toLocalDate();
-    ArgumentChecker.isTrue(!valDate.isAfter(getPaymentDate().toLocalDate()), "valuation date is after payment date");
-    final LocalDate firstPublicationDate = _fixingPeriodDate[_index.getPublicationLag()].toLocalDate(); // This is often one business day following the first fixing date
-    if (valDate.isBefore(firstPublicationDate)) {
-      return toDerivative(valZdt, yieldCurveNames);
-    }
-
-    // FIXME Historical time series do not have time information to begin with.
-    final ZonedDateTime[] instants = indexFixingTimeSeries.timesArray();
-    final LocalDate[] dates = new LocalDate[indexFixingTimeSeries.size()];
-    for (int i = 0; i < instants.length; i++) {
-      dates[i] = instants[i].toLocalDate();
-    }
-    final LocalDateDoubleTimeSeries indexFixingDateSeries = ImmutableLocalDateDoubleTimeSeries.of(dates, indexFixingTimeSeries.valuesArray());
-
-    // Accrue notional for fixings before today; up to and including yesterday
-    int fixedPeriod = 0;
-    double accruedNotional = getNotional();
-    while (valDate.isAfter(_fixingPeriodDate[fixedPeriod + _index.getPublicationLag()].toLocalDate()) && (fixedPeriod < _fixingPeriodDate.length - 1)) {
-
-      final LocalDate currentDate = _fixingPeriodDate[fixedPeriod].toLocalDate();
-      Double fixedRate = indexFixingDateSeries.getValue(currentDate);
-
-      if (fixedRate == null) {
-        final LocalDate latestDate = indexFixingDateSeries.getLatestTime();
-        if (currentDate.isAfter(latestDate)) {
-          throw new OpenGammaRuntimeException("Could not get fixing value of index " + _index.getName() + " for date " + currentDate + ". The last data is available on " + latestDate);
-        }
-        // Don't remove this until we've worked out what's going on with INR calendars
-        for (int i = 0; i < 7; i++) {
-          final LocalDate previousDate = currentDate.minusDays(1);
-          fixedRate = indexFixingDateSeries.getValue(previousDate);
-        }
-        if (fixedRate == null) {
-          throw new OpenGammaRuntimeException("Could not get fixing value of index " + _index.getName() + " for date " + currentDate);
-        }
-      }
-      accruedNotional *= 1 + _fixingPeriodAccrualFactor[fixedPeriod] * fixedRate;
-      fixedPeriod++;
-    }
-
-    final double paymentTime = TimeCalculator.getTimeBetween(valZdt, getPaymentDate());
-    if (fixedPeriod < _fixingPeriodDate.length - 1) { // Some OIS period left
-      // Check to see if a fixing is available on current date
-      final Double fixedRate = indexFixingDateSeries.getValue(_fixingPeriodDate[fixedPeriod].toLocalDate());
-      if (fixedRate != null) { // There is!
-        accruedNotional *= 1 + _fixingPeriodAccrualFactor[fixedPeriod] * fixedRate;
-        fixedPeriod++;
-      }
-      if (fixedPeriod < _fixingPeriodDate.length - 1) { // More OIS period left
-        final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(valZdt, _fixingPeriodDate[fixedPeriod]);
-        final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(valZdt, _fixingPeriodDate[_fixingPeriodDate.length - 1]);
-        double fixingAccrualFactorLeft = 0.0;
-        for (int loopperiod = fixedPeriod; loopperiod < _fixingPeriodAccrualFactor.length; loopperiod++) {
-          fixingAccrualFactorLeft += _fixingPeriodAccrualFactor[loopperiod];
-        }
-        final CouponON cpn = new CouponON(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTime,
-            fixingPeriodEndTime, fixingAccrualFactorLeft, accruedNotional, yieldCurveNames[1]);
-        return cpn;
-      }
-      return new CouponFixed(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), (accruedNotional / getNotional() - 1.0)
-          / getPaymentYearFraction());
-
-    }
-
-    // All fixed already
-    return new CouponFixed(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), (accruedNotional / getNotional() - 1.0)
-        / getPaymentYearFraction());
-  }
-
   @Override
   public CouponON toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
@@ -292,8 +189,11 @@ public class CouponONDefinition extends CouponDefinition implements InstrumentDe
 
     // Accrue notional for fixings before today; up to and including yesterday
     int fixedPeriod = 0;
+    int publicationLag = _index.getPublicationLag();
     double accruedNotional = getNotional();
-    while (valDate.isAfter(_fixingPeriodDate[fixedPeriod + _index.getPublicationLag()].toLocalDate()) && (fixedPeriod < _fixingPeriodDate.length - 1)) {
+    while ((fixedPeriod < _fixingPeriodDate.length - 1) &&
+        ((fixedPeriod + publicationLag) < _fixingPeriodDate.length) &&
+        valDate.isAfter(_fixingPeriodDate[fixedPeriod + publicationLag].toLocalDate())) {
 
       final LocalDate currentDate = _fixingPeriodDate[fixedPeriod].toLocalDate();
       Double fixedRate = indexFixingDateSeries.getValue(currentDate);

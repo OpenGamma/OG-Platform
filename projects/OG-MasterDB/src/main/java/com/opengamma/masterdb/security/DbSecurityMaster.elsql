@@ -81,7 +81,7 @@
     LEFT JOIN sec_idkey i ON (si.idkey_id = i.id)
     LEFT JOIN sec_security_attribute sa ON (sa.security_id = main.id)
   ORDER BY
-    main.@INCLUDE(:sort_order),
+    main.@VALUE(:sort_order),
     main.id
 
 
@@ -96,7 +96,7 @@
         LEFT JOIN sec_bond ON (sec_bond.security_id = sec_security.id)
     @INCLUDE(SearchWhere)
     ORDER BY
-      @INCLUDE(:sort_order),
+      @VALUE(:sort_order),
       sec_security.id
 
 
@@ -116,7 +116,7 @@
   WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant
     AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant
     @AND(:sql_search_object_ids)
-      oid IN ( @INCLUDE(:sql_search_object_ids) )
+      oid IN ( @VALUE(:sql_search_object_ids) )
     @AND(:sec_type)
       UPPER(sec_type) = UPPER(:sec_type)
     @AND(:name)
@@ -133,6 +133,8 @@
       id IN ( @INCLUDE(SelectKeyValuesAny) )
     @AND(:sql_search_external_ids_type = NONE)
       id NOT IN ( @INCLUDE(SelectKeyValuesAny) )
+    @AND(:attr_search_size)
+      id IN ( @INCLUDE(SelectAttrAll) )
     @AND(:bond_issuer_name)
       UPPER(issuername) @LIKE UPPER(:bond_issuer_name)
     @AND(:bond_issuer_type)
@@ -239,7 +241,23 @@
   FROM
     sec_idkey
   WHERE
-    @INCLUDE(:sql_search_external_ids)
+    @VALUE(:sql_search_external_ids)
+
+
+-- ==========================================================================
+@NAME(SelectAttrAll)
+  SELECT
+    security_id
+  FROM
+    sec_security_attribute
+  WHERE
+    @LOOP(:attr_search_size)
+      (attr_key = :attr_key@LOOPINDEX AND UPPER(attr_value) @LIKE UPPER(:attr_value@LOOPINDEX) @ENDLIKE)
+      @LOOPJOIN OR
+  GROUP BY
+    security_id
+  HAVING
+    COUNT(security_id) >= :attr_search_size
 
 
 -- ==========================================================================

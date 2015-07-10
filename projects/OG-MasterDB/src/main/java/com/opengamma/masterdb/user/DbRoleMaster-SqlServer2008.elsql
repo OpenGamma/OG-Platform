@@ -1,0 +1,41 @@
+-- SQL for role master on SQL server
+
+-- ==========================================================================
+@NAME(GetResolvedRoles)
+  WITH 
+  cte_roles AS (
+    SELECT
+      main.id AS id,
+      main.role_name AS role_name,
+      main.role_name_ci AS role_name_ci,
+      ar.assoc_role AS assoc_role
+    FROM
+      usr_role main
+      LEFT JOIN usr_role_assocrole ar on (ar.role_id = main.id)
+  ),
+  cte_perms AS (
+    SELECT
+      rol.id AS id,
+      rol.role_name AS role_name,
+      rol.assoc_role AS assoc_role
+    FROM
+      cte_roles rol
+    WHERE
+      rol.id IN (@INCLUDE(GetResolvedRolesUser))
+    UNION ALL
+      SELECT
+        rol.id AS id,
+        rol.role_name AS role_name,
+        rol.assoc_role AS assoc_role
+      FROM
+        cte_roles rol,
+        cte_perms rec
+      WHERE
+        rol.role_name_ci = rec.assoc_role
+  )
+  SELECT
+    DISTINCT role_name,
+    ap.assoc_perm AS assoc_perm
+  FROM
+    cte_perms main
+    LEFT JOIN usr_role_assocperm ap on (ap.role_id = main.id)

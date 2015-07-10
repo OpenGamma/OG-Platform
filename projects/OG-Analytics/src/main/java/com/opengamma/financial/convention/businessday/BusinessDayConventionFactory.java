@@ -5,93 +5,62 @@
  */
 package com.opengamma.financial.convention.businessday;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.ResourceBundle;
 
 import org.joda.convert.FromString;
 
-import com.google.common.collect.Iterators;
-import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.convention.AbstractNamedInstanceFactory;
 
 /**
  * Factory to obtain instances of {@code BusinessDayConvention}.
  * <p>
  * Convention names are read from a properties file.
  */
-public final class BusinessDayConventionFactory {
+public final class BusinessDayConventionFactory
+    extends AbstractNamedInstanceFactory<BusinessDayConvention> {
 
   /**
    * Singleton instance of {@code BusinessDayConventionFactory}.
    */
   public static final BusinessDayConventionFactory INSTANCE = new BusinessDayConventionFactory();
 
-  /**
-   * Map of convention name to convention.
-   */
-  private final Map<String, BusinessDayConvention> _conventionMap = new HashMap<>();
-
-  /**
-   * All convention instances.
-   */
-  private final Collection<BusinessDayConvention> _conventions;
-
   //-------------------------------------------------------------------------
   /**
-   * Gets a convention by name.
-   * Matching is case insensitive.
-   *
-   * @param name  the name, not null
+   * Finds a convention by name, ignoring case.
+   * 
+   * @param name  the name of the instance to find, not null
    * @return the convention, not null
-   * @throws IllegalArgumentException if not found
+   * @throws IllegalArgumentException if the name is not found
    */
   @FromString
   public static BusinessDayConvention of(final String name) {
-    final BusinessDayConvention result = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(name);
-    if (result == null) {
-      throw new IllegalArgumentException("Unknown BusinessDayConvention: " + name);
-    }
-    return result;
+    return INSTANCE.instance(name);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Creates the factory.
+   * Restricted constructor, loading the properties file.
    */
   private BusinessDayConventionFactory() {
-    final ResourceBundle conventions = ResourceBundle.getBundle(BusinessDayConvention.class.getName());
-    final Map<String, BusinessDayConvention> instances = new HashMap<>();
-    for (final String convention : conventions.keySet()) {
-      final String clazz = conventions.getString(convention);
-      BusinessDayConvention instance = instances.get(clazz);
-      if (instance == null) {
-        try {
-          instance = (BusinessDayConvention) Class.forName(clazz).newInstance();
-          instances.put(clazz, instance);
-        } catch (final InstantiationException ex) {
-          throw new OpenGammaRuntimeException("Error initialising BusinessDay conventions", ex);
-        } catch (final IllegalAccessException ex) {
-          throw new OpenGammaRuntimeException("Error initialising BusinessDay conventions", ex);
-        } catch (final ClassNotFoundException ex) {
-          throw new OpenGammaRuntimeException("Error initialising BusinessDay conventions", ex);
-        }
-      }
-      _conventionMap.put(convention.toLowerCase(), instance);
-    }
-    _conventions = new ArrayList<>(instances.values());
+    super(BusinessDayConvention.class);
+    loadFromProperties();
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Retrieves a named BusinessDayConvention. Note that the lookup is not case sensitive.
    *
-   * @param name name of the convention to load.
-   * @return convention with the specified name.
+   * @param name  the name of the convention to load, not null
+   * @return convention with the specified name, null if not found
+   * @deprecated Use {@link #of(String)} or {@link #instance(String)}.
    */
+  @Deprecated
   public BusinessDayConvention getBusinessDayConvention(final String name) {
-    return _conventionMap.get(name.toLowerCase());
+    try {
+      return instance(name);
+    } catch (IllegalArgumentException ex) {
+      return null;
+    }
   }
 
   /**
@@ -99,9 +68,11 @@ public final class BusinessDayConventionFactory {
    * exist in the system not provided by this factory that aren't included as part of this enumeration.
    *
    * @return the available conventions, not null
+   * @deprecated use {@link #instanceMap()}
    */
+  @Deprecated
   public Iterator<BusinessDayConvention> enumerateAvailableBusinessDayConventions() {
-    return Iterators.unmodifiableIterator(_conventions.iterator());
+    return instanceMap().values().iterator();
   }
 
 }

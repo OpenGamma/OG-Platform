@@ -11,11 +11,13 @@ import static org.testng.AssertJUnit.assertFalse;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Triple;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class FunctionalDoublesCubeTest {
   private static final String NAME1 = "P";
   private static final String NAME2 = "O";

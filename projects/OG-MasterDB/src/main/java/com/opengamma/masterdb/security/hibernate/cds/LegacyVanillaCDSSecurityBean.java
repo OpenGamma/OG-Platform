@@ -7,6 +7,7 @@ package com.opengamma.masterdb.security.hibernate.cds;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -45,45 +46,6 @@ public class LegacyVanillaCDSSecurityBean extends CreditDefaultSwapSecurityBean 
     return LegacyVanillaCDSSecurityBean.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1556795764:  // parSpread
-        return getParSpread();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1556795764:  // parSpread
-        setParSpread((Double) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      LegacyVanillaCDSSecurityBean other = (LegacyVanillaCDSSecurityBean) obj;
-      return JodaBeanUtils.equal(getParSpread(), other.getParSpread()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getParSpread());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the parSpread.
@@ -107,6 +69,51 @@ public class LegacyVanillaCDSSecurityBean extends CreditDefaultSwapSecurityBean 
    */
   public final Property<Double> parSpread() {
     return metaBean().parSpread().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public LegacyVanillaCDSSecurityBean clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      LegacyVanillaCDSSecurityBean other = (LegacyVanillaCDSSecurityBean) obj;
+      return JodaBeanUtils.equal(getParSpread(), other.getParSpread()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getParSpread());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("LegacyVanillaCDSSecurityBean{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("parSpread").append('=').append(JodaBeanUtils.toString(getParSpread())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -168,6 +175,26 @@ public class LegacyVanillaCDSSecurityBean extends CreditDefaultSwapSecurityBean 
      */
     public final MetaProperty<Double> parSpread() {
       return _parSpread;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1556795764:  // parSpread
+          return ((LegacyVanillaCDSSecurityBean) bean).getParSpread();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1556795764:  // parSpread
+          ((LegacyVanillaCDSSecurityBean) bean).setParSpread((Double) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

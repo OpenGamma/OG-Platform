@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.util.ArgumentChecker;
@@ -161,8 +162,8 @@ public class FXMatrix {
     }
     final Integer index1 = _currencies.get(ccy1);
     final Integer index2 = _currencies.get(ccy2);
-    ArgumentChecker.notNull(index1, "Currency not in the FX Matrix:" + ccy1);
-    ArgumentChecker.notNull(index2, "Currency not in the FX Matrix:" + ccy2);
+    ArgumentChecker.isTrue(index1 != null, "{} not found in FX matrix", ccy1);
+    ArgumentChecker.isTrue(index2 != null, "{} not found in FX matrix", ccy2);
     return _fxRates[index1][index2];
   }
 
@@ -226,9 +227,17 @@ public class FXMatrix {
     return _fxRates;
   }
 
+  /**
+   * Returns the number of currencies in the matrix.
+   * @return The number of currencies.
+   */
+  public int getNumberOfCurrencies() {
+    return _nbCurrencies;
+  }
+
   @Override
   public String toString() {
-    return _currencies.keySet().toString() + " - " + Arrays.toString(_fxRates);
+    return _currencies.keySet().toString() + " - " + ArrayUtils.toString(_fxRates);
   }
 
   @Override

@@ -18,6 +18,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.marketdatasnapshot.NamedSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractSearchResult;
@@ -32,7 +33,6 @@ import com.opengamma.util.PublicSPI;
 @PublicSPI
 @BeanDefinition
 public class MarketDataSnapshotSearchResult extends AbstractSearchResult<MarketDataSnapshotDocument> {
-
 
   /**
    * Creates an instance.
@@ -63,13 +63,28 @@ public class MarketDataSnapshotSearchResult extends AbstractSearchResult<MarketD
    * Gets the returned snapshots from within the documents.
    * 
    * @return the snapshots, not null
+   * @deprecated use {@link #getNamedSnapshots()} which can handle all snapshot types
    */
+  @Deprecated
   public List<ManageableMarketDataSnapshot> getSnapshots() {
-    List<ManageableMarketDataSnapshot> result = new ArrayList<ManageableMarketDataSnapshot>();
+    List<ManageableMarketDataSnapshot> result = new ArrayList<>();
     if (getDocuments() != null) {
       for (MarketDataSnapshotDocument doc : getDocuments()) {
         result.add(doc.getSnapshot());
       }
+    }
+    return result;
+  }
+
+  /**
+   * Gets the returned snapshots from within the documents.
+   *
+   * @return the snapshots, not null
+   */
+  public List<NamedSnapshot> getNamedSnapshots() {
+    List<NamedSnapshot> result = new ArrayList<>();
+    for (MarketDataSnapshotDocument doc : getDocuments()) {
+      result.add(doc.getNamedSnapshot());
     }
     return result;
   }
@@ -96,7 +111,7 @@ public class MarketDataSnapshotSearchResult extends AbstractSearchResult<MarketD
     if (getDocuments().size() != 1) {
       throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + getDocuments().size());
     } else {
-      return getDocuments().get(0).getSnapshot();
+      return getDocuments().get(0).getNamedSnapshot(ManageableMarketDataSnapshot.class);
     }
   }
 
@@ -119,14 +134,10 @@ public class MarketDataSnapshotSearchResult extends AbstractSearchResult<MarketD
     return MarketDataSnapshotSearchResult.Meta.INSTANCE;
   }
 
+  //-----------------------------------------------------------------------
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    super.propertySet(propertyName, newValue, quiet);
+  public MarketDataSnapshotSearchResult clone() {
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override
@@ -144,6 +155,24 @@ public class MarketDataSnapshotSearchResult extends AbstractSearchResult<MarketD
   public int hashCode() {
     int hash = 7;
     return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(32);
+    buf.append("MarketDataSnapshotSearchResult{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
   }
 
   //-----------------------------------------------------------------------

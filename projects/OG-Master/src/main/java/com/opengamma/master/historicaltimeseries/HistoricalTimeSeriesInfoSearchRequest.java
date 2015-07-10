@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -176,9 +177,9 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
   public void addExternalIds(ExternalId... externalIds) {
     ArgumentChecker.notNull(externalIds, "externalIds");
     if (getExternalIdSearch() == null) {
-      setExternalIdSearch(new ExternalIdSearch(externalIds));
+      setExternalIdSearch(ExternalIdSearch.of(externalIds));
     } else {
-      getExternalIdSearch().addExternalIds(externalIds);
+      setExternalIdSearch(getExternalIdSearch().withExternalIdsAdded(externalIds));
     }
   }
 
@@ -192,9 +193,22 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
   public void addExternalIds(Iterable<ExternalId> externalIds) {
     ArgumentChecker.notNull(externalIds, "externalIds");
     if (getExternalIdSearch() == null) {
-      setExternalIdSearch(new ExternalIdSearch(externalIds));
+      setExternalIdSearch(ExternalIdSearch.of(externalIds));
     } else {
-      getExternalIdSearch().addExternalIds(externalIds);
+      setExternalIdSearch(getExternalIdSearch().withExternalIdsAdded(externalIds));
+    }
+  }
+
+  /**
+   * Sets the search type to use in {@code ExternalIdSearch}.
+   * 
+   * @param type  the type to set, not null
+   */
+  public void setExternalIdSearchType(ExternalIdSearchType type) {
+    if (getExternalIdSearch() == null) {
+      setExternalIdSearch(ExternalIdSearch.of(type));
+    } else {
+      setExternalIdSearch(getExternalIdSearch().withSearchType(type));
     }
   }
 
@@ -259,102 +273,6 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
   @Override
   public HistoricalTimeSeriesInfoSearchRequest.Meta metaBean() {
     return HistoricalTimeSeriesInfoSearchRequest.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1489617159:  // objectIds
-        return getObjectIds();
-      case -265376882:  // externalIdSearch
-        return getExternalIdSearch();
-      case 2072311499:  // externalIdValue
-        return getExternalIdValue();
-      case -390680064:  // validityDate
-        return getValidityDate();
-      case 3373707:  // name
-        return getName();
-      case 1272470629:  // dataSource
-        return getDataSource();
-      case 339742651:  // dataProvider
-        return getDataProvider();
-      case -386794640:  // dataField
-        return getDataField();
-      case 951232793:  // observationTime
-        return getObservationTime();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1489617159:  // objectIds
-        setObjectIds((List<ObjectId>) newValue);
-        return;
-      case -265376882:  // externalIdSearch
-        setExternalIdSearch((ExternalIdSearch) newValue);
-        return;
-      case 2072311499:  // externalIdValue
-        setExternalIdValue((String) newValue);
-        return;
-      case -390680064:  // validityDate
-        setValidityDate((LocalDate) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case 1272470629:  // dataSource
-        setDataSource((String) newValue);
-        return;
-      case 339742651:  // dataProvider
-        setDataProvider((String) newValue);
-        return;
-      case -386794640:  // dataField
-        setDataField((String) newValue);
-        return;
-      case 951232793:  // observationTime
-        setObservationTime((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      HistoricalTimeSeriesInfoSearchRequest other = (HistoricalTimeSeriesInfoSearchRequest) obj;
-      return JodaBeanUtils.equal(getObjectIds(), other.getObjectIds()) &&
-          JodaBeanUtils.equal(getExternalIdSearch(), other.getExternalIdSearch()) &&
-          JodaBeanUtils.equal(getExternalIdValue(), other.getExternalIdValue()) &&
-          JodaBeanUtils.equal(getValidityDate(), other.getValidityDate()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
-          JodaBeanUtils.equal(getDataProvider(), other.getDataProvider()) &&
-          JodaBeanUtils.equal(getDataField(), other.getDataField()) &&
-          JodaBeanUtils.equal(getObservationTime(), other.getObservationTime()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdSearch());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdValue());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValidityDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -592,6 +510,75 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public HistoricalTimeSeriesInfoSearchRequest clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      HistoricalTimeSeriesInfoSearchRequest other = (HistoricalTimeSeriesInfoSearchRequest) obj;
+      return JodaBeanUtils.equal(getObjectIds(), other.getObjectIds()) &&
+          JodaBeanUtils.equal(getExternalIdSearch(), other.getExternalIdSearch()) &&
+          JodaBeanUtils.equal(getExternalIdValue(), other.getExternalIdValue()) &&
+          JodaBeanUtils.equal(getValidityDate(), other.getValidityDate()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
+          JodaBeanUtils.equal(getDataProvider(), other.getDataProvider()) &&
+          JodaBeanUtils.equal(getDataField(), other.getDataField()) &&
+          JodaBeanUtils.equal(getObservationTime(), other.getObservationTime()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObjectIds());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExternalIdSearch());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExternalIdValue());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValidityDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDataField());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(320);
+    buf.append("HistoricalTimeSeriesInfoSearchRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("objectIds").append('=').append(JodaBeanUtils.toString(getObjectIds())).append(',').append(' ');
+    buf.append("externalIdSearch").append('=').append(JodaBeanUtils.toString(getExternalIdSearch())).append(',').append(' ');
+    buf.append("externalIdValue").append('=').append(JodaBeanUtils.toString(getExternalIdValue())).append(',').append(' ');
+    buf.append("validityDate").append('=').append(JodaBeanUtils.toString(getValidityDate())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("dataSource").append('=').append(JodaBeanUtils.toString(getDataSource())).append(',').append(' ');
+    buf.append("dataProvider").append('=').append(JodaBeanUtils.toString(getDataProvider())).append(',').append(' ');
+    buf.append("dataField").append('=').append(JodaBeanUtils.toString(getDataField())).append(',').append(' ');
+    buf.append("observationTime").append('=').append(JodaBeanUtils.toString(getObservationTime())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code HistoricalTimeSeriesInfoSearchRequest}.
    */
@@ -779,6 +766,67 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
      */
     public final MetaProperty<String> observationTime() {
       return _observationTime;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1489617159:  // objectIds
+          return ((HistoricalTimeSeriesInfoSearchRequest) bean).getObjectIds();
+        case -265376882:  // externalIdSearch
+          return ((HistoricalTimeSeriesInfoSearchRequest) bean).getExternalIdSearch();
+        case 2072311499:  // externalIdValue
+          return ((HistoricalTimeSeriesInfoSearchRequest) bean).getExternalIdValue();
+        case -390680064:  // validityDate
+          return ((HistoricalTimeSeriesInfoSearchRequest) bean).getValidityDate();
+        case 3373707:  // name
+          return ((HistoricalTimeSeriesInfoSearchRequest) bean).getName();
+        case 1272470629:  // dataSource
+          return ((HistoricalTimeSeriesInfoSearchRequest) bean).getDataSource();
+        case 339742651:  // dataProvider
+          return ((HistoricalTimeSeriesInfoSearchRequest) bean).getDataProvider();
+        case -386794640:  // dataField
+          return ((HistoricalTimeSeriesInfoSearchRequest) bean).getDataField();
+        case 951232793:  // observationTime
+          return ((HistoricalTimeSeriesInfoSearchRequest) bean).getObservationTime();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1489617159:  // objectIds
+          ((HistoricalTimeSeriesInfoSearchRequest) bean).setObjectIds((List<ObjectId>) newValue);
+          return;
+        case -265376882:  // externalIdSearch
+          ((HistoricalTimeSeriesInfoSearchRequest) bean).setExternalIdSearch((ExternalIdSearch) newValue);
+          return;
+        case 2072311499:  // externalIdValue
+          ((HistoricalTimeSeriesInfoSearchRequest) bean).setExternalIdValue((String) newValue);
+          return;
+        case -390680064:  // validityDate
+          ((HistoricalTimeSeriesInfoSearchRequest) bean).setValidityDate((LocalDate) newValue);
+          return;
+        case 3373707:  // name
+          ((HistoricalTimeSeriesInfoSearchRequest) bean).setName((String) newValue);
+          return;
+        case 1272470629:  // dataSource
+          ((HistoricalTimeSeriesInfoSearchRequest) bean).setDataSource((String) newValue);
+          return;
+        case 339742651:  // dataProvider
+          ((HistoricalTimeSeriesInfoSearchRequest) bean).setDataProvider((String) newValue);
+          return;
+        case -386794640:  // dataField
+          ((HistoricalTimeSeriesInfoSearchRequest) bean).setDataField((String) newValue);
+          return;
+        case 951232793:  // observationTime
+          ((HistoricalTimeSeriesInfoSearchRequest) bean).setObservationTime((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

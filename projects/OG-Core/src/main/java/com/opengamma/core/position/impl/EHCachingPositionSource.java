@@ -37,6 +37,7 @@ import com.opengamma.util.map.HashMap2;
 import com.opengamma.util.map.Map2;
 import com.opengamma.util.map.WeakValueHashMap2;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * A cache decorating a {@code PositionSource}.
@@ -195,11 +196,9 @@ public class EHCachingPositionSource implements PositionSource {
 
   protected Position addToFrontCache(Position position, final VersionCorrection versionCorrection) {
     final Object f = _frontPositionOrTradeCache.putIfAbsent(position.getUniqueId(), position);
-    if (f instanceof Position) {
-      position = (Position) f;
-    }
-    _frontCacheByOID.put(versionCorrection, position.getUniqueId().getObjectId(), position);
-    return position;
+    Position effectivePosition = (f instanceof Position ? (Position) f : position);
+    _frontCacheByOID.put(versionCorrection, effectivePosition.getUniqueId().getObjectId(), effectivePosition);
+    return effectivePosition;
   }
 
   protected PortfolioNode addToFrontCache(PortfolioNode node, final VersionCorrection versionCorrection) {
@@ -241,19 +240,20 @@ public class EHCachingPositionSource implements PositionSource {
         }
       }
     }
+    PortfolioNode resultNode = node;
     if ((newPositions != null) || (newChildren != null)) {
-      final SimplePortfolioNode newNode = new SimplePortfolioNode(node.getUniqueId(), node.getName());
-      newNode.setParentNodeId(node.getParentNodeId());
-      newNode.addPositions((newPositions != null) ? newPositions : node.getPositions());
-      newNode.addChildNodes((newChildren != null) ? newChildren : node.getChildNodes());
-      node = newNode;
+      final SimplePortfolioNode newNode = new SimplePortfolioNode(resultNode.getUniqueId(), resultNode.getName());
+      newNode.setParentNodeId(resultNode.getParentNodeId());
+      newNode.addPositions((newPositions != null) ? newPositions : resultNode.getPositions());
+      newNode.addChildNodes((newChildren != null) ? newChildren : resultNode.getChildNodes());
+      resultNode = newNode;
     }
-    node = _nodes.get(node);
-    final Object f = _frontCacheByUID.putIfAbsent(versionCorrection, node.getUniqueId(), node);
+    resultNode = _nodes.get(resultNode);
+    final Object f = _frontCacheByUID.putIfAbsent(versionCorrection, resultNode.getUniqueId(), resultNode);
     if (f instanceof PortfolioNode) {
-      node = (PortfolioNode) f;
+      resultNode = (PortfolioNode) f;
     }
-    return node;
+    return resultNode;
   }
 
   protected Portfolio addToFrontCache(Portfolio portfolio, final VersionCorrection versionCorrection) {
@@ -280,7 +280,7 @@ public class EHCachingPositionSource implements PositionSource {
         s_logger.debug("getPortfolioByUniqueId: Front cache hit on {}/{}", uniqueId, versionCorrection);
         return (Portfolio) f;
       }
-      key = Pair.of(uniqueId, versionCorrection);
+      key = Pairs.of(uniqueId, versionCorrection);
       final Element e = _portfolioCache.get(key);
       if (e != null) {
         s_logger.debug("getPortfolioByUniqueId: EHCache hit on {}/{}", uniqueId, versionCorrection);
@@ -309,7 +309,7 @@ public class EHCachingPositionSource implements PositionSource {
     if (key != null) {
       _portfolioCache.put(new Element(key, portfolio));
     } else {
-      _portfolioCache.put(new Element(Pair.of(portfolio.getUniqueId(), versionCorrection), portfolio));
+      _portfolioCache.put(new Element(Pairs.of(portfolio.getUniqueId(), versionCorrection), portfolio));
     }
     return portfolio;
   }
@@ -325,7 +325,7 @@ public class EHCachingPositionSource implements PositionSource {
       s_logger.debug("getPortfolioByObjectId: Front cache hit on {}/{}", objectId, versionCorrection);
       return (Portfolio) f;
     }
-    final Pair<ObjectId, VersionCorrection> key = Pair.of(objectId, versionCorrection);
+    final Pair<ObjectId, VersionCorrection> key = Pairs.of(objectId, versionCorrection);
     final Element e = _portfolioCache.get(key);
     if (e != null) {
       s_logger.debug("getPortfolioByObjectId: EHCache hit on {}/{}", objectId, versionCorrection);
@@ -354,7 +354,7 @@ public class EHCachingPositionSource implements PositionSource {
         portfolio = addToFrontCache(portfolio, versionCorrection);
         _frontCacheByOID.put(versionCorrection, objectId, portfolio);
         _portfolioCache.put(new Element(key, portfolio));
-        _portfolioCache.put(new Element(Pair.of(portfolio.getUniqueId(), versionCorrection), portfolio));
+        _portfolioCache.put(new Element(Pairs.of(portfolio.getUniqueId(), versionCorrection), portfolio));
         return portfolio;
       }
     }
@@ -374,7 +374,7 @@ public class EHCachingPositionSource implements PositionSource {
         s_logger.debug("getPortfolioNode: Front cache hit on {}/{}", uniqueId, versionCorrection);
         return (PortfolioNode) f;
       }
-      key = Pair.of(uniqueId, versionCorrection);
+      key = Pairs.of(uniqueId, versionCorrection);
       final Element e = _portfolioNodeCache.get(key);
       if (e != null) {
         s_logger.debug("getPortfolioNode: EHCache hit on {}/{}", uniqueId, versionCorrection);
@@ -396,7 +396,7 @@ public class EHCachingPositionSource implements PositionSource {
     if (key != null) {
       _portfolioNodeCache.put(new Element(key, node));
     } else {
-      _portfolioNodeCache.put(new Element(Pair.of(node.getUniqueId(), versionCorrection), node));
+      _portfolioNodeCache.put(new Element(Pairs.of(node.getUniqueId(), versionCorrection), node));
     }
     return node;
   }
@@ -446,7 +446,7 @@ public class EHCachingPositionSource implements PositionSource {
       s_logger.debug("getPositionByObjectId: Front cache hit on {}/{}", positionId, versionCorrection);
       return (Position) f;
     }
-    final Pair<ObjectId, VersionCorrection> key = Pair.of(positionId, versionCorrection);
+    final Pair<ObjectId, VersionCorrection> key = Pairs.of(positionId, versionCorrection);
     final Element e = _positionCache.get(key);
     if (e != null) {
       s_logger.debug("getPositionByObjectId: EHCache hit on {}/{}", positionId, versionCorrection);

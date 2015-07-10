@@ -107,11 +107,21 @@ public class DbConnector implements Connector {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the display name of the connector.
+   * 
+   * @return a name usable for display, not null
+   */
   @Override
   public final String getName() {
     return _name;
   }
 
+  /**
+   * Gets the type of the connector, which is {@code DbConnector}.
+   * 
+   * @return the connector type, not null
+   */
   @Override
   public final Class<? extends Connector> getType() {
     return DbConnector.class;

@@ -34,7 +34,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.test.TestGroup;
 
-@Test(groups = TestGroup.UNIT)
+@Test(groups = TestGroup.INTEGRATION)
 public class SimulationScriptTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SimulationScriptTest.class);
@@ -88,7 +88,7 @@ public class SimulationScriptTest {
     SimpleFunctionParameters functionParameters = (SimpleFunctionParameters) definitionMap.get(selector);
     CompositeStructureManipulator<?> composite = functionParameters.getValue(StructureManipulationFunction.EXPECTED_PARAMETER_NAME);
     StructureManipulator<?> manipulator = composite.getManipulators().get(0);
-    assertEquals(new Scaling(123), manipulator);
+    assertEquals(new MarketDataScaling(123), manipulator);
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)

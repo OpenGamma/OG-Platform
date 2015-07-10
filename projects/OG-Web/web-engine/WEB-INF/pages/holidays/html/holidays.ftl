@@ -23,11 +23,15 @@
 <#-- SUBSECTION Holiday results -->
 <#if searchResult??>
 <@subsection title="Results">
-  <@table items=searchResult.documents paging=paging empty="No holidays" headers=["Name","Reference","Type","Version valid from","Actions"]; item>
+  <@table items=searchResult.documents paging=paging empty="No holidays" headers=["Name","Reference","Type","Version valid from","Custom ID", "Region ID", "Exchange ID", "Currency", "Actions"]; item>
       <td><a href="${uris.holiday(item.uniqueId)}">${item.name}</a></td>
       <td>${item.uniqueId.value}</td>
       <td>${item.holiday.type}</td>
       <td>${item.versionFromInstant}</td>
+      <td>${item.holiday.customExternalId}</td>
+      <td>${item.holiday.regionExternalId}</td>
+      <td>${item.holiday.exchangeExternalId}</td>
+      <td>${item.holiday.currency}</td>
       <td><a href="${uris.holiday(item.uniqueId)}">View</a></td>
   </@table>
 </@subsection>

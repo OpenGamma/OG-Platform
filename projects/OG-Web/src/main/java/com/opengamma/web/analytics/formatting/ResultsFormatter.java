@@ -75,6 +75,8 @@ public class ResultsFormatter {
     CurrencyAmountFormatter currencyAmountFormatter = new CurrencyAmountFormatter(currencyDisplay, bigDecimalFormatter);
     ZonedDateTimeFormatter zonedDateTimeFormatter = new ZonedDateTimeFormatter();
     LocalDateDoubleTimeSeriesFormatter localDateDoubleTimeSeriesFormatter = new LocalDateDoubleTimeSeriesFormatter();
+    RateFormatter rateFormatter = new RateFormatter();
+    BasisPointsFormatter basisPointFormatter = new BasisPointsFormatter();
     addFormatters(doubleFormatter,
                   bigDecimalFormatter,
                   currencyAmountFormatter,
@@ -82,17 +84,15 @@ public class ResultsFormatter {
                   localDateDoubleTimeSeriesFormatter,
                   new YieldCurveFormatter(),
                   new PriceIndexCurveFormatter(),
-                  new ISDADateCurveFormatter(),
                   new ISDACompliantYieldCurveFormatter(),
                   new ISDACompliantCurveFormatter(),
-                  new HazardRateCurveFormatter(),
                   new NodalObjectsCurveFormatter(), //TODO is not a general formatter - used only for (Tenor, Double) curves
                   new VolatilityCubeDataFormatter(),
                   new VolatilitySurfaceDataFormatter(),
                   new VolatilitySurfaceFormatter(),
                   new LabelledMatrix1DFormatter(doubleFormatter),
                   new LocalDateLabelledMatrix1DFormatter(doubleFormatter),
-                  new LabelledMatrix2DFormatter(),
+                  new LabelledMatrix2DFormatter(doubleFormatter),
                   new LabelledMatrix3DFormatter(),
                   new TenorLabelledLocalDateDoubleTimeSeriesMatrix1DFormatter(localDateDoubleTimeSeriesFormatter),
                   new TenorFormatter(),
@@ -123,7 +123,13 @@ public class ResultsFormatter {
                   new FrequencyFormatter(),
                   new FXAmountsFormatter(doubleFormatter),
                   new ExpiryFormatter(zonedDateTimeFormatter),
-                  new ValuePropertiesFormatter());
+                  new ValuePropertiesFormatter(),
+                  new FixedPaymentMatrixFormatter(currencyAmountFormatter),
+                  new FloatingPaymentMatrixFormatter(currencyAmountFormatter),
+                  new FixedSwapLegDetailsFormatter(new CurrencyAmountFormatter(CurrencyDisplay.SUPPRESS_CURRENCY, bigDecimalFormatter), rateFormatter),
+                  new FloatingSwapLegDetailsFormatter(new CurrencyAmountFormatter(CurrencyDisplay.SUPPRESS_CURRENCY, bigDecimalFormatter), rateFormatter, basisPointFormatter),
+                  new FXMatrixFormatter(),
+                  new YieldCurveDataFormatter(doubleFormatter));
   }
 
   private void addFormatters(TypeFormatter<?>... formatters) {

@@ -38,7 +38,7 @@ public class MarketDataRequirementNamesHelper {
           result.add((String) field.get(null));
         }
       }
-    } catch (Exception e) { 
+    } catch (Exception e) {
       throw new OpenGammaRuntimeException("Error querying fields of " + MarketDataRequirementNames.class);
     }
     return result;

@@ -20,11 +20,13 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the interest rate future option with margin transaction description.
  */
+@Test(groups = TestGroup.UNIT)
 public class InterestRateFutureOptionPremiumTransactionDefinitionTest {
 
   private static final Calendar CALENDAR = new MondayToFridayCalendar("TARGET");
@@ -50,7 +52,7 @@ public class InterestRateFutureOptionPremiumTransactionDefinitionTest {
       TRADE_PRICE);
   // Derivative
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
-  //  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  //  private static final DayCount ACT_ACT = DayCounts.ACT_ACT_ISDA;
   private static final String DISCOUNTING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES = {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME};
@@ -91,48 +93,6 @@ public class InterestRateFutureOptionPremiumTransactionDefinitionTest {
     assertFalse(OPTION_TRANSACTION.equals(modifidOption));
     modifidOption = new InterestRateFutureOptionPremiumTransactionDefinition(OPTION_EDU2, QUANTITY, PREMIUM_DATE, TRADE_PRICE - 0.00001);
     assertFalse(OPTION_TRANSACTION.equals(modifidOption));
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Tests the toDerivative method when the reference date is before the premium settlement.
-   */
-  public void toDerivativeBeforeSettlementDeprecated() {
-    final InterestRateFutureOptionPremiumTransaction transactionConverted = OPTION_TRANSACTION.toDerivative(REFERENCE_DATE, CURVES);
-    final InterestRateFutureOptionPremiumSecurity security = OPTION_EDU2.toDerivative(REFERENCE_DATE, CURVES);
-    final double premiumTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, PREMIUM_DATE);
-    final InterestRateFutureOptionPremiumTransaction transaction = new InterestRateFutureOptionPremiumTransaction(security, QUANTITY, premiumTime, TRADE_PRICE);
-    assertEquals("Option on future: to derivative", transaction, transactionConverted);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Tests the toDerivative method when the reference date is on the premium settlement.
-   */
-  public void toDerivativeOnSettlementDeprecated() {
-    final ZonedDateTime referenceDate = PREMIUM_DATE;
-    final InterestRateFutureOptionPremiumTransaction transactionConverted = OPTION_TRANSACTION.toDerivative(referenceDate, CURVES);
-    final InterestRateFutureOptionPremiumSecurity security = OPTION_EDU2.toDerivative(referenceDate, CURVES);
-    final double premiumTime = 0.0;
-    final InterestRateFutureOptionPremiumTransaction transaction = new InterestRateFutureOptionPremiumTransaction(security, QUANTITY, premiumTime, TRADE_PRICE);
-    assertEquals("Option on future: to derivative", transaction, transactionConverted);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Tests the toDerivative method when the reference date is after the premium settlement.
-   */
-  public void toDerivativeAfterSettlementDeprecated() {
-    final ZonedDateTime referenceDate = PREMIUM_DATE.plusDays(1);
-    final InterestRateFutureOptionPremiumTransaction transactionConverted = OPTION_TRANSACTION.toDerivative(referenceDate, CURVES);
-    final InterestRateFutureOptionPremiumSecurity security = OPTION_EDU2.toDerivative(referenceDate, CURVES);
-    final double premiumTime = 0.0;
-    final double price = 0.0; // The payment is in the past and is represented by a 0 payment today.
-    final InterestRateFutureOptionPremiumTransaction transaction = new InterestRateFutureOptionPremiumTransaction(security, QUANTITY, premiumTime, price);
-    assertEquals("Option on future: to derivative", transaction, transactionConverted);
   }
 
   @Test

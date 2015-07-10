@@ -5,10 +5,12 @@
  */
 package com.opengamma.analytics.financial.equity;
 
+import com.opengamma.analytics.financial.ExerciseDecisionType;
 import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityOption;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.BjerksundStenslandModel;
 import com.opengamma.util.ArgumentChecker;
 
@@ -33,44 +35,48 @@ public final class EqyOptBjerksundStenslandPresentValueCalculator extends Instru
   }
 
   @Override
-  public Double visitEquityIndexOption(final EquityIndexOption option, final StaticReplicationDataBundle data) {
+  public Double visitEquityIndexOption(EquityIndexOption option, StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
-    final double spot = data.getForwardCurve().getSpot();
-    final double strike = option.getStrike();
-    final double time = option.getTimeToExpiry();
-    final double sigma = data.getVolatilitySurface().getVolatility(time, strike);
-    final boolean isCall = option.isCall();
-    final double interestRate = data.getDiscountCurve().getInterestRate(time);
-    final double costOfCarry = interestRate; //TODO
-    return option.getUnitAmount() * MODEL.price(spot, strike, interestRate, costOfCarry, time, sigma, isCall);
+    ArgumentChecker.isTrue(option.getExerciseType() == ExerciseDecisionType.AMERICAN, "option must be American");
+    double strike = option.getStrike();
+    double time = option.getTimeToExpiry();
+    boolean isCall = option.isCall();
+    return option.getUnitAmount() * computePrice(strike, time, isCall, data);
   }
 
   @Override
-  public Double visitEquityOption(final EquityOption option, final StaticReplicationDataBundle data) {
+  public Double visitEquityOption(EquityOption option, StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
-    final double spot = data.getForwardCurve().getSpot();
-    final double strike = option.getStrike();
-    final double time = option.getTimeToExpiry();
-    final double sigma = data.getVolatilitySurface().getVolatility(time, strike);
-    final boolean isCall = option.isCall();
-    final double interestRate = data.getDiscountCurve().getInterestRate(time);
-    final double costOfCarry = interestRate; //TODO
-    return option.getUnitAmount() * MODEL.price(spot, strike, interestRate, costOfCarry, time, sigma, isCall);
+    ArgumentChecker.isTrue(option.getExerciseType() == ExerciseDecisionType.AMERICAN, "option must be American");
+    double strike = option.getStrike();
+    double time = option.getTimeToExpiry();
+    boolean isCall = option.isCall();
+    return option.getUnitAmount() * computePrice(strike, time, isCall, data);
   }
 
   @Override
   public Double visitEquityIndexFutureOption(final EquityIndexFutureOption option, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
-    final double spot = data.getForwardCurve().getSpot();
+    ForwardCurve forwardCurve = data.getForwardCurve();
+    final double spot = forwardCurve.getSpot();
     final double strike = option.getStrike();
     final double time = option.getExpiry();
     final double sigma = data.getVolatilitySurface().getVolatility(time, strike);
     final boolean isCall = option.isCall();
     final double interestRate = data.getDiscountCurve().getInterestRate(time);
-    final double costOfCarry = interestRate; //TODO
+    final double costOfCarry = time > 0 ? Math.log(forwardCurve.getForward(time) / spot) / time : interestRate;
     return option.getPointValue() * MODEL.price(spot, strike, interestRate, costOfCarry, time, sigma, isCall);
+  }
+
+  private double computePrice(double strike, double time, boolean isCall, StaticReplicationDataBundle data) {
+    ForwardCurve forwardCurve = data.getForwardCurve();
+    double spot = forwardCurve.getSpot();
+    double sigma = data.getVolatilitySurface().getVolatility(time, strike);
+    double interestRate = data.getDiscountCurve().getInterestRate(time);
+    double costOfCarry = time > 0 ? Math.log(forwardCurve.getForward(time) / spot) / time : interestRate;
+    return MODEL.price(spot, strike, interestRate, costOfCarry, time, sigma, isCall);
   }
 }

@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.opengamma.analytics.financial.interestrate.PresentValueBlackSwaptionSensitivity;
+import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueSwaptionSurfaceSensitivity;
 import com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
@@ -123,7 +123,7 @@ public final class SwaptionCashFixedIborBlackMethod {
     final double[] bsAdjoint = blackFunction.getPriceAdjoint(swaption, dataBlack);
     final double sensiDF = -swaption.getSettlementTime() * discountFactorSettle * pvbp * bsAdjoint[0];
     final List<DoublesPair> list = new ArrayList<>();
-    list.add(new DoublesPair(swaption.getSettlementTime(), sensiDF));
+    list.add(DoublesPair.of(swaption.getSettlementTime(), sensiDF));
     MulticurveSensitivity result = forwardDr.multipliedBy(discountFactorSettle * (pvbpDf * bsAdjoint[0] + pvbp * bsAdjoint[1]));
     if (!swaption.isLong()) {
       result = result.multipliedBy(-1);
@@ -169,20 +169,20 @@ public final class SwaptionCashFixedIborBlackMethod {
    * @param curveBlack The curves with Black volatility data.
    * @return The present value Black sensitivity.
    */
-  public PresentValueBlackSwaptionSensitivity presentValueBlackSensitivity(final SwaptionCashFixedIbor swaption, final BlackSwaptionFlatProviderInterface curveBlack) {
+  public PresentValueSwaptionSurfaceSensitivity presentValueBlackSensitivity(final SwaptionCashFixedIbor swaption, final BlackSwaptionFlatProviderInterface curveBlack) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
     final double forward = swaption.getUnderlyingSwap().accept(PRDC, curveBlack.getMulticurveProvider());
     final double pvbp = METHOD_SWAP.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
     final double discountFactorSettle = curveBlack.getMulticurveProvider().getDiscountFactor(swaption.getCurrency(), swaption.getSettlementTime());
-    final DoublesPair point = new DoublesPair(swaption.getTimeToExpiry(), swaption.getMaturityTime());
+    final DoublesPair point = DoublesPair.of(swaption.getTimeToExpiry(), swaption.getMaturityTime());
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
     final double volatility = curveBlack.getBlackParameters().getVolatility(point);
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
     final double[] bsAdjoint = blackFunction.getPriceAdjoint(swaption, dataBlack);
     final Map<DoublesPair, Double> sensitivity = new HashMap<>();
     sensitivity.put(point, bsAdjoint[2] * pvbp * discountFactorSettle * (swaption.isLong() ? 1.0 : -1.0));
-    return new PresentValueBlackSwaptionSensitivity(sensitivity, curveBlack.getBlackParameters().getGeneratorSwap());
+    return new PresentValueSwaptionSurfaceSensitivity(sensitivity, curveBlack.getBlackParameters().getGeneratorSwap());
   }
 
 }

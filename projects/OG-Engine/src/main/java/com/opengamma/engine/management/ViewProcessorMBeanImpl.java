@@ -12,6 +12,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.impl.ViewProcessorInternal;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
@@ -31,26 +32,28 @@ public final class ViewProcessorMBeanImpl implements ViewProcessorMBean {
   
   /**
    * Create a management ViewProcessor
-   * 
+   *
    * @param viewProcessor the underlying ViewProcessor
+   * @param splitByViewProcessor
    */
-  public ViewProcessorMBeanImpl(ViewProcessorInternal viewProcessor) {
+  public ViewProcessorMBeanImpl(ViewProcessorInternal viewProcessor, boolean splitByViewProcessor) {
     ArgumentChecker.notNull(viewProcessor, "View Processor");
     _viewProcessor = viewProcessor;
-    _objectName = createObjectName(viewProcessor);
+    _objectName = createObjectName(viewProcessor, splitByViewProcessor);
   }
   
   /**
    * Creates an object name using the scheme "com.opengamma:type=ViewProcessor,name=<viewProcessorName>"
    */
-  static ObjectName createObjectName(com.opengamma.engine.view.ViewProcessor viewProcessor) {
-    ObjectName objectName;
+  static ObjectName createObjectName(ViewProcessor viewProcessor,
+                                     boolean splitByViewProcessor) {
     try {
-      objectName = new ObjectName("com.opengamma:type=ViewProcessor,name=ViewProcessor " + viewProcessor.getName());
+      return new ObjectName(splitByViewProcessor ?
+        "com.opengamma:type=ViewProcessors,ViewProcessor=ViewProcessor " + viewProcessor.getName() + ",name=ViewProcessor " + viewProcessor.getName() :
+        "com.opengamma:type=ViewProcessor,name=ViewProcessor " + viewProcessor.getName());
     } catch (MalformedObjectNameException e) {
       throw new OpenGammaRuntimeException("", e);
     }
-    return objectName;
   }
 
   @Override

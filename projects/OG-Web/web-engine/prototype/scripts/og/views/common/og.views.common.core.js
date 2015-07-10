@@ -9,10 +9,10 @@ $.register_module({
         var common = og.common, ui = common.util.ui, routes = common.routes;
         return function (page_name) {
             var view = this, search;
-            view.check_state = function (conditions) {og.views.common.state.check('/' + page_name, conditions);};
-            view.default_details = function () {og.views.common.default_details(page_name, view.name, view.options);};
+            view.check_state = function (conditions) {og.views.common.state.check('/' + page_name, conditions); };
+            view.default_details = function () {og.views.common.default_details(page_name, view.name, view.options); };
             view.dependencies = ['id', 'version'];
-            view.error = function (message) {ui.dialog({type: 'error', message: message});},
+            view.error = function (message) {ui.dialog({type: 'error', message: message}); };
             view.filter = $.noop;
             view.init = function () {for (var rule in view.rules) routes.add(view.rules[rule]);};
             view.layout = null;

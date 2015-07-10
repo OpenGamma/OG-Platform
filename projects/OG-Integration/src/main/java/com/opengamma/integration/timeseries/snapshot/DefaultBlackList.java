@@ -6,21 +6,22 @@
 package com.opengamma.integration.timeseries.snapshot;
 
 import java.util.List;
-
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
-
-import com.google.common.collect.Lists;
 import java.util.Map;
+
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.google.common.collect.Lists;
 
 /**
  * 
@@ -51,59 +52,6 @@ public class DefaultBlackList extends DirectBean implements BlackList {
   @Override
   public DefaultBlackList.Meta metaBean() {
     return DefaultBlackList.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3373707:  // name
-        return getName();
-      case 1332059453:  // blackList
-        return getBlackList();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case 1332059453:  // blackList
-        setBlackList((List<String>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_name, "name");
-    JodaBeanUtils.notNull(_blackList, "blackList");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      DefaultBlackList other = (DefaultBlackList) obj;
-      return JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getBlackList(), other.getBlackList());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBlackList());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -156,6 +104,51 @@ public class DefaultBlackList extends DirectBean implements BlackList {
    */
   public final Property<List<String>> blackList() {
     return metaBean().blackList().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public DefaultBlackList clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      DefaultBlackList other = (DefaultBlackList) obj;
+      return JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getBlackList(), other.getBlackList());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBlackList());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("DefaultBlackList{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("blackList").append('=').append(JodaBeanUtils.toString(getBlackList())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -234,6 +227,38 @@ public class DefaultBlackList extends DirectBean implements BlackList {
      */
     public final MetaProperty<List<String>> blackList() {
       return _blackList;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3373707:  // name
+          return ((DefaultBlackList) bean).getName();
+        case 1332059453:  // blackList
+          return ((DefaultBlackList) bean).getBlackList();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3373707:  // name
+          ((DefaultBlackList) bean).setName((String) newValue);
+          return;
+        case 1332059453:  // blackList
+          ((DefaultBlackList) bean).setBlackList((List<String>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((DefaultBlackList) bean)._name, "name");
+      JodaBeanUtils.notNull(((DefaultBlackList) bean)._blackList, "blackList");
     }
 
   }

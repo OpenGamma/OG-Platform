@@ -1,16 +1,20 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.description.inflation;
 
+import java.util.List;
 import java.util.Set;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
@@ -19,12 +23,13 @@ import com.opengamma.util.tuple.Pair;
  * Interface specific to inflation curves.
  * Compose the MulticurveProviderInterface.
  */
-public interface InflationIssuerProviderInterface {
+public interface InflationIssuerProviderInterface extends ParameterInflationIssuerProviderInterface {
 
   /**
    * Create a new copy of the provider.
    * @return The bundle.
    */
+  @Override
   InflationIssuerProviderInterface copy();
 
   /**
@@ -56,31 +61,66 @@ public interface InflationIssuerProviderInterface {
    * @param time The time.
    * @return The discount factor.
    */
-  double getDiscountFactor(Pair<String, Currency> issuerCcy, Double time);
+  double getDiscountFactor(Pair<Object, LegalEntityFilter<LegalEntity>> issuerCcy, Double time);
+
+  /**
+   * Gets the discount factor for one issuer in one currency.
+   * @param issuer The issuer.
+   * @param time The time.
+   * @return The discount factor.
+   */
+  double getDiscountFactor(LegalEntity issuer, Double time);
 
   /**
    * Gets the set of issuer names by currency defined in the market.
    * @return The set of issuers names/currencies.
    */
-  Set<Pair<String, Currency>> getIssuersCcy();
+  Set<Pair<Object, LegalEntityFilter<LegalEntity>>> getIssuers();
 
   /**
    * Gets the names of all curves (discounting, forward, price index and issuers).
    * @return The names.
+   * @deprecated Use {@link #getAllNames()}
    */
+  @Deprecated
   Set<String> getAllNames();
+
+  /**
+   * Gets an unmodifiable sorted set of the names of all curves. An empty set of is returned
+   * if there are no curves in this provider.
+   * @return The names.
+   */
+  @Override
+  Set<String> getAllCurveNames();
+
+  /**
+   * Gets the number of parameters for a curve described by its name.
+   * @param name The curve name.
+   * @return The number of parameters.
+   */
+  Integer getNumberOfParameters(String name);
+
+  /**
+   * Gets the underlying name(s) (i.e. {@link YieldAndDiscountCurve#getName()} for a curve name;
+   * this can be multi-valued in the case of spread curves.
+   * @param name The curve name
+   * @return The name(s) of the underlying curves.
+   */
+  List<String> getUnderlyingCurvesNames(String name);
 
   /**
    * Returns the MulticurveProvider from which the InflationProvider is composed.
    * @return The multi-curves provider.
    */
+  @Override
   MulticurveProviderInterface getMulticurveProvider();
 
   /**
    * Returns the InflationProvider from which the InflationIssuerProvider is composed.
    * @return The inflation provider.
    */
-  InflationProviderDiscount getInflationProvider();
+  @Override
+  InflationProviderInterface getInflationProvider();
 
   //     =====     Methods related to MulticurveProvider     =====
 
@@ -169,6 +209,19 @@ public interface InflationIssuerProviderInterface {
 
   //     =====     Convenience methods     =====
 
-  InflationProviderInterface withDiscountFactor(Currency ccy, Pair<String, Currency> replacement);
+  /**
+   * Replaces the identifier / issuer pair for a particular currency.
+   * @param ccy The currency
+   * @param replacement The replacement identifier / issuer pair
+   * @return A new provider with the appropriate pair replaced
+   */
+  InflationProviderInterface withDiscountFactor(Currency ccy, Pair<Object, LegalEntityFilter<LegalEntity>> replacement);
 
+  /**
+   * Replaces an issuer for a particular currency.
+   * @param ccy The currency The currency
+   * @param replacement The replacement issuer
+   * @return A new provider with the appropriate issuer replaced
+   */
+  InflationProviderInterface withDiscountFactor(Currency ccy, LegalEntity replacement);
 }

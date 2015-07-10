@@ -68,7 +68,7 @@ public class EquityIndexForwardCurveFromFutureCurveFunction extends AbstractFunc
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.CURRENCY;
+    return ComputationTargetType.PRIMITIVE;
   }
 
   @Override

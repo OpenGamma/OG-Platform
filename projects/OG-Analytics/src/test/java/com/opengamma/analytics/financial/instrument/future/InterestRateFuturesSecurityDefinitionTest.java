@@ -19,11 +19,13 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the interest rate future security description.
  */
+@Test(groups = TestGroup.UNIT)
 public class InterestRateFuturesSecurityDefinitionTest {
 
   private static final Calendar CALENDAR = new MondayToFridayCalendar("TARGET");
@@ -44,7 +46,7 @@ public class InterestRateFuturesSecurityDefinitionTest {
 
   private static final String DISCOUNTING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES = {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final String[] CURVES = {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME };
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullLastTradeDate() {
@@ -72,7 +74,7 @@ public class InterestRateFuturesSecurityDefinitionTest {
     assertEquals(ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, IBOR_INDEX.getTenor(), IBOR_INDEX.getBusinessDayConvention(), CALENDAR, IBOR_INDEX.isEndOfMonth()),
         ERU2_DEFINITION.getFixingPeriodEndDate());
     assertEquals(IBOR_INDEX.getDayCount().getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE), ERU2_DEFINITION.getFixingPeriodAccrualFactor());
-    final String description = "IRFuture Security: " + NAME + " Last trading date: " + LAST_TRADING_DATE.toString() + " Ibor Index: " + IBOR_INDEX.getName() + " Notional: " + NOTIONAL;
+    final String description = "STIRFuture Security: " + NAME + " Last trading date: " + LAST_TRADING_DATE.toString() + " Ibor Index: " + IBOR_INDEX.getName() + " Notional: " + NOTIONAL;
     assertEquals(description, ERU2_DEFINITION.toString());
   }
 
@@ -96,19 +98,6 @@ public class InterestRateFuturesSecurityDefinitionTest {
     assertFalse(ERU2_DEFINITION.equals(modifiedFuture));
     assertFalse(ERU2_DEFINITION.equals(IBOR_INDEX));
     assertFalse(ERU2_DEFINITION.equals(null));
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  public void toDerivativeDeprecated() {
-    final double LAST_TRADING_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, LAST_TRADING_DATE);
-    final double FIXING_START_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, SPOT_LAST_TRADING_DATE);
-    final double FIXING_END_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_END_DATE);
-    final double FIXING_ACCRUAL = IBOR_INDEX.getDayCount().getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE);
-    final InterestRateFutureSecurity ERU2 = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR, NAME,
-        DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
-    final InterestRateFutureSecurity convertedERU2 = ERU2_DEFINITION.toDerivative(REFERENCE_DATE, CURVES);
-    assertTrue("Rate future security converter", ERU2.equals(convertedERU2));
   }
 
   @Test

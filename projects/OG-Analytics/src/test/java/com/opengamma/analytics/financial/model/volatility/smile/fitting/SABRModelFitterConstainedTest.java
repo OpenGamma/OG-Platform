@@ -17,10 +17,12 @@ import cern.jet.random.engine.RandomEngine;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SABRModelFitterConstainedTest extends SmileModelFitterTest<SABRFormulaData> {
 
   private static final double ALPHA = 0.05;

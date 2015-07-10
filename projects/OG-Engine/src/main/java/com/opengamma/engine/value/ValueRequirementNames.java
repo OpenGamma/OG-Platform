@@ -5,10 +5,11 @@
  */
 package com.opengamma.engine.value;
 
+import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.position.Position;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.TargetSourcingFunction;
-import com.opengamma.core.position.Position;
 
 /**
  * Standard names used to refer to particular computed values.
@@ -62,9 +63,20 @@ public final class ValueRequirementNames {
   //  public static final String DAILY_VOLUME_AVG_20D = "Last Volume Avg 20D";
   //  public static final String DAILY_CALL_IMP_VOL_30D = "Last Call Implied Vol 30D";
   /**
-   * The mark as of the previous close (e.g. equity price)
+   * The mark as of the previous close (e.g. equity price) <p>
    */
   public static final String MARK = "Mark";
+  /**
+   * Current value of a security.
+   * This is typically the mid of bid/ask prices, but if these are not available, may be formed in another fashion
+   */
+  public static final String MARK_CURRENT = "Mark - Current";
+
+  /**
+   * Previous value of a security.
+   * This is typically the mid of previous bid/ask prices, but if these are not available, may be formed in another fashion
+   */
+  public static final String MARK_PREVIOUS = "Mark - Previous";
   /**
    * Spot - General name for current value of underlying asset / index
    */
@@ -91,7 +103,7 @@ public final class ValueRequirementNames {
   public static final String UNDERLYING_MARKET_PRICE = "Underlying Market Price";
   /**
    * For margined securities, the reference or margin price. This will either be the security's close price or,
-   * on the transaction date itself, the traded price 
+   * on the transaction date itself, the traded price
    */
   public static final String MARGIN_PRICE = "Margin Price";
   /**
@@ -205,11 +217,11 @@ public final class ValueRequirementNames {
    * A series of yield curves calculated using historical data
    */
   public static final String YIELD_CURVE_SERIES = "Yield Curve Series";
-  /** 
+  /**
    * The FX matrix associated with a bundle of curves.
    */
   public static final String FX_MATRIX = "FX Matrix";
-  /** 
+  /**
    * A set of parameters for the Hull-White one factor model.
    */
   public static final String HULL_WHITE_ONE_FACTOR_PARAMETERS = "Hull-White One Factor Parameters";
@@ -218,7 +230,7 @@ public final class ValueRequirementNames {
    */
   public static final String G2PP_PARAMETERS = "G2pp Parameters";
   /**
-   * Curve containing (time, rate) pairs that is constructed by directly interpolating between market data points (i.e. no settlement day corrections, 
+   * Curve containing (time, rate) pairs that is constructed by directly interpolating between market data points (i.e. no settlement day corrections,
    * ignoring the type of instrument etc.).
    */
   public static final String YIELD_CURVE_INTERPOLATED = "YieldCurveInterpolated";
@@ -228,21 +240,48 @@ public final class ValueRequirementNames {
   public static final String YIELD_CURVE_JACOBIAN = "YieldCurveJacobian";
   /**
    * The transition matrix between the sensitivity with respect to the new currency parameters and the initial currency market data.
-   * Used for FX swaps implied curves calibration. 
+   * Used for FX swaps implied curves calibration.
    */
   public static final String FX_IMPLIED_TRANSITION_MATRIX = "FXImpliedTransitionMatrix";
   /**
    * The raw market data that is used in yield curve construction.
+   * @deprecated Use {@link #YIELD_CURVE_DATA} instead, values using this constant can't be manipulated in scenarios.
    */
+  @Deprecated
   public static final String YIELD_CURVE_MARKET_DATA = "YieldCurveMarketData";
+  /**
+   * The yield curve specification and raw market data used in its construction.
+   */
+  public static final String YIELD_CURVE_DATA = "YieldCurveData";
   /**
    * The raw market data that is used in curve construction.
    */
   public static final String CURVE_MARKET_DATA = "CurveMarketData";
   /**
+   * Data for an arbitrary surface.
+   */
+  public static final String SURFACE_MARKET_DATA = "SurfaceMarketData";
+  /**
    * The sensitivities of a cash-flow based fixed-income instrument to each of the nodal points in a yield curve.
    */
   public static final String YIELD_CURVE_NODE_SENSITIVITIES = "Yield Curve Node Sensitivities";
+  /**
+   * The bucketed PV01.
+   */
+  public static final String BUCKETED_PV01 = "Bucketed PV01";
+  /**
+   * International Securities Identification Number (ISIN) uniquely identifies a security
+   */
+  public static final String ISIN = "ISIN";
+  /**
+   * Ticker symbol used to identify a security in Bloomberg. See {@link ExternalSchemes}
+   */
+  public static final String BLOOMBERG_TICKER = "BLOOMBERG_TICKER";
+  /**
+   * Bloomberg's older security identifier scheme.
+   * They now wish users to adopt their new Bloomberg Global ID (BBGID). See {@link ExternalSchemes}
+   */
+  public static final String BLOOMBERG_BUID = "BLOOMBERG_BUID";
   /**
    * Curve property metadata.
    */
@@ -256,11 +295,11 @@ public final class ValueRequirementNames {
    */
   public static final String CURVE_DEFINITION = "CurveDefinition";
   /**
-   * A vector of P&L series for the nodal points of a yield curve. 
+   * A vector of P&L series for the nodal points of a yield curve.
    */
   public static final String YIELD_CURVE_PNL_SERIES = "Yield Curve P&L Series";
   /**
-   * A vector of P&L series for the nodal points of a curve. 
+   * A vector of P&L series for the nodal points of a curve.
    */
   public static final String CURVE_PNL_SERIES = "Curve P&L Series";
   /**
@@ -310,7 +349,7 @@ public final class ValueRequirementNames {
   /**
    * A bundle of curves
    */
-  public static final String CURVE_BUNDLE = "Curve Bundle"; 
+  public static final String CURVE_BUNDLE = "Curve Bundle";
   /**
    * A bundle of Jacobians
    */
@@ -325,7 +364,18 @@ public final class ValueRequirementNames {
   public static final String CURRENCY_PAIRS = "CurrencyPairs";
 
   ///// Surfaces
-
+  /**
+   * A surface specification
+   */
+  public static final String SURFACE_SPECIFICATION = "SurfaceSpecification";
+  /**
+   * A surface definition
+   */
+  public static final String SURFACE_DEFINITION = "SurfaceDefinition";
+  /**
+   * Surface containing arrays of x, y, and  values for (x, y) pairs.
+   */
+  public static final String SURFACE_DATA = "SurfaceData";
   /**
    * Set of data containing surfaces of (x, y, parameter) triples, where the parameters are those in the Heston model.
    */
@@ -408,7 +458,7 @@ public final class ValueRequirementNames {
   /**
    * A volatility cube specification.
    */
-  public static final String VOLATILITY_CUBE_SPEC = "VolatilityCubeSpec";
+  public static final String VOLATILITY_CUBE_SPEC = "VolatilityCubeSpecification";
   /**
    * The points that have been included in a fit
    */
@@ -419,7 +469,7 @@ public final class ValueRequirementNames {
    * The shifts to apply to a log-normal volatility surface
    */
   public static final String LOGNORMAL_SURFACE_SHIFTS = "LognormalSurfaceShifts";
-  
+
   ///// Pricing
 
   /**
@@ -522,6 +572,11 @@ public final class ValueRequirementNames {
   public static final String PILLAR_SPREADS = "Pillar Spreads";
 
   /**
+   * The hedge notional, a matrix of notionals and tenors required to hedge an instrument.
+   */
+  public static final String HEDGE_NOTIONAL = "Hedge Notional";
+
+  /**
    * The dividend yield of an equity or equity index.
    */
   public static final String DIVIDEND_YIELD = "Dividend Yield";
@@ -542,6 +597,34 @@ public final class ValueRequirementNames {
    */
   public static final String PRESENT_VALUE = "Present Value";
   /**
+   * The present value of the pay leg of a swap.
+   */
+  public static final String PAY_LEG_PRESENT_VALUE = "Swap Pay Leg Present Value";
+  /**
+   * The present value of the receive leg of a swap.
+   */
+  public static final String RECEIVE_LEG_PRESENT_VALUE = "Swap Receive Leg Present Value";
+  /**
+   * The details of a swap pay leg.
+   * @deprecated Should use {@link #SWAP_PAY_LEG_CASHFLOWS}
+   */
+  @Deprecated
+  public static final String SWAP_PAY_LEG_DETAILS = "Swap Pay Leg Details";
+  /**
+   * The details of a swap receive leg.
+   * @deprecated Should use {@link #SWAP_RECEIVE_LEG_CASHFLOWS}
+   */
+  @Deprecated
+  public static final String SWAP_RECEIVE_LEG_DETAILS = "Swap Receive Leg Details";
+  /**
+   * The cash flows of a swap pay leg
+   */
+  public static final String SWAP_PAY_LEG_CASHFLOWS = "Pay Leg Cash Flow Details";
+  /**
+   * The cash flows of a swap receive leg
+   */
+  public static final String SWAP_RECEIVE_LEG_CASHFLOWS = "Receive Leg Cash Flow Details";
+  /**
    * The rate that prices a cash-flow based fixed-income instrument to zero.
    */
   public static final String PAR_RATE = "Par Rate";
@@ -561,6 +644,18 @@ public final class ValueRequirementNames {
    * The PV01 of a cash-flow based fixed-income instrument.
    */
   public static final String PV01 = "PV01";
+  /**
+   * All PV01s of a cash-flow based fixed-income instrument.
+   */
+  public static final String ALL_PV01S = "All PV01s";
+  /**
+   * The Gamma PV01 of a cash-flow based fixed-income instrument.
+   */
+  public static final String GAMMA_PV01 = "Gamma PV01";
+  /**
+   * Details of a bond cash-flow leg.
+   */
+  public static final String BOND_DETAILS = "Bond Details";
   /**
    * The implied volatility of a security.
    */
@@ -593,6 +688,23 @@ public final class ValueRequirementNames {
    * The market quoted value of an instrument (e.g. 0.99 for a Eurodollar future)
    */
   public static final String MARKET_QUOTE = "Market Quote";
+  /**
+   * The PV of the funding leg of an instrument (e.g. TRS).
+   */
+  public static final String FUNDING_LEG_PV = "Funding Leg Present Value";
+  /**
+   * The PV of the asset leg of an instrument (e.g. TRS).
+   */
+  public static final String ASSET_LEG_PV = "Asset Leg Present Value";
+  /**
+   * The funding leg detals of an instrument (e.g. TRS).
+   */
+  public static final String FUNDING_LEG_DETAILS = "Funding Leg Details";
+  /**
+   * The bond equivalent value for a bond total return swap.
+   */
+  public static final String BOND_EQUIVALENT_VALUE = "Bond Equivalent Value";
+
   ///// Greeks
 
   /**
@@ -814,7 +926,7 @@ public final class ValueRequirementNames {
   /**
    * ValueDelta represents the cash value of the position or, the value of money one would make if the underlying increased in price by 100%.<p>
    * {@link #DELTA} = dV/dS.  ValueDelta is defined as S(t) * dV/dS. <p>
-   * Observe: PNL = dV/dS * (change in S) = S(t) * dV/dS * (S(T) - S(t)) / S(t), thus S(t)* dV/dS (ValueDelta) would be the PNL if 1.0 = (S(T) - S(t)) / S(t) => S(T) = 2*S(t), 
+   * Observe: PNL = dV/dS * (change in S) = S(t) * dV/dS * (S(T) - S(t)) / S(t), thus S(t)* dV/dS (ValueDelta) would be the PNL if 1.0 = (S(T) - S(t)) / S(t) => S(T) = 2*S(t),
    * i.e. if the underlying doubled (increased by 100%). It thus gives a measure of the sensitivity as a relative measure.
    */
   public static final String VALUE_DELTA = "ValueDelta";
@@ -1090,6 +1202,14 @@ public final class ValueRequirementNames {
    * The attributes of a security
    */
   public static final String ATTRIBUTES = "Attributes";
+  /**
+   * An ExternalId of a security
+   */
+  public static final String EXTERNAL_ID = "ExternalId";
+  /** 
+   * The realized variance of a time series.
+   */
+  public static final String REALIZED_VARIANCE = "Realized Variance";
 
   ///// Value At Risk
 
@@ -1218,6 +1338,10 @@ public final class ValueRequirementNames {
    * The convexity of a bond.
    */
   public static final String CONVEXITY = "Convexity";
+  /**
+   * The accrued interest of a bond.
+   */
+  public static final String ACCRUED_INTEREST = "Accrued Interest";
   /**
    * The current yield of a bond
    */
@@ -1563,11 +1687,15 @@ public final class ValueRequirementNames {
    * Type of a position or trade.
    */
   public static final String TYPE = "Type";
-  
+  /**
+   * The named used for a value published as a merged output.
+   */
+  public static final String MERGED_OUTPUT = "MergedOutput";
+
   ///// Externally-sourced values
   // Existing value requirement names with a suffix
   // NOTE jonathan 2012-07-13 -- simply to allow clearer column headers. Should be removed once we have a better solution.
-  private static final String EXTERNAL_SUFFIX = " (ext)";
+  public static final String EXTERNAL_SUFFIX = " (ext)";
   /**
    * External value of {@link #CONDITIONAL_HISTORICAL_VAR}
    */
@@ -1588,5 +1716,22 @@ public final class ValueRequirementNames {
    * External position quantity.
    */
   public static final String EXTERNAL_QUANTITY = "Quantity" + EXTERNAL_SUFFIX;
+
+  /**
+   * Delta Equivalent value of a position. Essentially equivalent to {@link ValueRequirementNames#VALUE_DELTA}
+   */
+  public static final String NET_MARKET_VALUE = "Net Market Value";
+  /**
+   * {@link ValueRequirementNames#NET_MARKET_VALUE} scaled by some Capital amount
+   */
+  public static final String NET_CAPITAL = "Net Capital";
+  /**
+   * {@link ValueRequirementNames#NET_MARKET_VALUE} filtered for Equity Security Types
+   */
+  public static final String EQUITY_NET_MARKET_VALUE = "Equity Net Market Value";
+  /**
+   * {@link ValueRequirementNames#NET_CAPITAL} filtered for Equity Security Types
+   */
+  public static final String EQUITY_NET_CAPITAL = "Equity Net Capital";
 
 }

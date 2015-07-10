@@ -11,18 +11,20 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.interpolation.ExponentialInterpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
+import com.opengamma.analytics.math.interpolation.PCHIPInterpolator1D;
 import com.opengamma.analytics.math.interpolation.StepInterpolator1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class InterpolatedDoublesCurveTest extends DoublesCurveTestCase {
   private static final Interpolator1D LINEAR = new LinearInterpolator1D();
   private static final Interpolator1D STEP = new StepInterpolator1D();
-  private static final Interpolator1D EXPONENTIAL = new ExponentialInterpolator1D();
+  private static final Interpolator1D PCHIP = new PCHIPInterpolator1D();
   private static final double EPS = 1e-15;
 
   @Test
@@ -189,13 +191,13 @@ public class InterpolatedDoublesCurveTest extends DoublesCurveTestCase {
 
   @Test
   public void testGetters() {
-    final InterpolatedDoublesCurve curve = InterpolatedDoublesCurve.from(PAIR_SET, EXPONENTIAL, NAME1);
+    final InterpolatedDoublesCurve curve = InterpolatedDoublesCurve.from(PAIR_SET, PCHIP, NAME1);
     assertEquals(curve.getName(), NAME1);
     assertArrayEquals(curve.getXData(), X_OBJECT_SORTED);
     assertArrayEquals(curve.getXDataAsPrimitive(), X_PRIMITIVE_SORTED, 0);
     assertArrayEquals(curve.getYData(), Y_OBJECT_SORTED);
     assertArrayEquals(curve.getYDataAsPrimitive(), Y_PRIMITIVE_SORTED, 0);
-    assertEquals(curve.getInterpolator(), EXPONENTIAL);
+    assertEquals(curve.getInterpolator(), PCHIP);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

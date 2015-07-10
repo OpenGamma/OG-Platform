@@ -75,8 +75,7 @@ public class AnnuityCouponFixedAccruedCompoundingDefinition extends AnnuityDefin
    * @return The fixed annuity.
    */
   public static AnnuityCouponFixedAccruedCompoundingDefinition from(final Currency currency, final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final Period paymentPeriod,
-      final Calendar calendar,
-      final DayCount dayCount, final BusinessDayConvention businessDay, final boolean isEOM, final double notional, final double fixedRate, final boolean isPayer) {
+      final Calendar calendar, final DayCount dayCount, final BusinessDayConvention businessDay, final boolean isEOM, final double notional, final double fixedRate, final boolean isPayer) {
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNull(settlementDate, "settlement date");
     ArgumentChecker.notNull(maturityDate, "Maturity date");
@@ -89,10 +88,10 @@ public class AnnuityCouponFixedAccruedCompoundingDefinition extends AnnuityDefin
     final CouponFixedAccruedCompoundingDefinition[] coupons = new CouponFixedAccruedCompoundingDefinition[paymentDates.length];
     //First coupon uses settlement date
     coupons[0] = new CouponFixedAccruedCompoundingDefinition(currency, paymentDates[0], settlementDate, paymentDates[0], dayCount.getDayCountFraction(settlementDate, paymentDates[0], calendar),
-        sign * notional, fixedRate);
+        sign * notional, fixedRate, calendar);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
       coupons[loopcpn] = new CouponFixedAccruedCompoundingDefinition(currency, paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn],
-          dayCount.getDayCountFraction(paymentDates[loopcpn - 1], paymentDates[loopcpn], calendar), sign * notional, fixedRate);
+          dayCount.getDayCountFraction(paymentDates[loopcpn - 1], paymentDates[loopcpn], calendar), sign * notional, fixedRate, calendar);
     }
     return new AnnuityCouponFixedAccruedCompoundingDefinition(coupons, calendar);
   }
@@ -113,8 +112,7 @@ public class AnnuityCouponFixedAccruedCompoundingDefinition extends AnnuityDefin
    * @return The fixed annuity.
    */
   public static AnnuityCouponFixedAccruedCompoundingDefinition from(final Currency currency, final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final Frequency frequency,
-      final Calendar calendar,
-      final DayCount dayCount, final BusinessDayConvention businessDay, final boolean isEOM, final double notional, final double fixedRate, final boolean isPayer) {
+      final Calendar calendar, final DayCount dayCount, final BusinessDayConvention businessDay, final boolean isEOM, final double notional, final double fixedRate, final boolean isPayer) {
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNull(settlementDate, "settlement date");
     ArgumentChecker.notNull(maturityDate, "maturity date");
@@ -127,10 +125,10 @@ public class AnnuityCouponFixedAccruedCompoundingDefinition extends AnnuityDefin
     final CouponFixedAccruedCompoundingDefinition[] coupons = new CouponFixedAccruedCompoundingDefinition[paymentDates.length];
     //First coupon uses settlement date
     coupons[0] = new CouponFixedAccruedCompoundingDefinition(currency, paymentDates[0], settlementDate, paymentDates[0], dayCount.getDayCountFraction(settlementDate, paymentDates[0], calendar),
-        sign * notional, fixedRate);
+        sign * notional, fixedRate, calendar);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
       coupons[loopcpn] = new CouponFixedAccruedCompoundingDefinition(currency, paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn],
-          dayCount.getDayCountFraction(paymentDates[loopcpn - 1], paymentDates[loopcpn], calendar), sign * notional, fixedRate);
+          dayCount.getDayCountFraction(paymentDates[loopcpn - 1], paymentDates[loopcpn], calendar), sign * notional, fixedRate, calendar);
     }
     return new AnnuityCouponFixedAccruedCompoundingDefinition(coupons, calendar);
   }
@@ -166,10 +164,10 @@ public class AnnuityCouponFixedAccruedCompoundingDefinition extends AnnuityDefin
     final CouponFixedAccruedCompoundingDefinition[] coupons = new CouponFixedAccruedCompoundingDefinition[paymentDates.length];
     //First coupon uses settlement date
     coupons[0] = new CouponFixedAccruedCompoundingDefinition(currency, paymentDates[0], settlementDate, paymentDates[0], dayCount.getDayCountFraction(settlementDate, paymentDates[0], calendar),
-        sign * notional, fixedRate);
+        sign * notional, fixedRate, calendar);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
       coupons[loopcpn] = new CouponFixedAccruedCompoundingDefinition(currency, paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn],
-          dayCount.getDayCountFraction(paymentDates[loopcpn - 1], paymentDates[loopcpn], calendar), sign * notional, fixedRate);
+          dayCount.getDayCountFraction(paymentDates[loopcpn - 1], paymentDates[loopcpn], calendar), sign * notional, fixedRate, calendar);
     }
     return new AnnuityCouponFixedAccruedCompoundingDefinition(coupons, calendar);
   }
@@ -208,10 +206,10 @@ public class AnnuityCouponFixedAccruedCompoundingDefinition extends AnnuityDefin
     final CouponFixedAccruedCompoundingDefinition[] coupons = new CouponFixedAccruedCompoundingDefinition[paymentDates.length];
     //First coupon uses settlement date
     coupons[0] = new CouponFixedAccruedCompoundingDefinition(currency, paymentDates[0], settlementDate, paymentDatesUnadjusted[0],
-        dayCount.getDayCountFraction(settlementDate, paymentDates[0], calendar), sign * notional, fixedRate);
+        dayCount.getDayCountFraction(settlementDate, paymentDates[0], calendar), sign * notional, fixedRate, calendar);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
       coupons[loopcpn] = new CouponFixedAccruedCompoundingDefinition(currency, paymentDates[loopcpn], paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn],
-          dayCount.getDayCountFraction(paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn], calendar), sign * notional, fixedRate);
+          dayCount.getDayCountFraction(paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn], calendar), sign * notional, fixedRate, calendar);
     }
 
     return new AnnuityCouponFixedAccruedCompoundingDefinition(coupons, calendar);
@@ -252,12 +250,11 @@ public class AnnuityCouponFixedAccruedCompoundingDefinition extends AnnuityDefin
     final CouponFixedAccruedCompoundingDefinition[] coupons = new CouponFixedAccruedCompoundingDefinition[paymentDates.length];
     //First coupon uses settlement date
     coupons[0] = new CouponFixedAccruedCompoundingDefinition(currency, paymentDates[0], settlementDate, paymentDatesUnadjusted[0], dayCount.getAccruedInterest(settlementDate, paymentDates[0],
-        paymentDates[0], 1.0,
-        nbPaymentPerYear), sign * notional, fixedRate);
+        paymentDates[0], 1.0, nbPaymentPerYear), sign * notional, fixedRate, calendar);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
       coupons[loopcpn] = new CouponFixedAccruedCompoundingDefinition(currency, paymentDates[loopcpn], paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn],
-          dayCount.getAccruedInterest(
-              paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn], paymentDatesUnadjusted[loopcpn], 1.0, nbPaymentPerYear), sign * notional, fixedRate);
+          dayCount.getAccruedInterest(paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn], paymentDatesUnadjusted[loopcpn], 1.0, nbPaymentPerYear), sign * notional, fixedRate,
+          calendar);
     }
     return new AnnuityCouponFixedAccruedCompoundingDefinition(coupons, calendar);
   }

@@ -119,7 +119,7 @@ public class DbPortfolioMaster
       return result;
     }
 
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource args = createParameterSource()
         .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
         .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
         .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()));
@@ -204,7 +204,7 @@ public class DbPortfolioMaster
     final UniqueId portfolioUid = createUniqueId(portfolioOid, portfolioId);
 
     // the arguments for inserting into the portfolio table
-    final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource docArgs = createParameterSource()
         .addValue("portfolio_id", portfolioId)
         .addValue("portfolio_oid", portfolioOid)
         .addTimestamp("ver_from_instant", document.getVersionFromInstant())
@@ -225,7 +225,7 @@ public class DbPortfolioMaster
     final List<DbMapSqlParameterSource> prtAttrList = Lists.newArrayList();
     for (Entry<String, String> entry : document.getPortfolio().getAttributes().entrySet()) {
       final long prtAttrId = nextId("prt_portfolio_attr_seq");
-      final DbMapSqlParameterSource posAttrArgs = new DbMapSqlParameterSource()
+      final DbMapSqlParameterSource posAttrArgs = createParameterSource()
           .addValue("attr_id", prtAttrId)
           .addValue("portfolio_id", portfolioId)
           .addValue("portfolio_oid", portfolioOid)
@@ -278,7 +278,7 @@ public class DbPortfolioMaster
     node.setUniqueId(nodeUid);
     node.setParentNodeId(parentNodeUid);
     node.setPortfolioId(portfolioUid);
-    final DbMapSqlParameterSource treeArgs = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource treeArgs = createParameterSource()
         .addValue("node_id", nodeId)
         .addValue("node_oid", nodeOid)
         .addValue("portfolio_id", portfolioId)
@@ -294,7 +294,7 @@ public class DbPortfolioMaster
     node.getPositionIds().clear();
     node.getPositionIds().addAll(positionIds);
     for (ObjectId positionId : positionIds) {
-      final DbMapSqlParameterSource posArgs = new DbMapSqlParameterSource()
+      final DbMapSqlParameterSource posArgs = createParameterSource()
           .addValue("node_id", nodeId)
           .addValue("key_scheme", positionId.getScheme())
           .addValue("key_value", positionId.getValue());
@@ -333,7 +333,7 @@ public class DbPortfolioMaster
   protected ManageablePortfolioNode getNodeByInstants(final UniqueId uniqueId, final Instant versionAsOf, final Instant correctedTo) {
     s_logger.debug("getNodeByLatest {}", uniqueId);
     final Instant now = now();
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource args = createParameterSource()
         .addValue("node_oid", extractOid(uniqueId))
         .addTimestamp("version_as_of_instant", Objects.firstNonNull(versionAsOf, now))
         .addTimestamp("corrected_to_instant", Objects.firstNonNull(correctedTo, now));
@@ -355,7 +355,7 @@ public class DbPortfolioMaster
    */
   protected ManageablePortfolioNode getNodeById(final UniqueId uniqueId) {
     s_logger.debug("getNodeById {}", uniqueId);
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource args = createParameterSource()
         .addValue("node_id", extractRowId(uniqueId));
     final PortfolioDocumentExtractor extractor = new PortfolioDocumentExtractor(true, false);
     final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate();
@@ -453,10 +453,11 @@ public class DbPortfolioMaster
       _node.setPortfolioId(_portfolio.getUniqueId());
       if (_nodes.size() == 0) {
         if (_complete == false) {
-          final Long parentNodeId = (Long) rs.getObject("PARENT_NODE_ID");
-          final Long parentNodeOid = (Long) rs.getObject("PARENT_NODE_OID");
+          // different databases return different types, notably BigDecimal and Long
+          final Number parentNodeId = (Number) rs.getObject("PARENT_NODE_ID");
+          final Number parentNodeOid = (Number) rs.getObject("PARENT_NODE_OID");
           if (parentNodeId != null && parentNodeOid != null) {
-            _node.setParentNodeId(createUniqueId(parentNodeOid, parentNodeId));
+            _node.setParentNodeId(createUniqueId(parentNodeOid.longValue(), parentNodeId.longValue()));
           }
         }
         _portfolio.setRootNode(_node);

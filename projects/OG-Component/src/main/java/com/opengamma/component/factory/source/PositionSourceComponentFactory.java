@@ -10,6 +10,7 @@ import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -116,81 +117,6 @@ public class PositionSourceComponentFactory extends AbstractComponentFactory {
   @Override
   public PositionSourceComponentFactory.Meta metaBean() {
     return PositionSourceComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -614707837:  // publishRest
-        return isPublishRest();
-      case -1452875317:  // cacheManager
-        return getCacheManager();
-      case -772274742:  // portfolioMaster
-        return getPortfolioMaster();
-      case -1840419605:  // positionMaster
-        return getPositionMaster();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -614707837:  // publishRest
-        setPublishRest((Boolean) newValue);
-        return;
-      case -1452875317:  // cacheManager
-        setCacheManager((CacheManager) newValue);
-        return;
-      case -772274742:  // portfolioMaster
-        setPortfolioMaster((PortfolioMaster) newValue);
-        return;
-      case -1840419605:  // positionMaster
-        setPositionMaster((PositionMaster) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_portfolioMaster, "portfolioMaster");
-    JodaBeanUtils.notNull(_positionMaster, "positionMaster");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      PositionSourceComponentFactory other = (PositionSourceComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
-          JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
-          JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -322,6 +248,63 @@ public class PositionSourceComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public PositionSourceComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      PositionSourceComponentFactory other = (PositionSourceComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          (isPublishRest() == other.isPublishRest()) &&
+          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
+          JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
+          JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("PositionSourceComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
+    buf.append("portfolioMaster").append('=').append(JodaBeanUtils.toString(getPortfolioMaster())).append(',').append(' ');
+    buf.append("positionMaster").append('=').append(JodaBeanUtils.toString(getPositionMaster())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code PositionSourceComponentFactory}.
    */
@@ -444,6 +427,54 @@ public class PositionSourceComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<PositionMaster> positionMaster() {
       return _positionMaster;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((PositionSourceComponentFactory) bean).getClassifier();
+        case -614707837:  // publishRest
+          return ((PositionSourceComponentFactory) bean).isPublishRest();
+        case -1452875317:  // cacheManager
+          return ((PositionSourceComponentFactory) bean).getCacheManager();
+        case -772274742:  // portfolioMaster
+          return ((PositionSourceComponentFactory) bean).getPortfolioMaster();
+        case -1840419605:  // positionMaster
+          return ((PositionSourceComponentFactory) bean).getPositionMaster();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((PositionSourceComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -614707837:  // publishRest
+          ((PositionSourceComponentFactory) bean).setPublishRest((Boolean) newValue);
+          return;
+        case -1452875317:  // cacheManager
+          ((PositionSourceComponentFactory) bean).setCacheManager((CacheManager) newValue);
+          return;
+        case -772274742:  // portfolioMaster
+          ((PositionSourceComponentFactory) bean).setPortfolioMaster((PortfolioMaster) newValue);
+          return;
+        case -1840419605:  // positionMaster
+          ((PositionSourceComponentFactory) bean).setPositionMaster((PositionMaster) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((PositionSourceComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((PositionSourceComponentFactory) bean)._portfolioMaster, "portfolioMaster");
+      JodaBeanUtils.notNull(((PositionSourceComponentFactory) bean)._positionMaster, "positionMaster");
+      super.validate(bean);
     }
 
   }

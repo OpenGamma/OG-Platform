@@ -6,16 +6,21 @@
 package com.opengamma.analytics.math.minimization;
 
 import static org.testng.AssertJUnit.assertEquals;
+
+import org.testng.annotations.Test;
+
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Abstract test.
  */
+@Test(groups = TestGroup.UNIT)
 public abstract class ParameterLimitsTransformTestCase {
 
   protected static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);

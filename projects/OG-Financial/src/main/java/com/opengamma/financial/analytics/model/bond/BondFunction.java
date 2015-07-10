@@ -46,6 +46,7 @@ public abstract class BondFunction<T> extends AbstractFunction.NonCompiledInvoke
   public static final String PROPERTY_RISK_FREE_CURVE_CONFIG = "RiskFreeConfig";
   /** String indicating the name for the credit curve */
   public static final String PROPERTY_CREDIT_CURVE_CONFIG = "CreditConfig";
+  /** Converts securities to definitions */
   private BondSecurityConverter _visitor;
 
   @Override
@@ -68,13 +69,42 @@ public abstract class BondFunction<T> extends AbstractFunction.NonCompiledInvoke
     return FinancialSecurityTypes.BOND_SECURITY;
   }
 
+  /**
+   * Gets the object that converts from securities to definitions.
+   * @return The converter
+   */
   protected BondSecurityConverter getConverter() {
     return _visitor;
   }
 
+  /**
+   * Calculates the desired result(s).
+   * @param date The valuation date
+   * @param bondSecurity The bond security
+   * @param data The market data
+   * @param target The target
+   * @param inputs The function inputs
+   * @param desiredValues The desired values
+   * @return The results
+   */
   protected abstract Set<ComputedValue> calculate(final ZonedDateTime date, final BondSecurity bondSecurity, final T data, final ComputationTarget target, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues);
 
+  /**
+   * Gets the market data for a bond.
+   * @param inputs The function inputs
+   * @param target The target
+   * @param desiredValues The desired values
+   * @return The market data
+   */
   protected abstract T getData(final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues);
 
+  /**
+   * Gets the scale factor for the measure. The analytics library deals with all analytics as decimals,
+   * but this is not necessarily what is required as an output of the engine.
+   * @return A scale factor of one
+   */
+  protected double getScaleFactor() {
+    return 1;
+  }
 }

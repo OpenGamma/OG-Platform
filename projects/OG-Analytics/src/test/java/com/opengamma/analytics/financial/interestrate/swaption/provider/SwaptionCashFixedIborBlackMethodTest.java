@@ -15,15 +15,15 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
-import com.opengamma.analytics.financial.interestrate.BlackSwaptionSensitivityNodeCalculator;
-import com.opengamma.analytics.financial.interestrate.PresentValueBlackSwaptionSensitivity;
+import com.opengamma.analytics.financial.interestrate.SwaptionSurfaceSensitivityNodeCalculator;
+import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueSwaptionSurfaceSensitivity;
 import com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.model.option.parameters.BlackFlatSwaptionParameters;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
-import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueBlackSwaptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueBlackSensitivityBlackSwaptionCalculator;
+import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueBlackSwaptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueCurveSensitivityBlackSwaptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.BlackDataSets;
@@ -37,16 +37,21 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class SwaptionCashFixedIborBlackMethodTest {
   // Data
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -68,7 +73,7 @@ public class SwaptionCashFixedIborBlackMethodTest {
   private static final double NOTIONAL = 123456789.0;
   private static final double RATE = 0.02;
   private static final SwapFixedIborDefinition SWAP_DEFINITION_REC = SwapFixedIborDefinition.from(SETTLE_DATE, SWAP_TENOR, GENERATOR_EUR1YEURIBOR6M, NOTIONAL, RATE, false);
-  private static final SwaptionCashFixedIborDefinition SWAPTION_DEFINITION_LONG_REC = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_DEFINITION_REC, true);
+  private static final SwaptionCashFixedIborDefinition SWAPTION_DEFINITION_LONG_REC = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_DEFINITION_REC, false, true);
   private static final SwaptionCashFixedIbor SWAPTION_LONG_REC = SWAPTION_DEFINITION_LONG_REC.toDerivative(REFERENCE_DATE);
 
   private static final PresentValueBlackSwaptionCalculator PVBSC = PresentValueBlackSwaptionCalculator.getInstance();
@@ -85,7 +90,7 @@ public class SwaptionCashFixedIborBlackMethodTest {
   //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
   private static final SwaptionCashFixedIborBlackMethod METHOD_BLACK = SwaptionCashFixedIborBlackMethod.getInstance();
   private static final ParRateDiscountingCalculator PRC = ParRateDiscountingCalculator.getInstance();
-  private static final BlackSwaptionSensitivityNodeCalculator BSSNC = new BlackSwaptionSensitivityNodeCalculator();
+  private static final SwaptionSurfaceSensitivityNodeCalculator BSSNC = new SwaptionSurfaceSensitivityNodeCalculator();
   private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
 
   @Test
@@ -122,7 +127,7 @@ public class SwaptionCashFixedIborBlackMethodTest {
   public void presentValueCurveSensitivity() {
     final MultipleCurrencyParameterSensitivity pvpsExact = PS_BS_C.calculateSensitivity(SWAPTION_LONG_REC, BLACK_MULTICURVES, BLACK_MULTICURVES.getMulticurveProvider().getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsFD = PS_BS_FDC.calculateSensitivity(SWAPTION_LONG_REC, BLACK_MULTICURVES);
-    AssertSensivityObjects.assertEquals("Swaption Black method: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_DELTA);
+    AssertSensitivityObjects.assertEquals("Swaption Black method: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_DELTA);
   }
 
   @Test
@@ -132,7 +137,7 @@ public class SwaptionCashFixedIborBlackMethodTest {
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_BLACK.presentValueCurveSensitivity(SWAPTION_LONG_REC, BLACK_MULTICURVES);
     final MultipleCurrencyMulticurveSensitivity pvcsCalculator = SWAPTION_LONG_REC.accept(PVCSBSC, BLACK_MULTICURVES);
-    AssertSensivityObjects.assertEquals("Swaption Black method: present value", pvcsMethod, pvcsCalculator, TOLERANCE_DELTA);
+    AssertSensitivityObjects.assertEquals("Swaption Black method: present value", pvcsMethod, pvcsCalculator, TOLERANCE_DELTA);
   }
 
   @Test
@@ -141,14 +146,14 @@ public class SwaptionCashFixedIborBlackMethodTest {
    */
   public void presentValueBlackSensitivity() {
     final double shift = 1.0E-6;
-    final PresentValueBlackSwaptionSensitivity pvbvs = METHOD_BLACK.presentValueBlackSensitivity(SWAPTION_LONG_REC, BLACK_MULTICURVES);
+    final PresentValueSwaptionSurfaceSensitivity pvbvs = METHOD_BLACK.presentValueBlackSensitivity(SWAPTION_LONG_REC, BLACK_MULTICURVES);
     final BlackFlatSwaptionParameters blackP = BlackDataSets.createBlackSwaptionEUR6Shift(shift);
     final BlackSwaptionFlatProvider curvesBlackP = new BlackSwaptionFlatProvider(MULTICURVES, blackP);
     final MultipleCurrencyAmount pvP = METHOD_BLACK.presentValue(SWAPTION_LONG_REC, curvesBlackP);
     final BlackFlatSwaptionParameters blackM = BlackDataSets.createBlackSwaptionEUR6Shift(-shift);
     final BlackSwaptionFlatProvider curvesBlackM = new BlackSwaptionFlatProvider(MULTICURVES, blackM);
     final MultipleCurrencyAmount pvM = METHOD_BLACK.presentValue(SWAPTION_LONG_REC, curvesBlackM);
-    final DoublesPair point = new DoublesPair(SWAPTION_LONG_REC.getTimeToExpiry(), SWAPTION_LONG_REC.getMaturityTime());
+    final DoublesPair point = DoublesPair.of(SWAPTION_LONG_REC.getTimeToExpiry(), SWAPTION_LONG_REC.getMaturityTime());
     final Double volatilitySensitivity = pvbvs.getSensitivity().getMap().get(point);
     assertEquals("Swaption Black method: present value volatility sensitivity", (pvP.getCurrencyAmounts()[0].getAmount() - pvM.getCurrencyAmounts()[0].getAmount()) / (2 * shift),
         volatilitySensitivity, TOLERANCE_DELTA);
@@ -159,8 +164,8 @@ public class SwaptionCashFixedIborBlackMethodTest {
    * Tests the Black volatility sensitivity (vega).
    */
   public void presentValueBlackSensitivityMethodVsCalculator() {
-    final PresentValueBlackSwaptionSensitivity pvbsMethod = METHOD_BLACK.presentValueBlackSensitivity(SWAPTION_LONG_REC, BLACK_MULTICURVES);
-    final PresentValueBlackSwaptionSensitivity pvbsCalculator = SWAPTION_LONG_REC.accept(PVBSSBSC, BLACK_MULTICURVES);
+    final PresentValueSwaptionSurfaceSensitivity pvbsMethod = METHOD_BLACK.presentValueBlackSensitivity(SWAPTION_LONG_REC, BLACK_MULTICURVES);
+    final PresentValueSwaptionSurfaceSensitivity pvbsCalculator = SWAPTION_LONG_REC.accept(PVBSSBSC, BLACK_MULTICURVES);
     assertEquals("Swaption Black method: vega", pvbsMethod, pvbsCalculator);
   }
 
@@ -170,10 +175,10 @@ public class SwaptionCashFixedIborBlackMethodTest {
    */
   public void presentValueBlackNodeSensitivity() {
     final double shift = 1.0E-6;
-    final PresentValueBlackSwaptionSensitivity pvbvs = METHOD_BLACK.presentValueBlackSensitivity(SWAPTION_LONG_REC, BLACK_MULTICURVES);
-    final PresentValueBlackSwaptionSensitivity pvbns = BSSNC.calculateNodeSensitivities(pvbvs, BLACK);
-    final double[] x = ((InterpolatedDoublesSurface) BLACK.getVolatilitySurface()).getXDataAsPrimitive();
-    final double[] y = ((InterpolatedDoublesSurface) BLACK.getVolatilitySurface()).getYDataAsPrimitive();
+    final PresentValueSwaptionSurfaceSensitivity pvbvs = METHOD_BLACK.presentValueBlackSensitivity(SWAPTION_LONG_REC, BLACK_MULTICURVES);
+    final PresentValueSwaptionSurfaceSensitivity pvbns = BSSNC.calculateNodeSensitivities(pvbvs, BLACK);
+    final double[] x = ((InterpolatedDoublesSurface) BLACK.getParameterSurface()).getXDataAsPrimitive();
+    final double[] y = ((InterpolatedDoublesSurface) BLACK.getParameterSurface()).getYDataAsPrimitive();
     for (int loopindex = 0; loopindex < x.length; loopindex++) {
       final BlackFlatSwaptionParameters blackP = BlackDataSets.createBlackSwaptionEUR6Shift(loopindex, shift);
       final BlackSwaptionFlatProvider curvesBlackP = new BlackSwaptionFlatProvider(MULTICURVES, blackP);
@@ -182,7 +187,7 @@ public class SwaptionCashFixedIborBlackMethodTest {
       final BlackSwaptionFlatProvider curvesBlackM = new BlackSwaptionFlatProvider(MULTICURVES, blackM);
       final MultipleCurrencyAmount pvM = METHOD_BLACK.presentValue(SWAPTION_LONG_REC, curvesBlackM);
       assertEquals("Swaption Black method: present value volatility sensitivity", (pvP.getCurrencyAmounts()[0].getAmount() - pvM.getCurrencyAmounts()[0].getAmount()) / (2 * shift), pvbns
-          .getSensitivity().getMap().get(new DoublesPair(x[loopindex], y[loopindex])), TOLERANCE_DELTA);
+          .getSensitivity().getMap().get(DoublesPair.of(x[loopindex], y[loopindex])), TOLERANCE_DELTA);
     }
   }
 

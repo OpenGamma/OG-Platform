@@ -24,6 +24,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Fudge builder for {@link G2ppParameters}
@@ -74,7 +75,7 @@ public class G2ppParametersBuilder extends AbstractFudgeBuilder<G2ppParameters> 
       final Tenor tenor = Tenor.of(Period.parse((String) tenors.get(i).getValue()));
       final ExternalId firstVolatilityParameterId = deserializer.fieldValueToObject(ExternalId.class, firstVolatilityParameterIds.get(i));
       final ExternalId secondVolatilityParameterId = deserializer.fieldValueToObject(ExternalId.class, secondVolatilityParameterIds.get(i));
-      volatilityTermStructure.put(tenor, Pair.of(firstVolatilityParameterId, secondVolatilityParameterId));
+      volatilityTermStructure.put(tenor, Pairs.of(firstVolatilityParameterId, secondVolatilityParameterId));
     }
     final ExternalId correlationId = deserializer.fieldValueToObject(ExternalId.class, message.getByName(CORRELATION_ID));
     final G2ppParameters parameters = new G2ppParameters(currency, firstMeanReversionId, secondMeanReversionId, firstInitialVolatilityId,

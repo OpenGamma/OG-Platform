@@ -9,38 +9,33 @@ import java.util.Map;
 
 import javax.ws.rs.core.UriInfo;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
+import com.opengamma.web.WebPerRequestData;
 
 /**
  * Data class for web-based holidays.
  */
 @BeanDefinition
-public class WebHolidayData extends DirectBean {
+public class WebHolidayData extends WebPerRequestData {
 
   /**
    * The holiday master.
    */
   @PropertyDefinition
   private HolidayMaster _holidayMaster;
-  /**
-   * The JSR-311 URI information.
-   */
-  @PropertyDefinition
-  private UriInfo _uriInfo;
   /**
    * The holiday id from the input URI.
    */
@@ -108,79 +103,6 @@ public class WebHolidayData extends DirectBean {
     return WebHolidayData.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 246258906:  // holidayMaster
-        return getHolidayMaster();
-      case -173275078:  // uriInfo
-        return getUriInfo();
-      case -872009849:  // uriHolidayId
-        return getUriHolidayId();
-      case 666567687:  // uriVersionId
-        return getUriVersionId();
-      case 1091905624:  // holiday
-        return getHoliday();
-      case -1407102089:  // versioned
-        return getVersioned();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 246258906:  // holidayMaster
-        setHolidayMaster((HolidayMaster) newValue);
-        return;
-      case -173275078:  // uriInfo
-        setUriInfo((UriInfo) newValue);
-        return;
-      case -872009849:  // uriHolidayId
-        setUriHolidayId((String) newValue);
-        return;
-      case 666567687:  // uriVersionId
-        setUriVersionId((String) newValue);
-        return;
-      case 1091905624:  // holiday
-        setHoliday((HolidayDocument) newValue);
-        return;
-      case -1407102089:  // versioned
-        setVersioned((HolidayDocument) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      WebHolidayData other = (WebHolidayData) obj;
-      return JodaBeanUtils.equal(getHolidayMaster(), other.getHolidayMaster()) &&
-          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
-          JodaBeanUtils.equal(getUriHolidayId(), other.getUriHolidayId()) &&
-          JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
-          JodaBeanUtils.equal(getHoliday(), other.getHoliday()) &&
-          JodaBeanUtils.equal(getVersioned(), other.getVersioned());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriHolidayId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHoliday());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the holiday master.
@@ -204,31 +126,6 @@ public class WebHolidayData extends DirectBean {
    */
   public final Property<HolidayMaster> holidayMaster() {
     return metaBean().holidayMaster().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the JSR-311 URI information.
-   * @return the value of the property
-   */
-  public UriInfo getUriInfo() {
-    return _uriInfo;
-  }
-
-  /**
-   * Sets the JSR-311 URI information.
-   * @param uriInfo  the new value of the property
-   */
-  public void setUriInfo(UriInfo uriInfo) {
-    this._uriInfo = uriInfo;
-  }
-
-  /**
-   * Gets the the {@code uriInfo} property.
-   * @return the property, not null
-   */
-  public final Property<UriInfo> uriInfo() {
-    return metaBean().uriInfo().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -332,10 +229,67 @@ public class WebHolidayData extends DirectBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public WebHolidayData clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      WebHolidayData other = (WebHolidayData) obj;
+      return JodaBeanUtils.equal(getHolidayMaster(), other.getHolidayMaster()) &&
+          JodaBeanUtils.equal(getUriHolidayId(), other.getUriHolidayId()) &&
+          JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
+          JodaBeanUtils.equal(getHoliday(), other.getHoliday()) &&
+          JodaBeanUtils.equal(getVersioned(), other.getVersioned()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHolidayMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUriHolidayId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHoliday());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVersioned());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("WebHolidayData{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("holidayMaster").append('=').append(JodaBeanUtils.toString(getHolidayMaster())).append(',').append(' ');
+    buf.append("uriHolidayId").append('=').append(JodaBeanUtils.toString(getUriHolidayId())).append(',').append(' ');
+    buf.append("uriVersionId").append('=').append(JodaBeanUtils.toString(getUriVersionId())).append(',').append(' ');
+    buf.append("holiday").append('=').append(JodaBeanUtils.toString(getHoliday())).append(',').append(' ');
+    buf.append("versioned").append('=').append(JodaBeanUtils.toString(getVersioned())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code WebHolidayData}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static class Meta extends WebPerRequestData.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -346,11 +300,6 @@ public class WebHolidayData extends DirectBean {
      */
     private final MetaProperty<HolidayMaster> _holidayMaster = DirectMetaProperty.ofReadWrite(
         this, "holidayMaster", WebHolidayData.class, HolidayMaster.class);
-    /**
-     * The meta-property for the {@code uriInfo} property.
-     */
-    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(
-        this, "uriInfo", WebHolidayData.class, UriInfo.class);
     /**
      * The meta-property for the {@code uriHolidayId} property.
      */
@@ -375,9 +324,8 @@ public class WebHolidayData extends DirectBean {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "holidayMaster",
-        "uriInfo",
         "uriHolidayId",
         "uriVersionId",
         "holiday",
@@ -394,8 +342,6 @@ public class WebHolidayData extends DirectBean {
       switch (propertyName.hashCode()) {
         case 246258906:  // holidayMaster
           return _holidayMaster;
-        case -173275078:  // uriInfo
-          return _uriInfo;
         case -872009849:  // uriHolidayId
           return _uriHolidayId;
         case 666567687:  // uriVersionId
@@ -433,14 +379,6 @@ public class WebHolidayData extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code uriInfo} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<UriInfo> uriInfo() {
-      return _uriInfo;
-    }
-
-    /**
      * The meta-property for the {@code uriHolidayId} property.
      * @return the meta-property, not null
      */
@@ -470,6 +408,46 @@ public class WebHolidayData extends DirectBean {
      */
     public final MetaProperty<HolidayDocument> versioned() {
       return _versioned;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 246258906:  // holidayMaster
+          return ((WebHolidayData) bean).getHolidayMaster();
+        case -872009849:  // uriHolidayId
+          return ((WebHolidayData) bean).getUriHolidayId();
+        case 666567687:  // uriVersionId
+          return ((WebHolidayData) bean).getUriVersionId();
+        case 1091905624:  // holiday
+          return ((WebHolidayData) bean).getHoliday();
+        case -1407102089:  // versioned
+          return ((WebHolidayData) bean).getVersioned();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 246258906:  // holidayMaster
+          ((WebHolidayData) bean).setHolidayMaster((HolidayMaster) newValue);
+          return;
+        case -872009849:  // uriHolidayId
+          ((WebHolidayData) bean).setUriHolidayId((String) newValue);
+          return;
+        case 666567687:  // uriVersionId
+          ((WebHolidayData) bean).setUriVersionId((String) newValue);
+          return;
+        case 1091905624:  // holiday
+          ((WebHolidayData) bean).setHoliday((HolidayDocument) newValue);
+          return;
+        case -1407102089:  // versioned
+          ((WebHolidayData) bean).setVersioned((HolidayDocument) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

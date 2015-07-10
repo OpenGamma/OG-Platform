@@ -54,25 +54,10 @@ These can be skipped to save time if desired:
 
 
 
-Running the OpenGamma engine
-----------------------------
-The primary program in the OpenGamma platform is known as the "engine".
-For production, the engine is typically customized, however two example engine
-configurations are pre-supplied, one with Bloomberg support and one with
-simulated market data.
+Examples
+--------
+For examples to introduce the system, see the sesame/sesame-examples folder.
 
-To run the example engine, change to the examples/examples-simulated directory
-and run the following commands:
-
-  cd examples/examples-simulated
-  mvn opengamma:server-init -Dconfig=fullstack
-  mvn opengamma:server-run -Dconfig=fullstack
-
-Wait for the components to load and then point your browser at
-`http://localhost:8080` to see the web user interface.  
-Go to `http://localhost:8080/jax/components` to get a sense of
-the underlying power of the system, available via REST.
-Note that the "server-init" command only needs to be run once.
 
 ___
 

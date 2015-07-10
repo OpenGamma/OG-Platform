@@ -16,6 +16,7 @@ import org.threeten.bp.Instant;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.CompiledFunctionService;
+import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.util.ArgumentChecker;
 
@@ -128,6 +129,11 @@ public class DefaultFunctionResolver implements FunctionResolver {
     }
     result.compileRules();
     return result;
+  }
+
+  @Override
+  public FunctionDefinition getFunction(final String uniqueId) {
+    return _functionCompilationService.getFunctionRepository().getFunction(uniqueId);
   }
 
 }

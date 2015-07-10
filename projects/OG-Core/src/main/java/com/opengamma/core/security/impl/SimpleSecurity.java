@@ -8,6 +8,7 @@ package com.opengamma.core.security.impl;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -46,28 +47,28 @@ public class SimpleSecurity extends DirectBean
   /**
    * The unique identifier.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true, overrideSet = true)
   private UniqueId _uniqueId;
   /**
    * The external identifier bundle.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private ExternalIdBundle _externalIdBundle = ExternalIdBundle.EMPTY;
   /**
    * The security type.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private String _securityType;
   /**
    * The display name.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private String _name = "";
   /**
    * The general purpose security attributes.
    * These can be used to add arbitrary additional information to the object.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true, overrideSet = true)
   private final Map<String, String> _attributes = Maps.newHashMap();
 
   /**
@@ -137,87 +138,12 @@ public class SimpleSecurity extends DirectBean
     return SimpleSecurity.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case -736922008:  // externalIdBundle
-        return getExternalIdBundle();
-      case 808245914:  // securityType
-        return getSecurityType();
-      case 3373707:  // name
-        return getName();
-      case 405645655:  // attributes
-        return getAttributes();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case -736922008:  // externalIdBundle
-        setExternalIdBundle((ExternalIdBundle) newValue);
-        return;
-      case 808245914:  // securityType
-        setSecurityType((String) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case 405645655:  // attributes
-        setAttributes((Map<String, String>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_externalIdBundle, "externalIdBundle");
-    JodaBeanUtils.notNull(_securityType, "securityType");
-    JodaBeanUtils.notNull(_name, "name");
-    JodaBeanUtils.notNull(_attributes, "attributes");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SimpleSecurity other = (SimpleSecurity) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getExternalIdBundle(), other.getExternalIdBundle()) &&
-          JodaBeanUtils.equal(getSecurityType(), other.getSecurityType()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getAttributes(), other.getAttributes());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundle());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the unique identifier.
    * @return the value of the property
    */
+  @Override
   public UniqueId getUniqueId() {
     return _uniqueId;
   }
@@ -226,6 +152,7 @@ public class SimpleSecurity extends DirectBean
    * Sets the unique identifier.
    * @param uniqueId  the new value of the property
    */
+  @Override
   public void setUniqueId(UniqueId uniqueId) {
     this._uniqueId = uniqueId;
   }
@@ -243,6 +170,7 @@ public class SimpleSecurity extends DirectBean
    * Gets the external identifier bundle.
    * @return the value of the property, not null
    */
+  @Override
   public ExternalIdBundle getExternalIdBundle() {
     return _externalIdBundle;
   }
@@ -269,6 +197,7 @@ public class SimpleSecurity extends DirectBean
    * Gets the security type.
    * @return the value of the property, not null
    */
+  @Override
   public String getSecurityType() {
     return _securityType;
   }
@@ -295,6 +224,7 @@ public class SimpleSecurity extends DirectBean
    * Gets the display name.
    * @return the value of the property, not null
    */
+  @Override
   public String getName() {
     return _name;
   }
@@ -322,6 +252,7 @@ public class SimpleSecurity extends DirectBean
    * These can be used to add arbitrary additional information to the object.
    * @return the value of the property, not null
    */
+  @Override
   public Map<String, String> getAttributes() {
     return _attributes;
   }
@@ -329,9 +260,11 @@ public class SimpleSecurity extends DirectBean
   /**
    * Sets the general purpose security attributes.
    * These can be used to add arbitrary additional information to the object.
-   * @param attributes  the new value of the property
+   * @param attributes  the new value of the property, not null
    */
+  @Override
   public void setAttributes(Map<String, String> attributes) {
+    JodaBeanUtils.notNull(attributes, "attributes");
     this._attributes.clear();
     this._attributes.putAll(attributes);
   }
@@ -343,6 +276,60 @@ public class SimpleSecurity extends DirectBean
    */
   public final Property<Map<String, String>> attributes() {
     return metaBean().attributes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public SimpleSecurity clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SimpleSecurity other = (SimpleSecurity) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getExternalIdBundle(), other.getExternalIdBundle()) &&
+          JodaBeanUtils.equal(getSecurityType(), other.getSecurityType()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getAttributes(), other.getAttributes());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundle());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAttributes());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("SimpleSecurity{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("externalIdBundle").append('=').append(JodaBeanUtils.toString(getExternalIdBundle())).append(',').append(' ');
+    buf.append("securityType").append('=').append(JodaBeanUtils.toString(getSecurityType())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("attributes").append('=').append(JodaBeanUtils.toString(getAttributes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -469,6 +456,55 @@ public class SimpleSecurity extends DirectBean
      */
     public final MetaProperty<Map<String, String>> attributes() {
       return _attributes;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return ((SimpleSecurity) bean).getUniqueId();
+        case -736922008:  // externalIdBundle
+          return ((SimpleSecurity) bean).getExternalIdBundle();
+        case 808245914:  // securityType
+          return ((SimpleSecurity) bean).getSecurityType();
+        case 3373707:  // name
+          return ((SimpleSecurity) bean).getName();
+        case 405645655:  // attributes
+          return ((SimpleSecurity) bean).getAttributes();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          ((SimpleSecurity) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case -736922008:  // externalIdBundle
+          ((SimpleSecurity) bean).setExternalIdBundle((ExternalIdBundle) newValue);
+          return;
+        case 808245914:  // securityType
+          ((SimpleSecurity) bean).setSecurityType((String) newValue);
+          return;
+        case 3373707:  // name
+          ((SimpleSecurity) bean).setName((String) newValue);
+          return;
+        case 405645655:  // attributes
+          ((SimpleSecurity) bean).setAttributes((Map<String, String>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((SimpleSecurity) bean)._externalIdBundle, "externalIdBundle");
+      JodaBeanUtils.notNull(((SimpleSecurity) bean)._securityType, "securityType");
+      JodaBeanUtils.notNull(((SimpleSecurity) bean)._name, "name");
+      JodaBeanUtils.notNull(((SimpleSecurity) bean)._attributes, "attributes");
     }
 
   }

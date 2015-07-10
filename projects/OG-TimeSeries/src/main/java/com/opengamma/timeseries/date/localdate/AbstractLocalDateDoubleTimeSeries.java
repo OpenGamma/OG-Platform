@@ -207,7 +207,7 @@ abstract class AbstractLocalDateDoubleTimeSeries
   //-------------------------------------------------------------------------
   @Override
   public LocalDateDoubleTimeSeries subSeries(LocalDate startTime, LocalDate endTime) {
-    return subSeriesFast(convertToInt(startTime), convertToInt(endTime));
+    return subSeriesFast(convertToInt(startTime), true, convertToInt(endTime), false);
   }
 
   @Override
@@ -216,12 +216,8 @@ abstract class AbstractLocalDateDoubleTimeSeries
   }
 
   @Override
-  public LocalDateDoubleTimeSeries subSeriesFast(int startTime, boolean includeStart, int endTime, boolean includeEnd) {
-    if (startTime != endTime || includeStart || includeEnd) {
-      startTime += (includeStart ? 0 : 1);
-      endTime += (includeEnd ? 1 : 0);
-    }
-    return subSeriesFast(startTime, endTime);
+  public LocalDateDoubleTimeSeries subSeriesFast(int startTime, int endTime) {
+    return subSeriesFast(startTime, true, endTime, false);
   }
 
   //-------------------------------------------------------------------------
@@ -264,6 +260,11 @@ abstract class AbstractLocalDateDoubleTimeSeries
 
   public LocalDateDoubleTimeSeries operate(DateDoubleTimeSeries<?> other, BinaryOperator operator) {
     int[] aTimes = timesArrayFast0();
+    // if the series share a common set of times use the common series
+    if (other instanceof AbstractLocalDateDoubleTimeSeries &&
+        aTimes == ((AbstractLocalDateDoubleTimeSeries) other).timesArrayFast0()) {
+      return operateWithSameTimes(other, operator);
+    }
     double[] aValues = valuesArrayFast0();
     int aCount = 0;
     int[] bTimes = other.timesArrayFast();
@@ -301,6 +302,11 @@ abstract class AbstractLocalDateDoubleTimeSeries
 
   public LocalDateDoubleTimeSeries unionOperate(DateDoubleTimeSeries<?> other, BinaryOperator operator) {
     int[] aTimes = timesArrayFast0();
+    // if the series share a common set of times use the common series
+    if (other instanceof AbstractLocalDateDoubleTimeSeries &&
+        aTimes == ((AbstractLocalDateDoubleTimeSeries) other).timesArrayFast0()) {
+      return operateWithSameTimes(other, operator);
+    }
     double[] aValues = valuesArrayFast0();
     int aCount = 0;
     int[] bTimes = other.timesArrayFast();
@@ -593,6 +599,17 @@ abstract class AbstractLocalDateDoubleTimeSeries
   @Override
   public int hashCode() {
     return Arrays.hashCode(timesArrayFast0()) ^ Arrays.hashCode(valuesArrayFast0());
+  }
+
+  private LocalDateDoubleTimeSeries operateWithSameTimes(DateDoubleTimeSeries<?> other, BinaryOperator operator) {
+    // series share a common set of times so use the common series
+    int[] aTimes = timesArrayFast0();
+    double[] aValues = valuesArrayFast0();
+    double[] resValues = new double[aTimes.length];
+    for (int i = 0; i < aTimes.length; i++) {
+      resValues[i] = operator.operate(aValues[i], other.getValueAtIndexFast(i));
+    }
+    return newInstanceFast(aTimes, resValues);
   }
 
 }

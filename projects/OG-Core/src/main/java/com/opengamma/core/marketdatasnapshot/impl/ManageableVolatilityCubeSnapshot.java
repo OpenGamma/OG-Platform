@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -8,6 +8,7 @@ package com.opengamma.core.marketdatasnapshot.impl;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
@@ -15,79 +16,55 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.types.IndicatorType;
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.collect.Maps;
-import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
-import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
-import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.ObjectsPairFudgeBuilder;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Triple;
 
 /**
  * 
  */
-public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot {
-  
+@BeanDefinition
+public class ManageableVolatilityCubeSnapshot implements Bean, VolatilityCubeSnapshot {
+
   /**
    * The values in the snapshot.
    */
-  private Map<VolatilityPoint, ValueSnapshot> _values;
-  
-  private UnstructuredMarketDataSnapshot _otherValues;
-  
-  private Map<Pair<Tenor, Tenor>, ValueSnapshot> _strikes;
-
-  @Override
-  public Map<VolatilityPoint, ValueSnapshot> getValues() {
-    return _values;
-  }
-
-  public void setValues(Map<VolatilityPoint, ValueSnapshot> values) {
-    _values = values;
-  }
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private Map<Triple<Object, Object, Object>, ValueSnapshot> _values;
 
   /**
    * Creates a Fudge representation of the snapshot:
    * <pre>
    *   message {
    *     message { // map
-   *       repeated VolatilityPoint key = 1;
-   *       repeated ValueSnapshot|indicator value = 2;
+   *       repeated Pair key = 1;
+   *       repeated ValueSnapshot value = 2;
    *     } values;
-   *     UnstructuredMarketDataSnapshot otherValues;
-   *     message { // map
-   *       repeated message { // pair
-   *         Tenor first;
-   *         Tenor second;
-   *       } key = 1;
-   *       repeated ValueSnapshot|indicator value = 2;
-   *     } strikes;
    *   }
    * </pre>
-   * 
+   *
    * @param serializer Fudge serialization context, not null
    * @return the message representation of this snapshot
    */
-  public org.fudgemsg.FudgeMsg toFudgeMsg(FudgeSerializer serializer) {
-    MutableFudgeMsg ret = serializer.newMessage();
+  public FudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
+    final MutableFudgeMsg ret = serializer.newMessage();
     // TODO: this should not be adding it's own class header; the caller should be doing that, or this be registered as a generic builder for VolatilityCubeSnapshot and that class name be added
     FudgeSerializer.addClassHeader(ret, ManageableVolatilityCubeSnapshot.class);
-    MutableFudgeMsg valuesMsg = getValuesMessage(serializer);
-    MutableFudgeMsg strikesMsg = getStrikesMessage(serializer);
-    ret.add("values", valuesMsg);
-    if (_otherValues != null) {
-      ret.add("otherValues", serializer.objectToFudgeMsg(_otherValues));
-    }
-    ret.add("strikes", strikesMsg);
-    return ret;
-  }
-
-  private MutableFudgeMsg getValuesMessage(FudgeSerializer serializer) {
-    MutableFudgeMsg valuesMsg = serializer.newMessage();
+    final MutableFudgeMsg valuesMsg = serializer.newMessage();
     if (_values != null) {
-      for (Entry<VolatilityPoint, ValueSnapshot> entry : _values.entrySet()) {
+      for (final Entry<Triple<Object, Object, Object>, ValueSnapshot> entry : _values.entrySet()) {
         serializer.addToMessage(valuesMsg, null, 1, entry.getKey());
         if (entry.getValue() == null) {
           valuesMsg.add(2, IndicatorType.INSTANCE);
@@ -96,23 +73,8 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
         }
       }
     }
-    return valuesMsg;
-  }
-  
-  private MutableFudgeMsg getStrikesMessage(FudgeSerializer serializer) {
-    MutableFudgeMsg msg = serializer.newMessage();
-    if (_strikes != null) {
-      // TODO: is this the best encoding for this message; would a 3-tuple be better (key-x = ordinal 1, key-y = ordinal 2, value = ordinal 3)?
-      for (Entry<Pair<Tenor, Tenor>, ValueSnapshot> entry : _strikes.entrySet()) {
-        serializer.addToMessage(msg, null, 1, ObjectsPairFudgeBuilder.buildMessage(serializer, entry.getKey(), Tenor.class, Tenor.class));
-        if (entry.getValue() == null) {
-          msg.add(2, IndicatorType.INSTANCE);
-        } else {
-          serializer.addToMessage(msg, null, 2, entry.getValue());
-        }
-      }
-    }
-    return msg;
+    ret.add("values", valuesMsg);
+    return ret;
   }
 
   // TODO: externalize the message representation to a Fudge builder
@@ -120,84 +82,222 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
   /**
    * Creates a snapshot object from a Fudge message representation. See {@link #toFudgeMsg}
    * for the message format.
-   * 
+   *
    * @param deserializer the Fudge deserialization context, not null
    * @param msg message containing the snapshot representation, not null
    * @return a snapshot object
    */
-  public static ManageableVolatilityCubeSnapshot fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg) {
-    final ManageableVolatilityCubeSnapshot ret = new ManageableVolatilityCubeSnapshot();
-    ret.setValues(readValues(deserializer, msg));
-    FudgeField otherValues = msg.getByName("otherValues");
-    if (otherValues != null) {
-      ret.setOtherValues(deserializer.fieldValueToObject(ManageableUnstructuredMarketDataSnapshot.class, otherValues));
+  @SuppressWarnings("unchecked")
+  public static ManageableVolatilityCubeSnapshot fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    final HashMap<Triple<Object, Object, Object>, ValueSnapshot> values = new HashMap<>();
+    Triple<Object, Object, Object> key = null;
+    for (final FudgeField fudgeField : msg.getMessage("values")) {
+      final Integer ordinal = fudgeField.getOrdinal();
+      if (ordinal == null) {
+        continue;
+      }
+      final int intValue = ordinal.intValue();
+      if (intValue == 1) {
+        key = deserializer.fieldValueToObject(Triple.class, fudgeField);
+      } else if (intValue == 2) {
+        final ValueSnapshot value = deserializer.fieldValueToObject(ValueSnapshot.class, fudgeField);
+        values.put(key, value);
+        key = null;
+      }
     }
-    ret.setStrikes(readStrikes(deserializer, msg));
+    final ManageableVolatilityCubeSnapshot ret = new ManageableVolatilityCubeSnapshot();
+    ret.setValues(values);
     return ret;
   }
 
-  private static HashMap<Pair<Tenor, Tenor>, ValueSnapshot> readStrikes(FudgeDeserializer deserializer, FudgeMsg msg) {
-    HashMap<Pair<Tenor, Tenor>, ValueSnapshot> values = Maps.newHashMap();
-    FudgeMsg valuesMessage = msg.getMessage("strikes");
-    if (valuesMessage == null) {
-      return values;
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code ManageableVolatilityCubeSnapshot}.
+   * @return the meta-bean, not null
+   */
+  public static ManageableVolatilityCubeSnapshot.Meta meta() {
+    return ManageableVolatilityCubeSnapshot.Meta.INSTANCE;
+  }
+
+  static {
+    JodaBeanUtils.registerMetaBean(ManageableVolatilityCubeSnapshot.Meta.INSTANCE);
+  }
+
+  @Override
+  public ManageableVolatilityCubeSnapshot.Meta metaBean() {
+    return ManageableVolatilityCubeSnapshot.Meta.INSTANCE;
+  }
+
+  @Override
+  public <R> Property<R> property(String propertyName) {
+    return metaBean().<R>metaProperty(propertyName).createProperty(this);
+  }
+
+  @Override
+  public Set<String> propertyNames() {
+    return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the values in the snapshot.
+   * @return the value of the property, not null
+   */
+  @Override
+  public Map<Triple<Object, Object, Object>, ValueSnapshot> getValues() {
+    return _values;
+  }
+
+  /**
+   * Sets the values in the snapshot.
+   * @param values  the new value of the property, not null
+   */
+  public void setValues(Map<Triple<Object, Object, Object>, ValueSnapshot> values) {
+    JodaBeanUtils.notNull(values, "values");
+    this._values = values;
+  }
+
+  /**
+   * Gets the the {@code values} property.
+   * @return the property, not null
+   */
+  public final Property<Map<Triple<Object, Object, Object>, ValueSnapshot>> values() {
+    return metaBean().values().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ManageableVolatilityCubeSnapshot clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
     }
-    Pair<Tenor, Tenor> key = null;
-    for (FudgeField fudgeField : valuesMessage) {
-      Integer ordinal = fudgeField.getOrdinal();
-      if (ordinal == null) {
-        continue;
-      }
-
-      int intValue = ordinal.intValue();
-      if (intValue == 1) {
-        key = ObjectsPairFudgeBuilder.buildObject(deserializer, (FudgeMsg) fudgeField.getValue(), Tenor.class, Tenor.class);
-      } else if (intValue == 2) {
-        ValueSnapshot value = deserializer.fieldValueToObject(ValueSnapshot.class, fudgeField);
-        values.put(key, value);
-        key = null;
-      }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ManageableVolatilityCubeSnapshot other = (ManageableVolatilityCubeSnapshot) obj;
+      return JodaBeanUtils.equal(getValues(), other.getValues());
     }
-    return values;
+    return false;
   }
 
-  private static HashMap<VolatilityPoint, ValueSnapshot> readValues(FudgeDeserializer deserializer, FudgeMsg msg) {
-    HashMap<VolatilityPoint, ValueSnapshot> values = Maps.newHashMap();
-    FudgeMsg valuesMessage = msg.getMessage("values");
-    if (valuesMessage == null) {
-      return values;
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValues());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("ManageableVolatilityCubeSnapshot{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
     }
-    VolatilityPoint key = null;
-    for (FudgeField fudgeField : valuesMessage) {
-      Integer ordinal = fudgeField.getOrdinal();
-      if (ordinal == null) {
-        continue;
-      }
-      int intValue = ordinal.intValue();
-      if (intValue == 1) {
-        key = deserializer.fieldValueToObject(VolatilityPoint.class, fudgeField);
-      } else if (intValue == 2) {
-        ValueSnapshot value = deserializer.fieldValueToObject(ValueSnapshot.class, fudgeField);
-        values.put(key, value);
-        key = null;
-      }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("values").append('=').append(JodaBeanUtils.toString(getValues())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code ManageableVolatilityCubeSnapshot}.
+   */
+  public static class Meta extends DirectMetaBean {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code values} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Map<Triple<Object, Object, Object>, ValueSnapshot>> _values = DirectMetaProperty.ofReadWrite(
+        this, "values", ManageableVolatilityCubeSnapshot.class, (Class) Map.class);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
+        this, null,
+        "values");
+
+    /**
+     * Restricted constructor.
+     */
+    protected Meta() {
     }
-    return values;
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -823812830:  // values
+          return _values;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends ManageableVolatilityCubeSnapshot> builder() {
+      return new DirectBeanBuilder<ManageableVolatilityCubeSnapshot>(new ManageableVolatilityCubeSnapshot());
+    }
+
+    @Override
+    public Class<? extends ManageableVolatilityCubeSnapshot> beanType() {
+      return ManageableVolatilityCubeSnapshot.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<?>> metaPropertyMap() {
+      return _metaPropertyMap$;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code values} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Map<Triple<Object, Object, Object>, ValueSnapshot>> values() {
+      return _values;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -823812830:  // values
+          return ((ManageableVolatilityCubeSnapshot) bean).getValues();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -823812830:  // values
+          ((ManageableVolatilityCubeSnapshot) bean).setValues((Map<Triple<Object, Object, Object>, ValueSnapshot>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ManageableVolatilityCubeSnapshot) bean)._values, "values");
+    }
+
   }
 
-  public void setOtherValues(UnstructuredMarketDataSnapshot otherValues) {
-    _otherValues = otherValues;
-  }
-
-  public UnstructuredMarketDataSnapshot getOtherValues() {
-    return _otherValues;
-  }
-
-  public Map<Pair<Tenor, Tenor>, ValueSnapshot> getStrikes() {
-    return _strikes;
-  }
-
-  public void setStrikes(Map<Pair<Tenor, Tenor>, ValueSnapshot> strikes) {
-    _strikes = strikes;
-  }
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }

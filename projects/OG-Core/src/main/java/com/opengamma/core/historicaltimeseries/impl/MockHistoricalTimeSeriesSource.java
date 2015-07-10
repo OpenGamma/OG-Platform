@@ -22,8 +22,8 @@ import com.opengamma.id.UniqueIdSupplier;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * In memory source, typically used for testing.
@@ -91,7 +91,7 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
     if (hts == null || hts.getTimeSeries() == null || hts.getTimeSeries().isEmpty()) {
       return null;
     } else {
-      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+      return Pairs.of(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
     }
   }
 
@@ -101,7 +101,7 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
     if (hts == null || hts.getTimeSeries() == null || hts.getTimeSeries().isEmpty()) {
       return null;
     } else {
-      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+      return Pairs.of(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
     }
   }
 
@@ -163,7 +163,7 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
     if (hts == null || hts.getTimeSeries() == null || hts.getTimeSeries().isEmpty()) {
       return null;
     } else {
-      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+      return Pairs.of(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
     }
   }
 
@@ -177,7 +177,7 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
     if (hts == null || hts.getTimeSeries() == null || hts.getTimeSeries().isEmpty()) {
       return null;
     } else {
-      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+      return Pairs.of(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
     }
   }
 
@@ -187,7 +187,7 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
     if (hts == null || hts.getTimeSeries() == null || hts.getTimeSeries().isEmpty()) {
       return null;
     } else {
-      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+      return Pairs.of(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
     }
   }
 
@@ -202,7 +202,7 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
     if (hts == null || hts.getTimeSeries() == null || hts.getTimeSeries().isEmpty()) {
       return null;
     } else {
-      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+      return Pairs.of(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
     }
   }
 
@@ -341,30 +341,36 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
     if (timeSeries == null || timeSeries.isEmpty()) {
       return hts;
     }
+    LocalDate effectiveStart;
     if (start == null) {
-      start = timeSeries.getEarliestTime();
+      effectiveStart = timeSeries.getEarliestTime();
     } else {
-      if (!includeStart) {
-        start = start.plusDays(1);
+      if (includeStart) {
+        effectiveStart = start;
+      } else {
+        effectiveStart = start.plusDays(1);
       }
       if (start.isBefore(timeSeries.getEarliestTime())) {
-        start = timeSeries.getEarliestTime();
+        effectiveStart = timeSeries.getEarliestTime();
       }
     }
+    LocalDate effectiveEnd;
     if (end == null) {
-      end = timeSeries.getLatestTime();
+      effectiveEnd = timeSeries.getLatestTime();
     } else {
-      if (!includeEnd) {
-        end = end.minusDays(1);
+      if (includeEnd) {
+        effectiveEnd = end;
+      } else {
+        effectiveEnd = end.minusDays(1);
       }
       if (end.isAfter(timeSeries.getLatestTime())) {
-        end = timeSeries.getLatestTime();
+        effectiveEnd = timeSeries.getLatestTime();
       }
     }
-    if (start.isAfter(timeSeries.getLatestTime()) || end.isBefore(timeSeries.getEarliestTime())) {
+    if (effectiveStart.isAfter(timeSeries.getLatestTime()) || effectiveEnd.isBefore(timeSeries.getEarliestTime())) {
       return new SimpleHistoricalTimeSeries(hts.getUniqueId(), ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);
     }
-    timeSeries = timeSeries.subSeries(start, true, end, true);
+    timeSeries = timeSeries.subSeries(effectiveStart, true, effectiveEnd, true);
     if (((maxPoints != null) && (Math.abs(maxPoints) < timeSeries.size()))) {
       timeSeries = maxPoints >= 0 ? timeSeries.head(maxPoints) : timeSeries.tail(-maxPoints);
     }

@@ -7,6 +7,7 @@ package com.opengamma.financial.security.swap;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -87,45 +88,6 @@ public class FloatingGearingIRLeg extends FloatingInterestRateLeg {
     return FloatingGearingIRLeg.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -91774989:  // gearing
-        return getGearing();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -91774989:  // gearing
-        setGearing((Double) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      FloatingGearingIRLeg other = (FloatingGearingIRLeg) obj;
-      return JodaBeanUtils.equal(getGearing(), other.getGearing()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGearing());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the gearing.
@@ -149,6 +111,51 @@ public class FloatingGearingIRLeg extends FloatingInterestRateLeg {
    */
   public final Property<Double> gearing() {
     return metaBean().gearing().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public FloatingGearingIRLeg clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FloatingGearingIRLeg other = (FloatingGearingIRLeg) obj;
+      return JodaBeanUtils.equal(getGearing(), other.getGearing()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getGearing());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("FloatingGearingIRLeg{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("gearing").append('=').append(JodaBeanUtils.toString(getGearing())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -210,6 +217,26 @@ public class FloatingGearingIRLeg extends FloatingInterestRateLeg {
      */
     public final MetaProperty<Double> gearing() {
       return _gearing;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -91774989:  // gearing
+          return ((FloatingGearingIRLeg) bean).getGearing();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -91774989:  // gearing
+          ((FloatingGearingIRLeg) bean).setGearing((Double) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

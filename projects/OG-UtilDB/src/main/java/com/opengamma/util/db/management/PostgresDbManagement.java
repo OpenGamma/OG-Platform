@@ -12,6 +12,7 @@ import java.sql.Statement;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.PostgreSQLDialect;
 
+import com.google.common.base.Objects;
 import com.opengamma.OpenGammaRuntimeException;
 
 /**
@@ -81,51 +82,41 @@ public final class PostgresDbManagement extends AbstractDbManagement {
 
   @Override
   public String getAllForeignKeyConstraintsSQL(String catalog, String schema) {
-    if (schema == null) {
-      schema = POSTGRES_DEFAULT_SCHEMA;
-    }
+    String effScheme = Objects.firstNonNull(schema, POSTGRES_DEFAULT_SCHEMA);
     String sql = "SELECT constraint_name AS name, table_name FROM information_schema.table_constraints WHERE " +
-      "constraint_catalog = '" + catalog + "' AND constraint_schema = '" + schema + "'" + " AND constraint_type = 'FOREIGN KEY'";
+      "constraint_catalog = '" + catalog + "' AND constraint_schema = '" + effScheme + "'" + " AND constraint_type = 'FOREIGN KEY'";
     return sql;
   }
 
   @Override
   public String getAllSequencesSQL(String catalog, String schema) {
-    if (schema == null) {
-      schema = POSTGRES_DEFAULT_SCHEMA;
-    }
+    String effScheme = Objects.firstNonNull(schema, POSTGRES_DEFAULT_SCHEMA);
     String sql = "SELECT sequence_name AS name FROM information_schema.sequences WHERE " +
-      "sequence_catalog = '" + catalog + "'" + " AND sequence_schema = '" + schema + "'";
+      "sequence_catalog = '" + catalog + "'" + " AND sequence_schema = '" + effScheme + "'";
     return sql;
   }
 
   @Override
   public String getAllTablesSQL(String catalog, String schema) {
-    if (schema == null) {
-      schema = POSTGRES_DEFAULT_SCHEMA;
-    }
+    String effScheme = Objects.firstNonNull(schema, POSTGRES_DEFAULT_SCHEMA);
     String sql = "SELECT table_name AS name FROM information_schema.tables WHERE " +
-      "table_catalog = '" + catalog + "'" + " AND table_schema = '" + schema + "' AND table_type = 'BASE TABLE'";
+      "table_catalog = '" + catalog + "'" + " AND table_schema = '" + effScheme + "' AND table_type = 'BASE TABLE'";
     return sql;
   }
 
   @Override
   public String getAllViewsSQL(String catalog, String schema) {
-    if (schema == null) {
-      schema = POSTGRES_DEFAULT_SCHEMA;
-    }
+    String effScheme = Objects.firstNonNull(schema, POSTGRES_DEFAULT_SCHEMA);
     String sql = "SELECT table_name AS name FROM information_schema.tables WHERE " +
-      "table_catalog = '" + catalog + "'" + " AND table_schema = '" + schema + "' AND table_type = 'VIEW'";
+      "table_catalog = '" + catalog + "'" + " AND table_schema = '" + effScheme + "' AND table_type = 'VIEW'";
     return sql;
   }
 
   @Override
   public String getAllColumnsSQL(String catalog, String schema, String table) {
-    if (schema == null) {
-      schema = POSTGRES_DEFAULT_SCHEMA;
-    }
+    String effScheme = Objects.firstNonNull(schema, POSTGRES_DEFAULT_SCHEMA);
     StringBuilder sql = new StringBuilder(GET_ALL_COLUMNS_SQL);
-    sql.append(catalog).append("' AND table_schema='").append(schema).append("' AND table_name='");
+    sql.append(catalog).append("' AND table_schema='").append(effScheme).append("' AND table_name='");
     sql.append(table).append("'");
     return sql.toString();
   }
@@ -164,12 +155,12 @@ public final class PostgresDbManagement extends AbstractDbManagement {
         if (!getCatalogCreationStrategy().catalogExists(catalog)) {
           return;
         }
-        Connection conn = connect(catalog);
-        Statement statement = conn.createStatement();
-        //TODO default schema
-        statement.executeUpdate("DROP SCHEMA IF EXISTS public CASCADE;CREATE SCHEMA public;");
-        statement.close();
-        conn.close();
+        try (Connection conn = connect(catalog)) {
+          try (Statement statement = conn.createStatement()) {
+            //TODO default schema
+            statement.executeUpdate("DROP SCHEMA IF EXISTS public CASCADE;CREATE SCHEMA public;");
+          }
+        }
       } catch (SQLException se) {
         throw new OpenGammaRuntimeException("Failed to drop the default schema", se);
       }

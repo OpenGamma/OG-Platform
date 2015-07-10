@@ -25,7 +25,7 @@ public class CapFloorCMSSpreadSummaryFactory implements SummaryFactory<CapFloorC
         .with(SummaryField.MATURITY, security.getMaturityDate())
         .with(SummaryField.NOTIONAL, security.getNotional())
         .with(SummaryField.STRIKE, security.getStrike())
-        .with(SummaryField.FREQUENCY, security.getFrequency().getConventionName()).build();
+        .with(SummaryField.FREQUENCY, security.getFrequency().getName()).build();
   }
 
 }

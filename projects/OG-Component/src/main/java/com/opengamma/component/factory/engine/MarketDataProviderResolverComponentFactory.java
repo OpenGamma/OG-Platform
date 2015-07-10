@@ -8,6 +8,7 @@ package com.opengamma.component.factory.engine;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -28,6 +29,7 @@ import com.opengamma.engine.marketdata.MarketDataProviderFactory;
 import com.opengamma.engine.marketdata.historical.HistoricalMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.historical.HistoricalShockMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.historical.LatestHistoricalMarketDataProviderFactory;
+import com.opengamma.engine.marketdata.random.RandomizingMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.resolver.CachingMarketDataProviderResolver;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.resolver.TypeBasedMarketDataProviderResolver;
@@ -37,6 +39,7 @@ import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecificati
 import com.opengamma.engine.marketdata.spec.HistoricalShockMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.LatestHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.RandomizingMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 
@@ -90,8 +93,10 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
     providerResolver.addProvider(UserMarketDataSpecification.class, userMarketDataProviderFactory);
     final MarketDataProviderFactory combinedMarketDataProviderFactory = initCombinedMarketDataProviderFactory(providerResolver);
     providerResolver.addProvider(CombinedMarketDataSpecification.class, combinedMarketDataProviderFactory);
-    MarketDataProviderFactory historicalShockMarketDataProviderFactory = initHistoricalShockMarketDataProviderFactory(providerResolver);
+    final MarketDataProviderFactory historicalShockMarketDataProviderFactory = initHistoricalShockMarketDataProviderFactory(providerResolver);
     providerResolver.addProvider(HistoricalShockMarketDataSpecification.class, historicalShockMarketDataProviderFactory);
+    final MarketDataProviderFactory randomizingMarketDataProviderFactory = initRandomizingMarketDataProviderFactory(providerResolver);
+    providerResolver.addProvider(RandomizingMarketDataSpecification.class, randomizingMarketDataProviderFactory);
     return providerResolver;
   }
 
@@ -99,6 +104,10 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
     final MarketDataProviderResolver resolver = new CachingMarketDataProviderResolver(createMarketDataProviderResolver());
     final ComponentInfo info = new ComponentInfo(MarketDataProviderResolver.class, getClassifier());
     repo.registerComponent(info, resolver);
+  }
+
+  private MarketDataProviderFactory initRandomizingMarketDataProviderFactory(MarketDataProviderResolver resolver) {
+    return new RandomizingMarketDataProviderFactory(resolver);
   }
 
   protected MarketDataProviderFactory initFixedHistoricalMarketDataProviderFactory() {
@@ -138,82 +147,6 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
   @Override
   public MarketDataProviderResolverComponentFactory.Meta metaBean() {
     return MarketDataProviderResolverComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -301472921:  // liveMarketDataProviderFactory
-        return getLiveMarketDataProviderFactory();
-      case 358729161:  // historicalTimeSeriesSource
-        return getHistoricalTimeSeriesSource();
-      case -946313676:  // historicalTimeSeriesResolver
-        return getHistoricalTimeSeriesResolver();
-      case -2019554651:  // marketDataSnapshotSource
-        return getMarketDataSnapshotSource();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -301472921:  // liveMarketDataProviderFactory
-        setLiveMarketDataProviderFactory((MarketDataProviderFactory) newValue);
-        return;
-      case 358729161:  // historicalTimeSeriesSource
-        setHistoricalTimeSeriesSource((HistoricalTimeSeriesSource) newValue);
-        return;
-      case -946313676:  // historicalTimeSeriesResolver
-        setHistoricalTimeSeriesResolver((HistoricalTimeSeriesResolver) newValue);
-        return;
-      case -2019554651:  // marketDataSnapshotSource
-        setMarketDataSnapshotSource((MarketDataSnapshotSource) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_historicalTimeSeriesSource, "historicalTimeSeriesSource");
-    JodaBeanUtils.notNull(_historicalTimeSeriesResolver, "historicalTimeSeriesResolver");
-    JodaBeanUtils.notNull(_marketDataSnapshotSource, "marketDataSnapshotSource");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      MarketDataProviderResolverComponentFactory other = (MarketDataProviderResolverComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getLiveMarketDataProviderFactory(), other.getLiveMarketDataProviderFactory()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesResolver(), other.getHistoricalTimeSeriesResolver()) &&
-          JodaBeanUtils.equal(getMarketDataSnapshotSource(), other.getMarketDataSnapshotSource()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLiveMarketDataProviderFactory());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesResolver());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotSource());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -346,6 +279,63 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public MarketDataProviderResolverComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      MarketDataProviderResolverComponentFactory other = (MarketDataProviderResolverComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          JodaBeanUtils.equal(getLiveMarketDataProviderFactory(), other.getLiveMarketDataProviderFactory()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesResolver(), other.getHistoricalTimeSeriesResolver()) &&
+          JodaBeanUtils.equal(getMarketDataSnapshotSource(), other.getMarketDataSnapshotSource()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLiveMarketDataProviderFactory());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesResolver());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotSource());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("MarketDataProviderResolverComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("liveMarketDataProviderFactory").append('=').append(JodaBeanUtils.toString(getLiveMarketDataProviderFactory())).append(',').append(' ');
+    buf.append("historicalTimeSeriesSource").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesSource())).append(',').append(' ');
+    buf.append("historicalTimeSeriesResolver").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesResolver())).append(',').append(' ');
+    buf.append("marketDataSnapshotSource").append('=').append(JodaBeanUtils.toString(getMarketDataSnapshotSource())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code MarketDataProviderResolverComponentFactory}.
    */
@@ -468,6 +458,55 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
      */
     public final MetaProperty<MarketDataSnapshotSource> marketDataSnapshotSource() {
       return _marketDataSnapshotSource;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((MarketDataProviderResolverComponentFactory) bean).getClassifier();
+        case -301472921:  // liveMarketDataProviderFactory
+          return ((MarketDataProviderResolverComponentFactory) bean).getLiveMarketDataProviderFactory();
+        case 358729161:  // historicalTimeSeriesSource
+          return ((MarketDataProviderResolverComponentFactory) bean).getHistoricalTimeSeriesSource();
+        case -946313676:  // historicalTimeSeriesResolver
+          return ((MarketDataProviderResolverComponentFactory) bean).getHistoricalTimeSeriesResolver();
+        case -2019554651:  // marketDataSnapshotSource
+          return ((MarketDataProviderResolverComponentFactory) bean).getMarketDataSnapshotSource();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((MarketDataProviderResolverComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -301472921:  // liveMarketDataProviderFactory
+          ((MarketDataProviderResolverComponentFactory) bean).setLiveMarketDataProviderFactory((MarketDataProviderFactory) newValue);
+          return;
+        case 358729161:  // historicalTimeSeriesSource
+          ((MarketDataProviderResolverComponentFactory) bean).setHistoricalTimeSeriesSource((HistoricalTimeSeriesSource) newValue);
+          return;
+        case -946313676:  // historicalTimeSeriesResolver
+          ((MarketDataProviderResolverComponentFactory) bean).setHistoricalTimeSeriesResolver((HistoricalTimeSeriesResolver) newValue);
+          return;
+        case -2019554651:  // marketDataSnapshotSource
+          ((MarketDataProviderResolverComponentFactory) bean).setMarketDataSnapshotSource((MarketDataSnapshotSource) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((MarketDataProviderResolverComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((MarketDataProviderResolverComponentFactory) bean)._historicalTimeSeriesSource, "historicalTimeSeriesSource");
+      JodaBeanUtils.notNull(((MarketDataProviderResolverComponentFactory) bean)._historicalTimeSeriesResolver, "historicalTimeSeriesResolver");
+      JodaBeanUtils.notNull(((MarketDataProviderResolverComponentFactory) bean)._marketDataSnapshotSource, "marketDataSnapshotSource");
+      super.validate(bean);
     }
 
   }

@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 import org.apache.commons.lang.text.StrBuilder;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -49,60 +50,60 @@ public class SimpleTrade extends DirectBean
   /**
    * The unique identifier of the trade.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true, overrideSet = true)
   private UniqueId _uniqueId;
   /**
    * The number of units in the trade.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private BigDecimal _quantity;
   /**
    * The link referencing the security, not null.
    * This may also hold the resolved security.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private SecurityLink _securityLink;
   /**
    * The counterparty.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private Counterparty _counterparty;
   /**
    * The trade date.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private LocalDate _tradeDate;
   /**
    * The trade time with offset, null if not known.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private OffsetTime _tradeTime;
   /**
    * Amount paid for trade at time of purchase, null if not known.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private Double _premium;
   /**
    * Currency of payment at time of purchase, null if not known.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private Currency _premiumCurrency;
   /**
    * Date of premium payment, null if not known.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private LocalDate _premiumDate;
   /**
    * Time of premium payment, null if not known.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private OffsetTime _premiumTime;
   /**
    * The general purpose trade attributes.
    * These can be used to add arbitrary additional information to the object
    * and for aggregating in portfolios.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true, overrideSet = true)
   private final Map<String, String> _attributes = Maps.newHashMap();
 
   /**
@@ -245,127 +246,12 @@ public class SimpleTrade extends DirectBean
     return SimpleTrade.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case -1285004149:  // quantity
-        return getQuantity();
-      case 807992154:  // securityLink
-        return getSecurityLink();
-      case -1651301782:  // counterparty
-        return getCounterparty();
-      case 752419634:  // tradeDate
-        return getTradeDate();
-      case 752903761:  // tradeTime
-        return getTradeTime();
-      case -318452137:  // premium
-        return getPremium();
-      case 1136581512:  // premiumCurrency
-        return getPremiumCurrency();
-      case 651701925:  // premiumDate
-        return getPremiumDate();
-      case 652186052:  // premiumTime
-        return getPremiumTime();
-      case 405645655:  // attributes
-        return getAttributes();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case -1285004149:  // quantity
-        setQuantity((BigDecimal) newValue);
-        return;
-      case 807992154:  // securityLink
-        setSecurityLink((SecurityLink) newValue);
-        return;
-      case -1651301782:  // counterparty
-        setCounterparty((Counterparty) newValue);
-        return;
-      case 752419634:  // tradeDate
-        setTradeDate((LocalDate) newValue);
-        return;
-      case 752903761:  // tradeTime
-        setTradeTime((OffsetTime) newValue);
-        return;
-      case -318452137:  // premium
-        setPremium((Double) newValue);
-        return;
-      case 1136581512:  // premiumCurrency
-        setPremiumCurrency((Currency) newValue);
-        return;
-      case 651701925:  // premiumDate
-        setPremiumDate((LocalDate) newValue);
-        return;
-      case 652186052:  // premiumTime
-        setPremiumTime((OffsetTime) newValue);
-        return;
-      case 405645655:  // attributes
-        setAttributes((Map<String, String>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_securityLink, "securityLink");
-    JodaBeanUtils.notNull(_attributes, "attributes");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SimpleTrade other = (SimpleTrade) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getQuantity(), other.getQuantity()) &&
-          JodaBeanUtils.equal(getSecurityLink(), other.getSecurityLink()) &&
-          JodaBeanUtils.equal(getCounterparty(), other.getCounterparty()) &&
-          JodaBeanUtils.equal(getTradeDate(), other.getTradeDate()) &&
-          JodaBeanUtils.equal(getTradeTime(), other.getTradeTime()) &&
-          JodaBeanUtils.equal(getPremium(), other.getPremium()) &&
-          JodaBeanUtils.equal(getPremiumCurrency(), other.getPremiumCurrency()) &&
-          JodaBeanUtils.equal(getPremiumDate(), other.getPremiumDate()) &&
-          JodaBeanUtils.equal(getPremiumTime(), other.getPremiumTime()) &&
-          JodaBeanUtils.equal(getAttributes(), other.getAttributes());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getQuantity());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLink());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCounterparty());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPremium());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the unique identifier of the trade.
    * @return the value of the property
    */
+  @Override
   public UniqueId getUniqueId() {
     return _uniqueId;
   }
@@ -374,6 +260,7 @@ public class SimpleTrade extends DirectBean
    * Sets the unique identifier of the trade.
    * @param uniqueId  the new value of the property
    */
+  @Override
   public void setUniqueId(UniqueId uniqueId) {
     this._uniqueId = uniqueId;
   }
@@ -391,6 +278,7 @@ public class SimpleTrade extends DirectBean
    * Gets the number of units in the trade.
    * @return the value of the property
    */
+  @Override
   public BigDecimal getQuantity() {
     return _quantity;
   }
@@ -417,6 +305,7 @@ public class SimpleTrade extends DirectBean
    * This may also hold the resolved security.
    * @return the value of the property, not null
    */
+  @Override
   public SecurityLink getSecurityLink() {
     return _securityLink;
   }
@@ -445,6 +334,7 @@ public class SimpleTrade extends DirectBean
    * Gets the counterparty.
    * @return the value of the property
    */
+  @Override
   public Counterparty getCounterparty() {
     return _counterparty;
   }
@@ -470,6 +360,7 @@ public class SimpleTrade extends DirectBean
    * Gets the trade date.
    * @return the value of the property
    */
+  @Override
   public LocalDate getTradeDate() {
     return _tradeDate;
   }
@@ -495,6 +386,7 @@ public class SimpleTrade extends DirectBean
    * Gets the trade time with offset, null if not known.
    * @return the value of the property
    */
+  @Override
   public OffsetTime getTradeTime() {
     return _tradeTime;
   }
@@ -520,6 +412,7 @@ public class SimpleTrade extends DirectBean
    * Gets amount paid for trade at time of purchase, null if not known.
    * @return the value of the property
    */
+  @Override
   public Double getPremium() {
     return _premium;
   }
@@ -545,6 +438,7 @@ public class SimpleTrade extends DirectBean
    * Gets currency of payment at time of purchase, null if not known.
    * @return the value of the property
    */
+  @Override
   public Currency getPremiumCurrency() {
     return _premiumCurrency;
   }
@@ -570,6 +464,7 @@ public class SimpleTrade extends DirectBean
    * Gets date of premium payment, null if not known.
    * @return the value of the property
    */
+  @Override
   public LocalDate getPremiumDate() {
     return _premiumDate;
   }
@@ -595,6 +490,7 @@ public class SimpleTrade extends DirectBean
    * Gets time of premium payment, null if not known.
    * @return the value of the property
    */
+  @Override
   public OffsetTime getPremiumTime() {
     return _premiumTime;
   }
@@ -622,6 +518,7 @@ public class SimpleTrade extends DirectBean
    * and for aggregating in portfolios.
    * @return the value of the property, not null
    */
+  @Override
   public Map<String, String> getAttributes() {
     return _attributes;
   }
@@ -630,9 +527,11 @@ public class SimpleTrade extends DirectBean
    * Sets the general purpose trade attributes.
    * These can be used to add arbitrary additional information to the object
    * and for aggregating in portfolios.
-   * @param attributes  the new value of the property
+   * @param attributes  the new value of the property, not null
    */
+  @Override
   public void setAttributes(Map<String, String> attributes) {
+    JodaBeanUtils.notNull(attributes, "attributes");
     this._attributes.clear();
     this._attributes.putAll(attributes);
   }
@@ -645,6 +544,51 @@ public class SimpleTrade extends DirectBean
    */
   public final Property<Map<String, String>> attributes() {
     return metaBean().attributes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public SimpleTrade clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SimpleTrade other = (SimpleTrade) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getQuantity(), other.getQuantity()) &&
+          JodaBeanUtils.equal(getSecurityLink(), other.getSecurityLink()) &&
+          JodaBeanUtils.equal(getCounterparty(), other.getCounterparty()) &&
+          JodaBeanUtils.equal(getTradeDate(), other.getTradeDate()) &&
+          JodaBeanUtils.equal(getTradeTime(), other.getTradeTime()) &&
+          JodaBeanUtils.equal(getPremium(), other.getPremium()) &&
+          JodaBeanUtils.equal(getPremiumCurrency(), other.getPremiumCurrency()) &&
+          JodaBeanUtils.equal(getPremiumDate(), other.getPremiumDate()) &&
+          JodaBeanUtils.equal(getPremiumTime(), other.getPremiumTime()) &&
+          JodaBeanUtils.equal(getAttributes(), other.getAttributes());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getQuantity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityLink());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCounterparty());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPremium());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPremiumCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPremiumDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPremiumTime());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAttributes());
+    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -867,6 +811,83 @@ public class SimpleTrade extends DirectBean
      */
     public final MetaProperty<Map<String, String>> attributes() {
       return _attributes;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return ((SimpleTrade) bean).getUniqueId();
+        case -1285004149:  // quantity
+          return ((SimpleTrade) bean).getQuantity();
+        case 807992154:  // securityLink
+          return ((SimpleTrade) bean).getSecurityLink();
+        case -1651301782:  // counterparty
+          return ((SimpleTrade) bean).getCounterparty();
+        case 752419634:  // tradeDate
+          return ((SimpleTrade) bean).getTradeDate();
+        case 752903761:  // tradeTime
+          return ((SimpleTrade) bean).getTradeTime();
+        case -318452137:  // premium
+          return ((SimpleTrade) bean).getPremium();
+        case 1136581512:  // premiumCurrency
+          return ((SimpleTrade) bean).getPremiumCurrency();
+        case 651701925:  // premiumDate
+          return ((SimpleTrade) bean).getPremiumDate();
+        case 652186052:  // premiumTime
+          return ((SimpleTrade) bean).getPremiumTime();
+        case 405645655:  // attributes
+          return ((SimpleTrade) bean).getAttributes();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          ((SimpleTrade) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case -1285004149:  // quantity
+          ((SimpleTrade) bean).setQuantity((BigDecimal) newValue);
+          return;
+        case 807992154:  // securityLink
+          ((SimpleTrade) bean).setSecurityLink((SecurityLink) newValue);
+          return;
+        case -1651301782:  // counterparty
+          ((SimpleTrade) bean).setCounterparty((Counterparty) newValue);
+          return;
+        case 752419634:  // tradeDate
+          ((SimpleTrade) bean).setTradeDate((LocalDate) newValue);
+          return;
+        case 752903761:  // tradeTime
+          ((SimpleTrade) bean).setTradeTime((OffsetTime) newValue);
+          return;
+        case -318452137:  // premium
+          ((SimpleTrade) bean).setPremium((Double) newValue);
+          return;
+        case 1136581512:  // premiumCurrency
+          ((SimpleTrade) bean).setPremiumCurrency((Currency) newValue);
+          return;
+        case 651701925:  // premiumDate
+          ((SimpleTrade) bean).setPremiumDate((LocalDate) newValue);
+          return;
+        case 652186052:  // premiumTime
+          ((SimpleTrade) bean).setPremiumTime((OffsetTime) newValue);
+          return;
+        case 405645655:  // attributes
+          ((SimpleTrade) bean).setAttributes((Map<String, String>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((SimpleTrade) bean)._securityLink, "securityLink");
+      JodaBeanUtils.notNull(((SimpleTrade) bean)._attributes, "attributes");
     }
 
   }

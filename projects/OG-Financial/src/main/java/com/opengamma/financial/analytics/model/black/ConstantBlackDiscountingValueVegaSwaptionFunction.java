@@ -17,7 +17,7 @@ import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.PresentValueBlackSwaptionSensitivity;
+import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueSwaptionSurfaceSensitivity;
 import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueBlackSensitivityBlackSwaptionCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProvider;
 import com.opengamma.engine.ComputationTarget;
@@ -57,7 +57,7 @@ public class ConstantBlackDiscountingValueVegaSwaptionFunction extends ConstantB
           final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
           final FXMatrix fxMatrix) {
         final BlackSwaptionFlatProvider blackData = getSwaptionBlackSurface(executionContext, inputs, target, fxMatrix);
-        final PresentValueBlackSwaptionSensitivity sensitivities = derivative.accept(CALCULATOR, blackData);
+        final PresentValueSwaptionSurfaceSensitivity sensitivities = derivative.accept(CALCULATOR, blackData);
         final HashMap<DoublesPair, Double> result = sensitivities.getSensitivity().getMap();
         if (result.size() != 1) {
           throw new OpenGammaRuntimeException("Expecting only one result for Black value vega");

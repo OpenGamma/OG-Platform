@@ -7,6 +7,7 @@ package com.opengamma.bbg.component;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -75,67 +76,6 @@ public class BloombergHistoricalTimeSeriesLoaderComponentFactory extends Abstrac
   @Override
   public BloombergHistoricalTimeSeriesLoaderComponentFactory.Meta metaBean() {
     return BloombergHistoricalTimeSeriesLoaderComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1788671322:  // referenceDataProvider
-        return getReferenceDataProvider();
-      case 173967376:  // historicalTimeSeriesMaster
-        return getHistoricalTimeSeriesMaster();
-      case -1592479713:  // historicalTimeSeriesProvider
-        return getHistoricalTimeSeriesProvider();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1788671322:  // referenceDataProvider
-        setReferenceDataProvider((ReferenceDataProvider) newValue);
-        return;
-      case 173967376:  // historicalTimeSeriesMaster
-        setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
-        return;
-      case -1592479713:  // historicalTimeSeriesProvider
-        setHistoricalTimeSeriesProvider((HistoricalTimeSeriesProvider) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_referenceDataProvider, "referenceDataProvider");
-    JodaBeanUtils.notNull(_historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
-    JodaBeanUtils.notNull(_historicalTimeSeriesProvider, "historicalTimeSeriesProvider");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      BloombergHistoricalTimeSeriesLoaderComponentFactory other = (BloombergHistoricalTimeSeriesLoaderComponentFactory) obj;
-      return JodaBeanUtils.equal(getReferenceDataProvider(), other.getReferenceDataProvider()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesProvider(), other.getHistoricalTimeSeriesProvider()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceDataProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesProvider());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -214,6 +154,57 @@ public class BloombergHistoricalTimeSeriesLoaderComponentFactory extends Abstrac
    */
   public final Property<HistoricalTimeSeriesProvider> historicalTimeSeriesProvider() {
     return metaBean().historicalTimeSeriesProvider().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public BloombergHistoricalTimeSeriesLoaderComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      BloombergHistoricalTimeSeriesLoaderComponentFactory other = (BloombergHistoricalTimeSeriesLoaderComponentFactory) obj;
+      return JodaBeanUtils.equal(getReferenceDataProvider(), other.getReferenceDataProvider()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesProvider(), other.getHistoricalTimeSeriesProvider()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceDataProvider());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesProvider());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("BloombergHistoricalTimeSeriesLoaderComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("referenceDataProvider").append('=').append(JodaBeanUtils.toString(getReferenceDataProvider())).append(',').append(' ');
+    buf.append("historicalTimeSeriesMaster").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesMaster())).append(',').append(' ');
+    buf.append("historicalTimeSeriesProvider").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesProvider())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -307,6 +298,44 @@ public class BloombergHistoricalTimeSeriesLoaderComponentFactory extends Abstrac
      */
     public final MetaProperty<HistoricalTimeSeriesProvider> historicalTimeSeriesProvider() {
       return _historicalTimeSeriesProvider;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1788671322:  // referenceDataProvider
+          return ((BloombergHistoricalTimeSeriesLoaderComponentFactory) bean).getReferenceDataProvider();
+        case 173967376:  // historicalTimeSeriesMaster
+          return ((BloombergHistoricalTimeSeriesLoaderComponentFactory) bean).getHistoricalTimeSeriesMaster();
+        case -1592479713:  // historicalTimeSeriesProvider
+          return ((BloombergHistoricalTimeSeriesLoaderComponentFactory) bean).getHistoricalTimeSeriesProvider();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1788671322:  // referenceDataProvider
+          ((BloombergHistoricalTimeSeriesLoaderComponentFactory) bean).setReferenceDataProvider((ReferenceDataProvider) newValue);
+          return;
+        case 173967376:  // historicalTimeSeriesMaster
+          ((BloombergHistoricalTimeSeriesLoaderComponentFactory) bean).setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
+          return;
+        case -1592479713:  // historicalTimeSeriesProvider
+          ((BloombergHistoricalTimeSeriesLoaderComponentFactory) bean).setHistoricalTimeSeriesProvider((HistoricalTimeSeriesProvider) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((BloombergHistoricalTimeSeriesLoaderComponentFactory) bean)._referenceDataProvider, "referenceDataProvider");
+      JodaBeanUtils.notNull(((BloombergHistoricalTimeSeriesLoaderComponentFactory) bean)._historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
+      JodaBeanUtils.notNull(((BloombergHistoricalTimeSeriesLoaderComponentFactory) bean)._historicalTimeSeriesProvider, "historicalTimeSeriesProvider");
+      super.validate(bean);
     }
 
   }

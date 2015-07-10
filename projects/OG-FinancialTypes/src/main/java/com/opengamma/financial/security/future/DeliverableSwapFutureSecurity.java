@@ -7,6 +7,7 @@ package com.opengamma.financial.security.future;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -91,59 +92,6 @@ public class DeliverableSwapFutureSecurity extends FutureSecurity {
     return DeliverableSwapFutureSecurity.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 207977419:  // underlyingSwapId
-        return getUnderlyingSwapId();
-      case 1585636160:  // notional
-        return getNotional();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 207977419:  // underlyingSwapId
-        setUnderlyingSwapId((ExternalId) newValue);
-        return;
-      case 1585636160:  // notional
-        setNotional((Double) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_underlyingSwapId, "underlyingSwapId");
-    JodaBeanUtils.notNull(_notional, "notional");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      DeliverableSwapFutureSecurity other = (DeliverableSwapFutureSecurity) obj;
-      return JodaBeanUtils.equal(getUnderlyingSwapId(), other.getUnderlyingSwapId()) &&
-          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingSwapId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the underlying swap identifier.
@@ -194,6 +142,54 @@ public class DeliverableSwapFutureSecurity extends FutureSecurity {
    */
   public final Property<Double> notional() {
     return metaBean().notional().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public DeliverableSwapFutureSecurity clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      DeliverableSwapFutureSecurity other = (DeliverableSwapFutureSecurity) obj;
+      return JodaBeanUtils.equal(getUnderlyingSwapId(), other.getUnderlyingSwapId()) &&
+          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingSwapId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("DeliverableSwapFutureSecurity{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("underlyingSwapId").append('=').append(JodaBeanUtils.toString(getUnderlyingSwapId())).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -271,6 +267,38 @@ public class DeliverableSwapFutureSecurity extends FutureSecurity {
      */
     public final MetaProperty<Double> notional() {
       return _notional;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 207977419:  // underlyingSwapId
+          return ((DeliverableSwapFutureSecurity) bean).getUnderlyingSwapId();
+        case 1585636160:  // notional
+          return ((DeliverableSwapFutureSecurity) bean).getNotional();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 207977419:  // underlyingSwapId
+          ((DeliverableSwapFutureSecurity) bean).setUnderlyingSwapId((ExternalId) newValue);
+          return;
+        case 1585636160:  // notional
+          ((DeliverableSwapFutureSecurity) bean).setNotional((Double) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((DeliverableSwapFutureSecurity) bean)._underlyingSwapId, "underlyingSwapId");
+      JodaBeanUtils.notNull(((DeliverableSwapFutureSecurity) bean)._notional, "notional");
+      super.validate(bean);
     }
 
   }

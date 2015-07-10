@@ -7,7 +7,6 @@ package com.opengamma.engine.depgraph;
 
 import java.util.Set;
 
-import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
@@ -16,11 +15,22 @@ import com.opengamma.engine.value.ValueSpecification;
 /* package */final class ResolvedValue {
 
   private final ValueSpecification _valueSpecification;
-  private final ParameterizedFunction _function;
+  private final DependencyNodeFunction _function;
   private final Set<ValueSpecification> _functionInputs;
   private final Set<ValueSpecification> _functionOutputs;
 
-  public ResolvedValue(final ValueSpecification valueSpecification, final ParameterizedFunction function, final Set<ValueSpecification> functionInputs, final Set<ValueSpecification> functionOutputs) {
+  /**
+   * Creates a new instance.
+   * <p>
+   * The {@code valueSpecification} specification must be a normalized/canonical form.
+   * 
+   * @param valueSpecification the resolved value specification, as it will appear in the dependency graph, not null
+   * @param function the function identifier and parameters, not null
+   * @param functionInputs the resolved input specifications, as they will appear in the dependency graph, not null
+   * @param functionOutputs the resolved output specifications, as they will appear in the dependency graph, not null
+   */
+  public ResolvedValue(final ValueSpecification valueSpecification, final DependencyNodeFunction function, final Set<ValueSpecification> functionInputs,
+      final Set<ValueSpecification> functionOutputs) {
     assert valueSpecification != null;
     assert function != null;
     assert functionInputs != null;
@@ -37,7 +47,7 @@ import com.opengamma.engine.value.ValueSpecification;
     return _valueSpecification;
   }
 
-  public ParameterizedFunction getFunction() {
+  public DependencyNodeFunction getFunction() {
     return _function;
   }
 

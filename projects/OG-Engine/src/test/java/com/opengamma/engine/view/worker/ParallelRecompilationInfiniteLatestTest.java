@@ -32,6 +32,7 @@ import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.depgraph.builder.TestDependencyGraphBuilder;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.marketdata.spec.MarketData;
@@ -39,6 +40,8 @@ import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
+import com.opengamma.engine.view.compilation.CompiledViewCalculationConfigurationImpl;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.cycle.ViewCycle;
@@ -51,7 +54,7 @@ import com.opengamma.engine.view.impl.ViewProcessContext;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.lambdava.functions.Function2;
+import com.opengamma.util.function.BiFunction;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -64,10 +67,10 @@ public class ParallelRecompilationInfiniteLatestTest extends AbstractParallelRec
 
   private CompiledViewDefinitionWithGraphs compiledViewDefinition(final ViewDefinition viewDefinition, final Map<ComputationTargetReference, UniqueId> resolutions) {
     final VersionCorrection versionCorrection = VersionCorrection.of(Instant.now(), Instant.now());
-    final DependencyGraph graph = new DependencyGraph("Default");
+    final DependencyGraph graph = new TestDependencyGraphBuilder("Default").buildGraph();
     final Portfolio portfolio = Mockito.mock(Portfolio.class);
     return new CompiledViewDefinitionWithGraphsImpl(versionCorrection, "view-id", viewDefinition, Collections.singleton(graph), new HashMap<ComputationTargetReference, UniqueId>(resolutions),
-        portfolio, 0);
+        portfolio, 0, Collections.<CompiledViewCalculationConfiguration>singleton(CompiledViewCalculationConfigurationImpl.of(graph)), null, null);
   }
 
   private ViewProcessWorkerFactory workerFactory(final ExecutorService executor, final Map<ComputationTargetReference, UniqueId> resolutions) {
@@ -166,7 +169,7 @@ public class ParallelRecompilationInfiniteLatestTest extends AbstractParallelRec
   }
 
   @Override
-  protected void testImpl(final Function2<ParallelRecompilationViewProcessWorker, ViewExecutionOptions, Void> callback) throws InterruptedException {
+  protected void testImpl(final BiFunction<ParallelRecompilationViewProcessWorker, ViewExecutionOptions, Void> callback) throws InterruptedException {
     final ExecutorService executor = Executors.newCachedThreadPool();
     try {
       final Map<ComputationTargetReference, UniqueId> resolutions = new HashMap<ComputationTargetReference, UniqueId>();
@@ -184,7 +187,7 @@ public class ParallelRecompilationInfiniteLatestTest extends AbstractParallelRec
       final ViewExecutionOptions options = ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().ignoreCompilationValidity().get());
       final ViewDefinition viewDefinition = Mockito.mock(ViewDefinition.class);
       final ParallelRecompilationViewProcessWorker worker = new ParallelRecompilationViewProcessWorker(workerFactory(executor, resolutions), context, options, viewDefinition);
-      callback.execute(worker, options);
+      callback.apply(worker, options);
       s_logger.debug("Waiting for initial compilation");
       assertEquals(context.event(), "view definition compiled"); // From primary worker
       for (int j = 0; j < 5; j++) {

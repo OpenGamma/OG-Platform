@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,11 +18,11 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
@@ -36,15 +38,16 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.FutureOptionExpiries;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdentifiable;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
-
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -52,6 +55,15 @@ import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 public class EquityFutureOptionVolatilitySurfaceDataFunction extends AbstractFunction.NonCompiledInvoker {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(EquityFutureOptionVolatilitySurfaceDataFunction.class);
+  /** The supported schemes */
+  private static final Set<ExternalScheme> s_validSchemes = ImmutableSet.of(ExternalSchemes.BLOOMBERG_TICKER, ExternalSchemes.BLOOMBERG_TICKER_WEAK, ExternalSchemes.ACTIVFEED_TICKER);
+
+  private ConfigDBVolatilitySurfaceSpecificationSource _volatilitySurfaceSpecificationSource;
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    _volatilitySurfaceSpecificationSource = ConfigDBVolatilitySurfaceSpecificationSource.init(context, this);
+  }
 
   @Override
   /**
@@ -95,11 +107,8 @@ public class EquityFutureOptionVolatilitySurfaceDataFunction extends AbstractFun
       throw new OpenGammaRuntimeException("Cannot handle quote units " + surfaceQuoteUnits);
     }
     // Return
-    final ValueProperties constraints = desiredValue.getConstraints().copy()
-        .with(ValuePropertyNames.FUNCTION, getUniqueId())
-        .get();
-    final ValueSpecification stdVolSpec = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA,
-        target.toSpecification(), constraints);
+    final ValueProperties constraints = desiredValue.getConstraints().copy().with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
+    final ValueSpecification stdVolSpec = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(), constraints);
     return Collections.singleton(new ComputedValue(stdVolSpec, stdVolSurface));
   }
 
@@ -110,17 +119,17 @@ public class EquityFutureOptionVolatilitySurfaceDataFunction extends AbstractFun
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final String targetScheme = target.getUniqueId().getScheme();
-    return targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName()) ||
-        targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()) ||
-        targetScheme.equalsIgnoreCase(ExternalSchemes.ACTIVFEED_TICKER.getName());
+    if (target.getValue() instanceof ExternalIdentifiable) {
+      final ExternalId identifier = ((ExternalIdentifiable) target.getValue()).getExternalId();
+      return s_validSchemes.contains(identifier.getScheme());
+    }
+    return false;
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = ValueProperties.all();
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(),
-        properties);
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(), properties);
     return Collections.singleton(spec);
   }
 
@@ -141,22 +150,25 @@ public class EquityFutureOptionVolatilitySurfaceDataFunction extends AbstractFun
       return null;
     }
     final String givenName = Iterables.getOnlyElement(surfaceNames);
-    final String fullName = givenName + "_" + EquitySecurityUtils.getTrimmedTarget(target.getUniqueId());
+    final String fullName = givenName + "_" + EquitySecurityUtils.getTrimmedTarget(((ExternalIdentifiable) target.getValue()).getExternalId());
 
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBVolatilitySurfaceSpecificationSource volSpecSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
-    final VolatilitySurfaceSpecification specification = volSpecSource.getSpecification(fullName, InstrumentTypeProperties.EQUITY_FUTURE_OPTION);
+    final VolatilitySurfaceSpecification specification = _volatilitySurfaceSpecificationSource.getSpecification(fullName, InstrumentTypeProperties.EQUITY_FUTURE_OPTION);
     if (specification == null) {
       s_logger.error("Could not get volatility surface specification with name " + fullName);
       return null;
     }
+
     final String quoteUnits = specification.getQuoteUnits();
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, givenName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_FUTURE_OPTION)
         .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType())
-        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, quoteUnits)
-        .get();
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, quoteUnits).get();
+    final ValueProperties fullNameProperties = ValueProperties.builder()
+        .with(ValuePropertyNames.SURFACE, givenName)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_FUTURE_OPTION)
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType())
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, quoteUnits).get();
     final ValueRequirement surfaceReq = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(), properties);
     final ValueRequirement specificationReq = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_SPEC, target.toSpecification(), properties);
     final Set<ValueRequirement> requirements = new HashSet<>();
@@ -167,17 +179,11 @@ public class EquityFutureOptionVolatilitySurfaceDataFunction extends AbstractFun
       if (curveNames == null || curveNames.size() != 1) {
         return null;
       }
-//      final Set<String> curveCalculationMethods = constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
-//      if (curveCalculationMethods == null || curveCalculationMethods.size() != 1) {
-//        return null;
-//      }
       final String curveName = Iterables.getOnlyElement(curveNames);
       //TODO get rid of hard-coding and add to properties
-      final String curveCalculationMethod = ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD; //Iterables.getOnlyElement(curveCalculationMethods);
-      final ValueProperties curveProperties = ValueProperties.builder()
-          .with(ValuePropertyNames.CURVE, curveName)
-          .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, curveCalculationMethod)
-          .get();
+      final String curveCalculationMethod = ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD;
+      final ValueProperties curveProperties = ValueProperties.builder().with(ValuePropertyNames.CURVE, curveName)
+          .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, curveCalculationMethod).get();
       final ValueRequirement forwardCurveRequirement = new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), curveProperties);
       requirements.add(forwardCurveRequirement);
     }
@@ -186,8 +192,7 @@ public class EquityFutureOptionVolatilitySurfaceDataFunction extends AbstractFun
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    final ValueProperties.Builder properties = createValueProperties()
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_FUTURE_OPTION);
+    final ValueProperties.Builder properties = createValueProperties().with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_FUTURE_OPTION);
     boolean surfaceNameSet = false;
     for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
       final ValueSpecification key = entry.getKey();
@@ -195,9 +200,7 @@ public class EquityFutureOptionVolatilitySurfaceDataFunction extends AbstractFun
         properties.with(ValuePropertyNames.SURFACE, key.getProperty(ValuePropertyNames.SURFACE));
         surfaceNameSet = true;
       } else if (key.getValueName().equals(ValueRequirementNames.FORWARD_CURVE)) {
-        final ValueProperties curveProperties = key.getProperties().copy()
-            .withoutAny(ValuePropertyNames.FUNCTION)
-            .get();
+        final ValueProperties curveProperties = key.getProperties().copy().withoutAny(ValuePropertyNames.FUNCTION).get();
         for (final String property : curveProperties.getProperties()) {
           properties.with(property, curveProperties.getValues(property));
         }
@@ -221,7 +224,7 @@ public class EquityFutureOptionVolatilitySurfaceDataFunction extends AbstractFun
           if (vol != null) {
             tList.add(t);
             kList.add(strike);
-            volValues.put(Pair.of(t, strike), vol / 100.);
+            volValues.put(Pairs.of(t, strike), vol / 100.);
           }
         }
       }
@@ -263,7 +266,7 @@ public class EquityFutureOptionVolatilitySurfaceDataFunction extends AbstractFun
               }
               tList.add(t);
               kList.add(strike);
-              volValues.put(Pair.of(t, strike), vol);
+              volValues.put(Pairs.of(t, strike), vol);
             } catch (final Exception e) {
             }
           }

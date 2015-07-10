@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.security.index.OvernightIndex">
+ <externalIdBundle>
+  <externalIds>
+   <item>BLOOMBERG_BUID~NI332078</item>
+   <item>BLOOMBERG_TICKER~FEDL01 Index</item>
+   <item>OG_TICKER~USDFEDFUNDS</item>
+  </externalIds>
+ </externalIdBundle>
+ <name>USDFEDFUNDS</name>
+ <securityType>OVERNIGHT_INDEX</securityType>
+ <attributes/>
+ <requiredPermissions/>
+ <indexFamilyId>INDEX_FAMILY~USDFEDFUNDS</indexFamilyId>
+ <conventionId>CONVENTION~USDFEDFUNDS</conventionId>
+</bean>

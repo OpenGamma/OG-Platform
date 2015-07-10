@@ -20,7 +20,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderForward;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveMatrixCalculator;
 import com.opengamma.analytics.math.function.Function1D;
@@ -31,8 +31,8 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Functions to build curves.
@@ -90,8 +90,8 @@ public class MulticurveProviderForwardBuildingRepository {
    */
   private Pair<MulticurveProviderForward, Double[]> makeUnit(final InstrumentDerivative[] instruments, final double[] initGuess, final MulticurveProviderForward knownData,
       final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IborIndex> forwardIborMap, final LinkedHashMap<String, IndexON> forwardONMap,
-      final LinkedHashMap<String, GeneratorYDCurve> generatorsMap, final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator,
-      final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
+      final LinkedHashMap<String, GeneratorYDCurve> generatorsMap, final InstrumentDerivativeVisitor<ParameterProviderInterface, Double> calculator,
+      final InstrumentDerivativeVisitor<ParameterProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
     final GeneratorMulticurveProviderForward generator = new GeneratorMulticurveProviderForward(knownData, discountingMap, forwardIborMap, forwardONMap, generatorsMap);
     final MulticurveProviderForwardBuildingData data = new MulticurveProviderForwardBuildingData(instruments, generator);
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MulticurveProviderForwardFinderFunction(calculator, data);
@@ -99,7 +99,7 @@ public class MulticurveProviderForwardBuildingRepository {
         new ParameterSensitivityMulticurveMatrixCalculator(sensitivityCalculator), data);
     final double[] parameters = _rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initGuess)).getData();
     final MulticurveProviderForward newCurves = data.getGeneratorMarket().evaluate(new DoubleMatrix1D(parameters));
-    return new ObjectsPair<>(newCurves, ArrayUtils.toObject(parameters));
+    return Pairs.of(newCurves, ArrayUtils.toObject(parameters));
   }
 
   /**
@@ -122,7 +122,7 @@ public class MulticurveProviderForwardBuildingRepository {
   private DoubleMatrix2D[] makeCurveMatrix(final InstrumentDerivative[] instruments, final int startBlock, final int[] nbParameters, final Double[] parameters,
       final MulticurveProviderForward knownData, final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IborIndex> forwardIborMap,
       final LinkedHashMap<String, IndexON> forwardONMap, final LinkedHashMap<String, GeneratorYDCurve> generatorsMap,
-      final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
+      final InstrumentDerivativeVisitor<ParameterProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
     final GeneratorMulticurveProviderForward generator = new GeneratorMulticurveProviderForward(knownData, discountingMap, forwardIborMap, forwardONMap, generatorsMap);
     final MulticurveProviderForwardBuildingData data = new MulticurveProviderForwardBuildingData(instruments, generator);
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveProviderForwardFinderJacobian(
@@ -160,7 +160,7 @@ public class MulticurveProviderForwardBuildingRepository {
   public Pair<MulticurveProviderForward, CurveBuildingBlockBundle> makeCurvesFromDerivatives(final InstrumentDerivative[][][] instruments,
       final GeneratorYDCurve[][] curveGenerators, final String[][] curveNames, final double[][] parametersGuess, final MulticurveProviderForward knownData,
       final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IborIndex> forwardIborMap, final LinkedHashMap<String, IndexON> forwardONMap,
-      final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator, final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
+      final InstrumentDerivativeVisitor<ParameterProviderInterface, Double> calculator, final InstrumentDerivativeVisitor<ParameterProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
     final int nbUnits = curveGenerators.length;
     final MulticurveProviderForward knownSoFarData = knownData.copy();
     final List<InstrumentDerivative> instrumentsSoFar = new ArrayList<>();
@@ -190,7 +190,7 @@ public class MulticurveProviderForwardBuildingRepository {
         final GeneratorYDCurve tmp = curveGenerators[loopunit][loopcurve].finalGenerator(instruments[loopunit][loopcurve]);
         gen.put(curveNames[loopunit][loopcurve], tmp);
         generatorsSoFar.put(curveNames[loopunit][loopcurve], tmp);
-        unitMap.put(curveNames[loopunit][loopcurve], new ObjectsPair<>(startUnit + startCurve[loopcurve], nbIns[loopcurve]));
+        unitMap.put(curveNames[loopunit][loopcurve], Pairs.of(startUnit + startCurve[loopcurve], nbIns[loopcurve]));
       }
       final Pair<MulticurveProviderForward, Double[]> unitCal = makeUnit(instrumentsUnit, parametersGuess[loopunit], knownSoFarData, discountingMap, forwardIborMap, forwardONMap, gen, calculator,
           sensitivityCalculator);
@@ -198,12 +198,12 @@ public class MulticurveProviderForwardBuildingRepository {
       final DoubleMatrix2D[] mat = makeCurveMatrix(instrumentsSoFarArray, startUnit, nbIns, parametersSoFar.toArray(new Double[parametersSoFar.size()]), knownData,
           discountingMap, forwardIborMap, forwardONMap, generatorsSoFar, sensitivityCalculator);
       for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
-        unitBundleSoFar.put(curveNames[loopunit][loopcurve], new ObjectsPair<>(new CurveBuildingBlock(unitMap), mat[loopcurve]));
+        unitBundleSoFar.put(curveNames[loopunit][loopcurve], Pairs.of(new CurveBuildingBlock(unitMap), mat[loopcurve]));
       }
       knownSoFarData.setAll(unitCal.getFirst());
       startUnit = startUnit + nbInsUnit;
     }
-    return new ObjectsPair<>(knownSoFarData, new CurveBuildingBlockBundle(unitBundleSoFar));
+    return Pairs.of(knownSoFarData, new CurveBuildingBlockBundle(unitBundleSoFar));
   }
 
 }

@@ -92,4 +92,5 @@ public class CurveDefinitionBuildersTest extends AnalyticsTestBase {
     fixedDateDefinition = new FixedDateInterpolatedCurveDefinition(curveName, nodes, interpolatorName, rightExtrapolatorName, leftExtrapolatorName, fixedDates);
     assertEquals(fixedDateDefinition, cycleObject(FixedDateInterpolatedCurveDefinition.class, fixedDateDefinition));
   }
+
 }

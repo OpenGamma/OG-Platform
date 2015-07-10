@@ -12,10 +12,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DoubleQuadraticInterpolator1DTest {
   private static final Interpolator1D INTERPOLATOR = new DoubleQuadraticInterpolator1D();
 
@@ -95,7 +97,10 @@ public class DoubleQuadraticInterpolator1DTest {
     final double[] y = new double[] {0.34, 0.56 };
     Interpolator1DDataBundle dataBundle = INTERPOLATOR.getDataBundleFromSortedArrays(x, y);
     double value = INTERPOLATOR.firstDerivative(dataBundle, 1.5);
-    assertEquals((y[1] - y[0]) / (x[1] - x[0]), value, 0.0);
+    double m = (y[1] - y[0]) / (x[1] - x[0]);
+    assertEquals(m, value, 0.0);
+    value = INTERPOLATOR.firstDerivative(dataBundle, x[1]);
+    assertEquals(m, value, 0.0);
   }
 
   @Test
@@ -111,5 +116,21 @@ public class DoubleQuadraticInterpolator1DTest {
       double y = INTERPOLATOR.firstDerivative(data, xKeys[i]);
       assertEquals(0.5 * (INTERPOLATOR.interpolate(data, xKeys[i] + eps) - INTERPOLATOR.interpolate(data, xKeys[i] - eps)) / eps, y, eps);
     }
+  }
+
+  @Test
+  public void firstDerivativeTest() {
+    double a = 1.34;
+    double b = 7.0 / 3.0;
+    double c = -0.52;
+    double[] x = new double[] {-11.0 / 2.3, 0.0, 0.01, 2.71, 17.0 / 3.2 };
+    int n = x.length;
+    double[] y = new double[n];
+    for (int i = 0; i < n; i++) {
+      y[i] = a + b * x[i] + c * x[i] * x[i];
+    }
+    Interpolator1DDataBundle db = INTERPOLATOR.getDataBundle(x, y);
+    Double grad = INTERPOLATOR.firstDerivative(db, x[n - 1]);
+    assertEquals(b + 2 * c * x[n - 1], grad, 1e-15);
   }
 }

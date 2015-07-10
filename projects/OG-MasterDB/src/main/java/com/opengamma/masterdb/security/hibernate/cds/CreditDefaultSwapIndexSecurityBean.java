@@ -7,6 +7,7 @@ package com.opengamma.masterdb.security.hibernate.cds;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -93,185 +94,6 @@ public class CreditDefaultSwapIndexSecurityBean extends SecurityBean {
   @Override
   public CreditDefaultSwapIndexSecurityBean.Meta metaBean() {
     return CreditDefaultSwapIndexSecurityBean.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 97926:  // buy
-        return getBuy();
-      case 2087835226:  // protectionBuyer
-        return getProtectionBuyer();
-      case 769920952:  // protectionSeller
-        return getProtectionSeller();
-      case 100346066:  // index
-        return getIndex();
-      case -2129778896:  // startDate
-        return getStartDate();
-      case -930389515:  // effectiveDate
-        return getEffectiveDate();
-      case -414641441:  // maturityDate
-        return getMaturityDate();
-      case -295948169:  // settlementDate
-        return getSettlementDate();
-      case 1873675528:  // stubType
-        return getStubType();
-      case 144480214:  // couponFrequency
-        return getCouponFrequency();
-      case 1905311443:  // dayCount
-        return getDayCount();
-      case -1002835891:  // businessDayConvention
-        return getBusinessDayConvention();
-      case -1168632905:  // immAdjustMaturityDate
-        return getImmAdjustMaturityDate();
-      case -490317146:  // adjustEffectiveDate
-        return getAdjustEffectiveDate();
-      case -261898226:  // adjustMaturityDate
-        return getAdjustMaturityDate();
-      case 461393382:  // adjustSettlementDate
-        return getAdjustSettlementDate();
-      case 1585636160:  // notional
-        return getNotional();
-      case 2100149628:  // includeAccruedPremium
-        return getIncludeAccruedPremium();
-      case 2103482633:  // protectionStart
-        return getProtectionStart();
-      case -638821960:  // upfrontPayment
-        return getUpfrontPayment();
-      case 880904088:  // indexCoupon
-        return getIndexCoupon();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 97926:  // buy
-        setBuy((Boolean) newValue);
-        return;
-      case 2087835226:  // protectionBuyer
-        setProtectionBuyer((ExternalIdBean) newValue);
-        return;
-      case 769920952:  // protectionSeller
-        setProtectionSeller((ExternalIdBean) newValue);
-        return;
-      case 100346066:  // index
-        setIndex((ExternalIdBean) newValue);
-        return;
-      case -2129778896:  // startDate
-        setStartDate((ZonedDateTimeBean) newValue);
-        return;
-      case -930389515:  // effectiveDate
-        setEffectiveDate((ZonedDateTimeBean) newValue);
-        return;
-      case -414641441:  // maturityDate
-        setMaturityDate((ZonedDateTimeBean) newValue);
-        return;
-      case -295948169:  // settlementDate
-        setSettlementDate((ZonedDateTimeBean) newValue);
-        return;
-      case 1873675528:  // stubType
-        setStubType((StubTypeBean) newValue);
-        return;
-      case 144480214:  // couponFrequency
-        setCouponFrequency((FrequencyBean) newValue);
-        return;
-      case 1905311443:  // dayCount
-        setDayCount((DayCountBean) newValue);
-        return;
-      case -1002835891:  // businessDayConvention
-        setBusinessDayConvention((BusinessDayConventionBean) newValue);
-        return;
-      case -1168632905:  // immAdjustMaturityDate
-        setImmAdjustMaturityDate((Boolean) newValue);
-        return;
-      case -490317146:  // adjustEffectiveDate
-        setAdjustEffectiveDate((Boolean) newValue);
-        return;
-      case -261898226:  // adjustMaturityDate
-        setAdjustMaturityDate((Boolean) newValue);
-        return;
-      case 461393382:  // adjustSettlementDate
-        setAdjustSettlementDate((Boolean) newValue);
-        return;
-      case 1585636160:  // notional
-        setNotional((NotionalBean) newValue);
-        return;
-      case 2100149628:  // includeAccruedPremium
-        setIncludeAccruedPremium((Boolean) newValue);
-        return;
-      case 2103482633:  // protectionStart
-        setProtectionStart((Boolean) newValue);
-        return;
-      case -638821960:  // upfrontPayment
-        setUpfrontPayment((NotionalBean) newValue);
-        return;
-      case 880904088:  // indexCoupon
-        setIndexCoupon((Double) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CreditDefaultSwapIndexSecurityBean other = (CreditDefaultSwapIndexSecurityBean) obj;
-      return JodaBeanUtils.equal(getBuy(), other.getBuy()) &&
-          JodaBeanUtils.equal(getProtectionBuyer(), other.getProtectionBuyer()) &&
-          JodaBeanUtils.equal(getProtectionSeller(), other.getProtectionSeller()) &&
-          JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
-          JodaBeanUtils.equal(getEffectiveDate(), other.getEffectiveDate()) &&
-          JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
-          JodaBeanUtils.equal(getSettlementDate(), other.getSettlementDate()) &&
-          JodaBeanUtils.equal(getStubType(), other.getStubType()) &&
-          JodaBeanUtils.equal(getCouponFrequency(), other.getCouponFrequency()) &&
-          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
-          JodaBeanUtils.equal(getImmAdjustMaturityDate(), other.getImmAdjustMaturityDate()) &&
-          JodaBeanUtils.equal(getAdjustEffectiveDate(), other.getAdjustEffectiveDate()) &&
-          JodaBeanUtils.equal(getAdjustMaturityDate(), other.getAdjustMaturityDate()) &&
-          JodaBeanUtils.equal(getAdjustSettlementDate(), other.getAdjustSettlementDate()) &&
-          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(getIncludeAccruedPremium(), other.getIncludeAccruedPremium()) &&
-          JodaBeanUtils.equal(getProtectionStart(), other.getProtectionStart()) &&
-          JodaBeanUtils.equal(getUpfrontPayment(), other.getUpfrontPayment()) &&
-          JodaBeanUtils.equal(getIndexCoupon(), other.getIndexCoupon()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBuy());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProtectionBuyer());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProtectionSeller());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEffectiveDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStubType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCouponFrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getImmAdjustMaturityDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAdjustEffectiveDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAdjustMaturityDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAdjustSettlementDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIncludeAccruedPremium());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProtectionStart());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUpfrontPayment());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIndexCoupon());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -800,6 +622,111 @@ public class CreditDefaultSwapIndexSecurityBean extends SecurityBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public CreditDefaultSwapIndexSecurityBean clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CreditDefaultSwapIndexSecurityBean other = (CreditDefaultSwapIndexSecurityBean) obj;
+      return JodaBeanUtils.equal(getBuy(), other.getBuy()) &&
+          JodaBeanUtils.equal(getProtectionBuyer(), other.getProtectionBuyer()) &&
+          JodaBeanUtils.equal(getProtectionSeller(), other.getProtectionSeller()) &&
+          JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
+          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
+          JodaBeanUtils.equal(getEffectiveDate(), other.getEffectiveDate()) &&
+          JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
+          JodaBeanUtils.equal(getSettlementDate(), other.getSettlementDate()) &&
+          JodaBeanUtils.equal(getStubType(), other.getStubType()) &&
+          JodaBeanUtils.equal(getCouponFrequency(), other.getCouponFrequency()) &&
+          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
+          JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
+          JodaBeanUtils.equal(getImmAdjustMaturityDate(), other.getImmAdjustMaturityDate()) &&
+          JodaBeanUtils.equal(getAdjustEffectiveDate(), other.getAdjustEffectiveDate()) &&
+          JodaBeanUtils.equal(getAdjustMaturityDate(), other.getAdjustMaturityDate()) &&
+          JodaBeanUtils.equal(getAdjustSettlementDate(), other.getAdjustSettlementDate()) &&
+          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
+          JodaBeanUtils.equal(getIncludeAccruedPremium(), other.getIncludeAccruedPremium()) &&
+          JodaBeanUtils.equal(getProtectionStart(), other.getProtectionStart()) &&
+          JodaBeanUtils.equal(getUpfrontPayment(), other.getUpfrontPayment()) &&
+          JodaBeanUtils.equal(getIndexCoupon(), other.getIndexCoupon()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBuy());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProtectionBuyer());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProtectionSeller());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEffectiveDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStubType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCouponFrequency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getImmAdjustMaturityDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAdjustEffectiveDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAdjustMaturityDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAdjustSettlementDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIncludeAccruedPremium());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProtectionStart());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUpfrontPayment());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIndexCoupon());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(704);
+    buf.append("CreditDefaultSwapIndexSecurityBean{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("buy").append('=').append(JodaBeanUtils.toString(getBuy())).append(',').append(' ');
+    buf.append("protectionBuyer").append('=').append(JodaBeanUtils.toString(getProtectionBuyer())).append(',').append(' ');
+    buf.append("protectionSeller").append('=').append(JodaBeanUtils.toString(getProtectionSeller())).append(',').append(' ');
+    buf.append("index").append('=').append(JodaBeanUtils.toString(getIndex())).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
+    buf.append("effectiveDate").append('=').append(JodaBeanUtils.toString(getEffectiveDate())).append(',').append(' ');
+    buf.append("maturityDate").append('=').append(JodaBeanUtils.toString(getMaturityDate())).append(',').append(' ');
+    buf.append("settlementDate").append('=').append(JodaBeanUtils.toString(getSettlementDate())).append(',').append(' ');
+    buf.append("stubType").append('=').append(JodaBeanUtils.toString(getStubType())).append(',').append(' ');
+    buf.append("couponFrequency").append('=').append(JodaBeanUtils.toString(getCouponFrequency())).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
+    buf.append("businessDayConvention").append('=').append(JodaBeanUtils.toString(getBusinessDayConvention())).append(',').append(' ');
+    buf.append("immAdjustMaturityDate").append('=').append(JodaBeanUtils.toString(getImmAdjustMaturityDate())).append(',').append(' ');
+    buf.append("adjustEffectiveDate").append('=').append(JodaBeanUtils.toString(getAdjustEffectiveDate())).append(',').append(' ');
+    buf.append("adjustMaturityDate").append('=').append(JodaBeanUtils.toString(getAdjustMaturityDate())).append(',').append(' ');
+    buf.append("adjustSettlementDate").append('=').append(JodaBeanUtils.toString(getAdjustSettlementDate())).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
+    buf.append("includeAccruedPremium").append('=').append(JodaBeanUtils.toString(getIncludeAccruedPremium())).append(',').append(' ');
+    buf.append("protectionStart").append('=').append(JodaBeanUtils.toString(getProtectionStart())).append(',').append(' ');
+    buf.append("upfrontPayment").append('=').append(JodaBeanUtils.toString(getUpfrontPayment())).append(',').append(' ');
+    buf.append("indexCoupon").append('=').append(JodaBeanUtils.toString(getIndexCoupon())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code CreditDefaultSwapIndexSecurityBean}.
    */
@@ -1178,6 +1105,126 @@ public class CreditDefaultSwapIndexSecurityBean extends SecurityBean {
      */
     public final MetaProperty<Double> indexCoupon() {
       return _indexCoupon;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 97926:  // buy
+          return ((CreditDefaultSwapIndexSecurityBean) bean).getBuy();
+        case 2087835226:  // protectionBuyer
+          return ((CreditDefaultSwapIndexSecurityBean) bean).getProtectionBuyer();
+        case 769920952:  // protectionSeller
+          return ((CreditDefaultSwapIndexSecurityBean) bean).getProtectionSeller();
+        case 100346066:  // index
+          return ((CreditDefaultSwapIndexSecurityBean) bean).getIndex();
+        case -2129778896:  // startDate
+          return ((CreditDefaultSwapIndexSecurityBean) bean).getStartDate();
+        case -930389515:  // effectiveDate
+          return ((CreditDefaultSwapIndexSecurityBean) bean).getEffectiveDate();
+        case -414641441:  // maturityDate
+          return ((CreditDefaultSwapIndexSecurityBean) bean).getMaturityDate();
+        case -295948169:  // settlementDate
+          return ((CreditDefaultSwapIndexSecurityBean) bean).getSettlementDate();
+        case 1873675528:  // stubType
+          return ((CreditDefaultSwapIndexSecurityBean) bean).getStubType();
+        case 144480214:  // couponFrequency
+          return ((CreditDefaultSwapIndexSecurityBean) bean).getCouponFrequency();
+        case 1905311443:  // dayCount
+          return ((CreditDefaultSwapIndexSecurityBean) bean).getDayCount();
+        case -1002835891:  // businessDayConvention
+          return ((CreditDefaultSwapIndexSecurityBean) bean).getBusinessDayConvention();
+        case -1168632905:  // immAdjustMaturityDate
+          return ((CreditDefaultSwapIndexSecurityBean) bean).getImmAdjustMaturityDate();
+        case -490317146:  // adjustEffectiveDate
+          return ((CreditDefaultSwapIndexSecurityBean) bean).getAdjustEffectiveDate();
+        case -261898226:  // adjustMaturityDate
+          return ((CreditDefaultSwapIndexSecurityBean) bean).getAdjustMaturityDate();
+        case 461393382:  // adjustSettlementDate
+          return ((CreditDefaultSwapIndexSecurityBean) bean).getAdjustSettlementDate();
+        case 1585636160:  // notional
+          return ((CreditDefaultSwapIndexSecurityBean) bean).getNotional();
+        case 2100149628:  // includeAccruedPremium
+          return ((CreditDefaultSwapIndexSecurityBean) bean).getIncludeAccruedPremium();
+        case 2103482633:  // protectionStart
+          return ((CreditDefaultSwapIndexSecurityBean) bean).getProtectionStart();
+        case -638821960:  // upfrontPayment
+          return ((CreditDefaultSwapIndexSecurityBean) bean).getUpfrontPayment();
+        case 880904088:  // indexCoupon
+          return ((CreditDefaultSwapIndexSecurityBean) bean).getIndexCoupon();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 97926:  // buy
+          ((CreditDefaultSwapIndexSecurityBean) bean).setBuy((Boolean) newValue);
+          return;
+        case 2087835226:  // protectionBuyer
+          ((CreditDefaultSwapIndexSecurityBean) bean).setProtectionBuyer((ExternalIdBean) newValue);
+          return;
+        case 769920952:  // protectionSeller
+          ((CreditDefaultSwapIndexSecurityBean) bean).setProtectionSeller((ExternalIdBean) newValue);
+          return;
+        case 100346066:  // index
+          ((CreditDefaultSwapIndexSecurityBean) bean).setIndex((ExternalIdBean) newValue);
+          return;
+        case -2129778896:  // startDate
+          ((CreditDefaultSwapIndexSecurityBean) bean).setStartDate((ZonedDateTimeBean) newValue);
+          return;
+        case -930389515:  // effectiveDate
+          ((CreditDefaultSwapIndexSecurityBean) bean).setEffectiveDate((ZonedDateTimeBean) newValue);
+          return;
+        case -414641441:  // maturityDate
+          ((CreditDefaultSwapIndexSecurityBean) bean).setMaturityDate((ZonedDateTimeBean) newValue);
+          return;
+        case -295948169:  // settlementDate
+          ((CreditDefaultSwapIndexSecurityBean) bean).setSettlementDate((ZonedDateTimeBean) newValue);
+          return;
+        case 1873675528:  // stubType
+          ((CreditDefaultSwapIndexSecurityBean) bean).setStubType((StubTypeBean) newValue);
+          return;
+        case 144480214:  // couponFrequency
+          ((CreditDefaultSwapIndexSecurityBean) bean).setCouponFrequency((FrequencyBean) newValue);
+          return;
+        case 1905311443:  // dayCount
+          ((CreditDefaultSwapIndexSecurityBean) bean).setDayCount((DayCountBean) newValue);
+          return;
+        case -1002835891:  // businessDayConvention
+          ((CreditDefaultSwapIndexSecurityBean) bean).setBusinessDayConvention((BusinessDayConventionBean) newValue);
+          return;
+        case -1168632905:  // immAdjustMaturityDate
+          ((CreditDefaultSwapIndexSecurityBean) bean).setImmAdjustMaturityDate((Boolean) newValue);
+          return;
+        case -490317146:  // adjustEffectiveDate
+          ((CreditDefaultSwapIndexSecurityBean) bean).setAdjustEffectiveDate((Boolean) newValue);
+          return;
+        case -261898226:  // adjustMaturityDate
+          ((CreditDefaultSwapIndexSecurityBean) bean).setAdjustMaturityDate((Boolean) newValue);
+          return;
+        case 461393382:  // adjustSettlementDate
+          ((CreditDefaultSwapIndexSecurityBean) bean).setAdjustSettlementDate((Boolean) newValue);
+          return;
+        case 1585636160:  // notional
+          ((CreditDefaultSwapIndexSecurityBean) bean).setNotional((NotionalBean) newValue);
+          return;
+        case 2100149628:  // includeAccruedPremium
+          ((CreditDefaultSwapIndexSecurityBean) bean).setIncludeAccruedPremium((Boolean) newValue);
+          return;
+        case 2103482633:  // protectionStart
+          ((CreditDefaultSwapIndexSecurityBean) bean).setProtectionStart((Boolean) newValue);
+          return;
+        case -638821960:  // upfrontPayment
+          ((CreditDefaultSwapIndexSecurityBean) bean).setUpfrontPayment((NotionalBean) newValue);
+          return;
+        case 880904088:  // indexCoupon
+          ((CreditDefaultSwapIndexSecurityBean) bean).setIndexCoupon((Double) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

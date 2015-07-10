@@ -16,14 +16,14 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderForward;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * For an instrument, computes the sensitivity of a value (often the present value or a par spread) to the parameters used in the curve.
@@ -36,7 +36,7 @@ public class ParameterSensitivityMulticurveForwardInterpolatedFDCalculator {
   /**
    * The value calculator.
    */
-  private final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyAmount> _valueCalculator;
+  private final InstrumentDerivativeVisitor<ParameterProviderInterface, MultipleCurrencyAmount> _valueCalculator;
   /**
    * The shift used for finite difference.
    */
@@ -47,7 +47,7 @@ public class ParameterSensitivityMulticurveForwardInterpolatedFDCalculator {
    * @param valueCalculator The value calculator.
    * @param shift The shift used for finite difference.
    */
-  public ParameterSensitivityMulticurveForwardInterpolatedFDCalculator(final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyAmount> valueCalculator, final double shift) {
+  public ParameterSensitivityMulticurveForwardInterpolatedFDCalculator(final InstrumentDerivativeVisitor<ParameterProviderInterface, MultipleCurrencyAmount> valueCalculator, final double shift) {
     ArgumentChecker.notNull(valueCalculator, "Calculator");
     _valueCalculator = valueCalculator;
     _shift = shift;
@@ -92,7 +92,7 @@ public class ParameterSensitivityMulticurveForwardInterpolatedFDCalculator {
       }
       final String name = market.getName(ccy);
       for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
-        result = result.plus(new ObjectsPair<>(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
+        result = result.plus(Pairs.of(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
       }
     }
     // Forward ON
@@ -118,7 +118,7 @@ public class ParameterSensitivityMulticurveForwardInterpolatedFDCalculator {
       }
       final String name = market.getName(index);
       for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
-        result = result.plus(new ObjectsPair<>(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
+        result = result.plus(Pairs.of(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
       }
     }
     // Forward Ibor
@@ -142,7 +142,7 @@ public class ParameterSensitivityMulticurveForwardInterpolatedFDCalculator {
       }
       final String name = market.getName(index);
       for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
-        result = result.plus(new ObjectsPair<>(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
+        result = result.plus(Pairs.of(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
       }
     }
     return result;

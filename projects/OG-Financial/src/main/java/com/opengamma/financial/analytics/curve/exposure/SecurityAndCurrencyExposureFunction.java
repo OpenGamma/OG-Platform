@@ -10,406 +10,100 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.bond.CorporateBondSecurity;
-import com.opengamma.financial.security.bond.GovernmentBondSecurity;
-import com.opengamma.financial.security.bond.InflationBondSecurity;
-import com.opengamma.financial.security.bond.MunicipalBondSecurity;
-import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
-import com.opengamma.financial.security.capfloor.CapFloorSecurity;
-import com.opengamma.financial.security.cash.CashSecurity;
-import com.opengamma.financial.security.cashflow.CashFlowSecurity;
-import com.opengamma.financial.security.cds.CDSSecurity;
-import com.opengamma.financial.security.cds.CreditDefaultSwapIndexDefinitionSecurity;
-import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
-import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
-import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
-import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
-import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
-import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
-import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
-import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
-import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
-import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
-import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
-import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
-import com.opengamma.financial.security.forward.EnergyForwardSecurity;
-import com.opengamma.financial.security.forward.MetalForwardSecurity;
-import com.opengamma.financial.security.fra.FRASecurity;
-import com.opengamma.financial.security.future.AgricultureFutureSecurity;
-import com.opengamma.financial.security.future.BondFutureSecurity;
-import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
-import com.opengamma.financial.security.future.EnergyFutureSecurity;
-import com.opengamma.financial.security.future.EquityFutureSecurity;
-import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
+import com.opengamma.financial.security.CurrenciesVisitor;
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitorSameMethodAdapter;
 import com.opengamma.financial.security.future.FXFutureSecurity;
-import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
-import com.opengamma.financial.security.future.IndexFutureSecurity;
-import com.opengamma.financial.security.future.InterestRateFutureSecurity;
-import com.opengamma.financial.security.future.MetalFutureSecurity;
-import com.opengamma.financial.security.future.StockFutureSecurity;
-import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
-import com.opengamma.financial.security.option.BondFutureOptionSecurity;
-import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
-import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
-import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
-import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
-import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.FxFutureOptionSecurity;
-import com.opengamma.financial.security.option.IRFutureOptionSecurity;
-import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
-import com.opengamma.financial.security.option.SwaptionSecurity;
-import com.opengamma.financial.security.swap.ForwardSwapSecurity;
-import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
-import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Exposure function that allows the curve lookup by security type and currency of a given trade.
  */
 public class SecurityAndCurrencyExposureFunction implements ExposureFunction {
-  private final SecuritySource _securitySource;
 
+  /**
+   * The name of the exposure function.
+   */
+  public static final String NAME = "Security / Currency";
+  
+  private final SecurityAndCurrencyVisitor _visitor;
+  
+  /**
+   * Constructor that uses a security source to look up the underlying contract for the security type and currency, if 
+   * necessary.
+   * @param securitySource the security source containing the security definitions.
+   */
   public SecurityAndCurrencyExposureFunction(final SecuritySource securitySource) {
-    ArgumentChecker.notNull(securitySource, "security source");
-    _securitySource = securitySource;
+    _visitor = new SecurityAndCurrencyVisitor(ArgumentChecker.notNull(securitySource, "security source"));
   }
 
   @Override
   public String getName() {
-    return "Security / Currency";
+    return NAME;
   }
-
-  private List<ExternalId> getExternalIds(final Security security) {
-    final Collection<Currency> currencies = FinancialSecurityUtils.getCurrencies(security, _securitySource);
-    if (currencies.isEmpty()) {
-      return null;
+  
+  @Override
+  public List<ExternalId> getIds(Trade trade) {
+    Security security = trade.getSecurity();
+    if (security instanceof FinancialSecurity) {
+      return ((FinancialSecurity) security).accept(_visitor);
     }
-    final List<ExternalId> result = new ArrayList<>();
-    final String securityType = security.getSecurityType();
-    for (final Currency currency : currencies) {
-      result.add(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + currency.getCode()));
+    return null;
+  }
+  
+  private static final class DefaultSecurityAndCurrencyVisitor implements FinancialSecurityVisitorSameMethodAdapter.Visitor<List<ExternalId>> {
+    
+    private final SecuritySource _securitySource;
+    
+    public DefaultSecurityAndCurrencyVisitor(SecuritySource securitySource) {
+      _securitySource = ArgumentChecker.notNull(securitySource, "securitySource");
     }
-    return result;
+    
+    @Override
+    public List<ExternalId> visit(FinancialSecurity security) {
+      final Collection<Currency> currencies = CurrenciesVisitor.getCurrencies(security, _securitySource);
+      if (currencies == null || currencies.isEmpty()) {
+        return null;
+      }
+      final List<ExternalId> result = new ArrayList<>();
+      final String securityType = security.getSecurityType();
+      for (final Currency currency : currencies) {
+        result.add(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + currency.getCode()));
+      }
+      return result;
+    }
+    
   }
+  
+  private static final class SecurityAndCurrencyVisitor extends FinancialSecurityVisitorSameMethodAdapter<List<ExternalId>> {
+    
+    private final SecuritySource _securitySource;
+    
+    public SecurityAndCurrencyVisitor(SecuritySource securitySource) {
+      super(new DefaultSecurityAndCurrencyVisitor(ArgumentChecker.notNull(securitySource, "securitySource")));
+      _securitySource = securitySource;
+    }
 
-  @Override
-  public List<ExternalId> visitAgricultureFutureSecurity(final AgricultureFutureSecurity security) {
-    return getExternalIds(security);
+    @Override
+    public List<ExternalId> visitFXFutureSecurity(final FXFutureSecurity security) {
+      final String securityType = security.getSecurityType();
+      return Arrays.asList(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + security.getDenominator().getCode()),
+          ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + security.getNumerator().getCode()));
+    }
+
+    @Override
+    public List<ExternalId> visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
+      final FXFutureSecurity fxFuture = (FXFutureSecurity) _securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
+      final String securityType = security.getSecurityType();
+      return Arrays.asList(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + fxFuture.getDenominator().getCode()),
+          ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + fxFuture.getNumerator().getCode()));
+    }
   }
-
-  @Override
-  public List<ExternalId> visitBondFutureSecurity(final BondFutureSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitEquityIndexDividendFutureSecurity(final EquityIndexDividendFutureSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitFXFutureSecurity(final FXFutureSecurity security) {
-    final String securityType = security.getSecurityType();
-    return Arrays.asList(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + security.getDenominator().getCode()),
-        ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + security.getNumerator().getCode()));
-  }
-
-  @Override
-  public List<ExternalId> visitStockFutureSecurity(final StockFutureSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitEquityFutureSecurity(final EquityFutureSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitEnergyFutureSecurity(final EnergyFutureSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitIndexFutureSecurity(final IndexFutureSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitMetalFutureSecurity(final MetalFutureSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitCapFloorSecurity(final CapFloorSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitCashSecurity(final CashSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitCashFlowSecurity(final CashFlowSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitCommodityFutureOptionSecurity(final CommodityFutureOptionSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
-    final FXFutureSecurity fxFuture = (FXFutureSecurity) _securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
-    final String securityType = security.getSecurityType();
-    return Arrays.asList(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + fxFuture.getDenominator().getCode()),
-        ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + fxFuture.getNumerator().getCode()));
-  }
-
-  @Override
-  public List<ExternalId> visitBondFutureOptionSecurity(final BondFutureOptionSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitCorporateBondSecurity(final CorporateBondSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitEquityIndexFutureOptionSecurity(final EquityIndexFutureOptionSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitEquityOptionSecurity(final EquityOptionSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitEquitySecurity(final EquitySecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitFRASecurity(final FRASecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitFXForwardSecurity(final FXForwardSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitFXOptionSecurity(final FXOptionSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitForwardSwapSecurity(final ForwardSwapSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitInflationBondSecurity(final InflationBondSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitPeriodicZeroDepositSecurity(final PeriodicZeroDepositSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitSimpleZeroDepositSecurity(final SimpleZeroDepositSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitSwapSecurity(final SwapSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitSwaptionSecurity(final SwaptionSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitDeliverableSwapFutureSecurity(final DeliverableSwapFutureSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitEnergyForwardSecurity(final EnergyForwardSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitAgricultureForwardSecurity(final AgricultureForwardSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitMetalForwardSecurity(final MetalForwardSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitCDSSecurity(final CDSSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitStandardFixedRecoveryCDSSecurity(final StandardFixedRecoveryCDSSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitStandardRecoveryLockCDSSecurity(final StandardRecoveryLockCDSSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitLegacyFixedRecoveryCDSSecurity(final LegacyFixedRecoveryCDSSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitLegacyRecoveryLockCDSSecurity(final LegacyRecoveryLockCDSSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitCreditDefaultSwapIndexDefinitionSecurity(final CreditDefaultSwapIndexDefinitionSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitCreditDefaultSwapIndexSecurity(final CreditDefaultSwapIndexSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitZeroCouponInflationSwapSecurity(final ZeroCouponInflationSwapSecurity security) {
-    return getExternalIds(security);
-  }
-
-  @Override
-  public List<ExternalId> visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
-    return getExternalIds(security);
-  }
-
 }

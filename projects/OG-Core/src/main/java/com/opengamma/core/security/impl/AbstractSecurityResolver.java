@@ -70,7 +70,7 @@ public abstract class AbstractSecurityResolver implements SecurityResolver {
     return _versionCorrection;
   }
 
-  //-------------------------------------------------------------------------  
+  //-------------------------------------------------------------------------
   @Override
   public Security resolve(Link<Security> link) {
     ArgumentChecker.notNull(link, "link");

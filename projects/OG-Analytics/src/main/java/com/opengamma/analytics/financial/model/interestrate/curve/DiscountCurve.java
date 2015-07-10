@@ -25,7 +25,7 @@ public class DiscountCurve extends YieldAndDiscountCurve {
    * The curve storing the required data as discount factors.
    */
   private final DoublesCurve _curve;
-
+  /** Constant representing a small time increment */
   private static final double SMALL_TIME = 1.0E-6;
 
   /**

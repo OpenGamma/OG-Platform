@@ -13,7 +13,7 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageSpreadDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -27,14 +27,14 @@ import com.opengamma.util.ArgumentChecker;
  * A wrapper class for an annuity containing overnight arithmetic averaged coupons (i.e. the floating leg for a Fed funds-like
  * rate) with a spread.
  */
-public class AnnuityCouponArithmeticAverageONSpreadDefinition extends AnnuityCouponDefinition<CouponArithmeticAverageONSpreadDefinition> {
+public class AnnuityCouponArithmeticAverageONSpreadDefinition extends AnnuityCouponDefinition<CouponONArithmeticAverageSpreadDefinition> {
 
   /**
    * Constructor from a list of overnight arithmetic average coupons with spread.
    * @param payments The coupons.
    * @param calendar The holiday calendar
    */
-  public AnnuityCouponArithmeticAverageONSpreadDefinition(final CouponArithmeticAverageONSpreadDefinition[] payments, final Calendar calendar) {
+  public AnnuityCouponArithmeticAverageONSpreadDefinition(final CouponONArithmeticAverageSpreadDefinition[] payments, final Calendar calendar) {
     super(payments, calendar);
   }
 
@@ -92,23 +92,13 @@ public class AnnuityCouponArithmeticAverageONSpreadDefinition extends AnnuityCou
         isStubStart, businessDayConvention, indexCalendar, isEOM);
     final double sign = isPayer ? -1.0 : 1.0;
     final double notionalSigned = sign * notional;
-    final CouponArithmeticAverageONSpreadDefinition[] coupons = new CouponArithmeticAverageONSpreadDefinition[endFixingPeriodDates.length];
-    coupons[0] = CouponArithmeticAverageONSpreadDefinition.from(indexON, settlementDate, endFixingPeriodDates[0], notionalSigned, paymentLag, spread, indexCalendar);
+    final CouponONArithmeticAverageSpreadDefinition[] coupons = new CouponONArithmeticAverageSpreadDefinition[endFixingPeriodDates.length];
+    coupons[0] = CouponONArithmeticAverageSpreadDefinition.from(indexON, settlementDate, endFixingPeriodDates[0], notionalSigned, paymentLag, spread, indexCalendar);
     for (int loopcpn = 1; loopcpn < endFixingPeriodDates.length; loopcpn++) {
-      coupons[loopcpn] = CouponArithmeticAverageONSpreadDefinition.from(indexON, endFixingPeriodDates[loopcpn - 1], endFixingPeriodDates[loopcpn], notionalSigned, paymentLag,
+      coupons[loopcpn] = CouponONArithmeticAverageSpreadDefinition.from(indexON, endFixingPeriodDates[loopcpn - 1], endFixingPeriodDates[loopcpn], notionalSigned, paymentLag,
           spread, indexCalendar);
     }
     return new AnnuityCouponArithmeticAverageONSpreadDefinition(coupons, indexCalendar);
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Annuity<? extends Coupon> toDerivative(final ZonedDateTime valZdt, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
-    return toDerivative(valZdt, indexFixingTS);
   }
 
   @Override
@@ -116,7 +106,7 @@ public class AnnuityCouponArithmeticAverageONSpreadDefinition extends AnnuityCou
     ArgumentChecker.notNull(valZdt, "date");
     ArgumentChecker.notNull(indexFixingTS, "index fixing time series");
     final List<Coupon> resultList = new ArrayList<>();
-    final CouponArithmeticAverageONSpreadDefinition[] payments = getPayments();
+    final CouponONArithmeticAverageSpreadDefinition[] payments = getPayments();
     final ZonedDateTime valZdtInPaymentZone = valZdt.withZoneSameInstant(payments[0].getPaymentDate().getZone());
     final LocalDate valDate = valZdtInPaymentZone.toLocalDate();
 

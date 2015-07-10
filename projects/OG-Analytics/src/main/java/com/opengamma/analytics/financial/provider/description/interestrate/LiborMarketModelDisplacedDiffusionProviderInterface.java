@@ -9,7 +9,7 @@ import com.opengamma.analytics.financial.model.interestrate.definition.LiborMark
 import com.opengamma.util.money.Currency;
 
 /**
- * Interface for swaption SABR parameters provider for one underlying.
+ * Interface for a LMM parameters provider for one underlying.
  */
 public interface LiborMarketModelDisplacedDiffusionProviderInterface extends ParameterProviderInterface {
 

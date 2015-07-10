@@ -7,11 +7,14 @@ package com.opengamma.web.security;
 
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitorSameValueAdapter;
@@ -28,7 +31,9 @@ import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.JodaBeanSerialization;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -68,6 +73,7 @@ import com.opengamma.util.time.Expiry;
       templateData.put("gicsCode", security.getGicsCode().toString());
     }
     secMap.put(TEMPLATE_DATA, templateData);
+    addSecurityXml(security, secMap);
     addExternalIds(security, secMap);
     return new JSONObject(secMap);
   }
@@ -141,24 +147,34 @@ import com.opengamma.util.time.Expiry;
           templateData.put("settlementExchange", security.getSettlementExchange());
         }
         if (security.getCurrency() != null && StringUtils.isNotBlank(security.getCurrency().getCode())) {
-          templateData.put("redemptionValue", security.getCurrency().getCode());
+          templateData.put("currency", security.getCurrency().getCode());
         }
         List<BondFutureDeliverable> basket = security.getBasket();
         if (!basket.isEmpty()) {
           Map<String, String> underlyingBond = Maps.newHashMap();
           for (BondFutureDeliverable bondFutureDeliverable : basket) {
-            underlyingBond.put(ExternalSchemes.BLOOMBERG_BUID.getName() + "-" + bondFutureDeliverable.getIdentifiers().getValue(ExternalSchemes.BLOOMBERG_BUID),
-              String.valueOf(bondFutureDeliverable.getConversionFactor()));
+            SortedSet<String> idSet = Sets.newTreeSet();
+            for (ExternalId id : bondFutureDeliverable.getIdentifiers()) {
+              idSet.add(id.getScheme().toString() + "-" + id.getValue());
+            }
+            String id = "[" + Joiner.on(",").join(idSet) + "]";
+            underlyingBond.put(id, String.valueOf(bondFutureDeliverable.getConversionFactor()));
           }
           templateData.put("underlyingBond", underlyingBond);
         }
         templateData.put("unitAmount", security.getUnitAmount());
         secMap.put(TEMPLATE_DATA, templateData);
+        addSecurityXml(security, secMap);
         addExternalIds(security, secMap);
         return new JSONObject(secMap);
       }
     });
     return result;
+  }
+  
+  private void addSecurityXml(FinancialSecurity security, Map<String, Object> secMap) {
+    String secXml = JodaBeanSerialization.serializer(true).xmlWriter().write(security, true);
+    secMap.put("securityXml", secXml);
   }
 
   private void addExternalIds(FinancialSecurity security, Map<String, Object> secMap) {

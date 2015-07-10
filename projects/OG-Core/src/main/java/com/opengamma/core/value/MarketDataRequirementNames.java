@@ -13,20 +13,20 @@ public interface MarketDataRequirementNames {
   // All market data field names must be prefixed with "Market_" to distinguish them as market data fields in the
   // global namespace of field names. The field name that follows should be in Pascal case.
 
-  /** 
+  /**
    * Sent in the OpenGamma normalization schema for all asset types. Used to provide whatever value best represents the
    * instrument.
    */
   String MARKET_VALUE = "Market_Value";
 
-  /** 
+  /**
    * Sent in the OpenGamma normalization schema for all options for which it is available from the underlying market
-   * data API. 
+   * data API.
    */
   String IMPLIED_VOLATILITY = "Market_ImpliedVolatility";
 
-  /** 
-   * Sent in the OpenGamma normalization schema for all asset types for which available (e.g., equities). 
+  /**
+   * Sent in the OpenGamma normalization schema for all asset types for which available (e.g., equities).
    */
   String VOLUME = "Market_Volume";
 
@@ -40,9 +40,9 @@ public interface MarketDataRequirementNames {
   String LAST_DATE_TIME = "Market_LastDateTime";
 
   /**
-   * Settlement value. This is used when one wants most recent close available in both Live and Historical 
+   * Settlement value. This is used when one wants most recent close available in both Live and Historical
    * Live - value of last trading day's settlement
-   * Historical - value of specified day's settlement 
+   * Historical - value of specified day's settlement
    */
   String SETTLE_PRICE = "Market_SettlementPrice";
 
@@ -105,7 +105,7 @@ public interface MarketDataRequirementNames {
   String YIELD_YIELD_TO_MATURITY_MID = "Market_YieldYieldToMaturityMid";
 
   /**
-   * Market dirty price (MID) 
+   * Market dirty price (MID)
    */
   String DIRTY_PRICE_MID = "Market_DirtyPriceMid";
 
@@ -125,7 +125,7 @@ public interface MarketDataRequirementNames {
   String NEXT_DIVIDEND_DATE = "Market_NextDividendDate";
   
   /**
-   * Estimated frequency of dividend payments, as an enum 
+   * Estimated frequency of dividend payments, as the number of payments per year
    */
   String DIVIDEND_FREQUENCY = "Market_DividendFrequency";
 

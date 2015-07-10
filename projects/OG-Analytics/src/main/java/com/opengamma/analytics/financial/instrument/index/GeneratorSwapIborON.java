@@ -209,7 +209,7 @@ public class GeneratorSwapIborON extends GeneratorInstrument<GeneratorAttributeI
     ArgumentChecker.notNull(attribute, "Attributes");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _iborCalendar);
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, attribute.getStartPeriod(), _indexIbor, _iborCalendar);
-    return SwapIborONDefinition.from(startDate, attribute.getEndPeriod(), this, notional, spread, true, _iborCalendar);
+    return SwapIborONDefinition.from(startDate, attribute.getEndPeriod(), this, notional, -spread, true, _iborCalendar);
   }
 
   @Override

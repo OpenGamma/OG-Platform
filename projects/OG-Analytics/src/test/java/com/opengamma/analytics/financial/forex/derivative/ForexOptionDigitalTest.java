@@ -14,13 +14,15 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of Digital Forex options (derivative version).
  */
+@Test(groups = TestGroup.UNIT)
 public class ForexOptionDigitalTest {
   // FX Option: EUR call/USD put; 1m EUR @ 1.4177
   private static final Currency CUR_1 = Currency.EUR;
@@ -34,7 +36,7 @@ public class ForexOptionDigitalTest {
   private static final ForexDefinition FX_DEFINITION = new ForexDefinition(CUR_1, CUR_2, PAYMENT_DATE, NOMINAL_1, FX_RATE);
   // Derivatives
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 8);
-  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final DayCount ACT_ACT = DayCounts.ACT_ACT_ISDA;
   private static final Forex FX = FX_DEFINITION.toDerivative(REFERENCE_DATE);
   private static final double EXPIRATION_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, EXPIRATION_DATE);
   private static final ForexOptionDigital FX_OPTION = new ForexOptionDigital(FX, EXPIRATION_TIME, IS_CALL, IS_LONG, true);
@@ -81,30 +83,4 @@ public class ForexOptionDigitalTest {
     assertFalse(modifiedOption.equals(null));
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  public void equalHashDeprecated() {
-    final String[] curveNames = new String[] {"a", "b"};
-    final Forex fx = FX_DEFINITION.toDerivative(REFERENCE_DATE, curveNames);
-    final ForexOptionDigital option = new ForexOptionDigital(fx, EXPIRATION_TIME, IS_CALL, IS_LONG, true);
-    final ForexOptionDigital otherOption = new ForexOptionDigital(fx, EXPIRATION_TIME, IS_CALL, IS_LONG, true);
-    assertTrue(otherOption.equals(option));
-    assertEquals(option.hashCode(), otherOption.hashCode());
-    final ForexOptionDigital otherOptionShort1 = new ForexOptionDigital(fx, EXPIRATION_TIME, IS_CALL, !IS_LONG, true);
-    final ForexOptionDigital otherOptionShort2 = new ForexOptionDigital(fx, EXPIRATION_TIME, IS_CALL, !IS_LONG, true);
-    assertTrue(otherOptionShort1.equals(otherOptionShort2));
-    assertEquals(otherOptionShort1.hashCode(), otherOptionShort2.hashCode());
-    ForexOptionDigital modifiedOption;
-    modifiedOption = new ForexOptionDigital(fx, EXPIRATION_TIME, !IS_CALL, IS_LONG, true);
-    assertFalse(modifiedOption.equals(option));
-    modifiedOption = new ForexOptionDigital(fx, EXPIRATION_TIME - 0.01, IS_CALL, IS_LONG, true);
-    assertFalse(modifiedOption.equals(option));
-    modifiedOption = new ForexOptionDigital(fx, EXPIRATION_TIME, IS_CALL, !IS_LONG, true);
-    assertFalse(modifiedOption.equals(option));
-    final ForexDefinition modifiedFxDefinition = new ForexDefinition(CUR_1, CUR_2, PAYMENT_DATE, NOMINAL_1 + 1.0, FX_RATE);
-    final Forex modifiedFx = modifiedFxDefinition.toDerivative(REFERENCE_DATE, curveNames);
-    modifiedOption = new ForexOptionDigital(modifiedFx, EXPIRATION_TIME, IS_CALL, IS_LONG, true);
-    assertFalse(modifiedOption.equals(option));
-    assertFalse(modifiedOption.equals(null));
-  }
 }

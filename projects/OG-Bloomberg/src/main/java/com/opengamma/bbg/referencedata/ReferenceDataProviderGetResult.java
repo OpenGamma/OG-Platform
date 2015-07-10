@@ -8,6 +8,7 @@ package com.opengamma.bbg.referencedata;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -118,24 +119,37 @@ public class ReferenceDataProviderGetResult extends DirectBean {
     return ReferenceDataProviderGetResult.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1600456085:  // referenceData
-        return getReferenceData();
-    }
-    return super.propertyGet(propertyName, quiet);
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the reference data that was obtained, one entry for each identifier.
+   * @return the value of the property, not null
+   */
+  public List<ReferenceData> getReferenceData() {
+    return _referenceData;
   }
 
-  @SuppressWarnings("unchecked")
+  /**
+   * Sets the reference data that was obtained, one entry for each identifier.
+   * @param referenceData  the new value of the property, not null
+   */
+  public void setReferenceData(List<ReferenceData> referenceData) {
+    JodaBeanUtils.notNull(referenceData, "referenceData");
+    this._referenceData.clear();
+    this._referenceData.addAll(referenceData);
+  }
+
+  /**
+   * Gets the the {@code referenceData} property.
+   * @return the property, not null
+   */
+  public final Property<List<ReferenceData>> referenceData() {
+    return metaBean().referenceData().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1600456085:  // referenceData
-        setReferenceData((List<ReferenceData>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
+  public ReferenceDataProviderGetResult clone() {
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override
@@ -153,34 +167,25 @@ public class ReferenceDataProviderGetResult extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceData());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceData());
     return hash;
   }
 
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the reference data that was obtained, one entry for each identifier.
-   * @return the value of the property
-   */
-  public List<ReferenceData> getReferenceData() {
-    return _referenceData;
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("ReferenceDataProviderGetResult{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
   }
 
-  /**
-   * Sets the reference data that was obtained, one entry for each identifier.
-   * @param referenceData  the new value of the property
-   */
-  public void setReferenceData(List<ReferenceData> referenceData) {
-    this._referenceData.clear();
-    this._referenceData.addAll(referenceData);
-  }
-
-  /**
-   * Gets the the {@code referenceData} property.
-   * @return the property, not null
-   */
-  public final Property<List<ReferenceData>> referenceData() {
-    return metaBean().referenceData().createProperty(this);
+  protected void toString(StringBuilder buf) {
+    buf.append("referenceData").append('=').append(JodaBeanUtils.toString(getReferenceData())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -243,6 +248,32 @@ public class ReferenceDataProviderGetResult extends DirectBean {
      */
     public final MetaProperty<List<ReferenceData>> referenceData() {
       return _referenceData;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1600456085:  // referenceData
+          return ((ReferenceDataProviderGetResult) bean).getReferenceData();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1600456085:  // referenceData
+          ((ReferenceDataProviderGetResult) bean).setReferenceData((List<ReferenceData>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ReferenceDataProviderGetResult) bean)._referenceData, "referenceData");
     }
 
   }

@@ -29,26 +29,26 @@ public class CurrencyPairsConfigPopulator {
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(CurrencyPairsConfigPopulator.class);
 
-  public static ConfigMaster populateCurrencyPairsConfigMaster(ConfigMaster cfgMaster) {
+  public static ConfigMaster populateCurrencyPairsConfigMaster(final ConfigMaster cfgMaster) {
     storeCurrencyPairs(cfgMaster, CurrencyPairs.DEFAULT_CURRENCY_PAIRS, createCurrencyPairs());
     return cfgMaster;
   }
 
   public static CurrencyPairs createCurrencyPairs() {
-    InputStream inputStream = CurrencyPairsConfigPopulator.class.getResourceAsStream("market-convention-currency-pairs.csv");
-    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+    final InputStream inputStream = CurrencyPairsConfigPopulator.class.getResourceAsStream("market-convention-currency-pairs.csv");
+    final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
     String pairStr;
-    Set<CurrencyPair> pairs = new HashSet<CurrencyPair>();
+    final Set<CurrencyPair> pairs = new HashSet<CurrencyPair>();
     try {
       while ((pairStr = reader.readLine()) != null) {
         try {
-          CurrencyPair pair = CurrencyPair.parse(pairStr.trim());
+          final CurrencyPair pair = CurrencyPair.parse(pairStr.trim());
           pairs.add(pair);
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
           s_logger.debug/*warn*/("Unable to create currency pair from " + pairStr, e);
         }
       }
-    } catch (IOException ex) {
+    } catch (final IOException ex) {
       throw new OpenGammaRuntimeException("Problem loading currency pairs into configuration database", ex);
     } finally {
       IOUtils.closeQuietly(inputStream);
@@ -57,7 +57,7 @@ public class CurrencyPairsConfigPopulator {
   }
 
   private static void storeCurrencyPairs(final ConfigMaster cfgMaster, final String name, final CurrencyPairs currencyPairs) {
-    ConfigItem<CurrencyPairs> doc = ConfigItem.of(currencyPairs);
+    final ConfigItem<CurrencyPairs> doc = ConfigItem.of(currencyPairs);
     doc.setName(name);
     ConfigMasterUtils.storeByName(cfgMaster, doc);
   }

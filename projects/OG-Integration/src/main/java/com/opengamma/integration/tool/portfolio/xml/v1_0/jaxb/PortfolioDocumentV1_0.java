@@ -5,6 +5,7 @@
  */
 package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -16,18 +17,18 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
-import java.util.Map;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.joda.beans.Property;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 @XmlRootElement(name = "og-portfolio")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -72,72 +73,6 @@ public class PortfolioDocumentV1_0 extends DirectBean {
   @Override
   public PortfolioDocumentV1_0.Meta metaBean() {
     return PortfolioDocumentV1_0.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -233564169:  // schemaVersion
-        return getSchemaVersion();
-      case 415474731:  // portfolios
-        return getPortfolios();
-      case 1707117674:  // positions
-        return getPositions();
-      case -865715313:  // trades
-        return getTrades();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -233564169:  // schemaVersion
-        setSchemaVersion((String) newValue);
-        return;
-      case 415474731:  // portfolios
-        setPortfolios((Set<Portfolio>) newValue);
-        return;
-      case 1707117674:  // positions
-        setPositions((Set<Position>) newValue);
-        return;
-      case -865715313:  // trades
-        setTrades((Set<Trade>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_schemaVersion, "schemaVersion");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      PortfolioDocumentV1_0 other = (PortfolioDocumentV1_0) obj;
-      return JodaBeanUtils.equal(getSchemaVersion(), other.getSchemaVersion()) &&
-          JodaBeanUtils.equal(getPortfolios(), other.getPortfolios()) &&
-          JodaBeanUtils.equal(getPositions(), other.getPositions()) &&
-          JodaBeanUtils.equal(getTrades(), other.getTrades());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSchemaVersion());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolios());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositions());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTrades());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -239,6 +174,57 @@ public class PortfolioDocumentV1_0 extends DirectBean {
    */
   public final Property<Set<Trade>> trades() {
     return metaBean().trades().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public PortfolioDocumentV1_0 clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      PortfolioDocumentV1_0 other = (PortfolioDocumentV1_0) obj;
+      return JodaBeanUtils.equal(getSchemaVersion(), other.getSchemaVersion()) &&
+          JodaBeanUtils.equal(getPortfolios(), other.getPortfolios()) &&
+          JodaBeanUtils.equal(getPositions(), other.getPositions()) &&
+          JodaBeanUtils.equal(getTrades(), other.getTrades());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSchemaVersion());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPortfolios());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPositions());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTrades());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("PortfolioDocumentV1_0{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("schemaVersion").append('=').append(JodaBeanUtils.toString(getSchemaVersion())).append(',').append(' ');
+    buf.append("portfolios").append('=').append(JodaBeanUtils.toString(getPortfolios())).append(',').append(' ');
+    buf.append("positions").append('=').append(JodaBeanUtils.toString(getPositions())).append(',').append(' ');
+    buf.append("trades").append('=').append(JodaBeanUtils.toString(getTrades())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -351,6 +337,47 @@ public class PortfolioDocumentV1_0 extends DirectBean {
      */
     public final MetaProperty<Set<Trade>> trades() {
       return _trades;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -233564169:  // schemaVersion
+          return ((PortfolioDocumentV1_0) bean).getSchemaVersion();
+        case 415474731:  // portfolios
+          return ((PortfolioDocumentV1_0) bean).getPortfolios();
+        case 1707117674:  // positions
+          return ((PortfolioDocumentV1_0) bean).getPositions();
+        case -865715313:  // trades
+          return ((PortfolioDocumentV1_0) bean).getTrades();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -233564169:  // schemaVersion
+          ((PortfolioDocumentV1_0) bean).setSchemaVersion((String) newValue);
+          return;
+        case 415474731:  // portfolios
+          ((PortfolioDocumentV1_0) bean).setPortfolios((Set<Portfolio>) newValue);
+          return;
+        case 1707117674:  // positions
+          ((PortfolioDocumentV1_0) bean).setPositions((Set<Position>) newValue);
+          return;
+        case -865715313:  // trades
+          ((PortfolioDocumentV1_0) bean).setTrades((Set<Trade>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((PortfolioDocumentV1_0) bean)._schemaVersion, "schemaVersion");
     }
 
   }

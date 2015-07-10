@@ -9,6 +9,7 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.PV01;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -25,6 +26,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.provider.calculator.inflation.PV01CurveParametersInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueCurveSensitivityDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -40,15 +42,14 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Calculates the PV01 of inflation swaps using curves constructed using
- * the discounting method.
+ * Calculates the PV01 of inflation swaps using curves constructed using the discounting method.
  */
 public class DiscountingInflationPV01Function extends DiscountingInflationFunction {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(DiscountingInflationPV01Function.class);
   /** The PV01 calculator */
-  private static final InstrumentDerivativeVisitor<InflationProviderInterface, ReferenceAmount<Pair<String, Currency>>> CALCULATOR =
-      new PV01CurveParametersInflationCalculator<>(PresentValueCurveSensitivityDiscountingInflationCalculator.getInstance());
+  private static final InstrumentDerivativeVisitor<ParameterInflationProviderInterface, ReferenceAmount<Pair<String, Currency>>> CALCULATOR = new PV01CurveParametersInflationCalculator<>(
+      PresentValueCurveSensitivityDiscountingInflationCalculator.getInstance());
 
   /**
    * Sets the value requirements to {@link ValueRequirementNames#PV01}
@@ -62,9 +63,8 @@ public class DiscountingInflationPV01Function extends DiscountingInflationFuncti
     return new DiscountingInflationCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
 
       @Override
-      protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
-          final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
-          final FXMatrix fxMatrix) {
+      protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+          final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative, final FXMatrix fxMatrix) {
         final InflationProviderInterface data = (InflationProviderInterface) inputs.getValue(CURVE_BUNDLE);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final String desiredCurveName = desiredValue.getConstraint(CURVE);
@@ -77,10 +77,7 @@ public class DiscountingInflationPV01Function extends DiscountingInflationFuncti
           if (desiredCurveName.equals(curveName)) {
             curveNameFound = true;
           }
-          final ValueProperties curveSpecificProperties = properties.copy()
-              .withoutAny(CURVE)
-              .with(CURVE, curveName)
-              .get();
+          final ValueProperties curveSpecificProperties = properties.copy().withoutAny(CURVE).with(CURVE, curveName).get();
           final ValueSpecification spec = new ValueSpecification(PV01, target.toSpecification(), curveSpecificProperties);
           results.add(new ComputedValue(spec, entry.getValue()));
         }
@@ -92,9 +89,12 @@ public class DiscountingInflationPV01Function extends DiscountingInflationFuncti
       }
 
       @Override
-      protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-        final ValueProperties.Builder properties = super.getResultProperties(compilationContext, target);
-        return properties.withAny(CURVE);
+      protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+        final Collection<ValueProperties.Builder> properties = super.getResultProperties(compilationContext, target);
+        for (ValueProperties.Builder builder : properties) {
+          builder.withAny(CURVE);
+        }
+        return properties;
       }
 
       @Override

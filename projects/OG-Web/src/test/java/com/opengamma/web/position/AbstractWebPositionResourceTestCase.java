@@ -10,7 +10,9 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -30,6 +32,7 @@ import com.opengamma.core.position.Counterparty;
 import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.ObjectIdSupplier;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.impl.InMemoryConfigMaster;
@@ -83,10 +86,11 @@ public abstract class AbstractWebPositionResourceTestCase {
   protected PositionMaster _positionMaster;
   protected List<ManageableTrade> _trades;
   protected UriInfo _uriInfo;
+  protected Map<ExternalScheme, String> _externalSchemes;
 
   @BeforeMethod(groups = TestGroup.UNIT)
   public void setUp() throws Exception {
-    _uriInfo = new MockUriInfo();
+    _uriInfo = new MockUriInfo(true);
     _trades = getTrades();
     _secMaster = new InMemorySecurityMaster(new ObjectIdSupplier("Mock"));
     _positionMaster = new InMemoryPositionMaster();
@@ -102,7 +106,9 @@ public abstract class AbstractWebPositionResourceTestCase {
       }
     };
     populateSecMaster();
-    _webPositionsResource = new WebPositionsResource(_positionMaster, _secLoader,  _securitySource, _htsSource);
+    _externalSchemes = new HashMap<>();
+    _externalSchemes.put(ExternalSchemes.OG_SYNTHETIC_TICKER, ExternalSchemes.OG_SYNTHETIC_TICKER.getName());
+    _webPositionsResource = new WebPositionsResource(_positionMaster, _secLoader, _securitySource, _htsSource, _externalSchemes);
     final MockServletContext sc = new MockServletContext("/web-engine", new FileSystemResourceLoader());
     final Configuration cfg = FreemarkerOutputter.createConfiguration();
     cfg.setServletContextForTemplateLoading(sc, "WEB-INF/pages");

@@ -74,6 +74,7 @@ public class BlackDiscountingPricingFunctions extends AbstractFunctionConfigurat
     functions.add(functionConfiguration(BlackDiscountingPVSwaptionFunction.class));
     functions.add(functionConfiguration(BlackDiscountingPV01SwaptionFunction.class));
     functions.add(functionConfiguration(BlackDiscountingValueVegaSwaptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingVegaMatrixSwaptionFunction.class));
     functions.add(functionConfiguration(BlackDiscountingYCNSSwaptionFunction.class));
     functions.add(functionConfiguration(ConstantBlackDiscountingBCSSwaptionFunction.class));
     functions.add(functionConfiguration(ConstantBlackDiscountingImpliedVolatilitySwaptionFunction.class));

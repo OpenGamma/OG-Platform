@@ -20,6 +20,14 @@ public interface ViewProcessorEventListener {
    * @param viewProcessId  the unique identifier of the view process that has been created
    */
   void notifyViewProcessAdded(UniqueId viewProcessId);
+
+  /**
+   * Called immediately after a view process has been created.
+   *
+   * @param viewProcessId  the unique identifier of the view process that has been created
+   * @param autoStartName the name of the configuration which was auto-started
+   */
+  void notifyViewAutomaticallyStarted(UniqueId viewProcessId, String autoStartName);
   
   /**
    * Called immediately after a view process has been removed

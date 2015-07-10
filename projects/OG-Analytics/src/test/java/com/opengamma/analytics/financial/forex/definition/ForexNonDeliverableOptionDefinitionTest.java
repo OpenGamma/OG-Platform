@@ -9,8 +9,13 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableOption;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class ForexNonDeliverableOptionDefinitionTest {
 
   private static final Currency KRW = Currency.of("KRW");
@@ -37,20 +42,6 @@ public class ForexNonDeliverableOptionDefinitionTest {
     assertEquals("Forex non-deliverable option - getter", NDF_DEFINITION, NDO_DEFINITION.getUnderlyingNDF());
     assertEquals("Forex non-deliverable option - getter", IS_CALL, NDO_DEFINITION.isCall());
     assertEquals("Forex non-deliverable option - getter", IS_LONG, NDO_DEFINITION.isLong());
-  }
-
-  @Test
-  /**
-   * Tests the class toDerivative method.
-   */
-  @SuppressWarnings("deprecation")
-  public void toDerivativeDeprecated() {
-    final String krw = "Discounting KRW";
-    final String usd = "Discounting USD";
-    final String[] curveNames = new String[] {krw, usd};
-    final ForexNonDeliverableOption ndoConverted = NDO_DEFINITION.toDerivative(REFERENCE_DATE, curveNames);
-    final ForexNonDeliverableOption ndoExpected = new ForexNonDeliverableOption(NDF_DEFINITION.toDerivative(REFERENCE_DATE, curveNames), IS_CALL, IS_LONG);
-    assertEquals("Forex NDO - toDerivatives", ndoExpected, ndoConverted);
   }
 
   @Test

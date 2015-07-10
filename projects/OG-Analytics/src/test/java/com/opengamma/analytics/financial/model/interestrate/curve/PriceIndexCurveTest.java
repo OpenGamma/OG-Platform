@@ -15,27 +15,32 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class PriceIndexCurveTest {
 
   private static double[] INDEX_VALUE = new double[] {108.23, 108.64, 111.0, 115.0};
   private static double[] TIME_VALUE = new double[] {-3.0 / 12.0, -2.0 / 12.0, 9.0 / 12.0, 2.0 + 9.0 / 12.0};
   private static final InterpolatedDoublesCurve CURVE = InterpolatedDoublesCurve.from(TIME_VALUE, INDEX_VALUE, new LinearInterpolator1D());
-  private static final PriceIndexCurve PRICE_INDEX_CURVE = new PriceIndexCurve(CURVE);
+  private static final PriceIndexCurveSimple PRICE_INDEX_CURVE = new PriceIndexCurveSimple(CURVE);
 
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
+  private static final DayCount ACT_ACT = DayCounts.ACT_ACT_ISDA;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurve() {
-    new PriceIndexCurve(null);
+    new PriceIndexCurveSimple(null);
   }
 
   @Test
@@ -78,7 +83,7 @@ public class PriceIndexCurveTest {
       referenceDate[loopswap] = paymentDate.minusMonths(monthLag).withDayOfMonth(1);
       nodeTimeOther[loopswap] = ACT_ACT.getDayCountFraction(constructionDate, referenceDate[loopswap]);
     }
-    PriceIndexCurve priceIndexCurve = PriceIndexCurve.fromStartOfMonth(nodeTimeKnown, indexKnown, nodeTimeOther, swapRate);
+    PriceIndexCurveSimple priceIndexCurve = PriceIndexCurveSimple.fromStartOfMonth(nodeTimeKnown, indexKnown, nodeTimeOther, swapRate);
     for (int loopswap = 0; loopswap < swapTenor.length; loopswap++) {
       assertEquals("Simple price curve", indexKnown[0] * Math.pow(1 + swapRate[loopswap], swapTenor[loopswap]), priceIndexCurve.getPriceIndex(nodeTimeOther[loopswap]));
     }

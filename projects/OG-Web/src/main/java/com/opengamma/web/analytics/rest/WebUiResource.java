@@ -6,11 +6,11 @@
 package com.opengamma.web.analytics.rest;
 
 import java.net.URI;
-import java.security.Principal;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
@@ -22,7 +22,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
@@ -43,13 +42,16 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
+import com.opengamma.util.auth.AuthUtils;
 import com.opengamma.util.rest.RestUtils;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.analytics.AnalyticsView;
 import com.opengamma.web.analytics.AnalyticsViewManager;
 import com.opengamma.web.analytics.ErrorInfo;
 import com.opengamma.web.analytics.GridCell;
 import com.opengamma.web.analytics.GridStructure;
 import com.opengamma.web.analytics.MarketDataSpecificationJsonReader;
+import com.opengamma.web.analytics.ValueRequirementTargetForCell;
 import com.opengamma.web.analytics.ViewRequest;
 import com.opengamma.web.analytics.ViewportDefinition;
 import com.opengamma.web.analytics.ViewportResults;
@@ -86,8 +88,8 @@ public class WebUiResource {
   }
 
   @POST
-  public Response createView(@Context SecurityContext securityContext,
-                             @Context UriInfo uriInfo,
+  public Response createView(@Context UriInfo uriInfo,
+                             @Context HttpServletRequest httpRequest,
                              @FormParam("requestId") String requestId,
                              @FormParam("viewDefinitionId") String viewDefinitionId,
                              @FormParam("aggregators") List<String> aggregators,
@@ -107,7 +109,7 @@ public class WebUiResource {
         MarketDataSpecificationJsonReader.buildSpecifications(marketDataProviders);
     VersionCorrection versionCorrection = VersionCorrection.of(parseInstant(portfolioVersionTime),
                                                                parseInstant(portfolioCorrectionTime));
-    ViewRequest viewRequest = new ViewRequest(UniqueId.parse(viewDefinitionId), aggregators, marketDataSpecs,
+    ViewRequest viewRequest = _viewManager.createViewRequest(UniqueId.parse(viewDefinitionId), aggregators, marketDataSpecs,
                                               parseInstant(valuationTime), versionCorrection, blotterColumns);
     String viewId = Long.toString(s_nextViewId.getAndIncrement());
     URI portfolioGridUri = uriInfo.getAbsolutePathBuilder()
@@ -118,8 +120,8 @@ public class WebUiResource {
         .path(viewId)
         .path("primitives")
         .build();
-    Principal userPrincipal = securityContext.getUserPrincipal();
-    String userName = userPrincipal != null ? userPrincipal.getName() : null;
+    
+    String userName = (AuthUtils.isPermissive() ? null : AuthUtils.getUserName());
     ClientConnection connection = _connectionManager.getConnectionByClientId(userName, clientId);
     URI uri = uriInfo.getAbsolutePathBuilder().path(viewId).build();
     ImmutableMap<String, Object> callbackMap =
@@ -128,7 +130,10 @@ public class WebUiResource {
         .path(viewId)
         .path("errors")
         .build();
-    UserPrincipal ogUserPrincipal = userName != null ? UserPrincipal.getLocalUser(userName) : UserPrincipal.getTestUser();
+    // Get session id or create one
+    String sessionId = "session-id:" + httpRequest.getSession().getId();
+    // Track user principal using session id rather than ip address
+    UserPrincipal ogUserPrincipal = userName != null ? new UserPrincipal(userName, sessionId) : UserPrincipal.getTestUser();
     _viewManager.createView(viewRequest, clientId, ogUserPrincipal, connection, viewId, callbackMap,
                             portfolioGridUri.getPath(), primitivesGridUri.getPath(), errorUri.getPath());
     return Response.status(Response.Status.CREATED).build();
@@ -179,6 +184,21 @@ public class WebUiResource {
   public GridStructure getGridStructure(@PathParam("viewId") String viewId,
                                         @PathParam("gridType") String gridType) {
     return _viewManager.getView(viewId).getInitialGridStructure(gridType(gridType));
+  }
+
+  @Path("{viewId}/{gridType}/viewports/{viewportId}/valuereq/{row}/{col}")
+  @GET
+  public ValueRequirementTargetForCell getValueRequirementForTargetForCell(@PathParam("viewId") String viewId,
+                                                                           @PathParam("gridType") String gridType,
+                                                                           @PathParam("row") int row,
+                                                                           @PathParam("col") int col,
+                                                                           @PathParam("viewportId") int viewportId) {
+
+    GridStructure gridStructure =  _viewManager.getView(viewId).getGridStructure(gridType(gridType), viewportId);
+
+    Pair<String, ValueRequirement> pair = gridStructure.getValueRequirementForCell(row, col);
+    return new ValueRequirementTargetForCell(pair.getFirst(), pair.getSecond());
+
   }
 
   @Path("{viewId}/{gridType}/viewports")
@@ -255,8 +275,8 @@ public class WebUiResource {
                                       @FormParam("requestId") int requestId,
                                       @FormParam("row") Integer row,
                                       @FormParam("col") Integer col,
-                                      @FormParam("calcConfigName") String calcConfigName,
-                                      @FormParam("valueRequirement") ValueRequirementFormParam valueRequirementParam) {
+                                      @FormParam("colset") String calcConfigName,
+                                      @FormParam("req") ValueRequirementFormParam valueRequirementParam) {
     int graphId = s_nextId.getAndIncrement();
     String graphIdStr = Integer.toString(graphId);
     URI graphUri = uriInfo.getAbsolutePathBuilder().path(graphIdStr).build();
@@ -264,8 +284,13 @@ public class WebUiResource {
     if (row != null && col != null) {
       _viewManager.getView(viewId).openDependencyGraph(requestId, gridType(gridType), graphId, callbackId, row, col);
     } else if (calcConfigName != null && valueRequirementParam != null) {
-      ValueRequirement req = valueRequirementParam.getValueRequirement();
-      _viewManager.getView(viewId).openDependencyGraph(requestId, gridType(gridType), graphId, callbackId, calcConfigName, req);
+      ValueRequirement valueRequirement = valueRequirementParam.getValueRequirement();
+      _viewManager.getView(viewId).openDependencyGraph(requestId,
+                                                       gridType(gridType),
+                                                       graphId,
+                                                       callbackId,
+                                                       calcConfigName,
+                                                       valueRequirement);
     }
     return Response.status(Response.Status.CREATED).build();
   }
@@ -337,7 +362,8 @@ public class WebUiResource {
                                                                @PathParam("gridType") String gridType,
                                                                @PathParam("depgraphId") int depgraphId,
                                                                @PathParam("viewportId") int viewportId) {
-    return _viewManager.getView(viewId).getGridStructure(gridType(gridType), depgraphId, viewportId);
+    GridStructure g = _viewManager.getView(viewId).getGridStructure(gridType(gridType), depgraphId, viewportId);
+    return g;
   }
 
   @Path("{viewId}/{gridType}/depgraphs/{depgraphId}/viewports/{viewportId}")

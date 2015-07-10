@@ -19,8 +19,8 @@ import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Calculator of the sensitivity to the market quotes of instruments used to build the curves.
@@ -61,7 +61,7 @@ public final class MarketQuoteSensitivityBlockCalculator<DATA_TYPE extends Param
       final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> oneCurveSensiMap = new LinkedHashMap<>();
       final Pair<CurveBuildingBlock, DoubleMatrix2D> unitPair = units.getBlock(nameCcy.getFirst());
       ArgumentChecker.notNull(parameterSensitivity.getSensitivity(nameCcy), "sensitivity for " + nameCcy);
-      ArgumentChecker.notNull(unitPair, "curve building block / Jacobian pair for " + nameCcy);
+      ArgumentChecker.notNull(unitPair, "curve building block / Jacobian pair for " + nameCcy.getFirst());
       ArgumentChecker.notNull(unitPair.getSecond(), "Jacobian");
       final DoubleMatrix1D matrix = (DoubleMatrix1D) MATRIX_ALGEBRA.multiply(parameterSensitivity.getSensitivity(nameCcy), unitPair.getSecond());
       if (matrix != null) {
@@ -71,7 +71,7 @@ public final class MarketQuoteSensitivityBlockCalculator<DATA_TYPE extends Param
           final int start = unitPair.getFirst().getStart(name2);
           final double[] sensiName2 = new double[nbParameters];
           System.arraycopy(oneCurveSensiArray, start, sensiName2, 0, nbParameters);
-          oneCurveSensiMap.put(new ObjectsPair<>(name2, nameCcy.getSecond()), new DoubleMatrix1D(sensiName2));
+          oneCurveSensiMap.put(Pairs.of(name2, nameCcy.getSecond()), new DoubleMatrix1D(sensiName2));
         }
         final MultipleCurrencyParameterSensitivity sensiName = new MultipleCurrencyParameterSensitivity(oneCurveSensiMap);
         result = result.plus(sensiName);
@@ -91,7 +91,7 @@ public final class MarketQuoteSensitivityBlockCalculator<DATA_TYPE extends Param
     ArgumentChecker.notNull(instrument, "instrument");
     ArgumentChecker.notNull(provider, "provider");
     ArgumentChecker.notNull(units, "units");
-    final MultipleCurrencyParameterSensitivity parameterSensitivity = _parameterSensitivityCalculator.calculateSensitivity(instrument, provider, provider.getMulticurveProvider().getAllNames());
+    final MultipleCurrencyParameterSensitivity parameterSensitivity = _parameterSensitivityCalculator.calculateSensitivity(instrument, provider);
     return fromParameterSensitivity(parameterSensitivity, units);
   }
 

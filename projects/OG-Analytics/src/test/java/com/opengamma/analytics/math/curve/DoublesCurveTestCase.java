@@ -20,12 +20,14 @@ import java.util.TreeSet;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.ParallelArrayBinarySort;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.FirstThenSecondDoublesPairComparator;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DoublesCurveTestCase {
   static final String NAME1 = "a";
   static final String NAME2 = "b";

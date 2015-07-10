@@ -6,28 +6,27 @@
 package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
 
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.threeten.bp.LocalDate;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.FxForwardTradeSecurityExtractor;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.TradeSecurityExtractor;
 import com.opengamma.util.money.Currency;
-import java.util.Map;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 @XmlRootElement
 @BeanDefinition
@@ -89,88 +88,6 @@ public class FxForwardTrade extends Trade {
   @Override
   public FxForwardTrade.Meta metaBean() {
     return FxForwardTrade.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1338781920:  // payAmount
-        return getPayAmount();
-      case -295641895:  // payCurrency
-        return getPayCurrency();
-      case 984267035:  // receiveAmount
-        return getReceiveAmount();
-      case -1228590060:  // receiveCurrency
-        return getReceiveCurrency();
-      case -1024875430:  // settlementCurrency
-        return getSettlementCurrency();
-      case -1406037851:  // fxExpiry
-        return getFxExpiry();
-      case -299417201:  // paymentCalendars
-        return getPaymentCalendars();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1338781920:  // payAmount
-        setPayAmount((BigDecimal) newValue);
-        return;
-      case -295641895:  // payCurrency
-        setPayCurrency((Currency) newValue);
-        return;
-      case 984267035:  // receiveAmount
-        setReceiveAmount((BigDecimal) newValue);
-        return;
-      case -1228590060:  // receiveCurrency
-        setReceiveCurrency((Currency) newValue);
-        return;
-      case -1024875430:  // settlementCurrency
-        setSettlementCurrency((Currency) newValue);
-        return;
-      case -1406037851:  // fxExpiry
-        setFxExpiry((FxExpiry) newValue);
-        return;
-      case -299417201:  // paymentCalendars
-        setPaymentCalendars((Set<Calendar>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      FxForwardTrade other = (FxForwardTrade) obj;
-      return JodaBeanUtils.equal(getPayAmount(), other.getPayAmount()) &&
-          JodaBeanUtils.equal(getPayCurrency(), other.getPayCurrency()) &&
-          JodaBeanUtils.equal(getReceiveAmount(), other.getReceiveAmount()) &&
-          JodaBeanUtils.equal(getReceiveCurrency(), other.getReceiveCurrency()) &&
-          JodaBeanUtils.equal(getSettlementCurrency(), other.getSettlementCurrency()) &&
-          JodaBeanUtils.equal(getFxExpiry(), other.getFxExpiry()) &&
-          JodaBeanUtils.equal(getPaymentCalendars(), other.getPaymentCalendars()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPayAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPayCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFxExpiry());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentCalendars());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -349,6 +266,69 @@ public class FxForwardTrade extends Trade {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public FxForwardTrade clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FxForwardTrade other = (FxForwardTrade) obj;
+      return JodaBeanUtils.equal(getPayAmount(), other.getPayAmount()) &&
+          JodaBeanUtils.equal(getPayCurrency(), other.getPayCurrency()) &&
+          JodaBeanUtils.equal(getReceiveAmount(), other.getReceiveAmount()) &&
+          JodaBeanUtils.equal(getReceiveCurrency(), other.getReceiveCurrency()) &&
+          JodaBeanUtils.equal(getSettlementCurrency(), other.getSettlementCurrency()) &&
+          JodaBeanUtils.equal(getFxExpiry(), other.getFxExpiry()) &&
+          JodaBeanUtils.equal(getPaymentCalendars(), other.getPaymentCalendars()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPayAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPayCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReceiveAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReceiveCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFxExpiry());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentCalendars());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(256);
+    buf.append("FxForwardTrade{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("payAmount").append('=').append(JodaBeanUtils.toString(getPayAmount())).append(',').append(' ');
+    buf.append("payCurrency").append('=').append(JodaBeanUtils.toString(getPayCurrency())).append(',').append(' ');
+    buf.append("receiveAmount").append('=').append(JodaBeanUtils.toString(getReceiveAmount())).append(',').append(' ');
+    buf.append("receiveCurrency").append('=').append(JodaBeanUtils.toString(getReceiveCurrency())).append(',').append(' ');
+    buf.append("settlementCurrency").append('=').append(JodaBeanUtils.toString(getSettlementCurrency())).append(',').append(' ');
+    buf.append("fxExpiry").append('=').append(JodaBeanUtils.toString(getFxExpiry())).append(',').append(' ');
+    buf.append("paymentCalendars").append('=').append(JodaBeanUtils.toString(getPaymentCalendars())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code FxForwardTrade}.
    */
@@ -504,6 +484,57 @@ public class FxForwardTrade extends Trade {
      */
     public final MetaProperty<Set<Calendar>> paymentCalendars() {
       return _paymentCalendars;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1338781920:  // payAmount
+          return ((FxForwardTrade) bean).getPayAmount();
+        case -295641895:  // payCurrency
+          return ((FxForwardTrade) bean).getPayCurrency();
+        case 984267035:  // receiveAmount
+          return ((FxForwardTrade) bean).getReceiveAmount();
+        case -1228590060:  // receiveCurrency
+          return ((FxForwardTrade) bean).getReceiveCurrency();
+        case -1024875430:  // settlementCurrency
+          return ((FxForwardTrade) bean).getSettlementCurrency();
+        case -1406037851:  // fxExpiry
+          return ((FxForwardTrade) bean).getFxExpiry();
+        case -299417201:  // paymentCalendars
+          return ((FxForwardTrade) bean).getPaymentCalendars();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1338781920:  // payAmount
+          ((FxForwardTrade) bean).setPayAmount((BigDecimal) newValue);
+          return;
+        case -295641895:  // payCurrency
+          ((FxForwardTrade) bean).setPayCurrency((Currency) newValue);
+          return;
+        case 984267035:  // receiveAmount
+          ((FxForwardTrade) bean).setReceiveAmount((BigDecimal) newValue);
+          return;
+        case -1228590060:  // receiveCurrency
+          ((FxForwardTrade) bean).setReceiveCurrency((Currency) newValue);
+          return;
+        case -1024875430:  // settlementCurrency
+          ((FxForwardTrade) bean).setSettlementCurrency((Currency) newValue);
+          return;
+        case -1406037851:  // fxExpiry
+          ((FxForwardTrade) bean).setFxExpiry((FxExpiry) newValue);
+          return;
+        case -299417201:  // paymentCalendars
+          ((FxForwardTrade) bean).setPaymentCalendars((Set<Calendar>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

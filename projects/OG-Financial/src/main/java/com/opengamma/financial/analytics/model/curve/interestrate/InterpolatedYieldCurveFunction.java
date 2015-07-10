@@ -13,7 +13,6 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
@@ -160,11 +159,10 @@ public class InterpolatedYieldCurveFunction extends AbstractFunction {
       @Override
       public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
         final ValueProperties constraints = desiredValue.getConstraints();
-        final Set<String> curveNames = constraints.getValues(ValuePropertyNames.CURVE);
-        if (curveNames == null || curveNames.size() != 1) {
+        final String curveName = constraints.getStrictValue(ValuePropertyNames.CURVE);
+        if (curveName == null) {
           return null;
         }
-        final String curveName = Iterables.getOnlyElement(curveNames);
         final Set<ValueRequirement> requirements = new HashSet<>();
         final ValueProperties properties = ValueProperties.builder()
             .with(ValuePropertyNames.CURVE, curveName).get();

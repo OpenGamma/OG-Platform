@@ -29,13 +29,15 @@ import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.util.monitor.OperationTimer;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class TwoStateMarkovChainFitterTest {
   //TODO just put this in to stop failures
   private static final Interpolator1D INTERPOLATOR_1D =
@@ -109,8 +111,7 @@ public class TwoStateMarkovChainFitterTest {
     MARKET_VOLS = new ArrayList<>(EXPIRY_AND_STRIKES.size());
     for (int i = 0; i < EXPIRY_AND_STRIKES.size(); i++) {
       final double[] tk = EXPIRY_AND_STRIKES.get(i);
-      final Pair<double[], Double> pair = new ObjectsPair<>(tk, GRID_INTERPOLATOR2D.interpolate(DATABUNDLE, new DoublesPair(tk[0],
-          tk[1])));
+      final Pair<double[], Double> pair = Pairs.of(tk, GRID_INTERPOLATOR2D.interpolate(DATABUNDLE, DoublesPair.of(tk[0], tk[1])));
       MARKET_VOLS.add(pair);
     }
   }

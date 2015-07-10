@@ -6,11 +6,9 @@
 package com.opengamma.analytics.financial.curve.inflation.generator;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveAddSeasonalCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveAddFixedCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.SeasonalCurve;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
-import com.opengamma.analytics.math.curve.AddCurveSpreadFunction;
-import com.opengamma.analytics.math.curve.SpreadDoublesCurve;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -49,13 +47,13 @@ public class GeneratorPriceIndexCurveAddSeasonality extends GeneratorPriceIndexC
   @Override
   public PriceIndexCurve generateCurve(final String name, final double[] parameters) {
     final PriceIndexCurve newCurve = _generator.generateCurve(name, parameters);
-    return new PriceIndexCurve(SpreadDoublesCurve.from(new AddCurveSpreadFunction(), name, newCurve.getCurve(), _seasonalCurve));
+    return new PriceIndexCurveAddFixedCurve(name, newCurve, _seasonalCurve);
   }
 
   @Override
   public PriceIndexCurve generateCurve(final String name, final InflationProviderInterface inflation, final double[] parameters) {
     final PriceIndexCurve newCurve = _generator.generateCurve(name, inflation, parameters);
-    return new PriceIndexCurveAddSeasonalCurve(name, newCurve, _seasonalCurve);
+    return new PriceIndexCurveAddFixedCurve(name, newCurve, _seasonalCurve);
   }
 
   @Override

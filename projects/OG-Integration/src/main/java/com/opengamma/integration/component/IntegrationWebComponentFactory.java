@@ -8,6 +8,7 @@ package com.opengamma.integration.component;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -102,99 +103,6 @@ public class IntegrationWebComponentFactory extends AbstractComponentFactory {
   @Override
   public IntegrationWebComponentFactory.Meta metaBean() {
     return IntegrationWebComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -772274742:  // portfolioMaster
-        return getPortfolioMaster();
-      case -1840419605:  // positionMaster
-        return getPositionMaster();
-      case -887218750:  // securityMaster
-        return getSecurityMaster();
-      case 173967376:  // historicalTimeSeriesMaster
-        return getHistoricalTimeSeriesMaster();
-      case 809869649:  // securityProvider
-        return getSecurityProvider();
-      case -1592479713:  // historicalTimeSeriesProvider
-        return getHistoricalTimeSeriesProvider();
-      case -245204181:  // bloombergReferenceDataProvider
-        return getBloombergReferenceDataProvider();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -772274742:  // portfolioMaster
-        setPortfolioMaster((PortfolioMaster) newValue);
-        return;
-      case -1840419605:  // positionMaster
-        setPositionMaster((PositionMaster) newValue);
-        return;
-      case -887218750:  // securityMaster
-        setSecurityMaster((SecurityMaster) newValue);
-        return;
-      case 173967376:  // historicalTimeSeriesMaster
-        setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
-        return;
-      case 809869649:  // securityProvider
-        setSecurityProvider((SecurityProvider) newValue);
-        return;
-      case -1592479713:  // historicalTimeSeriesProvider
-        setHistoricalTimeSeriesProvider((HistoricalTimeSeriesProvider) newValue);
-        return;
-      case -245204181:  // bloombergReferenceDataProvider
-        setBloombergReferenceDataProvider((ReferenceDataProvider) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_portfolioMaster, "portfolioMaster");
-    JodaBeanUtils.notNull(_positionMaster, "positionMaster");
-    JodaBeanUtils.notNull(_securityMaster, "securityMaster");
-    JodaBeanUtils.notNull(_historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
-    JodaBeanUtils.notNull(_securityProvider, "securityProvider");
-    JodaBeanUtils.notNull(_historicalTimeSeriesProvider, "historicalTimeSeriesProvider");
-    JodaBeanUtils.notNull(_bloombergReferenceDataProvider, "bloombergReferenceDataProvider");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      IntegrationWebComponentFactory other = (IntegrationWebComponentFactory) obj;
-      return JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
-          JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
-          JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
-          JodaBeanUtils.equal(getSecurityProvider(), other.getSecurityProvider()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesProvider(), other.getHistoricalTimeSeriesProvider()) &&
-          JodaBeanUtils.equal(getBloombergReferenceDataProvider(), other.getBloombergReferenceDataProvider()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBloombergReferenceDataProvider());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -380,6 +288,69 @@ public class IntegrationWebComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public IntegrationWebComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      IntegrationWebComponentFactory other = (IntegrationWebComponentFactory) obj;
+      return JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
+          JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
+          JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
+          JodaBeanUtils.equal(getSecurityProvider(), other.getSecurityProvider()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesProvider(), other.getHistoricalTimeSeriesProvider()) &&
+          JodaBeanUtils.equal(getBloombergReferenceDataProvider(), other.getBloombergReferenceDataProvider()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityProvider());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesProvider());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBloombergReferenceDataProvider());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(256);
+    buf.append("IntegrationWebComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("portfolioMaster").append('=').append(JodaBeanUtils.toString(getPortfolioMaster())).append(',').append(' ');
+    buf.append("positionMaster").append('=').append(JodaBeanUtils.toString(getPositionMaster())).append(',').append(' ');
+    buf.append("securityMaster").append('=').append(JodaBeanUtils.toString(getSecurityMaster())).append(',').append(' ');
+    buf.append("historicalTimeSeriesMaster").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesMaster())).append(',').append(' ');
+    buf.append("securityProvider").append('=').append(JodaBeanUtils.toString(getSecurityProvider())).append(',').append(' ');
+    buf.append("historicalTimeSeriesProvider").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesProvider())).append(',').append(' ');
+    buf.append("bloombergReferenceDataProvider").append('=').append(JodaBeanUtils.toString(getBloombergReferenceDataProvider())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code IntegrationWebComponentFactory}.
    */
@@ -534,6 +505,68 @@ public class IntegrationWebComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<ReferenceDataProvider> bloombergReferenceDataProvider() {
       return _bloombergReferenceDataProvider;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -772274742:  // portfolioMaster
+          return ((IntegrationWebComponentFactory) bean).getPortfolioMaster();
+        case -1840419605:  // positionMaster
+          return ((IntegrationWebComponentFactory) bean).getPositionMaster();
+        case -887218750:  // securityMaster
+          return ((IntegrationWebComponentFactory) bean).getSecurityMaster();
+        case 173967376:  // historicalTimeSeriesMaster
+          return ((IntegrationWebComponentFactory) bean).getHistoricalTimeSeriesMaster();
+        case 809869649:  // securityProvider
+          return ((IntegrationWebComponentFactory) bean).getSecurityProvider();
+        case -1592479713:  // historicalTimeSeriesProvider
+          return ((IntegrationWebComponentFactory) bean).getHistoricalTimeSeriesProvider();
+        case -245204181:  // bloombergReferenceDataProvider
+          return ((IntegrationWebComponentFactory) bean).getBloombergReferenceDataProvider();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -772274742:  // portfolioMaster
+          ((IntegrationWebComponentFactory) bean).setPortfolioMaster((PortfolioMaster) newValue);
+          return;
+        case -1840419605:  // positionMaster
+          ((IntegrationWebComponentFactory) bean).setPositionMaster((PositionMaster) newValue);
+          return;
+        case -887218750:  // securityMaster
+          ((IntegrationWebComponentFactory) bean).setSecurityMaster((SecurityMaster) newValue);
+          return;
+        case 173967376:  // historicalTimeSeriesMaster
+          ((IntegrationWebComponentFactory) bean).setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
+          return;
+        case 809869649:  // securityProvider
+          ((IntegrationWebComponentFactory) bean).setSecurityProvider((SecurityProvider) newValue);
+          return;
+        case -1592479713:  // historicalTimeSeriesProvider
+          ((IntegrationWebComponentFactory) bean).setHistoricalTimeSeriesProvider((HistoricalTimeSeriesProvider) newValue);
+          return;
+        case -245204181:  // bloombergReferenceDataProvider
+          ((IntegrationWebComponentFactory) bean).setBloombergReferenceDataProvider((ReferenceDataProvider) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((IntegrationWebComponentFactory) bean)._portfolioMaster, "portfolioMaster");
+      JodaBeanUtils.notNull(((IntegrationWebComponentFactory) bean)._positionMaster, "positionMaster");
+      JodaBeanUtils.notNull(((IntegrationWebComponentFactory) bean)._securityMaster, "securityMaster");
+      JodaBeanUtils.notNull(((IntegrationWebComponentFactory) bean)._historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
+      JodaBeanUtils.notNull(((IntegrationWebComponentFactory) bean)._securityProvider, "securityProvider");
+      JodaBeanUtils.notNull(((IntegrationWebComponentFactory) bean)._historicalTimeSeriesProvider, "historicalTimeSeriesProvider");
+      JodaBeanUtils.notNull(((IntegrationWebComponentFactory) bean)._bloombergReferenceDataProvider, "bloombergReferenceDataProvider");
+      super.validate(bean);
     }
 
   }

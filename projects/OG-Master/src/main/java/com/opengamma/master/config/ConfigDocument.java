@@ -7,6 +7,7 @@ package com.opengamma.master.config;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -193,52 +194,6 @@ public class ConfigDocument extends AbstractDocument {
     return ConfigDocument.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1354792126:  // config
-        return getConfig();
-      case -294460212:  // uniqueId
-        return getUniqueId();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1354792126:  // config
-        setConfig((ConfigItem<?>) newValue);
-        return;
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ConfigDocument other = (ConfigDocument) obj;
-      return JodaBeanUtils.equal(getConfig(), other.getConfig()) &&
-          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfig());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the config object held by the document.
@@ -264,6 +219,54 @@ public class ConfigDocument extends AbstractDocument {
    */
   public final Property<UniqueId> uniqueId() {
     return metaBean().uniqueId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ConfigDocument clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ConfigDocument other = (ConfigDocument) obj;
+      return JodaBeanUtils.equal(getConfig(), other.getConfig()) &&
+          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConfig());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("ConfigDocument{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("config").append('=').append(JodaBeanUtils.toString(getConfig())).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -342,6 +345,31 @@ public class ConfigDocument extends AbstractDocument {
      */
     public final MetaProperty<UniqueId> uniqueId() {
       return _uniqueId;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1354792126:  // config
+          return ((ConfigDocument) bean).getConfig();
+        case -294460212:  // uniqueId
+          return ((ConfigDocument) bean).getUniqueId();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1354792126:  // config
+          ((ConfigDocument) bean).setConfig((ConfigItem<?>) newValue);
+          return;
+        case -294460212:  // uniqueId
+          ((ConfigDocument) bean).setUniqueId((UniqueId) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

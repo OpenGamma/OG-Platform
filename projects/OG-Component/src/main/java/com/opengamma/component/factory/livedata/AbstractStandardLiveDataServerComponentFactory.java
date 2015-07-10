@@ -10,6 +10,7 @@ import java.net.UnknownHostException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -275,115 +276,6 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   @Override
   public AbstractStandardLiveDataServerComponentFactory.Meta metaBean() {
     return AbstractStandardLiveDataServerComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -614707837:  // publishRest
-        return isPublishRest();
-      case 1919825921:  // publishJms
-        return isPublishJms();
-      case -1495762275:  // jmsConnector
-        return getJmsConnector();
-      case -102439838:  // jmsSubscriptionTopic
-        return getJmsSubscriptionTopic();
-      case -59808846:  // jmsEntitlementTopic
-        return getJmsEntitlementTopic();
-      case -326199997:  // jmsHeartbeatTopic
-        return getJmsHeartbeatTopic();
-      case -1086682122:  // jmsSubscriptionQueuePrefix
-        return getJmsSubscriptionQueuePrefix();
-      case 1827748962:  // jmsSubscriptionQueueConcurrentConsumers
-        return getJmsSubscriptionQueueConcurrentConsumers();
-      case 311428262:  // jmsSubscriptionQueueMaxConcurrentConsumers
-        return getJmsSubscriptionQueueMaxConcurrentConsumers();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -614707837:  // publishRest
-        setPublishRest((Boolean) newValue);
-        return;
-      case 1919825921:  // publishJms
-        setPublishJms((Boolean) newValue);
-        return;
-      case -1495762275:  // jmsConnector
-        setJmsConnector((JmsConnector) newValue);
-        return;
-      case -102439838:  // jmsSubscriptionTopic
-        setJmsSubscriptionTopic((String) newValue);
-        return;
-      case -59808846:  // jmsEntitlementTopic
-        setJmsEntitlementTopic((String) newValue);
-        return;
-      case -326199997:  // jmsHeartbeatTopic
-        setJmsHeartbeatTopic((String) newValue);
-        return;
-      case -1086682122:  // jmsSubscriptionQueuePrefix
-        setJmsSubscriptionQueuePrefix((String) newValue);
-        return;
-      case 1827748962:  // jmsSubscriptionQueueConcurrentConsumers
-        setJmsSubscriptionQueueConcurrentConsumers((Integer) newValue);
-        return;
-      case 311428262:  // jmsSubscriptionQueueMaxConcurrentConsumers
-        setJmsSubscriptionQueueMaxConcurrentConsumers((Integer) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_jmsConnector, "jmsConnector");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      AbstractStandardLiveDataServerComponentFactory other = (AbstractStandardLiveDataServerComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          JodaBeanUtils.equal(isPublishJms(), other.isPublishJms()) &&
-          JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
-          JodaBeanUtils.equal(getJmsSubscriptionTopic(), other.getJmsSubscriptionTopic()) &&
-          JodaBeanUtils.equal(getJmsEntitlementTopic(), other.getJmsEntitlementTopic()) &&
-          JodaBeanUtils.equal(getJmsHeartbeatTopic(), other.getJmsHeartbeatTopic()) &&
-          JodaBeanUtils.equal(getJmsSubscriptionQueuePrefix(), other.getJmsSubscriptionQueuePrefix()) &&
-          JodaBeanUtils.equal(getJmsSubscriptionQueueConcurrentConsumers(), other.getJmsSubscriptionQueueConcurrentConsumers()) &&
-          JodaBeanUtils.equal(getJmsSubscriptionQueueMaxConcurrentConsumers(), other.getJmsSubscriptionQueueMaxConcurrentConsumers()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishJms());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionTopic());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsEntitlementTopic());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsHeartbeatTopic());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionQueuePrefix());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionQueueConcurrentConsumers());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionQueueMaxConcurrentConsumers());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -658,6 +550,73 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      AbstractStandardLiveDataServerComponentFactory other = (AbstractStandardLiveDataServerComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          (isPublishRest() == other.isPublishRest()) &&
+          (isPublishJms() == other.isPublishJms()) &&
+          JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
+          JodaBeanUtils.equal(getJmsSubscriptionTopic(), other.getJmsSubscriptionTopic()) &&
+          JodaBeanUtils.equal(getJmsEntitlementTopic(), other.getJmsEntitlementTopic()) &&
+          JodaBeanUtils.equal(getJmsHeartbeatTopic(), other.getJmsHeartbeatTopic()) &&
+          JodaBeanUtils.equal(getJmsSubscriptionQueuePrefix(), other.getJmsSubscriptionQueuePrefix()) &&
+          (getJmsSubscriptionQueueConcurrentConsumers() == other.getJmsSubscriptionQueueConcurrentConsumers()) &&
+          (getJmsSubscriptionQueueMaxConcurrentConsumers() == other.getJmsSubscriptionQueueMaxConcurrentConsumers()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPublishJms());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionTopic());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsEntitlementTopic());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsHeartbeatTopic());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionQueuePrefix());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionQueueConcurrentConsumers());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionQueueMaxConcurrentConsumers());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(352);
+    buf.append("AbstractStandardLiveDataServerComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("publishJms").append('=').append(JodaBeanUtils.toString(isPublishJms())).append(',').append(' ');
+    buf.append("jmsConnector").append('=').append(JodaBeanUtils.toString(getJmsConnector())).append(',').append(' ');
+    buf.append("jmsSubscriptionTopic").append('=').append(JodaBeanUtils.toString(getJmsSubscriptionTopic())).append(',').append(' ');
+    buf.append("jmsEntitlementTopic").append('=').append(JodaBeanUtils.toString(getJmsEntitlementTopic())).append(',').append(' ');
+    buf.append("jmsHeartbeatTopic").append('=').append(JodaBeanUtils.toString(getJmsHeartbeatTopic())).append(',').append(' ');
+    buf.append("jmsSubscriptionQueuePrefix").append('=').append(JodaBeanUtils.toString(getJmsSubscriptionQueuePrefix())).append(',').append(' ');
+    buf.append("jmsSubscriptionQueueConcurrentConsumers").append('=').append(JodaBeanUtils.toString(getJmsSubscriptionQueueConcurrentConsumers())).append(',').append(' ');
+    buf.append("jmsSubscriptionQueueMaxConcurrentConsumers").append('=').append(JodaBeanUtils.toString(getJmsSubscriptionQueueMaxConcurrentConsumers())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code AbstractStandardLiveDataServerComponentFactory}.
    */
@@ -816,6 +775,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
 
     /**
      * The meta-property for the {@code jmsSubscriptionTopic} property.
+     * @deprecated replaced by jmsSubscriptionQueue, kept in place until clients have been migrated
      * @return the meta-property, not null
      */
     @Deprecated
@@ -861,6 +821,78 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
      */
     public final MetaProperty<Integer> jmsSubscriptionQueueMaxConcurrentConsumers() {
       return _jmsSubscriptionQueueMaxConcurrentConsumers;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((AbstractStandardLiveDataServerComponentFactory) bean).getClassifier();
+        case -614707837:  // publishRest
+          return ((AbstractStandardLiveDataServerComponentFactory) bean).isPublishRest();
+        case 1919825921:  // publishJms
+          return ((AbstractStandardLiveDataServerComponentFactory) bean).isPublishJms();
+        case -1495762275:  // jmsConnector
+          return ((AbstractStandardLiveDataServerComponentFactory) bean).getJmsConnector();
+        case -102439838:  // jmsSubscriptionTopic
+          return ((AbstractStandardLiveDataServerComponentFactory) bean).getJmsSubscriptionTopic();
+        case -59808846:  // jmsEntitlementTopic
+          return ((AbstractStandardLiveDataServerComponentFactory) bean).getJmsEntitlementTopic();
+        case -326199997:  // jmsHeartbeatTopic
+          return ((AbstractStandardLiveDataServerComponentFactory) bean).getJmsHeartbeatTopic();
+        case -1086682122:  // jmsSubscriptionQueuePrefix
+          return ((AbstractStandardLiveDataServerComponentFactory) bean).getJmsSubscriptionQueuePrefix();
+        case 1827748962:  // jmsSubscriptionQueueConcurrentConsumers
+          return ((AbstractStandardLiveDataServerComponentFactory) bean).getJmsSubscriptionQueueConcurrentConsumers();
+        case 311428262:  // jmsSubscriptionQueueMaxConcurrentConsumers
+          return ((AbstractStandardLiveDataServerComponentFactory) bean).getJmsSubscriptionQueueMaxConcurrentConsumers();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((AbstractStandardLiveDataServerComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -614707837:  // publishRest
+          ((AbstractStandardLiveDataServerComponentFactory) bean).setPublishRest((Boolean) newValue);
+          return;
+        case 1919825921:  // publishJms
+          ((AbstractStandardLiveDataServerComponentFactory) bean).setPublishJms((Boolean) newValue);
+          return;
+        case -1495762275:  // jmsConnector
+          ((AbstractStandardLiveDataServerComponentFactory) bean).setJmsConnector((JmsConnector) newValue);
+          return;
+        case -102439838:  // jmsSubscriptionTopic
+          ((AbstractStandardLiveDataServerComponentFactory) bean).setJmsSubscriptionTopic((String) newValue);
+          return;
+        case -59808846:  // jmsEntitlementTopic
+          ((AbstractStandardLiveDataServerComponentFactory) bean).setJmsEntitlementTopic((String) newValue);
+          return;
+        case -326199997:  // jmsHeartbeatTopic
+          ((AbstractStandardLiveDataServerComponentFactory) bean).setJmsHeartbeatTopic((String) newValue);
+          return;
+        case -1086682122:  // jmsSubscriptionQueuePrefix
+          ((AbstractStandardLiveDataServerComponentFactory) bean).setJmsSubscriptionQueuePrefix((String) newValue);
+          return;
+        case 1827748962:  // jmsSubscriptionQueueConcurrentConsumers
+          ((AbstractStandardLiveDataServerComponentFactory) bean).setJmsSubscriptionQueueConcurrentConsumers((Integer) newValue);
+          return;
+        case 311428262:  // jmsSubscriptionQueueMaxConcurrentConsumers
+          ((AbstractStandardLiveDataServerComponentFactory) bean).setJmsSubscriptionQueueMaxConcurrentConsumers((Integer) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((AbstractStandardLiveDataServerComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((AbstractStandardLiveDataServerComponentFactory) bean)._jmsConnector, "jmsConnector");
+      super.validate(bean);
     }
 
   }

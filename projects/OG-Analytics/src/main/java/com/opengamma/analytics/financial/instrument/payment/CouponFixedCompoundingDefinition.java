@@ -188,16 +188,6 @@ public final class CouponFixedCompoundingDefinition extends CouponDefinition {
     return "CouponFixedCompoundingDefinition [_rate=" + _rate + "]";
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public CouponFixedCompounding toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
-  }
-
   @Override
   public CouponFixedCompounding toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");

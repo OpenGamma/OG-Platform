@@ -23,7 +23,6 @@ import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -38,7 +37,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapStaticReplicationFunction;
 import com.opengamma.util.time.DateUtils;
@@ -75,21 +73,16 @@ public class Grid2DInterpolatedVolatilitySurfaceFunctionDeprecated extends Abstr
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBVolatilitySurfaceDefinitionSource volSurfaceDefinitionSource = new ConfigDBVolatilitySurfaceDefinitionSource(configSource);
-    _definition = volSurfaceDefinitionSource.getDefinition(_definitionName, _instrumentType);
+    _definition = ConfigDBVolatilitySurfaceDefinitionSource.init(context, this).getDefinition(_definitionName, _instrumentType);
     if (_definition == null) {
       throw new OpenGammaRuntimeException("Couldn't find Volatility Surface Definition for " + _instrumentType + " called " + _definitionName);
     }
-    final ValueProperties surfaceProperties = ValueProperties.builder()
-        .with(ValuePropertyNames.SURFACE, _definitionName)
+    final ValueProperties surfaceProperties = ValueProperties.builder().with(ValuePropertyNames.SURFACE, _definitionName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
         .withAny(EquityVarianceSwapStaticReplicationFunction.STRIKE_PARAMETERIZATION_METHOD/*, VarianceSwapStaticReplication.StrikeParameterization.STRIKE.toString()*/).get();
     final ComputationTargetSpecification targetSpec = ComputationTargetSpecification.of(_definition.getTarget().getUniqueId());
     _requirement = new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, targetSpec, surfaceProperties);
-    _result = new ValueSpecification(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, targetSpec,
-        createValueProperties()
-        .with(ValuePropertyNames.SURFACE, _definitionName)
+    _result = new ValueSpecification(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, targetSpec, createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
         .withAny(EquityVarianceSwapStaticReplicationFunction.STRIKE_PARAMETERIZATION_METHOD/*, VarianceSwapStaticReplication.StrikeParameterization.STRIKE.toString()*/).get());
     _results = Collections.singleton(_result);

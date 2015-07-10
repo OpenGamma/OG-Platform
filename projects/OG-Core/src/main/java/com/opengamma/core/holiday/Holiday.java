@@ -35,6 +35,7 @@ public interface Holiday extends UniqueIdentifiable {
    * 
    * @return the unique identifier for this holiday, not null within the engine
    */
+  @Override
   UniqueId getUniqueId();
 
   /**
@@ -57,6 +58,13 @@ public interface Holiday extends UniqueIdentifiable {
    * @return an identifier for the exchange, if this is a SETTLEMENT or TRADING holiday, null otherwise
    */
   ExternalId getExchangeExternalId();
+  
+  /**
+   * The custom identifier, used when this is a holiday of type CUSTOM.
+   * 
+   * @return an identifier for the exchange, if this is a CUSTOM holiday, null otherwise
+   */
+  ExternalId getCustomExternalId();
 
   /**
    * The currency, used when this is a holiday of type CURRENCY.

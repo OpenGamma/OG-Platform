@@ -29,6 +29,7 @@ public final class StartupUtils {
       if (System.getProperties().containsKey("org.terracotta.quartz.skipUpdateCheck") == false) {
         System.setProperty("org.terracotta.quartz.skipUpdateCheck", "true");
       }
+      
     } catch (SecurityException ex) {
       // ignore silently
     } catch (RuntimeException ex) {

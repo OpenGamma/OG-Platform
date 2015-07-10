@@ -4,27 +4,10 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
          version="2.5">
 
-  <filter>
-    <filter-name>spring-request</filter-name>
-    <filter-class>org.springframework.web.filter.RequestContextFilter</filter-class>
-  </filter>
-  <filter-mapping>
-    <filter-name>spring-request</filter-name>
-    <url-pattern>/jax/*</url-pattern>
-  </filter-mapping>
-
-  <!-- Jersey -->
+  <!-- Jersey - JAXRS support -->
   <servlet>
     <servlet-name>jersey-spring</servlet-name>
-    <servlet-class>com.opengamma.component.spring.OpenGammaSpringServlet</servlet-class>
-    <init-param>
-      <param-name>com.sun.jersey.spi.container.ContainerRequestFilters</param-name>
-      <param-value>com.opengamma.util.rest.HttpMethodFilter,com.opengamma.util.rest.UrlSuffixFilter</param-value>
-    </init-param>
-    <init-param>
-      <param-name>com.sun.jersey.spi.container.ContainerResponseFilters</param-name>
-      <param-value>com.opengamma.util.rest.NoCachingFilter</param-value>
-    </init-param>
+    <servlet-class>com.opengamma.component.rest.OpenGammaServlet</servlet-class>
     <load-on-startup>3</load-on-startup>
   </servlet>
   <servlet-mapping>

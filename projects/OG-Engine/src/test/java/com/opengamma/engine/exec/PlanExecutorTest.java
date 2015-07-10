@@ -57,6 +57,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.async.Cancelable;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Tests the {@link PlanExecutor} class.
@@ -124,7 +125,7 @@ public class PlanExecutorTest {
     @Override
     public Cancelable dispatchJob(final CalculationJob job, final JobResultReceiver receiver) {
       s_logger.debug("Dispatching {}", job);
-      _jobs.add(Pair.of(job, receiver));
+      _jobs.add(Pairs.of(job, receiver));
       if (job.getTail() != null) {
         for (CalculationJob tail : job.getTail()) {
           dispatchJob(tail, receiver);
@@ -136,7 +137,7 @@ public class PlanExecutorTest {
     protected void notify(final CalculationJob job, final JobResultReceiver receiver) {
       s_logger.debug("Notifying {}", job);
       final CalculationJobResult result = createJobResult(job);
-      _results.add(Pair.of(job, result));
+      _results.add(Pairs.of(job, result));
       receiver.resultReceived(result);
     }
 

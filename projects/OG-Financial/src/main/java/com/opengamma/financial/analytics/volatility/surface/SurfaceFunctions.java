@@ -141,6 +141,7 @@ public class SurfaceFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(RawSwaptionATMVolatilitySurfaceDataFunction.class));
     functions.add(functionConfiguration(SwaptionATMVolatilitySurfaceDataFunction.class));
     functions.add(functionConfiguration(VolatilitySurfaceShiftFunction.class));
+    functions.add(functionConfiguration(RawSurfaceDataFunction.class));
   }
 
 }

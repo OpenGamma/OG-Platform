@@ -7,7 +7,6 @@ package com.opengamma.web.analytics.blotter;
 
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
-import org.joda.beans.PropertyReadWrite;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -82,6 +81,6 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   private static boolean isWriteable(MetaProperty<?> property) {
-    return property.readWrite() != PropertyReadWrite.READ_ONLY;
+    return property.style().isWritable();
   }
 }

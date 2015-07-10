@@ -32,6 +32,7 @@ public interface Link<T extends UniqueIdentifiable> extends ObjectIdentifiable {
    * 
    * @return the object identifier, may be null
    */
+  @Override
   ObjectId getObjectId();
 
   /**

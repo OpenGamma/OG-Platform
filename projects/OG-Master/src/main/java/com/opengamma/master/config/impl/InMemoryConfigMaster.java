@@ -6,7 +6,6 @@
 package com.opengamma.master.config.impl;
 
 import static com.google.common.collect.Maps.newHashMap;
-import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,7 +34,6 @@ import com.opengamma.id.ObjectIdSupplier;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.master.MasterUtils;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
@@ -329,31 +327,20 @@ public class InMemoryConfigMaster implements ConfigMaster {
     final ObjectId oid = request.getObjectId();
     final PagingRequest pagingRequest = request.getPagingRequest();
 
-    return new ConfigHistoryResult<R>(
-        pagingRequest.select(
-            functional(_store.keySet())
-                .map(new Function1<ObjectId, ConfigDocument>() {
-                  @Override
-                  public ConfigDocument execute(final ObjectId objectId) {
-                    return _store.get(objectId);
-                  }
-                })
-                .filter(new Function1<ConfigDocument, Boolean>() {
-                  @Override
-                  public Boolean execute(final ConfigDocument configDocument) {
-                    return
-                    (oid == null || (configDocument.getObjectId().equals(oid)))
-                        &&
-                        (type == null || (type.isAssignableFrom(configDocument.getType())));
-                  }
-                })
-                .sortBy(new Comparator<ConfigDocument>() {
-                  @Override
-                  public int compare(final ConfigDocument configDocument, final ConfigDocument configDocument1) {
-                    return configDocument.getVersionFromInstant().compareTo(configDocument1.getVersionFromInstant());
-                  }
-                })
-                .asList()));
+    List<ConfigDocument> list = new ArrayList<>();
+    for (ConfigDocument doc : _store.values()) {
+      if ((oid == null || doc.getObjectId().equals(oid)) &&
+                (type == null || type.isAssignableFrom(doc.getType()))) {
+        list.add(doc);
+      }
+    }
+    Collections.sort(list, new Comparator<ConfigDocument>() {
+      @Override
+      public int compare(ConfigDocument configDocument, ConfigDocument configDocument1) {
+        return configDocument.getVersionFromInstant().compareTo(configDocument1.getVersionFromInstant());
+      }
+    });
+    return new ConfigHistoryResult<R>(pagingRequest.select(list));
   }
 
   @Override

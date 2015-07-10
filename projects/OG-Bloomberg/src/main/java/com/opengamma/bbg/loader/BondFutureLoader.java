@@ -9,8 +9,7 @@ import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_BOND_FUTURE_TYPE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_CRNCY;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUTURES_CATEGORY;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_CONT_SIZE;
-import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_DELIVERABLE_BONDS;
-import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_DLVRBLE_BNDS_BB_UNIQUE;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_DLVRBLE_BNDS_ISIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_DLV_DT_FIRST;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_DLV_DT_LAST;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_LAST_TRADE_DT;
@@ -46,6 +45,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Loads the data for a Bond Future from Bloomberg.
@@ -63,8 +63,6 @@ public class BondFutureLoader extends SecurityLoader {
       FIELD_CRNCY,
       FIELD_FUT_LAST_TRADE_DT,
       FIELD_FUT_TRADING_HRS,
-      FIELD_FUT_DELIVERABLE_BONDS,
-      FIELD_FUT_DLVRBLE_BNDS_BB_UNIQUE,
       FIELD_FUTURES_CATEGORY,
       FIELD_FUT_DLV_DT_FIRST,
       FIELD_FUT_DLV_DT_LAST,
@@ -74,7 +72,8 @@ public class BondFutureLoader extends SecurityLoader {
       FIELD_ID_SEDOL1,
       FIELD_PARSEKYABLE_DES,
       FIELD_FUT_VAL_PT,
-      FIELD_FUT_CONT_SIZE));
+      FIELD_FUT_CONT_SIZE,
+      FIELD_FUT_DLVRBLE_BNDS_ISIN));
   
   /**
    * The valid Bloomberg future categories for Bond Futures
@@ -162,13 +161,16 @@ public class BondFutureLoader extends SecurityLoader {
    */
   private Set<BondFutureDeliverable> createBondDeliverables(FudgeMsg fieldData) {
     Set<BondFutureDeliverable> result = new HashSet<BondFutureDeliverable>();
-    for (FudgeField field : fieldData.getAllByName(FIELD_FUT_DLVRBLE_BNDS_BB_UNIQUE)) {
+    
+    for (FudgeField field : fieldData.getAllByName(FIELD_FUT_DLVRBLE_BNDS_ISIN)) {
       if (field.getValue() instanceof FudgeMsg) {
         FudgeMsg deliverableContainer = (FudgeMsg) field.getValue();
         Double conversionFactor = deliverableContainer.getDouble("Conversion Factor");
-        String buid = deliverableContainer.getString("Unique Bloomberg Identifier of Deliverable Bonds");
-        if (conversionFactor != null && isValidField(buid)) {
-          ExternalIdBundle ids = ExternalIdBundle.of(ExternalSchemes.bloombergBuidSecurityId(buid));
+        String tcm = deliverableContainer.getString("ISIN of Deliverable Bonds");
+        if (conversionFactor != null && isValidField(tcm)) {
+          Pair<String, String> isinMarketSectorPair = BloombergDataUtils.splitTickerAtMarketSector(tcm);
+          String isin = isinMarketSectorPair == null ? tcm : isinMarketSectorPair.getFirst().trim();
+          ExternalIdBundle ids = ExternalIdBundle.of(ExternalSchemes.isinSecurityId(isin));
           BondFutureDeliverable deliverable = new BondFutureDeliverable(ids, conversionFactor);
           result.add(deliverable);
         }

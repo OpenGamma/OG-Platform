@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,7 +23,6 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
@@ -37,13 +38,12 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
-
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Gets volatility surface data from definitions and specifications. No financial modelling is done and the data points can be any type of data (e.g. price, implied lognormal volatility).
@@ -52,10 +52,12 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(RawVolatilitySurfaceDataFunction.class);
   /**
-   * Value specification property for the surface result. This allows surface to be distinguished by instrument type (e.g. an FX volatility
-   * surface, swaption ATM volatility surface).
+   * Value specification property for the surface result. This allows surface to be distinguished by instrument type (e.g. an FX volatility surface, swaption ATM volatility surface).
    */
   private final String _instrumentType;
+
+  private ConfigDBVolatilitySurfaceDefinitionSource _volatilitySurfaceDefinitionSource;
+  private ConfigDBVolatilitySurfaceSpecificationSource _volatilitySurfaceSpecificationSource;
 
   /**
    * @param instrumentType The instrument type, not null
@@ -65,14 +67,22 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
     _instrumentType = instrumentType;
   }
 
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    _volatilitySurfaceDefinitionSource = ConfigDBVolatilitySurfaceDefinitionSource.init(context, this);
+    _volatilitySurfaceSpecificationSource = ConfigDBVolatilitySurfaceSpecificationSource.init(context, this);
+  }
+
   /**
    * Gets the target type for the surface
+   * 
    * @return The target type
    */
   protected abstract ComputationTargetType getTargetType();
 
   /**
    * Determines whether this function applies to the target
+   * 
    * @param context The compilation context
    * @param target The computation target
    * @return true if this function applies to the target
@@ -82,27 +92,36 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
   }
 
   /**
-   * Gets a volatility surface definition from a name, target and instrument type. The full name of the surface is constructed as<p>
-   * [SURFACE NAME]_[TARGET NAME]_[INSTRUMENT TYPE]<p>
+   * Gets a volatility surface definition from a name, target and instrument type. The full name of the surface is constructed as
+   * <p>
+   * [SURFACE NAME]_[TARGET NAME]_[INSTRUMENT TYPE]
+   * <p>
+   * 
    * @param definitionSource The surface definition source
+   * @param versionCorrection The version/correction timestamp
    * @param target The computation target
    * @param definitionName The definition name
    * @return The volatility surface definition
    * @throws OpenGammaRuntimeException if a volatility surface definition with the full name is not found
    */
-  protected abstract VolatilitySurfaceDefinition<?, ?> getDefinition(VolatilitySurfaceDefinitionSource definitionSource, ComputationTarget target, String definitionName);
-
+  protected abstract VolatilitySurfaceDefinition<?, ?> getDefinition(VolatilitySurfaceDefinitionSource definitionSource, VersionCorrection versionCorrection, ComputationTarget target,
+      String definitionName);
 
   /**
-   * Gets a volatility surface specification from a name, target and instrument type. The full name of the surface is constructed as<p>
-   * [SURFACE NAME]_[TRIMMED TARGET]_[INSTRUMENT TYPE]<p>
+   * Gets a volatility surface specification from a name, target and instrument type. The full name of the surface is constructed as
+   * <p>
+   * [SURFACE NAME]_[TRIMMED TARGET]_[INSTRUMENT TYPE]
+   * <p>
+   * 
    * @param specificationSource The surface specification source
+   * @param versionCorrection The version/correction timestamp
    * @param target The computation target
    * @param specificationName The specification name
    * @return The volatility surface specification
    * @throws OpenGammaRuntimeException if a volatility surface specification with the full name is not found
    */
-  protected abstract VolatilitySurfaceSpecification getSpecification(VolatilitySurfaceSpecificationSource specificationSource, ComputationTarget target, String specificationName);
+  protected abstract VolatilitySurfaceSpecification getSpecification(VolatilitySurfaceSpecificationSource specificationSource, VersionCorrection versionCorrection, ComputationTarget target,
+      String specificationName);
 
   /**
    * @return The instrument type of the surface
@@ -112,8 +131,8 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
   }
 
   /**
-   * Uses the volatility surface definition and specification to work out which market data requirements are needed to construct
-   * the surface with the given name and type.
+   * Uses the volatility surface definition and specification to work out which market data requirements are needed to construct the surface with the given name and type.
+   * 
    * @param <X> The type of the x-axis data
    * @param <Y> The type of the y-axis data
    * @param specification The volatility specification
@@ -146,11 +165,9 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext myContext, final Instant atInstant) {
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(myContext);
-    final ConfigDBVolatilitySurfaceDefinitionSource definitionSource = new ConfigDBVolatilitySurfaceDefinitionSource(configSource);
-    final ConfigDBVolatilitySurfaceSpecificationSource specificationSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
-    return new CompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000), atZDT, definitionSource, specificationSource);
+    return new CompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000), atZDT, _volatilitySurfaceDefinitionSource,
+        _volatilitySurfaceSpecificationSource);
   }
 
   /**
@@ -182,63 +199,45 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
     @SuppressWarnings("synthetic-access")
     @Override
     public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-      return Collections.singleton(new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(),
-          createValueProperties()
-          .withAny(ValuePropertyNames.SURFACE)
-          .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
-          .withAny(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE)
-          .withAny(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS).get()));
+      return Collections.singleton(new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(), createValueProperties()
+          .withAny(ValuePropertyNames.SURFACE).with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
+          .withAny(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE).withAny(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS).get()));
     }
 
     @SuppressWarnings("synthetic-access")
     @Override
     public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-      final Set<String> surfaceNames = desiredValue.getConstraints().getValues(ValuePropertyNames.SURFACE);
-      if (surfaceNames == null || surfaceNames.size() != 1) {
-        s_logger.info("Can only get a single surface; asked for " + surfaceNames);
-        return null;
-      }
-      final Set<String> instrumentTypes = desiredValue.getConstraints().getValues(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE);
-      if (instrumentTypes == null || instrumentTypes.size() != 1) {
-        s_logger.info("Did not specify a single instrument type; asked for " + instrumentTypes);
-        return null;
-      }
-      final String surfaceName = Iterables.getOnlyElement(surfaceNames);
-      if (surfaceName == null) {
-        s_logger.error("Surface name was null");
-        return null;
-      }
-      final String instrumentType = Iterables.getOnlyElement(instrumentTypes);
+      // REVIEW 2013-11-06 Andrew -- This logic with the instrument type is not necessary - see getResults
+      final String instrumentType = desiredValue.getConstraints().getStrictValue(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE);
       if (instrumentType == null) {
-        s_logger.error("Instrument type was null");
         return null;
       }
       if (!_instrumentType.equals(instrumentType)) {
         s_logger.error("Instrument type {} did not match that required {}", instrumentType, _instrumentType);
         return null;
       }
+      final String surfaceName = desiredValue.getConstraints().getStrictValue(ValuePropertyNames.SURFACE);
+      if (surfaceName == null) {
+        return null;
+      }
       try {
-        final VolatilitySurfaceDefinition<?, ?> definition = getDefinition(_definitionSource, target, surfaceName);
+        final VolatilitySurfaceDefinition<?, ?> definition = getDefinition(_definitionSource, context.getComputationTargetResolver().getVersionCorrection(), target, surfaceName);
         if (definition == null) {
-          s_logger.error("Could not get volatility surface definition for instrument type {} with target {} called {}", new Object[] {target, _instrumentType, surfaceName});
+          s_logger.error("Could not get volatility surface definition for instrument type {} with target {} called {}", new Object[] {target, _instrumentType, surfaceName });
           return null;
         }
-        final VolatilitySurfaceSpecification specification = getSpecification(_specificationSource, target, surfaceName);
+        final VolatilitySurfaceSpecification specification = getSpecification(_specificationSource, context.getComputationTargetResolver().getVersionCorrection(), target, surfaceName);
         if (specification == null) {
-          s_logger.error("Could not get volatility surface specification for instrument type {} with target {} called {}", new Object[] {target, _instrumentType, surfaceName});
+          s_logger.error("Could not get volatility surface specification for instrument type {} with target {} called {}", new Object[] {target, _instrumentType, surfaceName });
           return null;
         }
         final Set<ValueRequirement> requirements = buildDataRequirements(specification, definition, _now, surfaceName, instrumentType);
-        final ValueProperties definitionProperties = ValueProperties.builder()
-            .with(ValuePropertyNames.SURFACE, surfaceName)
-            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)
-            .get();
-        final ValueProperties specificationProperties = ValueProperties.builder()
-            .with(ValuePropertyNames.SURFACE, surfaceName)
+        final ValueProperties definitionProperties = ValueProperties.builder().with(ValuePropertyNames.SURFACE, surfaceName)
+            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType).get();
+        final ValueProperties specificationProperties = ValueProperties.builder().with(ValuePropertyNames.SURFACE, surfaceName)
             .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)
             .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType())
-            .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits())
-            .get();
+            .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits()).get();
         requirements.add(new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_SPEC, target.toSpecification(), specificationProperties));
         requirements.add(new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DEFINITION, target.toSpecification(), definitionProperties));
         return requirements;
@@ -268,12 +267,9 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
       }
       assert surfaceQuoteType != null;
       assert surfaceQuoteUnits != null;
-      return Collections.singleton(new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(),
-          createValueProperties()
-          .with(ValuePropertyNames.SURFACE, surfaceName)
-          .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
-          .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, surfaceQuoteType)
-          .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, surfaceQuoteUnits).get()));
+      return Collections.singleton(new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(), createValueProperties()
+          .with(ValuePropertyNames.SURFACE, surfaceName).with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
+          .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, surfaceQuoteType).with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, surfaceQuoteUnits).get()));
     }
 
     @Override
@@ -288,8 +284,7 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
 
     @SuppressWarnings({"synthetic-access" })
     @Override
-    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-        final Set<ValueRequirement> desiredValues) {
+    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
       final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
       final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
       final String instrumentType = desiredValue.getConstraint(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE);
@@ -317,18 +312,16 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
           if (volatility != null) {
             xList.add(x);
             yList.add(y);
-            volatilityValues.put(Pair.of(x, y), volatility);
+            volatilityValues.put(Pairs.of(x, y), volatility);
           } else {
             s_logger.info("Missing value {}", identifier.toString());
           }
         }
       }
-      final VolatilitySurfaceData<Object, Object> volSurfaceData = new VolatilitySurfaceData<>(definition.getName(), specification.getName(),
-          definition.getTarget(), definition.getXs(), definition.getYs(), volatilityValues);
-      final ValueSpecification result = new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(),
-          createValueProperties()
-          .with(ValuePropertyNames.SURFACE, surfaceName)
-          .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)
+      final VolatilitySurfaceData<Object, Object> volSurfaceData = new VolatilitySurfaceData<>(definition.getName(), specification.getName(), definition.getTarget(), definition.getXs(),
+          definition.getYs(), volatilityValues);
+      final ValueSpecification result = new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(), createValueProperties()
+          .with(ValuePropertyNames.SURFACE, surfaceName).with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)
           .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType())
           .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits()).get());
       return Collections.singleton(new ComputedValue(result, volSurfaceData));
@@ -346,6 +339,7 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
 
     /**
      * Gets the definition source.
+     * 
      * @return The definition source
      */
     protected ConfigDBVolatilitySurfaceDefinitionSource getDefinitionSource() {
@@ -354,6 +348,7 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
 
     /**
      * Gets the specification source.
+     * 
      * @return The specification source
      */
     protected ConfigDBVolatilitySurfaceSpecificationSource getSpecificationSource() {

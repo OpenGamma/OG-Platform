@@ -9,6 +9,7 @@ import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -73,59 +74,6 @@ public class BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean extends 
     return BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1788671322:  // referenceDataProvider
-        return getReferenceDataProvider();
-      case -1452875317:  // cacheManager
-        return getCacheManager();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1788671322:  // referenceDataProvider
-        setReferenceDataProvider((ReferenceDataProvider) newValue);
-        return;
-      case -1452875317:  // cacheManager
-        setCacheManager((CacheManager) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_referenceDataProvider, "referenceDataProvider");
-    JodaBeanUtils.notNull(_cacheManager, "cacheManager");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean other = (BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean) obj;
-      return JodaBeanUtils.equal(getReferenceDataProvider(), other.getReferenceDataProvider()) &&
-          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceDataProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the reference data provider.
@@ -176,6 +124,54 @@ public class BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean extends 
    */
   public final Property<CacheManager> cacheManager() {
     return metaBean().cacheManager().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean other = (BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean) obj;
+      return JodaBeanUtils.equal(getReferenceDataProvider(), other.getReferenceDataProvider()) &&
+          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceDataProvider());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("referenceDataProvider").append('=').append(JodaBeanUtils.toString(getReferenceDataProvider())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -253,6 +249,38 @@ public class BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean extends 
      */
     public final MetaProperty<CacheManager> cacheManager() {
       return _cacheManager;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1788671322:  // referenceDataProvider
+          return ((BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean) bean).getReferenceDataProvider();
+        case -1452875317:  // cacheManager
+          return ((BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean) bean).getCacheManager();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1788671322:  // referenceDataProvider
+          ((BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean) bean).setReferenceDataProvider((ReferenceDataProvider) newValue);
+          return;
+        case -1452875317:  // cacheManager
+          ((BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean) bean).setCacheManager((CacheManager) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean) bean)._referenceDataProvider, "referenceDataProvider");
+      JodaBeanUtils.notNull(((BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean) bean)._cacheManager, "cacheManager");
+      super.validate(bean);
     }
 
   }

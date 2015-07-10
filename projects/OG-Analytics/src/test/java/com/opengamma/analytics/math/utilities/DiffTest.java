@@ -11,9 +11,12 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Tests Diff 
  */
+@Test(groups = TestGroup.UNIT)
 public class DiffTest {
   
   /* double data */

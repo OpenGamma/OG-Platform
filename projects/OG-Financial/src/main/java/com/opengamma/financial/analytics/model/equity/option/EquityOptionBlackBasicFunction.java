@@ -30,6 +30,7 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.id.ExternalId;
@@ -37,10 +38,9 @@ import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 
 /**
-* In this form, we do not take as input an entire volatility surface (ValueRequirementNames.BLACK_VOLATILITY_SURFACE).
-* Instead, the implied volatility is implied by the market_value of the security, along with it's contract parameters of expiry and strike,
-* along with the requirement of a forward curve (ValueRequirementNames.FORWARD_CURVE).
-*/
+ * In this form, we do not take as input an entire volatility surface (ValueRequirementNames.BLACK_VOLATILITY_SURFACE). Instead, the implied volatility is implied by the market_value of the security,
+ * along with it's contract parameters of expiry and strike, along with the requirement of a forward curve (ValueRequirementNames.FORWARD_CURVE).
+ */
 public abstract class EquityOptionBlackBasicFunction extends EquityOptionFunction {
 
   /** @param valueRequirementName The value requirement names, not null */
@@ -67,10 +67,25 @@ public abstract class EquityOptionBlackBasicFunction extends EquityOptionFunctio
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, security.getUniqueId());
   }
 
+  @Override
+  protected void extractInputProperties(final ValueSpecification input, final ValueProperties.Builder properties) {
+    if (MarketDataRequirementNames.MARKET_VALUE.equals(input.getValueName())) {
+      // TODO: Add any additional properties for the BlackBasic MarketValue result
+      // FIXME: For prototyping, I am adding stubs for what the default functions are going to add anyway...
+      //        ValueProperties surfaceProperties = BlackVolatilitySurfacePropertyUtils.addAllBlackSurfaceProperties(ValueProperties.none(), 
+      //            InstrumentTypeProperties.EQUITY_OPTION, BlackVolatilitySurfacePropertyNamesAndValues.SPLINE).get();
+      //        for (final String property : surfaceProperties.getProperties()) {
+      //          properties.with(property, surfaceProperties.getValues(property));
+      //        }
+      return;
+    }
+    super.extractInputProperties(input, properties);
+  }
+
   /**
-   * Constructs a market data bundle of type StaticReplicationDataBundle.
-   * In the {@link CalculationPropertyNamesAndValues#BLACK_BASIC_METHOD}, the volatility surface is a constant inferred from the market price and the forward
-   *
+   * Constructs a market data bundle of type StaticReplicationDataBundle. In the {@link CalculationPropertyNamesAndValues#BLACK_BASIC_METHOD}, the volatility surface is a constant inferred from the
+   * market price and the forward
+   * 
    * @param underlyingId The underlying id of the index option
    * @param executionContext The execution context
    * @param inputs The market data inputs
@@ -136,7 +151,7 @@ public abstract class EquityOptionBlackBasicFunction extends EquityOptionFunctio
     if (optionPriceObject == null) {
       throw new OpenGammaRuntimeException("Could not get market value of underlying option");
     }
-    final double spotOptionPrice  = (double) optionPriceObject;
+    final double spotOptionPrice = (double) optionPriceObject;
     final double forwardOptionPrice = spotOptionPrice / discountFactor;
 
     final double impliedVol = BlackFormulaRepository.impliedVolatility(forwardOptionPrice, forward, strike, timeToExpiry, 0.3);

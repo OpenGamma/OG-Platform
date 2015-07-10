@@ -13,9 +13,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * @deprecated This class tests deprecated functionality
+ * 
  */
-@Deprecated
 public class SimpleCapFloorMaker {
 
   /**
@@ -37,17 +36,14 @@ public class SimpleCapFloorMaker {
    * @param capFloor true for a cap, false for a floor
    * @return A cap or floor
    */
-  public static CapFloor makeCap(final Currency ccy, final IborIndex index, final int start, final int end, final String discountCurve,
-      final String indexCurve, final double strike, final boolean capFloor) {
-    return new CapFloor(makeCapletStrip(ccy, index, start, end, discountCurve, indexCurve, strike, capFloor));
+  public static CapFloor makeCap(final Currency ccy, final IborIndex index, final int start, final int end, final double strike, final boolean capFloor) {
+    return new CapFloor(makeCapletStrip(ccy, index, start, end, strike, capFloor));
   }
 
-  private static CapFloorIbor[] makeCapletStrip(final Currency ccy, final IborIndex index, final int start, final int end, final String discountCurve, final String indexCurve, final double strike,
+  private static CapFloorIbor[] makeCapletStrip(final Currency ccy, final IborIndex index, final int start, final int end, final double strike,
       final boolean capFloor) {
     ArgumentChecker.notNull(ccy, "null ccy");
     ArgumentChecker.notNull(index, "null index");
-    ArgumentChecker.notNull(discountCurve, "null discount curve");
-    ArgumentChecker.notNull(indexCurve, "null index curve");
     ArgumentChecker.isTrue(strike >= 0.0, "negative strike");
     ArgumentChecker.isTrue(end > start, "end index must be greater that start index");
     final int n = end - start;
@@ -59,7 +55,7 @@ public class SimpleCapFloorMaker {
       final double fixingStart = (i + start) * tau;
       final double fixingEnd = (i + 1 + start) * tau;
 
-      caplets[i] = new CapFloorIbor(ccy, fixingEnd, discountCurve, tau, 1.0, fixingStart, index, fixingStart, fixingEnd, tau, indexCurve, strike, capFloor);
+      caplets[i] = new CapFloorIbor(ccy, fixingEnd, tau, 1.0, fixingStart, index, fixingStart, fixingEnd, tau, strike, capFloor);
     }
     return caplets;
   }

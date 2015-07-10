@@ -27,7 +27,8 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public final class PresentValueHullWhiteCalculator extends InstrumentDerivativeVisitorDelegate<HullWhiteOneFactorProviderInterface, MultipleCurrencyAmount> {
+public final class PresentValueHullWhiteCalculator extends 
+  InstrumentDerivativeVisitorDelegate<HullWhiteOneFactorProviderInterface, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
@@ -85,7 +86,7 @@ public final class PresentValueHullWhiteCalculator extends InstrumentDerivativeV
   }
 
   @Override
-  public MultipleCurrencyAmount visitSwapFuturesDeliverableTransaction(final SwapFuturesPriceDeliverableTransaction futures, final HullWhiteOneFactorProviderInterface hullWhite) {
+  public MultipleCurrencyAmount visitSwapFuturesPriceDeliverableTransaction(final SwapFuturesPriceDeliverableTransaction futures, final HullWhiteOneFactorProviderInterface hullWhite) {
     return METHOD_SWAPFUT.presentValue(futures, hullWhite);
   }
 

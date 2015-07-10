@@ -6,27 +6,28 @@
 package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.EquityVarianceSwapTradeSecurityExtractor;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.TradeSecurityExtractor;
 import com.opengamma.util.money.Currency;
-import java.util.Map;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -96,101 +97,6 @@ public class EquityVarianceSwapTrade extends Trade {
   @Override
   public EquityVarianceSwapTrade.Meta metaBean() {
     return EquityVarianceSwapTrade.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 244977400:  // buySell
-        return getBuySell();
-      case 575402001:  // currency
-        return getCurrency();
-      case -891985998:  // strike
-        return getStrike();
-      case -1770633379:  // underlying
-        return getUnderlying();
-      case 1691266433:  // vegaAmount
-        return getVegaAmount();
-      case 2022170724:  // observationStartDate
-        return getObservationStartDate();
-      case -311788195:  // observationEndDate
-        return getObservationEndDate();
-      case 2077957808:  // observationfrequency
-        return getObservationfrequency();
-      case 663363412:  // annualizationFactor
-        return getAnnualizationFactor();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 244977400:  // buySell
-        setBuySell((BuySell) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((Currency) newValue);
-        return;
-      case -891985998:  // strike
-        setStrike((BigDecimal) newValue);
-        return;
-      case -1770633379:  // underlying
-        setUnderlying((IdWrapper) newValue);
-        return;
-      case 1691266433:  // vegaAmount
-        setVegaAmount((BigDecimal) newValue);
-        return;
-      case 2022170724:  // observationStartDate
-        setObservationStartDate((LocalDate) newValue);
-        return;
-      case -311788195:  // observationEndDate
-        setObservationEndDate((LocalDate) newValue);
-        return;
-      case 2077957808:  // observationfrequency
-        setObservationfrequency((String) newValue);
-        return;
-      case 663363412:  // annualizationFactor
-        setAnnualizationFactor((Double) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      EquityVarianceSwapTrade other = (EquityVarianceSwapTrade) obj;
-      return JodaBeanUtils.equal(getBuySell(), other.getBuySell()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
-          JodaBeanUtils.equal(getUnderlying(), other.getUnderlying()) &&
-          JodaBeanUtils.equal(getVegaAmount(), other.getVegaAmount()) &&
-          JodaBeanUtils.equal(getObservationStartDate(), other.getObservationStartDate()) &&
-          JodaBeanUtils.equal(getObservationEndDate(), other.getObservationEndDate()) &&
-          JodaBeanUtils.equal(getObservationfrequency(), other.getObservationfrequency()) &&
-          JodaBeanUtils.equal(getAnnualizationFactor(), other.getAnnualizationFactor()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBuySell());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVegaAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationStartDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationEndDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationfrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAnnualizationFactor());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -419,6 +325,75 @@ public class EquityVarianceSwapTrade extends Trade {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public EquityVarianceSwapTrade clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      EquityVarianceSwapTrade other = (EquityVarianceSwapTrade) obj;
+      return JodaBeanUtils.equal(getBuySell(), other.getBuySell()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
+          JodaBeanUtils.equal(getUnderlying(), other.getUnderlying()) &&
+          JodaBeanUtils.equal(getVegaAmount(), other.getVegaAmount()) &&
+          JodaBeanUtils.equal(getObservationStartDate(), other.getObservationStartDate()) &&
+          JodaBeanUtils.equal(getObservationEndDate(), other.getObservationEndDate()) &&
+          JodaBeanUtils.equal(getObservationfrequency(), other.getObservationfrequency()) &&
+          JodaBeanUtils.equal(getAnnualizationFactor(), other.getAnnualizationFactor()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBuySell());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStrike());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVegaAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObservationStartDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObservationEndDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObservationfrequency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAnnualizationFactor());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(320);
+    buf.append("EquityVarianceSwapTrade{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("buySell").append('=').append(JodaBeanUtils.toString(getBuySell())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(getStrike())).append(',').append(' ');
+    buf.append("underlying").append('=').append(JodaBeanUtils.toString(getUnderlying())).append(',').append(' ');
+    buf.append("vegaAmount").append('=').append(JodaBeanUtils.toString(getVegaAmount())).append(',').append(' ');
+    buf.append("observationStartDate").append('=').append(JodaBeanUtils.toString(getObservationStartDate())).append(',').append(' ');
+    buf.append("observationEndDate").append('=').append(JodaBeanUtils.toString(getObservationEndDate())).append(',').append(' ');
+    buf.append("observationfrequency").append('=').append(JodaBeanUtils.toString(getObservationfrequency())).append(',').append(' ');
+    buf.append("annualizationFactor").append('=').append(JodaBeanUtils.toString(getAnnualizationFactor())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code EquityVarianceSwapTrade}.
    */
@@ -605,6 +580,66 @@ public class EquityVarianceSwapTrade extends Trade {
      */
     public final MetaProperty<Double> annualizationFactor() {
       return _annualizationFactor;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 244977400:  // buySell
+          return ((EquityVarianceSwapTrade) bean).getBuySell();
+        case 575402001:  // currency
+          return ((EquityVarianceSwapTrade) bean).getCurrency();
+        case -891985998:  // strike
+          return ((EquityVarianceSwapTrade) bean).getStrike();
+        case -1770633379:  // underlying
+          return ((EquityVarianceSwapTrade) bean).getUnderlying();
+        case 1691266433:  // vegaAmount
+          return ((EquityVarianceSwapTrade) bean).getVegaAmount();
+        case 2022170724:  // observationStartDate
+          return ((EquityVarianceSwapTrade) bean).getObservationStartDate();
+        case -311788195:  // observationEndDate
+          return ((EquityVarianceSwapTrade) bean).getObservationEndDate();
+        case 2077957808:  // observationfrequency
+          return ((EquityVarianceSwapTrade) bean).getObservationfrequency();
+        case 663363412:  // annualizationFactor
+          return ((EquityVarianceSwapTrade) bean).getAnnualizationFactor();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 244977400:  // buySell
+          ((EquityVarianceSwapTrade) bean).setBuySell((BuySell) newValue);
+          return;
+        case 575402001:  // currency
+          ((EquityVarianceSwapTrade) bean).setCurrency((Currency) newValue);
+          return;
+        case -891985998:  // strike
+          ((EquityVarianceSwapTrade) bean).setStrike((BigDecimal) newValue);
+          return;
+        case -1770633379:  // underlying
+          ((EquityVarianceSwapTrade) bean).setUnderlying((IdWrapper) newValue);
+          return;
+        case 1691266433:  // vegaAmount
+          ((EquityVarianceSwapTrade) bean).setVegaAmount((BigDecimal) newValue);
+          return;
+        case 2022170724:  // observationStartDate
+          ((EquityVarianceSwapTrade) bean).setObservationStartDate((LocalDate) newValue);
+          return;
+        case -311788195:  // observationEndDate
+          ((EquityVarianceSwapTrade) bean).setObservationEndDate((LocalDate) newValue);
+          return;
+        case 2077957808:  // observationfrequency
+          ((EquityVarianceSwapTrade) bean).setObservationfrequency((String) newValue);
+          return;
+        case 663363412:  // annualizationFactor
+          ((EquityVarianceSwapTrade) bean).setAnnualizationFactor((Double) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

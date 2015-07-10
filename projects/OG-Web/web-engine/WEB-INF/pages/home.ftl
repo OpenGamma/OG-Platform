@@ -6,20 +6,59 @@
     Welcome to OpenGamma risk analytics.
   </p>
   <p>
-    Please choose one of the following options:
+    Please choose one of the following items to view and manage:
     <ul>
-      <li><a href="/analytics">View analytics</a></li>
-      <li><a href="${portfolioUris.portfolios()}">View and Manage portfolios</a></li>
-      <li><a href="${positionUris.positions()}">View and Manage positions</a></li>
-      <li><a href="${securityUris.securities()}">View and Manage securities</a></li>
-      <li><a href="${exchangeUris.exchanges()}">View and Manage exchanges</a></li>
-      <li><a href="${holidayUris.holidays()}">View and Manage holidays</a></li>
-      <li><a href="${regionUris.regions()}">View and Manage regions</a></li>
-      <li><a href="${timeseriesUris.allTimeSeries()}">View and Manage time series</a></li>
-      <li><a href="${configUris.configs()}">View and Manage configuration</a></li>
+      <#macro link text uriObj>
+        <#if uriObj?has_content>
+          <li><a href="${uriObj.base()}">${text}</a></li>
+        </#if>
+      </#macro>
+<#if analyticsUri?has_content>
+      <@link text="Analytics" uriObj=analyticsUri!""/>
+</#if>
+      <@link text="Configuration" uriObj=configUris!""/>
+      <@link text="Conventions" uriObj=conventionUris!""/>
+      <@link text="Exchanges" uriObj=exchangeUris!""/>
+      <@link text="Functions" uriObj=functionUris!""/>
+      <@link text="Holidays" uriObj=holidayUris!""/>
+      <@link text="Legal Entities" uriObj=legalEntityUris!""/>
+      <@link text="NamedSnapshots" uriObj=namedSnapshotUris!""/>
+<#if userSecurity.isPermitted('PortfolioMaster:view')>
+      <@link text="Portfolios" uriObj=portfolioUris!""/>
+</#if>
+<#if userSecurity.isPermitted('PositionMaster:view')>
+      <@link text="Positions" uriObj=positionUris!""/>
+</#if>
+      <@link text="Regions" uriObj=regionUris!""/>
+<#if userSecurity.isPermitted('RoleMaster:view')>
+      <@link text="Roles" uriObj=roleUris!""/>
+</#if>
+<#if userSecurity.isPermitted('SecurityMaster:view')>
+      <@link text="Securities" uriObj=securityUris!""/>
+</#if>
+      <@link text="Snapshots" uriObj=snapshotUris!""/>
+<#if userSecurity.isPermitted('HistoricalTimeSeriesMaster:view')>
+      <@link text="Time Series" uriObj=timeseriesUris!""/>
+</#if>
+<#if userSecurity.isPermitted('UserMaster:view')>
+      <@link text="Users" uriObj=userUris!""/>
+</#if>
     </ul>
   </p>
 </@section>
+<#if userSecurity.isPermitted('WebAbout:view') || userSecurity.isPermitted('WebComponents:view')>
+<#-- SECTION Links -->
+<@section title="Links">
+  <p>
+<#if userSecurity.isPermitted('WebAbout:view')>
+    <a href="${uris.about()}">View information about the system</a><br />
+</#if>
+<#if userSecurity.isPermitted('WebComponents:view')>
+    <a href="${uris.components()}">View the components</a><br />
+</#if>
+  </p>
+</@section>
+</#if>
 <p>
 <br />
 <br />

@@ -5,8 +5,8 @@
  */
 package com.opengamma.integration.copier.portfolio;
 
-import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
-import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
+import com.opengamma.integration.copier.portfolio.reader.PositionReader;
+import com.opengamma.integration.copier.portfolio.writer.PositionWriter;
 
 /**
  * Provides the ability to copy portfolios within a master, across masters, between streams/files and masters, and
@@ -14,8 +14,8 @@ import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
  */
 public abstract interface PortfolioCopier {
  
-  void copy(PortfolioReader portfolioReader, PortfolioWriter portfolioWriter);
+  void copy(PositionReader positionReader, PositionWriter positionWriter);
 
-  void copy(PortfolioReader portfolioReader, PortfolioWriter portfolioWriter, PortfolioCopierVisitor visitor);
+  void copy(PositionReader positionReader, PositionWriter positionWriter, PortfolioCopierVisitor visitor);
 
 }

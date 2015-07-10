@@ -7,6 +7,7 @@ package com.opengamma.financial.security.cds;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -166,159 +167,6 @@ public class CDSSecurity extends FinancialSecurity {
   @Override
   public CDSSecurity.Meta metaBean() {
     return CDSSecurity.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1585636160:  // notional
-        return getNotional();
-      case -895684237:  // spread
-        return getSpread();
-      case 2002873877:  // recoveryRate
-        return getRecoveryRate();
-      case 575402001:  // currency
-        return getCurrency();
-      case -2129778896:  // startDate
-        return getStartDate();
-      case 313843601:  // maturity
-        return getMaturity();
-      case 146671813:  // premiumFrequency
-        return getPremiumFrequency();
-      case 1905311443:  // dayCount
-        return getDayCount();
-      case -1002835891:  // businessDayConvention
-        return getBusinessDayConvention();
-      case 1873675528:  // stubType
-        return getStubType();
-      case -295948000:  // settlementDays
-        return getSettlementDays();
-      case -81466250:  // underlyingIssuer
-        return getUnderlyingIssuer();
-      case -1102975346:  // underlyingCurrency
-        return getUnderlyingCurrency();
-      case -305508959:  // underlyingSeniority
-        return getUnderlyingSeniority();
-      case -1774904020:  // restructuringClause
-        return getRestructuringClause();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1585636160:  // notional
-        setNotional((Double) newValue);
-        return;
-      case -895684237:  // spread
-        setSpread((Double) newValue);
-        return;
-      case 2002873877:  // recoveryRate
-        setRecoveryRate((Double) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((Currency) newValue);
-        return;
-      case -2129778896:  // startDate
-        setStartDate((ZonedDateTime) newValue);
-        return;
-      case 313843601:  // maturity
-        setMaturity((ZonedDateTime) newValue);
-        return;
-      case 146671813:  // premiumFrequency
-        setPremiumFrequency((Frequency) newValue);
-        return;
-      case 1905311443:  // dayCount
-        setDayCount((DayCount) newValue);
-        return;
-      case -1002835891:  // businessDayConvention
-        setBusinessDayConvention((BusinessDayConvention) newValue);
-        return;
-      case 1873675528:  // stubType
-        setStubType((StubType) newValue);
-        return;
-      case -295948000:  // settlementDays
-        setSettlementDays((Integer) newValue);
-        return;
-      case -81466250:  // underlyingIssuer
-        setUnderlyingIssuer((String) newValue);
-        return;
-      case -1102975346:  // underlyingCurrency
-        setUnderlyingCurrency((Currency) newValue);
-        return;
-      case -305508959:  // underlyingSeniority
-        setUnderlyingSeniority((String) newValue);
-        return;
-      case -1774904020:  // restructuringClause
-        setRestructuringClause((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_currency, "currency");
-    JodaBeanUtils.notNull(_startDate, "startDate");
-    JodaBeanUtils.notNull(_maturity, "maturity");
-    JodaBeanUtils.notNull(_premiumFrequency, "premiumFrequency");
-    JodaBeanUtils.notNull(_dayCount, "dayCount");
-    JodaBeanUtils.notNull(_businessDayConvention, "businessDayConvention");
-    JodaBeanUtils.notNull(_stubType, "stubType");
-    JodaBeanUtils.notNull(_underlyingIssuer, "underlyingIssuer");
-    JodaBeanUtils.notNull(_underlyingCurrency, "underlyingCurrency");
-    JodaBeanUtils.notNull(_underlyingSeniority, "underlyingSeniority");
-    JodaBeanUtils.notNull(_restructuringClause, "restructuringClause");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CDSSecurity other = (CDSSecurity) obj;
-      return JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(getSpread(), other.getSpread()) &&
-          JodaBeanUtils.equal(getRecoveryRate(), other.getRecoveryRate()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
-          JodaBeanUtils.equal(getMaturity(), other.getMaturity()) &&
-          JodaBeanUtils.equal(getPremiumFrequency(), other.getPremiumFrequency()) &&
-          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
-          JodaBeanUtils.equal(getStubType(), other.getStubType()) &&
-          JodaBeanUtils.equal(getSettlementDays(), other.getSettlementDays()) &&
-          JodaBeanUtils.equal(getUnderlyingIssuer(), other.getUnderlyingIssuer()) &&
-          JodaBeanUtils.equal(getUnderlyingCurrency(), other.getUnderlyingCurrency()) &&
-          JodaBeanUtils.equal(getUnderlyingSeniority(), other.getUnderlyingSeniority()) &&
-          JodaBeanUtils.equal(getRestructuringClause(), other.getRestructuringClause()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSpread());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRecoveryRate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturity());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumFrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStubType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingIssuer());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingSeniority());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRestructuringClause());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -708,6 +556,93 @@ public class CDSSecurity extends FinancialSecurity {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public CDSSecurity clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CDSSecurity other = (CDSSecurity) obj;
+      return JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
+          JodaBeanUtils.equal(getSpread(), other.getSpread()) &&
+          JodaBeanUtils.equal(getRecoveryRate(), other.getRecoveryRate()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
+          JodaBeanUtils.equal(getMaturity(), other.getMaturity()) &&
+          JodaBeanUtils.equal(getPremiumFrequency(), other.getPremiumFrequency()) &&
+          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
+          JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
+          JodaBeanUtils.equal(getStubType(), other.getStubType()) &&
+          (getSettlementDays() == other.getSettlementDays()) &&
+          JodaBeanUtils.equal(getUnderlyingIssuer(), other.getUnderlyingIssuer()) &&
+          JodaBeanUtils.equal(getUnderlyingCurrency(), other.getUnderlyingCurrency()) &&
+          JodaBeanUtils.equal(getUnderlyingSeniority(), other.getUnderlyingSeniority()) &&
+          JodaBeanUtils.equal(getRestructuringClause(), other.getRestructuringClause()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSpread());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRecoveryRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaturity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPremiumFrequency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStubType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingIssuer());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingSeniority());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRestructuringClause());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(512);
+    buf.append("CDSSecurity{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
+    buf.append("spread").append('=').append(JodaBeanUtils.toString(getSpread())).append(',').append(' ');
+    buf.append("recoveryRate").append('=').append(JodaBeanUtils.toString(getRecoveryRate())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
+    buf.append("maturity").append('=').append(JodaBeanUtils.toString(getMaturity())).append(',').append(' ');
+    buf.append("premiumFrequency").append('=').append(JodaBeanUtils.toString(getPremiumFrequency())).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
+    buf.append("businessDayConvention").append('=').append(JodaBeanUtils.toString(getBusinessDayConvention())).append(',').append(' ');
+    buf.append("stubType").append('=').append(JodaBeanUtils.toString(getStubType())).append(',').append(' ');
+    buf.append("settlementDays").append('=').append(JodaBeanUtils.toString(getSettlementDays())).append(',').append(' ');
+    buf.append("underlyingIssuer").append('=').append(JodaBeanUtils.toString(getUnderlyingIssuer())).append(',').append(' ');
+    buf.append("underlyingCurrency").append('=').append(JodaBeanUtils.toString(getUnderlyingCurrency())).append(',').append(' ');
+    buf.append("underlyingSeniority").append('=').append(JodaBeanUtils.toString(getUnderlyingSeniority())).append(',').append(' ');
+    buf.append("restructuringClause").append('=').append(JodaBeanUtils.toString(getRestructuringClause())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code CDSSecurity}.
    */
@@ -990,6 +925,112 @@ public class CDSSecurity extends FinancialSecurity {
      */
     public final MetaProperty<String> restructuringClause() {
       return _restructuringClause;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1585636160:  // notional
+          return ((CDSSecurity) bean).getNotional();
+        case -895684237:  // spread
+          return ((CDSSecurity) bean).getSpread();
+        case 2002873877:  // recoveryRate
+          return ((CDSSecurity) bean).getRecoveryRate();
+        case 575402001:  // currency
+          return ((CDSSecurity) bean).getCurrency();
+        case -2129778896:  // startDate
+          return ((CDSSecurity) bean).getStartDate();
+        case 313843601:  // maturity
+          return ((CDSSecurity) bean).getMaturity();
+        case 146671813:  // premiumFrequency
+          return ((CDSSecurity) bean).getPremiumFrequency();
+        case 1905311443:  // dayCount
+          return ((CDSSecurity) bean).getDayCount();
+        case -1002835891:  // businessDayConvention
+          return ((CDSSecurity) bean).getBusinessDayConvention();
+        case 1873675528:  // stubType
+          return ((CDSSecurity) bean).getStubType();
+        case -295948000:  // settlementDays
+          return ((CDSSecurity) bean).getSettlementDays();
+        case -81466250:  // underlyingIssuer
+          return ((CDSSecurity) bean).getUnderlyingIssuer();
+        case -1102975346:  // underlyingCurrency
+          return ((CDSSecurity) bean).getUnderlyingCurrency();
+        case -305508959:  // underlyingSeniority
+          return ((CDSSecurity) bean).getUnderlyingSeniority();
+        case -1774904020:  // restructuringClause
+          return ((CDSSecurity) bean).getRestructuringClause();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1585636160:  // notional
+          ((CDSSecurity) bean).setNotional((Double) newValue);
+          return;
+        case -895684237:  // spread
+          ((CDSSecurity) bean).setSpread((Double) newValue);
+          return;
+        case 2002873877:  // recoveryRate
+          ((CDSSecurity) bean).setRecoveryRate((Double) newValue);
+          return;
+        case 575402001:  // currency
+          ((CDSSecurity) bean).setCurrency((Currency) newValue);
+          return;
+        case -2129778896:  // startDate
+          ((CDSSecurity) bean).setStartDate((ZonedDateTime) newValue);
+          return;
+        case 313843601:  // maturity
+          ((CDSSecurity) bean).setMaturity((ZonedDateTime) newValue);
+          return;
+        case 146671813:  // premiumFrequency
+          ((CDSSecurity) bean).setPremiumFrequency((Frequency) newValue);
+          return;
+        case 1905311443:  // dayCount
+          ((CDSSecurity) bean).setDayCount((DayCount) newValue);
+          return;
+        case -1002835891:  // businessDayConvention
+          ((CDSSecurity) bean).setBusinessDayConvention((BusinessDayConvention) newValue);
+          return;
+        case 1873675528:  // stubType
+          ((CDSSecurity) bean).setStubType((StubType) newValue);
+          return;
+        case -295948000:  // settlementDays
+          ((CDSSecurity) bean).setSettlementDays((Integer) newValue);
+          return;
+        case -81466250:  // underlyingIssuer
+          ((CDSSecurity) bean).setUnderlyingIssuer((String) newValue);
+          return;
+        case -1102975346:  // underlyingCurrency
+          ((CDSSecurity) bean).setUnderlyingCurrency((Currency) newValue);
+          return;
+        case -305508959:  // underlyingSeniority
+          ((CDSSecurity) bean).setUnderlyingSeniority((String) newValue);
+          return;
+        case -1774904020:  // restructuringClause
+          ((CDSSecurity) bean).setRestructuringClause((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((CDSSecurity) bean)._currency, "currency");
+      JodaBeanUtils.notNull(((CDSSecurity) bean)._startDate, "startDate");
+      JodaBeanUtils.notNull(((CDSSecurity) bean)._maturity, "maturity");
+      JodaBeanUtils.notNull(((CDSSecurity) bean)._premiumFrequency, "premiumFrequency");
+      JodaBeanUtils.notNull(((CDSSecurity) bean)._dayCount, "dayCount");
+      JodaBeanUtils.notNull(((CDSSecurity) bean)._businessDayConvention, "businessDayConvention");
+      JodaBeanUtils.notNull(((CDSSecurity) bean)._stubType, "stubType");
+      JodaBeanUtils.notNull(((CDSSecurity) bean)._underlyingIssuer, "underlyingIssuer");
+      JodaBeanUtils.notNull(((CDSSecurity) bean)._underlyingCurrency, "underlyingCurrency");
+      JodaBeanUtils.notNull(((CDSSecurity) bean)._underlyingSeniority, "underlyingSeniority");
+      JodaBeanUtils.notNull(((CDSSecurity) bean)._restructuringClause, "restructuringClause");
+      super.validate(bean);
     }
 
   }

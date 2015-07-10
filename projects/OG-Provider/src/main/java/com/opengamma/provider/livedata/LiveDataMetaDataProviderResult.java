@@ -7,6 +7,7 @@ package com.opengamma.provider.livedata;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -70,50 +71,6 @@ public class LiveDataMetaDataProviderResult extends DirectBean {
     return LiveDataMetaDataProviderResult.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -450957489:  // metaData
-        return getMetaData();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -450957489:  // metaData
-        setMetaData((LiveDataMetaData) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_metaData, "metaData");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      LiveDataMetaDataProviderResult other = (LiveDataMetaDataProviderResult) obj;
-      return JodaBeanUtils.equal(getMetaData(), other.getMetaData());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMetaData());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the meta-data.
@@ -138,6 +95,48 @@ public class LiveDataMetaDataProviderResult extends DirectBean {
    */
   public final Property<LiveDataMetaData> metaData() {
     return metaBean().metaData().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public LiveDataMetaDataProviderResult clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      LiveDataMetaDataProviderResult other = (LiveDataMetaDataProviderResult) obj;
+      return JodaBeanUtils.equal(getMetaData(), other.getMetaData());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMetaData());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("LiveDataMetaDataProviderResult{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("metaData").append('=').append(JodaBeanUtils.toString(getMetaData())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -199,6 +198,31 @@ public class LiveDataMetaDataProviderResult extends DirectBean {
      */
     public final MetaProperty<LiveDataMetaData> metaData() {
       return _metaData;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -450957489:  // metaData
+          return ((LiveDataMetaDataProviderResult) bean).getMetaData();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -450957489:  // metaData
+          ((LiveDataMetaDataProviderResult) bean).setMetaData((LiveDataMetaData) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((LiveDataMetaDataProviderResult) bean)._metaData, "metaData");
     }
 
   }

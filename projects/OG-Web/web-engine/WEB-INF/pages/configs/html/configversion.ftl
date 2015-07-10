@@ -1,5 +1,5 @@
 <#escape x as x?html>
-<@page title="Configuration - ${configDoc.name}">
+<@page title="Configuration - ${configDoc.name}" jquery=true aceXmlEditor=true>
 
 <@section css="info" if=deleted>
   <p>This configuration has been deleted</p>
@@ -17,8 +17,10 @@
 
 <#-- SUBSECTION Main data -->
 <@subsection title="Detail">
-    <div style="border:1px solid black;padding:2px;"><textarea rows="30" cols="80" name="configxml" id="xmltextarea">${configXml}</textarea></div>
+    <div id="ace-xml-editor"></div>
 </@subsection>
+
+<#noescape><@xmlEditorScript  xmlValue="${configXML}" readOnly=true></@xmlEditorScript></#noescape>
 </@section>
 
 

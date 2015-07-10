@@ -7,6 +7,7 @@ package com.opengamma.financial.security.capfloor;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -23,12 +24,14 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 
 /**
  * A security for a cap/floor CMS spread.
  */
 @BeanDefinition
+@SecurityDescription(type = CapFloorCMSSpreadSecurity.SECURITY_TYPE, description = "Cap floor cms spread")
 public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
 
   /** Serialization version. */
@@ -139,127 +142,6 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
   @Override
   public CapFloorCMSSpreadSecurity.Meta metaBean() {
     return CapFloorCMSSpreadSecurity.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -2129778896:  // startDate
-        return getStartDate();
-      case -414641441:  // maturityDate
-        return getMaturityDate();
-      case 1585636160:  // notional
-        return getNotional();
-      case -1097129801:  // longId
-        return getLongId();
-      case 2067160759:  // shortId
-        return getShortId();
-      case -891985998:  // strike
-        return getStrike();
-      case -70023844:  // frequency
-        return getFrequency();
-      case 575402001:  // currency
-        return getCurrency();
-      case 1905311443:  // dayCount
-        return getDayCount();
-      case 106443605:  // payer
-        return isPayer();
-      case 98258:  // cap
-        return isCap();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -2129778896:  // startDate
-        setStartDate((ZonedDateTime) newValue);
-        return;
-      case -414641441:  // maturityDate
-        setMaturityDate((ZonedDateTime) newValue);
-        return;
-      case 1585636160:  // notional
-        setNotional((Double) newValue);
-        return;
-      case -1097129801:  // longId
-        setLongId((ExternalId) newValue);
-        return;
-      case 2067160759:  // shortId
-        setShortId((ExternalId) newValue);
-        return;
-      case -891985998:  // strike
-        setStrike((Double) newValue);
-        return;
-      case -70023844:  // frequency
-        setFrequency((Frequency) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((Currency) newValue);
-        return;
-      case 1905311443:  // dayCount
-        setDayCount((DayCount) newValue);
-        return;
-      case 106443605:  // payer
-        setPayer((Boolean) newValue);
-        return;
-      case 98258:  // cap
-        setCap((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_startDate, "startDate");
-    JodaBeanUtils.notNull(_maturityDate, "maturityDate");
-    JodaBeanUtils.notNull(_longId, "longId");
-    JodaBeanUtils.notNull(_shortId, "shortId");
-    JodaBeanUtils.notNull(_frequency, "frequency");
-    JodaBeanUtils.notNull(_currency, "currency");
-    JodaBeanUtils.notNull(_dayCount, "dayCount");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CapFloorCMSSpreadSecurity other = (CapFloorCMSSpreadSecurity) obj;
-      return JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
-          JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
-          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(getLongId(), other.getLongId()) &&
-          JodaBeanUtils.equal(getShortId(), other.getShortId()) &&
-          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
-          JodaBeanUtils.equal(getFrequency(), other.getFrequency()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(isPayer(), other.isPayer()) &&
-          JodaBeanUtils.equal(isCap(), other.isCap()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLongId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getShortId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPayer());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isCap());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -545,6 +427,81 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public CapFloorCMSSpreadSecurity clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CapFloorCMSSpreadSecurity other = (CapFloorCMSSpreadSecurity) obj;
+      return JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
+          JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
+          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
+          JodaBeanUtils.equal(getLongId(), other.getLongId()) &&
+          JodaBeanUtils.equal(getShortId(), other.getShortId()) &&
+          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
+          JodaBeanUtils.equal(getFrequency(), other.getFrequency()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
+          (isPayer() == other.isPayer()) &&
+          (isCap() == other.isCap()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLongId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getShortId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStrike());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFrequency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPayer());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isCap());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(384);
+    buf.append("CapFloorCMSSpreadSecurity{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
+    buf.append("maturityDate").append('=').append(JodaBeanUtils.toString(getMaturityDate())).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
+    buf.append("longId").append('=').append(JodaBeanUtils.toString(getLongId())).append(',').append(' ');
+    buf.append("shortId").append('=').append(JodaBeanUtils.toString(getShortId())).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(getStrike())).append(',').append(' ');
+    buf.append("frequency").append('=').append(JodaBeanUtils.toString(getFrequency())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
+    buf.append("payer").append('=').append(JodaBeanUtils.toString(isPayer())).append(',').append(' ');
+    buf.append("cap").append('=').append(JodaBeanUtils.toString(isCap())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code CapFloorCMSSpreadSecurity}.
    */
@@ -763,6 +720,88 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
      */
     public final MetaProperty<Boolean> cap() {
       return _cap;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -2129778896:  // startDate
+          return ((CapFloorCMSSpreadSecurity) bean).getStartDate();
+        case -414641441:  // maturityDate
+          return ((CapFloorCMSSpreadSecurity) bean).getMaturityDate();
+        case 1585636160:  // notional
+          return ((CapFloorCMSSpreadSecurity) bean).getNotional();
+        case -1097129801:  // longId
+          return ((CapFloorCMSSpreadSecurity) bean).getLongId();
+        case 2067160759:  // shortId
+          return ((CapFloorCMSSpreadSecurity) bean).getShortId();
+        case -891985998:  // strike
+          return ((CapFloorCMSSpreadSecurity) bean).getStrike();
+        case -70023844:  // frequency
+          return ((CapFloorCMSSpreadSecurity) bean).getFrequency();
+        case 575402001:  // currency
+          return ((CapFloorCMSSpreadSecurity) bean).getCurrency();
+        case 1905311443:  // dayCount
+          return ((CapFloorCMSSpreadSecurity) bean).getDayCount();
+        case 106443605:  // payer
+          return ((CapFloorCMSSpreadSecurity) bean).isPayer();
+        case 98258:  // cap
+          return ((CapFloorCMSSpreadSecurity) bean).isCap();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -2129778896:  // startDate
+          ((CapFloorCMSSpreadSecurity) bean).setStartDate((ZonedDateTime) newValue);
+          return;
+        case -414641441:  // maturityDate
+          ((CapFloorCMSSpreadSecurity) bean).setMaturityDate((ZonedDateTime) newValue);
+          return;
+        case 1585636160:  // notional
+          ((CapFloorCMSSpreadSecurity) bean).setNotional((Double) newValue);
+          return;
+        case -1097129801:  // longId
+          ((CapFloorCMSSpreadSecurity) bean).setLongId((ExternalId) newValue);
+          return;
+        case 2067160759:  // shortId
+          ((CapFloorCMSSpreadSecurity) bean).setShortId((ExternalId) newValue);
+          return;
+        case -891985998:  // strike
+          ((CapFloorCMSSpreadSecurity) bean).setStrike((Double) newValue);
+          return;
+        case -70023844:  // frequency
+          ((CapFloorCMSSpreadSecurity) bean).setFrequency((Frequency) newValue);
+          return;
+        case 575402001:  // currency
+          ((CapFloorCMSSpreadSecurity) bean).setCurrency((Currency) newValue);
+          return;
+        case 1905311443:  // dayCount
+          ((CapFloorCMSSpreadSecurity) bean).setDayCount((DayCount) newValue);
+          return;
+        case 106443605:  // payer
+          ((CapFloorCMSSpreadSecurity) bean).setPayer((Boolean) newValue);
+          return;
+        case 98258:  // cap
+          ((CapFloorCMSSpreadSecurity) bean).setCap((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((CapFloorCMSSpreadSecurity) bean)._startDate, "startDate");
+      JodaBeanUtils.notNull(((CapFloorCMSSpreadSecurity) bean)._maturityDate, "maturityDate");
+      JodaBeanUtils.notNull(((CapFloorCMSSpreadSecurity) bean)._longId, "longId");
+      JodaBeanUtils.notNull(((CapFloorCMSSpreadSecurity) bean)._shortId, "shortId");
+      JodaBeanUtils.notNull(((CapFloorCMSSpreadSecurity) bean)._frequency, "frequency");
+      JodaBeanUtils.notNull(((CapFloorCMSSpreadSecurity) bean)._currency, "currency");
+      JodaBeanUtils.notNull(((CapFloorCMSSpreadSecurity) bean)._dayCount, "dayCount");
+      super.validate(bean);
     }
 
   }

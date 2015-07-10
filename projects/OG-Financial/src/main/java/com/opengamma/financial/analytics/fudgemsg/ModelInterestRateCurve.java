@@ -15,8 +15,9 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.google.common.collect.Lists;
+import com.opengamma.analytics.financial.model.interestrate.curve.DayPeriodPreCalculatedDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountAddZeroSpreadCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -92,21 +93,50 @@ import com.opengamma.analytics.math.curve.DoublesCurve;
   }
 
   /**
-   * Fudge builder for {@link PriceIndexCurve}
+   * Fudge builder for {@link DayPeriodPreCalculatedDiscountCurve}
    */
-  @FudgeBuilderFor(PriceIndexCurve.class)
-  public static final class PriceIndexCurveBuilder extends AbstractFudgeBuilder<PriceIndexCurve> {
+  @FudgeBuilderFor(DayPeriodPreCalculatedDiscountCurve.class)
+  public static final class DayPeriodPreCalculatedDiscountCurveBuilder extends AbstractFudgeBuilder<DayPeriodPreCalculatedDiscountCurve> {
+    /** The curve field */
+    private static final String CURVE_FIELD_NAME = "curve";
+    /** The name field */
+    private static final String NAME_FIELD_NAME = "name";
+
+    @Override
+    public DayPeriodPreCalculatedDiscountCurve buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
+      final DoublesCurve curve = deserializer.fieldValueToObject(DoublesCurve.class, message.getByName(CURVE_FIELD_NAME));
+      final String name;
+      if (message.hasField(NAME_FIELD_NAME)) {
+        name = message.getString(NAME_FIELD_NAME);
+      } else {
+        name = curve.getName();
+      }
+      return new DayPeriodPreCalculatedDiscountCurve(name, curve);
+    }
+    
+    @Override
+    protected void buildMessage(FudgeSerializer serializer, MutableFudgeMsg message, DayPeriodPreCalculatedDiscountCurve object) {
+      serializer.addToMessageWithClassHeaders(message, CURVE_FIELD_NAME, null, object.getCurve(), DoublesCurve.class);
+      serializer.addToMessage(message, NAME_FIELD_NAME, null, object.getName());
+    }
+  }
+
+  /**
+   * Fudge builder for {@link PriceIndexCurveSimple}
+   */
+  @FudgeBuilderFor(PriceIndexCurveSimple.class)
+  public static final class PriceIndexCurveBuilder extends AbstractFudgeBuilder<PriceIndexCurveSimple> {
     /** The curve field */
     private static final String CURVE_FIELD = "curve";
 
     @Override
-    public PriceIndexCurve buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    public PriceIndexCurveSimple buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final DoublesCurve curve = deserializer.fieldValueToObject(DoublesCurve.class, message.getByName(CURVE_FIELD));
-      return new PriceIndexCurve(curve);
+      return new PriceIndexCurveSimple(curve);
     }
 
     @Override
-    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final PriceIndexCurve object) {
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final PriceIndexCurveSimple object) {
       serializer.addToMessageWithClassHeaders(message, CURVE_FIELD, null, object.getCurve(), DoublesCurve.class);
     }
 

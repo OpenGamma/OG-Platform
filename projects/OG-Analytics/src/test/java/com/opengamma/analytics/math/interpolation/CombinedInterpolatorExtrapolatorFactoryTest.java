@@ -11,9 +11,12 @@ import static org.testng.AssertJUnit.assertNull;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class CombinedInterpolatorExtrapolatorFactoryTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -133,7 +136,7 @@ public class CombinedInterpolatorExtrapolatorFactoryTest {
   }
 
   @Test
-  public void testTwoExtrapolators() {
+  public void testTwoExtrapolators1() {
     CombinedInterpolatorExtrapolator combined = getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
         Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
     assertEquals(combined.getInterpolator().getClass(), LinearInterpolator1D.class);
@@ -143,5 +146,21 @@ public class CombinedInterpolatorExtrapolatorFactoryTest {
     assertEquals(combined.getInterpolator().getClass(), NaturalCubicSplineInterpolator1D.class);
     assertEquals(combined.getLeftExtrapolator().getClass(), FlatExtrapolator1D.class);
     assertEquals(combined.getRightExtrapolator().getClass(), LinearExtrapolator1D.class);
+  }
+
+  @Test
+  public void testTwoExtrapolators2() {
+    Interpolator1D interp = new ProductPiecewisePolynomialInterpolator1D(new NaturalSplineInterpolator());
+    CombinedInterpolatorExtrapolator combined = new CombinedInterpolatorExtrapolator(interp,
+        new FlatExtrapolator1D(), new ReciprocalExtrapolator1D(interp));
+    assertEquals(ProductPiecewisePolynomialInterpolator1D.class, combined.getInterpolator().getClass());
+    assertEquals(FlatExtrapolator1D.class, combined.getLeftExtrapolator().getClass());
+    assertEquals(ReciprocalExtrapolator1D.class, combined.getRightExtrapolator().getClass());
+    combined = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
+        Interpolator1DFactory.PRODUCT_NATURAL_CUBIC, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+        Interpolator1DFactory.RECIPROCAL_EXTRAPOLATOR);
+    assertEquals(ProductPiecewisePolynomialInterpolator1D.class, combined.getInterpolator().getClass());
+    assertEquals(FlatExtrapolator1D.class, combined.getLeftExtrapolator().getClass());
+    assertEquals(ReciprocalExtrapolator1D.class, combined.getRightExtrapolator().getClass());
   }
 }

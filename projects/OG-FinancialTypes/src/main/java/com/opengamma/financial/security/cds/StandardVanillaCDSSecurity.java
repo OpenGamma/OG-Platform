@@ -7,6 +7,7 @@ package com.opengamma.financial.security.cds;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -27,11 +28,13 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 
 /**
- *
+ * @deprecated use com.opengamma.financial.security.credit.StandardCDSSecurity
  */
 @BeanDefinition
+@SecurityDescription(type = StandardVanillaCDSSecurity.SECURITY_TYPE, description = "Standard vanilla cds")
 public class StandardVanillaCDSSecurity extends StandardCDSSecurity {
 
   /** Serialization version */
@@ -100,67 +103,6 @@ public class StandardVanillaCDSSecurity extends StandardCDSSecurity {
   @Override
   public StandardVanillaCDSSecurity.Meta metaBean() {
     return StandardVanillaCDSSecurity.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1354573786:  // coupon
-        return getCoupon();
-      case 487875210:  // cashSettlementDate
-        return getCashSettlementDate();
-      case -1224855431:  // adjustCashSettlementDate
-        return isAdjustCashSettlementDate();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1354573786:  // coupon
-        setCoupon((Double) newValue);
-        return;
-      case 487875210:  // cashSettlementDate
-        setCashSettlementDate((ZonedDateTime) newValue);
-        return;
-      case -1224855431:  // adjustCashSettlementDate
-        setAdjustCashSettlementDate((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_coupon, "coupon");
-    JodaBeanUtils.notNull(_cashSettlementDate, "cashSettlementDate");
-    JodaBeanUtils.notNull(_adjustCashSettlementDate, "adjustCashSettlementDate");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      StandardVanillaCDSSecurity other = (StandardVanillaCDSSecurity) obj;
-      return JodaBeanUtils.equal(getCoupon(), other.getCoupon()) &&
-          JodaBeanUtils.equal(getCashSettlementDate(), other.getCashSettlementDate()) &&
-          JodaBeanUtils.equal(isAdjustCashSettlementDate(), other.isAdjustCashSettlementDate()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCoupon());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCashSettlementDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isAdjustCashSettlementDate());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -239,6 +181,57 @@ public class StandardVanillaCDSSecurity extends StandardCDSSecurity {
    */
   public final Property<Boolean> adjustCashSettlementDate() {
     return metaBean().adjustCashSettlementDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public StandardVanillaCDSSecurity clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      StandardVanillaCDSSecurity other = (StandardVanillaCDSSecurity) obj;
+      return JodaBeanUtils.equal(getCoupon(), other.getCoupon()) &&
+          JodaBeanUtils.equal(getCashSettlementDate(), other.getCashSettlementDate()) &&
+          (isAdjustCashSettlementDate() == other.isAdjustCashSettlementDate()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCoupon());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCashSettlementDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isAdjustCashSettlementDate());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("StandardVanillaCDSSecurity{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("coupon").append('=').append(JodaBeanUtils.toString(getCoupon())).append(',').append(' ');
+    buf.append("cashSettlementDate").append('=').append(JodaBeanUtils.toString(getCashSettlementDate())).append(',').append(' ');
+    buf.append("adjustCashSettlementDate").append('=').append(JodaBeanUtils.toString(isAdjustCashSettlementDate())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -332,6 +325,44 @@ public class StandardVanillaCDSSecurity extends StandardCDSSecurity {
      */
     public final MetaProperty<Boolean> adjustCashSettlementDate() {
       return _adjustCashSettlementDate;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1354573786:  // coupon
+          return ((StandardVanillaCDSSecurity) bean).getCoupon();
+        case 487875210:  // cashSettlementDate
+          return ((StandardVanillaCDSSecurity) bean).getCashSettlementDate();
+        case -1224855431:  // adjustCashSettlementDate
+          return ((StandardVanillaCDSSecurity) bean).isAdjustCashSettlementDate();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1354573786:  // coupon
+          ((StandardVanillaCDSSecurity) bean).setCoupon((Double) newValue);
+          return;
+        case 487875210:  // cashSettlementDate
+          ((StandardVanillaCDSSecurity) bean).setCashSettlementDate((ZonedDateTime) newValue);
+          return;
+        case -1224855431:  // adjustCashSettlementDate
+          ((StandardVanillaCDSSecurity) bean).setAdjustCashSettlementDate((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((StandardVanillaCDSSecurity) bean)._coupon, "coupon");
+      JodaBeanUtils.notNull(((StandardVanillaCDSSecurity) bean)._cashSettlementDate, "cashSettlementDate");
+      JodaBeanUtils.notNull(((StandardVanillaCDSSecurity) bean)._adjustCashSettlementDate, "adjustCashSettlementDate");
+      super.validate(bean);
     }
 
   }

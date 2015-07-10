@@ -233,10 +233,21 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
 
   @Override
   public Function1D<Double, Double> getVolatilityFunction(final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {
-
     final List<T> modelParams = getFittedModelParameters(forward, strikes, expiry, impliedVols);
-    final int n = strikes.length;
+    return getVolatilityFunctionFromModelParameters(forward, strikes, expiry, modelParams);
+  }
 
+  /**
+   * Produce volatility function given data and model parameters
+   * @param forward The forward
+   * @param strikes The strikes 
+   * @param expiry The expiry
+   * @param modelParams The model parameters
+   * @return The volatility function
+   */
+  protected Function1D<Double, Double> getVolatilityFunctionFromModelParameters(final double forward,
+      final double[] strikes, final double expiry, final List<T> modelParams) {
+    final int n = strikes.length;
     return new Function1D<Double, Double>() {
       @SuppressWarnings("synthetic-access")
       @Override
@@ -277,6 +288,11 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
         final double c = parameters.getEntry(2);
         return a + b * x1 + c * x1 * x1;
       }
+
+      @Override
+      public int getNumberOfParameters() {
+        return 3;
+      }
     };
 
     //TODO replace this with an explicit polynomial fitter
@@ -286,11 +302,14 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
     return fitP;
   }
 
-  private void validateStrikes(final double[] strikes) {
+  /**
+   * Check strikes are in ascending order
+   * @param strikes The strikes
+   */
+  protected void validateStrikes(final double[] strikes) {
     final int n = strikes.length;
     for (int i = 1; i < n; i++) {
-      ArgumentChecker.isTrue(strikes[i] > strikes[i - 1],
-          "strikes must be in ascending order; have {} (element {}) and {} (element {})", strikes[i - 1], i - 1, strikes[i], i);
+      ArgumentChecker.isTrue(strikes[i] > strikes[i - 1], "strikes must be in ascending order; have {} (element {}) and {} (element {})", strikes[i - 1], i - 1, strikes[i], i);
     }
   }
 

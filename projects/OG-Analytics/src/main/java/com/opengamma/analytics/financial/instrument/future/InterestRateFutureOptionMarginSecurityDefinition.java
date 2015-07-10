@@ -8,18 +8,16 @@ package com.opengamma.analytics.financial.instrument.future;
 import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Description of an interest rate future option security with daily margining process (LIFFE and Eurex type). The option is of American type.
+ * Description of an interest rate future option security with daily margining process (LIFFE and Eurex type; soon NLX). The option is of American type.
  */
-public class InterestRateFutureOptionMarginSecurityDefinition implements InstrumentDefinition<InstrumentDerivative> {
+public class InterestRateFutureOptionMarginSecurityDefinition extends FuturesSecurityDefinition<InterestRateFutureOptionMarginSecurity> {
 
   /**
    * Underlying future security.
@@ -46,6 +44,7 @@ public class InterestRateFutureOptionMarginSecurityDefinition implements Instrum
    * @param isCall The cap (true) / floor (false) flag.
    */
   public InterestRateFutureOptionMarginSecurityDefinition(final InterestRateFutureSecurityDefinition underlyingFuture, final ZonedDateTime expirationDate, final double strike, final boolean isCall) {
+    super(expirationDate);
     ArgumentChecker.notNull(underlyingFuture, "underlying future");
     ArgumentChecker.notNull(expirationDate, "expiration");
     _underlyingFuture = underlyingFuture;
@@ -86,21 +85,6 @@ public class InterestRateFutureOptionMarginSecurityDefinition implements Instrum
     return _strike;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public InterestRateFutureOptionMarginSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    final double expirationTime = TimeCalculator.getTimeBetween(date, _expirationDate);
-    final InterestRateFutureSecurity underlyingFuture = _underlyingFuture.toDerivative(date, yieldCurveNames);
-    final InterestRateFutureOptionMarginSecurity option = new InterestRateFutureOptionMarginSecurity(underlyingFuture, expirationTime, _strike, _isCall);
-    return option;
-  }
-
   @Override
   public InterestRateFutureOptionMarginSecurity toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
@@ -125,7 +109,7 @@ public class InterestRateFutureOptionMarginSecurityDefinition implements Instrum
   @Override
   public int hashCode() {
     final int prime = 31;
-    int result = 1;
+    int result = super.hashCode();
     result = prime * result + _expirationDate.hashCode();
     result = prime * result + (_isCall ? 1231 : 1237);
     long temp;
@@ -139,6 +123,9 @@ public class InterestRateFutureOptionMarginSecurityDefinition implements Instrum
   public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
     }
     if (obj == null) {
       return false;

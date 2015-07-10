@@ -67,10 +67,11 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.bbg.BloombergConstants;
+import com.opengamma.bbg.BloombergPermissions;
 import com.opengamma.bbg.historical.normalization.BloombergFixedRateHistoricalTimeSeriesNormalizer;
 import com.opengamma.bbg.historical.normalization.BloombergRateHistoricalTimeSeriesNormalizer;
+import com.opengamma.bbg.livedata.normalization.BloombergEidFieldValueNormalizer;
 import com.opengamma.bbg.livedata.normalization.BloombergRateRuleProvider;
 import com.opengamma.bbg.normalization.BloombergRateClassifier;
 import com.opengamma.bbg.referencedata.ReferenceData;
@@ -105,6 +106,7 @@ import com.opengamma.livedata.normalization.SecurityRuleApplier;
 import com.opengamma.livedata.normalization.SecurityRuleProvider;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.normalization.UnitChange;
+import com.opengamma.livedata.permission.PermissionUtils;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesFieldAdjustmentMap;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
@@ -113,6 +115,7 @@ import com.opengamma.master.position.impl.PositionSearchIterator;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Utilities for working with data in the Bloomberg schema.
@@ -231,7 +234,13 @@ public final class BloombergDataUtils {
     final List<NormalizationRule> openGammaRules = new ArrayList<NormalizationRule>();
 
     // Filter out non-price updates
-    openGammaRules.add(new FieldFilter(STANDARD_FIELDS_LIST));
+    List<String> standardFields = new ArrayList<>(STANDARD_FIELDS_LIST);
+    standardFields.add(BloombergConstants.EID_LIVE_DATA_FIELD);
+    standardFields.add(BloombergConstants.EID_DATA.toString());
+    openGammaRules.add(new FieldFilter(standardFields));
+
+    // Normalize EID name and values
+    openGammaRules.add(new BloombergEidFieldValueNormalizer());
 
     // Standardize field names.
     openGammaRules.add(new FieldNameChange("BID", MarketDataRequirementNames.BID));
@@ -274,7 +283,8 @@ public final class BloombergDataUtils {
         MarketDataRequirementNames.YIELD_CONVENTION_MID,
         MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID,
         MarketDataRequirementNames.DIRTY_PRICE_MID,
-        MarketDataRequirementNames.DIVIDEND_YIELD));
+        MarketDataRequirementNames.DIVIDEND_YIELD,
+        PermissionUtils.LIVE_DATA_PERMISSION_FIELD));
     openGammaRules.add(new RequiredFieldFilter(MarketDataRequirementNames.MARKET_VALUE));
 
     final NormalizationRuleSet openGammaRuleSet = new NormalizationRuleSet(
@@ -324,7 +334,13 @@ public final class BloombergDataUtils {
           fieldData.add(name, obj);
         }
       } else if (value != null) {
-        fieldData.add(name, value);
+        if (BloombergConstants.EID_LIVE_DATA_FIELD.equalsIgnoreCase(name)) {
+          if (value instanceof Integer) {
+            fieldData.add(PermissionUtils.LIVE_DATA_PERMISSION_FIELD, BloombergPermissions.createEidPermissionString((int) value));
+          }
+        } else {
+          fieldData.add(name, value);
+        }
       } else {
         s_logger.warn("Unable to extract value named {} from element {}", name, subElement);
       }
@@ -342,12 +358,12 @@ public final class BloombergDataUtils {
       return valueElement.getValueAsString();
     } else if (datatype == Datatype.BOOL) {
       return valueElement.getValueAsBool();
-    } else if (datatype == Datatype.BYTEARRAY) {
+    } else if (datatype == Datatype.BYTEARRAY) {  // CSIGNORE
       // REVIEW kirk 2009-10-22 -- How do we extract this? Intentionally fall through.
     } else if (datatype == Datatype.CHAR) {
       final char c = valueElement.getValueAsChar();
       return new String("" + c);
-    } else if (datatype == Datatype.CHOICE) {
+    } else if (datatype == Datatype.CHOICE) {  // CSIGNORE
       // REVIEW kirk 2009-10-22 -- How do we extract this? Intentionally fall through.
     } else if (datatype == Datatype.DATE) {
       final Datetime date = valueElement.getValueAsDate();
@@ -520,7 +536,7 @@ public final class BloombergDataUtils {
       identifiers.add(ExternalIdWithDates.of(isinId, null, null));
     }
     if (isValidField(securityIdentifier)) {
-      final ExternalId tickerId = ExternalSchemes.bloombergTickerSecurityId(securityIdentifier);
+      final ExternalId tickerId = ExternalSchemes.bloombergTickerSecurityId(securityIdentifier.replaceAll("\\s+", " "));
       LocalDate validFrom = null;
       if (isValidField(validFromStr)) {
         try {
@@ -709,7 +725,7 @@ public final class BloombergDataUtils {
     ArgumentChecker.notNull(ticker, "ticker");
     final int splitIdx = ticker.lastIndexOf(' ');
     if (splitIdx > 0) {
-      return Pair.of(ticker.substring(0, splitIdx), ticker.substring(splitIdx + 1));
+      return Pairs.of(ticker.substring(0, splitIdx), ticker.substring(splitIdx + 1));
     } else {
       return null;
     }

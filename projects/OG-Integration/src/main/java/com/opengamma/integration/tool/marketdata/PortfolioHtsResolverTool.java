@@ -13,10 +13,10 @@ import com.opengamma.integration.copier.portfolio.PortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.QuietPortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.ResolvingPortfolioCopier;
 import com.opengamma.integration.copier.portfolio.VerbosePortfolioCopierVisitor;
-import com.opengamma.integration.copier.portfolio.reader.MasterPortfolioReader;
-import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
-import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
-import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPortfolioWriter;
+import com.opengamma.integration.copier.portfolio.reader.MasterPositionReader;
+import com.opengamma.integration.copier.portfolio.reader.PositionReader;
+import com.opengamma.integration.copier.portfolio.writer.PositionWriter;
+import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPositionWriter;
 import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.scripts.Scriptable;
 
@@ -41,11 +41,10 @@ public class PortfolioHtsResolverTool extends AbstractTool<IntegrationToolContex
   /**
    * Main method to run the tool.
    * 
-   * @param args  the arguments, not null
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    new PortfolioHtsResolverTool().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    new PortfolioHtsResolverTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------
@@ -57,10 +56,10 @@ public class PortfolioHtsResolverTool extends AbstractTool<IntegrationToolContex
     IntegrationToolContext context = getToolContext();
 
     // Create portfolio writer
-    PortfolioWriter portfolioWriter = new PrettyPrintingPortfolioWriter(getCommandLine().hasOption(VERBOSE_OPT));
+    PositionWriter positionWriter = new PrettyPrintingPositionWriter(getCommandLine().hasOption(VERBOSE_OPT));
 
     // Construct portfolio reader
-    PortfolioReader portfolioReader = new MasterPortfolioReader(
+    PositionReader positionReader = new MasterPositionReader(
         getCommandLine().getOptionValue(PORTFOLIO_NAME_OPT), 
         context.getPortfolioMaster(), 
         context.getPositionMaster(), 
@@ -85,11 +84,11 @@ public class PortfolioHtsResolverTool extends AbstractTool<IntegrationToolContex
     }
     
     // Call the portfolio loader with the supplied arguments
-    portfolioCopier.copy(portfolioReader, portfolioWriter, portfolioCopierVisitor);
+    portfolioCopier.copy(positionReader, positionWriter, portfolioCopierVisitor);
     
     // close stuff
-    portfolioReader.close();
-    portfolioWriter.close();
+    positionReader.close();
+    positionWriter.close();
   }
 
   private String getOptionValue(String optionName, String defaultValue) {

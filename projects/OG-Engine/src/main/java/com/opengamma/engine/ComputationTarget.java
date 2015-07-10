@@ -26,8 +26,8 @@ import com.opengamma.engine.target.PrimitiveComputationTargetType;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.util.PublicAPI;
+import com.opengamma.util.function.Function;
 
 /**
  * A fully resolved target, sufficient for computation invocation.
@@ -56,7 +56,7 @@ public class ComputationTarget implements Serializable {
   /**
    * The cached hash code.
    */
-  private transient volatile int _hashCode;
+  private transient int _hashCode;  // safe via racy single check idiom
 
   /**
    * Creates a target for computation. The type is a primitive type that is capable of converting the unique identifier form of the value to its {@link UniqueIdentifiable} form without any resolution
@@ -258,25 +258,25 @@ public class ComputationTarget implements Serializable {
     }
   }
 
-  private static final ComputationTargetTypeMap<Function1<ComputationTarget, String>> s_getName = createGetName();
+  private static final ComputationTargetTypeMap<Function<ComputationTarget, String>> s_getName = createGetName();
 
-  private static ComputationTargetTypeMap<Function1<ComputationTarget, String>> createGetName() {
-    final ComputationTargetTypeMap<Function1<ComputationTarget, String>> getName = new ComputationTargetTypeMap<Function1<ComputationTarget, String>>();
-    getName.put(ComputationTargetType.PORTFOLIO_NODE, new Function1<ComputationTarget, String>() {
+  private static ComputationTargetTypeMap<Function<ComputationTarget, String>> createGetName() {
+    final ComputationTargetTypeMap<Function<ComputationTarget, String>> getName = new ComputationTargetTypeMap<Function<ComputationTarget, String>>();
+    getName.put(ComputationTargetType.PORTFOLIO_NODE, new Function<ComputationTarget, String>() {
       @Override
-      public String execute(final ComputationTarget target) {
+      public String apply(final ComputationTarget target) {
         return target.getPortfolioNode().getName();
       }
     });
-    getName.put(ComputationTargetType.SECURITY, new Function1<ComputationTarget, String>() {
+    getName.put(ComputationTargetType.SECURITY, new Function<ComputationTarget, String>() {
       @Override
-      public String execute(final ComputationTarget target) {
+      public String apply(final ComputationTarget target) {
         return target.getSecurity().getName();
       }
     });
-    getName.put(ComputationTargetType.POSITION.or(ComputationTargetType.TRADE), new Function1<ComputationTarget, String>() {
+    getName.put(ComputationTargetType.POSITION.or(ComputationTargetType.TRADE), new Function<ComputationTarget, String>() {
       @Override
-      public String execute(final ComputationTarget target) {
+      public String apply(final ComputationTarget target) {
         final PositionOrTrade position = target.getPositionOrTrade();
         Security security = position.getSecurity();
         if (security != null) {
@@ -313,9 +313,9 @@ public class ComputationTarget implements Serializable {
    * @return the name of the computation target, null if a primitive and no identifier is available
    */
   public String getName() {
-    final Function1<ComputationTarget, String> getName = s_getName.get(getType());
+    final Function<ComputationTarget, String> getName = s_getName.get(getType());
     if (getName != null) {
-      return getNameImpl(getName.execute(this));
+      return getNameImpl(getName.apply(this));
     } else {
       return getNameImpl(null);
     }
@@ -345,13 +345,16 @@ public class ComputationTarget implements Serializable {
 
   @Override
   public int hashCode() {
-    if (_hashCode == 0) {
-      int hc = 1;
-      hc += (hc << 4) + _specification.hashCode();
-      hc += (hc << 4) + ObjectUtils.hashCode(_value);
-      _hashCode = hc;
+    // racy single check idiom allows non-volatile variable
+    // requires only one read and one write of non-volatile
+    int hashCode = _hashCode;
+    if (hashCode == 0) {
+      int result = 1;
+      result += (result << 4) + _specification.hashCode();
+      result += (result << 4) + ObjectUtils.hashCode(_value);
+      _hashCode = result;
     }
-    return _hashCode;
+    return hashCode;
   }
 
   @Override

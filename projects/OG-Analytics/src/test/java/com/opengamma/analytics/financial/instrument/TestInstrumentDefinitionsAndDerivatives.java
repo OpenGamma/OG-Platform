@@ -55,12 +55,10 @@ import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositCounterpartDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositZeroDefinition;
-import com.opengamma.analytics.financial.instrument.cds.ISDACDSDefinition;
-import com.opengamma.analytics.financial.instrument.cds.ISDACDSPremiumDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
-import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionPremiumSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionPremiumTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.FutureInstrumentsDescriptionDataSet;
@@ -109,14 +107,12 @@ import com.opengamma.analytics.financial.model.option.definition.Barrier;
 import com.opengamma.analytics.financial.model.option.definition.Barrier.BarrierType;
 import com.opengamma.analytics.financial.model.option.definition.Barrier.KnockType;
 import com.opengamma.analytics.financial.model.option.definition.Barrier.ObservationType;
-import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.id.ExternalId;
 import com.opengamma.timeseries.DoubleTimeSeries;
@@ -132,19 +128,19 @@ import com.opengamma.util.time.DateUtils;
 @SuppressWarnings("unchecked")
 public class TestInstrumentDefinitionsAndDerivatives {
   public static final Currency CUR = Currency.USD;
-  public static final BusinessDayConvention BD = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  public static final BusinessDayConvention BD = BusinessDayConventions.FOLLOWING;
   public static final Calendar C = new MondayToFridayCalendar("F");
   public static final ZonedDateTime SETTLE_DATE = DateUtils.getUTCDate(2011, 1, 1);
   public static final Period TENOR = Period.ofYears(2);
   public static final Period FIXED_PERIOD = Period.ofMonths(6);
-  public static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
+  public static final DayCount FIXED_DAY_COUNT = DayCounts.THIRTY_U_360;
   public static final boolean IS_EOM = true;
   public static final double NOTIONAL = 100000000; //100m
   public static final double FIXED_RATE = 0.05;
   public static final boolean IS_PAYER = true;
   public static final Period IBOR_PERIOD_1 = Period.ofMonths(3);
   public static final int SPOT_LAG = 2;
-  public static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("ACT/360");
+  public static final DayCount IBOR_DAY_COUNT = DayCounts.ACT_360;
   public static final IborIndex IBOR_INDEX_1 = new IborIndex(CUR, IBOR_PERIOD_1, SPOT_LAG, IBOR_DAY_COUNT, BD, IS_EOM, "Ibor1");
   public static final IndexON INDEX_ON = new IndexON("A", CUR, FIXED_DAY_COUNT, 0);
   public static final IndexSwap CMS_INDEX = new IndexSwap(IBOR_PERIOD_1, IBOR_DAY_COUNT, IBOR_INDEX_1, IBOR_PERIOD_1, C);
@@ -154,8 +150,7 @@ public class TestInstrumentDefinitionsAndDerivatives {
   public static final GeneratorSwapXCcyIborIbor XCCY_GENERATOR = new GeneratorSwapXCcyIborIbor("XCCY", IBOR_INDEX_2, IBOR_INDEX_1, C, C);
   public static final IndexPrice INDEX_PRICE = new IndexPrice("CPI", CUR);
   public static final Convention CONVENTION = new Convention(2, FIXED_DAY_COUNT, BD, C, "");
-  public static final ISDACDSPremiumDefinition ISDA_PREMIUM = ISDACDSPremiumDefinition.from(SETTLE_DATE, SETTLE_DATE.plusYears(5), PeriodFrequency.SEMI_ANNUAL, CONVENTION, StubType.LONG_END, false,
-      NOTIONAL, SPREAD, CUR, C);
+
 
   public static final CouponFixedDefinition COUPON_FIXED = CouponFixedDefinition.from(CUR, SETTLE_DATE, SETTLE_DATE, SETTLE_DATE, SPOT_LAG, NOTIONAL, FIXED_RATE);
   public static final CouponIborDefinition COUPON_IBOR = CouponIborDefinition.from(NOTIONAL, SETTLE_DATE, IBOR_INDEX_1, C);
@@ -185,7 +180,7 @@ public class TestInstrumentDefinitionsAndDerivatives {
 
   public static final DepositCounterpartDefinition DEPOSIT_COUNTERPART = new DepositCounterpartDefinition(CUR, SETTLE_DATE, SETTLE_DATE.plusDays(3), NOTIONAL, FIXED_RATE, FIXED_RATE, "a");
   public static final DepositIborDefinition DEPOSIT_IBOR = DepositIborDefinition.fromStart(SETTLE_DATE, NOTIONAL, FIXED_RATE, IBOR_INDEX_1, C);
-  public static final DepositZeroDefinition DEPOSIT_ZERO = DepositZeroDefinition.from(CUR, SETTLE_DATE, SETTLE_DATE.plusDays(3), FIXED_DAY_COUNT, new ContinuousInterestRate(0.03), C);
+  public static final DepositZeroDefinition DEPOSIT_ZERO = DepositZeroDefinition.from(CUR, SETTLE_DATE, SETTLE_DATE.plusDays(3), FIXED_DAY_COUNT, new ContinuousInterestRate(0.03), C, FIXED_DAY_COUNT);
 
   public static final AnnuityCouponCMSDefinition ANNUITY_COUPON_CMS = new AnnuityCouponCMSDefinition(new CouponCMSDefinition[] {COUPON_CMS }, C);
   public static final AnnuityCouponFixedDefinition ANNUITY_FIXED = AnnuityCouponFixedDefinition.from(CUR, SETTLE_DATE, TENOR, FIXED_PERIOD, C, FIXED_DAY_COUNT, BD, IS_EOM, NOTIONAL, FIXED_RATE,
@@ -207,10 +202,6 @@ public class TestInstrumentDefinitionsAndDerivatives {
   public static final BondFixedTransactionDefinition BOND_FIXED_TRANSACTION = new BondFixedTransactionDefinition(BOND_FIXED_SECURITY, 100, SETTLE_DATE, -100);
   public static final BondIborSecurityDefinition BOND_IBOR_SECURITY = BondIborSecurityDefinition.from(SETTLE_DATE.plusYears(2), SETTLE_DATE, IBOR_INDEX_1, 2, FIXED_DAY_COUNT, BD, IS_EOM, "", C);
   public static final BondIborTransactionDefinition BOND_IBOR_TRANSACTION = new BondIborTransactionDefinition(BOND_IBOR_SECURITY, 100, SETTLE_DATE, -100);
-  public static final BondFutureDefinition BNDFUT_SECURITY_DEFINITION = FutureInstrumentsDescriptionDataSet.createBondFutureSecurityDefinition();
-  public static final BondFutureOptionPremiumSecurityDefinition BFO_SECURITY = FutureInstrumentsDescriptionDataSet.createBondFutureOptionPremiumSecurityDefinition();
-  public static final BondFutureOptionPremiumTransactionDefinition BFO_TRANSACTION = new BondFutureOptionPremiumTransactionDefinition(BFO_SECURITY, -100, BFO_SECURITY.getExpirationDate().minusMonths(
-      3), 100);
 
   public static final CashDefinition CASH = new CashDefinition(CUR, DateUtils.getUTCDate(2011, 1, 2), DateUtils.getUTCDate(2012, 1, 2), 1.0, 0.04, 1.0);
   public static final ForwardRateAgreementDefinition FRA = ForwardRateAgreementDefinition.from(SETTLE_DATE, SETTLE_DATE.plusMonths(3), NOTIONAL, IBOR_INDEX_1, FIXED_RATE, C);
@@ -254,19 +245,17 @@ public class TestInstrumentDefinitionsAndDerivatives {
 
   public static final SwaptionCashFixedIborDefinition SWAPTION_CASH = SwaptionInstrumentsDescriptionDataSet.createSwaptionCashFixedIborDefinition();
   public static final SwaptionPhysicalFixedIborDefinition SWAPTION_PHYS = SwaptionInstrumentsDescriptionDataSet.createSwaptionPhysicalFixedIborDefinition();
-  public static final SwaptionPhysicalFixedIborSpreadDefinition SWAPTION_PHYS_SPREAD = SwaptionPhysicalFixedIborSpreadDefinition.from(SETTLE_DATE, SWAP_FIXED_IBOR_SPREAD, IS_EOM);
+  public static final SwaptionPhysicalFixedIborSpreadDefinition SWAPTION_PHYS_SPREAD = SwaptionPhysicalFixedIborSpreadDefinition.from(SETTLE_DATE, SWAP_FIXED_IBOR_SPREAD, true, IS_EOM);
   public static final SwaptionBermudaFixedIborDefinition SWAPTION_BERMUDA = SwaptionBermudaFixedIborDefinition.from(SWAP_FIXED_IBOR, false, new ZonedDateTime[] {SETTLE_DATE.minusMonths(6),
     SETTLE_DATE.minusMonths(5), SETTLE_DATE.minusMonths(4), SETTLE_DATE.minusMonths(3) });
 
-  public static final CapFloorIborDefinition CAP_FLOOR_IBOR = CapFloorIborDefinition.from(COUPON_IBOR, FIXED_RATE, true, C);
+  public static final CapFloorIborDefinition CAP_FLOOR_IBOR = CapFloorIborDefinition.from(COUPON_IBOR, FIXED_RATE, true);
   public static final CapFloorCMSDefinition CAP_FLOOR_CMS = CapFloorCMSDefinition.from(COUPON_CMS, FIXED_RATE, true);
   public static final CapFloorCMSSpreadDefinition CAP_FLOOR_CMS_SPREAD = CapFloorCMSSpreadDefinition.from(SETTLE_DATE.plusMonths(3), SETTLE_DATE, SETTLE_DATE.plusMonths(3), 0.1, NOTIONAL, CMS_INDEX,
       CMS_INDEX, FIXED_RATE, false, C, C);
 
   public static final SwapXCcyIborIborDefinition XCCY_SWAP = SwapXCcyIborIborDefinition.from(SETTLE_DATE, TENOR, XCCY_GENERATOR, NOTIONAL, NOTIONAL, SPREAD, IS_PAYER, C, C);
 
-  public static final ISDACDSDefinition ISDA_CDS = new ISDACDSDefinition(SETTLE_DATE, SETTLE_DATE.plusYears(2), ISDA_PREMIUM, NOTIONAL, SPREAD, FIXED_RATE, false, false, true,
-      PeriodFrequency.SEMI_ANNUAL, CONVENTION, StubType.LONG_END);
 
   public static final ForexDefinition FX = ForexDefinition.fromAmounts(CUR, Currency.AUD, SETTLE_DATE, NOTIONAL, -NOTIONAL * 1.5);
   public static final ForexSwapDefinition FX_SWAP = new ForexSwapDefinition(FX, ForexDefinition.fromAmounts(CUR, Currency.AUD, SETTLE_DATE.plusMonths(3), -NOTIONAL, NOTIONAL * 1.5));
@@ -278,8 +267,8 @@ public class TestInstrumentDefinitionsAndDerivatives {
   public static final ForexOptionDigitalDefinition FX_DIGITAL = new ForexOptionDigitalDefinition(FX, SETTLE_DATE, IS_PAYER, IS_EOM);
 
   public static final VarianceSwapDefinition VARIANCE_SWAP = VarianceSwapDefinition
-      .fromVarianceParams(SETTLE_DATE, SETTLE_DATE.plusYears(1), SETTLE_DATE, PeriodFrequency.DAILY, CUR, C, 1, 0.03, 1000);
-  public static final EquityVarianceSwapDefinition EQUITY_VARIANCE_SWAP = EquityVarianceSwapDefinition.fromVarianceParams(SETTLE_DATE, SETTLE_DATE.plusYears(1), SETTLE_DATE, PeriodFrequency.DAILY,
+      .fromVarianceParams(SETTLE_DATE, SETTLE_DATE.plusYears(1), SETTLE_DATE, CUR, C, 1, 0.03, 1000);
+  public static final EquityVarianceSwapDefinition EQUITY_VARIANCE_SWAP = EquityVarianceSwapDefinition.fromVarianceParams(SETTLE_DATE, SETTLE_DATE.plusYears(1), SETTLE_DATE, 
       CUR, C, 1, 0.03, 1000, true);
   private static final Set<InstrumentDefinition<?>> ALL_INSTRUMENTS = Sets.newHashSet();
   private static final Set<InstrumentDerivative> ALL_DERIVATIVES = Sets.newHashSet();
@@ -293,11 +282,8 @@ public class TestInstrumentDefinitionsAndDerivatives {
     ALL_INSTRUMENTS.add(ANNUITY_COUPON_CMS);
     ALL_INSTRUMENTS.add(ANNUITY_IBOR_SPREAD_RECEIVE);
     ALL_INSTRUMENTS.add(ANNUITY_IBOR_SPREAD_PAY);
-    ALL_INSTRUMENTS.add(BFO_SECURITY);
-    ALL_INSTRUMENTS.add(BFO_TRANSACTION);
     ALL_INSTRUMENTS.add(BILL_SECURITY);
     ALL_INSTRUMENTS.add(BILL_TRANSACTION);
-    ALL_INSTRUMENTS.add(BNDFUT_SECURITY_DEFINITION);
     ALL_INSTRUMENTS.add(BOND_FIXED_SECURITY);
     ALL_INSTRUMENTS.add(BOND_FIXED_TRANSACTION);
     ALL_INSTRUMENTS.add(BOND_IBOR_SECURITY);
@@ -350,7 +336,6 @@ public class TestInstrumentDefinitionsAndDerivatives {
     ALL_INSTRUMENTS.add(IR_FUT_OPT_PREMIUM_SEC_DEF);
     ALL_INSTRUMENTS.add(IR_FUT_OPT_PREMIUM_T_DEF);
     ALL_INSTRUMENTS.add(IR_FUT_SECURITY_DEFINITION);
-    ALL_INSTRUMENTS.add(ISDA_CDS);
     ALL_INSTRUMENTS.add(METAL_FUTURE);
     ALL_INSTRUMENTS.add(METAL_FUTURE_OPTION);
     ALL_INSTRUMENTS.add(METAL_FWD);
@@ -384,11 +369,8 @@ public class TestInstrumentDefinitionsAndDerivatives {
     ALL_DERIVATIVES.add(ANNUITY_COUPON_CMS.toDerivative(ANNUITY_COUPON_CMS.getPayments()[0].getFixingDate().minusDays(1), ts));
     ALL_DERIVATIVES.add(ANNUITY_IBOR_SPREAD_RECEIVE.toDerivative(ANNUITY_IBOR.getPayments()[0].getFixingDate().minusDays(1), ts));
     ALL_DERIVATIVES.add(ANNUITY_IBOR_SPREAD_PAY.toDerivative(ANNUITY_IBOR.getPayments()[0].getFixingDate().minusDays(1), ts));
-    ALL_DERIVATIVES.add(BFO_SECURITY.toDerivative(BFO_SECURITY.getUnderlyingFuture().getDeliveryLastDate().minusDays(1)));
-    ALL_DERIVATIVES.add(BFO_TRANSACTION.toDerivative(BFO_TRANSACTION.getUnderlyingOption().getUnderlyingFuture().getDeliveryLastDate().minusDays(1)));
     ALL_DERIVATIVES.add(BILL_SECURITY.toDerivative(BILL_SECURITY.getEndDate().minusDays(2)));
     ALL_DERIVATIVES.add(BILL_TRANSACTION.toDerivative(BILL_TRANSACTION.getSettlementDate()));
-    ALL_DERIVATIVES.add(BNDFUT_SECURITY_DEFINITION.toDerivative(BNDFUT_SECURITY_DEFINITION.getTradingLastDate(), 2.));
     ALL_DERIVATIVES.add(BOND_FIXED_SECURITY.toDerivative(BOND_FIXED_SECURITY.getCoupons().getPayments()[0].getPaymentDate()));
     ALL_DERIVATIVES.add(BOND_FIXED_TRANSACTION.toDerivative(BOND_FIXED_TRANSACTION.getSettlementDate()));
     ALL_DERIVATIVES.add(BOND_IBOR_SECURITY.toDerivative(BOND_IBOR_SECURITY.getCoupons().getPayments()[0].getAccrualStartDate().minusDays(1), ts));
@@ -441,7 +423,6 @@ public class TestInstrumentDefinitionsAndDerivatives {
     ALL_DERIVATIVES.add(IR_FUT_OPT_PREMIUM_SEC_DEF.toDerivative(IR_FUT_OPT_PREMIUM_SEC_DEF.getExpirationDate().minusDays(1)));
     ALL_DERIVATIVES.add(IR_FUT_OPT_PREMIUM_T_DEF.toDerivative(IR_FUT_OPT_PREMIUM_T_DEF.getUnderlyingOption().getExpirationDate().minusDays(1)));
     ALL_DERIVATIVES.add(IR_FUT_SECURITY_DEFINITION.toDerivative(IR_FUT_SECURITY_DEFINITION.getLastTradingDate().minusDays(1)));
-    ALL_DERIVATIVES.add(ISDA_CDS.toDerivative(ISDA_CDS.getMaturity().minusDays(10)));
     ALL_DERIVATIVES.add(METAL_FUTURE.toDerivative(METAL_FUTURE.getSettlementDate()));
     ALL_DERIVATIVES.add(METAL_FUTURE_OPTION.toDerivative(METAL_FUTURE_OPTION.getExpiryDate().minusDays(1)));
     ALL_DERIVATIVES.add(METAL_FWD.toDerivative(METAL_FWD.getSettlementDate()));

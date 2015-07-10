@@ -46,6 +46,7 @@ import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.interpolation.PSplineFitter;
+import com.opengamma.analytics.math.interpolation.PenaltyMatrixGenerator;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -59,12 +60,14 @@ import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquareWithPenalty;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * This is a very basic attempt at PLAT-2215 (Local Volatility Calibration from Forward PDE). This does not converge. It is not clear if this is because the method is
  * unsound or the implementation is faulty
  */
+@Test(groups = TestGroup.UNIT)
 public class LocalVolFittingTest {
   private final MatrixAlgebra _algebra = new ColtMatrixAlgebra();
   private static ParameterLimitsTransform TRANSFORM = new SingleRangeLimitTransform(0.0, LimitType.GREATER_THAN);
@@ -73,8 +76,8 @@ public class LocalVolFittingTest {
   //  ConjugateDirectionVectorMinimizer MINIMIZER = new ConjugateDirectionVectorMinimizer(LINE_MINIMIZER);
   // ConjugateGradientVectorMinimizer MINIMIZER = new ConjugateGradientVectorMinimizer(LINE_MINIMIZER);
   // MultiDirectionalSimplexMinimizer MINIMIZER = new MultiDirectionalSimplexMinimizer();
-  GridInterpolator2D INTERPOLATOR = new GridInterpolator2D(Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE, Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE,
-      new FlatExtrapolator1D(), new FlatExtrapolator1D());
+  GridInterpolator2D INTERPOLATOR = new GridInterpolator2D(Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE, Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE, new FlatExtrapolator1D(),
+      new FlatExtrapolator1D());
   private static final PDE1DCoefficientsProvider PDE_PROVIDER = new PDE1DCoefficientsProvider();
   private static final InitialConditionsProvider INITIAL_COND_PROVIDER = new InitialConditionsProvider();
   private static final ConvectionDiffusionPDESolver SOLVER = new ThetaMethodFiniteDifference(0.5, true);
@@ -85,12 +88,10 @@ public class LocalVolFittingTest {
   private static final double IMP_VOL = 0.4;
   private static final double[] EXPIRIES = new double[] {0.1, 0.2, 0.3, 0.5, 0.75, 1, 1.25, 1.5, 2 };
   private static final double[][] STRIKES = new double[][] { {0.7, 0.8, 0.8, 1.0, 1.1, 1.2, 1.3 }, {0.7, 0.8, 0.8, 1.0, 1.1, 1.2, 1.3 }, {0.7, 0.8, 0.8, 1.0, 1.1, 1.2, 1.3 },
-      {0.7, 0.8, 0.8, 1.0, 1.1, 1.2, 1.3 }, {0.6, 0.8, 1.0, 1.2, 1.4 }, {0.5, 0.75, 1.0, 1.25, 1.5 }, {0.5, 0.75, 1.0, 1.25, 1.5 }, {0.5, 0.75, 1.0, 1.25, 1.5 },
-      {0.4, 0.7, 1.0, 1.3, 1.6 } };
+    {0.7, 0.8, 0.8, 1.0, 1.1, 1.2, 1.3 }, {0.6, 0.8, 1.0, 1.2, 1.4 }, {0.5, 0.75, 1.0, 1.25, 1.5 }, {0.5, 0.75, 1.0, 1.25, 1.5 }, {0.5, 0.75, 1.0, 1.25, 1.5 }, {0.4, 0.7, 1.0, 1.3, 1.6 } };
 
-  @Test
-      (enabled = false)
-      public void test() {
+  @Test(enabled = false)
+  public void test() {
     final int nExp = EXPIRIES.length;
     int temp = 0;
     for (int i = 0; i < nExp; i++) {
@@ -122,11 +123,10 @@ public class LocalVolFittingTest {
     final List<Function1D<double[], Double>> bSplines = _generator.generateSet(xa, xb, nKnots, degree);
     final int nWeights = bSplines.size();
 
-    final PSplineFitter psf = new PSplineFitter();
-    DoubleMatrix2D ma = (DoubleMatrix2D) _algebra.scale(psf.getPenaltyMatrix(sizes, differenceOrder[0], 0), lambda[0]);
+    DoubleMatrix2D ma = (DoubleMatrix2D) _algebra.scale(PenaltyMatrixGenerator.getPenaltyMatrix(sizes, differenceOrder[0], 0), lambda[0]);
     for (int i = 1; i < dim; i++) {
       if (lambda[i] > 0.0) {
-        final DoubleMatrix2D d = psf.getPenaltyMatrix(sizes, differenceOrder[i], i);
+        final DoubleMatrix2D d = PenaltyMatrixGenerator.getPenaltyMatrix(sizes, differenceOrder[i], i);
         ma = (DoubleMatrix2D) _algebra.add(ma, _algebra.scale(d, lambda[i]));
       }
     }
@@ -250,7 +250,7 @@ public class LocalVolFittingTest {
     };
 
     final PSplineFitter psf = new PSplineFitter();
-    final DoubleMatrix2D penalty = (DoubleMatrix2D) _algebra.scale(psf.getPenaltyMatrix(nKnots, 2), 0.01);
+    final DoubleMatrix2D penalty = (DoubleMatrix2D) _algebra.scale(PenaltyMatrixGenerator.getPenaltyMatrix(nKnots, 2), 0.01);
 
     final double[] start = new double[nKnots];
     // Arrays.fill(start, 0.4);
@@ -400,7 +400,7 @@ public class LocalVolFittingTest {
 
       @Override
       public Double evaluate(final Double... x) {
-        final DoublesPair data = new DoublesPair(x[0], x[1]);
+        final DoublesPair data = DoublesPair.of(x[0].doubleValue(), x[1].doubleValue());
         return INTERPOLATOR.interpolate(idb, data);
       }
     };

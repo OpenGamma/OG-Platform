@@ -7,6 +7,7 @@ package com.opengamma.financial.security.forward;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -18,6 +19,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
@@ -26,6 +28,7 @@ import com.opengamma.util.time.Expiry;
  * A security for commodity forwards.
  */
 @BeanDefinition
+@SecurityDescription(type = CommodityForwardSecurity.SECURITY_TYPE, description = "Commodity forward")
 public abstract class CommodityForwardSecurity extends FinancialSecurity {
 
   /** Serialization version. */
@@ -109,95 +112,6 @@ public abstract class CommodityForwardSecurity extends FinancialSecurity {
   @Override
   public CommodityForwardSecurity.Meta metaBean() {
     return CommodityForwardSecurity.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 2053402093:  // unitNumber
-        return getUnitNumber();
-      case -292854225:  // unitName
-        return getUnitName();
-      case -1289159373:  // expiry
-        return getExpiry();
-      case 575402001:  // currency
-        return getCurrency();
-      case 1673913084:  // unitAmount
-        return getUnitAmount();
-      case -666828752:  // contractCategory
-        return getContractCategory();
-      case -771625640:  // underlyingId
-        return getUnderlyingId();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 2053402093:  // unitNumber
-        setUnitNumber((Double) newValue);
-        return;
-      case -292854225:  // unitName
-        setUnitName((String) newValue);
-        return;
-      case -1289159373:  // expiry
-        setExpiry((Expiry) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((Currency) newValue);
-        return;
-      case 1673913084:  // unitAmount
-        setUnitAmount((Double) newValue);
-        return;
-      case -666828752:  // contractCategory
-        setContractCategory((String) newValue);
-        return;
-      case -771625640:  // underlyingId
-        setUnderlyingId((ExternalId) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_expiry, "expiry");
-    JodaBeanUtils.notNull(_currency, "currency");
-    JodaBeanUtils.notNull(_contractCategory, "contractCategory");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CommodityForwardSecurity other = (CommodityForwardSecurity) obj;
-      return JodaBeanUtils.equal(getUnitNumber(), other.getUnitNumber()) &&
-          JodaBeanUtils.equal(getUnitName(), other.getUnitName()) &&
-          JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getUnitAmount(), other.getUnitAmount()) &&
-          JodaBeanUtils.equal(getContractCategory(), other.getContractCategory()) &&
-          JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnitNumber());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnitName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExpiry());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnitAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getContractCategory());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -379,6 +293,64 @@ public abstract class CommodityForwardSecurity extends FinancialSecurity {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CommodityForwardSecurity other = (CommodityForwardSecurity) obj;
+      return JodaBeanUtils.equal(getUnitNumber(), other.getUnitNumber()) &&
+          JodaBeanUtils.equal(getUnitName(), other.getUnitName()) &&
+          JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getUnitAmount(), other.getUnitAmount()) &&
+          JodaBeanUtils.equal(getContractCategory(), other.getContractCategory()) &&
+          JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnitNumber());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnitName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiry());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnitAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getContractCategory());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(256);
+    buf.append("CommodityForwardSecurity{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("unitNumber").append('=').append(JodaBeanUtils.toString(getUnitNumber())).append(',').append(' ');
+    buf.append("unitName").append('=').append(JodaBeanUtils.toString(getUnitName())).append(',').append(' ');
+    buf.append("expiry").append('=').append(JodaBeanUtils.toString(getExpiry())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("unitAmount").append('=').append(JodaBeanUtils.toString(getUnitAmount())).append(',').append(' ');
+    buf.append("contractCategory").append('=').append(JodaBeanUtils.toString(getContractCategory())).append(',').append(' ');
+    buf.append("underlyingId").append('=').append(JodaBeanUtils.toString(getUnderlyingId())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code CommodityForwardSecurity}.
    */
@@ -533,6 +505,64 @@ public abstract class CommodityForwardSecurity extends FinancialSecurity {
      */
     public final MetaProperty<ExternalId> underlyingId() {
       return _underlyingId;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 2053402093:  // unitNumber
+          return ((CommodityForwardSecurity) bean).getUnitNumber();
+        case -292854225:  // unitName
+          return ((CommodityForwardSecurity) bean).getUnitName();
+        case -1289159373:  // expiry
+          return ((CommodityForwardSecurity) bean).getExpiry();
+        case 575402001:  // currency
+          return ((CommodityForwardSecurity) bean).getCurrency();
+        case 1673913084:  // unitAmount
+          return ((CommodityForwardSecurity) bean).getUnitAmount();
+        case -666828752:  // contractCategory
+          return ((CommodityForwardSecurity) bean).getContractCategory();
+        case -771625640:  // underlyingId
+          return ((CommodityForwardSecurity) bean).getUnderlyingId();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 2053402093:  // unitNumber
+          ((CommodityForwardSecurity) bean).setUnitNumber((Double) newValue);
+          return;
+        case -292854225:  // unitName
+          ((CommodityForwardSecurity) bean).setUnitName((String) newValue);
+          return;
+        case -1289159373:  // expiry
+          ((CommodityForwardSecurity) bean).setExpiry((Expiry) newValue);
+          return;
+        case 575402001:  // currency
+          ((CommodityForwardSecurity) bean).setCurrency((Currency) newValue);
+          return;
+        case 1673913084:  // unitAmount
+          ((CommodityForwardSecurity) bean).setUnitAmount((Double) newValue);
+          return;
+        case -666828752:  // contractCategory
+          ((CommodityForwardSecurity) bean).setContractCategory((String) newValue);
+          return;
+        case -771625640:  // underlyingId
+          ((CommodityForwardSecurity) bean).setUnderlyingId((ExternalId) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((CommodityForwardSecurity) bean)._expiry, "expiry");
+      JodaBeanUtils.notNull(((CommodityForwardSecurity) bean)._currency, "currency");
+      JodaBeanUtils.notNull(((CommodityForwardSecurity) bean)._contractCategory, "contractCategory");
+      super.validate(bean);
     }
 
   }

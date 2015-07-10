@@ -10,7 +10,6 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
-import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
@@ -23,12 +22,8 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Description of Deliverable Interest Rate Swap Futures as traded on CME.
  */
-public class SwapFuturesPriceDeliverableSecurityDefinition implements InstrumentDefinitionWithData<SwapFuturesPriceDeliverableSecurity, Double> {
+public class SwapFuturesPriceDeliverableSecurityDefinition extends FuturesSecurityDefinition<SwapFuturesPriceDeliverableSecurity> {
 
-  /**
-   * The futures last trading date. The date for which the delivery date is the spot date.
-   */
-  private final ZonedDateTime _lastTradingDate;
   /**
    * The delivery date. Usually the third Wednesday of the month is the spot date.
    */
@@ -49,10 +44,9 @@ public class SwapFuturesPriceDeliverableSecurityDefinition implements Instrument
    * @param notional The notional of the future.
    */
   public SwapFuturesPriceDeliverableSecurityDefinition(final ZonedDateTime lastTradingDate, final SwapFixedIborDefinition underlyingSwap, final double notional) {
-    ArgumentChecker.notNull(lastTradingDate, "Last trading date");
+    super(lastTradingDate);
     ArgumentChecker.notNull(underlyingSwap, "Swap");
     ArgumentChecker.isTrue(Math.abs(underlyingSwap.getFixedLeg().getNthPayment(0).getNotional() - 1.0) < 1.0E-10, "Swap should be receiver of notional 1");
-    _lastTradingDate = lastTradingDate;
     _deliveryDate = underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate();
     _underlyingSwap = underlyingSwap;
     _notional = notional;
@@ -74,14 +68,6 @@ public class SwapFuturesPriceDeliverableSecurityDefinition implements Instrument
     final ZonedDateTime lastTradingDate = ScheduleCalculator.getAdjustedDate(effectiveDate, -generator.getSpotLag(), generator.getCalendar());
     final SwapFixedIborDefinition swap = SwapFixedIborDefinition.from(effectiveDate, tenor, generator, 1.0, rate, false);
     return new SwapFuturesPriceDeliverableSecurityDefinition(lastTradingDate, swap, notional);
-  }
-
-  /**
-   * Returns the futures last trading date.
-   * @return The date.
-   */
-  public ZonedDateTime getLastTradingDate() {
-    return _lastTradingDate;
   }
 
   /**
@@ -108,40 +94,12 @@ public class SwapFuturesPriceDeliverableSecurityDefinition implements Instrument
     return _notional;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public SwapFuturesPriceDeliverableSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    final double lastTradingTime = TimeCalculator.getTimeBetween(date, _lastTradingDate);
-    final double deliveryTime = TimeCalculator.getTimeBetween(date, _deliveryDate);
-    final SwapFixedCoupon<? extends Coupon> underlyingSwap = _underlyingSwap.toDerivative(date, yieldCurveNames);
-    return new SwapFuturesPriceDeliverableSecurity(lastTradingTime, deliveryTime, underlyingSwap, _notional);
-  }
-
   @Override
   public SwapFuturesPriceDeliverableSecurity toDerivative(final ZonedDateTime date) {
-    final double lastTradingTime = TimeCalculator.getTimeBetween(date, _lastTradingDate);
+    final double lastTradingTime = TimeCalculator.getTimeBetween(date, getLastTradingDate());
     final double deliveryTime = TimeCalculator.getTimeBetween(date, _deliveryDate);
     final SwapFixedCoupon<? extends Coupon> underlyingSwap = _underlyingSwap.toDerivative(date);
     return new SwapFuturesPriceDeliverableSecurity(lastTradingTime, deliveryTime, underlyingSwap, _notional);
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public SwapFuturesPriceDeliverableSecurity toDerivative(final ZonedDateTime date, final Double data, final String... yieldCurveNames) {
-    return toDerivative(date, data);
-  }
-
-  @Override
-  public SwapFuturesPriceDeliverableSecurity toDerivative(final ZonedDateTime date, final Double data) {
-    return toDerivative(date);
   }
 
   @Override
@@ -167,9 +125,8 @@ public class SwapFuturesPriceDeliverableSecurityDefinition implements Instrument
   @Override
   public int hashCode() {
     final int prime = 31;
-    int result = 1;
+    int result = super.hashCode();
     result = prime * result + _deliveryDate.hashCode();
-    result = prime * result + _lastTradingDate.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_notional);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -182,6 +139,9 @@ public class SwapFuturesPriceDeliverableSecurityDefinition implements Instrument
     if (this == obj) {
       return true;
     }
+    if (!super.equals(obj)) {
+      return false;
+    }
     if (obj == null) {
       return false;
     }
@@ -190,9 +150,6 @@ public class SwapFuturesPriceDeliverableSecurityDefinition implements Instrument
     }
     final SwapFuturesPriceDeliverableSecurityDefinition other = (SwapFuturesPriceDeliverableSecurityDefinition) obj;
     if (!ObjectUtils.equals(_deliveryDate, other._deliveryDate)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_lastTradingDate, other._lastTradingDate)) {
       return false;
     }
     if (Double.doubleToLongBits(_notional) != Double.doubleToLongBits(other._notional)) {

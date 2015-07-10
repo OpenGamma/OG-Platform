@@ -12,6 +12,7 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractRemoteClient;
 
@@ -23,7 +24,7 @@ public class RemoteInterpolatedYieldCurveSpecificationBuilder extends AbstractRe
   /**
    * Creates an instance.
    * 
-   * @param baseUri  the base target URI for all RESTful web services, not null
+   * @param baseUri the base target URI for all RESTful web services, not null
    */
   public RemoteInterpolatedYieldCurveSpecificationBuilder(final URI baseUri) {
     super(baseUri);
@@ -31,11 +32,11 @@ public class RemoteInterpolatedYieldCurveSpecificationBuilder extends AbstractRe
 
   //-------------------------------------------------------------------------
   @Override
-  public InterpolatedYieldCurveSpecification buildCurve(LocalDate curveDate, YieldCurveDefinition curveDefinition) {
+  public InterpolatedYieldCurveSpecification buildCurve(LocalDate curveDate, YieldCurveDefinition curveDefinition, VersionCorrection version) {
     ArgumentChecker.notNull(curveDate, "curveDate");
     ArgumentChecker.notNull(curveDefinition, "curveDefinition");
-    
-    URI uri = DataInterpolatedYieldCurveSpecificationBuilderResource.uriBuildCurve(getBaseUri(), curveDate);
+    ArgumentChecker.notNull(version, "version");
+    URI uri = DataInterpolatedYieldCurveSpecificationBuilderResource.uriBuildCurve(getBaseUri(), curveDate, version);
     return accessRemote(uri).post(InterpolatedYieldCurveSpecification.class, curveDefinition);
   }
 

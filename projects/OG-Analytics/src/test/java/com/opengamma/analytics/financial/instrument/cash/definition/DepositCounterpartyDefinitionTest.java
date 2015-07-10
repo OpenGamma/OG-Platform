@@ -20,8 +20,13 @@ import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class DepositCounterpartyDefinitionTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
@@ -85,76 +90,6 @@ public class DepositCounterpartyDefinitionTest {
     assertEquals("DepositDefinition: from", on, fromTradeON);
     final DepositCounterpartDefinition fromStartON = DepositCounterpartDefinition.fromStart(startDate, NOTIONAL, RATE, GENERATOR, COUNTERPART);
     assertEquals("DepositDefinition: from", on, fromStartON);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Tests toDerivative.
-   */
-  public void toDerivativeTradeDeprecated() {
-    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
-    final DepositCounterpart converted = DEPOSIT_CTP_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
-    final double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
-    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
-    final DepositCounterpart expected = new DepositCounterpart(EUR, startTime, endTime, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, COUNTERPART, CURVE_NAME);
-    assertEquals("DepositDefinition: toDerivative", expected, converted);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Tests toDerivative.
-   */
-  public void toDerivativeBetweenTradeAndSettleDeprecated() {
-    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 13);
-    final DepositCounterpart converted = DEPOSIT_CTP_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
-    final double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
-    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
-    final DepositCounterpart expected = new DepositCounterpart(EUR, startTime, endTime, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, COUNTERPART, CURVE_NAME);
-    assertEquals("DepositDefinition: toDerivative", expected, converted);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Tests toDerivative.
-   */
-  public void toDerivativeSettleDeprecated() {
-    final ZonedDateTime referenceDate = SPOT_DATE;
-    final DepositCounterpart converted = DEPOSIT_CTP_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
-    final double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
-    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
-    final DepositCounterpart expected = new DepositCounterpart(EUR, startTime, endTime, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, COUNTERPART, CURVE_NAME);
-    assertEquals("DepositDefinition: toDerivative", expected, converted);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Tests toDerivative.
-   */
-  public void toDerivativeBetweenSettleMaturityDeprecated() {
-    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 20);
-    final DepositCounterpart converted = DEPOSIT_CTP_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
-    final double startTime = 0;
-    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
-    final DepositCounterpart expected = new DepositCounterpart(EUR, startTime, endTime, NOTIONAL, 0, RATE, DEPOSIT_AF, COUNTERPART, CURVE_NAME);
-    assertEquals("DepositDefinition: toDerivative", expected, converted);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Tests toDerivative.
-   */
-  public void toDerivativeMaturityDeprecated() {
-    final ZonedDateTime referenceDate = END_DATE;
-    final DepositCounterpart converted = DEPOSIT_CTP_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
-    final double startTime = 0;
-    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
-    final DepositCounterpart expected = new DepositCounterpart(EUR, startTime, endTime, NOTIONAL, 0, RATE, DEPOSIT_AF, COUNTERPART, CURVE_NAME);
-    assertEquals("DepositDefinition: toDerivative", expected, converted);
   }
 
   @Test

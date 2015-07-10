@@ -50,7 +50,7 @@ public class SVIModelFitter extends SmileModelFitter<SVIFormulaData> {
   }
 
   @Override
-  protected SVIFormulaData toSmileModelData(final DoubleMatrix1D modelParameters) {
+  public SVIFormulaData toSmileModelData(final DoubleMatrix1D modelParameters) {
     return new SVIFormulaData(modelParameters.getData());
   }
 

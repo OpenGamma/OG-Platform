@@ -10,6 +10,7 @@ import java.util.Map;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -50,6 +51,8 @@ public class BondFutureOptionSecurityBean extends SecurityBean {
   private Double _pointValue;
   @PropertyDefinition
   private ExternalIdBean _underlying;
+  @PropertyDefinition
+  private boolean _margined;
 
   public BondFutureOptionSecurityBean() {
     super();
@@ -72,6 +75,7 @@ public class BondFutureOptionSecurityBean extends SecurityBean {
       .append(getSettlementExchange(), option.getSettlementExchange())
       .append(getPointValue(), option.getPointValue())
       .append(getOptionExerciseType(), option.getOptionExerciseType())
+      .append(isMargined(), option.isMargined())
       .isEquals();
   }
 
@@ -87,6 +91,7 @@ public class BondFutureOptionSecurityBean extends SecurityBean {
       .append(getSettlementExchange())
       .append(getPointValue())
       .append(getOptionExerciseType())
+      .append(isMargined())
       .toHashCode();
   }
 
@@ -112,65 +117,6 @@ public class BondFutureOptionSecurityBean extends SecurityBean {
   @Override
   public BondFutureOptionSecurityBean.Meta metaBean() {
     return BondFutureOptionSecurityBean.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -266326457:  // optionExerciseType
-        return getOptionExerciseType();
-      case 1373587791:  // optionType
-        return getOptionType();
-      case -891985998:  // strike
-        return getStrike();
-      case -1289159373:  // expiry
-        return getExpiry();
-      case 575402001:  // currency
-        return getCurrency();
-      case -661485980:  // tradingExchange
-        return getTradingExchange();
-      case 389497452:  // settlementExchange
-        return getSettlementExchange();
-      case 1257391553:  // pointValue
-        return getPointValue();
-      case -1770633379:  // underlying
-        return getUnderlying();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -266326457:  // optionExerciseType
-        setOptionExerciseType((OptionExerciseType) newValue);
-        return;
-      case 1373587791:  // optionType
-        setOptionType((OptionType) newValue);
-        return;
-      case -891985998:  // strike
-        setStrike((Double) newValue);
-        return;
-      case -1289159373:  // expiry
-        setExpiry((ExpiryBean) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((CurrencyBean) newValue);
-        return;
-      case -661485980:  // tradingExchange
-        setTradingExchange((ExchangeBean) newValue);
-        return;
-      case 389497452:  // settlementExchange
-        setSettlementExchange((ExchangeBean) newValue);
-        return;
-      case 1257391553:  // pointValue
-        setPointValue((Double) newValue);
-        return;
-      case -1770633379:  // underlying
-        setUnderlying((ExternalIdBean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
   }
 
   //-----------------------------------------------------------------------
@@ -400,6 +346,37 @@ public class BondFutureOptionSecurityBean extends SecurityBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the margined.
+   * @return the value of the property
+   */
+  public boolean isMargined() {
+    return _margined;
+  }
+
+  /**
+   * Sets the margined.
+   * @param margined  the new value of the property
+   */
+  public void setMargined(boolean margined) {
+    this._margined = margined;
+  }
+
+  /**
+   * Gets the the {@code margined} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> margined() {
+    return metaBean().margined().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public BondFutureOptionSecurityBean clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code BondFutureOptionSecurityBean}.
    */
   public static class Meta extends SecurityBean.Meta {
@@ -454,6 +431,11 @@ public class BondFutureOptionSecurityBean extends SecurityBean {
     private final MetaProperty<ExternalIdBean> _underlying = DirectMetaProperty.ofReadWrite(
         this, "underlying", BondFutureOptionSecurityBean.class, ExternalIdBean.class);
     /**
+     * The meta-property for the {@code margined} property.
+     */
+    private final MetaProperty<Boolean> _margined = DirectMetaProperty.ofReadWrite(
+        this, "margined", BondFutureOptionSecurityBean.class, Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -466,7 +448,8 @@ public class BondFutureOptionSecurityBean extends SecurityBean {
         "tradingExchange",
         "settlementExchange",
         "pointValue",
-        "underlying");
+        "underlying",
+        "margined");
 
     /**
      * Restricted constructor.
@@ -495,6 +478,8 @@ public class BondFutureOptionSecurityBean extends SecurityBean {
           return _pointValue;
         case -1770633379:  // underlying
           return _underlying;
+        case 243392205:  // margined
+          return _margined;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -585,6 +570,79 @@ public class BondFutureOptionSecurityBean extends SecurityBean {
      */
     public final MetaProperty<ExternalIdBean> underlying() {
       return _underlying;
+    }
+
+    /**
+     * The meta-property for the {@code margined} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> margined() {
+      return _margined;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -266326457:  // optionExerciseType
+          return ((BondFutureOptionSecurityBean) bean).getOptionExerciseType();
+        case 1373587791:  // optionType
+          return ((BondFutureOptionSecurityBean) bean).getOptionType();
+        case -891985998:  // strike
+          return ((BondFutureOptionSecurityBean) bean).getStrike();
+        case -1289159373:  // expiry
+          return ((BondFutureOptionSecurityBean) bean).getExpiry();
+        case 575402001:  // currency
+          return ((BondFutureOptionSecurityBean) bean).getCurrency();
+        case -661485980:  // tradingExchange
+          return ((BondFutureOptionSecurityBean) bean).getTradingExchange();
+        case 389497452:  // settlementExchange
+          return ((BondFutureOptionSecurityBean) bean).getSettlementExchange();
+        case 1257391553:  // pointValue
+          return ((BondFutureOptionSecurityBean) bean).getPointValue();
+        case -1770633379:  // underlying
+          return ((BondFutureOptionSecurityBean) bean).getUnderlying();
+        case 243392205:  // margined
+          return ((BondFutureOptionSecurityBean) bean).isMargined();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -266326457:  // optionExerciseType
+          ((BondFutureOptionSecurityBean) bean).setOptionExerciseType((OptionExerciseType) newValue);
+          return;
+        case 1373587791:  // optionType
+          ((BondFutureOptionSecurityBean) bean).setOptionType((OptionType) newValue);
+          return;
+        case -891985998:  // strike
+          ((BondFutureOptionSecurityBean) bean).setStrike((Double) newValue);
+          return;
+        case -1289159373:  // expiry
+          ((BondFutureOptionSecurityBean) bean).setExpiry((ExpiryBean) newValue);
+          return;
+        case 575402001:  // currency
+          ((BondFutureOptionSecurityBean) bean).setCurrency((CurrencyBean) newValue);
+          return;
+        case -661485980:  // tradingExchange
+          ((BondFutureOptionSecurityBean) bean).setTradingExchange((ExchangeBean) newValue);
+          return;
+        case 389497452:  // settlementExchange
+          ((BondFutureOptionSecurityBean) bean).setSettlementExchange((ExchangeBean) newValue);
+          return;
+        case 1257391553:  // pointValue
+          ((BondFutureOptionSecurityBean) bean).setPointValue((Double) newValue);
+          return;
+        case -1770633379:  // underlying
+          ((BondFutureOptionSecurityBean) bean).setUnderlying((ExternalIdBean) newValue);
+          return;
+        case 243392205:  // margined
+          ((BondFutureOptionSecurityBean) bean).setMargined((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

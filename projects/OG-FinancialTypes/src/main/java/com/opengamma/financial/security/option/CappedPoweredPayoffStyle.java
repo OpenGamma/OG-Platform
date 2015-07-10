@@ -7,6 +7,7 @@ package com.opengamma.financial.security.option;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -79,52 +80,6 @@ public class CappedPoweredPayoffStyle extends PayoffStyle {
     return CappedPoweredPayoffStyle.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 106858757:  // power
-        return getPower();
-      case 98258:  // cap
-        return getCap();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 106858757:  // power
-        setPower((Double) newValue);
-        return;
-      case 98258:  // cap
-        setCap((Double) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CappedPoweredPayoffStyle other = (CappedPoweredPayoffStyle) obj;
-      return JodaBeanUtils.equal(getPower(), other.getPower()) &&
-          JodaBeanUtils.equal(getCap(), other.getCap()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPower());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCap());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the power.
@@ -173,6 +128,54 @@ public class CappedPoweredPayoffStyle extends PayoffStyle {
    */
   public final Property<Double> cap() {
     return metaBean().cap().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public CappedPoweredPayoffStyle clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CappedPoweredPayoffStyle other = (CappedPoweredPayoffStyle) obj;
+      return JodaBeanUtils.equal(getPower(), other.getPower()) &&
+          JodaBeanUtils.equal(getCap(), other.getCap()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPower());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCap());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("CappedPoweredPayoffStyle{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("power").append('=').append(JodaBeanUtils.toString(getPower())).append(',').append(' ');
+    buf.append("cap").append('=').append(JodaBeanUtils.toString(getCap())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -250,6 +253,31 @@ public class CappedPoweredPayoffStyle extends PayoffStyle {
      */
     public final MetaProperty<Double> cap() {
       return _cap;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 106858757:  // power
+          return ((CappedPoweredPayoffStyle) bean).getPower();
+        case 98258:  // cap
+          return ((CappedPoweredPayoffStyle) bean).getCap();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 106858757:  // power
+          ((CappedPoweredPayoffStyle) bean).setPower((Double) newValue);
+          return;
+        case 98258:  // cap
+          ((CappedPoweredPayoffStyle) bean).setCap((Double) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.depgraph.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -26,7 +31,12 @@ import com.opengamma.financial.depgraph.rest.DependencyGraphTraceBuilderProperti
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class RemoteDependencyGraphTraceProviderTest {
 
   private RemoteDependencyGraphTraceProvider _provider;
@@ -72,15 +82,16 @@ public class RemoteDependencyGraphTraceProviderTest {
   public void getTraceDefaultProperties() {
     DependencyGraphTraceBuilderProperties properties = new DependencyGraphTraceBuilderProperties();
 
-    String defaultPropertiesStr = "{A=[foo,bar],B=[*]}";
-    ValueProperties parsed = ValueProperties.parse(defaultPropertiesStr);
+    String defaultPropertiesStr1 = "{A=[foo,bar],B=[*]}";
+    String defaultPropertiesStr2 = "{A=[bar,foo],B=[*]}";
+    ValueProperties parsed = ValueProperties.parse(defaultPropertiesStr1);
 
     properties = properties.defaultProperties(parsed);
 
     URI uri = _provider.buildUri(properties);
 
     String uriStr = decode(uri);
-    assertTrue(uriStr.contains("defaultProperties/" + defaultPropertiesStr));
+    assertTrue(uriStr.contains("defaultProperties/" + defaultPropertiesStr1) || uriStr.contains("defaultProperties/" + defaultPropertiesStr2));
 
   }
 

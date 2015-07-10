@@ -18,6 +18,7 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.LocalDateRange;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Abstract implementation of a provider of time-series.
@@ -78,7 +79,7 @@ public abstract class AbstractHistoricalTimeSeriesProvider implements Historical
     if (series == null || series.isEmpty()) {
       return null;
     }
-    return Pair.of(series.getLatestTime(), series.getLatestValue());
+    return Pairs.of(series.getLatestTime(), series.getLatestValueFast());
   }
 
   @Override
@@ -167,17 +168,17 @@ public abstract class AbstractHistoricalTimeSeriesProvider implements Historical
    */
   protected LocalDateDoubleTimeSeries filterResult(LocalDateDoubleTimeSeries hts, LocalDateRange dateRange, Integer maxPoints) {
     // filter by dates
-    hts = hts.subSeries(dateRange.getStartDateInclusive(), dateRange.getEndDateExclusive());
+    LocalDateDoubleTimeSeries result = hts.subSeries(dateRange.getStartDateInclusive(), dateRange.getEndDateExclusive());
     
     // filter by points
     if (maxPoints != null && hts.size() > Math.abs(maxPoints)) {
       if (maxPoints < 0) {
-        hts = hts.tail(-maxPoints);
+        result = result.tail(-maxPoints);
       } else {
-        hts = hts.head(maxPoints);
+        result = result.head(maxPoints);
       }
     }
-    return hts;
+    return result;
   }
 
   //-------------------------------------------------------------------------

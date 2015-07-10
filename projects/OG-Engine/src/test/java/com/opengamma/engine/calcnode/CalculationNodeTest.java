@@ -19,12 +19,6 @@ import com.google.common.collect.Iterables;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.cache.ViewComputationCache;
-import com.opengamma.engine.calcnode.CalculationJob;
-import com.opengamma.engine.calcnode.CalculationJobResult;
-import com.opengamma.engine.calcnode.CalculationJobResultItem;
-import com.opengamma.engine.calcnode.InvocationResult;
-import com.opengamma.engine.calcnode.MissingInputException;
-import com.opengamma.engine.calcnode.SimpleCalculationNode;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.test.CalculationNodeUtils;
@@ -44,6 +38,7 @@ import com.opengamma.util.log.LogLevel;
 import com.opengamma.util.log.SimpleLogEvent;
 import com.opengamma.util.log.ThreadLocalLogEventListener;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.test.TestLifecycle;
 
 /**
  * Tests the {@link SimpleCalculationNode} class. Note the name so that Clover doesn't ignore it.
@@ -52,95 +47,119 @@ import com.opengamma.util.test.TestGroup;
 public class CalculationNodeTest {
 
   public void mockFunctionInvocationOneInputMissing() throws Exception {
-    final MockFunction mockFunction = CalculationNodeUtils.getMockFunction();
-    final TestCalculationNode calcNode = CalculationNodeUtils.getTestCalcNode(mockFunction);
-    final CalculationJob calcJob = CalculationNodeUtils.getCalculationJob(mockFunction);
+    TestLifecycle.begin();
+    try {
+      final MockFunction mockFunction = CalculationNodeUtils.getMockFunction();
+      final TestCalculationNode calcNode = CalculationNodeUtils.getTestCalcNode(mockFunction);
+      TestLifecycle.register(calcNode);
+      final CalculationJob calcJob = CalculationNodeUtils.getCalculationJob(mockFunction);
 
-    final long startTime = System.nanoTime();
-    final CalculationJobResult jobResult = calcNode.executeJob(calcJob);
-    final long endTime = System.nanoTime();
-    assertNotNull(jobResult);
-    assertTrue(jobResult.getDuration() >= 0);
-    assertTrue(endTime - startTime >= jobResult.getDuration());
-    assertEquals(1, jobResult.getResultItems().size());
-    final CalculationJobResultItem resultItem = jobResult.getResultItems().get(0);
-    assertEquals(InvocationResult.MISSING_INPUTS, resultItem.getResult());
+      final long startTime = System.nanoTime();
+      final CalculationJobResult jobResult = calcNode.executeJob(calcJob);
+      final long endTime = System.nanoTime();
+      assertNotNull(jobResult);
+      assertTrue(jobResult.getDuration() >= 0);
+      assertTrue(endTime - startTime >= jobResult.getDuration());
+      assertEquals(1, jobResult.getResultItems().size());
+      final CalculationJobResultItem resultItem = jobResult.getResultItems().get(0);
+      assertEquals(InvocationResult.MISSING_INPUTS, resultItem.getResult());
 
-    final ExecutionLog executionLog = resultItem.getExecutionLog();
-    assertNotNull(executionLog);
-    assertEquals(MissingInputException.class.getName(), executionLog.getExceptionClass());
-    assertEquals("Unable to execute because of 1 missing input(s)", executionLog.getExceptionMessage());
-    assertNull(executionLog.getExceptionStackTrace());
+      final ExecutionLog executionLog = resultItem.getExecutionLog();
+      assertNotNull(executionLog);
+      assertEquals(MissingInputException.class.getName(), executionLog.getExceptionClass());
+      assertEquals("Unable to execute because of 1 missing input(s)", executionLog.getExceptionMessage());
+      assertNull(executionLog.getExceptionStackTrace());
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void mockFunctionInvocationOneInputOneOutput() throws Exception {
-    final MockFunction mockFunction = CalculationNodeUtils.getMockFunction();
-    final TestCalculationNode calcNode = CalculationNodeUtils.getTestCalcNode(mockFunction);
-    final CalculationJob calcJob = CalculationNodeUtils.getCalculationJob(mockFunction);
-    final ValueSpecification inputSpec = CalculationNodeUtils.getMockFunctionInputs(mockFunction).iterator().next();
-    final ComputedValue inputValue = new ComputedValue(inputSpec, "Just an input object");
+    TestLifecycle.begin();
+    try {
+      final MockFunction mockFunction = CalculationNodeUtils.getMockFunction();
+      final TestCalculationNode calcNode = CalculationNodeUtils.getTestCalcNode(mockFunction);
+      TestLifecycle.register(calcNode);
+      final CalculationJob calcJob = CalculationNodeUtils.getCalculationJob(mockFunction);
+      final ValueSpecification inputSpec = CalculationNodeUtils.getMockFunctionInputs(mockFunction).iterator().next();
+      final ComputedValue inputValue = new ComputedValue(inputSpec, "Just an input object");
 
-    final ViewComputationCache cache = calcNode.getCache(calcJob.getSpecification());
-    cache.putSharedValue(inputValue);
+      final ViewComputationCache cache = calcNode.getCache(calcJob.getSpecification());
+      cache.putSharedValue(inputValue);
 
-    final CalculationJobResult jobResult = calcNode.executeJob(calcJob);
-    assertNotNull(jobResult);
-    assertEquals(1, jobResult.getResultItems().size());
-    final CalculationJobResultItem resultItem = jobResult.getResultItems().get(0);
-    assertEquals(InvocationResult.SUCCESS, resultItem.getResult());
-    assertEquals("Nothing we care about", cache.getValue(mockFunction.getResultSpec()));
+      final CalculationJobResult jobResult = calcNode.executeJob(calcJob);
+      assertNotNull(jobResult);
+      assertEquals(1, jobResult.getResultItems().size());
+      final CalculationJobResultItem resultItem = jobResult.getResultItems().get(0);
+      assertEquals(InvocationResult.SUCCESS, resultItem.getResult());
+      assertEquals("Nothing we care about", cache.getValue(mockFunction.getResultSpec()));
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   //-------------------------------------------------------------------------
   public void testLogIndicators() throws Exception {
-    final MockFunction mockFunction = getMockLoggingFunction();
-    final ThreadLocalLogEventListener logEventListener = new ThreadLocalLogEventListener();
-    final TestCalculationNode calcNode = new TestCalculationNode(logEventListener);
-    CalculationNodeUtils.configureTestCalcNode(calcNode, mockFunction);
-    final CalculationJob calcJob = CalculationNodeUtils.getCalculationJob(mockFunction, ExecutionLogMode.INDICATORS);
-    final CalculationJobResultItem resultItemLogIndicators = getResultWithLogging(mockFunction, logEventListener, calcNode, calcJob);
+    TestLifecycle.begin();
+    try {
+      final MockFunction mockFunction = getMockLoggingFunction();
+      final ThreadLocalLogEventListener logEventListener = new ThreadLocalLogEventListener();
+      final TestCalculationNode calcNode = new TestCalculationNode(logEventListener);
+      TestLifecycle.register(calcNode);
+      CalculationNodeUtils.configureTestCalcNode(calcNode, mockFunction);
+      final CalculationJob calcJob = CalculationNodeUtils.getCalculationJob(mockFunction, ExecutionLogMode.INDICATORS);
+      final CalculationJobResultItem resultItemLogIndicators = getResultWithLogging(mockFunction, logEventListener, calcNode, calcJob);
 
-    final ExecutionLog executionLog = resultItemLogIndicators.getExecutionLog();
-    assertNotNull(executionLog);
-    assertTrue(executionLog.getLogLevels().contains(LogLevel.WARN));
-    assertFalse(executionLog.getLogLevels().contains(LogLevel.ERROR));
-    assertFalse(executionLog.getLogLevels().contains(LogLevel.INFO));
-    
-    assertNull(executionLog.getEvents());
+      final ExecutionLog executionLog = resultItemLogIndicators.getExecutionLog();
+      assertNotNull(executionLog);
+      assertTrue(executionLog.getLogLevels().contains(LogLevel.WARN));
+      assertFalse(executionLog.getLogLevels().contains(LogLevel.ERROR));
+      assertFalse(executionLog.getLogLevels().contains(LogLevel.INFO));
 
-    assertNull(executionLog.getExceptionClass());
-    assertNull(executionLog.getExceptionMessage());
-    assertNull(executionLog.getExceptionStackTrace());
+      assertNull(executionLog.getEvents());
+
+      assertNull(executionLog.getExceptionClass());
+      assertNull(executionLog.getExceptionMessage());
+      assertNull(executionLog.getExceptionStackTrace());
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testLogFull() throws Exception {
-    final MockFunction mockFunction = getMockLoggingFunction();
-    final ThreadLocalLogEventListener logEventListener = new ThreadLocalLogEventListener();
-    final TestCalculationNode calcNode = new TestCalculationNode(logEventListener);
-    CalculationNodeUtils.configureTestCalcNode(calcNode, mockFunction);
-    final CalculationJob calcJob = CalculationNodeUtils.getCalculationJob(mockFunction, ExecutionLogMode.FULL);
-    final CalculationJobResultItem resultItemLogIndicators = getResultWithLogging(mockFunction, logEventListener, calcNode, calcJob);
+    TestLifecycle.begin();
+    try {
+      final MockFunction mockFunction = getMockLoggingFunction();
+      final ThreadLocalLogEventListener logEventListener = new ThreadLocalLogEventListener();
+      final TestCalculationNode calcNode = new TestCalculationNode(logEventListener);
+      TestLifecycle.register(calcNode);
+      CalculationNodeUtils.configureTestCalcNode(calcNode, mockFunction);
+      final CalculationJob calcJob = CalculationNodeUtils.getCalculationJob(mockFunction, ExecutionLogMode.FULL);
+      final CalculationJobResultItem resultItemLogIndicators = getResultWithLogging(mockFunction, logEventListener, calcNode, calcJob);
 
-    final ExecutionLog executionLog = resultItemLogIndicators.getExecutionLog();
-    assertNotNull(executionLog);
-    assertTrue(executionLog.getLogLevels().contains(LogLevel.WARN));
-    assertFalse(executionLog.getLogLevels().contains(LogLevel.ERROR));
-    assertFalse(executionLog.getLogLevels().contains(LogLevel.INFO));
-    
-    assertNotNull(executionLog.getEvents());
-    assertEquals(1, executionLog.getEvents().size());
-    final LogEvent event = Iterables.getOnlyElement(executionLog.getEvents());
-    assertNotNull(event);
-    assertEquals(LogLevel.WARN, event.getLevel());
-    assertEquals("Warning during execution", event.getMessage());
+      final ExecutionLog executionLog = resultItemLogIndicators.getExecutionLog();
+      assertNotNull(executionLog);
+      assertTrue(executionLog.getLogLevels().contains(LogLevel.WARN));
+      assertFalse(executionLog.getLogLevels().contains(LogLevel.ERROR));
+      assertFalse(executionLog.getLogLevels().contains(LogLevel.INFO));
 
-    assertNull(executionLog.getExceptionClass());
-    assertNull(executionLog.getExceptionMessage());
-    assertNull(executionLog.getExceptionStackTrace());
+      assertNotNull(executionLog.getEvents());
+      assertEquals(1, executionLog.getEvents().size());
+      final LogEvent event = Iterables.getOnlyElement(executionLog.getEvents());
+      assertNotNull(event);
+      assertEquals(LogLevel.WARN, event.getLevel());
+      assertEquals("Warning during execution", event.getMessage());
+
+      assertNull(executionLog.getExceptionClass());
+      assertNull(executionLog.getExceptionMessage());
+      assertNull(executionLog.getExceptionStackTrace());
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
-  private CalculationJobResultItem getResultWithLogging(final MockFunction mockFunction, final ThreadLocalLogEventListener logEventListener, final TestCalculationNode calcNode, final CalculationJob calcJob)
-      throws AsynchronousExecution {
+  private CalculationJobResultItem getResultWithLogging(final MockFunction mockFunction, final ThreadLocalLogEventListener logEventListener, final TestCalculationNode calcNode,
+      final CalculationJob calcJob) throws AsynchronousExecution {
     LogBridge.getInstance().addListener(logEventListener);
     CalculationJobResult jobResult;
     try {

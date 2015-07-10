@@ -10,10 +10,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.differentiation.FiniteDifferenceType;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DoubleFunction1DTest {
   private static final DoubleFunction1D F1 = new DoubleFunction1D() {
 

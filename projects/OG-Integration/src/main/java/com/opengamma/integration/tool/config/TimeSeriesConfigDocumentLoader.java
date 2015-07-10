@@ -35,14 +35,14 @@ public class TimeSeriesConfigDocumentLoader {
 
   private static HistoricalTimeSeriesRating buildDefaultConfig() {
     List<HistoricalTimeSeriesRatingRule> rules = new ArrayList<HistoricalTimeSeriesRatingRule>();
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, "BLOOMBERG", 2));
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, "REUTERS", 1));
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, STAR_VALUE, 0));
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, "CMPL", 3));
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, "CMPN", 2));
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, "CMPT", 1));
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, STAR_VALUE, 0));
-    return new HistoricalTimeSeriesRating(rules);
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_SOURCE_NAME, "BLOOMBERG", 2));
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_SOURCE_NAME, "REUTERS", 1));
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_SOURCE_NAME, STAR_VALUE, 0));
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_PROVIDER_NAME, "CMPL", 3));
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_PROVIDER_NAME, "CMPN", 2));
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_PROVIDER_NAME, "CMPT", 1));
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_PROVIDER_NAME, STAR_VALUE, 0));
+    return HistoricalTimeSeriesRating.of(rules);
   }
 
   public ConfigMaster getConfigMaster() {

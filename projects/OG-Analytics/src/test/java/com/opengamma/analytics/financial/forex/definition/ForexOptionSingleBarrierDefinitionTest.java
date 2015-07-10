@@ -17,11 +17,13 @@ import com.opengamma.analytics.financial.model.option.definition.Barrier.Barrier
 import com.opengamma.analytics.financial.model.option.definition.Barrier.KnockType;
 import com.opengamma.analytics.financial.model.option.definition.Barrier.ObservationType;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ForexOptionSingleBarrierDefinitionTest {
   private static final Currency CCY1 = Currency.AUD;
   private static final Currency CCY2 = Currency.CAD;
@@ -49,21 +51,9 @@ public class ForexOptionSingleBarrierDefinitionTest {
     new ForexOptionSingleBarrierDefinition(UNDERLYING, null);
   }
 
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullDateDeprecated() {
-    OPTION.toDerivative(null, "A", "B");
-  }
-
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDate() {
     OPTION.toDerivative(null);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullNames() {
-    OPTION.toDerivative(DATE, (String[]) null);
   }
 
   @Test
@@ -88,15 +78,6 @@ public class ForexOptionSingleBarrierDefinitionTest {
     assertFalse(OPTION_REBATE.equals(OPTION));
     assertFalse(OPTION_REBATE.equals(BARRIER));
     assertFalse(OPTION_REBATE.equals(null));
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  public void testToDerivativeDeprecated() {
-    final String[] names = new String[] {"USD", "EUR"};
-    final ForexOptionSingleBarrier derivative = OPTION.toDerivative(DATE, names);
-    assertEquals(derivative.getUnderlyingOption(), UNDERLYING.toDerivative(DATE, names));
-    assertEquals(derivative.getBarrier(), BARRIER);
   }
 
   @Test

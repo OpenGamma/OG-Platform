@@ -7,6 +7,7 @@ package com.opengamma.master.exchange;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -152,170 +153,6 @@ public class ManageableExchangeDetail extends DirectBean {
   @Override
   public ManageableExchangeDetail.Meta metaBean() {
     return ManageableExchangeDetail.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 992343760:  // productGroup
-        return getProductGroup();
-      case -1491817446:  // productName
-        return getProductName();
-      case -1491615543:  // productType
-        return getProductType();
-      case -1492131972:  // productCode
-        return getProductCode();
-      case 1952067524:  // calendarStart
-        return getCalendarStart();
-      case 404251837:  // calendarEnd
-        return getCalendarEnd();
-      case 1920217638:  // dayStart
-        return getDayStart();
-      case 761807323:  // dayRangeType
-        return getDayRangeType();
-      case -1338796129:  // dayEnd
-        return getDayEnd();
-      case -426196314:  // phaseName
-        return getPhaseName();
-      case -425994411:  // phaseType
-        return getPhaseType();
-      case -322011225:  // phaseStart
-        return getPhaseStart();
-      case -1676324512:  // phaseEnd
-        return getPhaseEnd();
-      case -882488205:  // randomStartMin
-        return getRandomStartMin();
-      case -882488443:  // randomStartMax
-        return getRandomStartMax();
-      case -961403366:  // randomEndMin
-        return getRandomEndMin();
-      case -961403604:  // randomEndMax
-        return getRandomEndMax();
-      case 1696487785:  // lastConfirmed
-        return getLastConfirmed();
-      case 105008833:  // notes
-        return getNotes();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 992343760:  // productGroup
-        setProductGroup((String) newValue);
-        return;
-      case -1491817446:  // productName
-        setProductName((String) newValue);
-        return;
-      case -1491615543:  // productType
-        setProductType((String) newValue);
-        return;
-      case -1492131972:  // productCode
-        setProductCode((String) newValue);
-        return;
-      case 1952067524:  // calendarStart
-        setCalendarStart((LocalDate) newValue);
-        return;
-      case 404251837:  // calendarEnd
-        setCalendarEnd((LocalDate) newValue);
-        return;
-      case 1920217638:  // dayStart
-        setDayStart((String) newValue);
-        return;
-      case 761807323:  // dayRangeType
-        setDayRangeType((String) newValue);
-        return;
-      case -1338796129:  // dayEnd
-        setDayEnd((String) newValue);
-        return;
-      case -426196314:  // phaseName
-        setPhaseName((String) newValue);
-        return;
-      case -425994411:  // phaseType
-        setPhaseType((String) newValue);
-        return;
-      case -322011225:  // phaseStart
-        setPhaseStart((LocalTime) newValue);
-        return;
-      case -1676324512:  // phaseEnd
-        setPhaseEnd((LocalTime) newValue);
-        return;
-      case -882488205:  // randomStartMin
-        setRandomStartMin((LocalTime) newValue);
-        return;
-      case -882488443:  // randomStartMax
-        setRandomStartMax((LocalTime) newValue);
-        return;
-      case -961403366:  // randomEndMin
-        setRandomEndMin((LocalTime) newValue);
-        return;
-      case -961403604:  // randomEndMax
-        setRandomEndMax((LocalTime) newValue);
-        return;
-      case 1696487785:  // lastConfirmed
-        setLastConfirmed((LocalDate) newValue);
-        return;
-      case 105008833:  // notes
-        setNotes((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ManageableExchangeDetail other = (ManageableExchangeDetail) obj;
-      return JodaBeanUtils.equal(getProductGroup(), other.getProductGroup()) &&
-          JodaBeanUtils.equal(getProductName(), other.getProductName()) &&
-          JodaBeanUtils.equal(getProductType(), other.getProductType()) &&
-          JodaBeanUtils.equal(getProductCode(), other.getProductCode()) &&
-          JodaBeanUtils.equal(getCalendarStart(), other.getCalendarStart()) &&
-          JodaBeanUtils.equal(getCalendarEnd(), other.getCalendarEnd()) &&
-          JodaBeanUtils.equal(getDayStart(), other.getDayStart()) &&
-          JodaBeanUtils.equal(getDayRangeType(), other.getDayRangeType()) &&
-          JodaBeanUtils.equal(getDayEnd(), other.getDayEnd()) &&
-          JodaBeanUtils.equal(getPhaseName(), other.getPhaseName()) &&
-          JodaBeanUtils.equal(getPhaseType(), other.getPhaseType()) &&
-          JodaBeanUtils.equal(getPhaseStart(), other.getPhaseStart()) &&
-          JodaBeanUtils.equal(getPhaseEnd(), other.getPhaseEnd()) &&
-          JodaBeanUtils.equal(getRandomStartMin(), other.getRandomStartMin()) &&
-          JodaBeanUtils.equal(getRandomStartMax(), other.getRandomStartMax()) &&
-          JodaBeanUtils.equal(getRandomEndMin(), other.getRandomEndMin()) &&
-          JodaBeanUtils.equal(getRandomEndMax(), other.getRandomEndMax()) &&
-          JodaBeanUtils.equal(getLastConfirmed(), other.getLastConfirmed()) &&
-          JodaBeanUtils.equal(getNotes(), other.getNotes());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProductGroup());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProductName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProductType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProductCode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCalendarStart());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCalendarEnd());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayStart());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayRangeType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayEnd());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPhaseName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPhaseType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPhaseStart());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPhaseEnd());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRandomStartMin());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRandomStartMax());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRandomEndMin());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRandomEndMax());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLastConfirmed());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotes());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -794,6 +631,102 @@ public class ManageableExchangeDetail extends DirectBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public ManageableExchangeDetail clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ManageableExchangeDetail other = (ManageableExchangeDetail) obj;
+      return JodaBeanUtils.equal(getProductGroup(), other.getProductGroup()) &&
+          JodaBeanUtils.equal(getProductName(), other.getProductName()) &&
+          JodaBeanUtils.equal(getProductType(), other.getProductType()) &&
+          JodaBeanUtils.equal(getProductCode(), other.getProductCode()) &&
+          JodaBeanUtils.equal(getCalendarStart(), other.getCalendarStart()) &&
+          JodaBeanUtils.equal(getCalendarEnd(), other.getCalendarEnd()) &&
+          JodaBeanUtils.equal(getDayStart(), other.getDayStart()) &&
+          JodaBeanUtils.equal(getDayRangeType(), other.getDayRangeType()) &&
+          JodaBeanUtils.equal(getDayEnd(), other.getDayEnd()) &&
+          JodaBeanUtils.equal(getPhaseName(), other.getPhaseName()) &&
+          JodaBeanUtils.equal(getPhaseType(), other.getPhaseType()) &&
+          JodaBeanUtils.equal(getPhaseStart(), other.getPhaseStart()) &&
+          JodaBeanUtils.equal(getPhaseEnd(), other.getPhaseEnd()) &&
+          JodaBeanUtils.equal(getRandomStartMin(), other.getRandomStartMin()) &&
+          JodaBeanUtils.equal(getRandomStartMax(), other.getRandomStartMax()) &&
+          JodaBeanUtils.equal(getRandomEndMin(), other.getRandomEndMin()) &&
+          JodaBeanUtils.equal(getRandomEndMax(), other.getRandomEndMax()) &&
+          JodaBeanUtils.equal(getLastConfirmed(), other.getLastConfirmed()) &&
+          JodaBeanUtils.equal(getNotes(), other.getNotes());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProductGroup());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProductName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProductType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProductCode());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCalendarStart());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCalendarEnd());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDayStart());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDayRangeType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDayEnd());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPhaseName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPhaseType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPhaseStart());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPhaseEnd());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRandomStartMin());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRandomStartMax());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRandomEndMin());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRandomEndMax());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLastConfirmed());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotes());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(640);
+    buf.append("ManageableExchangeDetail{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("productGroup").append('=').append(JodaBeanUtils.toString(getProductGroup())).append(',').append(' ');
+    buf.append("productName").append('=').append(JodaBeanUtils.toString(getProductName())).append(',').append(' ');
+    buf.append("productType").append('=').append(JodaBeanUtils.toString(getProductType())).append(',').append(' ');
+    buf.append("productCode").append('=').append(JodaBeanUtils.toString(getProductCode())).append(',').append(' ');
+    buf.append("calendarStart").append('=').append(JodaBeanUtils.toString(getCalendarStart())).append(',').append(' ');
+    buf.append("calendarEnd").append('=').append(JodaBeanUtils.toString(getCalendarEnd())).append(',').append(' ');
+    buf.append("dayStart").append('=').append(JodaBeanUtils.toString(getDayStart())).append(',').append(' ');
+    buf.append("dayRangeType").append('=').append(JodaBeanUtils.toString(getDayRangeType())).append(',').append(' ');
+    buf.append("dayEnd").append('=').append(JodaBeanUtils.toString(getDayEnd())).append(',').append(' ');
+    buf.append("phaseName").append('=').append(JodaBeanUtils.toString(getPhaseName())).append(',').append(' ');
+    buf.append("phaseType").append('=').append(JodaBeanUtils.toString(getPhaseType())).append(',').append(' ');
+    buf.append("phaseStart").append('=').append(JodaBeanUtils.toString(getPhaseStart())).append(',').append(' ');
+    buf.append("phaseEnd").append('=').append(JodaBeanUtils.toString(getPhaseEnd())).append(',').append(' ');
+    buf.append("randomStartMin").append('=').append(JodaBeanUtils.toString(getRandomStartMin())).append(',').append(' ');
+    buf.append("randomStartMax").append('=').append(JodaBeanUtils.toString(getRandomStartMax())).append(',').append(' ');
+    buf.append("randomEndMin").append('=').append(JodaBeanUtils.toString(getRandomEndMin())).append(',').append(' ');
+    buf.append("randomEndMax").append('=').append(JodaBeanUtils.toString(getRandomEndMax())).append(',').append(' ');
+    buf.append("lastConfirmed").append('=').append(JodaBeanUtils.toString(getLastConfirmed())).append(',').append(' ');
+    buf.append("notes").append('=').append(JodaBeanUtils.toString(getNotes())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ManageableExchangeDetail}.
    */
@@ -1140,6 +1073,116 @@ public class ManageableExchangeDetail extends DirectBean {
      */
     public final MetaProperty<String> notes() {
       return _notes;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 992343760:  // productGroup
+          return ((ManageableExchangeDetail) bean).getProductGroup();
+        case -1491817446:  // productName
+          return ((ManageableExchangeDetail) bean).getProductName();
+        case -1491615543:  // productType
+          return ((ManageableExchangeDetail) bean).getProductType();
+        case -1492131972:  // productCode
+          return ((ManageableExchangeDetail) bean).getProductCode();
+        case 1952067524:  // calendarStart
+          return ((ManageableExchangeDetail) bean).getCalendarStart();
+        case 404251837:  // calendarEnd
+          return ((ManageableExchangeDetail) bean).getCalendarEnd();
+        case 1920217638:  // dayStart
+          return ((ManageableExchangeDetail) bean).getDayStart();
+        case 761807323:  // dayRangeType
+          return ((ManageableExchangeDetail) bean).getDayRangeType();
+        case -1338796129:  // dayEnd
+          return ((ManageableExchangeDetail) bean).getDayEnd();
+        case -426196314:  // phaseName
+          return ((ManageableExchangeDetail) bean).getPhaseName();
+        case -425994411:  // phaseType
+          return ((ManageableExchangeDetail) bean).getPhaseType();
+        case -322011225:  // phaseStart
+          return ((ManageableExchangeDetail) bean).getPhaseStart();
+        case -1676324512:  // phaseEnd
+          return ((ManageableExchangeDetail) bean).getPhaseEnd();
+        case -882488205:  // randomStartMin
+          return ((ManageableExchangeDetail) bean).getRandomStartMin();
+        case -882488443:  // randomStartMax
+          return ((ManageableExchangeDetail) bean).getRandomStartMax();
+        case -961403366:  // randomEndMin
+          return ((ManageableExchangeDetail) bean).getRandomEndMin();
+        case -961403604:  // randomEndMax
+          return ((ManageableExchangeDetail) bean).getRandomEndMax();
+        case 1696487785:  // lastConfirmed
+          return ((ManageableExchangeDetail) bean).getLastConfirmed();
+        case 105008833:  // notes
+          return ((ManageableExchangeDetail) bean).getNotes();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 992343760:  // productGroup
+          ((ManageableExchangeDetail) bean).setProductGroup((String) newValue);
+          return;
+        case -1491817446:  // productName
+          ((ManageableExchangeDetail) bean).setProductName((String) newValue);
+          return;
+        case -1491615543:  // productType
+          ((ManageableExchangeDetail) bean).setProductType((String) newValue);
+          return;
+        case -1492131972:  // productCode
+          ((ManageableExchangeDetail) bean).setProductCode((String) newValue);
+          return;
+        case 1952067524:  // calendarStart
+          ((ManageableExchangeDetail) bean).setCalendarStart((LocalDate) newValue);
+          return;
+        case 404251837:  // calendarEnd
+          ((ManageableExchangeDetail) bean).setCalendarEnd((LocalDate) newValue);
+          return;
+        case 1920217638:  // dayStart
+          ((ManageableExchangeDetail) bean).setDayStart((String) newValue);
+          return;
+        case 761807323:  // dayRangeType
+          ((ManageableExchangeDetail) bean).setDayRangeType((String) newValue);
+          return;
+        case -1338796129:  // dayEnd
+          ((ManageableExchangeDetail) bean).setDayEnd((String) newValue);
+          return;
+        case -426196314:  // phaseName
+          ((ManageableExchangeDetail) bean).setPhaseName((String) newValue);
+          return;
+        case -425994411:  // phaseType
+          ((ManageableExchangeDetail) bean).setPhaseType((String) newValue);
+          return;
+        case -322011225:  // phaseStart
+          ((ManageableExchangeDetail) bean).setPhaseStart((LocalTime) newValue);
+          return;
+        case -1676324512:  // phaseEnd
+          ((ManageableExchangeDetail) bean).setPhaseEnd((LocalTime) newValue);
+          return;
+        case -882488205:  // randomStartMin
+          ((ManageableExchangeDetail) bean).setRandomStartMin((LocalTime) newValue);
+          return;
+        case -882488443:  // randomStartMax
+          ((ManageableExchangeDetail) bean).setRandomStartMax((LocalTime) newValue);
+          return;
+        case -961403366:  // randomEndMin
+          ((ManageableExchangeDetail) bean).setRandomEndMin((LocalTime) newValue);
+          return;
+        case -961403604:  // randomEndMax
+          ((ManageableExchangeDetail) bean).setRandomEndMax((LocalTime) newValue);
+          return;
+        case 1696487785:  // lastConfirmed
+          ((ManageableExchangeDetail) bean).setLastConfirmed((LocalDate) newValue);
+          return;
+        case 105008833:  // notes
+          ((ManageableExchangeDetail) bean).setNotes((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

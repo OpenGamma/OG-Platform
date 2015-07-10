@@ -48,7 +48,7 @@ import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -116,7 +116,7 @@ public abstract class FXDigitalCallSpreadBlackFunction extends AbstractFunction.
     }
     final ForexSecurityConverter converter = new ForexSecurityConverter(baseQuotePairs);
     final InstrumentDefinition<InstrumentDerivative> definition = (InstrumentDefinition<InstrumentDerivative>) security.accept(converter);
-    final InstrumentDerivative fxOption = definition.toDerivative(now, allCurveNames);
+    final InstrumentDerivative fxOption = definition.toDerivative(now);
     final YieldCurveBundle yieldCurves = new YieldCurveBundle(allCurveNames, curves);
     final Object spotObject = inputs.getValue(ValueRequirementNames.SPOT_RATE);
     if (spotObject == null) {
@@ -136,7 +136,7 @@ public abstract class FXDigitalCallSpreadBlackFunction extends AbstractFunction.
     final ValueProperties.Builder properties = getResultProperties(target, desiredValue);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties.get());
     final YieldCurveBundle curvesWithFX = new YieldCurveBundle(fxMatrix, curveCurrency, yieldCurves.getCurvesMap());
-    final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(curvesWithFX, smiles, Pair.of(ccy1, ccy2));
+    final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(curvesWithFX, smiles, Pairs.of(ccy1, ccy2));
     return getResult(fxOption, spreadValue, smileBundle, target, desiredValues, inputs, spec, executionContext);
   }
 

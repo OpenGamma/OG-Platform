@@ -8,6 +8,7 @@ package com.opengamma.util.rest;
 import static org.testng.AssertJUnit.assertEquals;
 
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.testng.annotations.Test;
@@ -19,11 +20,15 @@ import com.sun.jersey.api.client.ClientResponse.Status;
  * Test WebApplicationException.
  */
 @Test(groups = TestGroup.UNIT)
-public class WebApplicationExceptionTest {
+public class WebApplicationExceptionTest extends AbstractExceptionMapperTestHelper {
 
-  public void test_mapping() {
+  @Test(dataProvider="mediaTypes")
+  public void test_mapping(MediaType mediaType) throws Exception {
     WebApplicationException ex = new WebApplicationException(Status.CONFLICT.getStatusCode());
-    Response test = new WebApplicationExceptionMapper().toResponse(ex);
+    WebApplicationExceptionMapper mapper = new WebApplicationExceptionMapper();
+    init(mapper, mediaType);
+    
+    Response test = mapper.toResponse(ex);
     assertEquals(null, test.getEntity());
     assertEquals(Status.CONFLICT.getStatusCode(), test.getStatus());
   }

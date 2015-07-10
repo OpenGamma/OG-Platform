@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -56,6 +57,10 @@ public abstract class FutureSecurityBean extends SecurityBean {
   private ZonedDateTimeBean _firstDeliveryDate;
   @PropertyDefinition
   private ZonedDateTimeBean _lastDeliveryDate;
+  @PropertyDefinition
+  private ZonedDateTimeBean _firstNoticeDate;
+  @PropertyDefinition
+  private ZonedDateTimeBean _lastNoticeDate;
   @PropertyDefinition
   private ContractCategoryBean _category;
 
@@ -114,123 +119,6 @@ public abstract class FutureSecurityBean extends SecurityBean {
   @Override
   public FutureSecurityBean.Meta metaBean() {
     return FutureSecurityBean.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1289159373:  // expiry
-        return getExpiry();
-      case -661485980:  // tradingExchange
-        return getTradingExchange();
-      case 389497452:  // settlementExchange
-        return getSettlementExchange();
-      case 575402001:  // currency
-        return getCurrency();
-      case 1673913084:  // unitAmount
-        return getUnitAmount();
-      case -292854225:  // unitName
-        return getUnitName();
-      case 2053402093:  // unitNumber
-        return getUnitNumber();
-      case -1770633379:  // underlying
-        return getUnderlying();
-      case -1396196922:  // basket
-        return getBasket();
-      case 1755448466:  // firstDeliveryDate
-        return getFirstDeliveryDate();
-      case -233366664:  // lastDeliveryDate
-        return getLastDeliveryDate();
-      case 50511102:  // category
-        return getCategory();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1289159373:  // expiry
-        setExpiry((ExpiryBean) newValue);
-        return;
-      case -661485980:  // tradingExchange
-        setTradingExchange((ExchangeBean) newValue);
-        return;
-      case 389497452:  // settlementExchange
-        setSettlementExchange((ExchangeBean) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((CurrencyBean) newValue);
-        return;
-      case 1673913084:  // unitAmount
-        setUnitAmount((Double) newValue);
-        return;
-      case -292854225:  // unitName
-        setUnitName((UnitBean) newValue);
-        return;
-      case 2053402093:  // unitNumber
-        setUnitNumber((Double) newValue);
-        return;
-      case -1770633379:  // underlying
-        setUnderlying((ExternalIdBean) newValue);
-        return;
-      case -1396196922:  // basket
-        setBasket((Set<FutureBundleBean>) newValue);
-        return;
-      case 1755448466:  // firstDeliveryDate
-        setFirstDeliveryDate((ZonedDateTimeBean) newValue);
-        return;
-      case -233366664:  // lastDeliveryDate
-        setLastDeliveryDate((ZonedDateTimeBean) newValue);
-        return;
-      case 50511102:  // category
-        setCategory((ContractCategoryBean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      FutureSecurityBean other = (FutureSecurityBean) obj;
-      return JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
-          JodaBeanUtils.equal(getTradingExchange(), other.getTradingExchange()) &&
-          JodaBeanUtils.equal(getSettlementExchange(), other.getSettlementExchange()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getUnitAmount(), other.getUnitAmount()) &&
-          JodaBeanUtils.equal(getUnitName(), other.getUnitName()) &&
-          JodaBeanUtils.equal(getUnitNumber(), other.getUnitNumber()) &&
-          JodaBeanUtils.equal(getUnderlying(), other.getUnderlying()) &&
-          JodaBeanUtils.equal(getBasket(), other.getBasket()) &&
-          JodaBeanUtils.equal(getFirstDeliveryDate(), other.getFirstDeliveryDate()) &&
-          JodaBeanUtils.equal(getLastDeliveryDate(), other.getLastDeliveryDate()) &&
-          JodaBeanUtils.equal(getCategory(), other.getCategory()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExpiry());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradingExchange());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementExchange());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnitAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnitName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnitNumber());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBasket());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstDeliveryDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLastDeliveryDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCategory());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -510,6 +398,56 @@ public abstract class FutureSecurityBean extends SecurityBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the firstNoticeDate.
+   * @return the value of the property
+   */
+  public ZonedDateTimeBean getFirstNoticeDate() {
+    return _firstNoticeDate;
+  }
+
+  /**
+   * Sets the firstNoticeDate.
+   * @param firstNoticeDate  the new value of the property
+   */
+  public void setFirstNoticeDate(ZonedDateTimeBean firstNoticeDate) {
+    this._firstNoticeDate = firstNoticeDate;
+  }
+
+  /**
+   * Gets the the {@code firstNoticeDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTimeBean> firstNoticeDate() {
+    return metaBean().firstNoticeDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the lastNoticeDate.
+   * @return the value of the property
+   */
+  public ZonedDateTimeBean getLastNoticeDate() {
+    return _lastNoticeDate;
+  }
+
+  /**
+   * Sets the lastNoticeDate.
+   * @param lastNoticeDate  the new value of the property
+   */
+  public void setLastNoticeDate(ZonedDateTimeBean lastNoticeDate) {
+    this._lastNoticeDate = lastNoticeDate;
+  }
+
+  /**
+   * Gets the the {@code lastNoticeDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTimeBean> lastNoticeDate() {
+    return metaBean().lastNoticeDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the category.
    * @return the value of the property
    */
@@ -531,6 +469,53 @@ public abstract class FutureSecurityBean extends SecurityBean {
    */
   public final Property<ContractCategoryBean> category() {
     return metaBean().category().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FutureSecurityBean other = (FutureSecurityBean) obj;
+      return JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
+          JodaBeanUtils.equal(getTradingExchange(), other.getTradingExchange()) &&
+          JodaBeanUtils.equal(getSettlementExchange(), other.getSettlementExchange()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getUnitAmount(), other.getUnitAmount()) &&
+          JodaBeanUtils.equal(getUnitName(), other.getUnitName()) &&
+          JodaBeanUtils.equal(getUnitNumber(), other.getUnitNumber()) &&
+          JodaBeanUtils.equal(getUnderlying(), other.getUnderlying()) &&
+          JodaBeanUtils.equal(getBasket(), other.getBasket()) &&
+          JodaBeanUtils.equal(getFirstDeliveryDate(), other.getFirstDeliveryDate()) &&
+          JodaBeanUtils.equal(getLastDeliveryDate(), other.getLastDeliveryDate()) &&
+          JodaBeanUtils.equal(getFirstNoticeDate(), other.getFirstNoticeDate()) &&
+          JodaBeanUtils.equal(getLastNoticeDate(), other.getLastNoticeDate()) &&
+          JodaBeanUtils.equal(getCategory(), other.getCategory()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExpiry());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTradingExchange());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementExchange());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnitAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnitName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnitNumber());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBasket());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFirstDeliveryDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLastDeliveryDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFirstNoticeDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLastNoticeDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCategory());
+    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -600,6 +585,16 @@ public abstract class FutureSecurityBean extends SecurityBean {
     private final MetaProperty<ZonedDateTimeBean> _lastDeliveryDate = DirectMetaProperty.ofReadWrite(
         this, "lastDeliveryDate", FutureSecurityBean.class, ZonedDateTimeBean.class);
     /**
+     * The meta-property for the {@code firstNoticeDate} property.
+     */
+    private final MetaProperty<ZonedDateTimeBean> _firstNoticeDate = DirectMetaProperty.ofReadWrite(
+        this, "firstNoticeDate", FutureSecurityBean.class, ZonedDateTimeBean.class);
+    /**
+     * The meta-property for the {@code lastNoticeDate} property.
+     */
+    private final MetaProperty<ZonedDateTimeBean> _lastNoticeDate = DirectMetaProperty.ofReadWrite(
+        this, "lastNoticeDate", FutureSecurityBean.class, ZonedDateTimeBean.class);
+    /**
      * The meta-property for the {@code category} property.
      */
     private final MetaProperty<ContractCategoryBean> _category = DirectMetaProperty.ofReadWrite(
@@ -620,6 +615,8 @@ public abstract class FutureSecurityBean extends SecurityBean {
         "basket",
         "firstDeliveryDate",
         "lastDeliveryDate",
+        "firstNoticeDate",
+        "lastNoticeDate",
         "category");
 
     /**
@@ -653,6 +650,10 @@ public abstract class FutureSecurityBean extends SecurityBean {
           return _firstDeliveryDate;
         case -233366664:  // lastDeliveryDate
           return _lastDeliveryDate;
+        case -1085415050:  // firstNoticeDate
+          return _firstNoticeDate;
+        case -1060668964:  // lastNoticeDate
+          return _lastNoticeDate;
         case 50511102:  // category
           return _category;
       }
@@ -764,11 +765,113 @@ public abstract class FutureSecurityBean extends SecurityBean {
     }
 
     /**
+     * The meta-property for the {@code firstNoticeDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTimeBean> firstNoticeDate() {
+      return _firstNoticeDate;
+    }
+
+    /**
+     * The meta-property for the {@code lastNoticeDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTimeBean> lastNoticeDate() {
+      return _lastNoticeDate;
+    }
+
+    /**
      * The meta-property for the {@code category} property.
      * @return the meta-property, not null
      */
     public final MetaProperty<ContractCategoryBean> category() {
       return _category;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1289159373:  // expiry
+          return ((FutureSecurityBean) bean).getExpiry();
+        case -661485980:  // tradingExchange
+          return ((FutureSecurityBean) bean).getTradingExchange();
+        case 389497452:  // settlementExchange
+          return ((FutureSecurityBean) bean).getSettlementExchange();
+        case 575402001:  // currency
+          return ((FutureSecurityBean) bean).getCurrency();
+        case 1673913084:  // unitAmount
+          return ((FutureSecurityBean) bean).getUnitAmount();
+        case -292854225:  // unitName
+          return ((FutureSecurityBean) bean).getUnitName();
+        case 2053402093:  // unitNumber
+          return ((FutureSecurityBean) bean).getUnitNumber();
+        case -1770633379:  // underlying
+          return ((FutureSecurityBean) bean).getUnderlying();
+        case -1396196922:  // basket
+          return ((FutureSecurityBean) bean).getBasket();
+        case 1755448466:  // firstDeliveryDate
+          return ((FutureSecurityBean) bean).getFirstDeliveryDate();
+        case -233366664:  // lastDeliveryDate
+          return ((FutureSecurityBean) bean).getLastDeliveryDate();
+        case -1085415050:  // firstNoticeDate
+          return ((FutureSecurityBean) bean).getFirstNoticeDate();
+        case -1060668964:  // lastNoticeDate
+          return ((FutureSecurityBean) bean).getLastNoticeDate();
+        case 50511102:  // category
+          return ((FutureSecurityBean) bean).getCategory();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1289159373:  // expiry
+          ((FutureSecurityBean) bean).setExpiry((ExpiryBean) newValue);
+          return;
+        case -661485980:  // tradingExchange
+          ((FutureSecurityBean) bean).setTradingExchange((ExchangeBean) newValue);
+          return;
+        case 389497452:  // settlementExchange
+          ((FutureSecurityBean) bean).setSettlementExchange((ExchangeBean) newValue);
+          return;
+        case 575402001:  // currency
+          ((FutureSecurityBean) bean).setCurrency((CurrencyBean) newValue);
+          return;
+        case 1673913084:  // unitAmount
+          ((FutureSecurityBean) bean).setUnitAmount((Double) newValue);
+          return;
+        case -292854225:  // unitName
+          ((FutureSecurityBean) bean).setUnitName((UnitBean) newValue);
+          return;
+        case 2053402093:  // unitNumber
+          ((FutureSecurityBean) bean).setUnitNumber((Double) newValue);
+          return;
+        case -1770633379:  // underlying
+          ((FutureSecurityBean) bean).setUnderlying((ExternalIdBean) newValue);
+          return;
+        case -1396196922:  // basket
+          ((FutureSecurityBean) bean).setBasket((Set<FutureBundleBean>) newValue);
+          return;
+        case 1755448466:  // firstDeliveryDate
+          ((FutureSecurityBean) bean).setFirstDeliveryDate((ZonedDateTimeBean) newValue);
+          return;
+        case -233366664:  // lastDeliveryDate
+          ((FutureSecurityBean) bean).setLastDeliveryDate((ZonedDateTimeBean) newValue);
+          return;
+        case -1085415050:  // firstNoticeDate
+          ((FutureSecurityBean) bean).setFirstNoticeDate((ZonedDateTimeBean) newValue);
+          return;
+        case -1060668964:  // lastNoticeDate
+          ((FutureSecurityBean) bean).setLastNoticeDate((ZonedDateTimeBean) newValue);
+          return;
+        case 50511102:  // category
+          ((FutureSecurityBean) bean).setCategory((ContractCategoryBean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

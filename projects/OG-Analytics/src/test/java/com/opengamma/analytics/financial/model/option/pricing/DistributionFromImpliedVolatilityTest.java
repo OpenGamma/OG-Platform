@@ -18,10 +18,12 @@ import com.opengamma.analytics.financial.model.volatility.BlackImpliedVolatility
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DistributionFromImpliedVolatilityTest {
 
   private static double F = 4.0;

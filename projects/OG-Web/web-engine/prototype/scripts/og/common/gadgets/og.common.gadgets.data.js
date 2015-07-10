@@ -23,12 +23,15 @@ $.register_module({
             };
             return function (len) {
                 var lcv, result = [];
-                for (lcv = 0; lcv < len; lcv += 1) result.push(letter(lcv));
+                for (lcv = 0; lcv < len; lcv += 1) {
+                    result.push(letter(lcv));
+                }
                 return result;
             };
         })();
         var get_viewport_data = function (dataman) {
             var data = dataman.formatted.data, viewport = dataman.meta.viewport, rows = dataman.meta.columns.total;
+            if (!viewport.rows) return; // clipboard.clear ends up in this state
             return viewport.rows.reduce(function (acc, row) {
                 var start = row * rows;
                 return acc.concat(viewport.cols.map(function (col) {return start + col;}));
@@ -36,7 +39,11 @@ $.register_module({
         };
         var meta = function (dataman, rows, cols, fixed_width, first) {
             var dimensions = rows + '|' + cols.length, meta;
-            if (dataman.dimensions === dimensions) return null; else dataman.dimensions = dimensions;
+            if (dataman.dimensions === dimensions) {
+                return null;
+            } else {
+                dataman.dimensions = dimensions;
+            }
             return {
                 structure: [], data_rows: rows,
                 columns: {
@@ -50,9 +57,15 @@ $.register_module({
         };
         var viewport = function (new_viewport) {
             var dataman = this;
-            if (!new_viewport) return (dataman.meta.viewport.cols = []), (dataman.meta.viewport.rows = []), dataman;
+            if (!new_viewport) {
+                dataman.meta.viewport.cols = [];
+                dataman.meta.viewport.rows = [];
+                return dataman;
+            }
             dataman.meta.viewport = new_viewport;
-            if (dataman.formatted.data) setTimeout(function () {dataman.fire('data', get_viewport_data(dataman));});
+            if (dataman.formatted.data) {
+                setTimeout(function () {dataman.fire('data', get_viewport_data(dataman)); });
+            }
             return dataman;
         }
         formatters = {
@@ -60,8 +73,9 @@ $.register_module({
                 if (!data || !data.length) return;
                 return {
                     meta: meta(dataman, data.length, ['X', 'Y'], 50),
-                    data: data
-                        .reduce(function (acc, val, idx) {return acc.concat({v: idx + 1}, val.map(cell_value));}, []),
+                    data: data.reduce(function (acc, val, idx) {
+                        return acc.concat({v: idx + 1}, val.map(cell_value));
+                    }, [])
                 };
             },
             LABELLED_MATRIX_1D: function (dataman, data) {
@@ -72,17 +86,23 @@ $.register_module({
                 );
                 return {
                     meta: meta(dataman, data.data.length, cols, fixed_width, true),
-                    data: data.data.reduce(function (acc, val) {return acc.concat(val.map(cell_value));}, []),
+                    data: data.data.reduce(function (acc, val) {
+                        return acc.concat(val.map(cell_value));
+                    }, [])
                 };
             },
             LABELLED_MATRIX_2D: function (dataman, data) {
                 if (!data || !data.matrix || !data.matrix.length) return;
                 var cols = data.xLabels, rows = data.yLabels.map(cell_value),
-                    fixed_width = Math.max.apply(null, data.yLabels.pluck('length')) * char_width;
+                    // Try to work out a reasonable header column width by taking the maximum number of characters in
+                    // the header column and multiplying by an average character width. Ensure column width is no
+                    // smaller than the grid's minimum of 50.
+                    fixed_width = Math.max(50, Math.max.apply(null, data.yLabels.pluck('length')) * char_width);
                 return {
                     meta: meta(dataman, rows.length, cols, fixed_width, cols.length === 1 + data.matrix[0].length),
-                    data: data.matrix
-                        .reduce(function (acc, val, idx) {return acc.concat(rows[idx], val.map(cell_value));}, []),
+                    data: data.matrix.reduce(function (acc, val, idx) {
+                        return acc.concat(rows[idx], val.map(cell_value));
+                    }, [])
                 };
             },
             MATRIX_2D: function (dataman, data) {
@@ -90,8 +110,9 @@ $.register_module({
                 var cols = col_names(data[0].length);
                 return {
                     meta: meta(dataman, data.length, cols, 50),
-                    data: data
-                        .reduce(function (acc, val, idx) {return acc.concat({v: idx + 1}, val.map(cell_value));}, []),
+                    data: data.reduce(function (acc, val, idx) {
+                        return acc.concat({v: idx + 1}, val.map(cell_value));
+                    }, [])
                 };
             },
             SURFACE_DATA: function (dataman, data) {
@@ -119,11 +140,12 @@ $.register_module({
                 };
             }
         };
-        var DataMan = function (row, col, type, source, config) {
+        var DataMan = function (req, colset, row, col, type, source, config) {
             var dataman = this, format = formatters[type].partial(dataman);
             dataman.cell = (config.parent ? config.parent.cell : new og.analytics
                 .Cells({ // TODO: stop special casing CURVE gadgets (they need nodal + interpolated)
-                    source: source, single: {row: row, col: col}, format: type === 'CURVE' ? 'CELL' : 'EXPANDED'
+                    source: source, single: {req: req, colset: colset, row: row, col: col},
+                    format: type === 'CURVE' ? 'CELL' : 'EXPANDED'
                 }, config.label))
                 .on('title', function (row_name, col_name, name) {dataman.fire('title', row_name, col_name, name);})
                 .on('data', function (raw) {
@@ -139,7 +161,7 @@ $.register_module({
                             .forEach(function (key) {dataman.meta[key] = dataman.formatted.meta[key];});
                         dataman.fire('meta', dataman.meta);
                     }
-                    if (dataman.formatted.data && viewport && viewport.cols.length && viewport.rows.length)
+                    if (dataman.formatted.data && viewport && viewport.cols && viewport.cols.length && viewport.rows.length)
                         dataman.fire('data', get_viewport_data(dataman));
                 })
                 .on('fatal', function (message) {
@@ -178,11 +200,13 @@ $.register_module({
             var gadget = this;
             if (!formatters[config.type]) // return null or a primitive because this is a constructor
                 return $(config.selector).html('Data gadget cannot render ' + config.type), null;
+            // if config.req or config.colset do not exist (grids opened off a dependency graph) then null
+            // needs to be passed to DataMan.partial ignores them.
             Grid.call(gadget, {
                 selector: config.selector, child: config.child, show_sets: false, show_views: false,
                 source: config.source, dataman: config.rest_options
                     ? RestDataMan.partial(config.resource, config.rest_options, config.type)
-                    : DataMan.partial(config.row, config.col, config.type)
+                    : DataMan.partial(config.req || null, config.colset || null, config.row, config. col, config.type)
             });
             gadget.on('fatal', function (message) {$(config.selector).html(message);});
         };

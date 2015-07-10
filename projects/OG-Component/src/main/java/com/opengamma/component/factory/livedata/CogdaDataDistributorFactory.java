@@ -7,6 +7,7 @@ package com.opengamma.component.factory.livedata;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -68,103 +69,6 @@ public abstract class CogdaDataDistributorFactory extends AbstractComponentFacto
   @Override
   public CogdaDataDistributorFactory.Meta metaBean() {
     return CogdaDataDistributorFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1950631778:  // redisServer
-        return getRedisServer();
-      case 1709620380:  // redisPort
-        return getRedisPort();
-      case -2024915987:  // redisPrefix
-        return getRedisPrefix();
-      case -585903566:  // updateRedis
-        return isUpdateRedis();
-      case -1018802868:  // publishJmsConnector
-        return getPublishJmsConnector();
-      case -1370796021:  // publishTopicName
-        return getPublishTopicName();
-      case 1486580228:  // listenJmsConnector
-        return getListenJmsConnector();
-      case 1916939859:  // listenTopicName
-        return getListenTopicName();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1950631778:  // redisServer
-        setRedisServer((String) newValue);
-        return;
-      case 1709620380:  // redisPort
-        setRedisPort((Integer) newValue);
-        return;
-      case -2024915987:  // redisPrefix
-        setRedisPrefix((String) newValue);
-        return;
-      case -585903566:  // updateRedis
-        setUpdateRedis((Boolean) newValue);
-        return;
-      case -1018802868:  // publishJmsConnector
-        setPublishJmsConnector((JmsConnector) newValue);
-        return;
-      case -1370796021:  // publishTopicName
-        setPublishTopicName((String) newValue);
-        return;
-      case 1486580228:  // listenJmsConnector
-        setListenJmsConnector((JmsConnector) newValue);
-        return;
-      case 1916939859:  // listenTopicName
-        setListenTopicName((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_publishJmsConnector, "publishJmsConnector");
-    JodaBeanUtils.notNull(_publishTopicName, "publishTopicName");
-    JodaBeanUtils.notNull(_listenJmsConnector, "listenJmsConnector");
-    JodaBeanUtils.notNull(_listenTopicName, "listenTopicName");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CogdaDataDistributorFactory other = (CogdaDataDistributorFactory) obj;
-      return JodaBeanUtils.equal(getRedisServer(), other.getRedisServer()) &&
-          JodaBeanUtils.equal(getRedisPort(), other.getRedisPort()) &&
-          JodaBeanUtils.equal(getRedisPrefix(), other.getRedisPrefix()) &&
-          JodaBeanUtils.equal(isUpdateRedis(), other.isUpdateRedis()) &&
-          JodaBeanUtils.equal(getPublishJmsConnector(), other.getPublishJmsConnector()) &&
-          JodaBeanUtils.equal(getPublishTopicName(), other.getPublishTopicName()) &&
-          JodaBeanUtils.equal(getListenJmsConnector(), other.getListenJmsConnector()) &&
-          JodaBeanUtils.equal(getListenTopicName(), other.getListenTopicName()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisServer());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisPort());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisPrefix());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isUpdateRedis());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPublishJmsConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPublishTopicName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getListenJmsConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getListenTopicName());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -372,6 +276,67 @@ public abstract class CogdaDataDistributorFactory extends AbstractComponentFacto
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CogdaDataDistributorFactory other = (CogdaDataDistributorFactory) obj;
+      return JodaBeanUtils.equal(getRedisServer(), other.getRedisServer()) &&
+          JodaBeanUtils.equal(getRedisPort(), other.getRedisPort()) &&
+          JodaBeanUtils.equal(getRedisPrefix(), other.getRedisPrefix()) &&
+          (isUpdateRedis() == other.isUpdateRedis()) &&
+          JodaBeanUtils.equal(getPublishJmsConnector(), other.getPublishJmsConnector()) &&
+          JodaBeanUtils.equal(getPublishTopicName(), other.getPublishTopicName()) &&
+          JodaBeanUtils.equal(getListenJmsConnector(), other.getListenJmsConnector()) &&
+          JodaBeanUtils.equal(getListenTopicName(), other.getListenTopicName()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRedisServer());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRedisPort());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRedisPrefix());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isUpdateRedis());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPublishJmsConnector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPublishTopicName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getListenJmsConnector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getListenTopicName());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(288);
+    buf.append("CogdaDataDistributorFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("redisServer").append('=').append(JodaBeanUtils.toString(getRedisServer())).append(',').append(' ');
+    buf.append("redisPort").append('=').append(JodaBeanUtils.toString(getRedisPort())).append(',').append(' ');
+    buf.append("redisPrefix").append('=').append(JodaBeanUtils.toString(getRedisPrefix())).append(',').append(' ');
+    buf.append("updateRedis").append('=').append(JodaBeanUtils.toString(isUpdateRedis())).append(',').append(' ');
+    buf.append("publishJmsConnector").append('=').append(JodaBeanUtils.toString(getPublishJmsConnector())).append(',').append(' ');
+    buf.append("publishTopicName").append('=').append(JodaBeanUtils.toString(getPublishTopicName())).append(',').append(' ');
+    buf.append("listenJmsConnector").append('=').append(JodaBeanUtils.toString(getListenJmsConnector())).append(',').append(' ');
+    buf.append("listenTopicName").append('=').append(JodaBeanUtils.toString(getListenTopicName())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code CogdaDataDistributorFactory}.
    */
@@ -542,6 +507,70 @@ public abstract class CogdaDataDistributorFactory extends AbstractComponentFacto
      */
     public final MetaProperty<String> listenTopicName() {
       return _listenTopicName;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1950631778:  // redisServer
+          return ((CogdaDataDistributorFactory) bean).getRedisServer();
+        case 1709620380:  // redisPort
+          return ((CogdaDataDistributorFactory) bean).getRedisPort();
+        case -2024915987:  // redisPrefix
+          return ((CogdaDataDistributorFactory) bean).getRedisPrefix();
+        case -585903566:  // updateRedis
+          return ((CogdaDataDistributorFactory) bean).isUpdateRedis();
+        case -1018802868:  // publishJmsConnector
+          return ((CogdaDataDistributorFactory) bean).getPublishJmsConnector();
+        case -1370796021:  // publishTopicName
+          return ((CogdaDataDistributorFactory) bean).getPublishTopicName();
+        case 1486580228:  // listenJmsConnector
+          return ((CogdaDataDistributorFactory) bean).getListenJmsConnector();
+        case 1916939859:  // listenTopicName
+          return ((CogdaDataDistributorFactory) bean).getListenTopicName();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1950631778:  // redisServer
+          ((CogdaDataDistributorFactory) bean).setRedisServer((String) newValue);
+          return;
+        case 1709620380:  // redisPort
+          ((CogdaDataDistributorFactory) bean).setRedisPort((Integer) newValue);
+          return;
+        case -2024915987:  // redisPrefix
+          ((CogdaDataDistributorFactory) bean).setRedisPrefix((String) newValue);
+          return;
+        case -585903566:  // updateRedis
+          ((CogdaDataDistributorFactory) bean).setUpdateRedis((Boolean) newValue);
+          return;
+        case -1018802868:  // publishJmsConnector
+          ((CogdaDataDistributorFactory) bean).setPublishJmsConnector((JmsConnector) newValue);
+          return;
+        case -1370796021:  // publishTopicName
+          ((CogdaDataDistributorFactory) bean).setPublishTopicName((String) newValue);
+          return;
+        case 1486580228:  // listenJmsConnector
+          ((CogdaDataDistributorFactory) bean).setListenJmsConnector((JmsConnector) newValue);
+          return;
+        case 1916939859:  // listenTopicName
+          ((CogdaDataDistributorFactory) bean).setListenTopicName((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((CogdaDataDistributorFactory) bean)._publishJmsConnector, "publishJmsConnector");
+      JodaBeanUtils.notNull(((CogdaDataDistributorFactory) bean)._publishTopicName, "publishTopicName");
+      JodaBeanUtils.notNull(((CogdaDataDistributorFactory) bean)._listenJmsConnector, "listenJmsConnector");
+      JodaBeanUtils.notNull(((CogdaDataDistributorFactory) bean)._listenTopicName, "listenTopicName");
+      super.validate(bean);
     }
 
   }

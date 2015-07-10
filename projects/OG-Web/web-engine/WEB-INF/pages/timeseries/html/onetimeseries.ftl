@@ -12,7 +12,7 @@
   <p>
     <@rowout label="Reference">${info.uniqueId.value}</@rowout>
    	<#list info.externalIdBundle.externalIds as item>
-    <@rowout label="Identifier">${item}</@rowout>
+    <@rowout label="Identifier">${item.externalId}</@rowout>
    	</#list>
     <@rowout label="Data source">${info.dataSource}</@rowout>
     <@rowout label="Data provider">${info.dataProvider}</@rowout>
@@ -140,8 +140,8 @@ $(function () {
 </@subsection>
 </@section>
 
-<#-- SECTION Update security -->
-<@section title="Update Timeseries">
+<#-- SECTION Update time series -->
+<@section title="Update Timeseries" if=userSecurity.isPermitted('HistoricalTimeSeriesMaster:edit:update')>
   <@form method="PUT" action="${uris.oneTimeSeries()}">
   <p>
     <@rowin><input type="submit" value="Update" /></@rowin>
@@ -149,8 +149,8 @@ $(function () {
   </@form>
 </@section>
 
-<#-- SECTION Delete Timeseries -->
-<@section title="Delete Timeseries">
+<#-- SECTION Delete time series -->
+<@section title="Delete Timeseries" if=userSecurity.isPermitted('HistoricalTimeSeriesMaster:edit:remove')>
   <@form method="DELETE" action="${uris.oneTimeSeries()}">
   <p>
     <@rowin><input type="submit" value="Delete" /></@rowin>

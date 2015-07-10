@@ -10,8 +10,8 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
 import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.inflation.ParameterSensitivityInflationParameterCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterInflationSensitivityParameterCalculator;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.util.ArgumentChecker;
@@ -23,7 +23,7 @@ import com.opengamma.util.tuple.Pair;
  * @param <T> The type of the multi-curve provider
  */
 public final class PV01CurveParametersInflationCalculator<T extends ParameterInflationProviderInterface> extends
-  InstrumentDerivativeVisitorSameMethodAdapter<T, ReferenceAmount<Pair<String, Currency>>> {
+    InstrumentDerivativeVisitorSameMethodAdapter<T, ReferenceAmount<Pair<String, Currency>>> {
 
   /**
    * The size of the scaling: 1 basis point.
@@ -32,7 +32,7 @@ public final class PV01CurveParametersInflationCalculator<T extends ParameterInf
   /**
    * The present value curve sensitivity calculator.
    */
-  private final ParameterInflationSensitivityParameterCalculator<T> _parameterSensitivityCalculator;
+  private final ParameterSensitivityInflationParameterCalculator<T> _parameterSensitivityCalculator;
 
   /**
    * Constructs a PV01 calculator that uses a particular sensitivity calculator.
@@ -40,7 +40,7 @@ public final class PV01CurveParametersInflationCalculator<T extends ParameterInf
    */
   public PV01CurveParametersInflationCalculator(final InstrumentDerivativeVisitor<T, MultipleCurrencyInflationSensitivity> curveSensitivityCalculator) {
     ArgumentChecker.notNull(curveSensitivityCalculator, "curve sensitivity calculator");
-    _parameterSensitivityCalculator = new ParameterInflationSensitivityParameterCalculator<>(curveSensitivityCalculator);
+    _parameterSensitivityCalculator = new ParameterSensitivityInflationParameterCalculator<>(curveSensitivityCalculator);
   }
 
   /**
@@ -51,7 +51,7 @@ public final class PV01CurveParametersInflationCalculator<T extends ParameterInf
    */
   @Override
   public ReferenceAmount<Pair<String, Currency>> visit(final InstrumentDerivative ird, final T multicurves) {
-    final MultipleCurrencyParameterSensitivity sensi = _parameterSensitivityCalculator.calculateSensitivity(ird, multicurves, multicurves.getMulticurveProvider().getAllNames());
+    final MultipleCurrencyParameterSensitivity sensi = _parameterSensitivityCalculator.calculateSensitivity(ird, multicurves, multicurves.getAllCurveNames());
     final ReferenceAmount<Pair<String, Currency>> ref = new ReferenceAmount<>();
     for (final Pair<String, Currency> nameCcy : sensi.getAllNamesCurrency()) {
       final DoubleMatrix1D vector = sensi.getSensitivity(nameCcy);

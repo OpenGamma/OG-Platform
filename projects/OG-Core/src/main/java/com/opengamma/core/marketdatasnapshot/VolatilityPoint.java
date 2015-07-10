@@ -7,6 +7,7 @@ package com.opengamma.core.marketdatasnapshot;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -82,58 +83,6 @@ public class VolatilityPoint extends DirectBean {
     return VolatilityPoint.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1282130707:  // swapTenor
-        return getSwapTenor();
-      case 1032553992:  // optionExpiry
-        return getOptionExpiry();
-      case 776076702:  // relativeStrike
-        return getRelativeStrike();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1282130707:  // swapTenor
-        setSwapTenor((Tenor) newValue);
-        return;
-      case 1032553992:  // optionExpiry
-        setOptionExpiry((Tenor) newValue);
-        return;
-      case 776076702:  // relativeStrike
-        setRelativeStrike((Double) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      VolatilityPoint other = (VolatilityPoint) obj;
-      return JodaBeanUtils.equal(getSwapTenor(), other.getSwapTenor()) &&
-          JodaBeanUtils.equal(getOptionExpiry(), other.getOptionExpiry()) &&
-          JodaBeanUtils.equal(getRelativeStrike(), other.getRelativeStrike());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSwapTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOptionExpiry());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRelativeStrike());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the swap tenor
@@ -207,6 +156,54 @@ public class VolatilityPoint extends DirectBean {
    */
   public final Property<Double> relativeStrike() {
     return metaBean().relativeStrike().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public VolatilityPoint clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      VolatilityPoint other = (VolatilityPoint) obj;
+      return JodaBeanUtils.equal(getSwapTenor(), other.getSwapTenor()) &&
+          JodaBeanUtils.equal(getOptionExpiry(), other.getOptionExpiry()) &&
+          JodaBeanUtils.equal(getRelativeStrike(), other.getRelativeStrike());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSwapTenor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getOptionExpiry());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRelativeStrike());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("VolatilityPoint{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("swapTenor").append('=').append(JodaBeanUtils.toString(getSwapTenor())).append(',').append(' ');
+    buf.append("optionExpiry").append('=').append(JodaBeanUtils.toString(getOptionExpiry())).append(',').append(' ');
+    buf.append("relativeStrike").append('=').append(JodaBeanUtils.toString(getRelativeStrike())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -300,6 +297,36 @@ public class VolatilityPoint extends DirectBean {
      */
     public final MetaProperty<Double> relativeStrike() {
       return _relativeStrike;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1282130707:  // swapTenor
+          return ((VolatilityPoint) bean).getSwapTenor();
+        case 1032553992:  // optionExpiry
+          return ((VolatilityPoint) bean).getOptionExpiry();
+        case 776076702:  // relativeStrike
+          return ((VolatilityPoint) bean).getRelativeStrike();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1282130707:  // swapTenor
+          ((VolatilityPoint) bean).setSwapTenor((Tenor) newValue);
+          return;
+        case 1032553992:  // optionExpiry
+          ((VolatilityPoint) bean).setOptionExpiry((Tenor) newValue);
+          return;
+        case 776076702:  // relativeStrike
+          ((VolatilityPoint) bean).setRelativeStrike((Double) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

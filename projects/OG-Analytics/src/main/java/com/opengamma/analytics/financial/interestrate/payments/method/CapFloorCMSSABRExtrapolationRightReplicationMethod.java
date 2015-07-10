@@ -99,7 +99,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloor
         .getDiscountFactor(cmsCapFloor.getPaymentTime());
     final double maturity = underlyingSwap.getFixedLeg().getNthPayment(underlyingSwap.getFixedLeg().getNumberOfPayments() - 1).getPaymentTime()
         - cmsCapFloor.getSettlementTime();
-    final DoublesPair expiryMaturity = new DoublesPair(cmsCapFloor.getFixingTime(), maturity);
+    final DoublesPair expiryMaturity = DoublesPair.of(cmsCapFloor.getFixingTime(), maturity);
     final double alpha = sabrParameter.getAlpha(expiryMaturity);
     final double beta = sabrParameter.getBeta(expiryMaturity);
     final double rho = sabrParameter.getRho(expiryMaturity);
@@ -150,7 +150,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloor
     final double strike = cmsCapFloor.getStrike();
     final double maturity = underlyingSwap.getFixedLeg().getNthPayment(underlyingSwap.getFixedLeg().getNumberOfPayments() - 1).getPaymentTime()
         - cmsCapFloor.getSettlementTime();
-    final DoublesPair expiryMaturity = new DoublesPair(cmsCapFloor.getFixingTime(), maturity);
+    final DoublesPair expiryMaturity = DoublesPair.of(cmsCapFloor.getFixingTime(), maturity);
     final double alpha = sabrParameter.getAlpha(expiryMaturity);
     final double beta = sabrParameter.getBeta(expiryMaturity);
     final double rho = sabrParameter.getRho(expiryMaturity);
@@ -195,7 +195,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloor
     final double deltaPD = price / discountFactor;
     final double sensiDF = -cmsCapFloor.getPaymentTime() * discountFactor * deltaPD;
     final List<DoublesPair> list = new ArrayList<>();
-    list.add(new DoublesPair(cmsCapFloor.getPaymentTime(), sensiDF));
+    list.add(DoublesPair.of(cmsCapFloor.getPaymentTime(), sensiDF));
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     resultMap.put(cmsCapFloor.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getFundingCurveName(), list);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
@@ -220,7 +220,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloor
     final double strike = cmsCapFloor.getStrike();
     final double maturity = underlyingSwap.getFixedLeg().getNthPayment(underlyingSwap.getFixedLeg().getNumberOfPayments() - 1).getPaymentTime()
         - cmsCapFloor.getSettlementTime();
-    final DoublesPair expiryMaturity = new DoublesPair(cmsCapFloor.getFixingTime(), maturity);
+    final DoublesPair expiryMaturity = DoublesPair.of(cmsCapFloor.getFixingTime(), maturity);
     final double alpha = sabrParameter.getAlpha(expiryMaturity);
     final double beta = sabrParameter.getBeta(expiryMaturity);
     final double rho = sabrParameter.getRho(expiryMaturity);
@@ -277,7 +277,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloor
     final double strike = cmsCapFloor.getStrike();
     final double maturity = underlyingSwap.getFixedLeg().getNthPayment(underlyingSwap.getFixedLeg().getNumberOfPayments() - 1).getPaymentTime()
         - cmsCapFloor.getSettlementTime();
-    final DoublesPair expiryMaturity = new DoublesPair(cmsCapFloor.getFixingTime(), maturity);
+    final DoublesPair expiryMaturity = DoublesPair.of(cmsCapFloor.getFixingTime(), maturity);
     final double alpha = sabrParameter.getAlpha(expiryMaturity);
     final double beta = sabrParameter.getBeta(expiryMaturity);
     final double rho = sabrParameter.getRho(expiryMaturity);

@@ -17,27 +17,29 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the simplified version of the OIS coupon definition.
  */
+@Test(groups = TestGroup.UNIT)
 public class CouponONSpreadSimplifiedDefinitionTest {
   private static final int EUR_SETTLEMENT_DAYS = 2;
-  private static final BusinessDayConvention EUR_BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention EUR_BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final boolean EUR_IS_EOM = true;
   //EUR Eonia
   private static final String EUR_OIS_NAME = "EUR EONIA";
   private static final Currency EUR_CUR = Currency.EUR;
   private static final Calendar EUR_CALENDAR = new MondayToFridayCalendar("EUR");
   private static final int EUR_PUBLICATION_LAG = 0;
-  private static final DayCount EUR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount EUR_DAY_COUNT = DayCounts.ACT_360;
   private static final IndexON EUR_OIS = new IndexON(EUR_OIS_NAME, EUR_CUR, EUR_DAY_COUNT, EUR_PUBLICATION_LAG);
   // Coupon EONIA 3m
   private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2011, 9, 7);
@@ -155,20 +157,4 @@ public class CouponONSpreadSimplifiedDefinitionTest {
     assertEquals("CouponOISSimplified definition: toDerivative", cpnExpected, cpnConverted);
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Tests the toDerivative method.
-   */
-  public void toDerivativeDeprecated() {
-    final String[] curveNames = new String[] {"Funding", "Forward"};
-    final CouponONSpread cpnConverted = EONIA_COUPON_DEFINITION.toDerivative(TRADE_DATE, curveNames);
-    final double paymentTime = TimeCalculator.getTimeBetween(TRADE_DATE, PAYMENT_DATE);
-    final double fixingStartTime = TimeCalculator.getTimeBetween(TRADE_DATE, START_ACCRUAL_DATE);
-    final double fixingEndTime = TimeCalculator.getTimeBetween(TRADE_DATE, END_ACCRUAL_DATE);
-    final double spreadAmount = SPREAD * NOTIONAL * PAYMENT_ACCRUAL_FACTOR;
-    final CouponONSpread cpnExpected = new CouponONSpread(EUR_CUR, paymentTime, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, EUR_OIS, fixingStartTime, fixingEndTime, FIXING_YEAR_FRACTION,
-        NOTIONAL, spreadAmount);
-    assertEquals("CouponOISSimplified definition: toDerivative", cpnExpected, cpnConverted);
-  }
 }

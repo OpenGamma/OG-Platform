@@ -11,9 +11,12 @@ import org.testng.annotations.Test;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.Month;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ScheduleCalculatorFactoryTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)

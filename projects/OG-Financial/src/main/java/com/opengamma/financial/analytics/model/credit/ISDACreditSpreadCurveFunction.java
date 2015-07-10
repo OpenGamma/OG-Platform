@@ -21,7 +21,6 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.math.curve.NodalObjectsCurve;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
@@ -36,10 +35,12 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.curve.ConfigDBCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.curve.CurveUtils;
+import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
+import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
+import com.opengamma.financial.analytics.curve.credit.CurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -50,6 +51,15 @@ import com.opengamma.util.time.Tenor;
  */
 public class ISDACreditSpreadCurveFunction extends AbstractFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(ISDACreditSpreadCurveFunction.class);
+
+  private CurveDefinitionSource _curveDefinitionSource;
+  private CurveSpecificationBuilder _curveSpecificationBuilder;
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    _curveDefinitionSource = ConfigDBCurveDefinitionSource.init(context, this);
+    _curveSpecificationBuilder = ConfigDBCurveSpecificationBuilder.init(context, this);
+  }
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext compilationContext, final Instant atInstant) {
@@ -64,15 +74,14 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         //TODO
         CurveSpecification curveSpecification;
-        final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
         final String idName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
         String curveName;
         try {
           curveName = "SAMEDAY_" + idName;
-          curveSpecification = CurveUtils.getCurveSpecification(now.toInstant(), configSource, now.toLocalDate(), curveName);
+          curveSpecification = CurveUtils.getCurveSpecification(now.toInstant(), _curveDefinitionSource, _curveSpecificationBuilder, now.toLocalDate(), curveName);
         } catch (final Exception e) {
           curveName = idName;
-          curveSpecification = CurveUtils.getCurveSpecification(now.toInstant(), configSource, now.toLocalDate(), idName);
+          curveSpecification = CurveUtils.getCurveSpecification(now.toInstant(), _curveDefinitionSource, _curveSpecificationBuilder, now.toLocalDate(), idName);
         }
 
         final List<Tenor> tenors = new ArrayList<>();
@@ -81,26 +90,18 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
           final Object marketSpreadObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
           if (marketSpreadObject != null) {
             tenors.add(strip.getCurveNode().getResolvedMaturity());
-            marketSpreads.add(10000 * (Double) marketSpreadObject);
+            marketSpreads.add((Double) marketSpreadObject);
           } else {
             s_logger.warn("Could not get spread data for {}, defaulting", strip.getIdentifier());
             tenors.add(strip.getCurveNode().getResolvedMaturity());
-            if (!marketSpreads.isEmpty()) {
-              //TODO: Find out why some tails are missing - for now set flat spread
-              marketSpreads.add(marketSpreads.get(marketSpreads.size() - 1));
-            } else {
-              marketSpreads.add(105.0);
-              //throw new OpenGammaRuntimeException("Couldnt get spreads for " + strip.getIdentifier());
-            }
+            throw new OpenGammaRuntimeException("Couldn't get spreads for " + strip.getIdentifier());
           }
         }
         if (tenors.size() == 0) {
           throw new OpenGammaRuntimeException("Could not get any credit spread data for curve called " + curveName);
         }
         final NodalObjectsCurve<Tenor, Double> curve = NodalObjectsCurve.from(tenors, marketSpreads);
-        final ValueProperties properties = createValueProperties()
-            .with(ValuePropertyNames.CURVE, idName)
-            .get();
+        final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURVE, idName).get();
         final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CREDIT_SPREAD_CURVE, target.toSpecification(), properties);
         return Collections.singleton(new ComputedValue(spec, curve));
       }
@@ -113,9 +114,7 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
       @Override
       public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
         @SuppressWarnings("synthetic-access")
-        final ValueProperties properties = createValueProperties()
-        .withAny(ValuePropertyNames.CURVE)
-        .get();
+        final ValueProperties properties = createValueProperties().withAny(ValuePropertyNames.CURVE).get();
         return Collections.singleton(new ValueSpecification(ValueRequirementNames.CREDIT_SPREAD_CURVE, target.toSpecification(), properties));
       }
 
@@ -129,9 +128,8 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
         //TODO
         String curveName = "SAMEDAY_" + Iterables.getOnlyElement(curveNames);
         final Set<ValueRequirement> requirements = new HashSet<>();
-        final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
         try {
-          final CurveSpecification specification = CurveUtils.getCurveSpecification(atInstant, configSource, atZDT.toLocalDate(), curveName);
+          final CurveSpecification specification = CurveUtils.getCurveSpecification(atInstant, _curveDefinitionSource, _curveSpecificationBuilder, atZDT.toLocalDate(), curveName);
           for (final CurveNodeWithIdentifier strip : specification.getNodes()) {
             if (strip.getCurveNode() instanceof CreditSpreadNode) {
               requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getIdentifier()));
@@ -143,7 +141,7 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
           //TODO backwards compatibility - remove when upstream functions select the correct prefix
           curveName = Iterables.getOnlyElement(curveNames);
           try {
-            final CurveSpecification specification = CurveUtils.getCurveSpecification(atInstant, configSource, atZDT.toLocalDate(), curveName);
+            final CurveSpecification specification = CurveUtils.getCurveSpecification(atInstant, _curveDefinitionSource, _curveSpecificationBuilder, atZDT.toLocalDate(), curveName);
             for (final CurveNodeWithIdentifier strip : specification.getNodes()) {
               if (strip.getCurveNode() instanceof CreditSpreadNode) {
                 requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getIdentifier()));

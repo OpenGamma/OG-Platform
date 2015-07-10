@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.opengamma.platform</groupId>
+    <artifactId>og-platform</artifactId>
+    <version>2.17.0-SNAPSHOT</version>
+    <relativePath>..</relativePath>
+  </parent>  
+  <artifactId>sesame-dev</artifactId>
+  <packaging>pom</packaging>
+  <name>Sesame-Dev</name>
+  <description>OpenGamma Sesame aggregator project</description>
+
+  <!-- ==================================================================== -->
+  <inceptionYear>2013</inceptionYear>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <!-- ==================================================================== -->
+  <modules>
+    <module>sesame-engine</module>
+    <module>sesame-function</module>
+    <module>sesame-web</module>
+    <module>sesame-war-main</module>
+    <module>sesame-component</module>
+    <module>sesame-server</module>
+    <module>sesame-examples</module>
+  </modules>
+
+  <!-- ==================================================================== -->
+  <profiles>
+    <!-- if "javadoc-jar" property is set on command line then build/attach javadoc jars -->
+    <profile>
+      <id>javadoc-jar</id>
+      <activation>
+        <property>
+          <name>javadoc-jar</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>${maven-javadoc-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>aggregate-jar</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <links>
+                <link>http://docs-static.opengamma.com/${project.version}/java/javadocs/</link>
+              </links>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+  <!-- ==================================================================== -->
+  <properties>
+    <!-- Version properties -->
+    <maven-checkstyle-plugin.version>2.10</maven-checkstyle-plugin.version><!-- downgrade to fix site plugin -->
+    <!-- Properties for maven-javadoc-plugin -->
+    <windowtitle>OpenGamma Platform, Sesame subproject API</windowtitle>
+    <doctitle><![CDATA[<h1>OpenGamma Platform, Sesame subproject API</h1>]]></doctitle>
+    <javadoc.footer.license>Released under the Apache License, Version 2.0</javadoc.footer.license>
+    <!-- Properties for clirr-maven-plugin -->
+    <clirr-maven-plugin.version>2.6.1</clirr-maven-plugin.version>
+    <comparisonVersion>2.1.0</comparisonVersion>
+    <!-- Properties for maven-install-plugin -->
+    <maven.install.skip>true</maven.install.skip>
+    <!-- Properties for maven-deploy-plugin -->
+    <maven.deploy.skip>true</maven.deploy.skip>
+  </properties>
+
+</project>

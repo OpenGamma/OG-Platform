@@ -5,26 +5,26 @@
  */
 package com.opengamma.financial.view.rest;
 
+import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.util.tuple.Pair;
-
-import java.util.Map;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * Encapsulates the arguments of a call to
@@ -56,52 +56,6 @@ public class SetMinimumLogModeRequest extends DirectBean {
   @Override
   public SetMinimumLogModeRequest.Meta metaBean() {
     return SetMinimumLogModeRequest.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -665941223:  // minimumLogMode
-        return getMinimumLogMode();
-      case -1538277118:  // targets
-        return getTargets();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -665941223:  // minimumLogMode
-        setMinimumLogMode((ExecutionLogMode) newValue);
-        return;
-      case -1538277118:  // targets
-        setTargets((Set<Pair<String, ValueSpecification>>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SetMinimumLogModeRequest other = (SetMinimumLogModeRequest) obj;
-      return JodaBeanUtils.equal(getMinimumLogMode(), other.getMinimumLogMode()) &&
-          JodaBeanUtils.equal(getTargets(), other.getTargets());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMinimumLogMode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTargets());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -152,6 +106,51 @@ public class SetMinimumLogModeRequest extends DirectBean {
    */
   public final Property<Set<Pair<String, ValueSpecification>>> targets() {
     return metaBean().targets().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public SetMinimumLogModeRequest clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SetMinimumLogModeRequest other = (SetMinimumLogModeRequest) obj;
+      return JodaBeanUtils.equal(getMinimumLogMode(), other.getMinimumLogMode()) &&
+          JodaBeanUtils.equal(getTargets(), other.getTargets());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMinimumLogMode());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTargets());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("SetMinimumLogModeRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("minimumLogMode").append('=').append(JodaBeanUtils.toString(getMinimumLogMode())).append(',').append(' ');
+    buf.append("targets").append('=').append(JodaBeanUtils.toString(getTargets())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -230,6 +229,32 @@ public class SetMinimumLogModeRequest extends DirectBean {
      */
     public final MetaProperty<Set<Pair<String, ValueSpecification>>> targets() {
       return _targets;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -665941223:  // minimumLogMode
+          return ((SetMinimumLogModeRequest) bean).getMinimumLogMode();
+        case -1538277118:  // targets
+          return ((SetMinimumLogModeRequest) bean).getTargets();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -665941223:  // minimumLogMode
+          ((SetMinimumLogModeRequest) bean).setMinimumLogMode((ExecutionLogMode) newValue);
+          return;
+        case -1538277118:  // targets
+          ((SetMinimumLogModeRequest) bean).setTargets((Set<Pair<String, ValueSpecification>>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

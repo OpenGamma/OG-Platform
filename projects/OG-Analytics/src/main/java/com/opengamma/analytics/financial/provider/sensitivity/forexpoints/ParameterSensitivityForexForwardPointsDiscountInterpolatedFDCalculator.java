@@ -23,7 +23,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * For an instrument, computes the sensitivity of a value (often the present value or a par spread) to the parameters used in the curve.
@@ -102,7 +102,7 @@ public class ParameterSensitivityForexForwardPointsDiscountInterpolatedFDCalcula
       }
       final String name = multicurveFwdpoints.getMulticurveProvider().getName(ccy);
       for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
-        result = result.plus(new ObjectsPair<>(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
+        result = result.plus(Pairs.of(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
       }
     }
     // Forward ON
@@ -137,7 +137,7 @@ public class ParameterSensitivityForexForwardPointsDiscountInterpolatedFDCalcula
       }
       final String name = multicurveFwdpoints.getMulticurveProvider().getName(index);
       for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
-        result = result.plus(new ObjectsPair<>(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
+        result = result.plus(Pairs.of(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
       }
     }
     // Forward Ibor
@@ -172,7 +172,7 @@ public class ParameterSensitivityForexForwardPointsDiscountInterpolatedFDCalcula
       }
       final String name = multicurveFwdpoints.getMulticurveProvider().getName(index);
       for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
-        result = result.plus(new ObjectsPair<>(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
+        result = result.plus(Pairs.of(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
       }
     }
     return result;

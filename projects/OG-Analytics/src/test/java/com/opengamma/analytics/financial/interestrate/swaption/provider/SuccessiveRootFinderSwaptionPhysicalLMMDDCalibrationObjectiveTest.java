@@ -34,11 +34,13 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the calibration engine for LMM DD calibration to European swaptions (by calibrating volatility parameters with a common multiplicative factor).
  */
+@Test(groups = TestGroup.UNIT)
 public class SuccessiveRootFinderSwaptionPhysicalLMMDDCalibrationObjectiveTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -69,7 +71,7 @@ public class SuccessiveRootFinderSwaptionPhysicalLMMDDCalibrationObjectiveTest {
     for (int loopexp = 0; loopexp < SWAP_TENOR_YEAR.length; loopexp++) {
       SWAP_INDEX[loopexp] = new IndexSwap(EUR1YEURIBOR3M, Period.ofYears(SWAP_TENOR_YEAR[loopexp]));
       SWAP_PAYER_DEFINITION[loopexp] = SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_INDEX[loopexp], NOTIONAL, RATE, FIXED_IS_PAYER, CALENDAR);
-      SWAPTION_LONG_PAYER_DEFINITION[loopexp] = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION[loopexp], IS_LONG);
+      SWAPTION_LONG_PAYER_DEFINITION[loopexp] = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION[loopexp], FIXED_IS_PAYER, IS_LONG);
     }
   }
   // to derivatives

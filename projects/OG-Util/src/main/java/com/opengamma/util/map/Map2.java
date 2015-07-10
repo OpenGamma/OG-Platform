@@ -8,8 +8,6 @@ package com.opengamma.util.map;
 import java.util.Collection;
 import java.util.Map;
 
-import com.opengamma.util.tuple.Pair;
-
 /**
  * Variant of {@link Map} that allows two keys to be used, equivalent to a map that has a composite key of both elements.
  * 
@@ -17,14 +15,28 @@ import com.opengamma.util.tuple.Pair;
  * @param <K2> key 2 type
  * @param <V> value type
  */
-public interface Map2<K1, K2, V> extends Map<Pair<K1, K2>, V> {
+public interface Map2<K1, K2, V> {
+
+  /**
+   * Returns the size of the map.
+   * 
+   * @return the map size
+   */
+  int size();
+
+  /**
+   * Checks if the map is empty.
+   * 
+   * @return true if empty
+   */
+  boolean isEmpty();
 
   /**
    * Returns the element referenced by the given keys.
    * 
    * @param key1 the first key
    * @param key2 the second key
-   * @return the value or null if the keypair is not in the map
+   * @return the value or null if the key pair is not in the map
    */
   V get(K1 key1, K2 key2);
 
@@ -79,5 +91,10 @@ public interface Map2<K1, K2, V> extends Map<Pair<K1, K2>, V> {
    * @param key1 the first key
    */
   void retainAllKey1(Collection<K1> key1);
+
+  /**
+   * Clears the map, removing all entries.
+   */
+  void clear();
 
 }

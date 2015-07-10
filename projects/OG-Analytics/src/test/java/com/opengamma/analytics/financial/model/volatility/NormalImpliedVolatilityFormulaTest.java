@@ -12,10 +12,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalPriceFunction;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test related to the implied volatility from the price in a normally distributed asset price world.
  */
+@Test(groups = TestGroup.UNIT)
 public class NormalImpliedVolatilityFormulaTest {
   private static final double FORWARD = 100.0;
   private static final double DF = 0.87;

@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -142,94 +143,6 @@ public class DelegatingHistoricalTimeSeriesProviderComponentFactory extends Abst
   @Override
   public DelegatingHistoricalTimeSeriesProviderComponentFactory.Meta metaBean() {
     return DelegatingHistoricalTimeSeriesProviderComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -614707837:  // publishRest
-        return isPublishRest();
-      case -547571616:  // provider1
-        return getProvider1();
-      case -547571615:  // provider2
-        return getProvider2();
-      case -547571614:  // provider3
-        return getProvider3();
-      case -547571613:  // provider4
-        return getProvider4();
-      case -547571612:  // provider5
-        return getProvider5();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -614707837:  // publishRest
-        setPublishRest((Boolean) newValue);
-        return;
-      case -547571616:  // provider1
-        setProvider1((ComponentInfo) newValue);
-        return;
-      case -547571615:  // provider2
-        setProvider2((ComponentInfo) newValue);
-        return;
-      case -547571614:  // provider3
-        setProvider3((ComponentInfo) newValue);
-        return;
-      case -547571613:  // provider4
-        setProvider4((ComponentInfo) newValue);
-        return;
-      case -547571612:  // provider5
-        setProvider5((ComponentInfo) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_provider1, "provider1");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      DelegatingHistoricalTimeSeriesProviderComponentFactory other = (DelegatingHistoricalTimeSeriesProviderComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          JodaBeanUtils.equal(getProvider1(), other.getProvider1()) &&
-          JodaBeanUtils.equal(getProvider2(), other.getProvider2()) &&
-          JodaBeanUtils.equal(getProvider3(), other.getProvider3()) &&
-          JodaBeanUtils.equal(getProvider4(), other.getProvider4()) &&
-          JodaBeanUtils.equal(getProvider5(), other.getProvider5()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProvider1());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProvider2());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProvider3());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProvider4());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProvider5());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -410,6 +323,69 @@ public class DelegatingHistoricalTimeSeriesProviderComponentFactory extends Abst
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public DelegatingHistoricalTimeSeriesProviderComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      DelegatingHistoricalTimeSeriesProviderComponentFactory other = (DelegatingHistoricalTimeSeriesProviderComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          (isPublishRest() == other.isPublishRest()) &&
+          JodaBeanUtils.equal(getProvider1(), other.getProvider1()) &&
+          JodaBeanUtils.equal(getProvider2(), other.getProvider2()) &&
+          JodaBeanUtils.equal(getProvider3(), other.getProvider3()) &&
+          JodaBeanUtils.equal(getProvider4(), other.getProvider4()) &&
+          JodaBeanUtils.equal(getProvider5(), other.getProvider5()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProvider1());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProvider2());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProvider3());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProvider4());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProvider5());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(256);
+    buf.append("DelegatingHistoricalTimeSeriesProviderComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("provider1").append('=').append(JodaBeanUtils.toString(getProvider1())).append(',').append(' ');
+    buf.append("provider2").append('=').append(JodaBeanUtils.toString(getProvider2())).append(',').append(' ');
+    buf.append("provider3").append('=').append(JodaBeanUtils.toString(getProvider3())).append(',').append(' ');
+    buf.append("provider4").append('=').append(JodaBeanUtils.toString(getProvider4())).append(',').append(' ');
+    buf.append("provider5").append('=').append(JodaBeanUtils.toString(getProvider5())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code DelegatingHistoricalTimeSeriesProviderComponentFactory}.
    */
@@ -564,6 +540,63 @@ public class DelegatingHistoricalTimeSeriesProviderComponentFactory extends Abst
      */
     public final MetaProperty<ComponentInfo> provider5() {
       return _provider5;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((DelegatingHistoricalTimeSeriesProviderComponentFactory) bean).getClassifier();
+        case -614707837:  // publishRest
+          return ((DelegatingHistoricalTimeSeriesProviderComponentFactory) bean).isPublishRest();
+        case -547571616:  // provider1
+          return ((DelegatingHistoricalTimeSeriesProviderComponentFactory) bean).getProvider1();
+        case -547571615:  // provider2
+          return ((DelegatingHistoricalTimeSeriesProviderComponentFactory) bean).getProvider2();
+        case -547571614:  // provider3
+          return ((DelegatingHistoricalTimeSeriesProviderComponentFactory) bean).getProvider3();
+        case -547571613:  // provider4
+          return ((DelegatingHistoricalTimeSeriesProviderComponentFactory) bean).getProvider4();
+        case -547571612:  // provider5
+          return ((DelegatingHistoricalTimeSeriesProviderComponentFactory) bean).getProvider5();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((DelegatingHistoricalTimeSeriesProviderComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -614707837:  // publishRest
+          ((DelegatingHistoricalTimeSeriesProviderComponentFactory) bean).setPublishRest((Boolean) newValue);
+          return;
+        case -547571616:  // provider1
+          ((DelegatingHistoricalTimeSeriesProviderComponentFactory) bean).setProvider1((ComponentInfo) newValue);
+          return;
+        case -547571615:  // provider2
+          ((DelegatingHistoricalTimeSeriesProviderComponentFactory) bean).setProvider2((ComponentInfo) newValue);
+          return;
+        case -547571614:  // provider3
+          ((DelegatingHistoricalTimeSeriesProviderComponentFactory) bean).setProvider3((ComponentInfo) newValue);
+          return;
+        case -547571613:  // provider4
+          ((DelegatingHistoricalTimeSeriesProviderComponentFactory) bean).setProvider4((ComponentInfo) newValue);
+          return;
+        case -547571612:  // provider5
+          ((DelegatingHistoricalTimeSeriesProviderComponentFactory) bean).setProvider5((ComponentInfo) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((DelegatingHistoricalTimeSeriesProviderComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((DelegatingHistoricalTimeSeriesProviderComponentFactory) bean)._provider1, "provider1");
+      super.validate(bean);
     }
 
   }

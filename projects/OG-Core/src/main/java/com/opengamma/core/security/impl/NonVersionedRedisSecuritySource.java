@@ -36,7 +36,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import com.opengamma.util.metric.MetricProducer;
+import com.opengamma.util.metric.OpenGammaMetricRegistry;
 
 /*
  * REDIS DATA STRUCTURES:
@@ -57,7 +57,7 @@ import com.opengamma.util.metric.MetricProducer;
  * which stores all Security documents as a Fudge-encoded BLOB in Redis as a
  * backing store.
  */
-public class NonVersionedRedisSecuritySource implements SecuritySource, MetricProducer {
+public class NonVersionedRedisSecuritySource implements SecuritySource {
   private static final Logger s_logger = LoggerFactory.getLogger(NonVersionedRedisSecuritySource.class);
   private final JedisPool _jedisPool;
   private final FudgeContext _fudgeContext;
@@ -89,6 +89,7 @@ public class NonVersionedRedisSecuritySource implements SecuritySource, MetricPr
     _jedisPool = jedisPool;
     _redisPrefix = redisPrefix;
     _fudgeContext = fudgeContext;
+    registerMetrics(OpenGammaMetricRegistry.getSummaryInstance(), OpenGammaMetricRegistry.getDetailedInstance(), "NonVersionedRedisSecuritySource");
   }
 
   /**
@@ -115,7 +116,6 @@ public class NonVersionedRedisSecuritySource implements SecuritySource, MetricPr
     return _redisPrefix;
   }
 
-  @Override
   public void registerMetrics(MetricRegistry summaryRegistry, MetricRegistry detailRegistry, String namePrefix) {
     _getTimer = summaryRegistry.timer(namePrefix + ".get");
     _putTimer = summaryRegistry.timer(namePrefix + ".put");
@@ -176,7 +176,7 @@ public class NonVersionedRedisSecuritySource implements SecuritySource, MetricPr
     }
     
     try (Timer.Context context = _putTimer.time()) {
-      byte[] securityData = SecurityFudgeUtil.convertToFudge(getFudgeContext(), security); 
+      byte[] securityData = SecurityFudgeUtil.convertToFudge(getFudgeContext(), security);
 
       Jedis jedis = getJedisPool().getResource();
       try {
@@ -307,6 +307,7 @@ public class NonVersionedRedisSecuritySource implements SecuritySource, MetricPr
     ArgumentChecker.notNull(uniqueId, "uniqueId");
 
     Security result = executeGet(new GetWorker<Security>() {
+      @Override
       public Security query(Jedis jedis) {
         return getInJedis(jedis, uniqueId);
       }
@@ -319,6 +320,7 @@ public class NonVersionedRedisSecuritySource implements SecuritySource, MetricPr
     ArgumentChecker.notNull(objectId, "objectId");
 
     Security result = executeGet(new GetWorker<Security>() {
+      @Override
       public Security query(Jedis jedis) {
         return getInJedis(jedis, UniqueId.of(objectId, null));
       }

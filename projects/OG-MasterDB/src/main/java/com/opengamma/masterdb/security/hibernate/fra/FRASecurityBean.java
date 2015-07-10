@@ -8,6 +8,7 @@ package com.opengamma.masterdb.security.hibernate.fra;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -64,94 +65,6 @@ public class FRASecurityBean extends SecurityBean {
   @Override
   public FRASecurityBean.Meta metaBean() {
     return FRASecurityBean.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 575402001:  // currency
-        return getCurrency();
-      case -934795532:  // region
-        return getRegion();
-      case -2129778896:  // startDate
-        return getStartDate();
-      case -1607727319:  // endDate
-        return getEndDate();
-      case 3493088:  // rate
-        return getRate();
-      case -1413853096:  // amount
-        return getAmount();
-      case -1770633379:  // underlying
-        return getUnderlying();
-      case 1255202043:  // fixingDate
-        return getFixingDate();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 575402001:  // currency
-        setCurrency((CurrencyBean) newValue);
-        return;
-      case -934795532:  // region
-        setRegion((ExternalIdBean) newValue);
-        return;
-      case -2129778896:  // startDate
-        setStartDate((ZonedDateTimeBean) newValue);
-        return;
-      case -1607727319:  // endDate
-        setEndDate((ZonedDateTimeBean) newValue);
-        return;
-      case 3493088:  // rate
-        setRate((Double) newValue);
-        return;
-      case -1413853096:  // amount
-        setAmount((Double) newValue);
-        return;
-      case -1770633379:  // underlying
-        setUnderlying((ExternalIdBean) newValue);
-        return;
-      case 1255202043:  // fixingDate
-        setFixingDate((ZonedDateTimeBean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      FRASecurityBean other = (FRASecurityBean) obj;
-      return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getRegion(), other.getRegion()) &&
-          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
-          JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
-          JodaBeanUtils.equal(getRate(), other.getRate()) &&
-          JodaBeanUtils.equal(getAmount(), other.getAmount()) &&
-          JodaBeanUtils.equal(getUnderlying(), other.getUnderlying()) &&
-          JodaBeanUtils.equal(getFixingDate(), other.getFixingDate()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegion());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEndDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingDate());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -355,6 +268,72 @@ public class FRASecurityBean extends SecurityBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public FRASecurityBean clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FRASecurityBean other = (FRASecurityBean) obj;
+      return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getRegion(), other.getRegion()) &&
+          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
+          JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
+          JodaBeanUtils.equal(getRate(), other.getRate()) &&
+          JodaBeanUtils.equal(getAmount(), other.getAmount()) &&
+          JodaBeanUtils.equal(getUnderlying(), other.getUnderlying()) &&
+          JodaBeanUtils.equal(getFixingDate(), other.getFixingDate()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRegion());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingDate());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(288);
+    buf.append("FRASecurityBean{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("region").append('=').append(JodaBeanUtils.toString(getRegion())).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
+    buf.append("endDate").append('=').append(JodaBeanUtils.toString(getEndDate())).append(',').append(' ');
+    buf.append("rate").append('=').append(JodaBeanUtils.toString(getRate())).append(',').append(' ');
+    buf.append("amount").append('=').append(JodaBeanUtils.toString(getAmount())).append(',').append(' ');
+    buf.append("underlying").append('=').append(JodaBeanUtils.toString(getUnderlying())).append(',').append(' ');
+    buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(getFixingDate())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code FRASecurityBean}.
    */
@@ -525,6 +504,61 @@ public class FRASecurityBean extends SecurityBean {
      */
     public final MetaProperty<ZonedDateTimeBean> fixingDate() {
       return _fixingDate;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          return ((FRASecurityBean) bean).getCurrency();
+        case -934795532:  // region
+          return ((FRASecurityBean) bean).getRegion();
+        case -2129778896:  // startDate
+          return ((FRASecurityBean) bean).getStartDate();
+        case -1607727319:  // endDate
+          return ((FRASecurityBean) bean).getEndDate();
+        case 3493088:  // rate
+          return ((FRASecurityBean) bean).getRate();
+        case -1413853096:  // amount
+          return ((FRASecurityBean) bean).getAmount();
+        case -1770633379:  // underlying
+          return ((FRASecurityBean) bean).getUnderlying();
+        case 1255202043:  // fixingDate
+          return ((FRASecurityBean) bean).getFixingDate();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          ((FRASecurityBean) bean).setCurrency((CurrencyBean) newValue);
+          return;
+        case -934795532:  // region
+          ((FRASecurityBean) bean).setRegion((ExternalIdBean) newValue);
+          return;
+        case -2129778896:  // startDate
+          ((FRASecurityBean) bean).setStartDate((ZonedDateTimeBean) newValue);
+          return;
+        case -1607727319:  // endDate
+          ((FRASecurityBean) bean).setEndDate((ZonedDateTimeBean) newValue);
+          return;
+        case 3493088:  // rate
+          ((FRASecurityBean) bean).setRate((Double) newValue);
+          return;
+        case -1413853096:  // amount
+          ((FRASecurityBean) bean).setAmount((Double) newValue);
+          return;
+        case -1770633379:  // underlying
+          ((FRASecurityBean) bean).setUnderlying((ExternalIdBean) newValue);
+          return;
+        case 1255202043:  // fixingDate
+          ((FRASecurityBean) bean).setFixingDate((ZonedDateTimeBean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

@@ -7,6 +7,7 @@ package com.opengamma.livedata.cogda.msg;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -51,58 +52,6 @@ public abstract class CogdaLiveDataCommandResponseMessage extends CogdaCommandRe
   @Override
   public CogdaLiveDataCommandResponseMessage.Meta metaBean() {
     return CogdaLiveDataCommandResponseMessage.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1478790936:  // subscriptionId
-        return getSubscriptionId();
-      case -1440170590:  // normalizationScheme
-        return getNormalizationScheme();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1478790936:  // subscriptionId
-        setSubscriptionId((ExternalId) newValue);
-        return;
-      case -1440170590:  // normalizationScheme
-        setNormalizationScheme((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_subscriptionId, "subscriptionId");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CogdaLiveDataCommandResponseMessage other = (CogdaLiveDataCommandResponseMessage) obj;
-      return JodaBeanUtils.equal(getSubscriptionId(), other.getSubscriptionId()) &&
-          JodaBeanUtils.equal(getNormalizationScheme(), other.getNormalizationScheme()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSubscriptionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNormalizationScheme());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -154,6 +103,49 @@ public abstract class CogdaLiveDataCommandResponseMessage extends CogdaCommandRe
    */
   public final Property<String> normalizationScheme() {
     return metaBean().normalizationScheme().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CogdaLiveDataCommandResponseMessage other = (CogdaLiveDataCommandResponseMessage) obj;
+      return JodaBeanUtils.equal(getSubscriptionId(), other.getSubscriptionId()) &&
+          JodaBeanUtils.equal(getNormalizationScheme(), other.getNormalizationScheme()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSubscriptionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNormalizationScheme());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("CogdaLiveDataCommandResponseMessage{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("subscriptionId").append('=').append(JodaBeanUtils.toString(getSubscriptionId())).append(',').append(' ');
+    buf.append("normalizationScheme").append('=').append(JodaBeanUtils.toString(getNormalizationScheme())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -231,6 +223,37 @@ public abstract class CogdaLiveDataCommandResponseMessage extends CogdaCommandRe
      */
     public final MetaProperty<String> normalizationScheme() {
       return _normalizationScheme;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1478790936:  // subscriptionId
+          return ((CogdaLiveDataCommandResponseMessage) bean).getSubscriptionId();
+        case -1440170590:  // normalizationScheme
+          return ((CogdaLiveDataCommandResponseMessage) bean).getNormalizationScheme();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1478790936:  // subscriptionId
+          ((CogdaLiveDataCommandResponseMessage) bean).setSubscriptionId((ExternalId) newValue);
+          return;
+        case -1440170590:  // normalizationScheme
+          ((CogdaLiveDataCommandResponseMessage) bean).setNormalizationScheme((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((CogdaLiveDataCommandResponseMessage) bean)._subscriptionId, "subscriptionId");
+      super.validate(bean);
     }
 
   }

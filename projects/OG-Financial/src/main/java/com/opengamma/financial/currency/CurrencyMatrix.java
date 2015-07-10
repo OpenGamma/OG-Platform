@@ -7,12 +7,15 @@ package com.opengamma.financial.currency;
 
 import java.util.Set;
 
+import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
 
 /**
  * Represents a currency conversion matrix.
  */
+@Config(description = "Currency matrix", group = ConfigGroups.CURRENCY)
 public interface CurrencyMatrix extends UniqueIdentifiable {
 
   /**

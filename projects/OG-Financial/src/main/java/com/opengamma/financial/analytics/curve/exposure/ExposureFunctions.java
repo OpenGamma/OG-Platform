@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -22,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -32,7 +34,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  */
 @BeanDefinition
-@Config(description = "Exposure functions")
+@Config(description = "Exposure functions", group = ConfigGroups.CURVES)
 public class ExposureFunctions extends DirectBean implements Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
 
   /** Serialization version */
@@ -98,74 +100,6 @@ public class ExposureFunctions extends DirectBean implements Serializable, Uniqu
   @Override
   public ExposureFunctions.Meta metaBean() {
     return ExposureFunctions.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case 3373707:  // name
-        return getName();
-      case -1787010476:  // exposureFunctions
-        return getExposureFunctions();
-      case -462409803:  // idsToNames
-        return getIdsToNames();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case -1787010476:  // exposureFunctions
-        setExposureFunctions((List<String>) newValue);
-        return;
-      case -462409803:  // idsToNames
-        setIdsToNames((Map<ExternalId, String>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_name, "name");
-    JodaBeanUtils.notNull(_exposureFunctions, "exposureFunctions");
-    JodaBeanUtils.notNull(_idsToNames, "idsToNames");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ExposureFunctions other = (ExposureFunctions) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getExposureFunctions(), other.getExposureFunctions()) &&
-          JodaBeanUtils.equal(getIdsToNames(), other.getIdsToNames());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExposureFunctions());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIdsToNames());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -269,6 +203,57 @@ public class ExposureFunctions extends DirectBean implements Serializable, Uniqu
    */
   public final Property<Map<ExternalId, String>> idsToNames() {
     return metaBean().idsToNames().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ExposureFunctions clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ExposureFunctions other = (ExposureFunctions) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getExposureFunctions(), other.getExposureFunctions()) &&
+          JodaBeanUtils.equal(getIdsToNames(), other.getIdsToNames());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExposureFunctions());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIdsToNames());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("ExposureFunctions{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("exposureFunctions").append('=').append(JodaBeanUtils.toString(getExposureFunctions())).append(',').append(' ');
+    buf.append("idsToNames").append('=').append(JodaBeanUtils.toString(getIdsToNames())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -380,6 +365,49 @@ public class ExposureFunctions extends DirectBean implements Serializable, Uniqu
      */
     public final MetaProperty<Map<ExternalId, String>> idsToNames() {
       return _idsToNames;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return ((ExposureFunctions) bean).getUniqueId();
+        case 3373707:  // name
+          return ((ExposureFunctions) bean).getName();
+        case -1787010476:  // exposureFunctions
+          return ((ExposureFunctions) bean).getExposureFunctions();
+        case -462409803:  // idsToNames
+          return ((ExposureFunctions) bean).getIdsToNames();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          ((ExposureFunctions) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case 3373707:  // name
+          ((ExposureFunctions) bean).setName((String) newValue);
+          return;
+        case -1787010476:  // exposureFunctions
+          ((ExposureFunctions) bean).setExposureFunctions((List<String>) newValue);
+          return;
+        case -462409803:  // idsToNames
+          ((ExposureFunctions) bean).setIdsToNames((Map<ExternalId, String>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ExposureFunctions) bean)._name, "name");
+      JodaBeanUtils.notNull(((ExposureFunctions) bean)._exposureFunctions, "exposureFunctions");
+      JodaBeanUtils.notNull(((ExposureFunctions) bean)._idsToNames, "idsToNames");
     }
 
   }

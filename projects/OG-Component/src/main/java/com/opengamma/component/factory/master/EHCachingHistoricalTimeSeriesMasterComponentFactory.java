@@ -8,6 +8,9 @@ package com.opengamma.component.factory.master;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import net.sf.ehcache.CacheManager;
+
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -27,12 +30,10 @@ import com.opengamma.master.historicaltimeseries.impl.DataHistoricalTimeSeriesMa
 import com.opengamma.master.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesMaster;
 
-import net.sf.ehcache.CacheManager;
-
 /**
- * Component factory for the combined historicalTimeSeries master.
+ * Component factory for the combined historical time-series master.
  * <p>
- * This factory creates a combined historicalTimeSeries master from an underlying and user master.
+ * This factory creates a combined historical time-series master from an underlying and user master.
  */
 @BeanDefinition
 public class EHCachingHistoricalTimeSeriesMasterComponentFactory extends AbstractComponentFactory {
@@ -94,73 +95,6 @@ public class EHCachingHistoricalTimeSeriesMasterComponentFactory extends Abstrac
   @Override
   public EHCachingHistoricalTimeSeriesMasterComponentFactory.Meta metaBean() {
     return EHCachingHistoricalTimeSeriesMasterComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -614707837:  // publishRest
-        return isPublishRest();
-      case -1770633379:  // underlying
-        return getUnderlying();
-      case -1452875317:  // cacheManager
-        return getCacheManager();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -614707837:  // publishRest
-        setPublishRest((Boolean) newValue);
-        return;
-      case -1770633379:  // underlying
-        setUnderlying((HistoricalTimeSeriesMaster) newValue);
-        return;
-      case -1452875317:  // cacheManager
-        setCacheManager((CacheManager) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_underlying, "underlying");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      EHCachingHistoricalTimeSeriesMasterComponentFactory other = (EHCachingHistoricalTimeSeriesMasterComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          JodaBeanUtils.equal(getUnderlying(), other.getUnderlying()) &&
-          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -263,6 +197,60 @@ public class EHCachingHistoricalTimeSeriesMasterComponentFactory extends Abstrac
    */
   public final Property<CacheManager> cacheManager() {
     return metaBean().cacheManager().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public EHCachingHistoricalTimeSeriesMasterComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      EHCachingHistoricalTimeSeriesMasterComponentFactory other = (EHCachingHistoricalTimeSeriesMasterComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          (isPublishRest() == other.isPublishRest()) &&
+          JodaBeanUtils.equal(getUnderlying(), other.getUnderlying()) &&
+          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("EHCachingHistoricalTimeSeriesMasterComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("underlying").append('=').append(JodaBeanUtils.toString(getUnderlying())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -372,6 +360,48 @@ public class EHCachingHistoricalTimeSeriesMasterComponentFactory extends Abstrac
      */
     public final MetaProperty<CacheManager> cacheManager() {
       return _cacheManager;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((EHCachingHistoricalTimeSeriesMasterComponentFactory) bean).getClassifier();
+        case -614707837:  // publishRest
+          return ((EHCachingHistoricalTimeSeriesMasterComponentFactory) bean).isPublishRest();
+        case -1770633379:  // underlying
+          return ((EHCachingHistoricalTimeSeriesMasterComponentFactory) bean).getUnderlying();
+        case -1452875317:  // cacheManager
+          return ((EHCachingHistoricalTimeSeriesMasterComponentFactory) bean).getCacheManager();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((EHCachingHistoricalTimeSeriesMasterComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -614707837:  // publishRest
+          ((EHCachingHistoricalTimeSeriesMasterComponentFactory) bean).setPublishRest((Boolean) newValue);
+          return;
+        case -1770633379:  // underlying
+          ((EHCachingHistoricalTimeSeriesMasterComponentFactory) bean).setUnderlying((HistoricalTimeSeriesMaster) newValue);
+          return;
+        case -1452875317:  // cacheManager
+          ((EHCachingHistoricalTimeSeriesMasterComponentFactory) bean).setCacheManager((CacheManager) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((EHCachingHistoricalTimeSeriesMasterComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((EHCachingHistoricalTimeSeriesMasterComponentFactory) bean)._underlying, "underlying");
+      super.validate(bean);
     }
 
   }

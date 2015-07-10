@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -118,65 +119,6 @@ public class RemoteMastersComponentFactory extends AbstractComponentFactory {
     return RemoteMastersComponentFactory.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -332625701:  // baseUri
-        return getBaseUri();
-      case -614707837:  // publishRest
-        return isPublishRest();
-      case -1495762275:  // jmsConnector
-        return getJmsConnector();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -332625701:  // baseUri
-        setBaseUri((URI) newValue);
-        return;
-      case -614707837:  // publishRest
-        setPublishRest((Boolean) newValue);
-        return;
-      case -1495762275:  // jmsConnector
-        setJmsConnector((JmsConnector) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_baseUri, "baseUri");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      RemoteMastersComponentFactory other = (RemoteMastersComponentFactory) obj;
-      return JodaBeanUtils.equal(getBaseUri(), other.getBaseUri()) &&
-          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseUri());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the remote URI.
@@ -251,6 +193,57 @@ public class RemoteMastersComponentFactory extends AbstractComponentFactory {
    */
   public final Property<JmsConnector> jmsConnector() {
     return metaBean().jmsConnector().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public RemoteMastersComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      RemoteMastersComponentFactory other = (RemoteMastersComponentFactory) obj;
+      return JodaBeanUtils.equal(getBaseUri(), other.getBaseUri()) &&
+          (isPublishRest() == other.isPublishRest()) &&
+          JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBaseUri());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("RemoteMastersComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("baseUri").append('=').append(JodaBeanUtils.toString(getBaseUri())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("jmsConnector").append('=').append(JodaBeanUtils.toString(getJmsConnector())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -344,6 +337,42 @@ public class RemoteMastersComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<JmsConnector> jmsConnector() {
       return _jmsConnector;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -332625701:  // baseUri
+          return ((RemoteMastersComponentFactory) bean).getBaseUri();
+        case -614707837:  // publishRest
+          return ((RemoteMastersComponentFactory) bean).isPublishRest();
+        case -1495762275:  // jmsConnector
+          return ((RemoteMastersComponentFactory) bean).getJmsConnector();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -332625701:  // baseUri
+          ((RemoteMastersComponentFactory) bean).setBaseUri((URI) newValue);
+          return;
+        case -614707837:  // publishRest
+          ((RemoteMastersComponentFactory) bean).setPublishRest((Boolean) newValue);
+          return;
+        case -1495762275:  // jmsConnector
+          ((RemoteMastersComponentFactory) bean).setJmsConnector((JmsConnector) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((RemoteMastersComponentFactory) bean)._baseUri, "baseUri");
+      super.validate(bean);
     }
 
   }

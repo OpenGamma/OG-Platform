@@ -19,9 +19,9 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.threeten.bp.Duration;
 
 import com.opengamma.engine.calcnode.msg.Invocations;
-import com.opengamma.engine.calcnode.msg.RemoteCalcNodeMessage;
 import com.opengamma.engine.calcnode.msg.Invocations.PerConfiguration;
 import com.opengamma.engine.calcnode.msg.Invocations.PerConfiguration.PerFunction;
+import com.opengamma.engine.calcnode.msg.RemoteCalcNodeMessage;
 import com.opengamma.transport.FudgeMessageSender;
 import com.opengamma.util.ArgumentChecker;
 

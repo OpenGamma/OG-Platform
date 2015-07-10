@@ -17,8 +17,9 @@ import com.opengamma.analytics.math.statistics.distribution.StudentTDistribution
 import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class StudentTDistributionMaximumLikelihoodEstimatorTest {
 
   private static final DistributionParameterEstimator<Double> ESTIMATOR = new StudentTDistributionMaximumLikelihoodEstimator();

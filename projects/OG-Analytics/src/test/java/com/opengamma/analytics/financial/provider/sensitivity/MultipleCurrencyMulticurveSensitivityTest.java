@@ -21,23 +21,26 @@ import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivi
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Tests the MultipleCurrencyCurveSensitivityMarket class.
  */
+@Test(groups = TestGroup.UNIT)
 public class MultipleCurrencyMulticurveSensitivityTest {
 
-  private static final List<DoublesPair> SENSI_DATA_1 = Arrays.asList(new DoublesPair[] {new DoublesPair(1, 10), new DoublesPair(2, 20), new DoublesPair(3, 30), new DoublesPair(4, 40)});
-  private static final List<DoublesPair> SENSI_DATA_2 = Arrays.asList(new DoublesPair[] {new DoublesPair(1, 40), new DoublesPair(2, 30), new DoublesPair(3, 20), new DoublesPair(4, 10)});
-  private static final List<DoublesPair> SENSI_DATA_3 = Arrays.asList(new DoublesPair[] {new DoublesPair(11, 40), new DoublesPair(12, 30), new DoublesPair(13, 20), new DoublesPair(14, 10)});
+  private static final List<DoublesPair> SENSI_DATA_1 = Arrays.asList(new DoublesPair[] {DoublesPair.of(1d, 10d), DoublesPair.of(2d, 20d), DoublesPair.of(3d, 30d), DoublesPair.of(4d, 40d) });
+  private static final List<DoublesPair> SENSI_DATA_2 = Arrays.asList(new DoublesPair[] {DoublesPair.of(1d, 40d), DoublesPair.of(2d, 30d), DoublesPair.of(3d, 20d), DoublesPair.of(4d, 10d) });
+  private static final List<DoublesPair> SENSI_DATA_3 = Arrays.asList(new DoublesPair[] {DoublesPair.of(11d, 40d), DoublesPair.of(12d, 30d), DoublesPair.of(13d, 20d), DoublesPair.of(14d, 10d) });
   private static final List<ForwardSensitivity> SENSI_FWD_1 = new ArrayList<>();
   static {
-    SENSI_FWD_1.add(new ForwardSensitivity(0.5, 0.75, 0.26, 11));
-    SENSI_FWD_1.add(new ForwardSensitivity(0.75, 1.00, 0.26, 12));
-    SENSI_FWD_1.add(new ForwardSensitivity(1.00, 1.25, 0.24, 13));
+    SENSI_FWD_1.add(new SimplyCompoundedForwardSensitivity(0.5, 0.75, 0.26, 11));
+    SENSI_FWD_1.add(new SimplyCompoundedForwardSensitivity(0.75, 1.00, 0.26, 12));
+    SENSI_FWD_1.add(new SimplyCompoundedForwardSensitivity(1.00, 1.25, 0.24, 13));
   }
   private static final String CURVE_NAME_1 = "A";
   private static final String CURVE_NAME_2 = "B";
@@ -76,8 +79,8 @@ public class MultipleCurrencyMulticurveSensitivityTest {
     assertEquals("MultipleCurrencyCurveSensitivityMarket: of", cs, mcs.getSensitivity(ccy1));
     MultipleCurrencyMulticurveSensitivity constructor = new MultipleCurrencyMulticurveSensitivity();
     constructor = constructor.plus(ccy1, cs);
-    AssertSensivityObjects.assertEquals("MultipleCurrencyCurveSensitivityMarket: of", mcs.cleaned(), constructor.cleaned(), TOLERANCE);
-    AssertSensivityObjects.assertEquals("MultipleCurrencyCurveSensitivityMarket: getSensitivity", new MulticurveSensitivity(), mcs.getSensitivity(Currency.CAD), TOLERANCE);
+    AssertSensitivityObjects.assertEquals("MultipleCurrencyCurveSensitivityMarket: of", mcs.cleaned(), constructor.cleaned(), TOLERANCE);
+    AssertSensitivityObjects.assertEquals("MultipleCurrencyCurveSensitivityMarket: getSensitivity", new MulticurveSensitivity(), mcs.getSensitivity(Currency.CAD), TOLERANCE);
   }
 
   @Test
@@ -91,11 +94,11 @@ public class MultipleCurrencyMulticurveSensitivityTest {
     final MultipleCurrencyMulticurveSensitivity mcs3 = mcs.plus(mcs2);
     final Map<String, List<DoublesPair>> sum = InterestRateCurveSensitivityUtils.addSensitivity(SENSI_11, SENSI_22);
     final MultipleCurrencyMulticurveSensitivity mcs3Expected = MultipleCurrencyMulticurveSensitivity.of(ccy1, MulticurveSensitivity.of(sum, SENSI_FWD_11));
-    AssertSensivityObjects.assertEquals("", mcs3Expected.cleaned(), mcs3.cleaned(), TOLERANCE);
+    AssertSensitivityObjects.assertEquals("", mcs3Expected.cleaned(), mcs3.cleaned(), TOLERANCE);
     mcs = mcs.plus(ccy2, cs);
     assertEquals("MultipleCurrencyCurveSensitivityMarket: plusMultipliedBy", cs, mcs.getSensitivity(ccy1));
     assertEquals("MultipleCurrencyCurveSensitivityMarket: plusMultipliedBy", cs, mcs.getSensitivity(ccy2));
-    AssertSensivityObjects.assertEquals("", mcs.plus(mcs).cleaned(), mcs.multipliedBy(2.0).cleaned(), TOLERANCE);
+    AssertSensitivityObjects.assertEquals("", mcs.plus(mcs).cleaned(), mcs.multipliedBy(2.0).cleaned(), TOLERANCE);
   }
 
   @Test
@@ -108,7 +111,7 @@ public class MultipleCurrencyMulticurveSensitivityTest {
     mcs1 = mcs1.plus(ccy2, cs2);
     MultipleCurrencyMulticurveSensitivity mcs2 = MultipleCurrencyMulticurveSensitivity.of(ccy2, cs2);
     mcs2 = mcs2.plus(ccy1, cs1);
-    AssertSensivityObjects.assertEquals("MultipleCurrencyCurveSensitivityMarket: cleaned", mcs1.cleaned(), mcs2.cleaned(), TOLERANCE);
+    AssertSensitivityObjects.assertEquals("MultipleCurrencyCurveSensitivityMarket: cleaned", mcs1.cleaned(), mcs2.cleaned(), TOLERANCE);
   }
 
   @Test
@@ -120,7 +123,7 @@ public class MultipleCurrencyMulticurveSensitivityTest {
     final MultipleCurrencyMulticurveSensitivity mcs = MultipleCurrencyMulticurveSensitivity.of(ccy1, cs);
     final MultipleCurrencyMulticurveSensitivity mcsConverted = mcs.converted(ccy2, fxMatrix);
     final MultipleCurrencyMulticurveSensitivity mcsExpected = MultipleCurrencyMulticurveSensitivity.of(ccy2, cs.multipliedBy(fxMatrix.getFxRate(ccy1, ccy2)));
-    AssertSensivityObjects.assertEquals("MultipleCurrencyCurveSensitivityMarket: converted", mcsExpected.cleaned(), mcsConverted.cleaned(), TOLERANCE);
+    AssertSensitivityObjects.assertEquals("MultipleCurrencyCurveSensitivityMarket: converted", mcsExpected.cleaned(), mcsConverted.cleaned(), TOLERANCE);
   }
 
   @Test

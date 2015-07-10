@@ -38,15 +38,15 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 /**
  * <bold>DO NOT USE THIS CLASS</bold.
  * This class is a work in progress and cannot be used in its current state.
- * <p/>
+ * <p>
  * A caching {@link SecuritySource} which is only capable of satisfying
  * certain very specific calls. It is <em>not</em> intended to be a general purpose
  * cache.
- * <p/>
+ * <p>
  * <strong>This class is a work in progress and is <em>NOT</em> production capable.
  * The javadocs below are for indication of expected future functionality when
  * fully completed.</strong>
- * <p/>
+ * <p>
  * While the results of other calls will be used to populate the cache, only three
  * calls can be satisfied from the cache:
  * <ul>
@@ -54,13 +54,13 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  *   <li>{@link #get(ExternalIdBundle)}</li>
  *   <li>{@link #get(ExternalIdBundle, VersionCorrection)}</li>
  * <ul>
- * <p/>
+ * <p>
  * In addition, this implementation <strong>does not support {@link ExternalId} changes</strong>.
  * While {@link #get(UniqueId)} by definition can always be cached, because a {@link Security}
  * never changes within a particular unique identifier, external identifiers can change over time.
  * <em>This implementation may return incorrect results if used in an environment where
  * external identifiers <strong>that are used for lookups</strong> are used.</em>
- * <p/>
+ * <p>
  * This fundamentally limits the utility of this source to the the following conditions:
  * <ul>
  *   <li>Identifier changes (such as ticker rolls or corporate actions) happen as part of a
@@ -69,7 +69,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  *       (because they are surrogate keys into an existing system that guarantees consistency
  *       and uniqueness over time).</li>
  * </ul>
- * <p/>
+ * <p>
  * Where there are multiple instances of the same {@code RedisCachingSecuritySource} being
  * pointed at the same repository (given as a combination of the same pool and same prefix),
  * by default, all instances will attempt to update the Redis instance, which is not ideal.

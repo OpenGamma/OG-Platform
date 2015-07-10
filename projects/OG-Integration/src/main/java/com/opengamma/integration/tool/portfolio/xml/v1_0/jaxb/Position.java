@@ -20,19 +20,20 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
-
-import com.google.common.collect.ImmutableMap;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.google.common.collect.ImmutableMap;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -97,87 +98,6 @@ public class Position extends DirectBean {
   @Override
   public Position.Meta metaBean() {
     return Position.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        return getId();
-      case -1924302699:  // externalSystemId
-        return getExternalSystemId();
-      case -1285004149:  // quantity
-        return getQuantity();
-      case -865715313:  // trades
-        return getTrades();
-      case 949122880:  // security
-        return getSecurity();
-      case -163631792:  // listedSecurityDefinition
-        return getListedSecurityDefinition();
-      case -1075726114:  // additionalAttributes
-        return getAdditionalAttributes();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        setId((String) newValue);
-        return;
-      case -1924302699:  // externalSystemId
-        setExternalSystemId((IdWrapper) newValue);
-        return;
-      case -1285004149:  // quantity
-        setQuantity((BigDecimal) newValue);
-        return;
-      case -865715313:  // trades
-        setTrades((List<Trade>) newValue);
-        return;
-      case 949122880:  // security
-        setSecurity((IdWrapper) newValue);
-        return;
-      case -163631792:  // listedSecurityDefinition
-        setListedSecurityDefinition((ListedSecurityDefinition) newValue);
-        return;
-      case -1075726114:  // additionalAttributes
-        setAdditionalAttributes((Map<String, String>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      Position other = (Position) obj;
-      return JodaBeanUtils.equal(getId(), other.getId()) &&
-          JodaBeanUtils.equal(getExternalSystemId(), other.getExternalSystemId()) &&
-          JodaBeanUtils.equal(getQuantity(), other.getQuantity()) &&
-          JodaBeanUtils.equal(getTrades(), other.getTrades()) &&
-          JodaBeanUtils.equal(getSecurity(), other.getSecurity()) &&
-          JodaBeanUtils.equal(getListedSecurityDefinition(), other.getListedSecurityDefinition()) &&
-          JodaBeanUtils.equal(getAdditionalAttributes(), other.getAdditionalAttributes());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalSystemId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getQuantity());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTrades());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurity());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getListedSecurityDefinition());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAdditionalAttributes());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -348,6 +268,66 @@ public class Position extends DirectBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public Position clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      Position other = (Position) obj;
+      return JodaBeanUtils.equal(getId(), other.getId()) &&
+          JodaBeanUtils.equal(getExternalSystemId(), other.getExternalSystemId()) &&
+          JodaBeanUtils.equal(getQuantity(), other.getQuantity()) &&
+          JodaBeanUtils.equal(getTrades(), other.getTrades()) &&
+          JodaBeanUtils.equal(getSecurity(), other.getSecurity()) &&
+          JodaBeanUtils.equal(getListedSecurityDefinition(), other.getListedSecurityDefinition()) &&
+          JodaBeanUtils.equal(getAdditionalAttributes(), other.getAdditionalAttributes());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExternalSystemId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getQuantity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTrades());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getListedSecurityDefinition());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAdditionalAttributes());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(256);
+    buf.append("Position{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("externalSystemId").append('=').append(JodaBeanUtils.toString(getExternalSystemId())).append(',').append(' ');
+    buf.append("quantity").append('=').append(JodaBeanUtils.toString(getQuantity())).append(',').append(' ');
+    buf.append("trades").append('=').append(JodaBeanUtils.toString(getTrades())).append(',').append(' ');
+    buf.append("security").append('=').append(JodaBeanUtils.toString(getSecurity())).append(',').append(' ');
+    buf.append("listedSecurityDefinition").append('=').append(JodaBeanUtils.toString(getListedSecurityDefinition())).append(',').append(' ');
+    buf.append("additionalAttributes").append('=').append(JodaBeanUtils.toString(getAdditionalAttributes())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code Position}.
    */
@@ -504,6 +484,57 @@ public class Position extends DirectBean {
      */
     public final MetaProperty<Map<String, String>> additionalAttributes() {
       return _additionalAttributes;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          return ((Position) bean).getId();
+        case -1924302699:  // externalSystemId
+          return ((Position) bean).getExternalSystemId();
+        case -1285004149:  // quantity
+          return ((Position) bean).getQuantity();
+        case -865715313:  // trades
+          return ((Position) bean).getTrades();
+        case 949122880:  // security
+          return ((Position) bean).getSecurity();
+        case -163631792:  // listedSecurityDefinition
+          return ((Position) bean).getListedSecurityDefinition();
+        case -1075726114:  // additionalAttributes
+          return ((Position) bean).getAdditionalAttributes();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          ((Position) bean).setId((String) newValue);
+          return;
+        case -1924302699:  // externalSystemId
+          ((Position) bean).setExternalSystemId((IdWrapper) newValue);
+          return;
+        case -1285004149:  // quantity
+          ((Position) bean).setQuantity((BigDecimal) newValue);
+          return;
+        case -865715313:  // trades
+          ((Position) bean).setTrades((List<Trade>) newValue);
+          return;
+        case 949122880:  // security
+          ((Position) bean).setSecurity((IdWrapper) newValue);
+          return;
+        case -163631792:  // listedSecurityDefinition
+          ((Position) bean).setListedSecurityDefinition((ListedSecurityDefinition) newValue);
+          return;
+        case -1075726114:  // additionalAttributes
+          ((Position) bean).setAdditionalAttributes((Map<String, String>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

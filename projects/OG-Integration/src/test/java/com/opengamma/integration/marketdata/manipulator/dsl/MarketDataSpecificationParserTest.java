@@ -14,6 +14,7 @@ import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecificati
 import com.opengamma.engine.marketdata.spec.LatestHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecificationParser;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.TestGroup;
@@ -29,7 +30,7 @@ public class MarketDataSpecificationParserTest {
   @Test
   public void liveValid() {
     MarketDataSpecification spec = MarketDataSpecificationParser.parse("live:sourceName");
-    assertEquals(new LiveMarketDataSpecification("sourceName"), spec);
+    assertEquals(LiveMarketDataSpecification.of("sourceName"), spec);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -45,7 +46,7 @@ public class MarketDataSpecificationParserTest {
   @Test
   public void snapshotValid() {
     MarketDataSpecification spec = MarketDataSpecificationParser.parse("snapshot:scheme~value~version");
-    assertEquals(new UserMarketDataSpecification(UniqueId.of("scheme", "value", "version")), spec);
+    assertEquals(UserMarketDataSpecification.of(UniqueId.of("scheme", "value", "version")), spec);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

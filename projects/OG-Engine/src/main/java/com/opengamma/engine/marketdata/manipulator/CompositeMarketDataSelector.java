@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine.marketdata.manipulator;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.fudgemsg.FudgeField;
@@ -17,6 +15,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -30,12 +29,11 @@ public final class CompositeMarketDataSelector implements MarketDataSelector {
   /**
    * The underlying shift specifications.
    */
-  private final Set<MarketDataSelector> _underlyingSpecifications;
+  private final Set<MarketDataSelector> _underlyingSelectors;
 
-  private CompositeMarketDataSelector(Set<MarketDataSelector> underlyingSpecifications) {
-    // TODO should this allow an empty set? what if you want a scenario that doesn't change anything as part of a simulation?
-    ArgumentChecker.notEmpty(underlyingSpecifications, "underlyingSpecifications");
-    _underlyingSpecifications = underlyingSpecifications;
+  private CompositeMarketDataSelector(Set<MarketDataSelector> underlyingSelectors) {
+    ArgumentChecker.notNull(underlyingSelectors, "underlyingSpecifications");
+    _underlyingSelectors = underlyingSelectors;
   }
 
   /**
@@ -59,14 +57,13 @@ public final class CompositeMarketDataSelector implements MarketDataSelector {
   }
 
   @Override
-  public DistinctMarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId,
+  public DistinctMarketDataSelector findMatchingSelector(ValueSpecification valueSpecification,
                                                          String calculationConfigurationName,
                                                          SelectorResolver resolver) {
 
-    for (MarketDataSelector specification : _underlyingSpecifications) {
-
+    for (MarketDataSelector selector : _underlyingSelectors) {
       DistinctMarketDataSelector matchingSelector =
-          specification.findMatchingSelector(structureId, calculationConfigurationName, resolver);
+          selector.findMatchingSelector(valueSpecification, calculationConfigurationName, resolver);
       if (matchingSelector != null) {
         return matchingSelector;
       }
@@ -75,19 +72,9 @@ public final class CompositeMarketDataSelector implements MarketDataSelector {
   }
 
   @Override
-  public Set<StructureType> getApplicableStructureTypes() {
-
-    Set<StructureType> types = new HashSet<>();
-    for (MarketDataSelector specification : _underlyingSpecifications) {
-      types.addAll(specification.getApplicableStructureTypes());
-    }
-    return Collections.unmodifiableSet(types);
-  }
-
-  @Override
   public boolean hasSelectionsDefined() {
 
-    for (MarketDataSelector specification : _underlyingSpecifications) {
+    for (MarketDataSelector specification : _underlyingSelectors) {
       if (specification.hasSelectionsDefined()) {
         return true;
       }
@@ -105,17 +92,17 @@ public final class CompositeMarketDataSelector implements MarketDataSelector {
     }
 
     CompositeMarketDataSelector that = (CompositeMarketDataSelector) o;
-    return _underlyingSpecifications.equals(that._underlyingSpecifications);
+    return _underlyingSelectors.equals(that._underlyingSelectors);
   }
 
   @Override
   public int hashCode() {
-    return _underlyingSpecifications.hashCode();
+    return _underlyingSelectors.hashCode();
   }
 
   public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
     MutableFudgeMsg msg = serializer.newMessage();
-    for (MarketDataSelector selector : _underlyingSpecifications) {
+    for (MarketDataSelector selector : _underlyingSelectors) {
       serializer.addToMessageWithClassHeaders(msg, SELECTORS, null, selector);
     }
     return msg;

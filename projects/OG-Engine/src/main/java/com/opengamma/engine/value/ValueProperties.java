@@ -10,25 +10,29 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
+import org.fudgemsg.MutableFudgeMsg;
+import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.google.common.collect.Sets;
+import com.opengamma.engine.fudgemsg.ValuePropertiesFudgeBuilder;
+import com.opengamma.engine.value.properties.AbstractValueProperty;
+import com.opengamma.engine.value.properties.AdditivePropertiesBuilder;
+import com.opengamma.engine.value.properties.PropertyNameSet;
+import com.opengamma.engine.value.properties.SubtractivePropertiesBuilder;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
 /**
  * An immutable set of constraints on the values required, or properties of the value produced.
  * <p>
- * This class is immutable and thread-safe.
+ * This class is immutable and thread-safe. The builders used to create instances are not thread-safe.
  * 
  * @see ValuePropertyNames
  */
@@ -43,7 +47,27 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
   /**
    * Builder pattern for constructing {@link ValueProperties} objects.
    */
-  public interface Builder {
+  public abstract static class Builder {
+
+    /**
+     * Creates a new instance, backed by the property array.
+     * 
+     * @param properties the property hash, never null. This will be owned by the object and must not be modified after calling.
+     * @return the new instance
+     */
+    protected static ValueProperties createAdditive(final AbstractValueProperty[] properties) {
+      return new SimpleValueProperties(properties);
+    }
+
+    /**
+     * Creates a new instance, backed by the given set.
+     * 
+     * @param properties the set of missing properties. This will be owned by the object and must not be modified after calling.
+     * @return the new instance
+     */
+    protected static ValueProperties createSubtractive(final Set<String> properties) {
+      return new NearInfiniteValueProperties(properties);
+    }
 
     /**
      * Adds a property value to the builder.
@@ -54,7 +78,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
      * @param propertyValue the value to add, not null
      * @return {@code this} for chaining in the builder pattern, not null
      */
-    Builder with(String propertyName, String propertyValue);
+    public abstract Builder with(String propertyName, String propertyValue);
 
     /**
      * Adds property values to the builder.
@@ -65,7 +89,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
      * @param propertyValues the values to add, not null and not containing nulls
      * @return {@code this} for chaining in the builder pattern, not null
      */
-    Builder with(String propertyName, String... propertyValues);
+    public abstract Builder with(String propertyName, String... propertyValues);
 
     /**
      * Adds property values to the builder.
@@ -76,7 +100,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
      * @param propertyValues the values to add, not null or empty, and not containing nulls
      * @return the builder instance
      */
-    Builder with(String propertyName, Collection<String> propertyValues);
+    public abstract Builder with(String propertyName, Collection<String> propertyValues);
 
     /**
      * Adds a wild-card property value.
@@ -86,7 +110,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
      * @param propertyName the name of the property, not null
      * @return {@code this} for chaining in the builder pattern, not null
      */
-    Builder withAny(String propertyName);
+    public abstract Builder withAny(String propertyName);
 
     /**
      * Declares a property as optional when used as a constraint.
@@ -98,7 +122,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
      * @param propertyName the name of the property, not null
      * @return {@code this} for chaining in the builder pattern, not null
      */
-    Builder withOptional(String propertyName);
+    public abstract Builder withOptional(String propertyName);
 
     /**
      * Clears the optional flag of a property.
@@ -106,7 +130,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
      * @param propertyName the name of the property, not null
      * @return {@code this} for chaining in the builder pattern, not null
      */
-    Builder notOptional(String propertyName);
+    public abstract Builder notOptional(String propertyName);
 
     /**
      * Removes a property from the builder definition.
@@ -114,522 +138,22 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
      * @param propertyName the name of the property, not null
      * @return {@code this} for chaining in the builder pattern, not null
      */
-    Builder withoutAny(String propertyName);
+    public abstract Builder withoutAny(String propertyName);
 
     /**
      * Completes the builder, creating a {@code ValueProperties} instance based on the current state of the builder.
      * 
      * @return the property set
      */
-    ValueProperties get();
-
-  }
-
-  private static final class BuilderImpl implements Builder {
-    /**
-     * The required properties.
-     */
-    private final Map<String, Set<String>> _properties;
-    /**
-     * The optional properties.
-     */
-    private Set<String> _optional;
+    public abstract ValueProperties get();
 
     /**
-     * Creates an instance.
-     */
-    private BuilderImpl() {
-      _properties = new HashMap<String, Set<String>>();
-    }
-
-    /**
-     * Creates an instance.
+     * Creates a deep copy of the builder.
      * 
-     * @param properties the required properties, not null
-     * @param optional the optional properties, not null
+     * @return a copy of the builder
      */
-    private BuilderImpl(final Map<String, Set<String>> properties, final Set<String> optional) {
-      _properties = new HashMap<String, Set<String>>(properties);
-      _optional = (optional != null) ? new HashSet<String>(optional) : null;
-    }
+    public abstract Builder copy();
 
-    @Override
-    public Builder with(String propertyName, final String propertyValue) {
-      ArgumentChecker.notNull(propertyName, "propertyName");
-      ArgumentChecker.notNull(propertyValue, "propertyValue");
-      propertyName = ValueRequirement.getInterned(propertyName);
-      final Set<String> previous = _properties.put(propertyName, Collections.singleton(propertyValue));
-      if (previous != null) {
-        if (previous.isEmpty() || previous.contains(propertyValue)) {
-          _properties.put(propertyName, previous);
-        } else {
-          final Set<String> replacement = new HashSet<String>(previous);
-          replacement.add(propertyValue);
-          _properties.put(propertyName, Collections.unmodifiableSet(replacement));
-        }
-      }
-      return this;
-    }
-
-    @Override
-    public Builder with(final String propertyName, final String... propertyValues) {
-      ArgumentChecker.notNull(propertyValues, "propertyValues");
-      return with(propertyName, Arrays.asList(propertyValues));
-    }
-
-    @Override
-    public Builder with(String propertyName, final Collection<String> propertyValues) {
-      ArgumentChecker.notNull(propertyName, "propertyName");
-      ArgumentChecker.notNull(propertyValues, "propertyValues");
-      if (propertyValues.isEmpty()) {
-        throw new IllegalArgumentException("propertyValues must contain at least one element");
-      }
-      if (propertyValues.contains(null)) {
-        throw new IllegalArgumentException("propertyValues cannot contain null");
-      }
-      propertyName = ValueRequirement.getInterned(propertyName);
-      final Set<String> previous = _properties.put(propertyName, getUnmodifiableSet(propertyValues));
-      if (previous != null) {
-        if (previous.isEmpty()) {
-          _properties.put(propertyName, previous);
-        } else {
-          final Set<String> replacement = new HashSet<String>(previous);
-          replacement.addAll(propertyValues);
-          _properties.put(propertyName, Collections.unmodifiableSet(replacement));
-        }
-      }
-      return this;
-    }
-
-    @Override
-    public Builder withAny(final String propertyName) {
-      ArgumentChecker.notNull(propertyName, "propertyName");
-      _properties.put(ValueRequirement.getInterned(propertyName), Collections.<String>emptySet());
-      return this;
-    }
-
-    @Override
-    public Builder withOptional(final String propertyName) {
-      ArgumentChecker.notNull(propertyName, "propertyName");
-      if (_optional == null) {
-        _optional = new HashSet<String>();
-      }
-      _optional.add(propertyName);
-      return this;
-    }
-
-    @Override
-    public Builder notOptional(final String propertyName) {
-      ArgumentChecker.notNull(propertyName, "propertyName");
-      if (_optional != null) {
-        _optional.remove(propertyName);
-      }
-      return this;
-    }
-
-    @Override
-    public Builder withoutAny(final String propertyName) {
-      ArgumentChecker.notNull(propertyName, "propertyName");
-      _properties.remove(propertyName);
-      if (_optional != null) {
-        _optional.remove(propertyName);
-        if (_optional.isEmpty()) {
-          _optional = null;
-        }
-      }
-      return this;
-    }
-
-    @Override
-    public ValueProperties get() {
-      if (_optional != null) {
-        for (String optionalProperty : _optional) {
-          if (!_properties.containsKey(optionalProperty)) {
-            _properties.put(optionalProperty, Collections.<String>emptySet());
-          }
-        }
-        return new ValuePropertiesImpl(getSmallMap(_properties), getUnmodifiableSet(_optional));
-      } else {
-        if (_properties.isEmpty()) {
-          return EMPTY;
-        }
-        return new ValuePropertiesImpl(getSmallMap(_properties), Collections.<String>emptySet());
-      }
-    }
-
-    private Set<String> getUnmodifiableSet(final Collection<String> values) {
-      switch (values.size()) {
-        case 0:
-          return Collections.emptySet();
-        case 1:
-          return Collections.singleton(values.iterator().next());
-        default:
-          return Collections.unmodifiableSet((values instanceof Set) ? (Set<String>) values : new HashSet<String>(values));
-      }
-    }
-
-    private static <K, V> Map<K, V> getSmallMap(Map<K, V> map) {
-      switch (map.size()) {
-        case 0:
-          return Collections.emptyMap();
-        case 1:
-          for (Entry<K, V> entry : map.entrySet()) {
-            return Collections.singletonMap(entry.getKey(), entry.getValue());
-          }
-        default:
-          return new HashMap<K, V>(map);
-      }
-    }
-  }
-
-  /**
-   * A value properties implementation holding a set of properties.
-   */
-  public static final class ValuePropertiesImpl extends ValueProperties {
-
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
-    /**
-     * The properties.
-     */
-    private final Map<String, Set<String>> _properties;
-    /**
-     * The optional properties.
-     */
-    private final Set<String> _optional;
-    /**
-     * Hashcode of the property set.
-     */
-    private volatile int _hashCode;
-    /**
-     * Indicates whether the hash-code is valid.
-     */
-    private volatile boolean _hashCodeValid;
-
-    /**
-     * Creates an instance.
-     * 
-     * @param properties the required properties, not null
-     * @param optional the optional properties, not null
-     */
-    private ValuePropertiesImpl(final Map<String, Set<String>> properties, final Set<String> optional) {
-      _properties = properties;
-      _optional = optional;
-    }
-
-    @Override
-    public Builder copy() {
-      return new BuilderImpl(_properties, _optional);
-    }
-
-    @Override
-    public Set<String> getProperties() {
-      return _properties.keySet();
-    }
-
-    @Override
-    public Set<String> getValues(final String propertyName) {
-      return _properties.get(propertyName);
-    }
-
-    @Override
-    public boolean isOptional(final String propertyName) {
-      return _optional.contains(propertyName);
-    }
-
-    @Override
-    public boolean isSatisfiedBy(final ValueProperties properties) {
-      assert properties != null;
-      nextProperty: // CSIGNORE [DVI-122]
-      for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
-        final Set<String> available = properties.getValues(property.getKey());
-        if (available == null) {
-          if (!isOptional(property.getKey())) {
-            // Can't be satisfied - required property never defined
-            return false;
-          }
-          continue;
-        }
-        if (!isOptional(property.getKey())) {
-          if (properties.isOptional(property.getKey())) {
-            // Can't be satisfied - required property might not be defined
-            return false;
-          }
-        }
-        if (available.isEmpty() || property.getValue().isEmpty()) {
-          // Other properties can supply anything - satisfying this requirement
-          // or this requirement is for anything and so satisfied.
-          continue;
-        }
-        for (String value : property.getValue()) {
-          if (available.contains(value)) {
-            // There is at least one value that can satisfy this requirement
-            continue nextProperty;
-          }
-        }
-        // This requirement cannot be satisfied
-        return false;
-      }
-      // All requirements can be satisfied
-      return true;
-    }
-
-    @Override
-    public ValueProperties compose(final ValueProperties properties) {
-      assert properties != null;
-      if ((properties == EMPTY) || (properties == INFINITE)) {
-        return this;
-      }
-      for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
-        final Set<String> available = properties.getValues(property.getKey());
-        if (available == null) {
-          // This property unchanged in output
-          continue;
-        }
-        if (available.isEmpty()) {
-          // This property different in output if optional here, and composed against a required
-          if (isOptional(property.getKey()) && !properties.isOptional(property.getKey())) {
-            return composeImpl(properties);
-          }
-          continue;
-        }
-        if (property.getValue().isEmpty()) {
-          // Requires a subset in the output
-          return composeImpl(properties);
-        }
-        if (property.getValue().size() != available.size()) {
-          // Requires an intersection in the output
-          return composeImpl(properties);
-        }
-        for (String value : property.getValue()) {
-          if (!available.contains(value)) {
-            // Requires an intersection in the output
-            return composeImpl(properties);
-          }
-        }
-      }
-      return this;
-    }
-
-    private ValueProperties composeImpl(final ValueProperties properties) {
-      final Map<String, Set<String>> composed = new HashMap<String, Set<String>>();
-      Set<String> optional = null;
-      int otherAvailable = 0;
-      nextProperty: // CSIGNORE [DVI-122]
-      for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
-        final Set<String> available = properties.getValues(property.getKey());
-        if (available == null) {
-          // Other is not defined, so use current value
-          composed.put(property.getKey(), property.getValue());
-          // Preserve optionality from this property set
-          if (isOptional(property.getKey())) {
-            if (optional == null) {
-              optional = new HashSet<String>();
-            }
-            optional.add(property.getKey());
-          }
-          continue;
-        }
-        // Preserve least optionality from property sets
-        if (properties.isOptional(property.getKey()) && isOptional(property.getKey())) {
-          if (optional == null) {
-            optional = new HashSet<String>();
-          }
-          optional.add(property.getKey());
-        }
-        if (property.getValue().isEmpty()) {
-          // This is a wild-card so use other values
-          composed.put(property.getKey(), available);
-          otherAvailable++;
-          continue;
-        }
-        if (available.isEmpty()) {
-          // Other is wild-card so use current value
-          composed.put(property.getKey(), property.getValue());
-          continue;
-        }
-        if (property.getValue().size() != available.size()) {
-          final Set<String> intersection = Sets.intersection(property.getValue(), available);
-          // An empty intersection means no resulting property
-          if (!intersection.isEmpty()) {
-            composed.put(property.getKey(), intersection);
-          }
-          continue;
-        }
-        for (String value : property.getValue()) {
-          if (!available.contains(value)) {
-            final Set<String> intersection = Sets.intersection(property.getValue(), available);
-            // An empty intersection means no resulting property
-            if (!intersection.isEmpty()) {
-              composed.put(property.getKey(), intersection);
-            }
-            continue nextProperty;
-          }
-        }
-        // Property is identical in both
-        composed.put(property.getKey(), property.getValue());
-      }
-      if ((composed.size() == otherAvailable) && (otherAvailable == _properties.size())) {
-        // We've just built a map containing only the other property values, so possibly return that original
-        if (properties instanceof ValuePropertiesImpl) {
-          if (otherAvailable == ((ValuePropertiesImpl) properties)._properties.size()) {
-            return properties;
-          }
-        }
-      }
-      return new ValuePropertiesImpl(Collections.unmodifiableMap(composed), (optional != null) ? Collections.unmodifiableSet(optional) : Collections.<String>emptySet());
-    }
-
-    @Override
-    public ValueProperties intersect(final ValueProperties other) {
-      // Our property values are present unless missing from the other set
-      final Map<String, Set<String>> intersection = new HashMap<String, Set<String>>();
-      Set<String> optional = null;
-      boolean different = false;
-      for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
-        final Set<String> otherValues = other.getValues(property.getKey());
-        if (otherValues == null) {
-          // Property not defined in the other set
-          different = true;
-          continue;
-        }
-        final Set<String> commonValues;
-        if (otherValues.isEmpty()) {
-          // Other set is wild-card, so take our values
-          commonValues = property.getValue();
-        } else if (property.getValue().isEmpty()) {
-          // We are wile-card, so take other values
-          commonValues = otherValues;
-        } else {
-          // Intersection of the property values
-          commonValues = Sets.newHashSetWithExpectedSize(property.getValue().size());
-          for (String value : property.getValue()) {
-            if (otherValues.contains(value)) {
-              commonValues.add(value);
-            } else {
-              different = true;
-            }
-          }
-          if (commonValues.isEmpty()) {
-            // No common values
-            continue;
-          }
-        }
-        intersection.put(property.getKey(), commonValues);
-        // Preserve least optionality
-        if (isOptional(property.getKey())) {
-          if (other.isOptional(property.getKey())) {
-            if (optional == null) {
-              optional = new HashSet<String>();
-            }
-            optional.add(property.getKey());
-          } else {
-            different = true;
-          }
-        }
-      }
-      if (intersection.isEmpty()) {
-        return EMPTY;
-      } else {
-        if (different) {
-          return new ValuePropertiesImpl(Collections.unmodifiableMap(intersection), (optional != null) ? Collections.unmodifiableSet(optional) : Collections.<String>emptySet());
-        } else {
-          return this;
-        }
-      }
-    }
-
-    @Override
-    public boolean isStrict() {
-      for (Set<String> property : _properties.values()) {
-        if (property.size() != 1) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-      if (o == this) {
-        return true;
-      }
-      if (!(o instanceof ValuePropertiesImpl)) {
-        return false;
-      }
-      final ValuePropertiesImpl other = (ValuePropertiesImpl) o;
-      return _properties.equals(other._properties) && ObjectUtils.equals(_optional, other._optional);
-    }
-
-    @Override
-    public int hashCode() {
-      if (_hashCodeValid) {
-        return _hashCode;
-      } else {
-        final int hashCode = _properties.hashCode() ^ _optional.hashCode();
-        _hashCode = hashCode;
-        _hashCodeValid = true;
-        return hashCode;
-      }
-    }
-
-    @Override
-    public boolean isEmpty() {
-      return _properties.isEmpty();
-    }
-
-    public static String toString(final Map<String, Set<String>> properties, final Set<String> optional, final boolean strict) {
-      Pattern escapePattern = Pattern.compile("[=\\?\\[\\],\\\\]");
-      final StringBuilder sb = new StringBuilder();
-      if (strict) {
-        sb.append("{");
-      }
-      boolean first = true;
-      for (Map.Entry<String, Set<String>> property : properties.entrySet()) {
-        if (first) {
-          first = false;
-        } else {
-          sb.append(",");
-        }
-        sb.append(escape(escapePattern, property.getKey())).append("=");
-        boolean isOptional = optional.contains(property.getKey());
-        boolean grouped = strict || property.getValue().size() > 1 || isOptional;
-        if (grouped) {
-          sb.append("[");
-        }
-        boolean firstValue = true;
-        for (String value : property.getValue()) {
-          if (firstValue) {
-            firstValue = false;
-          } else {
-            sb.append(",");
-          }
-          sb.append(escape(escapePattern, value));
-        }
-        if (grouped) {
-          sb.append("]");
-        }
-        if (isOptional) {
-          sb.append("?");
-        }
-      }
-      if (strict) {
-        sb.append("}");
-      }
-      return sb.toString();
-    }
-
-    @Override
-    public String toSimpleString() {
-      return toString(_properties, _optional, false);
-    }
-
-    @Override
-    public String toString() {
-      return toString(_properties, _optional, true);
-    }
   }
 
   private static String escape(Pattern p, String s) {
@@ -637,272 +161,506 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
   }
 
   /**
-   * Parses value property strings of the forms:
-   * <ul>
-   * <li>EMPTY
-   * <li>INFINITE
-   * <li>INFINITE-{name1,name2}
-   * <li>{name1=[value1,value2],name2=[value3]}
-   * </ul>
-   * These are intentionally the same as the forms generated by {@link #toString()}. For maximum flexibility, and especially for user input, more abbreviated forms are also valid. In particular:
-   * <ul>
-   * <li>Curly braces may be omitted
-   * <li>Square brackets around single values may be omitted
-   * <li>'name1=[]' is same as 'name1'
-   * <li>Spaces are trimmed
-   * </ul>
-   * Escape sequences may be used for the following special characters: ',', '=', '[', ']', '?', '\' and ' '. An escape sequence begins with '\'.
-   * <p>
-   * A null or empty input string is treated as the empty set of value properties.
+   * Compares two sets.
    * 
-   * @param s the string to parse
-   * @return the value properties, not null
+   * @param s1 the first set, may be null
+   * @param s2 the second set, may be null
+   * @return negative if the first is less, zero if equal, positive if greater
    */
-  public static ValueProperties parse(String s) {
-    // REVIEW jonathan 2011-05-11 -- this is bordering on being complex enough to write a grammar and auto-generate the
-    // lexer, but it works and ValueProperties is unlikely to change.
-    // REVIEW andrew 2011-08-08 -- even as a big fan of crazy-mad home brew state machines I'd use an auto-generated lexer
-    if (StringUtils.isBlank(s) || EMPTY.toString().equals(s)) {
-      return EMPTY;
-    }
-    s = s.trim();
-    if (INFINITE.toString().equals(s)) {
-      return INFINITE;
-    }
-    boolean nearlyInfinite = false;
-    Builder builder = null;
-    ValueProperties nearlyInfiniteResult = null;
-    if (s.startsWith("INFINITE-")) {
-      nearlyInfinite = true;
-      s = s.substring(9, s.length());
-      nearlyInfiniteResult = INFINITE;
-    } else {
-      builder = builder();
-    }
-
-    if (s.charAt(0) == '{' && s.charAt(s.length() - 1) == '}') {
-      // Strip away any curly brace wrappers
-      s = s.substring(1, s.length() - 1);
-    }
-
-    int pos = 0;
-    boolean isOptional = false;
-    StringBuilder substring = new StringBuilder();
-    String name = null;
-    Set<String> values = new HashSet<String>();
-    boolean bracketedValue = false;
-    boolean inValue = false;
-    while (pos <= s.length()) {
-      char next = pos < s.length() ? s.charAt(pos) : 0;
-      if (next == '\\') { // Begin escape sequence
-        pos++;
-        if (pos < s.length()) {
-          char escapedCharacter = s.charAt(pos);
-          if (escapedCharacter == '\\' || escapedCharacter == ',' || escapedCharacter == '='
-              || escapedCharacter == '[' || escapedCharacter == ']' || escapedCharacter == '?'
-              || escapedCharacter == ' ') {
-            substring.append(escapedCharacter);
-          } else {
-            throw new IllegalArgumentException("Unrecognised escape sequence: \\" + escapedCharacter);
-          }
-        } else {
-          throw new IllegalArgumentException("Unexpected end of ValueProperties string: " + s);
-        }
-      } else if (next == '=') { // Separator between name and values
-        if (inValue) {
-          throw new IllegalArgumentException("Unexpected '=' at position " + pos);
-        }
-        name = substring.toString();
-        substring = new StringBuilder();
-        inValue = true;
-        if (pos + 1 < s.length() && s.charAt(pos + 1) == '[') {
-          bracketedValue = true;
-          pos++;
-        }
-      } else if (next == ']') { // End of values
-        inValue = false;
-        if (s.length() > pos + 1 && s.charAt(pos + 1) == '?') {
-          isOptional = true;
-          pos++;
-        }
-      } else if (next == ',' || next == 0) { // Separator between values in a group or between properties
-        if (substring.length() > 0) {
-          if (name == null) {
-            name = substring.toString();
-          } else {
-            values.add(substring.toString());
-          }
-          substring = new StringBuilder();
-        }
-        if (!inValue || !bracketedValue) {
-          // End of a property
-          if (values.isEmpty()) {
-            if (nearlyInfinite) {
-              nearlyInfiniteResult = nearlyInfiniteResult.withoutAny(name);
-            } else {
-              builder.withAny(name);
-            }
-          } else {
-            if (nearlyInfinite) {
-              throw new IllegalArgumentException("Property values not supported in nearly infinite ValueProperties. Found: " + values);
-            }
-            builder.with(name, values);
-          }
-          if (isOptional) {
-            builder.withOptional(name);
-          }
-          name = null;
-          values = new HashSet<String>();
-          isOptional = false;
-          inValue = false;
-          bracketedValue = false;
-        }
-      } else if (next != ' ') {
-        substring.append(next);
-      }
-      pos++;
-    }
-
-    if (name != null || substring.length() > 0) {
-      throw new IllegalArgumentException("Unexpected end of ValueProperties string: " + s);
-    }
-
-    return nearlyInfinite ? nearlyInfiniteResult : builder.get();
-  }
-
-  private static final class NearlyInfinitePropertiesBuilder implements Builder {
-
-    private final Set<String> _without;
-
-    public NearlyInfinitePropertiesBuilder(final Set<String> without) {
-      _without = without;
-    }
-
-    @Override
-    public Builder with(String propertyName, String propertyValue) {
-      if (_without.contains(propertyName)) {
-        throw new UnsupportedOperationException("Can't add arbitrary property values to the nearly infinite set");
-      }
-      return this;
-    }
-
-    @Override
-    public Builder with(String propertyName, String... propertyValues) {
-      if (_without.contains(propertyName)) {
-        throw new UnsupportedOperationException("Can't add arbitrary property values to the nearly infinite set");
-      }
-      return this;
-    }
-
-    @Override
-    public Builder with(String propertyName, Collection<String> propertyValues) {
-      if (_without.contains(propertyName)) {
-        throw new UnsupportedOperationException("Can't add arbitrary property values to the nearly infinite set");
-      }
-      return this;
-    }
-
-    @Override
-    public Builder withAny(final String propertyName) {
-      _without.remove(propertyName);
-      return this;
-    }
-
-    @Override
-    public Builder withOptional(String propertyName) {
-      throw new UnsupportedOperationException("Can't add arbitrary property values to the nearly infinite set");
-    }
-
-    @Override
-    public Builder notOptional(String propertyName) {
-      // Nothing is ever optional, so this is okay
-      return this;
-    }
-
-    @Override
-    public Builder withoutAny(String propertyName) {
-      _without.add(propertyName);
-      return this;
-    }
-
-    @Override
-    public ValueProperties get() {
-      if (_without.isEmpty()) {
-        return INFINITE;
+  private static int compareSet(final Set<String> s1, final Set<String> s2) {
+    if (s1 == null) {
+      if (s2 == null) {
+        return 0;
       } else {
-        return new NearlyInfinitePropertiesImpl(new HashSet<String>(_without));
+        return -1;
+      }
+    } else if (s2 == null) {
+      return 1;
+    }
+    if (s1.isEmpty()) {
+      if (s2.isEmpty()) {
+        return 0;
+      } else {
+        return 1;
+      }
+    } else if (s2.isEmpty()) {
+      return -1;
+    }
+    if (s1.size() < s2.size()) {
+      return -1;
+    } else if (s1.size() > s2.size()) {
+      return 1;
+    }
+    List<String> sorted = new ArrayList<String>(Sets.symmetricDifference(s1, s2));
+    Collections.sort(sorted);
+    for (String s : sorted) {
+      if (s1.contains(s)) {
+        return -1;
+      } else {
+        return 1;
       }
     }
-
+    return 0;
   }
 
   /**
-   * A value properties implementation representing a nearly infinite property set.
+   * An implementation holding a simple set of properties.
    */
-  public static final class NearlyInfinitePropertiesImpl extends ValueProperties {
+  private static final class SimpleValueProperties extends ValueProperties {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
-    /**
-     * The set of properties not included.
-     */
-    private final Set<String> _without;
+
+    private final AbstractValueProperty[] _properties;
+
+    private final int _hashCode;
 
     /**
-     * Gets the properties not included
+     * Creates a new instance, backed by the property array.
      * 
-     * @return the properties not included
+     * @param properties the property hash, never null. This will be owned by the object and must not be modified after calling.
      */
-    public Set<String> getWithout() {
-      return _without;
+    private SimpleValueProperties(final AbstractValueProperty[] properties) {
+      _properties = properties;
+      _hashCode = Arrays.hashCode(properties);
     }
 
-    /**
-     * Creates an instance.
-     * 
-     * @param without the set of properties not included, not null
-     */
-    private NearlyInfinitePropertiesImpl(final Set<String> without) {
-      _without = without;
+    private boolean isLongerPropertyCount(final SimpleValueProperties other) {
+      if (_properties.length < other._properties.length) {
+        return true;
+      }
+      if (_properties.length > other._properties.length) {
+        return false;
+      }
+      int countSelf = 0;
+      for (AbstractValueProperty property : _properties) {
+        for (; property != null; property = property.getNext()) {
+          countSelf++;
+        }
+      }
+      for (AbstractValueProperty property : other._properties) {
+        for (; property != null; property = property.getNext()) {
+          countSelf--;
+        }
+      }
+      return countSelf > 0;
+    }
+
+    // internal operations
+
+    @Override
+    /* package */boolean isSatisfySimple(final SimpleValueProperties other) {
+      for (AbstractValueProperty property : other._properties) {
+        propertyLoop: for (; property != null; property = property.getNext()) { //CSIGNORE
+          final int hc = property.getKey().hashCode() & 0x7FFFFFFF;
+          final int index = hc % _properties.length;
+          AbstractValueProperty bucket = _properties[index];
+          while (bucket != null) {
+            if (bucket.getKey() == property.getKey()) {
+              if (bucket.isSatisfyValue(property)) {
+                // Satisfied
+                continue propertyLoop;
+              } else {
+                // Didn't satisfy
+                return false;
+              }
+            }
+            bucket = bucket.getNext();
+          }
+          if (!property.isOptional()) {
+            // Didn't define non-optional
+            return false;
+          }
+        }
+      }
+      return true;
     }
 
     @Override
-    public ValueProperties compose(ValueProperties properties) {
-      // Yields the same
+    /* package */boolean isSatisfyNearInfinite(final NearInfiniteValueProperties other) {
+      // Can never satisfy
+      return false;
+    }
+
+    @Override
+    /* package */Set<String> getUnsatisfiedFromSimple(final SimpleValueProperties other) {
+      Set<String> unsatisfied = null;
+      for (AbstractValueProperty property : other._properties) {
+        propertyLoop: for (; property != null; property = property.getNext()) { //CSIGNORE
+          final int hc = property.getKey().hashCode() & 0x7FFFFFFF;
+          final int index = hc % _properties.length;
+          AbstractValueProperty bucket = _properties[index];
+          while (bucket != null) {
+            if (bucket.getKey() == property.getKey()) {
+              if (!bucket.isSatisfyValue(property)) {
+                // Didn't satisfy
+                if (unsatisfied == null) {
+                  unsatisfied = new HashSet<String>();
+                }
+                unsatisfied.add(property.getKey());
+              }
+              continue propertyLoop;
+            }
+            bucket = bucket.getNext();
+          }
+          if (!property.isOptional()) {
+            // Didn't define non-optional
+            if (unsatisfied == null) {
+              unsatisfied = new HashSet<String>();
+            }
+            unsatisfied.add(property.getKey());
+          }
+        }
+      }
+      return unsatisfied;
+    }
+
+    @Override
+    /* package */Set<String> getUnsatisfiedFromNearInfinite(final NearInfiniteValueProperties other) {
+      // Everything from (near) infinite set is unsatisfied
+      return Collections.emptySet();
+    }
+
+    @Override
+    /* package */Set<String> getUnsatisfiedFromInfinite() {
+      // Everything from infinite set is unsatisfied
+      return Collections.emptySet();
+    }
+
+    @Override
+    /* package */ValueProperties rightIntersectSimple(final SimpleValueProperties other) {
+      final AdditivePropertiesBuilder builder = new AdditivePropertiesBuilder(other._properties);
+      for (AbstractValueProperty property : _properties) {
+        for (; property != null; property = property.getNext()) {
+          builder.compose(property);
+        }
+      }
+      if (builder.hasLocalCopy()) {
+        return builder.get();
+      } else {
+        return other;
+      }
+    }
+
+    private ValueProperties intersectSimpleImpl(final SimpleValueProperties other) {
+      final AdditivePropertiesBuilder builder = new AdditivePropertiesBuilder();
+      boolean equalsThis = true;
+      for (AbstractValueProperty property : _properties) {
+        propertyLoop: for (; property != null; property = property.getNext()) { //CSIGNORE
+          final int hc = property.getKey().hashCode() & 0x7FFFFFFF;
+          final int index = hc % other._properties.length;
+          AbstractValueProperty bucket = other._properties[index];
+          while (bucket != null) {
+            if (bucket.getKey() == property.getKey()) {
+              final AbstractValueProperty intersect = bucket.intersectValues(property);
+              if (intersect != null) {
+                if (intersect != property) {
+                  equalsThis = false;
+                }
+                builder.union(intersect);
+              } else {
+                equalsThis = false;
+              }
+              continue propertyLoop;
+            }
+            bucket = bucket.getNext();
+          }
+          equalsThis = false;
+        }
+      }
+      if (equalsThis) {
+        return this;
+      } else {
+        return builder.get();
+      }
+    }
+
+    @Override
+    /* package */ValueProperties intersectSimple(final SimpleValueProperties other) {
+      if (isLongerPropertyCount(other)) {
+        return other.intersectSimpleImpl(this);
+      } else {
+        return intersectSimpleImpl(other);
+      }
+    }
+
+    @Override
+    /* package */ValueProperties intersectNearInfinite(final NearInfiniteValueProperties other) {
+      // Intersection is without anything defined as absent and nothing optional
+      AbstractValueProperty[] result = null;
+      boolean[] copied = null;
+      int numEntries = 0;
+      for (int i = 0; i < _properties.length; i++) {
+        AbstractValueProperty property = _properties[i];
+        for (; property != null; property = property.getNext()) {
+          if (other._properties.contains(property.getKey())) {
+            if (result == null) {
+              result = Arrays.copyOf(_properties, _properties.length);
+              copied = new boolean[result.length];
+            }
+            if (!copied[i]) {
+              // Copy the bucket, and advance to this position in the copy
+              final String search = property.getKey();
+              property = result[i].copy();
+              result[i] = property;
+              copied[i] = true;
+              while (property.getKey() != search) {
+                property = property.getNext();
+              }
+            }
+            // Remove this item
+            result[i] = result[i].remove(property.getKey());
+            continue;
+          }
+          numEntries++;
+          if (property.isOptional()) {
+            if (result == null) {
+              result = Arrays.copyOf(_properties, _properties.length);
+              copied = new boolean[result.length];
+            }
+            if (!copied[i]) {
+              // Copy the bucket, and advance to this position in the copy
+              final String search = property.getKey();
+              property = result[i].copy();
+              result[i] = property;
+              copied[i] = true;
+              while (property.getKey() != search) {
+                property = property.getNext();
+              }
+            }
+            // Mark this item non-optional
+            property.setOptional(false);
+          }
+        }
+      }
+      if (result != null) {
+        // Created an intersection
+        final int desiredSize = AbstractValueProperty.getDesiredHashSize(numEntries);
+        if (desiredSize != result.length) {
+          final AbstractValueProperty[] rehashed = new AbstractValueProperty[desiredSize];
+          AbstractValueProperty.rehash(result, rehashed, copied, new boolean[desiredSize]);
+          result = rehashed;
+        }
+        return new SimpleValueProperties(result);
+      }
+      // No change
       return this;
     }
 
     @Override
-    public ValueProperties intersect(final ValueProperties properties) {
-      // Yields the same unless we are intersecting against another "nearly infinite" set
-      if (properties instanceof NearlyInfinitePropertiesImpl) {
-        final NearlyInfinitePropertiesImpl other = (NearlyInfinitePropertiesImpl) properties;
-        // Intersection is the UNION of the things we DON'T contain subtracted from the INFINITE set
-        return new NearlyInfinitePropertiesImpl(Collections.unmodifiableSet(Sets.union(_without, other._without)));
+    /* package */ValueProperties intersectInfinite() {
+      // Intersection is these properties with no optional values
+      AbstractValueProperty[] result = null;
+      for (int i = 0; i < _properties.length; i++) {
+        AbstractValueProperty property = _properties[i];
+        boolean copied = false;
+        for (; property != null; property = property.getNext()) {
+          if (property.isOptional()) {
+            if (result == null) {
+              result = Arrays.copyOf(_properties, _properties.length);
+            }
+            if (!copied) {
+              // Copy the bucket, and advance to this position in the copy
+              final String search = property.getKey();
+              property = result[i].copy();
+              result[i] = property;
+              copied = true;
+              while (property.getKey() != search) {
+                property = property.getNext();
+              }
+            }
+            property.setOptional(false);
+          }
+        }
+      }
+      if (result != null) {
+        // Create a copy
+        return new SimpleValueProperties(result);
+      }
+      // Didn't have anything optional
+      return this;
+    }
+
+    private ValueProperties unionSimpleImpl(final SimpleValueProperties other) {
+      final AdditivePropertiesBuilder builder = new AdditivePropertiesBuilder(other._properties);
+      for (AbstractValueProperty property : _properties) {
+        for (; property != null; property = property.getNext()) {
+          builder.union(property);
+        }
+      }
+      if (builder.hasLocalCopy()) {
+        return builder.get();
       } else {
         return this;
       }
     }
 
     @Override
+    /* package */ValueProperties unionSimple(final SimpleValueProperties other) {
+      if (isLongerPropertyCount(other)) {
+        return other.unionSimpleImpl(this);
+      } else {
+        return unionSimpleImpl(other);
+      }
+    }
+
+    @Override
+    /* package */ValueProperties unionNearInfinite(final NearInfiniteValueProperties other) {
+      return other.unionSimple(this);
+    }
+
+    @Override
+    /* package */int compareToSimple(final SimpleValueProperties other) {
+      final int r = _hashCode - other._hashCode;
+      if (r != 0) {
+        return r;
+      }
+      final Set<String> propThis = getProperties();
+      final Set<String> propOther = other.getProperties();
+      int c = compareSet(propThis, propOther);
+      if (c != 0) {
+        return c;
+      }
+      final List<String> sorted = new ArrayList<String>(propThis);
+      Collections.sort(sorted);
+      for (String property : sorted) {
+        c = compareSet(getValues(property), other.getValues(property));
+        if (c != 0) {
+          return c;
+        }
+      }
+      return 0;
+    }
+
+    @Override
+    /* package */int compareToNearInfinite(final NearInfiniteValueProperties other) {
+      // Simple properties always before near-infinite
+      return -1;
+    }
+
+    // public API methods
+
+    @Override
     public Builder copy() {
-      return new NearlyInfinitePropertiesBuilder(new HashSet<String>(_without));
+      return new AdditivePropertiesBuilder(_properties);
     }
 
     @Override
     public Set<String> getProperties() {
-      return Collections.emptySet();
+      return new PropertyNameSet(_properties);
     }
 
     @Override
-    public Set<String> getValues(String propertyName) {
-      if (_without.contains(propertyName)) {
-        return null;
-      } else {
-        return Collections.emptySet();
+    public boolean isDefined(final String propertyName) {
+      final int hc = propertyName.hashCode() & 0x7FFFFFFF;
+      final int i = hc % _properties.length;
+      AbstractValueProperty property = _properties[i];
+      while (property != null) {
+        if (propertyName.equals(property.getKey())) {
+          return true;
+        }
+        property = property.getNext();
       }
+      return false;
+    }
+
+    @Override
+    public Set<String> getValues(final String propertyName) {
+      final int hc = propertyName.hashCode() & 0x7FFFFFFF;
+      final int i = hc % _properties.length;
+      final AbstractValueProperty property = _properties[i];
+      if (property != null) {
+        return property.getValues(propertyName);
+      } else {
+        return null;
+      }
+    }
+
+    @Override
+    public String getStrictValue(final String propertyName) {
+      final int hc = propertyName.hashCode() & 0x7FFFFFFF;
+      final int i = hc % _properties.length;
+      final AbstractValueProperty property = _properties[i];
+      if (property != null) {
+        return property.getStrictValue(propertyName);
+      } else {
+        return null;
+      }
+    }
+
+    @Override
+    public String getSingleValue(final String propertyName) {
+      final int hc = propertyName.hashCode() & 0x7FFFFFFF;
+      final int i = hc % _properties.length;
+      final AbstractValueProperty property = _properties[i];
+      if (property != null) {
+        return property.getSingleValue(propertyName);
+      } else {
+        return null;
+      }
+    }
+
+    @Override
+    public boolean isOptional(final String propertyName) {
+      final int hc = propertyName.hashCode() & 0x7FFFFFFF;
+      final int i = hc % _properties.length;
+      final AbstractValueProperty property = _properties[i];
+      if (property != null) {
+        return property.isOptional(propertyName);
+      } else {
+        return false;
+      }
+    }
+
+    @Override
+    public boolean isSatisfiedBy(final ValueProperties properties) {
+      if (properties == this) {
+        return true;
+      }
+      return properties.isSatisfySimple(this);
+    }
+
+    @Override
+    public Set<String> getUnsatisfied(final ValueProperties properties) {
+      if (properties == this) {
+        return null;
+      }
+      return properties.getUnsatisfiedFromSimple(this);
+    }
+
+    @Override
+    public ValueProperties compose(final ValueProperties properties) {
+      if (properties == this) {
+        return this;
+      }
+      return properties.rightIntersectSimple(this);
+    }
+
+    @Override
+    public ValueProperties intersect(final ValueProperties properties) {
+      if (properties == this) {
+        return this;
+      }
+      return properties.intersectSimple(this);
+    }
+
+    @Override
+    public ValueProperties union(final ValueProperties properties) {
+      if (properties == this) {
+        return this;
+      }
+      return properties.unionSimple(this);
+    }
+
+    @Override
+    public boolean isStrict() {
+      for (AbstractValueProperty property : _properties) {
+        for (; property != null; property = property.getNext()) {
+          if (property.getStrict() == null) {
+            return false;
+          }
+        }
+      }
+      return true;
     }
 
     @Override
@@ -911,58 +669,288 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     }
 
     @Override
-    public boolean isOptional(String propertyName) {
-      return false;
+    public ValueProperties withoutAny(final String propertyName) {
+      return copy().withoutAny(propertyName).get();
+    }
+
+    private String toString(final boolean strict) {
+      final StringBuilder sb = new StringBuilder();
+      Pattern escapePattern = Pattern.compile("[=\\?\\[\\],\\\\ ]");
+      boolean first = true;
+      if (strict) {
+        sb.append('{');
+      }
+      for (AbstractValueProperty property : _properties) {
+        for (; property != null; property = property.getNext()) {
+          if (first) {
+            first = false;
+          } else {
+            sb.append(",");
+          }
+          sb.append(escape(escapePattern, property.getKey())).append("=");
+          boolean grouped = strict || property.getValues().size() > 1 || property.isOptional();
+          if (grouped) {
+            sb.append("[");
+          }
+          boolean firstValue = true;
+          for (String value : property.getValues()) {
+            if (firstValue) {
+              firstValue = false;
+            } else {
+              sb.append(",");
+            }
+            sb.append(escape(escapePattern, value));
+          }
+          if (grouped) {
+            sb.append("]");
+          }
+          if (property.isOptional()) {
+            sb.append("?");
+          }
+        }
+      }
+      if (strict) {
+        sb.append('}');
+      }
+      return sb.toString();
     }
 
     @Override
-    public boolean isSatisfiedBy(ValueProperties properties) {
-      if (properties == INFINITE) {
+    public String toString() {
+      return toString(true);
+    }
+
+    @Override
+    public String toSimpleString() {
+      return toString(false);
+    }
+
+    @Override
+    public int compareTo(final ValueProperties other) {
+      if (other == this) {
+        return 0;
+      }
+      return -other.compareToSimple(this);
+    }
+
+    @Override
+    public int hashCode() {
+      return _hashCode;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+      if (o == this) {
         return true;
       }
-      if (!(properties instanceof NearlyInfinitePropertiesImpl)) {
+      if (!(o instanceof SimpleValueProperties)) {
         return false;
       }
-      final Set<String> otherWithouts = ((NearlyInfinitePropertiesImpl) properties)._without;
-      for (String otherWithout : otherWithouts) {
-        if (!_without.contains(otherWithout)) {
-          return false;
+      final SimpleValueProperties other = (SimpleValueProperties) o;
+      if (other._hashCode != _hashCode) {
+        return false;
+      }
+      return Arrays.equals(_properties, other._properties);
+    }
+
+    @Override
+    public void toFudgeMsg(final MutableFudgeMsg msg) {
+      final MutableFudgeMsg subMsg = msg.addSubMessage(ValuePropertiesFudgeBuilder.WITH_FIELD, null);
+      for (AbstractValueProperty property : _properties) {
+        for (; property != null; property = property.getNext()) {
+          property.toFudgeMsg(subMsg);
+        }
+      }
+    }
+
+  }
+
+  /**
+   * An implementation representing the empty property set.
+   */
+  private static final class EmptyValueProperties extends ValueProperties {
+
+    private static final long serialVersionUID = 1L;
+
+    // internal operations
+
+    @Override
+    /* package */boolean isSatisfySimple(final SimpleValueProperties other) {
+      // Can only satisfy if the other has only optional properties
+      for (AbstractValueProperty property : other._properties) {
+        for (; property != null; property = property.getNext()) {
+          if (!property.isOptional()) {
+            return false;
+          }
         }
       }
       return true;
     }
 
     @Override
-    public boolean isStrict() {
+    /* package */boolean isSatisfyNearInfinite(final NearInfiniteValueProperties other) {
+      // Can't satisfy
       return false;
     }
 
     @Override
+    /* package */Set<String> getUnsatisfiedFromSimple(final SimpleValueProperties other) {
+      // Everything is unsatisfied
+      return other.getProperties();
+    }
+
+    @Override
+    /* package */Set<String> getUnsatisfiedFromNearInfinite(final NearInfiniteValueProperties other) {
+      // Everything in the (near) infinite set is unsatisfied by us
+      return Collections.emptySet();
+    }
+
+    @Override
+    /* package */Set<String> getUnsatisfiedFromInfinite() {
+      // Everything in the infinite set is unsatisfied by us
+      return Collections.emptySet();
+    }
+
+    @Override
+    /* package */ValueProperties rightIntersectSimple(final SimpleValueProperties other) {
+      // Right intersection is the other set
+      return other;
+    }
+
+    @Override
+    /* package */ValueProperties intersectSimple(final SimpleValueProperties other) {
+      // Intersection is always the empty set
+      return this;
+    }
+
+    @Override
+    /* package */ValueProperties intersectNearInfinite(final NearInfiniteValueProperties other) {
+      // Intersection is always the empty set
+      return this;
+    }
+
+    @Override
+    /* package */ValueProperties intersectInfinite() {
+      // Intersection is always the empty set
+      return this;
+    }
+
+    @Override
+    /* package */ValueProperties unionSimple(final SimpleValueProperties other) {
+      // Union is always the other set
+      return other;
+    }
+
+    @Override
+    /* package */ValueProperties unionNearInfinite(final NearInfiniteValueProperties other) {
+      // Union is always the other set
+      return other;
+    }
+
+    @Override
+    /* package */int compareToSimple(final SimpleValueProperties other) {
+      // Empty is always before anything else
+      return -1;
+    }
+
+    @Override
+    /* package */int compareToNearInfinite(final NearInfiniteValueProperties other) {
+      // Empty is always before anything else
+      return -1;
+    }
+
+    // public API methods
+
+    @Override
+    public Builder copy() {
+      return new AdditivePropertiesBuilder();
+    }
+
+    @Override
+    public Set<String> getProperties() {
+      // No properties
+      return null;
+    }
+
+    @Override
+    public boolean isDefined(final String propertyName) {
+      // No properties defined
+      return false;
+    }
+
+    @Override
+    public Set<String> getValues(final String propertyName) {
+      // No properties defined
+      return null;
+    }
+
+    @Override
+    public String getStrictValue(final String propertyName) {
+      // Nothing defined
+      return null;
+    }
+
+    @Override
+    public String getSingleValue(final String propertyName) {
+      // Nothing defined
+      return null;
+    }
+
+    @Override
+    public boolean isOptional(final String propertyName) {
+      // Nothing defined, so nothing optional
+      return false;
+    }
+
+    @Override
+    public boolean isSatisfiedBy(final ValueProperties properties) {
+      // Empty set is satisfied by everything
+      return true;
+    }
+
+    @Override
+    public Set<String> getUnsatisfied(final ValueProperties properties) {
+      // Always satisfied
+      return null;
+    }
+
+    @Override
+    public ValueProperties compose(final ValueProperties properties) {
+      // Left intersection is always empty
+      return this;
+    }
+
+    @Override
+    public ValueProperties intersect(final ValueProperties properties) {
+      // Intersection is always empty
+      return this;
+    }
+
+    @Override
+    public ValueProperties union(final ValueProperties properties) {
+      // Union is always the other set
+      return properties;
+    }
+
+    @Override
+    public boolean isStrict() {
+      return true;
+    }
+
+    @Override
+    public boolean isEmpty() {
+      return true;
+    }
+
+    @Override
     public ValueProperties withoutAny(final String propertyName) {
-      ArgumentChecker.notNull(propertyName, "propertyName");
-      if (_without.contains(propertyName)) {
-        return this;
-      } else {
-        final Set<String> without = new HashSet<String>(_without);
-        without.add(propertyName);
-        return new NearlyInfinitePropertiesImpl(without);
-      }
+      // No-op as we don't contain the property
+      return this;
     }
 
     @Override
     public String toString() {
-      final StringBuilder sb = new StringBuilder("INFINITE-{");
-      boolean first = true;
-      for (String without : _without) {
-        if (first) {
-          first = false;
-        } else {
-          sb.append(',');
-        }
-        sb.append(without);
-      }
-      sb.append('}');
-      return sb.toString();
+      return "EMPTY";
     }
 
     @Override
@@ -971,58 +959,161 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     }
 
     @Override
-    public boolean equals(final Object o) {
-      if (o == this) {
-        return true;
-      }
-      if (!(o instanceof NearlyInfinitePropertiesImpl)) {
-        return false;
-      }
-      final NearlyInfinitePropertiesImpl otherImpl = (NearlyInfinitePropertiesImpl) o;
-      return _without.equals(otherImpl._without);
-    }
-
-    @Override
-    public int hashCode() {
-      return _without.hashCode();
-    }
-
-    @Override
     public int compareTo(final ValueProperties other) {
       if (other == this) {
         return 0;
       }
-      if (other == INFINITE) {
-        return -1;
-      }
-      if (other instanceof NearlyInfinitePropertiesImpl) {
-        final NearlyInfinitePropertiesImpl otherImpl = (NearlyInfinitePropertiesImpl) other;
-        return compareSet(_without, otherImpl._without);
-      }
-      return 1;
+      // Empty is always before anything else
+      return -1;
+    }
+
+    @Override
+    public void toFudgeMsg(final MutableFudgeMsg msg) {
+      // No-op; empty Fudge message
+    }
+
+    private Object readResolve() throws Exception {
+      return EMPTY;
     }
 
   }
 
   /**
-   * The infinite property set.
+   * An implementation representing the infinite property set.
    */
-  private static final ValueProperties INFINITE = new InfinitePropertiesImpl();
+  private static final class InfiniteValueProperties extends ValueProperties {
 
-  /**
-   * A value properties implementation representing an infinite property set.
-   */
-  public static final class InfinitePropertiesImpl extends ValueProperties {
-
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
 
-    /**
-     * Creates an instance.
-     */
-    private InfinitePropertiesImpl() {
+    // internal operations
+
+    @Override
+    /* package */boolean isSatisfySimple(final SimpleValueProperties other) {
+      // Infinite properties can satisfy anything
+      return true;
+    }
+
+    @Override
+    /* package */boolean isSatisfyNearInfinite(final NearInfiniteValueProperties other) {
+      // Infinite properties can satisfy anything
+      return true;
+    }
+
+    @Override
+    /* package */Set<String> getUnsatisfiedFromSimple(final SimpleValueProperties other) {
+      // Can satisfy anything
+      return null;
+    }
+
+    @Override
+    /* package */Set<String> getUnsatisfiedFromNearInfinite(final NearInfiniteValueProperties other) {
+      // Can satisfy anything
+      return null;
+    }
+
+    @Override
+    /* package */Set<String> getUnsatisfiedFromInfinite() {
+      // Can satisfy anything
+      return null;
+    }
+
+    @Override
+    /* package */ValueProperties rightIntersectSimple(final SimpleValueProperties other) {
+      // Right intersection is the other set but without anything optional
+      return other.intersectInfinite();
+    }
+
+    @Override
+    /* package */ValueProperties intersectSimple(final SimpleValueProperties other) {
+      // Intersection is the other set but without anything optional
+      return other.intersectInfinite();
+    }
+
+    @Override
+    /* package */ValueProperties intersectNearInfinite(final NearInfiniteValueProperties other) {
+      // Intersection is the near-infinite set
+      return other;
+    }
+
+    @Override
+    /* package */ValueProperties intersectInfinite() {
+      // Intersection with self
+      return this;
+    }
+
+    @Override
+    /* package */ValueProperties unionSimple(final SimpleValueProperties other) {
+      // Union is infinite
+      return this;
+    }
+
+    @Override
+    /* package */ValueProperties unionNearInfinite(final NearInfiniteValueProperties other) {
+      // Union is infinite
+      return this;
+    }
+
+    @Override
+    /* package */int compareToSimple(final SimpleValueProperties other) {
+      // Infinite is always after anything else
+      return 1;
+    }
+
+    @Override
+    /* package */int compareToNearInfinite(final NearInfiniteValueProperties other) {
+      // Infinite is always after anything else
+      return 1;
+    }
+
+    // public API methods
+
+    @Override
+    public Builder copy() {
+      return new SubtractivePropertiesBuilder(Collections.<String>emptySet());
+    }
+
+    @Override
+    public Set<String> getProperties() {
+      return Collections.emptySet();
+    }
+
+    @Override
+    public boolean isDefined(final String propertyName) {
+      return true;
+    }
+
+    @Override
+    public Set<String> getValues(final String propertyName) {
+      return Collections.emptySet();
+    }
+
+    @Override
+    public String getStrictValue(final String propertyName) {
+      // Not-strict
+      return null;
+    }
+
+    @Override
+    public String getSingleValue(final String propertyName) {
+      // Not a single value
+      return null;
+    }
+
+    @Override
+    public boolean isOptional(final String propertyName) {
+      // Everything's required
+      return false;
+    }
+
+    @Override
+    public boolean isSatisfiedBy(final ValueProperties properties) {
+      // Only the infinite set can satisfy
+      return (properties == this);
+    }
+
+    @Override
+    public Set<String> getUnsatisfied(final ValueProperties properties) {
+      return properties.getUnsatisfiedFromInfinite();
     }
 
     @Override
@@ -1033,104 +1124,29 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
 
     @Override
     public ValueProperties intersect(final ValueProperties properties) {
-      // Intersection yields the other set, but with no optional values
-      if (properties instanceof ValuePropertiesImpl) {
-        final ValuePropertiesImpl other = (ValuePropertiesImpl) properties;
-        if (other._optional.isEmpty()) {
-          return properties;
-        } else {
-          return new ValuePropertiesImpl(other._properties, Collections.<String>emptySet());
-        }
-      } else {
-        return properties;
-      }
+      return properties.intersectInfinite();
     }
 
     @Override
-    public Builder copy() {
-      return new Builder() {
-
-        @Override
-        public Builder with(String propertyName, String propertyValue) {
-          // By definition already has this property
-          return this;
-        }
-
-        @Override
-        public Builder with(String propertyName, String... propertyValues) {
-          // By definition already has this property
-          return this;
-        }
-
-        @Override
-        public Builder with(String propertyName, Collection<String> propertyValues) {
-          // By definition already has this property
-          return this;
-        }
-
-        @Override
-        public Builder withAny(String propertyName) {
-          // By definition already has this property
-          return this;
-        }
-
-        @Override
-        public Builder withOptional(String propertyName) {
-          throw new UnsupportedOperationException("Can't have optionality within the infinite set");
-        }
-
-        @Override
-        public Builder notOptional(String propertyName) {
-          // Nothing is ever optional, so this is okay
-          return this;
-        }
-
-        @Override
-        public Builder withoutAny(String propertyName) {
-          final Set<String> properties = new HashSet<String>();
-          properties.add(propertyName);
-          return new NearlyInfinitePropertiesBuilder(properties);
-        }
-
-        @Override
-        public ValueProperties get() {
-          return INFINITE;
-        }
-      };
-    }
-
-    @Override
-    public Set<String> getProperties() {
-      return Collections.emptySet();
-    }
-
-    @Override
-    public Set<String> getValues(String propertyName) {
-      return Collections.emptySet();
-    }
-
-    @Override
-    public boolean isOptional(String propertyName) {
-      // Everything's required
-      return false;
-    }
-
-    @Override
-    public boolean isSatisfiedBy(ValueProperties properties) {
-      // Only the infinite set can satisfy
-      return (properties == this);
+    public ValueProperties union(final ValueProperties properties) {
+      // Union is always the infinite set
+      return this;
     }
 
     @Override
     public boolean isStrict() {
-      // Not strict by definition
       return false;
     }
 
     @Override
     public boolean isEmpty() {
-      // Not empty by definition
       return false;
+    }
+
+    @Override
+    public ValueProperties withoutAny(final String propertyName) {
+      ArgumentChecker.notNull(propertyName, "propertyName");
+      return new NearInfiniteValueProperties(Collections.singleton(propertyName));
     }
 
     @Override
@@ -1144,96 +1160,320 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     }
 
     @Override
-    public ValueProperties withoutAny(final String propertyName) {
-      ArgumentChecker.notNull(propertyName, "propertyName");
-      return new NearlyInfinitePropertiesImpl(Collections.singleton(propertyName));
-    }
-
-    @Override
     public int compareTo(final ValueProperties other) {
       if (other == this) {
         return 0;
       }
+      // Infinite is always after anything else
       return 1;
     }
 
-    private Object readResolve() {
+    @Override
+    public void toFudgeMsg(final MutableFudgeMsg msg) {
+      msg.addSubMessage(ValuePropertiesFudgeBuilder.WITHOUT_FIELD, null);
+    }
+
+    private Object readResolve() throws Exception {
       return INFINITE;
     }
 
   }
 
   /**
-   * The empty set.
+   * An implementation representing a near-infinite property set.
    */
-  private static final ValueProperties EMPTY = new EmptyPropertiesImpl();
+  private static final class NearInfiniteValueProperties extends ValueProperties {
 
-  /**
-   * A value properties implementation representing an empty property set.
-   */
-  private static final class EmptyPropertiesImpl extends ValueProperties {
-
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
 
+    private final Set<String> _properties;
+
+    /**
+     * Creates a new instance, backed by the property array.
+     * 
+     * @param properties the property hash, never null. This will be owned by the object and must not be modified after calling.
+     */
+    public NearInfiniteValueProperties(final Set<String> properties) {
+      _properties = properties;
+    }
+
+    // internal operations
+
     @Override
-    public ValueProperties compose(ValueProperties properties) {
-      // The only thing satisfied by the empty set is the empty set, or a set with only optional properties
+    /* package */boolean isSatisfySimple(final SimpleValueProperties other) {
+      // Can satisfy unless there is a non-optional requirement for one of the absent properties
+      for (AbstractValueProperty property : other._properties) {
+        for (; property != null; property = property.getNext()) {
+          if (!property.isOptional() && _properties.contains(property.getKey())) {
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    @Override
+    /* package */boolean isSatisfyNearInfinite(final NearInfiniteValueProperties other) {
+      for (String property : _properties) {
+        if (!other._properties.contains(property)) {
+          // Other does not exclude one that we do - can't satisfy it
+          return false;
+        }
+      }
+      return true;
+    }
+
+    @Override
+    /* package */Set<String> getUnsatisfiedFromSimple(final SimpleValueProperties other) {
+      Set<String> properties = null;
+      for (AbstractValueProperty property : other._properties) {
+        for (; property != null; property = property.getNext()) {
+          if (!property.isOptional() && _properties.contains(property.getKey())) {
+            // Not optional, and we exclude so can't satisfy it
+            if (properties == null) {
+              properties = Sets.newHashSetWithExpectedSize(_properties.size());
+            }
+            properties.add(property.getKey());
+          }
+        }
+      }
+      return properties;
+    }
+
+    @Override
+    /* package */Set<String> getUnsatisfiedFromNearInfinite(final NearInfiniteValueProperties other) {
+      final Set<String> properties = new HashSet<String>(_properties);
+      properties.removeAll(other._properties);
+      if (properties.isEmpty()) {
+        return null;
+      }
+      return properties;
+    }
+
+    @Override
+    /* package */Set<String> getUnsatisfiedFromInfinite() {
+      return Collections.unmodifiableSet(_properties);
+    }
+
+    @Override
+    /* package */ValueProperties rightIntersectSimple(final SimpleValueProperties other) {
+      // Right intersection is the other properties, but with anything defined here as non-optional
+      AbstractValueProperty[] result = null;
+      for (int i = 0; i < other._properties.length; i++) {
+        AbstractValueProperty property = other._properties[i];
+        boolean copied = false;
+        for (; property != null; property = property.getNext()) {
+          if (property.isOptional() && !_properties.contains(property.getKey())) {
+            if (result == null) {
+              result = Arrays.copyOf(other._properties, other._properties.length);
+            }
+            if (!copied) {
+              // Copy the bucket, and advance to this position in the copy
+              final String search = property.getKey();
+              property = result[i].copy();
+              result[i] = property;
+              copied = true;
+              while (property.getKey() != search) {
+                property = property.getNext();
+              }
+            }
+            property.setOptional(false);
+          }
+        }
+      }
+      if (result != null) {
+        // Created an intersection
+        return new SimpleValueProperties(result);
+      }
+      // Right intersection is the other object unchanged
+      return other;
+    }
+
+    @Override
+    /* package */ValueProperties intersectSimple(final SimpleValueProperties other) {
+      return other.intersectNearInfinite(this);
+    }
+
+    @Override
+    /* package */ValueProperties intersectNearInfinite(final NearInfiniteValueProperties other) {
+      // Intersection is the union of the absent properties
+      final Set<String> union = new HashSet<String>(_properties);
+      union.addAll(other._properties);
+      if (union.size() == _properties.size()) {
+        // Intersection is the same
+        return this;
+      } else if (union.size() == other._properties.size()) {
+        // Intersection is the same
+        return other;
+      } else {
+        return new NearInfiniteValueProperties(union);
+      }
+    }
+
+    @Override
+    /* package */ValueProperties intersectInfinite() {
+      // Intersection is this
+      return this;
+    }
+
+    @Override
+    /* package */ValueProperties unionSimple(final SimpleValueProperties other) {
+      // Best efforts
+      final Set<String> result = new HashSet<String>(_properties);
+      for (AbstractValueProperty property : other._properties) {
+        for (; property != null; property = property.getNext()) {
+          result.remove(property.getKey());
+        }
+      }
+      if (result.isEmpty()) {
+        return INFINITE;
+      } else if (result.size() == _properties.size()) {
+        return this;
+      } else {
+        return new NearInfiniteValueProperties(result);
+      }
+    }
+
+    @Override
+    /* package */ValueProperties unionNearInfinite(final NearInfiniteValueProperties other) {
+      // Union is the intersection of the absent properties
+      final Set<String> intersect = new HashSet<String>(_properties);
+      intersect.retainAll(other._properties);
+      if (intersect.isEmpty()) {
+        // Produced infinite set
+        return INFINITE;
+      } else if (intersect.size() == _properties.size()) {
+        // Union is the same
+        return this;
+      } else if (intersect.size() == other._properties.size()) {
+        // Union is the same
+        return other;
+      } else {
+        return new NearInfiniteValueProperties(intersect);
+      }
+    }
+
+    @Override
+    /* package */int compareToSimple(final SimpleValueProperties other) {
+      // Near infinite will always be after a simple value set
+      return 1;
+    }
+
+    @Override
+    /* package */int compareToNearInfinite(final NearInfiniteValueProperties other) {
+      return compareSet(_properties, other._properties);
+    }
+
+    // public API methods
+
+    @Override
+    public Builder copy() {
+      return new SubtractivePropertiesBuilder(_properties);
+    }
+
+    @Override
+    public Set<String> getProperties() {
+      return Collections.emptySet();
+    }
+
+    @Override
+    public boolean isDefined(final String propertyName) {
+      return !_properties.contains(propertyName);
+    }
+
+    @Override
+    public Set<String> getValues(final String propertyName) {
+      if (_properties.contains(propertyName)) {
+        // Not defined
+        return null;
+      } else {
+        // Wild-card
+        return Collections.emptySet();
+      }
+    }
+
+    @Override
+    public String getStrictValue(final String propertyName) {
+      // Either defined but not-strict, or not defined
+      return null;
+    }
+
+    @Override
+    public String getSingleValue(final String propertyName) {
+      // Either defined but not a single value, or not defined
+      return null;
+    }
+
+    @Override
+    public boolean isOptional(final String propertyName) {
+      // Either not optional, or not defined
+      return false;
+    }
+
+    @Override
+    public boolean isSatisfiedBy(final ValueProperties properties) {
+      return properties.isSatisfyNearInfinite(this);
+    }
+
+    @Override
+    public Set<String> getUnsatisfied(final ValueProperties properties) {
+      if (properties == this) {
+        return null;
+      }
+      return properties.getUnsatisfiedFromNearInfinite(this);
+    }
+
+    @Override
+    public ValueProperties compose(final ValueProperties properties) {
+      // Not strictly true, but close enough
       return this;
     }
 
     @Override
     public ValueProperties intersect(final ValueProperties properties) {
-      // Nothing to intersect with, so still empty
-      return this;
+      return properties.intersectNearInfinite(this);
     }
 
     @Override
-    public Builder copy() {
-      return new BuilderImpl();
+    public ValueProperties union(final ValueProperties properties) {
+      return properties.unionNearInfinite(this);
     }
 
     @Override
-    public Set<String> getProperties() {
-      // No properties
-      return null;
-    }
-
-    @Override
-    public Set<String> getValues(String propertyName) {
-      // No values for anything
-      return null;
-    }
-
-    @Override
-    public boolean isOptional(String propertyName) {
-      // Alwyas false as no properties in the set
+    public boolean isStrict() {
       return false;
     }
 
     @Override
     public boolean isEmpty() {
-      // Always empty
-      return true;
+      return false;
     }
 
     @Override
-    public boolean isSatisfiedBy(ValueProperties properties) {
-      // Satisfied by anything
-      return true;
-    }
-
-    @Override
-    public boolean isStrict() {
-      // Empty is strict
-      return true;
+    public ValueProperties withoutAny(final String propertyName) {
+      ArgumentChecker.notNull(propertyName, "propertyName");
+      if (_properties.contains(propertyName)) {
+        return this;
+      }
+      final Set<String> properties = new HashSet<String>(_properties);
+      properties.add(propertyName);
+      return new NearInfiniteValueProperties(properties);
     }
 
     @Override
     public String toString() {
-      return "EMPTY";
+      final StringBuilder sb = new StringBuilder("INFINITE-{");
+      boolean first = true;
+      for (String property : _properties) {
+        if (first) {
+          first = false;
+        } else {
+          sb.append(',');
+        }
+        sb.append(property);
+      }
+      sb.append('}');
+      return sb.toString();
     }
 
     @Override
@@ -1241,11 +1481,99 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
       return toString();
     }
 
-    private Object readResolve() {
-      return EMPTY;
+    @Override
+    public int compareTo(final ValueProperties other) {
+      if (other == this) {
+        return 0;
+      }
+      return -other.compareToNearInfinite(this);
+    }
+
+    @Override
+    public int hashCode() {
+      return _properties.hashCode();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+      if (o == this) {
+        return true;
+      }
+      if (!(o instanceof NearInfiniteValueProperties)) {
+        return false;
+      }
+      return _properties.equals(((NearInfiniteValueProperties) o)._properties);
+    }
+
+    @Override
+    public void toFudgeMsg(final MutableFudgeMsg msg) {
+      final MutableFudgeMsg subMsg = msg.addSubMessage(ValuePropertiesFudgeBuilder.WITHOUT_FIELD, null);
+      int ordinal = 0;
+      for (String property : _properties) {
+        subMsg.add(null, ordinal++, FudgeWireType.STRING, property);
+      }
     }
 
   }
+
+  /**
+   * Tests if a property instance corresponds to a near-infinite set.
+   * <p>
+   * This method was introduced to assist in migrating code that was explicitly handling the previously publicly classes. The empty and infinite tests can be identified by comparison with the values
+   * returned by {@link #all} or {@code #none}. For any thing else, a normal property set (previously publicly visible as ValuePropertiesImpl) will return false from this and a near-infinite set
+   * (previously publicly visible as NearlyInfinitePropertiesImpl) will return true.
+   * 
+   * @param properties the properties to test
+   * @return true if the properties are near-infinite, false otherwise
+   * @deprecated Testing for, and handling this as a special case is not recommended - it is better to write in terms of the set operation available
+   */
+  @Deprecated
+  public static boolean isNearInfiniteProperties(final ValueProperties properties) {
+    return properties instanceof NearInfiniteValueProperties;
+  }
+
+  /**
+   * The empty set.
+   */
+  private static final ValueProperties EMPTY = new EmptyValueProperties();
+
+  /**
+   * The infinite property set.
+   */
+  private static final ValueProperties INFINITE = new InfiniteValueProperties();
+
+  // internal implementation
+
+  /* package */ValueProperties() {
+  }
+
+  /* package */abstract boolean isSatisfySimple(SimpleValueProperties other);
+
+  /* package */abstract boolean isSatisfyNearInfinite(NearInfiniteValueProperties other);
+
+  /* package */abstract Set<String> getUnsatisfiedFromSimple(SimpleValueProperties other);
+
+  /* package */abstract Set<String> getUnsatisfiedFromNearInfinite(NearInfiniteValueProperties other);
+
+  /* package */abstract Set<String> getUnsatisfiedFromInfinite();
+
+  /* package */abstract ValueProperties rightIntersectSimple(SimpleValueProperties other);
+
+  /* package */abstract ValueProperties intersectSimple(SimpleValueProperties other);
+
+  /* package */abstract ValueProperties intersectNearInfinite(NearInfiniteValueProperties other);
+
+  /* package */abstract ValueProperties intersectInfinite();
+
+  /* package */abstract ValueProperties unionSimple(SimpleValueProperties other);
+
+  /* package */abstract ValueProperties unionNearInfinite(NearInfiniteValueProperties other);
+
+  /* package */abstract int compareToSimple(SimpleValueProperties other);
+
+  /* package */abstract int compareToNearInfinite(NearInfiniteValueProperties other);
+
+  // public API
 
   /**
    * Returns the empty property set, typically indicating no value constraints.
@@ -1275,7 +1603,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
    * @return the builder, not null
    */
   public static Builder builder() {
-    return new BuilderImpl();
+    return new AdditivePropertiesBuilder();
   }
 
   /**
@@ -1346,6 +1674,16 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
   public abstract Set<String> getProperties();
 
   /**
+   * Tests whether a property is defined.
+   * <p>
+   * If the name is defined, {@link #getValues} will not return null. This may be a cheaper test however.
+   * 
+   * @param propertyName the name required, not null
+   * @return true if the property is defined, false otherwise
+   */
+  public abstract boolean isDefined(String propertyName);
+
+  /**
    * Gets an immutable set of values for a given property name.
    * <p>
    * If the name is not defined null is returned. If the name has a wild-card value, the empty set is returned.
@@ -1354,6 +1692,27 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
    * @return the set of values, empty if wild-card, null if not defined
    */
   public abstract Set<String> getValues(String propertyName);
+
+  /**
+   * Returns a single value for a property that is part of a strict set.
+   * <p>
+   * If defined, the property must have a single value only. This is provided as a more efficient form than using the {@link Set} returned by {@link #getValues}.
+   * 
+   * @param propertyName the name required, not null
+   * @return the strict value or null if the property is absent or not strict
+   */
+  public abstract String getStrictValue(String propertyName);
+
+  /**
+   * Returns a single value for any property that is not a wild-card.
+   * <p>
+   * If defined, the property must have at least one value. If there are multiple values then an arbitrary one is returned. This is provides as a more efficient form than using the {@link Set}
+   * returned by {@link #getValues} to obtain an arbitrary single element.
+   * 
+   * @param propertyName the name required, not null
+   * @return a value if the property is defined and not a wild-card, null otherwise
+   */
+  public abstract String getSingleValue(String propertyName);
 
   /**
    * Checks if a property may be omitted.
@@ -1380,6 +1739,14 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
   public abstract boolean isSatisfiedBy(ValueProperties properties);
 
   /**
+   * Returns the properties in this instance that aren't satisfied by the other, as defined by {@link #isSatisfiedBy}.
+   * 
+   * @param properties the other property set to check against, not null
+   * @return The set of unmatched property names, empty if wild-card, null if there are none
+   */
+  public abstract Set<String> getUnsatisfied(ValueProperties properties);
+
+  /**
    * Composes two value properties by taking a "left" intersection.
    * <p>
    * This produces a set of properties such that for any properties defined by the other, the intersection of the property values is taken. Any properties defined in this set but not in the other
@@ -1394,12 +1761,22 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
    * Produces the strict intersection of two property sets.
    * <p>
    * This produces a set of properties such that only properties defined in both this and the other are present in the output. For these, the intersection of common values is available for each
-   * property. If there are no common property values, the property is ommited from the result.
+   * property. If there are no common property values, the property is omitted from the result.
    * 
    * @param properties the other property set to compose against, not null
-   * @return the new set of properties, or this object if the intersection result is equal, not null
+   * @return the new set of properties, or this (or the other) object if the intersection result is equal, not null
    */
   public abstract ValueProperties intersect(ValueProperties properties);
+
+  /**
+   * Produces the union of two property sets.
+   * <p>
+   * This produces a set of properties such that any properties defined in either this or the other are present in the output. For these, the union of values from each property set is taken.
+   * 
+   * @param properties the other property set to compose against, not null
+   * @return the new set of properties, or this (or the other) object if the union result is equal, not null
+   */
+  public abstract ValueProperties union(ValueProperties properties);
 
   /**
    * Checks if the set of properties is strict.
@@ -1423,9 +1800,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
    * @param propertyName the property name to remove, not null
    * @return a value properties with the given property removed, not null
    */
-  public ValueProperties withoutAny(final String propertyName) {
-    return copy().withoutAny(propertyName).get();
-  }
+  public abstract ValueProperties withoutAny(String propertyName);
 
   /**
    * Returns a simple string representation of the {@link ValueProperties} instance. This simple representation omits unnecessary brackets for better readability. The output remains valid as the input
@@ -1436,68 +1811,227 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
   public abstract String toSimpleString();
 
   /**
-   * Compares two sets.
+   * Adds fields describing this instance to a Fudge message.
+   * <p>
+   * See {@link ValuePropertiesFudgeBuilder} for a description of the message format.
    * 
-   * @param s1 the first set, may be null
-   * @param s2 the second set, may be null
-   * @return negative if the first is less, zero if equal, positive if greater
+   * @param message the message to add the fields to, not null
    */
-  protected static int compareSet(final Set<String> s1, final Set<String> s2) {
-    if (s1 == null) {
-      if (s2 == null) {
-        return 0;
+  public abstract void toFudgeMsg(MutableFudgeMsg message);
+
+  /**
+   * Parses value property strings of the forms:
+   * <ul>
+   * <li>EMPTY
+   * <li>INFINITE
+   * <li>INFINITE-{name1,name2}
+   * <li>{name1=[value1,value2],name2=[value3]}
+   * </ul>
+   * These are intentionally the same as the forms generated by {@link #toString()}. For maximum flexibility, and especially for user input, more abbreviated forms are also valid. In particular:
+   * <ul>
+   * <li>Curly braces may be omitted
+   * <li>Square brackets around single values may be omitted
+   * <li>'name1=[]' is same as 'name1'
+   * <li>Spaces are trimmed unless they are in the middle of a name/value
+   * </ul>
+   * Escape sequences may be used for the following special characters: ',', '=', '[', ']', '?', '\' and ' '. An escape sequence begins with '\'.
+   * <p>
+   * A null or empty input string is treated as the empty set of value properties.
+   * 
+   * @param s the string to parse
+   * @return the value properties, not null
+   */
+  public static ValueProperties parse(String s) {
+    // REVIEW jonathan 2011-05-11 -- this is bordering on being complex enough to write a grammar and auto-generate the
+    // lexer, but it works and ValueProperties is unlikely to change.
+    // REVIEW andrew 2011-08-08 -- even as a big fan of crazy-mad home brew state machines I'd use an auto-generated lexer
+    if (StringUtils.isBlank(s) || EMPTY.toString().equals(s)) {
+      return EMPTY;
+    }
+    s = s.trim();
+    if (INFINITE.toString().equals(s)) {
+      return INFINITE;
+    }
+    boolean nearlyInfinite = false;
+    Builder builder = null;
+    ValueProperties nearlyInfiniteResult = null;
+    if (s.startsWith("INFINITE-")) {
+      nearlyInfinite = true;
+      s = s.substring(9, s.length());
+      nearlyInfiniteResult = INFINITE;
+    } else {
+      builder = builder();
+    }
+    if (s.charAt(0) == '{' && s.charAt(s.length() - 1) == '}') {
+      // Strip away any curly brace wrappers
+      s = s.substring(1, s.length() - 1);
+    }
+    int pos = 0;
+    boolean isOptional = false;
+    StringBuilder substring = new StringBuilder();
+    String name = null;
+    Set<String> values = new HashSet<String>();
+    boolean bracketedValue = false;
+    boolean inValue = false;
+    int space = -1;
+    while (pos <= s.length()) {
+      char next = pos < s.length() ? s.charAt(pos) : 0;
+      if (next == '\\') { // Begin escape sequence
+        pos++;
+        if (pos < s.length()) {
+          if (space > 0) {
+            for (int i = 0; i < space; i++) {
+              substring.append(' ');
+            }
+          }
+          space = 0;
+          char escapedCharacter = s.charAt(pos);
+          if (escapedCharacter == '\\' || escapedCharacter == ',' || escapedCharacter == '=' || escapedCharacter == '[' || escapedCharacter == ']' || escapedCharacter == '?' ||
+              escapedCharacter == ' ') {
+            substring.append(escapedCharacter);
+          } else {
+            throw new IllegalArgumentException("Unrecognised escape sequence: \\" + escapedCharacter);
+          }
+        } else {
+          throw new IllegalArgumentException("Unexpected end of ValueProperties string: " + s);
+        }
+      } else if (next == '=') { // Separator between name and values
+        if (inValue) {
+          throw new IllegalArgumentException("Unexpected '=' at position " + pos);
+        }
+        space = -1;
+        name = substring.toString();
+        substring = new StringBuilder();
+        inValue = true;
+        while (pos + 1 < s.length()) {
+          if (s.charAt(pos + 1) == ' ') {
+            pos++;
+            continue;
+          }
+          if (s.charAt(pos + 1) == '[') {
+            bracketedValue = true;
+            pos++;
+          }
+          break;
+        }
+      } else if (next == ']') { // End of values
+        space = -1;
+        inValue = false;
+        while (pos + 1 < s.length()) {
+          if (s.charAt(pos + 1) == ' ') {
+            pos++;
+            continue;
+          }
+          if (s.charAt(pos + 1) == '?') {
+            isOptional = true;
+            pos++;
+          }
+          break;
+        }
+      } else if (next == ',' || next == 0) { // Separator between values in a group or between properties
+        space = -1;
+        if (substring.length() > 0) {
+          if (name == null) {
+            name = substring.toString();
+          } else {
+            values.add(substring.toString());
+          }
+          substring = new StringBuilder();
+        }
+        if (!inValue || !bracketedValue) {
+          // End of a property
+          if (values.isEmpty()) {
+            if (nearlyInfinite) {
+              nearlyInfiniteResult = nearlyInfiniteResult.withoutAny(name);
+            } else {
+              builder.withAny(name);
+            }
+          } else {
+            if (nearlyInfinite) {
+              throw new IllegalArgumentException("Property values not supported in nearly infinite ValueProperties. Found: " + values);
+            }
+            builder.with(name, values);
+          }
+          if (isOptional) {
+            builder.withOptional(name);
+          }
+          name = null;
+          values = new HashSet<String>();
+          isOptional = false;
+          inValue = false;
+          bracketedValue = false;
+        }
+      } else if (next != ' ') {
+        if (space > 0) {
+          for (int i = 0; i < space; i++) {
+            substring.append(' ');
+          }
+        }
+        space = 0;
+        substring.append(next);
       } else {
-        return -1;
+        if (space >= 0) {
+          space++;
+        }
       }
-    } else if (s2 == null) {
-      return 1;
+      pos++;
     }
-    if (s1.isEmpty()) {
-      if (s2.isEmpty()) {
-        return 0;
-      } else {
-        return 1;
-      }
-    } else if (s2.isEmpty()) {
-      return -1;
+    if (name != null || substring.length() > 0) {
+      throw new IllegalArgumentException("Unexpected end of ValueProperties string: " + s);
     }
-    if (s1.size() < s2.size()) {
-      return -1;
-    } else if (s1.size() > s2.size()) {
-      return 1;
-    }
-    List<String> sorted = new ArrayList<String>(Sets.symmetricDifference(s1, s2));
-    Collections.sort(sorted);
-    for (String s : sorted) {
-      if (s1.contains(s)) {
-        return -1;
-      } else {
-        return 1;
-      }
-    }
-    return 0;
+    return nearlyInfinite ? nearlyInfiniteResult : builder.get();
   }
 
-  @Override
-  public int compareTo(final ValueProperties valueProperties) {
-    if (valueProperties == this) {
-      return 0;
+  /**
+   * Produces a string representation of the content of a {@link ValueProperties} object.
+   * 
+   * @param properties the property names and values, not null
+   * @param optional any properties that are optional, not null
+   * @param strict whether to include delimiting '{' and '}' characters in the string
+   * @return the string form
+   * @deprecated This is based on the internal representation of {@code ValueProperties} from an older version and used mainly to implement the {@link #toString()} and {@link #toSimpleString()}
+   *             methods. New code should not be calling it as it may be removed in future versions of the platform.
+   */
+  @Deprecated
+  public static String toString(final Map<String, Set<String>> properties, final Set<String> optional, final boolean strict) {
+    Pattern escapePattern = Pattern.compile("[=\\?\\[\\],\\\\ ]");
+    final StringBuilder sb = new StringBuilder();
+    if (strict) {
+      sb.append("{");
     }
-    final Set<String> propThis = getProperties();
-    final Set<String> propOther = valueProperties.getProperties();
-    int c = compareSet(propThis, propOther);
-    if (c != 0) {
-      return c;
-    }
-    final List<String> sorted = new ArrayList<String>(propThis);
-    Collections.sort(sorted);
-    for (String property : sorted) {
-      c = compareSet(getValues(property), valueProperties.getValues(property));
-      if (c != 0) {
-        return c;
+    boolean first = true;
+    for (Map.Entry<String, Set<String>> property : properties.entrySet()) {
+      if (first) {
+        first = false;
+      } else {
+        sb.append(",");
+      }
+      sb.append(escape(escapePattern, property.getKey())).append("=");
+      boolean isOptional = optional.contains(property.getKey());
+      boolean grouped = strict || property.getValue().size() > 1 || isOptional;
+      if (grouped) {
+        sb.append("[");
+      }
+      boolean firstValue = true;
+      for (String value : property.getValue()) {
+        if (firstValue) {
+          firstValue = false;
+        } else {
+          sb.append(",");
+        }
+        sb.append(escape(escapePattern, value));
+      }
+      if (grouped) {
+        sb.append("]");
+      }
+      if (isOptional) {
+        sb.append("?");
       }
     }
-    return 0;
+    if (strict) {
+      sb.append("}");
+    }
+    return sb.toString();
   }
 
 }

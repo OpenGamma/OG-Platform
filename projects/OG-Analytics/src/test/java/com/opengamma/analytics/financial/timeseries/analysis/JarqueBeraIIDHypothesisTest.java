@@ -10,9 +10,12 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class JarqueBeraIIDHypothesisTest extends IIDHypothesisTestCase {
   private static final IIDHypothesis JARQUE_BERA = new JarqueBeraIIDHypothesis(0.05);
 

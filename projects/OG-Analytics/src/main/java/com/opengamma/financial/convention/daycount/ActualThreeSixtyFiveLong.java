@@ -63,7 +63,7 @@ public class ActualThreeSixtyFiveLong extends ActualTypeDayCount {
   }
 
   @Override
-  public String getConventionName() {
+  public String getName() {
     return "Actual/365L";
   }
 

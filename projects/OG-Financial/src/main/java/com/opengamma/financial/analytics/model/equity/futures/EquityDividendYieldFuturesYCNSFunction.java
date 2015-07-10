@@ -60,12 +60,13 @@ public class EquityDividendYieldFuturesYCNSFunction extends EquityDividendYieldF
    * @param resolutionKey The key defining how the time series resolution is to occur e.g. "DEFAULT_TSS_CONFIG"
    */
   public EquityDividendYieldFuturesYCNSFunction(String closingPriceField, String costOfCarryField, String resolutionKey) {
-    super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, FuturesRatesSensitivityCalculator.getInstance(DividendYieldFuturesCalculator.PresentValueCalculator.getInstance()), 
+    super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, FuturesRatesSensitivityCalculator.getInstance(DividendYieldFuturesCalculator.PresentValueCalculator.getInstance()),
         closingPriceField, costOfCarryField, resolutionKey);
   }
-  
+
   @Override
   public void init(final FunctionCompilationContext context) {
+    super.init(context);
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
@@ -73,7 +74,7 @@ public class EquityDividendYieldFuturesYCNSFunction extends EquityDividendYieldF
     final InterestRateFutureSecurityConverterDeprecated irFutureConverter = new InterestRateFutureSecurityConverterDeprecated(holidaySource, conventionSource, regionSource);
     final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
-    _converter = new FutureSecurityConverterDeprecated(irFutureConverter, bondFutureConverter);
+    _converter = new FutureSecurityConverterDeprecated(bondFutureConverter);
   }
 
   // Need to do this to get labels for the output
@@ -90,7 +91,7 @@ public class EquityDividendYieldFuturesYCNSFunction extends EquityDividendYieldF
     }
     // Get Funding Curve Name and Configuration
     final String fundingCurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
-    final FutureSecurity security = (FutureSecurity)  target.getTrade().getSecurity();
+    final FutureSecurity security = (FutureSecurity) target.getTrade().getSecurity();
     // Add Funding Curve Spec, to get labels correct in result
     requirements.add(getCurveSpecRequirement(FinancialSecurityUtils.getCurrency(security), fundingCurveName));
     return requirements;
@@ -127,8 +128,8 @@ public class EquityDividendYieldFuturesYCNSFunction extends EquityDividendYieldF
     }
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
 
-    final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(),
-        createValueProperties(target, desiredValue).get());
+    final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), createValueProperties(target, desiredValue)
+        .get());
 
     // 4. Compute sensitivity to the discount rate, then use chain rule to distribute sensitivity across the curve
     final DoubleMatrix1D sensVector = derivative.accept(getCalculator(), getFutureDataBundle(security, inputs, timeSeriesBundle, desiredValue));

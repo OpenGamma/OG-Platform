@@ -5,22 +5,24 @@
  */
 package com.opengamma.masterdb.security.hibernate.option;
 
+import java.util.Map;
+
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.masterdb.security.hibernate.CurrencyBean;
 import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
 import com.opengamma.masterdb.security.hibernate.SecurityBean;
 import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
-import java.util.Map;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * A Hibernate bean representation of {@link CreditDefaultSwapOptionSecurity}.
@@ -74,122 +76,6 @@ public class CreditDefaultSwapOptionSecurityBean extends SecurityBean {
   @Override
   public CreditDefaultSwapOptionSecurityBean.Meta metaBean() {
     return CreditDefaultSwapOptionSecurityBean.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 97926:  // buy
-        return getBuy();
-      case 2087835226:  // protectionBuyer
-        return getProtectionBuyer();
-      case 769920952:  // protectionSeller
-        return getProtectionSeller();
-      case -2129778896:  // startDate
-        return getStartDate();
-      case -414641441:  // maturityDate
-        return getMaturityDate();
-      case 575402001:  // currency
-        return getCurrency();
-      case 1585636160:  // notional
-        return getNotional();
-      case -891985998:  // strike
-        return getStrike();
-      case -384166438:  // knockOut
-        return getKnockOut();
-      case 106443605:  // payer
-        return getPayer();
-      case -466331342:  // exerciseType
-        return getExerciseType();
-      case -1770633379:  // underlying
-        return getUnderlying();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 97926:  // buy
-        setBuy((Boolean) newValue);
-        return;
-      case 2087835226:  // protectionBuyer
-        setProtectionBuyer((ExternalIdBean) newValue);
-        return;
-      case 769920952:  // protectionSeller
-        setProtectionSeller((ExternalIdBean) newValue);
-        return;
-      case -2129778896:  // startDate
-        setStartDate((ZonedDateTimeBean) newValue);
-        return;
-      case -414641441:  // maturityDate
-        setMaturityDate((ZonedDateTimeBean) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((CurrencyBean) newValue);
-        return;
-      case 1585636160:  // notional
-        setNotional((Double) newValue);
-        return;
-      case -891985998:  // strike
-        setStrike((Double) newValue);
-        return;
-      case -384166438:  // knockOut
-        setKnockOut((Boolean) newValue);
-        return;
-      case 106443605:  // payer
-        setPayer((Boolean) newValue);
-        return;
-      case -466331342:  // exerciseType
-        setExerciseType((OptionExerciseType) newValue);
-        return;
-      case -1770633379:  // underlying
-        setUnderlying((ExternalIdBean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CreditDefaultSwapOptionSecurityBean other = (CreditDefaultSwapOptionSecurityBean) obj;
-      return JodaBeanUtils.equal(getBuy(), other.getBuy()) &&
-          JodaBeanUtils.equal(getProtectionBuyer(), other.getProtectionBuyer()) &&
-          JodaBeanUtils.equal(getProtectionSeller(), other.getProtectionSeller()) &&
-          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
-          JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
-          JodaBeanUtils.equal(getKnockOut(), other.getKnockOut()) &&
-          JodaBeanUtils.equal(getPayer(), other.getPayer()) &&
-          JodaBeanUtils.equal(getExerciseType(), other.getExerciseType()) &&
-          JodaBeanUtils.equal(getUnderlying(), other.getUnderlying()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBuy());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProtectionBuyer());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProtectionSeller());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getKnockOut());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPayer());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -493,6 +379,84 @@ public class CreditDefaultSwapOptionSecurityBean extends SecurityBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public CreditDefaultSwapOptionSecurityBean clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CreditDefaultSwapOptionSecurityBean other = (CreditDefaultSwapOptionSecurityBean) obj;
+      return JodaBeanUtils.equal(getBuy(), other.getBuy()) &&
+          JodaBeanUtils.equal(getProtectionBuyer(), other.getProtectionBuyer()) &&
+          JodaBeanUtils.equal(getProtectionSeller(), other.getProtectionSeller()) &&
+          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
+          JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
+          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
+          JodaBeanUtils.equal(getKnockOut(), other.getKnockOut()) &&
+          JodaBeanUtils.equal(getPayer(), other.getPayer()) &&
+          JodaBeanUtils.equal(getExerciseType(), other.getExerciseType()) &&
+          JodaBeanUtils.equal(getUnderlying(), other.getUnderlying()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBuy());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProtectionBuyer());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProtectionSeller());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStrike());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getKnockOut());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPayer());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(416);
+    buf.append("CreditDefaultSwapOptionSecurityBean{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("buy").append('=').append(JodaBeanUtils.toString(getBuy())).append(',').append(' ');
+    buf.append("protectionBuyer").append('=').append(JodaBeanUtils.toString(getProtectionBuyer())).append(',').append(' ');
+    buf.append("protectionSeller").append('=').append(JodaBeanUtils.toString(getProtectionSeller())).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
+    buf.append("maturityDate").append('=').append(JodaBeanUtils.toString(getMaturityDate())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(getStrike())).append(',').append(' ');
+    buf.append("knockOut").append('=').append(JodaBeanUtils.toString(getKnockOut())).append(',').append(' ');
+    buf.append("payer").append('=').append(JodaBeanUtils.toString(getPayer())).append(',').append(' ');
+    buf.append("exerciseType").append('=').append(JodaBeanUtils.toString(getExerciseType())).append(',').append(' ');
+    buf.append("underlying").append('=').append(JodaBeanUtils.toString(getUnderlying())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code CreditDefaultSwapOptionSecurityBean}.
    */
@@ -727,6 +691,81 @@ public class CreditDefaultSwapOptionSecurityBean extends SecurityBean {
      */
     public final MetaProperty<ExternalIdBean> underlying() {
       return _underlying;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 97926:  // buy
+          return ((CreditDefaultSwapOptionSecurityBean) bean).getBuy();
+        case 2087835226:  // protectionBuyer
+          return ((CreditDefaultSwapOptionSecurityBean) bean).getProtectionBuyer();
+        case 769920952:  // protectionSeller
+          return ((CreditDefaultSwapOptionSecurityBean) bean).getProtectionSeller();
+        case -2129778896:  // startDate
+          return ((CreditDefaultSwapOptionSecurityBean) bean).getStartDate();
+        case -414641441:  // maturityDate
+          return ((CreditDefaultSwapOptionSecurityBean) bean).getMaturityDate();
+        case 575402001:  // currency
+          return ((CreditDefaultSwapOptionSecurityBean) bean).getCurrency();
+        case 1585636160:  // notional
+          return ((CreditDefaultSwapOptionSecurityBean) bean).getNotional();
+        case -891985998:  // strike
+          return ((CreditDefaultSwapOptionSecurityBean) bean).getStrike();
+        case -384166438:  // knockOut
+          return ((CreditDefaultSwapOptionSecurityBean) bean).getKnockOut();
+        case 106443605:  // payer
+          return ((CreditDefaultSwapOptionSecurityBean) bean).getPayer();
+        case -466331342:  // exerciseType
+          return ((CreditDefaultSwapOptionSecurityBean) bean).getExerciseType();
+        case -1770633379:  // underlying
+          return ((CreditDefaultSwapOptionSecurityBean) bean).getUnderlying();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 97926:  // buy
+          ((CreditDefaultSwapOptionSecurityBean) bean).setBuy((Boolean) newValue);
+          return;
+        case 2087835226:  // protectionBuyer
+          ((CreditDefaultSwapOptionSecurityBean) bean).setProtectionBuyer((ExternalIdBean) newValue);
+          return;
+        case 769920952:  // protectionSeller
+          ((CreditDefaultSwapOptionSecurityBean) bean).setProtectionSeller((ExternalIdBean) newValue);
+          return;
+        case -2129778896:  // startDate
+          ((CreditDefaultSwapOptionSecurityBean) bean).setStartDate((ZonedDateTimeBean) newValue);
+          return;
+        case -414641441:  // maturityDate
+          ((CreditDefaultSwapOptionSecurityBean) bean).setMaturityDate((ZonedDateTimeBean) newValue);
+          return;
+        case 575402001:  // currency
+          ((CreditDefaultSwapOptionSecurityBean) bean).setCurrency((CurrencyBean) newValue);
+          return;
+        case 1585636160:  // notional
+          ((CreditDefaultSwapOptionSecurityBean) bean).setNotional((Double) newValue);
+          return;
+        case -891985998:  // strike
+          ((CreditDefaultSwapOptionSecurityBean) bean).setStrike((Double) newValue);
+          return;
+        case -384166438:  // knockOut
+          ((CreditDefaultSwapOptionSecurityBean) bean).setKnockOut((Boolean) newValue);
+          return;
+        case 106443605:  // payer
+          ((CreditDefaultSwapOptionSecurityBean) bean).setPayer((Boolean) newValue);
+          return;
+        case -466331342:  // exerciseType
+          ((CreditDefaultSwapOptionSecurityBean) bean).setExerciseType((OptionExerciseType) newValue);
+          return;
+        case -1770633379:  // underlying
+          ((CreditDefaultSwapOptionSecurityBean) bean).setUnderlying((ExternalIdBean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

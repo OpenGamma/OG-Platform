@@ -77,7 +77,6 @@ public class MarketDataSnapshotListResourceTest {
   @Test
   public void snapshotWithBlankNameNotReturned() throws JSONException {
     MarketDataSnapshotListResource resource = createResource(
-        createSnapshot("basisView", null, UniqueId.of("Tst", "1")),
         createSnapshot("basisView", "", UniqueId.of("Tst", "2")));
 
     JSONArray json = new JSONArray(resource.getMarketDataSnapshotList());

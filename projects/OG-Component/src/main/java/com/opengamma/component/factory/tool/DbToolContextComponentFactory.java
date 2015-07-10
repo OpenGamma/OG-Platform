@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -122,6 +123,9 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
   }
 
   static final String getStandardCatalog(final String jdbcUrl) {
+    if (jdbcUrl.startsWith("jdbc:oracle")) {
+      return "";
+    }
     // REVIEW jonathan 2012-10-12 -- workaround for PLAT-2745
     int lastSlashIdx = jdbcUrl.lastIndexOf("/");
     if (lastSlashIdx == -1) {
@@ -147,86 +151,6 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
   @Override
   public DbToolContextComponentFactory.Meta metaBean() {
     return DbToolContextComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case 39794031:  // dbConnector
-        return getDbConnector();
-      case -1752402828:  // jdbcUrl
-        return getJdbcUrl();
-      case -907987551:  // schema
-        return getSchema();
-      case 209279841:  // dbManagement
-        return getDbManagement();
-      case 1541392229:  // schemaNamesList
-        return getSchemaNamesList();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case 39794031:  // dbConnector
-        setDbConnector((DbConnector) newValue);
-        return;
-      case -1752402828:  // jdbcUrl
-        setJdbcUrl((String) newValue);
-        return;
-      case -907987551:  // schema
-        setSchema((String) newValue);
-        return;
-      case 209279841:  // dbManagement
-        setDbManagement((DbManagement) newValue);
-        return;
-      case 1541392229:  // schemaNamesList
-        setSchemaNamesList((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      DbToolContextComponentFactory other = (DbToolContextComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
-          JodaBeanUtils.equal(getJdbcUrl(), other.getJdbcUrl()) &&
-          JodaBeanUtils.equal(getSchema(), other.getSchema()) &&
-          JodaBeanUtils.equal(getDbManagement(), other.getDbManagement()) &&
-          JodaBeanUtils.equal(getSchemaNamesList(), other.getSchemaNamesList()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJdbcUrl());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSchema());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDbManagement());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSchemaNamesList());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -381,6 +305,66 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public DbToolContextComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      DbToolContextComponentFactory other = (DbToolContextComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
+          JodaBeanUtils.equal(getJdbcUrl(), other.getJdbcUrl()) &&
+          JodaBeanUtils.equal(getSchema(), other.getSchema()) &&
+          JodaBeanUtils.equal(getDbManagement(), other.getDbManagement()) &&
+          JodaBeanUtils.equal(getSchemaNamesList(), other.getSchemaNamesList()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getJdbcUrl());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSchema());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDbManagement());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSchemaNamesList());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("DbToolContextComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("dbConnector").append('=').append(JodaBeanUtils.toString(getDbConnector())).append(',').append(' ');
+    buf.append("jdbcUrl").append('=').append(JodaBeanUtils.toString(getJdbcUrl())).append(',').append(' ');
+    buf.append("schema").append('=').append(JodaBeanUtils.toString(getSchema())).append(',').append(' ');
+    buf.append("dbManagement").append('=').append(JodaBeanUtils.toString(getDbManagement())).append(',').append(' ');
+    buf.append("schemaNamesList").append('=').append(JodaBeanUtils.toString(getSchemaNamesList())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code DbToolContextComponentFactory}.
    */
@@ -519,6 +503,57 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<String> schemaNamesList() {
       return _schemaNamesList;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((DbToolContextComponentFactory) bean).getClassifier();
+        case 39794031:  // dbConnector
+          return ((DbToolContextComponentFactory) bean).getDbConnector();
+        case -1752402828:  // jdbcUrl
+          return ((DbToolContextComponentFactory) bean).getJdbcUrl();
+        case -907987551:  // schema
+          return ((DbToolContextComponentFactory) bean).getSchema();
+        case 209279841:  // dbManagement
+          return ((DbToolContextComponentFactory) bean).getDbManagement();
+        case 1541392229:  // schemaNamesList
+          return ((DbToolContextComponentFactory) bean).getSchemaNamesList();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((DbToolContextComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case 39794031:  // dbConnector
+          ((DbToolContextComponentFactory) bean).setDbConnector((DbConnector) newValue);
+          return;
+        case -1752402828:  // jdbcUrl
+          ((DbToolContextComponentFactory) bean).setJdbcUrl((String) newValue);
+          return;
+        case -907987551:  // schema
+          ((DbToolContextComponentFactory) bean).setSchema((String) newValue);
+          return;
+        case 209279841:  // dbManagement
+          ((DbToolContextComponentFactory) bean).setDbManagement((DbManagement) newValue);
+          return;
+        case 1541392229:  // schemaNamesList
+          ((DbToolContextComponentFactory) bean).setSchemaNamesList((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((DbToolContextComponentFactory) bean)._classifier, "classifier");
+      super.validate(bean);
     }
 
   }

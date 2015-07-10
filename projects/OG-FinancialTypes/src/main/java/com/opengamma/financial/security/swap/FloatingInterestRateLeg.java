@@ -7,6 +7,7 @@ package com.opengamma.financial.security.swap;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -106,80 +107,6 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
   @Override
   public FloatingInterestRateLeg.Meta metaBean() {
     return FloatingInterestRateLeg.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1120221088:  // floatingReferenceRateId
-        return getFloatingReferenceRateId();
-      case -1216922774:  // initialFloatingRate
-        return getInitialFloatingRate();
-      case 1642653280:  // floatingRateType
-        return getFloatingRateType();
-      case -295948000:  // settlementDays
-        return getSettlementDays();
-      case 180579872:  // offsetFixing
-        return getOffsetFixing();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1120221088:  // floatingReferenceRateId
-        setFloatingReferenceRateId((ExternalId) newValue);
-        return;
-      case -1216922774:  // initialFloatingRate
-        setInitialFloatingRate((Double) newValue);
-        return;
-      case 1642653280:  // floatingRateType
-        setFloatingRateType((FloatingRateType) newValue);
-        return;
-      case -295948000:  // settlementDays
-        setSettlementDays((Integer) newValue);
-        return;
-      case 180579872:  // offsetFixing
-        setOffsetFixing((Frequency) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_floatingReferenceRateId, "floatingReferenceRateId");
-    JodaBeanUtils.notNull(_floatingRateType, "floatingRateType");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      FloatingInterestRateLeg other = (FloatingInterestRateLeg) obj;
-      return JodaBeanUtils.equal(getFloatingReferenceRateId(), other.getFloatingReferenceRateId()) &&
-          JodaBeanUtils.equal(getInitialFloatingRate(), other.getInitialFloatingRate()) &&
-          JodaBeanUtils.equal(getFloatingRateType(), other.getFloatingRateType()) &&
-          JodaBeanUtils.equal(getSettlementDays(), other.getSettlementDays()) &&
-          JodaBeanUtils.equal(getOffsetFixing(), other.getOffsetFixing()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFloatingReferenceRateId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInitialFloatingRate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFloatingRateType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOffsetFixing());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -310,6 +237,63 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public FloatingInterestRateLeg clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FloatingInterestRateLeg other = (FloatingInterestRateLeg) obj;
+      return JodaBeanUtils.equal(getFloatingReferenceRateId(), other.getFloatingReferenceRateId()) &&
+          JodaBeanUtils.equal(getInitialFloatingRate(), other.getInitialFloatingRate()) &&
+          JodaBeanUtils.equal(getFloatingRateType(), other.getFloatingRateType()) &&
+          JodaBeanUtils.equal(getSettlementDays(), other.getSettlementDays()) &&
+          JodaBeanUtils.equal(getOffsetFixing(), other.getOffsetFixing()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFloatingReferenceRateId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getInitialFloatingRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFloatingRateType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getOffsetFixing());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("FloatingInterestRateLeg{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("floatingReferenceRateId").append('=').append(JodaBeanUtils.toString(getFloatingReferenceRateId())).append(',').append(' ');
+    buf.append("initialFloatingRate").append('=').append(JodaBeanUtils.toString(getInitialFloatingRate())).append(',').append(' ');
+    buf.append("floatingRateType").append('=').append(JodaBeanUtils.toString(getFloatingRateType())).append(',').append(' ');
+    buf.append("settlementDays").append('=').append(JodaBeanUtils.toString(getSettlementDays())).append(',').append(' ');
+    buf.append("offsetFixing").append('=').append(JodaBeanUtils.toString(getOffsetFixing())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code FloatingInterestRateLeg}.
    */
@@ -432,6 +416,53 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
      */
     public final MetaProperty<Frequency> offsetFixing() {
       return _offsetFixing;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1120221088:  // floatingReferenceRateId
+          return ((FloatingInterestRateLeg) bean).getFloatingReferenceRateId();
+        case -1216922774:  // initialFloatingRate
+          return ((FloatingInterestRateLeg) bean).getInitialFloatingRate();
+        case 1642653280:  // floatingRateType
+          return ((FloatingInterestRateLeg) bean).getFloatingRateType();
+        case -295948000:  // settlementDays
+          return ((FloatingInterestRateLeg) bean).getSettlementDays();
+        case 180579872:  // offsetFixing
+          return ((FloatingInterestRateLeg) bean).getOffsetFixing();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1120221088:  // floatingReferenceRateId
+          ((FloatingInterestRateLeg) bean).setFloatingReferenceRateId((ExternalId) newValue);
+          return;
+        case -1216922774:  // initialFloatingRate
+          ((FloatingInterestRateLeg) bean).setInitialFloatingRate((Double) newValue);
+          return;
+        case 1642653280:  // floatingRateType
+          ((FloatingInterestRateLeg) bean).setFloatingRateType((FloatingRateType) newValue);
+          return;
+        case -295948000:  // settlementDays
+          ((FloatingInterestRateLeg) bean).setSettlementDays((Integer) newValue);
+          return;
+        case 180579872:  // offsetFixing
+          ((FloatingInterestRateLeg) bean).setOffsetFixing((Frequency) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((FloatingInterestRateLeg) bean)._floatingReferenceRateId, "floatingReferenceRateId");
+      JodaBeanUtils.notNull(((FloatingInterestRateLeg) bean)._floatingRateType, "floatingRateType");
+      super.validate(bean);
     }
 
   }

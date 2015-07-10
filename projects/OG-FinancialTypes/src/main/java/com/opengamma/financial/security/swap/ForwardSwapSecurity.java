@@ -7,6 +7,7 @@ package com.opengamma.financial.security.swap;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -19,11 +20,13 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.master.security.SecurityDescription;
 
 /**
  * A security for a forward swap.
  */
 @BeanDefinition
+@SecurityDescription(type = ForwardSwapSecurity.SECURITY_TYPE, description = "Swap")
 public class ForwardSwapSecurity extends SwapSecurity {
 
   /** Serialization version. */
@@ -74,51 +77,6 @@ public class ForwardSwapSecurity extends SwapSecurity {
     return ForwardSwapSecurity.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -414907925:  // forwardStartDate
-        return getForwardStartDate();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -414907925:  // forwardStartDate
-        setForwardStartDate((ZonedDateTime) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_forwardStartDate, "forwardStartDate");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ForwardSwapSecurity other = (ForwardSwapSecurity) obj;
-      return JodaBeanUtils.equal(getForwardStartDate(), other.getForwardStartDate()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getForwardStartDate());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the forward start date.
@@ -143,6 +101,51 @@ public class ForwardSwapSecurity extends SwapSecurity {
    */
   public final Property<ZonedDateTime> forwardStartDate() {
     return metaBean().forwardStartDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ForwardSwapSecurity clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ForwardSwapSecurity other = (ForwardSwapSecurity) obj;
+      return JodaBeanUtils.equal(getForwardStartDate(), other.getForwardStartDate()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getForwardStartDate());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("ForwardSwapSecurity{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("forwardStartDate").append('=').append(JodaBeanUtils.toString(getForwardStartDate())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -204,6 +207,32 @@ public class ForwardSwapSecurity extends SwapSecurity {
      */
     public final MetaProperty<ZonedDateTime> forwardStartDate() {
       return _forwardStartDate;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -414907925:  // forwardStartDate
+          return ((ForwardSwapSecurity) bean).getForwardStartDate();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -414907925:  // forwardStartDate
+          ((ForwardSwapSecurity) bean).setForwardStartDate((ZonedDateTime) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ForwardSwapSecurity) bean)._forwardStartDate, "forwardStartDate");
+      super.validate(bean);
     }
 
   }

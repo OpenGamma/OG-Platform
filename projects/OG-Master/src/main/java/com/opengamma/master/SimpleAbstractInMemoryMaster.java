@@ -6,7 +6,6 @@
 package com.opengamma.master;
 
 import static com.google.common.collect.Maps.newHashMap;
-import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -19,6 +18,7 @@ import org.threeten.bp.Instant;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
@@ -56,6 +56,12 @@ public abstract class SimpleAbstractInMemoryMaster<D extends AbstractDocument>
    */
   protected final ChangeManager _changeManager;  // CSIGNORE
 
+  /**
+   * Whether all documents should be cloned on return. True by default.
+   */
+  private boolean _cloneResults = true;
+
+  
   /**
    * Creates an instance.
    * 
@@ -95,6 +101,24 @@ public abstract class SimpleAbstractInMemoryMaster<D extends AbstractDocument>
     ArgumentChecker.notNull(changeManager, "changeManager");
     _objectIdSupplier = objectIdSupplier;
     _changeManager = changeManager;
+  }
+
+  /**
+   * Whether to clone all results when searching. True by default.
+   * 
+   * @return whether results are cloned.
+   */
+  public boolean isCloneResults() {
+    return _cloneResults;
+  }
+
+  /**
+   * Specify whether to clone all results when searching. True by default.
+   *
+   * @param cloneResults whether to clone results when searching.
+   */
+  public void setCloneResults(boolean cloneResults) {
+    _cloneResults = cloneResults;
   }
 
   //-------------------------------------------------------------------------
@@ -147,15 +171,28 @@ public abstract class SimpleAbstractInMemoryMaster<D extends AbstractDocument>
       
       List<D> orderedReplacementDocuments = MasterUtils.adjustVersionInstants(now, storedVersionFrom, storedVersionTo, replacementDocuments);
       D lastReplacementDocument = orderedReplacementDocuments.get(orderedReplacementDocuments.size() - 1);
+      lastReplacementDocument.setUniqueId(objectId.getObjectId().atLatestVersion());
       if (_store.replace(objectId.getObjectId(), storedDocument, lastReplacementDocument) == false) {
         throw new IllegalArgumentException("Concurrent modification");
       }
       
-      Instant versionFromInstant = functional(orderedReplacementDocuments).first().getVersionFromInstant();
-      Instant versionToInstant = functional(orderedReplacementDocuments).last().getVersionToInstant();
+      Instant versionFromInstant = orderedReplacementDocuments.get(0).getVersionFromInstant();
+      Instant versionToInstant = Iterables.getLast(orderedReplacementDocuments).getVersionToInstant();
       changeManager().entityChanged(ChangeType.CHANGED, objectId.getObjectId(), versionFromInstant, versionToInstant, now);
+      
+      updateCaches(objectId, lastReplacementDocument);
+      
       return ImmutableList.of(lastReplacementDocument.getUniqueId());
     }
+  }
+  
+  /**
+   * Subclasses that support additional caching should override this method.
+   * 
+   * @param replacedObject The version removed (possibly null)
+   * @param updatedDocument  The version added (possibly null)
+   */
+  protected void updateCaches(ObjectIdentifiable replacedObject, D updatedDocument) {
   }
 
   //-------------------------------------------------------------------------

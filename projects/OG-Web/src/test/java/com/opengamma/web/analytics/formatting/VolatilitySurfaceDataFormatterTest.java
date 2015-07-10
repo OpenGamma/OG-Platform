@@ -19,6 +19,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Test.
@@ -35,7 +36,7 @@ public class VolatilitySurfaceDataFormatterTest {
     Map<Pair<Tenor, Tenor>, Double> vol = Maps.newHashMap();
     for (int y = 0; y < yVals.length; y++) {
       for (int x = 0; x < xVals.length; x++) {
-        vol.put(Pair.of(xVals[x], yVals[y]), vols[x + (y * xVals.length)]);
+        vol.put(Pairs.of(xVals[x], yVals[y]), vols[x + (y * xVals.length)]);
       }
     }
     String name = "test";
@@ -57,7 +58,7 @@ public class VolatilitySurfaceDataFormatterTest {
     double[] vols = new double[] {10, 11, 12, 13, 14};
     Map<Pair<Tenor, Tenor>, Double> values = Maps.newHashMap();
     for (int i = 0; i < xs.length; i++) {
-      values.put(Pair.of(xs[i], ys[i]), vols[i]);
+      values.put(Pairs.of(xs[i], ys[i]), vols[i]);
     }
     String name = "test";
     UniqueIdentifiable target = Currency.USD;

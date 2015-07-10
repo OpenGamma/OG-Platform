@@ -16,11 +16,13 @@ import com.opengamma.financial.analytics.cashflow.CashFlowFunctions;
 import com.opengamma.financial.analytics.covariance.CovarianceFunctions;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveFunctions;
 import com.opengamma.financial.analytics.ircurve.IRCurveFunctions;
+import com.opengamma.financial.analytics.model.MarketQuotePositionFunction;
 import com.opengamma.financial.analytics.model.ModelFunctions;
 import com.opengamma.financial.analytics.model.riskfactor.option.OptionGreekToValueGreekConverterFunction;
 import com.opengamma.financial.analytics.timeseries.TimeSeriesFunctions;
 import com.opengamma.financial.analytics.volatility.VolatilityFunctions;
 import com.opengamma.financial.security.function.DefaultSecurityAttributeFunction;
+import com.opengamma.financial.security.function.SecurityFunctions;
 import com.opengamma.financial.security.lookup.SecurityAttribute;
 
 /**
@@ -62,7 +64,8 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
    */
   public static void addUnitScalingFunction(final List<FunctionConfiguration> functions, final String requirementName) {
     functions.add(functionConfiguration(UnitPositionOrTradeScalingFunction.class, requirementName));
-    functions.add(functionConfiguration(UnitPositionTradeScalingFunction.class, requirementName));
+    functions.add(functionConfiguration(PositionTradeScalingFunction.class, requirementName));
+
   }
 
   public static void addUnitScalingAndSummingFunction(final List<FunctionConfiguration> functions, final String requirementName) {
@@ -95,11 +98,13 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(AttributesFunction.class));
+    functions.add(functionConfiguration(ExternalIdFunction.class));
     functions.add(functionConfiguration(CurrencyPairsFunction.class));
     functions.add(functionConfiguration(DV01Function.class));
     functions.add(functionConfiguration(NotionalFunction.class));
     functions.add(functionConfiguration(PortfolioNodeWeightFunction.class));
     functions.add(functionConfiguration(PositionWeightFunction.class));
+    functions.add(functionConfiguration(BucketedPV01Function.class));
 
     //security attribute functions
     functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.DIRECTION.name(), ValueRequirementNames.PAY_REC));
@@ -113,9 +118,13 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.START.name(), ValueRequirementNames.START));
     functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.TYPE.name(), ValueRequirementNames.TYPE));
 
+    addScalingAndSummingFunction(functions, ValueRequirementNames.ACCRUED_INTEREST);
+    addScalingAndSummingFunction(functions, ValueRequirementNames.ASSET_LEG_PV);
     addUnitScalingFunction(functions, ValueRequirementNames.ATTRIBUTES);
+    addUnitScalingFunction(functions, ValueRequirementNames.EXTERNAL_ID);
     addUnitScalingFunction(functions, ValueRequirementNames.BLACK_VOLATILITY_GRID_PRICE);
     addScalingAndSummingFunction(functions, ValueRequirementNames.BOND_COUPON_PAYMENT_TIMES);
+    addUnitScalingFunction(functions, ValueRequirementNames.BOND_DETAILS);
     addUnitScalingFunction(functions, ValueRequirementNames.BOND_TENOR);
     addUnitScalingFunction(functions, ValueRequirementNames.CARRY_RHO);
     addSummingFunction(functions, ValueRequirementNames.CREDIT_SENSITIVITIES);
@@ -148,6 +157,8 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.FORWARD_VANNA);
     addUnitScalingFunction(functions, ValueRequirementNames.FORWARD_VEGA);
     addUnitScalingFunction(functions, ValueRequirementNames.FORWARD_VOMMA);
+    addUnitScalingFunction(functions, ValueRequirementNames.FUNDING_LEG_DETAILS);
+    addScalingAndSummingFunction(functions, ValueRequirementNames.FUNDING_LEG_PV);
     addScalingAndSummingFunction(functions, ValueRequirementNames.FX_CURRENCY_EXPOSURE);
     addUnitScalingFunction(functions, ValueRequirementNames.FX_CURVE_SENSITIVITIES);
     addScalingAndSummingFunction(functions, ValueRequirementNames.FX_FORWARD_POINTS_NODE_SENSITIVITIES);
@@ -157,6 +168,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.GAMMA_BLEED);
     addUnitScalingFunction(functions, ValueRequirementNames.GAMMA_P);
     addUnitScalingFunction(functions, ValueRequirementNames.GAMMA_P_BLEED);
+    addScalingAndSummingFunction(functions, ValueRequirementNames.GAMMA_PV01);
     addUnitScalingFunction(functions, ValueRequirementNames.GRID_DUAL_DELTA);
     addUnitScalingFunction(functions, ValueRequirementNames.GRID_DUAL_GAMMA);
     addUnitScalingFunction(functions, ValueRequirementNames.GRID_FORWARD_DELTA);
@@ -186,7 +198,6 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.MARKET_DIRTY_PRICE);
     addSummingFunction(functions, ValueRequirementNames.MTM_PNL);
     addUnitScalingFunction(functions, ValueRequirementNames.MTM_PNL);
-    addUnitScalingFunction(functions, ValueRequirementNames.MARKET_QUOTE);
     addUnitScalingFunction(functions, ValueRequirementNames.MARKET_YTM);
     addUnitScalingFunction(functions, ValueRequirementNames.MODIFIED_DURATION);
     addUnitScalingAndSummingFunction(functions, ValueRequirementNames.NET_BASIS);
@@ -197,6 +208,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.PAR_SPREAD);
     addUnitScalingFunction(functions, ValueRequirementNames.PAR_RATE_CURVE_SENSITIVITY);
     addUnitScalingFunction(functions, ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT);
+    addScalingAndSummingFunction(functions, ValueRequirementNames.PAY_LEG_PRESENT_VALUE);
     addUnitScalingFunction(functions, ValueRequirementNames.PIECEWISE_SABR_VOL_SURFACE);
     addScalingAndSummingFunction(functions, ValueRequirementNames.PNL);
     addSummingFunction(functions, ValueRequirementNames.PNL_SERIES);
@@ -217,8 +229,14 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addScalingAndSummingFunction(functions, ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY);
     addSummingFunction(functions, ValueRequirementNames.PRICE_SERIES);
     addScalingAndSummingFunction(functions, ValueRequirementNames.PV01);
+    addUnitScalingFunction(functions, ValueRequirementNames.QUANTITY);
+    addScalingAndSummingFunction(functions, ValueRequirementNames.RECEIVE_LEG_PRESENT_VALUE);
     addUnitScalingFunction(functions, ValueRequirementNames.RHO);
+    addUnitScalingFunction(functions, ValueRequirementNames.SWAP_PAY_LEG_DETAILS);
+    addUnitScalingFunction(functions, ValueRequirementNames.SWAP_RECEIVE_LEG_DETAILS);
     addUnitScalingFunction(functions, ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY);
+    addUnitScalingFunction(functions, ValueRequirementNames.SECURITY_MODEL_PRICE);
+    addUnitScalingFunction(functions, ValueRequirementNames.MARK_CURRENT);
     addUnitScalingFunction(functions, ValueRequirementNames.SPEED);
     addUnitScalingFunction(functions, ValueRequirementNames.SPEED_P);
     addUnitScalingFunction(functions, ValueRequirementNames.SPOT);
@@ -273,7 +291,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addSummingFunction(functions, ValueRequirementNames.RR01);
     addSummingFunction(functions, ValueRequirementNames.IR01);
     addSummingFunction(functions, ValueRequirementNames.BUCKETED_IR01);
-    addSummingFunction(functions, ValueRequirementNames.JUMP_TO_DEFAULT);
+    addSummingFunction(functions, ValueRequirementNames.NET_MARKET_VALUE);
     addUnitScalingFunction(functions, ValueRequirementNames.DV01);
     addUnitScalingFunction(functions, ValueRequirementNames.CS01);
     addUnitScalingFunction(functions, ValueRequirementNames.BUCKETED_CS01);
@@ -284,6 +302,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.BUCKETED_IR01);
     addUnitScalingFunction(functions, ValueRequirementNames.JUMP_TO_DEFAULT);
     addUnitScalingFunction(functions, ValueRequirementNames.HAZARD_RATE_CURVE);
+    addUnitScalingFunction(functions, ValueRequirementNames.NET_MARKET_VALUE);
     addScalingAndSummingFunction(functions, ValueRequirementNames.MONETIZED_VEGA);
     addScalingAndSummingFunction(functions, ValueRequirementNames.CLEAN_PRESENT_VALUE);
     addScalingAndSummingFunction(functions, ValueRequirementNames.DIRTY_PRESENT_VALUE);
@@ -293,6 +312,11 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.POINTS_UPFRONT);
     addUnitScalingFunction(functions, ValueRequirementNames.UPFRONT_AMOUNT);
     addUnitScalingFunction(functions, ValueRequirementNames.QUOTED_SPREAD);
+    addUnitScalingAndSummingFunction(functions, ValueRequirementNames.HEDGE_NOTIONAL);
+
+    addUnitScalingAndSummingFunction(functions, ValueRequirementNames.BUCKETED_PV01);
+
+    functions.add(functionConfiguration(MarketQuotePositionFunction.class));
   }
 
   protected FunctionConfigurationSource cashFlowFunctionConfiguration() {
@@ -315,6 +339,10 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     return ModelFunctions.instance();
   }
 
+  protected FunctionConfigurationSource securityFunctionConfiguration() {
+    return SecurityFunctions.instance();
+  }
+
   protected FunctionConfigurationSource timeSeriesFunctionConfiguration() {
     return TimeSeriesFunctions.instance();
   }
@@ -326,7 +354,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
   @Override
   protected FunctionConfigurationSource createObject() {
     return CombiningFunctionConfigurationSource.of(super.createObject(), cashFlowFunctionConfiguration(), covarianceFunctionConfiguration(), irCurveFunctionConfiguration(),
-        fxForwardCurveFunctionConfiguration(), modelFunctionConfiguration(), timeSeriesFunctionConfiguration(), volatilityFunctionConfiguration());
+        fxForwardCurveFunctionConfiguration(), modelFunctionConfiguration(), securityFunctionConfiguration(), timeSeriesFunctionConfiguration(), volatilityFunctionConfiguration());
   }
 
 }

@@ -12,6 +12,9 @@ import java.util.Map;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondCapitalIndexedTransactionDiscountingMethodWithoutIssuer;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolationWithMargin;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearMonthly;
@@ -35,7 +38,7 @@ import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFi
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
@@ -47,7 +50,8 @@ import com.opengamma.util.tuple.DoublesPair;
  * Calculator of the present value curve sensitivity as multiple currency interest rate curve sensitivity.
  */
 
-public final class PresentValueCurveSensitivityDiscountingInflationCalculator extends InstrumentDerivativeVisitorAdapter<InflationProviderInterface, MultipleCurrencyInflationSensitivity> {
+public final class PresentValueCurveSensitivityDiscountingInflationCalculator extends 
+  InstrumentDerivativeVisitorAdapter<ParameterInflationProviderInterface, MultipleCurrencyInflationSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -111,70 +115,78 @@ public final class PresentValueCurveSensitivityDiscountingInflationCalculator ex
    */
   private static final CouponFixedDiscountingMethod METHOD_CPN_FIXED = CouponFixedDiscountingMethod.getInstance();
 
+  /** Method for bond securities */
+  private static final BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer METHOD_BOND_SEC = BondCapitalIndexedSecurityDiscountingMethodWithoutIssuer.getInstance();
+  /** Method for bond transactions */
+  private static final BondCapitalIndexedTransactionDiscountingMethodWithoutIssuer METHOD_BOND_TR = BondCapitalIndexedTransactionDiscountingMethodWithoutIssuer.getInstance();
+
   // -----     Inflation Coupon     ------
 
   @Override
-  public MultipleCurrencyInflationSensitivity visitCouponInflationZeroCouponMonthly(final CouponInflationZeroCouponMonthly coupon, final InflationProviderInterface inflation) {
-    return METHOD_ZC_MONTHLY.presentValueCurveSensitivity(coupon, inflation);
+  public MultipleCurrencyInflationSensitivity visitCouponInflationZeroCouponMonthly(final CouponInflationZeroCouponMonthly coupon, final ParameterInflationProviderInterface inflation) {
+    return METHOD_ZC_MONTHLY.presentValueCurveSensitivity(coupon, inflation.getInflationProvider());
   }
 
   @Override
-  public MultipleCurrencyInflationSensitivity visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolation coupon, final InflationProviderInterface inflation) {
-    return METHOD_ZC_INTERPOLATION.presentValueCurveSensitivity(coupon, inflation);
+  public MultipleCurrencyInflationSensitivity visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolation coupon, final ParameterInflationProviderInterface inflation) {
+    return METHOD_ZC_INTERPOLATION.presentValueCurveSensitivity(coupon, inflation.getInflationProvider());
   }
 
   @Override
-  public MultipleCurrencyInflationSensitivity visitCouponInflationZeroCouponMonthlyGearing(final CouponInflationZeroCouponMonthlyGearing coupon, final InflationProviderInterface inflation) {
-    return METHOD_ZC_MONTHLY_GEARING.presentValueCurveSensitivity(coupon, inflation);
+  public MultipleCurrencyInflationSensitivity visitCouponInflationZeroCouponMonthlyGearing(final CouponInflationZeroCouponMonthlyGearing coupon, final ParameterInflationProviderInterface inflation) {
+    return METHOD_ZC_MONTHLY_GEARING.presentValueCurveSensitivity(coupon, inflation.getInflationProvider());
   }
 
   @Override
   public MultipleCurrencyInflationSensitivity visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearing coupon,
-      final InflationProviderInterface inflation) {
-    return METHOD_ZC_INTERPOLATION_GEARING.presentValueCurveSensitivity(coupon, inflation);
+      final ParameterInflationProviderInterface inflation) {
+    return METHOD_ZC_INTERPOLATION_GEARING.presentValueCurveSensitivity(coupon, inflation.getInflationProvider());
   }
 
   @Override
-  public MultipleCurrencyInflationSensitivity visitCouponInflationYearOnYearMonthly(final CouponInflationYearOnYearMonthly coupon, final InflationProviderInterface inflation) {
-    return METHOD_YEAR_ON_YEAR_MONTHLY.presentValueCurveSensitivity(coupon, inflation);
+  public MultipleCurrencyInflationSensitivity visitCouponInflationYearOnYearMonthly(final CouponInflationYearOnYearMonthly coupon, final ParameterInflationProviderInterface inflation) {
+    return METHOD_YEAR_ON_YEAR_MONTHLY.presentValueCurveSensitivity(coupon, inflation.getInflationProvider());
   }
 
   @Override
-  public MultipleCurrencyInflationSensitivity visitCouponInflationYearOnYearInterpolation(final CouponInflationYearOnYearInterpolation coupon, final InflationProviderInterface inflation) {
-    return METHOD_YEAR_ON_YEAR_INTERPOLATION.presentValueCurveSensitivity(coupon, inflation);
+  public MultipleCurrencyInflationSensitivity visitCouponInflationYearOnYearInterpolation(final CouponInflationYearOnYearInterpolation coupon, final ParameterInflationProviderInterface inflation) {
+    return METHOD_YEAR_ON_YEAR_INTERPOLATION.presentValueCurveSensitivity(coupon, inflation.getInflationProvider());
   }
 
   @Override
-  public MultipleCurrencyInflationSensitivity visitCouponInflationYearOnYearMonthlyWithMargin(final CouponInflationYearOnYearMonthlyWithMargin coupon, final InflationProviderInterface inflation) {
-    return METHOD_YEAR_ON_YEAR_MONTHLY_WITH_MARGIN.presentValueCurveSensitivity(coupon, inflation);
+  public MultipleCurrencyInflationSensitivity visitCouponInflationYearOnYearMonthlyWithMargin(
+      final CouponInflationYearOnYearMonthlyWithMargin coupon, final ParameterInflationProviderInterface inflation) {
+    return METHOD_YEAR_ON_YEAR_MONTHLY_WITH_MARGIN.presentValueCurveSensitivity(coupon, inflation.getInflationProvider());
   }
 
   @Override
   public MultipleCurrencyInflationSensitivity visitCouponInflationYearOnYearInterpolationWithMargin(final CouponInflationYearOnYearInterpolationWithMargin coupon,
-      final InflationProviderInterface inflation) {
-    return METHOD_YEAR_ON_YEAR_INTERPOLATION_WITH_MARGIN.presentValueCurveSensitivity(coupon, inflation);
+      final ParameterInflationProviderInterface inflation) {
+    return METHOD_YEAR_ON_YEAR_INTERPOLATION_WITH_MARGIN.presentValueCurveSensitivity(coupon, inflation.getInflationProvider());
   }
 
   //-----     Coupon fix    ------
 
   @Override
-  public MultipleCurrencyInflationSensitivity visitCouponFixed(final CouponFixed coupon, final InflationProviderInterface inflation) {
-    MultipleCurrencyMulticurveSensitivity multipleCurrencyMulticurveSensitivity = METHOD_CPN_FIXED.presentValueCurveSensitivity(coupon, inflation.getMulticurveProvider());
+  public MultipleCurrencyInflationSensitivity visitCouponFixed(final CouponFixed coupon, final ParameterInflationProviderInterface inflation) {
+    final MultipleCurrencyMulticurveSensitivity multipleCurrencyMulticurveSensitivity = METHOD_CPN_FIXED.presentValueCurveSensitivity(coupon, inflation.getMulticurveProvider());
     MultipleCurrencyInflationSensitivity multipleCurrencyInflationSensitivity = new MultipleCurrencyInflationSensitivity();
     for (final Currency loopccy : multipleCurrencyMulticurveSensitivity.getCurrencies()) {
-      Map<String, List<DoublesPair>> sensitivityPriceCurve = new HashMap<>();
-      multipleCurrencyInflationSensitivity.plus(loopccy, InflationSensitivity.of(multipleCurrencyMulticurveSensitivity.getSensitivity(loopccy), sensitivityPriceCurve));
+      final Map<String, List<DoublesPair>> sensitivityPriceCurve = new HashMap<>();
+      multipleCurrencyInflationSensitivity = multipleCurrencyInflationSensitivity.plus(loopccy,
+          InflationSensitivity.of(multipleCurrencyMulticurveSensitivity.getSensitivity(loopccy), sensitivityPriceCurve));
     }
     return multipleCurrencyInflationSensitivity;
   }
 
   @Override
-  public MultipleCurrencyInflationSensitivity visitCouponFixedCompounding(final CouponFixedCompounding coupon, final InflationProviderInterface inflation) {
-    MultipleCurrencyMulticurveSensitivity multipleCurrencyMulticurveSensitivity = METHOD_CPN_FIXED_COMPOUNDING.presentValueCurveSensitivity(coupon, inflation.getMulticurveProvider());
+  public MultipleCurrencyInflationSensitivity visitCouponFixedCompounding(final CouponFixedCompounding coupon, final ParameterInflationProviderInterface inflation) {
+    final MultipleCurrencyMulticurveSensitivity multipleCurrencyMulticurveSensitivity = METHOD_CPN_FIXED_COMPOUNDING.presentValueCurveSensitivity(coupon, inflation.getMulticurveProvider());
     MultipleCurrencyInflationSensitivity multipleCurrencyInflationSensitivity = new MultipleCurrencyInflationSensitivity();
     for (final Currency loopccy : multipleCurrencyMulticurveSensitivity.getCurrencies()) {
-      Map<String, List<DoublesPair>> sensitivityPriceCurve = new HashMap<>();
-      multipleCurrencyInflationSensitivity.plus(loopccy, InflationSensitivity.of(multipleCurrencyMulticurveSensitivity.getSensitivity(loopccy), sensitivityPriceCurve));
+      final Map<String, List<DoublesPair>> sensitivityPriceCurve = new HashMap<>();
+      multipleCurrencyInflationSensitivity = multipleCurrencyInflationSensitivity.plus(loopccy,
+          InflationSensitivity.of(multipleCurrencyMulticurveSensitivity.getSensitivity(loopccy), sensitivityPriceCurve));
     }
     return multipleCurrencyInflationSensitivity;
   }
@@ -182,7 +194,7 @@ public final class PresentValueCurveSensitivityDiscountingInflationCalculator ex
   //-----     Annuity     ------
 
   @Override
-  public MultipleCurrencyInflationSensitivity visitGenericAnnuity(final Annuity<? extends Payment> annuity, final InflationProviderInterface inflation) {
+  public MultipleCurrencyInflationSensitivity visitGenericAnnuity(final Annuity<? extends Payment> annuity, final ParameterInflationProviderInterface inflation) {
     ArgumentChecker.notNull(annuity, "Annuity");
     ArgumentChecker.notNull(inflation, "inflation");
     MultipleCurrencyInflationSensitivity cs = annuity.getNthPayment(0).accept(this, inflation);
@@ -193,22 +205,36 @@ public final class PresentValueCurveSensitivityDiscountingInflationCalculator ex
   }
 
   @Override
-  public MultipleCurrencyInflationSensitivity visitFixedCouponAnnuity(final AnnuityCouponFixed annuity, final InflationProviderInterface inflation) {
+  public MultipleCurrencyInflationSensitivity visitFixedCouponAnnuity(final AnnuityCouponFixed annuity, final ParameterInflationProviderInterface inflation) {
     return visitGenericAnnuity(annuity, inflation);
   }
 
   // -----     Swap     ------
 
   @Override
-  public MultipleCurrencyInflationSensitivity visitSwap(final Swap<?, ?> swap, final InflationProviderInterface inflation) {
+  public MultipleCurrencyInflationSensitivity visitSwap(final Swap<?, ?> swap, final ParameterInflationProviderInterface inflation) {
     final MultipleCurrencyInflationSensitivity sensitivity1 = swap.getFirstLeg().accept(this, inflation);
     final MultipleCurrencyInflationSensitivity sensitivity2 = swap.getSecondLeg().accept(this, inflation);
     return sensitivity1.plus(sensitivity2);
   }
 
   @Override
-  public MultipleCurrencyInflationSensitivity visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final InflationProviderInterface multicurve) {
+  public MultipleCurrencyInflationSensitivity visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final ParameterInflationProviderInterface multicurve) {
     return visitSwap(swap, multicurve);
+  }
+
+  //     -----     Bond    -----
+
+//  @Override
+//  public MultipleCurrencyInflationSensitivity visitBondCapitalIndexedSecurity(final BondCapitalIndexedSecurity<?> bond, 
+//      final ParameterInflationProviderInterface curves) {
+//    return METHOD_BOND_SEC.presentValueCurveSensitivity(bond, curves.getInflationProvider());
+//  }
+
+  @Override
+  public MultipleCurrencyInflationSensitivity visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction<?> bond, 
+      final ParameterInflationProviderInterface curves) {
+    return METHOD_BOND_TR.presentValueCurveSensitivity(bond, curves.getInflationProvider());
   }
 
 }

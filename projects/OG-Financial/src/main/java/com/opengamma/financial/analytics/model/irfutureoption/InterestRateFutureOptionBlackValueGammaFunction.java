@@ -12,10 +12,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterables;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureOptionMarginSecurityBlackSurfaceMethod;
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureOptionMarginTransactionBlackSurfaceMethod;
+import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureOptionPremiumSecurityBlackSurfaceMethod;
+import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureOptionPremiumTransactionBlackSurfaceMethod;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -35,12 +39,22 @@ import com.opengamma.financial.analytics.model.black.BlackDiscountingValueGammaI
  */
 @Deprecated
 public class InterestRateFutureOptionBlackValueGammaFunction extends InterestRateFutureOptionBlackFunction {
-  /** The methods  */
-  private static final InterestRateFutureOptionMarginTransactionBlackSurfaceMethod TRANSANCTION_METHOD = InterestRateFutureOptionMarginTransactionBlackSurfaceMethod.getInstance();
-  private static final InterestRateFutureOptionMarginSecurityBlackSurfaceMethod SECURITY_METHOD = InterestRateFutureOptionMarginSecurityBlackSurfaceMethod.getInstance();
+  /** The logger */
+  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackValueGammaFunction.class);
+  /** The margin transaction method */
+  private static final InterestRateFutureOptionMarginTransactionBlackSurfaceMethod MARGINED_TRANSANCTION_METHOD = InterestRateFutureOptionMarginTransactionBlackSurfaceMethod.getInstance();
+  /** The margin security method */
+  private static final InterestRateFutureOptionMarginSecurityBlackSurfaceMethod MARGINED_SECURITY_METHOD = InterestRateFutureOptionMarginSecurityBlackSurfaceMethod.getInstance();
+  /** The premium transaction method */
+  private static final InterestRateFutureOptionPremiumTransactionBlackSurfaceMethod PREMIUM_TRANSANCTION_METHOD = InterestRateFutureOptionPremiumTransactionBlackSurfaceMethod.getInstance();
+  /** The premium security method */
+  private static final InterestRateFutureOptionPremiumSecurityBlackSurfaceMethod PREMIUM_SECURITY_METHOD = InterestRateFutureOptionPremiumSecurityBlackSurfaceMethod.getInstance();
 
+  /**
+   * Sets the value requirement name to {@link ValueRequirementNames#VALUE_GAMMA}
+   */
   public InterestRateFutureOptionBlackValueGammaFunction() {
-    super(ValueRequirementNames.VALUE_GAMMA);
+    super(ValueRequirementNames.VALUE_GAMMA, true);
   }
 
   @Override
@@ -55,9 +69,9 @@ public class InterestRateFutureOptionBlackValueGammaFunction extends InterestRat
     // Then get typical requirements
     return super.getRequirements(context, target, desiredValue);
   }
-  
+
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative derivative, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec, Set<ValueRequirement> desiredValues) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative derivative, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec, final Set<ValueRequirement> desiredValues) {
     // Get scaling and adjust properties to reflect
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final Set<String> scaleValue = desiredValue.getConstraints().getValues(ValuePropertyNames.SCALE);
@@ -70,26 +84,29 @@ public class InterestRateFutureOptionBlackValueGammaFunction extends InterestRat
       scaleProperty = Iterables.getOnlyElement(scaleValue);
       scaleFactor = Double.parseDouble(scaleProperty);
     }
-    ValueProperties properties = spec.getProperties().copy().withoutAny(ValuePropertyNames.SCALE).with(ValuePropertyNames.SCALE, scaleProperty).get();
-    ValueSpecification specWithScale = new ValueSpecification(spec.getValueName(), spec.getTargetSpecification(), properties);  
-    
-    Double valueGamma = null;
+    final ValueProperties properties = spec.getProperties().copy().withoutAny(ValuePropertyNames.SCALE).with(ValuePropertyNames.SCALE, scaleProperty).get();
+    final ValueSpecification specWithScale = new ValueSpecification(spec.getValueName(), spec.getTargetSpecification(), properties);
+
+    final double gamma, spot;
     if (derivative instanceof InterestRateFutureOptionMarginTransaction) {
-      final InterestRateFutureOptionMarginTransaction  transaction = (InterestRateFutureOptionMarginTransaction) derivative;
-      final double gamma = TRANSANCTION_METHOD.presentValueGamma(transaction, data);
-      final double spot = SECURITY_METHOD.underlyingFuturePrice(transaction.getUnderlyingOption(), data);
-      valueGamma = 0.5 * spot * spot * gamma * scaleFactor * scaleFactor;
-    } else { 
-      s_logger.error("Unexpected security type! {}. Examine converter", derivative.getClass());
+      final InterestRateFutureOptionMarginTransaction transaction = (InterestRateFutureOptionMarginTransaction) derivative;
+      gamma = MARGINED_TRANSANCTION_METHOD.presentValueGamma(transaction, data);
+      spot = MARGINED_SECURITY_METHOD.underlyingFuturePrice(transaction.getUnderlyingSecurity(), data);
+    } else if (derivative instanceof InterestRateFutureOptionPremiumTransaction) {
+      final InterestRateFutureOptionPremiumTransaction transaction = (InterestRateFutureOptionPremiumTransaction) derivative;
+      gamma = PREMIUM_TRANSANCTION_METHOD.presentValueGamma(transaction, data);
+      spot = PREMIUM_SECURITY_METHOD.underlyingFuturePrice(transaction.getUnderlyingSecurity(), data);
+    } else {
+      throw new OpenGammaRuntimeException("Could not handle derivative of type " + derivative.getClass());
     }
+    final double valueGamma = 0.5 * spot * spot * gamma * scaleFactor * scaleFactor;
     return Collections.singleton(new ComputedValue(specWithScale, valueGamma));
   }
-  
+
   @Override
   protected ValueProperties.Builder getResultProperties(final String currency) {
     return super.getResultProperties(currency)
         .withAny(ValuePropertyNames.SCALE);
   }
 
-  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackValueGammaFunction.class);
 }

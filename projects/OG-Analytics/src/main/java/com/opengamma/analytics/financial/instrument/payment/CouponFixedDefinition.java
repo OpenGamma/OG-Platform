@@ -126,6 +126,15 @@ public class CouponFixedDefinition extends CouponDefinition {
     return new CouponFixedDefinition(getCurrency(), getPaymentDate(), getAccrualStartDate(), getAccrualEndDate(), getPaymentYearFraction(), notional, _rate);
   }
 
+  /**
+   * Creates a new coupon with all the details the same except the rate which is the one provided.
+   * @param rate The new rate.
+   * @return The coupon.
+   */
+  public CouponFixedDefinition withRate(final double rate) {
+    return new CouponFixedDefinition(getCurrency(), getPaymentDate(), getAccrualStartDate(), getAccrualEndDate(), getPaymentYearFraction(), getNotional(), rate);
+  }
+
   @Override
   public String toString() {
     return super.toString() + " *Fixed coupon* Rate = " + _rate + ", Amount = " + _amount;
@@ -162,22 +171,6 @@ public class CouponFixedDefinition extends CouponDefinition {
       return false;
     }
     return true;
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public CouponFixed toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
-    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date {} is after payment date {}", date, getPaymentDate()); // Required: reference date <= payment date
-    final String fundingCurveName = yieldCurveNames[0];
-    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), getRate(), getAccrualStartDate(), getAccrualEndDate());
   }
 
   @Override

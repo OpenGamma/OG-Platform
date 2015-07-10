@@ -72,7 +72,7 @@ public class CashFlowEquivalentCalculator extends InstrumentDerivativeVisitorAda
     final double fixingStartTime = payment.getFixingPeriodStartTime();
     final double fixingEndTime = payment.getFixingPeriodEndTime();
     final double paymentTime = payment.getPaymentTime();
-    final double beta = (1.0 + payment.getFixingAccrualFactor() * multicurves.getForwardRate(payment.getIndex(), fixingStartTime, fixingEndTime, payment.getFixingAccrualFactor()))
+    final double beta = (1.0 + payment.getFixingAccrualFactor() * multicurves.getSimplyCompoundForwardRate(payment.getIndex(), fixingStartTime, fixingEndTime, payment.getFixingAccrualFactor()))
         * multicurves.getDiscountFactor(ccy, paymentTime) / multicurves.getDiscountFactor(ccy, fixingStartTime);
     final PaymentFixed paymentStart = new PaymentFixed(payment.getCurrency(), fixingStartTime, beta * payment.getNotional() * payment.getPaymentYearFraction() / payment.getFixingAccrualFactor());
     final PaymentFixed paymentEnd = new PaymentFixed(payment.getCurrency(), paymentTime, -payment.getNotional() * payment.getPaymentYearFraction() / payment.getFixingAccrualFactor());
@@ -87,7 +87,7 @@ public class CashFlowEquivalentCalculator extends InstrumentDerivativeVisitorAda
     final double fixingStartTime = payment.getFixingPeriodStartTime();
     final double fixingEndTime = payment.getFixingPeriodEndTime();
     final double paymentTime = payment.getPaymentTime();
-    final double beta = (1.0 + payment.getFixingAccrualFactor() * multicurves.getForwardRate(payment.getIndex(), fixingStartTime, fixingEndTime, payment.getFixingAccrualFactor()))
+    final double beta = (1.0 + payment.getFixingAccrualFactor() * multicurves.getSimplyCompoundForwardRate(payment.getIndex(), fixingStartTime, fixingEndTime, payment.getFixingAccrualFactor()))
         * multicurves.getDiscountFactor(ccy, paymentTime) / multicurves.getDiscountFactor(ccy, fixingStartTime);
     final PaymentFixed paymentStart = new PaymentFixed(payment.getCurrency(), fixingStartTime, beta * payment.getNotional() * payment.getPaymentYearFraction() / payment.getFixingAccrualFactor());
     final PaymentFixed paymentEnd = new PaymentFixed(payment.getCurrency(), paymentTime, (-payment.getNotional() + payment.getSpreadAmount()) * payment.getPaymentYearFraction()
@@ -103,7 +103,7 @@ public class CashFlowEquivalentCalculator extends InstrumentDerivativeVisitorAda
     final double fixingStartTime = payment.getFixingPeriodStartTime();
     final double fixingEndTime = payment.getFixingPeriodEndTime();
     final double paymentTime = payment.getPaymentTime();
-    final double beta = (1.0 + payment.getFixingAccrualFactor() * multicurves.getForwardRate(payment.getIndex(), fixingStartTime, fixingEndTime, payment.getFixingAccrualFactor()))
+    final double beta = (1.0 + payment.getFixingAccrualFactor() * multicurves.getSimplyCompoundForwardRate(payment.getIndex(), fixingStartTime, fixingEndTime, payment.getFixingAccrualFactor()))
         * multicurves.getDiscountFactor(ccy, paymentTime) / multicurves.getDiscountFactor(ccy, fixingStartTime);
     final PaymentFixed paymentStart = new PaymentFixed(payment.getCurrency(), fixingStartTime, payment.getFactor() * beta * payment.getNotional() * payment.getPaymentYearFraction()
         / payment.getFixingAccrualFactor());

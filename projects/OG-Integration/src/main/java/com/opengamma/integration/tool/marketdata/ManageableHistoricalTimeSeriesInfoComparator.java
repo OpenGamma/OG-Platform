@@ -17,15 +17,25 @@ public class ManageableHistoricalTimeSeriesInfoComparator implements Comparator<
   @Override
   public int compare(ManageableHistoricalTimeSeriesInfo first, ManageableHistoricalTimeSeriesInfo second) {
     int name = first.getName().compareTo(second.getName());
-    if (name != 0) { return name; }
+    if (name != 0) {
+      return name;
+    }
     int dataField = first.getDataField().compareTo(second.getDataField());
-    if (dataField != 0) { return dataField; }
+    if (dataField != 0) {
+      return dataField;
+    }
     int dataSource = first.getDataSource().compareTo(second.getDataSource());
-    if (dataSource != 0) { return dataSource; }
+    if (dataSource != 0) {
+      return dataSource;
+    }
     int dataProvider = first.getDataProvider().compareTo(second.getDataProvider());
-    if (dataProvider != 0) { return dataProvider; }
+    if (dataProvider != 0) {
+      return dataProvider;
+    }
     int observationTime = first.getObservationTime().compareTo(second.getObservationTime());
-    if (observationTime != 0) { return observationTime; }
+    if (observationTime != 0) {
+      return observationTime;
+    }
     int externalIdBundle = first.getExternalIdBundle().compareTo(second.getExternalIdBundle());
     return externalIdBundle;
   }

@@ -59,12 +59,12 @@ import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpread
 import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueCurveSensitivityDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
-import com.opengamma.analytics.financial.provider.curve.inflation.InflationDiscountBuildingRepository;
+import com.opengamma.analytics.financial.provider.curve.inflation.InflationDiscountBuildingRepositoryWithDiscount;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.inflation.ParameterSensitivityInflationParameterCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterInflationSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -75,12 +75,14 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
  *  Build of inflation curve(including seasonality) and discount curve simultaneously in several blocks with relevant Jacobian matrices.
  */
+@Test(groups = TestGroup.UNIT)
 public class InflationBuildingCurveWithDiscountAndSeasonalityTestUS {
 
   private static final Interpolator1D INTERPOLATOR_LOG_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LOG_LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
@@ -154,8 +156,8 @@ public class InflationBuildingCurveWithDiscountAndSeasonalityTestUS {
     }
   }
 
-  /*public static final double[] seasonalFactors = {1.005, 1.001, 1.01, .999, .998, .9997, 1.004, 1.006, .994, .993, .9991 };*/
-  public static final double[] seasonalFactors = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
+  public static final double[] seasonalFactors = {1.005, 1.001, 1.01, .999, .998, .9997, 1.004, 1.006, .994, .993, .9991 };
+  /*public static final double[] seasonalFactors = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };*/
   final static SeasonalCurve SEASONAL_CURVE = new SeasonalCurve(seasonalStep, seasonalFactors, false);
   /** Standard USD discounting curve instrument definitions */
   private static final InstrumentDefinition<?>[] DEFINITIONS_DSC_USD;
@@ -208,7 +210,7 @@ public class InflationBuildingCurveWithDiscountAndSeasonalityTestUS {
   }
 
   @SuppressWarnings({"rawtypes", "unchecked" })
-  public static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final GeneratorAttribute[] attribute) {
+  private static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final GeneratorAttribute[] attribute) {
     final InstrumentDefinition<?>[] definitions = new InstrumentDefinition<?>[marketQuotes.length];
     for (int loopmv = 0; loopmv < marketQuotes.length; loopmv++) {
       definitions[loopmv] = generators[loopmv].generateInstrument(NOW, marketQuotes[loopmv], NOTIONAL, attribute[loopmv]);
@@ -224,7 +226,7 @@ public class InflationBuildingCurveWithDiscountAndSeasonalityTestUS {
   private static final ParSpreadInflationMarketQuoteDiscountingCalculator PSIMQC = ParSpreadInflationMarketQuoteDiscountingCalculator.getInstance();
   private static final ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalculator PSIMQCSC = ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalculator.getInstance();
 
-  private static final InflationDiscountBuildingRepository CURVE_BUILDING_REPOSITORY = new InflationDiscountBuildingRepository(TOLERANCE_ROOT, TOLERANCE_ROOT, STEP_MAX);
+  private static final InflationDiscountBuildingRepositoryWithDiscount CURVE_BUILDING_REPOSITORY = new InflationDiscountBuildingRepositoryWithDiscount(TOLERANCE_ROOT, TOLERANCE_ROOT, STEP_MAX);
 
   private static final double TOLERANCE_CAL = 1.0E-9;
 
@@ -247,19 +249,23 @@ public class InflationBuildingCurveWithDiscountAndSeasonalityTestUS {
       bb[loopblock] = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(loopblock).getSecond();
       curveDsc[loopblock] = units[loopblock].getCurve(USD);
       curveInflation[loopblock] = units[loopblock].getCurve(US_CPI);
-
     }
-    assertEquals("Curve construction: 1 unit / 3 units ", curveDsc[0].getNumberOfParameters(), curveDsc[1].getNumberOfParameters());
-    assertEquals("Curve construction: 1 unit / 3 units ", curveInflation[0].getNumberOfParameters(), curveInflation[1].getNumberOfParameters());
+    assertEquals("Curve construction: 1 unit / 3 units ", 
+        curveDsc[0].getNumberOfParameters(), curveDsc[1].getNumberOfParameters());
+    assertEquals("Curve construction: 1 unit / 3 units ", 
+        curveInflation[0].getNumberOfParameters(), curveInflation[1].getNumberOfParameters());
 
-    assertArrayEquals("Curve construction: 1 unit / 3 units ", ArrayUtils.toPrimitive(((YieldCurve) curveDsc[0]).getCurve().getXData()),
+    assertArrayEquals("Curve construction: 1 unit / 3 units ",
+        ArrayUtils.toPrimitive(((YieldCurve) curveDsc[0]).getCurve().getXData()),
         ArrayUtils.toPrimitive(((YieldCurve) curveDsc[1]).getCurve().getXData()), TOLERANCE_CAL);
-    assertArrayEquals("Curve construction: 1 unit / 3 units ", ArrayUtils.toPrimitive(((YieldCurve) curveDsc[0]).getCurve().getYData()),
+    assertArrayEquals("Curve construction: 1 unit / 3 units ",
+        ArrayUtils.toPrimitive(((YieldCurve) curveDsc[0]).getCurve().getYData()),
         ArrayUtils.toPrimitive(((YieldCurve) curveDsc[1]).getCurve().getYData()), TOLERANCE_CAL);
-    assertArrayEquals("Curve construction: 1 unit / 3 units ", ArrayUtils.toPrimitive(curveInflation[0].getCurve().getXData()),
-        ArrayUtils.toPrimitive(curveInflation[1].getCurve().getXData()), TOLERANCE_CAL);
-    assertArrayEquals("Curve construction: 1 unit / 3 units ", ArrayUtils.toPrimitive(curveInflation[0].getCurve().getYData()),
-        ArrayUtils.toPrimitive(curveInflation[1].getCurve().getYData()), TOLERANCE_CAL);
+    double[] sample = {0.1, 0.8, 1.0, 1.01, 1.99, 2.0, 5.0, 10.0, 30.0 };
+    for (int i = 0; i < sample.length; i++) {
+      assertEquals(curveInflation[0].getPriceIndex(sample[i]), curveInflation[1].getPriceIndex(sample[i]),
+          TOLERANCE_CAL);
+    }
   }
 
   @Test(enabled = false)
@@ -306,14 +312,14 @@ public class InflationBuildingCurveWithDiscountAndSeasonalityTestUS {
     final double notional = 100000;
     final GeneratorAttributeIR swapAttribute = new GeneratorAttributeIR(Period.ofYears(4));
     final SwapFixedInflationZeroCouponDefinition swapDefinition = GENERATOR_INFLATION_SWAP.generateInstrument(NOW, spreadJPYEUR, notional, swapAttribute);
-    final InstrumentDerivative swap = swapDefinition.toDerivative(NOW, new ZonedDateTimeDoubleTimeSeries[] {TS_PRICE_INDEX_USD_WITH_TODAY, TS_PRICE_INDEX_USD_WITH_TODAY});
-    final ParameterInflationSensitivityParameterCalculator<InflationProviderInterface> PSC = new ParameterInflationSensitivityParameterCalculator<>(PVCSDIC);
-    final MarketQuoteInflationSensitivityBlockCalculator<InflationProviderInterface> MQSC = new MarketQuoteInflationSensitivityBlockCalculator<>(PSC);
+    final InstrumentDerivative swap = swapDefinition.toDerivative(NOW, new ZonedDateTimeDoubleTimeSeries[] {TS_PRICE_INDEX_USD_WITH_TODAY, TS_PRICE_INDEX_USD_WITH_TODAY });
+    final ParameterSensitivityInflationParameterCalculator<ParameterInflationProviderInterface> PSC = new ParameterSensitivityInflationParameterCalculator<>(PVCSDIC);
+    final MarketQuoteInflationSensitivityBlockCalculator<ParameterInflationProviderInterface> MQSC = new MarketQuoteInflationSensitivityBlockCalculator<>(PSC);
     @SuppressWarnings("unused")
     final MultipleCurrencyParameterSensitivity mqs = MQSC.fromInstrument(swap, multicurves7, blocks7);
   }
 
-  public void curveConstructionTest(final InstrumentDefinition<?>[][][] definitions, final InflationProviderDiscount curves, final int block) {
+  private void curveConstructionTest(final InstrumentDefinition<?>[][][] definitions, final InflationProviderDiscount curves, final int block) {
     final int nbBlocks = definitions.length;
     for (int loopblock = 0; loopblock < nbBlocks; loopblock++) {
       final InstrumentDerivative[][] instruments = convert(definitions[loopblock]);
@@ -331,8 +337,8 @@ public class InflationBuildingCurveWithDiscountAndSeasonalityTestUS {
   @SuppressWarnings("unchecked")
   private static Pair<InflationProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions,
       final GeneratorCurve[][] curveGenerators,
-      final String[][] curveNames, final InflationProviderDiscount knownData, final InstrumentDerivativeVisitor<InflationProviderInterface, Double> calculator,
-      final InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> sensitivityCalculator) {
+      final String[][] curveNames, final InflationProviderDiscount knownData, final InstrumentDerivativeVisitor<ParameterInflationProviderInterface, Double> calculator,
+      final InstrumentDerivativeVisitor<ParameterInflationProviderInterface, InflationSensitivity> sensitivityCalculator) {
     final int nUnits = definitions.length;
     final MultiCurveBundle<GeneratorCurve>[] curveBundles = new MultiCurveBundle[nUnits];
     for (int i = 0; i < nUnits; i++) {

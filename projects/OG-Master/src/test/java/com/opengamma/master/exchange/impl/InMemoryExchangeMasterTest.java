@@ -89,7 +89,7 @@ public class InMemoryExchangeMasterTest {
   //-------------------------------------------------------------------------
   public void test_search_oneBundle_noMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest(BUNDLE_OTHER);
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearch(request.getExternalIdSearch().withSearchType(ExternalIdSearchType.ALL));
     ExchangeSearchResult result = master.search(request);
     assertEquals(0, result.getDocuments().size());
   }

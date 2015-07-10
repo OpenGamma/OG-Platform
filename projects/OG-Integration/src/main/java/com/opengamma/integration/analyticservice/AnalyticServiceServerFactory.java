@@ -8,6 +8,7 @@ package com.opengamma.integration.analyticservice;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -112,123 +113,6 @@ public class AnalyticServiceServerFactory extends AbstractComponentFactory {
   @Override
   public AnalyticServiceServerFactory.Meta metaBean() {
     return AnalyticServiceServerFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1486580228:  // listenJmsConnector
-        return getListenJmsConnector();
-      case 1916939859:  // listenTopicName
-        return getListenTopicName();
-      case 1195658960:  // viewName
-        return getViewName();
-      case -1840419605:  // positionMaster
-        return getPositionMaster();
-      case -772274742:  // portfolioMaster
-        return getPortfolioMaster();
-      case 195157501:  // configSource
-        return getConfigSource();
-      case -1697555603:  // viewProcessor
-        return getViewProcessor();
-      case 675409815:  // providerIdName
-        return getProviderIdName();
-      case 3599307:  // user
-        return getUser();
-      case -1655657820:  // positionSource
-        return getPositionSource();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1486580228:  // listenJmsConnector
-        setListenJmsConnector((JmsConnector) newValue);
-        return;
-      case 1916939859:  // listenTopicName
-        setListenTopicName((String) newValue);
-        return;
-      case 1195658960:  // viewName
-        setViewName((String) newValue);
-        return;
-      case -1840419605:  // positionMaster
-        setPositionMaster((PositionMaster) newValue);
-        return;
-      case -772274742:  // portfolioMaster
-        setPortfolioMaster((PortfolioMaster) newValue);
-        return;
-      case 195157501:  // configSource
-        setConfigSource((ConfigSource) newValue);
-        return;
-      case -1697555603:  // viewProcessor
-        setViewProcessor((ViewProcessor) newValue);
-        return;
-      case 675409815:  // providerIdName
-        setProviderIdName((String) newValue);
-        return;
-      case 3599307:  // user
-        setUser((UserPrincipal) newValue);
-        return;
-      case -1655657820:  // positionSource
-        setPositionSource((PositionSource) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_listenJmsConnector, "listenJmsConnector");
-    JodaBeanUtils.notNull(_listenTopicName, "listenTopicName");
-    JodaBeanUtils.notNull(_viewName, "viewName");
-    JodaBeanUtils.notNull(_positionMaster, "positionMaster");
-    JodaBeanUtils.notNull(_portfolioMaster, "portfolioMaster");
-    JodaBeanUtils.notNull(_configSource, "configSource");
-    JodaBeanUtils.notNull(_viewProcessor, "viewProcessor");
-    JodaBeanUtils.notNull(_providerIdName, "providerIdName");
-    JodaBeanUtils.notNull(_user, "user");
-    JodaBeanUtils.notNull(_positionSource, "positionSource");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      AnalyticServiceServerFactory other = (AnalyticServiceServerFactory) obj;
-      return JodaBeanUtils.equal(getListenJmsConnector(), other.getListenJmsConnector()) &&
-          JodaBeanUtils.equal(getListenTopicName(), other.getListenTopicName()) &&
-          JodaBeanUtils.equal(getViewName(), other.getViewName()) &&
-          JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
-          JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
-          JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
-          JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
-          JodaBeanUtils.equal(getProviderIdName(), other.getProviderIdName()) &&
-          JodaBeanUtils.equal(getUser(), other.getUser()) &&
-          JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getListenJmsConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getListenTopicName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProviderIdName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUser());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -492,6 +376,78 @@ public class AnalyticServiceServerFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public AnalyticServiceServerFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      AnalyticServiceServerFactory other = (AnalyticServiceServerFactory) obj;
+      return JodaBeanUtils.equal(getListenJmsConnector(), other.getListenJmsConnector()) &&
+          JodaBeanUtils.equal(getListenTopicName(), other.getListenTopicName()) &&
+          JodaBeanUtils.equal(getViewName(), other.getViewName()) &&
+          JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
+          JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
+          JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
+          JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
+          JodaBeanUtils.equal(getProviderIdName(), other.getProviderIdName()) &&
+          JodaBeanUtils.equal(getUser(), other.getUser()) &&
+          JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getListenJmsConnector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getListenTopicName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getViewName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProviderIdName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUser());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(352);
+    buf.append("AnalyticServiceServerFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("listenJmsConnector").append('=').append(JodaBeanUtils.toString(getListenJmsConnector())).append(',').append(' ');
+    buf.append("listenTopicName").append('=').append(JodaBeanUtils.toString(getListenTopicName())).append(',').append(' ');
+    buf.append("viewName").append('=').append(JodaBeanUtils.toString(getViewName())).append(',').append(' ');
+    buf.append("positionMaster").append('=').append(JodaBeanUtils.toString(getPositionMaster())).append(',').append(' ');
+    buf.append("portfolioMaster").append('=').append(JodaBeanUtils.toString(getPortfolioMaster())).append(',').append(' ');
+    buf.append("configSource").append('=').append(JodaBeanUtils.toString(getConfigSource())).append(',').append(' ');
+    buf.append("viewProcessor").append('=').append(JodaBeanUtils.toString(getViewProcessor())).append(',').append(' ');
+    buf.append("providerIdName").append('=').append(JodaBeanUtils.toString(getProviderIdName())).append(',').append(' ');
+    buf.append("user").append('=').append(JodaBeanUtils.toString(getUser())).append(',').append(' ');
+    buf.append("positionSource").append('=').append(JodaBeanUtils.toString(getPositionSource())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code AnalyticServiceServerFactory}.
    */
@@ -694,6 +650,86 @@ public class AnalyticServiceServerFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<PositionSource> positionSource() {
       return _positionSource;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1486580228:  // listenJmsConnector
+          return ((AnalyticServiceServerFactory) bean).getListenJmsConnector();
+        case 1916939859:  // listenTopicName
+          return ((AnalyticServiceServerFactory) bean).getListenTopicName();
+        case 1195658960:  // viewName
+          return ((AnalyticServiceServerFactory) bean).getViewName();
+        case -1840419605:  // positionMaster
+          return ((AnalyticServiceServerFactory) bean).getPositionMaster();
+        case -772274742:  // portfolioMaster
+          return ((AnalyticServiceServerFactory) bean).getPortfolioMaster();
+        case 195157501:  // configSource
+          return ((AnalyticServiceServerFactory) bean).getConfigSource();
+        case -1697555603:  // viewProcessor
+          return ((AnalyticServiceServerFactory) bean).getViewProcessor();
+        case 675409815:  // providerIdName
+          return ((AnalyticServiceServerFactory) bean).getProviderIdName();
+        case 3599307:  // user
+          return ((AnalyticServiceServerFactory) bean).getUser();
+        case -1655657820:  // positionSource
+          return ((AnalyticServiceServerFactory) bean).getPositionSource();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1486580228:  // listenJmsConnector
+          ((AnalyticServiceServerFactory) bean).setListenJmsConnector((JmsConnector) newValue);
+          return;
+        case 1916939859:  // listenTopicName
+          ((AnalyticServiceServerFactory) bean).setListenTopicName((String) newValue);
+          return;
+        case 1195658960:  // viewName
+          ((AnalyticServiceServerFactory) bean).setViewName((String) newValue);
+          return;
+        case -1840419605:  // positionMaster
+          ((AnalyticServiceServerFactory) bean).setPositionMaster((PositionMaster) newValue);
+          return;
+        case -772274742:  // portfolioMaster
+          ((AnalyticServiceServerFactory) bean).setPortfolioMaster((PortfolioMaster) newValue);
+          return;
+        case 195157501:  // configSource
+          ((AnalyticServiceServerFactory) bean).setConfigSource((ConfigSource) newValue);
+          return;
+        case -1697555603:  // viewProcessor
+          ((AnalyticServiceServerFactory) bean).setViewProcessor((ViewProcessor) newValue);
+          return;
+        case 675409815:  // providerIdName
+          ((AnalyticServiceServerFactory) bean).setProviderIdName((String) newValue);
+          return;
+        case 3599307:  // user
+          ((AnalyticServiceServerFactory) bean).setUser((UserPrincipal) newValue);
+          return;
+        case -1655657820:  // positionSource
+          ((AnalyticServiceServerFactory) bean).setPositionSource((PositionSource) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((AnalyticServiceServerFactory) bean)._listenJmsConnector, "listenJmsConnector");
+      JodaBeanUtils.notNull(((AnalyticServiceServerFactory) bean)._listenTopicName, "listenTopicName");
+      JodaBeanUtils.notNull(((AnalyticServiceServerFactory) bean)._viewName, "viewName");
+      JodaBeanUtils.notNull(((AnalyticServiceServerFactory) bean)._positionMaster, "positionMaster");
+      JodaBeanUtils.notNull(((AnalyticServiceServerFactory) bean)._portfolioMaster, "portfolioMaster");
+      JodaBeanUtils.notNull(((AnalyticServiceServerFactory) bean)._configSource, "configSource");
+      JodaBeanUtils.notNull(((AnalyticServiceServerFactory) bean)._viewProcessor, "viewProcessor");
+      JodaBeanUtils.notNull(((AnalyticServiceServerFactory) bean)._providerIdName, "providerIdName");
+      JodaBeanUtils.notNull(((AnalyticServiceServerFactory) bean)._user, "user");
+      JodaBeanUtils.notNull(((AnalyticServiceServerFactory) bean)._positionSource, "positionSource");
+      super.validate(bean);
     }
 
   }

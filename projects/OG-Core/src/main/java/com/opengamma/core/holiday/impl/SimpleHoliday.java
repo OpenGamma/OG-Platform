@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -53,35 +54,41 @@ public class SimpleHoliday extends DirectBean
   /**
    * The unique identifier of the holiday.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true, overrideSet = true)
   private UniqueId _uniqueId;
   /**
    * The type of the holiday.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private HolidayType _type;
   /**
    * The region external identifier bundle, used when this is a holiday of type BANK.
    * This must be null if the type is not BANK.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private ExternalId _regionExternalId;
   /**
    * The exchange external identifier bundle, used when this is a holiday of type SETTLEMENT or TRADING.
    * This must be null if the type is not SETTLEMENT or TRADING.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private ExternalId _exchangeExternalId;
+  /**
+   * The custom external identifier bundle, used when this is a holiday of type CUSTOM.
+   * This must be null if the type is not CUSTOM.
+   */
+  @PropertyDefinition(overrideGet = true)
+  private ExternalId _customExternalId;
   /**
    * The currency, used when this is a holiday of type CURRENCY.
    * This must be null if the type is not CURRENCY.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private Currency _currency;
   /**
    * The list of dates that the target (currency/region/exchange) is on holiday, not null.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private final List<LocalDate> _holidayDates = Lists.newArrayList();
 
   /**
@@ -147,85 +154,12 @@ public class SimpleHoliday extends DirectBean
     return SimpleHoliday.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case 3575610:  // type
-        return getType();
-      case -62093222:  // regionExternalId
-        return getRegionExternalId();
-      case 323354825:  // exchangeExternalId
-        return getExchangeExternalId();
-      case 575402001:  // currency
-        return getCurrency();
-      case -367347:  // holidayDates
-        return getHolidayDates();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case 3575610:  // type
-        setType((HolidayType) newValue);
-        return;
-      case -62093222:  // regionExternalId
-        setRegionExternalId((ExternalId) newValue);
-        return;
-      case 323354825:  // exchangeExternalId
-        setExchangeExternalId((ExternalId) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((Currency) newValue);
-        return;
-      case -367347:  // holidayDates
-        setHolidayDates((List<LocalDate>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SimpleHoliday other = (SimpleHoliday) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getType(), other.getType()) &&
-          JodaBeanUtils.equal(getRegionExternalId(), other.getRegionExternalId()) &&
-          JodaBeanUtils.equal(getExchangeExternalId(), other.getExchangeExternalId()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getHolidayDates(), other.getHolidayDates());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionExternalId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeExternalId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayDates());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the unique identifier of the holiday.
    * @return the value of the property
    */
+  @Override
   public UniqueId getUniqueId() {
     return _uniqueId;
   }
@@ -234,6 +168,7 @@ public class SimpleHoliday extends DirectBean
    * Sets the unique identifier of the holiday.
    * @param uniqueId  the new value of the property
    */
+  @Override
   public void setUniqueId(UniqueId uniqueId) {
     this._uniqueId = uniqueId;
   }
@@ -251,6 +186,7 @@ public class SimpleHoliday extends DirectBean
    * Gets the type of the holiday.
    * @return the value of the property
    */
+  @Override
   public HolidayType getType() {
     return _type;
   }
@@ -277,6 +213,7 @@ public class SimpleHoliday extends DirectBean
    * This must be null if the type is not BANK.
    * @return the value of the property
    */
+  @Override
   public ExternalId getRegionExternalId() {
     return _regionExternalId;
   }
@@ -305,6 +242,7 @@ public class SimpleHoliday extends DirectBean
    * This must be null if the type is not SETTLEMENT or TRADING.
    * @return the value of the property
    */
+  @Override
   public ExternalId getExchangeExternalId() {
     return _exchangeExternalId;
   }
@@ -329,10 +267,40 @@ public class SimpleHoliday extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the custom external identifier bundle, used when this is a holiday of type CUSTOM.
+   * This must be null if the type is not CUSTOM.
+   * @return the value of the property
+   */
+  @Override
+  public ExternalId getCustomExternalId() {
+    return _customExternalId;
+  }
+
+  /**
+   * Sets the custom external identifier bundle, used when this is a holiday of type CUSTOM.
+   * This must be null if the type is not CUSTOM.
+   * @param customExternalId  the new value of the property
+   */
+  public void setCustomExternalId(ExternalId customExternalId) {
+    this._customExternalId = customExternalId;
+  }
+
+  /**
+   * Gets the the {@code customExternalId} property.
+   * This must be null if the type is not CUSTOM.
+   * @return the property, not null
+   */
+  public final Property<ExternalId> customExternalId() {
+    return metaBean().customExternalId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the currency, used when this is a holiday of type CURRENCY.
    * This must be null if the type is not CURRENCY.
    * @return the value of the property
    */
+  @Override
   public Currency getCurrency() {
     return _currency;
   }
@@ -358,17 +326,19 @@ public class SimpleHoliday extends DirectBean
   //-----------------------------------------------------------------------
   /**
    * Gets the list of dates that the target (currency/region/exchange) is on holiday, not null.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
+  @Override
   public List<LocalDate> getHolidayDates() {
     return _holidayDates;
   }
 
   /**
    * Sets the list of dates that the target (currency/region/exchange) is on holiday, not null.
-   * @param holidayDates  the new value of the property
+   * @param holidayDates  the new value of the property, not null
    */
   public void setHolidayDates(List<LocalDate> holidayDates) {
+    JodaBeanUtils.notNull(holidayDates, "holidayDates");
     this._holidayDates.clear();
     this._holidayDates.addAll(holidayDates);
   }
@@ -379,6 +349,66 @@ public class SimpleHoliday extends DirectBean
    */
   public final Property<List<LocalDate>> holidayDates() {
     return metaBean().holidayDates().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public SimpleHoliday clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SimpleHoliday other = (SimpleHoliday) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getType(), other.getType()) &&
+          JodaBeanUtils.equal(getRegionExternalId(), other.getRegionExternalId()) &&
+          JodaBeanUtils.equal(getExchangeExternalId(), other.getExchangeExternalId()) &&
+          JodaBeanUtils.equal(getCustomExternalId(), other.getCustomExternalId()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getHolidayDates(), other.getHolidayDates());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRegionExternalId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExchangeExternalId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCustomExternalId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHolidayDates());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(256);
+    buf.append("SimpleHoliday{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
+    buf.append("regionExternalId").append('=').append(JodaBeanUtils.toString(getRegionExternalId())).append(',').append(' ');
+    buf.append("exchangeExternalId").append('=').append(JodaBeanUtils.toString(getExchangeExternalId())).append(',').append(' ');
+    buf.append("customExternalId").append('=').append(JodaBeanUtils.toString(getCustomExternalId())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("holidayDates").append('=').append(JodaBeanUtils.toString(getHolidayDates())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -412,6 +442,11 @@ public class SimpleHoliday extends DirectBean
     private final MetaProperty<ExternalId> _exchangeExternalId = DirectMetaProperty.ofReadWrite(
         this, "exchangeExternalId", SimpleHoliday.class, ExternalId.class);
     /**
+     * The meta-property for the {@code customExternalId} property.
+     */
+    private final MetaProperty<ExternalId> _customExternalId = DirectMetaProperty.ofReadWrite(
+        this, "customExternalId", SimpleHoliday.class, ExternalId.class);
+    /**
      * The meta-property for the {@code currency} property.
      */
     private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(
@@ -431,6 +466,7 @@ public class SimpleHoliday extends DirectBean
         "type",
         "regionExternalId",
         "exchangeExternalId",
+        "customExternalId",
         "currency",
         "holidayDates");
 
@@ -451,6 +487,8 @@ public class SimpleHoliday extends DirectBean
           return _regionExternalId;
         case 323354825:  // exchangeExternalId
           return _exchangeExternalId;
+        case -1550240617:  // customExternalId
+          return _customExternalId;
         case 575402001:  // currency
           return _currency;
         case -367347:  // holidayDates
@@ -508,6 +546,14 @@ public class SimpleHoliday extends DirectBean
     }
 
     /**
+     * The meta-property for the {@code customExternalId} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExternalId> customExternalId() {
+      return _customExternalId;
+    }
+
+    /**
      * The meta-property for the {@code currency} property.
      * @return the meta-property, not null
      */
@@ -521,6 +567,62 @@ public class SimpleHoliday extends DirectBean
      */
     public final MetaProperty<List<LocalDate>> holidayDates() {
       return _holidayDates;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return ((SimpleHoliday) bean).getUniqueId();
+        case 3575610:  // type
+          return ((SimpleHoliday) bean).getType();
+        case -62093222:  // regionExternalId
+          return ((SimpleHoliday) bean).getRegionExternalId();
+        case 323354825:  // exchangeExternalId
+          return ((SimpleHoliday) bean).getExchangeExternalId();
+        case -1550240617:  // customExternalId
+          return ((SimpleHoliday) bean).getCustomExternalId();
+        case 575402001:  // currency
+          return ((SimpleHoliday) bean).getCurrency();
+        case -367347:  // holidayDates
+          return ((SimpleHoliday) bean).getHolidayDates();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          ((SimpleHoliday) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case 3575610:  // type
+          ((SimpleHoliday) bean).setType((HolidayType) newValue);
+          return;
+        case -62093222:  // regionExternalId
+          ((SimpleHoliday) bean).setRegionExternalId((ExternalId) newValue);
+          return;
+        case 323354825:  // exchangeExternalId
+          ((SimpleHoliday) bean).setExchangeExternalId((ExternalId) newValue);
+          return;
+        case -1550240617:  // customExternalId
+          ((SimpleHoliday) bean).setCustomExternalId((ExternalId) newValue);
+          return;
+        case 575402001:  // currency
+          ((SimpleHoliday) bean).setCurrency((Currency) newValue);
+          return;
+        case -367347:  // holidayDates
+          ((SimpleHoliday) bean).setHolidayDates((List<LocalDate>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((SimpleHoliday) bean)._holidayDates, "holidayDates");
     }
 
   }

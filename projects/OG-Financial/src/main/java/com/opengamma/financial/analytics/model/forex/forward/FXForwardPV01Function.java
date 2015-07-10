@@ -24,18 +24,17 @@ import com.opengamma.analytics.financial.forex.calculator.PV01ForexCalculator;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
@@ -43,7 +42,7 @@ import com.opengamma.financial.analytics.model.discounting.DiscountingPV01Functi
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -57,18 +56,20 @@ public class FXForwardPV01Function extends FXForwardSingleValuedFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(FXForwardPV01Function.class);
   private static final PV01ForexCalculator CALCULATOR = PV01ForexCalculator.getInstance();
 
+  private ConfigDBCurveCalculationConfigSource _curveCalculationConfigSource;
+
   public FXForwardPV01Function() {
     super(ValueRequirementNames.PV01);
   }
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+    _curveCalculationConfigSource = ConfigDBCurveCalculationConfigSource.init(context, this);
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final Forex fxForward, final YieldCurveBundle data, final ComputationTarget target, final Set<ValueRequirement> desiredValues, final FunctionInputs inputs,
-      final ValueSpecification spec, final FunctionExecutionContext executionContext) {
+  protected Set<ComputedValue> getResult(final Forex fxForward, final YieldCurveBundle data, final ComputationTarget target, final Set<ValueRequirement> desiredValues,
+      final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final String currency = desiredValue.getConstraint(ValuePropertyNames.CURVE_CURRENCY);
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
@@ -87,8 +88,8 @@ public class FXForwardPV01Function extends FXForwardSingleValuedFunction {
   }
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getSecurity() instanceof FXForwardSecurity;
+  public ComputationTargetType getTargetType() {
+    return FinancialSecurityTypes.FX_FORWARD_SECURITY;
   }
 
   @Override
@@ -129,9 +130,7 @@ public class FXForwardPV01Function extends FXForwardSingleValuedFunction {
     } else {
       return null;
     }
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
-    final MultiCurveCalculationConfig resultCurveCalculationConfig = curveCalculationConfigSource.getConfig(resultCurveConfigName);
+    final MultiCurveCalculationConfig resultCurveCalculationConfig = _curveCalculationConfigSource.getConfig(resultCurveConfigName);
     if (resultCurveCalculationConfig == null) {
       s_logger.error("Could not find curve calculation configuration named " + resultCurveConfigName + " for currency " + currency);
       return null;
@@ -142,18 +141,15 @@ public class FXForwardPV01Function extends FXForwardSingleValuedFunction {
 
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
-    final ValueProperties.Builder properties = super.getResultProperties(target)
-        .withAny(ValuePropertyNames.CURVE_CURRENCY)
-        .withAny(ValuePropertyNames.CURVE);
+    final ValueProperties.Builder properties = super.getResultProperties(target).withAny(ValuePropertyNames.CURVE_CURRENCY).withAny(ValuePropertyNames.CURVE);
     return properties;
   }
 
   @Override
-  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final String payCurve, final String receiveCurve,
-      final String payCurveCalculationConfig, final String receiveCurveCalculationConfig, final CurrencyPair baseQuotePair) {
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final String payCurve, final String receiveCurve, final String payCurveCalculationConfig,
+      final String receiveCurveCalculationConfig, final CurrencyPair baseQuotePair) {
     final ValueProperties.Builder properties = super.getResultProperties(target, payCurve, receiveCurve, payCurveCalculationConfig, receiveCurveCalculationConfig, baseQuotePair)
-        .withAny(ValuePropertyNames.CURVE_CURRENCY)
-        .withAny(ValuePropertyNames.CURVE);
+        .withAny(ValuePropertyNames.CURVE_CURRENCY).withAny(ValuePropertyNames.CURVE);
     return properties;
   }
 
@@ -161,21 +157,15 @@ public class FXForwardPV01Function extends FXForwardSingleValuedFunction {
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final String currency = desiredValue.getConstraint(ValuePropertyNames.CURVE_CURRENCY);
-    final ValueProperties.Builder properties = super.getResultProperties(target, desiredValue)
-        .with(ValuePropertyNames.CURVE_CURRENCY, currency)
-        .with(ValuePropertyNames.CURVE, curveName);
+    final ValueProperties.Builder properties = super.getResultProperties(target, desiredValue).with(ValuePropertyNames.CURVE_CURRENCY, currency).with(ValuePropertyNames.CURVE, curveName);
     return properties;
   }
 
   private static ValueRequirement getCurveSensitivitiesRequirement(final String payCurveName, final String payCurveCalculationConfig, final String receiveCurveName,
       final String receiveCurveCalculationConfig, final ComputationTarget target) {
-    final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.PAY_CURVE, payCurveName)
-        .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName)
-        .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfig)
-        .with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, receiveCurveCalculationConfig)
-        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.DISCOUNTING)
-        .get();
+    final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.PAY_CURVE, payCurveName).with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName)
+        .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfig).with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, receiveCurveCalculationConfig)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.DISCOUNTING).get();
     return new ValueRequirement(ValueRequirementNames.FX_CURVE_SENSITIVITIES, target.toSpecification(), properties);
   }
 }

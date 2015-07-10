@@ -10,6 +10,7 @@ import org.apache.commons.lang.ObjectUtils;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
 import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel;
+import com.opengamma.analytics.financial.provider.description.interestrate.SwaptionSurfaceProvider;
 import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
@@ -17,7 +18,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Class describing the Black volatility surface used in swaption modeling.
  */
-public class BlackFlatSwaptionParameters implements VolatilityModel<double[]> {
+public class BlackFlatSwaptionParameters implements VolatilityModel<double[]>, SwaptionSurfaceProvider {
 
   /**
    * The volatility surface. The first dimension is the expiration and the second the underlying swap tenor.
@@ -34,8 +35,8 @@ public class BlackFlatSwaptionParameters implements VolatilityModel<double[]> {
    * @param generatorSwap The standard swap generator for which the volatility surface is valid.
    */
   public BlackFlatSwaptionParameters(final Surface<Double, Double, Double> volatility, final GeneratorInstrument<GeneratorAttributeIR> generatorSwap) {
-    ArgumentChecker.notNull(volatility, "volatility surface");
-    ArgumentChecker.notNull(generatorSwap, "Swap generator");
+    ArgumentChecker.notNull(volatility, "volatility");
+    ArgumentChecker.notNull(generatorSwap, "generatorSwap");
     _volatility = volatility;
     _generatorSwap = generatorSwap;
   }
@@ -75,6 +76,7 @@ public class BlackFlatSwaptionParameters implements VolatilityModel<double[]> {
    * Gets the standard swap generator for which the volatility surface is valid.
    * @return The swap generator.
    */
+  @Override
   public GeneratorInstrument<GeneratorAttributeIR> getGeneratorSwap() {
     return _generatorSwap;
   }
@@ -83,7 +85,8 @@ public class BlackFlatSwaptionParameters implements VolatilityModel<double[]> {
    * Gets the volatility surface.
    * @return The volatility surface.
    */
-  public Surface<Double, Double, Double> getVolatilitySurface() {
+  @Override
+  public Surface<Double, Double, Double> getParameterSurface() {
     return _volatility;
   }
 

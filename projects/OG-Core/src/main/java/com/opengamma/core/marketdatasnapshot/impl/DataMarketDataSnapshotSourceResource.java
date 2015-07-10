@@ -17,7 +17,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.NamedSnapshot;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -69,8 +69,20 @@ public class DataMarketDataSnapshotSourceResource extends AbstractDataResource {
       @PathParam("snapshotId") String idStr,
       @QueryParam("version") String version) {
     final ObjectId objectId = ObjectId.parse(idStr);
-    final StructuredMarketDataSnapshot result = getMarketDataSnapshotSource().get(objectId.atVersion(version));
-    return responseOkFudge(result);
+    final NamedSnapshot result = getMarketDataSnapshotSource().get(objectId.atVersion(version));
+    return responseOkObject(result);
+  }
+
+  @GET
+  @Path("snapshotSearches/single")
+  public Response getSingle(
+      @QueryParam("name") String name,
+      @QueryParam("type") String type,
+      @QueryParam("versionCorrection") String vc) throws ClassNotFoundException {
+    @SuppressWarnings("unchecked")
+    Class<? extends NamedSnapshot> clazz = (Class<? extends NamedSnapshot>) Class.forName(type);
+    NamedSnapshot snapshot = getMarketDataSnapshotSource().getSingle(clazz, name, VersionCorrection.parse(vc));
+    return responseOkObject(snapshot);
   }
 
   //-------------------------------------------------------------------------
@@ -116,5 +128,31 @@ public class DataMarketDataSnapshotSourceResource extends AbstractDataResource {
       bld.queryParam("correctedTo", vc.getCorrectedToString());
     }
     return bld.build(objectId);
+  }
+
+  /**
+   * Builds a URI for snapshot search.
+   *
+   * @param baseUri  the base URI, not null
+   * @param type  the snapshot type, not null
+   * @param name  the name, not null
+   * @param versionCorrection  the version to fetch, null means latest
+   * @return the URI, not null
+   */
+  public static URI uriSearchSingle(URI baseUri, Class<?> type, String name, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(baseUri, "baseUri");
+    ArgumentChecker.notNull(type, "type");
+    ArgumentChecker.notNull(name, "name");
+
+    String vc = versionCorrection != null ?
+        versionCorrection.toString() :
+        VersionCorrection.LATEST.toString();
+
+    return UriBuilder.fromUri(baseUri)
+        .path("snapshotSearches/single")
+        .queryParam("name", name)
+        .queryParam("type", type.getName())
+        .queryParam("versionCorrection", vc)
+        .build();
   }
 }

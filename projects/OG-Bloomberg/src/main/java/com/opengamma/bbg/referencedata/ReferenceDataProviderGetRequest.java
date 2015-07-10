@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -176,70 +177,11 @@ public class ReferenceDataProviderGetRequest extends DirectBean {
     return ReferenceDataProviderGetRequest.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1368189162:  // identifiers
-        return getIdentifiers();
-      case -1274708295:  // fields
-        return getFields();
-      case -309504453:  // useCache
-        return isUseCache();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1368189162:  // identifiers
-        setIdentifiers((Set<String>) newValue);
-        return;
-      case -1274708295:  // fields
-        setFields((Set<String>) newValue);
-        return;
-      case -309504453:  // useCache
-        setUseCache((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_fields, "fields");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ReferenceDataProviderGetRequest other = (ReferenceDataProviderGetRequest) obj;
-      return JodaBeanUtils.equal(getIdentifiers(), other.getIdentifiers()) &&
-          JodaBeanUtils.equal(getFields(), other.getFields()) &&
-          JodaBeanUtils.equal(isUseCache(), other.isUseCache());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifiers());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFields());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isUseCache());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the set of external identifiers to get.
    * For Bloomberg, these are typically BUIDs.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Set<String> getIdentifiers() {
     return _identifiers;
@@ -248,9 +190,10 @@ public class ReferenceDataProviderGetRequest extends DirectBean {
   /**
    * Sets the set of external identifiers to get.
    * For Bloomberg, these are typically BUIDs.
-   * @param identifiers  the new value of the property
+   * @param identifiers  the new value of the property, not null
    */
   public void setIdentifiers(Set<String> identifiers) {
+    JodaBeanUtils.notNull(identifiers, "identifiers");
     this._identifiers.clear();
     this._identifiers.addAll(identifiers);
   }
@@ -275,9 +218,10 @@ public class ReferenceDataProviderGetRequest extends DirectBean {
 
   /**
    * Sets the data fields to fetch.
-   * @param fields  the new value of the property
+   * @param fields  the new value of the property, not null
    */
   public void setFields(Set<String> fields) {
+    JodaBeanUtils.notNull(fields, "fields");
     this._fields.clear();
     this._fields.addAll(fields);
   }
@@ -319,6 +263,54 @@ public class ReferenceDataProviderGetRequest extends DirectBean {
    */
   public final Property<Boolean> useCache() {
     return metaBean().useCache().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ReferenceDataProviderGetRequest clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ReferenceDataProviderGetRequest other = (ReferenceDataProviderGetRequest) obj;
+      return JodaBeanUtils.equal(getIdentifiers(), other.getIdentifiers()) &&
+          JodaBeanUtils.equal(getFields(), other.getFields()) &&
+          (isUseCache() == other.isUseCache());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIdentifiers());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFields());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isUseCache());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("ReferenceDataProviderGetRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("identifiers").append('=').append(JodaBeanUtils.toString(getIdentifiers())).append(',').append(' ');
+    buf.append("fields").append('=').append(JodaBeanUtils.toString(getFields())).append(',').append(' ');
+    buf.append("useCache").append('=').append(JodaBeanUtils.toString(isUseCache())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -414,6 +406,43 @@ public class ReferenceDataProviderGetRequest extends DirectBean {
      */
     public final MetaProperty<Boolean> useCache() {
       return _useCache;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1368189162:  // identifiers
+          return ((ReferenceDataProviderGetRequest) bean).getIdentifiers();
+        case -1274708295:  // fields
+          return ((ReferenceDataProviderGetRequest) bean).getFields();
+        case -309504453:  // useCache
+          return ((ReferenceDataProviderGetRequest) bean).isUseCache();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1368189162:  // identifiers
+          ((ReferenceDataProviderGetRequest) bean).setIdentifiers((Set<String>) newValue);
+          return;
+        case -1274708295:  // fields
+          ((ReferenceDataProviderGetRequest) bean).setFields((Set<String>) newValue);
+          return;
+        case -309504453:  // useCache
+          ((ReferenceDataProviderGetRequest) bean).setUseCache((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ReferenceDataProviderGetRequest) bean)._identifiers, "identifiers");
+      JodaBeanUtils.notNull(((ReferenceDataProviderGetRequest) bean)._fields, "fields");
     }
 
   }

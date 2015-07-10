@@ -29,6 +29,14 @@ public class WebHolidayUris {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the base URI.
+   * @return the URI
+   */
+  public URI base() {
+    return holidays();
+  }
+
+  /**
    * Gets the URI.
    * @return the URI
    */

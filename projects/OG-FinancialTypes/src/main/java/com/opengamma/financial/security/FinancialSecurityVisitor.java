@@ -5,20 +5,30 @@
  */
 package com.opengamma.financial.security;
 
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.FloatingRateNoteSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
+import com.opengamma.financial.security.cash.CashBalanceSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
+import com.opengamma.financial.security.credit.IndexCDSDefinitionSecurity;
+import com.opengamma.financial.security.credit.IndexCDSSecurity;
+import com.opengamma.financial.security.credit.LegacyCDSSecurity;
+import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
+import com.opengamma.financial.security.equity.AmericanDepositaryReceiptSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
+import com.opengamma.financial.security.equity.ExchangeTradedFundSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
@@ -30,7 +40,9 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXVolatilitySwapSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
@@ -38,6 +50,7 @@ import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSe
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.EquityWarrantSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
@@ -46,6 +59,9 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.BillTotalReturnSwapSecurity;
+import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
+import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
@@ -92,9 +108,13 @@ public interface FinancialSecurityVisitor<T> extends FutureSecurityVisitor<T>, C
 
   // ------------------------------------------------------------------------------------
 
+  T visitBillSecurity(BillSecurity security);
+
   T visitCapFloorCMSSpreadSecurity(CapFloorCMSSpreadSecurity security);
 
   T visitCapFloorSecurity(CapFloorSecurity security);
+
+  T visitCashBalanceSecurity(CashBalanceSecurity security);
 
   T visitCashSecurity(CashSecurity security);
 
@@ -124,7 +144,11 @@ public interface FinancialSecurityVisitor<T> extends FutureSecurityVisitor<T>, C
 
   T visitEquityVarianceSwapSecurity(EquityVarianceSwapSecurity security);
 
+  T visitFloatingRateNoteSecurity(FloatingRateNoteSecurity security);
+
   T visitFRASecurity(FRASecurity security);
+
+  T visitForwardRateAgreementSecurity(ForwardRateAgreementSecurity security);
 
   T visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security);
 
@@ -141,7 +165,7 @@ public interface FinancialSecurityVisitor<T> extends FutureSecurityVisitor<T>, C
   T visitIRFutureOptionSecurity(IRFutureOptionSecurity security);
 
   T visitMunicipalBondSecurity(MunicipalBondSecurity security);
-  
+
   T visitInflationBondSecurity(InflationBondSecurity security);
 
   T visitNonDeliverableFXDigitalOptionSecurity(NonDeliverableFXDigitalOptionSecurity security);
@@ -159,7 +183,32 @@ public interface FinancialSecurityVisitor<T> extends FutureSecurityVisitor<T>, C
   T visitSwaptionSecurity(SwaptionSecurity security);
 
   T visitZeroCouponInflationSwapSecurity(ZeroCouponInflationSwapSecurity security);
-  
-  T visitYearOnYearInflationSwapSecurity(YearOnYearInflationSwapSecurity security);
-}
 
+  T visitYearOnYearInflationSwapSecurity(YearOnYearInflationSwapSecurity security);
+
+  T visitInterestRateSwapSecurity(InterestRateSwapSecurity security);
+
+  T visitFXVolatilitySwapSecurity(FXVolatilitySwapSecurity security);
+
+  T visitExchangeTradedFundSecurity(ExchangeTradedFundSecurity security);
+
+  T visitAmericanDepositaryReceiptSecurity(AmericanDepositaryReceiptSecurity security);
+
+  T visitEquityWarrantSecurity(EquityWarrantSecurity security);
+
+  T visitEquityTotalReturnSwapSecurity(EquityTotalReturnSwapSecurity security);
+
+  T visitBondTotalReturnSwapSecurity(BondTotalReturnSwapSecurity security);
+
+  T visitBillTotalReturnSwapSecurity(BillTotalReturnSwapSecurity security);
+
+  // Credit
+
+  T visitStandardCDSSecurity(StandardCDSSecurity security);
+
+  T visitLegacyCDSSecurity(LegacyCDSSecurity security);
+
+  T visitIndexCDSSecurity(IndexCDSSecurity security);
+
+  T visitIndexCDSDefinitionSecurity(IndexCDSDefinitionSecurity security);
+}

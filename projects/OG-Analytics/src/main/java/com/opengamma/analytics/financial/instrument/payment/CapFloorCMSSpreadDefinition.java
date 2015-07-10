@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
@@ -242,91 +242,6 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
     return true;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Coupon toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.isTrue(date.isBefore(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    // First curve used for discounting. If two curves, the same forward is used for both swaps;
-    // if more than two curves, the second is used for the forward of the first swap and the third for the forward of the second swap.
-    final String fundingCurveName = yieldCurveNames[0];
-    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    // CMS spread is not fixed yet, all the details are required.
-    final double fixingTime = TimeCalculator.getTimeBetween(date, getFixingDate());
-    final double settlementTime = TimeCalculator.getTimeBetween(date, _underlyingSwap1.getFixedLeg().getNthPayment(0).getAccrualStartDate());
-    final SwapFixedCoupon<Coupon> swap1 = _underlyingSwap1.toDerivative(date, yieldCurveNames);
-    String[] yieldCurveNames2;
-    if (yieldCurveNames.length == 2) {
-      yieldCurveNames2 = yieldCurveNames;
-    } else {
-      yieldCurveNames2 = new String[] {yieldCurveNames[0], yieldCurveNames[2] };
-    }
-    final SwapFixedCoupon<Coupon> swap2 = _underlyingSwap2.toDerivative(date, yieldCurveNames2);
-    return new CapFloorCMSSpread(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap1, _cmsIndex1, swap2, _cmsIndex2, settlementTime, _strike, _isCap,
-        fundingCurveName);
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    // First curve used for discounting. If two curves, the same forward is used for both swaps;
-    // if more than two curves, the second is used for the forward of the first swap and the third for the forward of the second swap.
-    final String fundingCurveName = yieldCurveNames[0];
-    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    if (date.isAfter(getFixingDate()) || date.equals(getFixingDate())) { // The CMS coupon has already fixed, it is now a fixed coupon.
-      Double fixedRate = data.getValue(getFixingDate());
-      //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
-      if (fixedRate == null) {
-        final ZonedDateTime fixingDateAtLiborFixingTime = getFixingDate().with(LocalTime.of(11, 0));
-        fixedRate = data.getValue(fixingDateAtLiborFixingTime);
-      }
-      if (fixedRate == null) {
-        final ZonedDateTime previousBusinessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding").adjustDate(_calendar1,
-            getFixingDate().minusDays(1));
-        fixedRate = data.getValue(previousBusinessDay);
-        //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
-        if (fixedRate == null) {
-          final ZonedDateTime previousBusinessDayAtLiborFixingTime = previousBusinessDay.with(LocalTime.of(11, 0));
-          fixedRate = data.getValue(previousBusinessDayAtLiborFixingTime);
-        }
-        if (fixedRate == null) {
-          fixedRate = data.getLatestValue(); //TODO remove me as soon as possible
-          //throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
-        }
-      }
-
-      return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), payOff(fixedRate));
-    }
-    // CMS spread is not fixed yet, all the details are required.
-    final double fixingTime = TimeCalculator.getTimeBetween(date, getFixingDate());
-    final double settlementTime = TimeCalculator.getTimeBetween(date, _underlyingSwap1.getFixedLeg().getNthPayment(0).getAccrualStartDate());
-    final SwapFixedCoupon<Coupon> swap1 = _underlyingSwap1.toDerivative(date, yieldCurveNames);
-    String[] yieldCurveNames2;
-    if (yieldCurveNames.length == 2) {
-      yieldCurveNames2 = yieldCurveNames;
-    } else {
-      yieldCurveNames2 = new String[] {yieldCurveNames[0], yieldCurveNames[2] };
-    }
-    final SwapFixedCoupon<Coupon> swap2 = _underlyingSwap2.toDerivative(date, yieldCurveNames2);
-    return new CapFloorCMSSpread(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap1, _cmsIndex1, swap2, _cmsIndex2, settlementTime, _strike, _isCap,
-        fundingCurveName);
-  }
-
   @Override
   public Coupon toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
@@ -358,7 +273,7 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
         fixedRate = data.getValue(fixingDateAtLiborFixingTime);
       }
       if (fixedRate == null) {
-        final ZonedDateTime previousBusinessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding").adjustDate(_calendar1,
+        final ZonedDateTime previousBusinessDay = BusinessDayConventions.PRECEDING.adjustDate(_calendar1,
             getFixingDate().minusDays(1));
         fixedRate = data.getValue(previousBusinessDay);
         //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way

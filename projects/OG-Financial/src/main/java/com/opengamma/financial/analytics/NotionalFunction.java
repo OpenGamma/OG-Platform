@@ -26,7 +26,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
@@ -41,8 +40,7 @@ public class NotionalFunction extends AbstractFunction.NonCompiledInvoker {
   public static final String POSITIVE = "Positive";
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final CurrencyPairs currencyPairs = (CurrencyPairs) inputs.getValue(CURRENCY_PAIRS);
     SecuritySource securitySource = executionContext.getSecuritySource();
@@ -60,6 +58,11 @@ public class NotionalFunction extends AbstractFunction.NonCompiledInvoker {
   }
 
   @Override
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    return context.getViewCalculationConfiguration() != null;
+  }
+
+  @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final Set<String> buy = context.getViewCalculationConfiguration().getDefaultProperties().getValues(PROPERTY_BUY);
     final String buyProperty = ((buy == null) || !buy.contains(NEGATIVE)) ? POSITIVE : NEGATIVE;
@@ -69,9 +72,7 @@ public class NotionalFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final ValueProperties properties = ValueProperties.builder()
-        .with(CurrencyPairsFunction.CURRENCY_PAIRS_NAME, CurrencyPairs.DEFAULT_CURRENCY_PAIRS)
-        .get();
+    final ValueProperties properties = ValueProperties.builder().with(CurrencyPairsFunction.CURRENCY_PAIRS_NAME, CurrencyPairs.DEFAULT_CURRENCY_PAIRS).get();
     return Collections.singleton(new ValueRequirement(CURRENCY_PAIRS, ComputationTargetSpecification.NULL, properties));
   }
 

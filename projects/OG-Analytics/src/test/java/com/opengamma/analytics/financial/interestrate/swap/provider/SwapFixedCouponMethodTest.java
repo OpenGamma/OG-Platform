@@ -18,15 +18,20 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.Present
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueBasisPointDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.SimpleParameterSensitivityParameterCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class SwapFixedCouponMethodTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 11, 5);
@@ -56,11 +61,16 @@ public class SwapFixedCouponMethodTest {
   private static final ParRateDiscountingCalculator PRDC = ParRateDiscountingCalculator.getInstance();
   private static final PresentValueBasisPointDiscountingCalculator PVBPDC = PresentValueBasisPointDiscountingCalculator.getInstance();
   private static final ParRateCurveSensitivityDiscountingCalculator PRCSDC = ParRateCurveSensitivityDiscountingCalculator.getInstance();
-  private static final PresentValueBasisPointCurveSensitivityDiscountingCalculator PVBPCSDC = PresentValueBasisPointCurveSensitivityDiscountingCalculator.getInstance();
-  private static final SimpleParameterSensitivityParameterCalculator<MulticurveProviderInterface> PS_PR_C = new SimpleParameterSensitivityParameterCalculator<>(PRCSDC);
-  private static final SimpleParameterSensitivityParameterCalculator<MulticurveProviderInterface> PS_PVBP_C = new SimpleParameterSensitivityParameterCalculator<>(PVBPCSDC);
-  private static final SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PS_PR_FDC = new SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PRDC, SHIFT_FD);
-  private static final SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PS_PVBP_FDC = new SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PVBPDC, SHIFT_FD);
+  private static final PresentValueBasisPointCurveSensitivityDiscountingCalculator PVBPCSDC = 
+      PresentValueBasisPointCurveSensitivityDiscountingCalculator.getInstance();
+  private static final SimpleParameterSensitivityParameterCalculator<ParameterProviderInterface> PS_PR_C = 
+      new SimpleParameterSensitivityParameterCalculator<>(PRCSDC);
+  private static final SimpleParameterSensitivityParameterCalculator<ParameterProviderInterface> PS_PVBP_C = 
+      new SimpleParameterSensitivityParameterCalculator<>(PVBPCSDC);
+  private static final SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PS_PR_FDC = 
+      new SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PRDC, SHIFT_FD);
+  private static final SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PS_PVBP_FDC = 
+      new SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PVBPDC, SHIFT_FD);
 
   private static final double TOLERANCE_RATE = 1.0E-10;
   private static final double TOLERANCE_RATE_DELTA = 1.0E-8;
@@ -96,7 +106,7 @@ public class SwapFixedCouponMethodTest {
   public void parRateCurveSensitivity() {
     final SimpleParameterSensitivity psComputed = PS_PR_C.calculateSensitivity(SWAP_PAYER, MULTICURVES, MULTICURVES.getAllNames());
     final SimpleParameterSensitivity psFD = PS_PR_FDC.calculateSensitivity(SWAP_PAYER, MULTICURVES);
-    AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", psFD, psComputed, TOLERANCE_RATE_DELTA);
+    AssertSensitivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", psFD, psComputed, TOLERANCE_RATE_DELTA);
   }
 
   @Test
@@ -114,7 +124,7 @@ public class SwapFixedCouponMethodTest {
   public void presentValueBasisPointCurveSensitivity() {
     final SimpleParameterSensitivity psComputed = PS_PVBP_C.calculateSensitivity(SWAP_PAYER, MULTICURVES, MULTICURVES.getAllNames());
     final SimpleParameterSensitivity psFD = PS_PVBP_FDC.calculateSensitivity(SWAP_PAYER, MULTICURVES);
-    AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", psFD, psComputed, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", psFD, psComputed, TOLERANCE_PV_DELTA);
   }
 
 }

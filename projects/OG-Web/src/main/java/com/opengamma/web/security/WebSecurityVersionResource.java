@@ -17,6 +17,7 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
@@ -64,6 +65,7 @@ public class WebSecurityVersionResource extends AbstractWebSecurityResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     SecurityDocument latestSecDoc = data().getSecurity();
@@ -75,6 +77,7 @@ public class WebSecurityVersionResource extends AbstractWebSecurityResource {
     out.put("deleted", !latestSecDoc.isLatest());
     addSecuritySpecificMetaData(versionedSecurity.getSecurity(), out);
     out.put("customRenderer", FreemarkerCustomRenderer.INSTANCE);
+    out.put(SECURITY_XML, StringEscapeUtils.escapeJavaScript(createBeanXML(versionedSecurity.getSecurity())));
     return out;
   }
 

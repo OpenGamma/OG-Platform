@@ -21,6 +21,7 @@ import com.google.common.collect.Maps;
 import com.opengamma.financial.analytics.cashflow.FloatingPaymentMatrix;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -47,7 +48,7 @@ public class FloatingPaymentMatrixBuilder extends AbstractFudgeBuilder<FloatingP
       for (int j = 0; j < caMessage.size(); j++) {
         final CurrencyAmount ca = deserializer.fieldValueToObject(CurrencyAmount.class, caMessage.get(j));
         final String resetIndex = (String) deserializer.fieldValueToObject(String.class, resetIndexMessage.get(j));
-        list.add(Pair.of(ca, resetIndex));
+        list.add(Pairs.of(ca, resetIndex));
       }
       values.put(date, list);
     }

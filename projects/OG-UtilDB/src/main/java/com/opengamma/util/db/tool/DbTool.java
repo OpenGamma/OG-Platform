@@ -164,7 +164,7 @@ public class DbTool {
       ds.setPassword(getPassword());
       ds.setAcquireIncrement(1);
       ds.setPartitionCount(1);
-      ds.setMaxConnectionsPerPartition(1);
+      ds.setMaxConnectionsPerPartition(2);
       ds.setAcquireRetryAttempts(2);
       ds.setAcquireRetryDelayInMs(2000);
       _dataSource = dataSource = ds;  // CSIGNORE
@@ -418,11 +418,6 @@ public class DbTool {
     }
     executeSql(catalog, schema, sql);
 
-    // -- DBTOOLDONOTCLEAR
-    // create table rsk_computation_target_type (
-    //
-    // -> extract rsk_computation_target_type
-
     final String doNotClear = "DBTOOLDONOTCLEAR";
 
     int doNotClearIndex = sql.indexOf(doNotClear);
@@ -472,7 +467,9 @@ public class DbTool {
     String dbVendorName = _dialect.getDatabaseName();
     DbScript createScript = schemaGroupMetadata.getCreateScript(dbVendorName, migrateFromVersion);
     if (createScript == null) {
-      throw new OpenGammaRuntimeException("Missing create script for V" + migrateFromVersion + ", database " + dbVendorName + ", schema group " + schemaGroupMetadata.getSchemaGroupName());
+      s_logger.error("Missing create script for V" + migrateFromVersion + ", database " + dbVendorName +
+          ", schema group " + schemaGroupMetadata.getSchemaGroupName());
+      return;
     }
     s_logger.debug("Creating {} DB version {}", schemaGroupMetadata.getSchemaGroupName(), migrateFromVersion);
     s_logger.debug("Executing create script {}", createScript.getName());
@@ -651,6 +648,16 @@ public class DbTool {
   private static void usage(Options options) {
     HelpFormatter formatter = new HelpFormatter();
     formatter.printHelp("java com.opengamma.util.db.tool.DbTool [args]", options);
+  }
+
+  /**
+   * Returns collection of table names.
+   *
+   * @return a list of table names, not null
+   */
+  public List<String> listTables() {
+    initialize();
+    return _dialect.listTables(getCatalog());
   }
 
   //-------------------------------------------------------------------------

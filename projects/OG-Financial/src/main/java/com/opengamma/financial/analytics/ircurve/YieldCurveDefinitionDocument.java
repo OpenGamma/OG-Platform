@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.ircurve;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -99,52 +100,6 @@ public class YieldCurveDefinitionDocument extends AbstractDocument implements Se
     return YieldCurveDefinitionDocument.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case 36544597:  // yieldCurveDefinition
-        return getYieldCurveDefinition();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case 36544597:  // yieldCurveDefinition
-        setYieldCurveDefinition((YieldCurveDefinition) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      YieldCurveDefinitionDocument other = (YieldCurveDefinitionDocument) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getYieldCurveDefinition(), other.getYieldCurveDefinition()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getYieldCurveDefinition());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the unique identifier.
@@ -196,6 +151,54 @@ public class YieldCurveDefinitionDocument extends AbstractDocument implements Se
    */
   public final Property<YieldCurveDefinition> yieldCurveDefinition() {
     return metaBean().yieldCurveDefinition().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public YieldCurveDefinitionDocument clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      YieldCurveDefinitionDocument other = (YieldCurveDefinitionDocument) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getYieldCurveDefinition(), other.getYieldCurveDefinition()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getYieldCurveDefinition());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("YieldCurveDefinitionDocument{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("yieldCurveDefinition").append('=').append(JodaBeanUtils.toString(getYieldCurveDefinition())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -273,6 +276,31 @@ public class YieldCurveDefinitionDocument extends AbstractDocument implements Se
      */
     public final MetaProperty<YieldCurveDefinition> yieldCurveDefinition() {
       return _yieldCurveDefinition;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return ((YieldCurveDefinitionDocument) bean).getUniqueId();
+        case 36544597:  // yieldCurveDefinition
+          return ((YieldCurveDefinitionDocument) bean).getYieldCurveDefinition();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          ((YieldCurveDefinitionDocument) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case 36544597:  // yieldCurveDefinition
+          ((YieldCurveDefinitionDocument) bean).setYieldCurveDefinition((YieldCurveDefinition) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

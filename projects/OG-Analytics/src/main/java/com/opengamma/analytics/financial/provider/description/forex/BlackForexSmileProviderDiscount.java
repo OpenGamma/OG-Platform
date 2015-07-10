@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.description.forex;
@@ -11,7 +11,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Interface for G2++ parameters provider for one currency.
+ * Container for the discounting curves and volatility surface needed to price FX options.
  */
 public class BlackForexSmileProviderDiscount extends BlackForexSmileProvider {
 
@@ -32,7 +32,7 @@ public class BlackForexSmileProviderDiscount extends BlackForexSmileProvider {
 
   @Override
   public BlackForexSmileProviderDiscount copy() {
-    MulticurveProviderDiscount multicurveProvider = getMulticurveProvider().copy();
+    final MulticurveProviderDiscount multicurveProvider = getMulticurveProvider().copy();
     return new BlackForexSmileProviderDiscount(multicurveProvider, getVolatility(), getCurrencyPair());
   }
 

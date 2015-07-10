@@ -7,6 +7,7 @@ package com.opengamma.financial.security.capfloor;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -23,12 +24,14 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 
 /**
  * A security for cap/floor.
  */
 @BeanDefinition
+@SecurityDescription(type = CapFloorSecurity.SECURITY_TYPE, description = "Cap floor")
 public class CapFloorSecurity extends FinancialSecurity {
 
   /** Serialization version. */
@@ -138,126 +141,6 @@ public class CapFloorSecurity extends FinancialSecurity {
   @Override
   public CapFloorSecurity.Meta metaBean() {
     return CapFloorSecurity.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -2129778896:  // startDate
-        return getStartDate();
-      case -414641441:  // maturityDate
-        return getMaturityDate();
-      case 1585636160:  // notional
-        return getNotional();
-      case -771625640:  // underlyingId
-        return getUnderlyingId();
-      case -891985998:  // strike
-        return getStrike();
-      case -70023844:  // frequency
-        return getFrequency();
-      case 575402001:  // currency
-        return getCurrency();
-      case 1905311443:  // dayCount
-        return getDayCount();
-      case 106443605:  // payer
-        return isPayer();
-      case 98258:  // cap
-        return isCap();
-      case 3225788:  // ibor
-        return isIbor();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -2129778896:  // startDate
-        setStartDate((ZonedDateTime) newValue);
-        return;
-      case -414641441:  // maturityDate
-        setMaturityDate((ZonedDateTime) newValue);
-        return;
-      case 1585636160:  // notional
-        setNotional((Double) newValue);
-        return;
-      case -771625640:  // underlyingId
-        setUnderlyingId((ExternalId) newValue);
-        return;
-      case -891985998:  // strike
-        setStrike((Double) newValue);
-        return;
-      case -70023844:  // frequency
-        setFrequency((Frequency) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((Currency) newValue);
-        return;
-      case 1905311443:  // dayCount
-        setDayCount((DayCount) newValue);
-        return;
-      case 106443605:  // payer
-        setPayer((Boolean) newValue);
-        return;
-      case 98258:  // cap
-        setCap((Boolean) newValue);
-        return;
-      case 3225788:  // ibor
-        setIbor((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_startDate, "startDate");
-    JodaBeanUtils.notNull(_maturityDate, "maturityDate");
-    JodaBeanUtils.notNull(_underlyingId, "underlyingId");
-    JodaBeanUtils.notNull(_frequency, "frequency");
-    JodaBeanUtils.notNull(_currency, "currency");
-    JodaBeanUtils.notNull(_dayCount, "dayCount");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CapFloorSecurity other = (CapFloorSecurity) obj;
-      return JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
-          JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
-          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
-          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
-          JodaBeanUtils.equal(getFrequency(), other.getFrequency()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(isPayer(), other.isPayer()) &&
-          JodaBeanUtils.equal(isCap(), other.isCap()) &&
-          JodaBeanUtils.equal(isIbor(), other.isIbor()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPayer());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isCap());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIbor());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -542,6 +425,81 @@ public class CapFloorSecurity extends FinancialSecurity {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public CapFloorSecurity clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CapFloorSecurity other = (CapFloorSecurity) obj;
+      return JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
+          JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
+          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
+          JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
+          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
+          JodaBeanUtils.equal(getFrequency(), other.getFrequency()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
+          (isPayer() == other.isPayer()) &&
+          (isCap() == other.isCap()) &&
+          (isIbor() == other.isIbor()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStrike());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFrequency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPayer());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isCap());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isIbor());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(384);
+    buf.append("CapFloorSecurity{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
+    buf.append("maturityDate").append('=').append(JodaBeanUtils.toString(getMaturityDate())).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
+    buf.append("underlyingId").append('=').append(JodaBeanUtils.toString(getUnderlyingId())).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(getStrike())).append(',').append(' ');
+    buf.append("frequency").append('=').append(JodaBeanUtils.toString(getFrequency())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
+    buf.append("payer").append('=').append(JodaBeanUtils.toString(isPayer())).append(',').append(' ');
+    buf.append("cap").append('=').append(JodaBeanUtils.toString(isCap())).append(',').append(' ');
+    buf.append("ibor").append('=').append(JodaBeanUtils.toString(isIbor())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code CapFloorSecurity}.
    */
@@ -760,6 +718,87 @@ public class CapFloorSecurity extends FinancialSecurity {
      */
     public final MetaProperty<Boolean> ibor() {
       return _ibor;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -2129778896:  // startDate
+          return ((CapFloorSecurity) bean).getStartDate();
+        case -414641441:  // maturityDate
+          return ((CapFloorSecurity) bean).getMaturityDate();
+        case 1585636160:  // notional
+          return ((CapFloorSecurity) bean).getNotional();
+        case -771625640:  // underlyingId
+          return ((CapFloorSecurity) bean).getUnderlyingId();
+        case -891985998:  // strike
+          return ((CapFloorSecurity) bean).getStrike();
+        case -70023844:  // frequency
+          return ((CapFloorSecurity) bean).getFrequency();
+        case 575402001:  // currency
+          return ((CapFloorSecurity) bean).getCurrency();
+        case 1905311443:  // dayCount
+          return ((CapFloorSecurity) bean).getDayCount();
+        case 106443605:  // payer
+          return ((CapFloorSecurity) bean).isPayer();
+        case 98258:  // cap
+          return ((CapFloorSecurity) bean).isCap();
+        case 3225788:  // ibor
+          return ((CapFloorSecurity) bean).isIbor();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -2129778896:  // startDate
+          ((CapFloorSecurity) bean).setStartDate((ZonedDateTime) newValue);
+          return;
+        case -414641441:  // maturityDate
+          ((CapFloorSecurity) bean).setMaturityDate((ZonedDateTime) newValue);
+          return;
+        case 1585636160:  // notional
+          ((CapFloorSecurity) bean).setNotional((Double) newValue);
+          return;
+        case -771625640:  // underlyingId
+          ((CapFloorSecurity) bean).setUnderlyingId((ExternalId) newValue);
+          return;
+        case -891985998:  // strike
+          ((CapFloorSecurity) bean).setStrike((Double) newValue);
+          return;
+        case -70023844:  // frequency
+          ((CapFloorSecurity) bean).setFrequency((Frequency) newValue);
+          return;
+        case 575402001:  // currency
+          ((CapFloorSecurity) bean).setCurrency((Currency) newValue);
+          return;
+        case 1905311443:  // dayCount
+          ((CapFloorSecurity) bean).setDayCount((DayCount) newValue);
+          return;
+        case 106443605:  // payer
+          ((CapFloorSecurity) bean).setPayer((Boolean) newValue);
+          return;
+        case 98258:  // cap
+          ((CapFloorSecurity) bean).setCap((Boolean) newValue);
+          return;
+        case 3225788:  // ibor
+          ((CapFloorSecurity) bean).setIbor((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((CapFloorSecurity) bean)._startDate, "startDate");
+      JodaBeanUtils.notNull(((CapFloorSecurity) bean)._maturityDate, "maturityDate");
+      JodaBeanUtils.notNull(((CapFloorSecurity) bean)._underlyingId, "underlyingId");
+      JodaBeanUtils.notNull(((CapFloorSecurity) bean)._frequency, "frequency");
+      JodaBeanUtils.notNull(((CapFloorSecurity) bean)._currency, "currency");
+      JodaBeanUtils.notNull(((CapFloorSecurity) bean)._dayCount, "dayCount");
+      super.validate(bean);
     }
 
   }

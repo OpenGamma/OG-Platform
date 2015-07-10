@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.convention.OISLegConvention">
+ <externalIdBundle>
+  <externalIds>
+   <item>CONVENTION~USDFEDFUNDSCmp1Y</item>
+  </externalIds>
+ </externalIdBundle>
+ <attributes/>
+ <name>USDFEDFUNDSCmp1Y</name>
+ <overnightIndexConvention>OG_TICKER~USDFEDFUNDS</overnightIndexConvention>
+ <paymentTenor>P1Y</paymentTenor>
+ <paymentLag>2</paymentLag>
+ <businessDayConvention>Modified Following</businessDayConvention>
+ <settlementDays>2</settlementDays>
+ <isEOM>true</isEOM>
+ <stubType>NONE</stubType>
+ <isExchangeNotional>false</isExchangeNotional>
+</bean>

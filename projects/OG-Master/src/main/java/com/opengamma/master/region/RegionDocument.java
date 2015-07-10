@@ -8,6 +8,7 @@ package com.opengamma.master.region;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -103,59 +104,6 @@ public class RegionDocument extends AbstractDocument implements Serializable {
     return RegionDocument.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -934795532:  // region
-        return getRegion();
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case 205149932:  // providerId
-        return getProviderId();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -934795532:  // region
-        setRegion((ManageableRegion) newValue);
-        return;
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case 205149932:  // providerId
-        setProviderId((ExternalId) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      RegionDocument other = (RegionDocument) obj;
-      return JodaBeanUtils.equal(getRegion(), other.getRegion()) &&
-          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getProviderId(), other.getProviderId()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegion());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProviderId());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the region object held by the document.
@@ -238,6 +186,57 @@ public class RegionDocument extends AbstractDocument implements Serializable {
    */
   public final Property<ExternalId> providerId() {
     return metaBean().providerId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public RegionDocument clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      RegionDocument other = (RegionDocument) obj;
+      return JodaBeanUtils.equal(getRegion(), other.getRegion()) &&
+          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getProviderId(), other.getProviderId()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRegion());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProviderId());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("RegionDocument{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("region").append('=').append(JodaBeanUtils.toString(getRegion())).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("providerId").append('=').append(JodaBeanUtils.toString(getProviderId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -331,6 +330,36 @@ public class RegionDocument extends AbstractDocument implements Serializable {
      */
     public final MetaProperty<ExternalId> providerId() {
       return _providerId;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -934795532:  // region
+          return ((RegionDocument) bean).getRegion();
+        case -294460212:  // uniqueId
+          return ((RegionDocument) bean).getUniqueId();
+        case 205149932:  // providerId
+          return ((RegionDocument) bean).getProviderId();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -934795532:  // region
+          ((RegionDocument) bean).setRegion((ManageableRegion) newValue);
+          return;
+        case -294460212:  // uniqueId
+          ((RegionDocument) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case 205149932:  // providerId
+          ((RegionDocument) bean).setProviderId((ExternalId) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

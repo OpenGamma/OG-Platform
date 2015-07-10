@@ -7,6 +7,7 @@ package com.opengamma.financial.livedata.rest;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -53,51 +54,6 @@ public class RemoveValueRequest extends DirectBean {
   @Override
   public RemoveValueRequest.Meta metaBean() {
     return RemoveValueRequest.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -755281390:  // valueRequirement
-        return getValueRequirement();
-      case 7765778:  // valueSpecification
-        return getValueSpecification();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -755281390:  // valueRequirement
-        setValueRequirement((ValueRequirement) newValue);
-        return;
-      case 7765778:  // valueSpecification
-        setValueSpecification((ValueSpecification) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      RemoveValueRequest other = (RemoveValueRequest) obj;
-      return JodaBeanUtils.equal(getValueRequirement(), other.getValueRequirement()) &&
-          JodaBeanUtils.equal(getValueSpecification(), other.getValueSpecification());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValueRequirement());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValueSpecification());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -148,6 +104,51 @@ public class RemoveValueRequest extends DirectBean {
    */
   public final Property<ValueSpecification> valueSpecification() {
     return metaBean().valueSpecification().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public RemoveValueRequest clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      RemoveValueRequest other = (RemoveValueRequest) obj;
+      return JodaBeanUtils.equal(getValueRequirement(), other.getValueRequirement()) &&
+          JodaBeanUtils.equal(getValueSpecification(), other.getValueSpecification());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValueRequirement());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValueSpecification());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("RemoveValueRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("valueRequirement").append('=').append(JodaBeanUtils.toString(getValueRequirement())).append(',').append(' ');
+    buf.append("valueSpecification").append('=').append(JodaBeanUtils.toString(getValueSpecification())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -225,6 +226,31 @@ public class RemoveValueRequest extends DirectBean {
      */
     public final MetaProperty<ValueSpecification> valueSpecification() {
       return _valueSpecification;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -755281390:  // valueRequirement
+          return ((RemoveValueRequest) bean).getValueRequirement();
+        case 7765778:  // valueSpecification
+          return ((RemoveValueRequest) bean).getValueSpecification();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -755281390:  // valueRequirement
+          ((RemoveValueRequest) bean).setValueRequirement((ValueRequirement) newValue);
+          return;
+        case 7765778:  // valueSpecification
+          ((RemoveValueRequest) bean).setValueSpecification((ValueSpecification) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

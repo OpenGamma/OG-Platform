@@ -8,6 +8,7 @@ package com.opengamma.livedata.cogda.msg;
 import java.util.Map;
 
 import org.fudgemsg.FudgeMsg;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -60,65 +61,6 @@ public class CogdaLiveDataUpdateMessage extends DirectBean {
   @Override
   public CogdaLiveDataUpdateMessage.Meta metaBean() {
     return CogdaLiveDataUpdateMessage.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1478790936:  // subscriptionId
-        return getSubscriptionId();
-      case -1440170590:  // normalizationScheme
-        return getNormalizationScheme();
-      case -823812830:  // values
-        return getValues();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1478790936:  // subscriptionId
-        setSubscriptionId((ExternalId) newValue);
-        return;
-      case -1440170590:  // normalizationScheme
-        setNormalizationScheme((String) newValue);
-        return;
-      case -823812830:  // values
-        setValues((FudgeMsg) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_subscriptionId, "subscriptionId");
-    JodaBeanUtils.notNull(_values, "values");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CogdaLiveDataUpdateMessage other = (CogdaLiveDataUpdateMessage) obj;
-      return JodaBeanUtils.equal(getSubscriptionId(), other.getSubscriptionId()) &&
-          JodaBeanUtils.equal(getNormalizationScheme(), other.getNormalizationScheme()) &&
-          JodaBeanUtils.equal(getValues(), other.getValues());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSubscriptionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNormalizationScheme());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValues());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -196,6 +138,54 @@ public class CogdaLiveDataUpdateMessage extends DirectBean {
    */
   public final Property<FudgeMsg> values() {
     return metaBean().values().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public CogdaLiveDataUpdateMessage clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CogdaLiveDataUpdateMessage other = (CogdaLiveDataUpdateMessage) obj;
+      return JodaBeanUtils.equal(getSubscriptionId(), other.getSubscriptionId()) &&
+          JodaBeanUtils.equal(getNormalizationScheme(), other.getNormalizationScheme()) &&
+          JodaBeanUtils.equal(getValues(), other.getValues());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSubscriptionId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNormalizationScheme());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValues());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("CogdaLiveDataUpdateMessage{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("subscriptionId").append('=').append(JodaBeanUtils.toString(getSubscriptionId())).append(',').append(' ');
+    buf.append("normalizationScheme").append('=').append(JodaBeanUtils.toString(getNormalizationScheme())).append(',').append(' ');
+    buf.append("values").append('=').append(JodaBeanUtils.toString(getValues())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -289,6 +279,42 @@ public class CogdaLiveDataUpdateMessage extends DirectBean {
      */
     public final MetaProperty<FudgeMsg> values() {
       return _values;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1478790936:  // subscriptionId
+          return ((CogdaLiveDataUpdateMessage) bean).getSubscriptionId();
+        case -1440170590:  // normalizationScheme
+          return ((CogdaLiveDataUpdateMessage) bean).getNormalizationScheme();
+        case -823812830:  // values
+          return ((CogdaLiveDataUpdateMessage) bean).getValues();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1478790936:  // subscriptionId
+          ((CogdaLiveDataUpdateMessage) bean).setSubscriptionId((ExternalId) newValue);
+          return;
+        case -1440170590:  // normalizationScheme
+          ((CogdaLiveDataUpdateMessage) bean).setNormalizationScheme((String) newValue);
+          return;
+        case -823812830:  // values
+          ((CogdaLiveDataUpdateMessage) bean).setValues((FudgeMsg) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((CogdaLiveDataUpdateMessage) bean)._subscriptionId, "subscriptionId");
+      JodaBeanUtils.notNull(((CogdaLiveDataUpdateMessage) bean)._values, "values");
     }
 
   }

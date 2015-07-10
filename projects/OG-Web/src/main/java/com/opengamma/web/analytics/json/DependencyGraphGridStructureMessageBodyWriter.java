@@ -19,17 +19,14 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.analytics.AnalyticsNodeJsonWriter;
 import com.opengamma.web.analytics.DependencyGraphGridStructure;
 import com.opengamma.web.analytics.GridColumnsJsonWriter;
 import com.opengamma.web.analytics.PortfolioGridStructure;
-import com.opengamma.web.json.ValueRequirementJSONBuilder;
 
 /**
  * Writes an instance of {@link PortfolioGridStructure} to JSON.
@@ -45,6 +42,7 @@ public class DependencyGraphGridStructureMessageBodyWriter implements MessageBod
   /** Field name for the JSON. */
   private static final String CALC_CONFIG_NAME = "calcConfigName";
   /** Field name for the JSON. */
+  @SuppressWarnings("unused")
   private static final String VALUE_REQUIREMENT = "valueRequirement";
 
   private final GridColumnsJsonWriter _writer;
@@ -79,21 +77,21 @@ public class DependencyGraphGridStructureMessageBodyWriter implements MessageBod
                       OutputStream entityStream) throws IOException, WebApplicationException {
     Object[] rootNode = AnalyticsNodeJsonWriter.getJsonStructure(gridStructure.getRootNode());
     List<Map<String, Object>> columns = _writer.getJsonStructure(gridStructure.getColumnStructure().getGroups());
-    ValueRequirementJSONBuilder jsonBuilder = new ValueRequirementJSONBuilder();
-    String valueReqStr = jsonBuilder.toJSON(gridStructure.getRootRequirement());
-    JSONObject valueReqJson;
-    try {
-      // need to convert it to a JSON object instead of a string otherwise it will be inserted into the outer object
-      // as an escaped string instead of a child object
-      valueReqJson = new JSONObject(valueReqStr);
-    } catch (JSONException e) {
-      throw new OpenGammaRuntimeException("Failed to convert ValueRequirement to JSON", e);
-    }
+    //ValueRequirementJSONBuilder jsonBuilder = new ValueRequirementJSONBuilder();
+    //String valueReqStr = jsonBuilder.toJSON(gridStructure.getRootRequirement());
+    //JSONObject valueReqJson;
+    //try {
+    //  // need to convert it to a JSON object instead of a string otherwise it will be inserted into the outer object
+    //  // as an escaped string instead of a child object
+    //  valueReqJson = new JSONObject(valueReqStr);
+    //} catch (JSONException e) {
+    //  throw new OpenGammaRuntimeException("Failed to convert ValueRequirement to JSON", e);
+    //}
     String calcConfigName = gridStructure.getCalculationConfigurationName();
     ImmutableMap<String, Object> jsonMap = ImmutableMap.of(COLUMN_SETS, columns,
                                                            ROOT_NODE, rootNode,
-                                                           CALC_CONFIG_NAME, calcConfigName,
-                                                           VALUE_REQUIREMENT, valueReqJson);
+                                                           CALC_CONFIG_NAME, calcConfigName/*,
+                                                           VALUE_REQUIREMENT, valueReqJson*/);
     entityStream.write(new JSONObject(jsonMap).toString().getBytes());
   }
 }

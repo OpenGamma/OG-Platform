@@ -55,13 +55,12 @@ import com.opengamma.util.ArgumentChecker;
 
   };
 
-  /**
-   * Creates a new instance.
-   * 
-   * @param a the first alternative for the construction, not null
-   * @param b the second alternative for the construction, not null
-   */
-  public MultipleComputationTargetType(final ComputationTargetType a, final ComputationTargetType b) {
+  private MultipleComputationTargetType(final Set<ComputationTargetType> target) {
+    super(MultipleComputationTargetType.class.getName().hashCode() * 31 + target.hashCode());
+    _target = target;
+  }
+
+  private static Set<ComputationTargetType> copy(final ComputationTargetType a, final ComputationTargetType b) {
     final Set<ComputationTargetType> copy = new HashSet<ComputationTargetType>();
     if (a.accept(s_construct, copy)) {
       copy.add(a);
@@ -70,7 +69,28 @@ import com.opengamma.util.ArgumentChecker;
       copy.add(b);
     }
     ArgumentChecker.isTrue(copy.size() >= 2, "target");
-    _target = Collections.unmodifiableSet(copy);
+    return Collections.unmodifiableSet(copy);
+  }
+
+  /**
+   * Creates a new instance.
+   * 
+   * @param a the first alternative for the construction, not null
+   * @param b the second alternative for the construction, not null
+   */
+  public MultipleComputationTargetType(final ComputationTargetType a, final ComputationTargetType b) {
+    this(copy(a, b));
+  }
+
+  private static Set<ComputationTargetType> copy(final ComputationTargetType[] types) {
+    final Set<ComputationTargetType> copy = new HashSet<ComputationTargetType>();
+    for (ComputationTargetType type : types) {
+      if (type.accept(s_construct, copy)) {
+        copy.add(type);
+      }
+    }
+    ArgumentChecker.isTrue(copy.size() >= 2, "target");
+    return Collections.unmodifiableSet(copy);
   }
 
   /**
@@ -79,14 +99,7 @@ import com.opengamma.util.ArgumentChecker;
    * @param types the alternative types for the construction, not null and not containing null
    */
   public MultipleComputationTargetType(final ComputationTargetType[] types) {
-    final Set<ComputationTargetType> copy = new HashSet<ComputationTargetType>();
-    for (ComputationTargetType type : types) {
-      if (type.accept(s_construct, copy)) {
-        copy.add(type);
-      }
-    }
-    ArgumentChecker.isTrue(copy.size() >= 2, "target");
-    _target = Collections.unmodifiableSet(copy);
+    this(copy(types));
   }
 
   protected Set<ComputationTargetType> getTarget() {
@@ -234,11 +247,6 @@ import com.opengamma.util.ArgumentChecker;
     } else {
       return false;
     }
-  }
-
-  @Override
-  public int hashCode() {
-    return MultipleComputationTargetType.class.hashCode() * 31 + getTarget().hashCode();
   }
 
 }

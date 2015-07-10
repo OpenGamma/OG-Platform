@@ -11,10 +11,12 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 
 import com.opengamma.timeseries.precise.instant.InstantDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SampleAutocorrelationIIDHypothesisTest extends IIDHypothesisTestCase {
   private static final IIDHypothesis SAMPLE_ACF = new SampleAutocorrelationIIDHypothesis(0.05, 100);
 

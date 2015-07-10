@@ -7,6 +7,7 @@ package com.opengamma.financial.livedata.rest;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -56,58 +57,6 @@ public class AddValueRequest extends DirectBean {
   @Override
   public AddValueRequest.Meta metaBean() {
     return AddValueRequest.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -755281390:  // valueRequirement
-        return getValueRequirement();
-      case 7765778:  // valueSpecification
-        return getValueSpecification();
-      case 111972721:  // value
-        return getValue();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -755281390:  // valueRequirement
-        setValueRequirement((ValueRequirement) newValue);
-        return;
-      case 7765778:  // valueSpecification
-        setValueSpecification((ValueSpecification) newValue);
-        return;
-      case 111972721:  // value
-        setValue((Object) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      AddValueRequest other = (AddValueRequest) obj;
-      return JodaBeanUtils.equal(getValueRequirement(), other.getValueRequirement()) &&
-          JodaBeanUtils.equal(getValueSpecification(), other.getValueSpecification()) &&
-          JodaBeanUtils.equal(getValue(), other.getValue());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValueRequirement());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValueSpecification());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValue());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -183,6 +132,54 @@ public class AddValueRequest extends DirectBean {
    */
   public final Property<Object> value() {
     return metaBean().value().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public AddValueRequest clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      AddValueRequest other = (AddValueRequest) obj;
+      return JodaBeanUtils.equal(getValueRequirement(), other.getValueRequirement()) &&
+          JodaBeanUtils.equal(getValueSpecification(), other.getValueSpecification()) &&
+          JodaBeanUtils.equal(getValue(), other.getValue());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValueRequirement());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValueSpecification());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getValue());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("AddValueRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("valueRequirement").append('=').append(JodaBeanUtils.toString(getValueRequirement())).append(',').append(' ');
+    buf.append("valueSpecification").append('=').append(JodaBeanUtils.toString(getValueSpecification())).append(',').append(' ');
+    buf.append("value").append('=').append(JodaBeanUtils.toString(getValue())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -276,6 +273,36 @@ public class AddValueRequest extends DirectBean {
      */
     public final MetaProperty<Object> value() {
       return _value;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -755281390:  // valueRequirement
+          return ((AddValueRequest) bean).getValueRequirement();
+        case 7765778:  // valueSpecification
+          return ((AddValueRequest) bean).getValueSpecification();
+        case 111972721:  // value
+          return ((AddValueRequest) bean).getValue();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -755281390:  // valueRequirement
+          ((AddValueRequest) bean).setValueRequirement((ValueRequirement) newValue);
+          return;
+        case 7765778:  // valueSpecification
+          ((AddValueRequest) bean).setValueSpecification((ValueSpecification) newValue);
+          return;
+        case 111972721:  // value
+          ((AddValueRequest) bean).setValue((Object) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

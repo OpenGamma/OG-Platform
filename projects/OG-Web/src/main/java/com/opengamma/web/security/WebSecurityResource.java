@@ -18,11 +18,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.joda.beans.Bean;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.sensitivities.FactorExposureData;
-import com.opengamma.financial.sensitivities.SecurityEntryData;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -31,6 +32,8 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchR
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityLoaderRequest;
+import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.util.JodaBeanSerialization;
 import com.opengamma.web.FreemarkerCustomRenderer;
 
 /**
@@ -73,12 +76,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
         result = templateName;
       }
     } else {
-      if (security.getSecurityType().equals(SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE)) {
-        result = "external-sensitivities.ftl";
-      }
-      if (security.getSecurityType().equals(FactorExposureData.EXTERNAL_SENSITIVITIES_RISK_FACTORS_SECURITY_TYPE)) {
-        result = "external-sensitivities-risk-factors.ftl";
-      }
+      return security.getSecurityType().replace("_", "-").toLowerCase().concat(".ftl");
     }
     return result;
   }
@@ -87,28 +85,70 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.TEXT_HTML)
-  public Response putHTML(
-      @FormParam("name") String name,
-      @FormParam("idscheme") String idScheme,
-      @FormParam("idvalue") String idValue) {
+  public Response putHTML(@FormParam("type") String type, @FormParam(SECURITY_XML) String securityXml) {
+    
     SecurityDocument doc = data().getSecurity();
     if (doc.isLatest() == false) {
       return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
-    URI uri = updateSecurity(doc);
-    return Response.seeOther(uri).build();
+    URI responseURI = null;
+    type = StringUtils.defaultString(StringUtils.trimToNull(type), "");
+    switch (type) {
+      case "xml":
+        securityXml = StringUtils.trimToNull(securityXml);
+        try {
+          responseURI = updateSecurity(securityXml);
+        } catch (Exception ex) {
+          FlexiBean out = createRootData();
+          out.put("err_securityXml", true);
+          out.put("err_securityXmlMsg", ex.getMessage());
+          out.put(SECURITY_XML, StringEscapeUtils.escapeJavaScript(securityXml));
+          String html = getFreemarker().build(HTML_DIR + "security-update.ftl", out);
+          return Response.ok(html).build();
+        }
+        break;
+      case "id":
+        responseURI = updateSecurity(doc);
+        break;
+      default:
+        throw new IllegalArgumentException("Can only update security by XML or ID");
+    }
+    return Response.seeOther(responseURI).build();
   }
 
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
-  public Response putJSON() {
+  public Response putJSON(@FormParam("type") String type, @FormParam(SECURITY_XML) String securityXml) {
     SecurityDocument doc = data().getSecurity();
     if (doc.isLatest() == false) {  // TODO: idempotent
       return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
-    updateSecurity(doc);
+    
+    type = StringUtils.defaultString(StringUtils.trimToNull(type), "");
+    switch (type) {
+      case "xml":
+        securityXml = StringUtils.trimToNull(securityXml);
+        updateSecurity(securityXml);
+        break;
+      case "": // update security by ID if type is missing
+      case "id":
+        updateSecurity(doc);
+        break;
+      default:
+        throw new IllegalArgumentException("Can only update security by XML or ID");
+    }
     return Response.ok().build();
+  }
+  
+  private URI updateSecurity(String securityXml) {
+    Bean securityBean = JodaBeanSerialization.deserializer().xmlReader().read(securityXml);
+    SecurityMaster securityMaster = data().getSecurityMaster();
+    ManageableSecurity manageableSecurity = (ManageableSecurity) securityBean;
+    
+    SecurityDocument updatedSecDoc = securityMaster.update(new SecurityDocument(manageableSecurity));
+    WebSecuritiesUris webSecuritiesUris = new WebSecuritiesUris(data());
+    return webSecuritiesUris.security(updatedSecDoc.getSecurity());
   }
 
   private URI updateSecurity(SecurityDocument doc) {
@@ -147,6 +187,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     SecurityDocument securityDoc = data().getSecurity();
@@ -166,12 +207,13 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
     }
 
     out.put("securityAttributes", security.getAttributes());
-    out.put("securityDoc", securityDoc); 
+    out.put("securityDoc", securityDoc);
     out.put("security", security);
     out.put("timeSeriesId", tsObjectId);
     out.put("deleted", !securityDoc.isLatest());
     addSecuritySpecificMetaData(security, out);
     out.put("customRenderer", FreemarkerCustomRenderer.INSTANCE);
+    out.put(SECURITY_XML, StringEscapeUtils.escapeJavaScript(createBeanXML(security)));
     return out;
   }
 

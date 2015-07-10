@@ -14,6 +14,7 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.financial.security.CurrenciesVisitor;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -50,7 +51,7 @@ public class CurrenciesAggregationFunction implements AggregationFunction<String
 
   public static String classifyBasedOnSecurity(final Security security, final SecuritySource securitySource) {
     try {
-      final Collection<Currency> currencies = FinancialSecurityUtils.getCurrencies(security, securitySource);
+      final Collection<Currency> currencies = CurrenciesVisitor.getCurrencies(security, securitySource);
       if (currencies == null || currencies.size() == 0) {
         return NO_CURRENCY;
       }

@@ -39,7 +39,7 @@ public final class EquityVarianceSwapSecurityBeanOperation extends AbstractSecur
 
   @Override
   public EquityVarianceSwapSecurityBean createBean(OperationContext context, HibernateSecurityMasterDao secMasterSession, EquityVarianceSwapSecurity security) {
-    validateFrequency(security.getObservationFrequency().getConventionName());
+    validateFrequency(security.getObservationFrequency().getName());
     
     EquityVarianceSwapSecurityBean securityBean = new EquityVarianceSwapSecurityBean();
     securityBean.setAnnualizationFactor(security.getAnnualizationFactor());
@@ -47,7 +47,7 @@ public final class EquityVarianceSwapSecurityBeanOperation extends AbstractSecur
     securityBean.setFirstObservationDate(dateTimeWithZoneToZonedDateTimeBean(security.getFirstObservationDate()));
     securityBean.setLastObservationDate(dateTimeWithZoneToZonedDateTimeBean(security.getLastObservationDate()));
     securityBean.setNotional(security.getNotional());
-    securityBean.setObservationFrequency(secMasterSession.getOrCreateFrequencyBean(security.getObservationFrequency().getConventionName()));
+    securityBean.setObservationFrequency(secMasterSession.getOrCreateFrequencyBean(security.getObservationFrequency().getName()));
     securityBean.setParameterisedAsVariance(security.isParameterizedAsVariance());
     securityBean.setRegion(externalIdToExternalIdBean(security.getRegionId()));
     securityBean.setSettlementDate(dateTimeWithZoneToZonedDateTimeBean(security.getSettlementDate()));

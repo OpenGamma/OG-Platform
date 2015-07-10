@@ -13,10 +13,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class CurveShiftFunctionFactoryTest {
   private static final Function1D<Double, Double> F = new Function1D<Double, Double>() {
 

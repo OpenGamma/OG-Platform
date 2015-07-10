@@ -8,6 +8,7 @@ package com.opengamma.financial.spring;
 import java.util.Collection;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -80,60 +81,6 @@ public class FieldMappingHistoricalTimeSeriesResolverFactoryBean extends SpringF
   @Override
   public FieldMappingHistoricalTimeSeriesResolverFactoryBean.Meta metaBean() {
     return FieldMappingHistoricalTimeSeriesResolverFactoryBean.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 813766974:  // fieldAdjustmentMaps
-        return getFieldAdjustmentMaps();
-      case 173967376:  // historicalTimeSeriesMaster
-        return getHistoricalTimeSeriesMaster();
-      case 195157501:  // configSource
-        return getConfigSource();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 813766974:  // fieldAdjustmentMaps
-        setFieldAdjustmentMaps((Collection<HistoricalTimeSeriesFieldAdjustmentMap>) newValue);
-        return;
-      case 173967376:  // historicalTimeSeriesMaster
-        setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
-        return;
-      case 195157501:  // configSource
-        setConfigSource((ConfigSource) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      FieldMappingHistoricalTimeSeriesResolverFactoryBean other = (FieldMappingHistoricalTimeSeriesResolverFactoryBean) obj;
-      return JodaBeanUtils.equal(getFieldAdjustmentMaps(), other.getFieldAdjustmentMaps()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
-          JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFieldAdjustmentMaps());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -209,6 +156,57 @@ public class FieldMappingHistoricalTimeSeriesResolverFactoryBean extends SpringF
    */
   public final Property<ConfigSource> configSource() {
     return metaBean().configSource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public FieldMappingHistoricalTimeSeriesResolverFactoryBean clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FieldMappingHistoricalTimeSeriesResolverFactoryBean other = (FieldMappingHistoricalTimeSeriesResolverFactoryBean) obj;
+      return JodaBeanUtils.equal(getFieldAdjustmentMaps(), other.getFieldAdjustmentMaps()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
+          JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFieldAdjustmentMaps());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("FieldMappingHistoricalTimeSeriesResolverFactoryBean{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("fieldAdjustmentMaps").append('=').append(JodaBeanUtils.toString(getFieldAdjustmentMaps())).append(',').append(' ');
+    buf.append("historicalTimeSeriesMaster").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesMaster())).append(',').append(' ');
+    buf.append("configSource").append('=').append(JodaBeanUtils.toString(getConfigSource())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -303,6 +301,37 @@ public class FieldMappingHistoricalTimeSeriesResolverFactoryBean extends SpringF
      */
     public final MetaProperty<ConfigSource> configSource() {
       return _configSource;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 813766974:  // fieldAdjustmentMaps
+          return ((FieldMappingHistoricalTimeSeriesResolverFactoryBean) bean).getFieldAdjustmentMaps();
+        case 173967376:  // historicalTimeSeriesMaster
+          return ((FieldMappingHistoricalTimeSeriesResolverFactoryBean) bean).getHistoricalTimeSeriesMaster();
+        case 195157501:  // configSource
+          return ((FieldMappingHistoricalTimeSeriesResolverFactoryBean) bean).getConfigSource();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 813766974:  // fieldAdjustmentMaps
+          ((FieldMappingHistoricalTimeSeriesResolverFactoryBean) bean).setFieldAdjustmentMaps((Collection<HistoricalTimeSeriesFieldAdjustmentMap>) newValue);
+          return;
+        case 173967376:  // historicalTimeSeriesMaster
+          ((FieldMappingHistoricalTimeSeriesResolverFactoryBean) bean).setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
+          return;
+        case 195157501:  // configSource
+          ((FieldMappingHistoricalTimeSeriesResolverFactoryBean) bean).setConfigSource((ConfigSource) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

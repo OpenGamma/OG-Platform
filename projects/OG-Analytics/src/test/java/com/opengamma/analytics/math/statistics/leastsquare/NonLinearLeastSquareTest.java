@@ -30,7 +30,12 @@ import com.opengamma.analytics.math.minimization.BrentMinimizer1D;
 import com.opengamma.analytics.math.minimization.ConjugateGradientVectorMinimizer;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.util.monitor.OperationTimer;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class NonLinearLeastSquareTest {
   private static final Logger s_logger = LoggerFactory.getLogger(NonLinearLeastSquareTest.class);
   private static final int HOTSPOT_WARMUP_CYCLES = 0;
@@ -69,8 +74,13 @@ public class NonLinearLeastSquareTest {
 
     @Override
     public Double evaluate(final Double x, final DoubleMatrix1D a) {
-      Validate.isTrue(a.getNumberOfElements() == 4, "four parameters");
+      Validate.isTrue(a.getNumberOfElements() == getNumberOfParameters(), "four parameters");
       return a.getEntry(0) * Math.sin(a.getEntry(1) * x + a.getEntry(2)) + a.getEntry(3);
+    }
+
+    @Override
+    public int getNumberOfParameters() {
+      return 4;
     }
   };
 
@@ -78,7 +88,7 @@ public class NonLinearLeastSquareTest {
 
     @Override
     public DoubleMatrix1D evaluate(final Double x, final DoubleMatrix1D a) {
-      Validate.isTrue(a.getNumberOfElements() == 4, "four parameters");
+      Validate.isTrue(a.getNumberOfElements() == getNumberOfParameters(), "four parameters");
       final double temp1 = Math.sin(a.getEntry(1) * x + a.getEntry(2));
       final double temp2 = Math.cos(a.getEntry(1) * x + a.getEntry(2));
       final double[] res = new double[4];
@@ -87,6 +97,11 @@ public class NonLinearLeastSquareTest {
       res[1] = x * res[2];
       res[3] = 1.0;
       return new DoubleMatrix1D(res);
+    }
+
+    @Override
+    public int getNumberOfParameters() {
+      return 4;
     }
   };
 

@@ -7,43 +7,47 @@ package com.opengamma.analytics.financial.credit;
 
 /**
  * The restructuring clause to apply in the event of a credit event deemed to be a restructuring
+ * 
+ * Reference: https://www.markit.com/news/XMLGuide.pdf, 
+ *            "XML User Guide - Markit Data",
+ *            Version 10.3.8, November 2010.
+ * 2014 ISDA definitions - see http://www2.isda.org/attachment/NjU5Nw==/ISDA%202014%20Credit%20Definitions%20FAQ%20v12_Clean.pdf
  */
 public enum RestructuringClause {
   /**
-   * Old-Restructuring
+   * Restructuring - ISDA 2014 definition (Markit notation)
    */
-  OLDRE,
+  CR14,
   /**
-   * Modified Restructuring
+   * Modified-Modified Restructuring - ISDA 2014 definition (Markit notation)
    */
-  MODRE,
+  MM14,
   /**
-   * Modified-Modified Restructuring
+   * Modified Restructuring - ISDA 2014 definition (Markit notation)
    */
-  MODMODRE,
+  MR14,
   /**
-   * No-Restructuring
+   * No-Restructuring - ISDA 2014 definition (Markit notation)
    */
-  NORE,
-
+  XR14,
   /**
-   * With Restructuring (MarkIt notation)
+   * Restructuring - ISDA 2003 definition (Markit notation)
    */
   CR,
   /**
-   * Modified-Modified Restructuring (MarkIt notation)
+   * Modified-Modified Restructuring - ISDA 2003 definition (Markit notation)
    */
   MM,
   /**
-   * Modified Restructuring (MarkIt notation)
+   * Modified Restructuring - ISDA 2003 definition (Markit notation)
    */
   MR,
   /**
-   * No-Restructuring (MarkIt notation)
+   * No-Restructuring - ISDA 2003 definition (Markit notation)
    */
   XR,
   /**
-   * 
+   * No restructuring. (Not used by Markit).
    */
-  NONE;
+  NONE
 }

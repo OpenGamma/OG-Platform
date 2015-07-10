@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -303,80 +304,6 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
     return ManageablePortfolioNode.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case 915246087:  // parentNodeId
-        return getParentNodeId();
-      case -5186429:  // portfolioId
-        return getPortfolioId();
-      case 3373707:  // name
-        return getName();
-      case 1339293429:  // childNodes
-        return getChildNodes();
-      case -137459505:  // positionIds
-        return getPositionIds();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case 915246087:  // parentNodeId
-        setParentNodeId((UniqueId) newValue);
-        return;
-      case -5186429:  // portfolioId
-        setPortfolioId((UniqueId) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case 1339293429:  // childNodes
-        setChildNodes((List<ManageablePortfolioNode>) newValue);
-        return;
-      case -137459505:  // positionIds
-        setPositionIds((List<ObjectId>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ManageablePortfolioNode other = (ManageablePortfolioNode) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getParentNodeId(), other.getParentNodeId()) &&
-          JodaBeanUtils.equal(getPortfolioId(), other.getPortfolioId()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getChildNodes(), other.getChildNodes()) &&
-          JodaBeanUtils.equal(getPositionIds(), other.getPositionIds());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getParentNodeId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getChildNodes());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionIds());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the portfolio node unique identifier.
@@ -492,7 +419,7 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
   //-----------------------------------------------------------------------
   /**
    * Gets the root node of the tree, not null.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<ManageablePortfolioNode> getChildNodes() {
     return _childNodes;
@@ -500,9 +427,10 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
 
   /**
    * Sets the root node of the tree, not null.
-   * @param childNodes  the new value of the property
+   * @param childNodes  the new value of the property, not null
    */
   public void setChildNodes(List<ManageablePortfolioNode> childNodes) {
+    JodaBeanUtils.notNull(childNodes, "childNodes");
     this._childNodes.clear();
     this._childNodes.addAll(childNodes);
   }
@@ -519,7 +447,7 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
   /**
    * Gets the object identifiers of positions attached to this node, not null.
    * The identifiers should not have versions.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<ObjectId> getPositionIds() {
     return _positionIds;
@@ -528,9 +456,10 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
   /**
    * Sets the object identifiers of positions attached to this node, not null.
    * The identifiers should not have versions.
-   * @param positionIds  the new value of the property
+   * @param positionIds  the new value of the property, not null
    */
   public void setPositionIds(List<ObjectId> positionIds) {
+    JodaBeanUtils.notNull(positionIds, "positionIds");
     this._positionIds.clear();
     this._positionIds.addAll(positionIds);
   }
@@ -542,6 +471,63 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
    */
   public final Property<List<ObjectId>> positionIds() {
     return metaBean().positionIds().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ManageablePortfolioNode clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ManageablePortfolioNode other = (ManageablePortfolioNode) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getParentNodeId(), other.getParentNodeId()) &&
+          JodaBeanUtils.equal(getPortfolioId(), other.getPortfolioId()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getChildNodes(), other.getChildNodes()) &&
+          JodaBeanUtils.equal(getPositionIds(), other.getPositionIds());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getParentNodeId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPortfolioId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getChildNodes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPositionIds());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("ManageablePortfolioNode{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("parentNodeId").append('=').append(JodaBeanUtils.toString(getParentNodeId())).append(',').append(' ');
+    buf.append("portfolioId").append('=').append(JodaBeanUtils.toString(getPortfolioId())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("childNodes").append('=').append(JodaBeanUtils.toString(getChildNodes())).append(',').append(' ');
+    buf.append("positionIds").append('=').append(JodaBeanUtils.toString(getPositionIds())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -685,6 +671,58 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
      */
     public final MetaProperty<List<ObjectId>> positionIds() {
       return _positionIds;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return ((ManageablePortfolioNode) bean).getUniqueId();
+        case 915246087:  // parentNodeId
+          return ((ManageablePortfolioNode) bean).getParentNodeId();
+        case -5186429:  // portfolioId
+          return ((ManageablePortfolioNode) bean).getPortfolioId();
+        case 3373707:  // name
+          return ((ManageablePortfolioNode) bean).getName();
+        case 1339293429:  // childNodes
+          return ((ManageablePortfolioNode) bean).getChildNodes();
+        case -137459505:  // positionIds
+          return ((ManageablePortfolioNode) bean).getPositionIds();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          ((ManageablePortfolioNode) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case 915246087:  // parentNodeId
+          ((ManageablePortfolioNode) bean).setParentNodeId((UniqueId) newValue);
+          return;
+        case -5186429:  // portfolioId
+          ((ManageablePortfolioNode) bean).setPortfolioId((UniqueId) newValue);
+          return;
+        case 3373707:  // name
+          ((ManageablePortfolioNode) bean).setName((String) newValue);
+          return;
+        case 1339293429:  // childNodes
+          ((ManageablePortfolioNode) bean).setChildNodes((List<ManageablePortfolioNode>) newValue);
+          return;
+        case -137459505:  // positionIds
+          ((ManageablePortfolioNode) bean).setPositionIds((List<ObjectId>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ManageablePortfolioNode) bean)._childNodes, "childNodes");
+      JodaBeanUtils.notNull(((ManageablePortfolioNode) bean)._positionIds, "positionIds");
     }
 
   }

@@ -5,7 +5,6 @@
  */
 package com.opengamma.integration.tool.portfolio;
 
-import com.opengamma.lambdava.functions.Function2;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
@@ -15,6 +14,7 @@ import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.SecurityGenerator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.integration.tool.IntegrationToolContext;
+import com.opengamma.util.function.BiFunction;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -26,39 +26,34 @@ public class PortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
     super.configureChain(securityGenerator);
     securityGenerator.setCurrencyCurveName("DEFAULT");
     securityGenerator.setPreferredScheme(ExternalSchemes.BLOOMBERG_TICKER);
-    securityGenerator.setSpotRateIdentifier(new Function2<Currency, Currency, ExternalId>() {
+    securityGenerator.setSpotRateIdentifier(new BiFunction<Currency, Currency, ExternalId>() {
       @Override
-      public ExternalId execute(final Currency a, final Currency b) {
+      public ExternalId apply(Currency a, Currency b) {
         return ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, a.getCode() + b.getCode() + " Curncy");
       }
     });
   }
 
   public static void main(final String[] args) { // CSIGNORE
-    (new AbstractTool<IntegrationToolContext>() {
-
+    AbstractTool<IntegrationToolContext> tool = new AbstractTool<IntegrationToolContext>() {
       private final PortfolioGeneratorTool _instance = new PortfolioGeneratorTool();
-
       @Override
       protected Options createOptions(boolean mandatoryConfigResource) {
         final Options options = super.createOptions(mandatoryConfigResource);
         _instance.createOptions(options);
         return options;
       }
-
       @Override
       protected void doRun() throws Exception {
         final CommandLine commandLine = getCommandLine();
         _instance.run(getToolContext(), commandLine);
       }
-
       @Override
       protected Class<?> getEntryPointClass() {
         return PortfolioGeneratorTool.class;
       }
-
-    }).initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    };
+    tool.invokeAndTerminate(args);
   }
 
 }

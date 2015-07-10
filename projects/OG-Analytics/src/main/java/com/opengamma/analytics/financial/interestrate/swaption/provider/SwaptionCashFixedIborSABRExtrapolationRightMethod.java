@@ -87,7 +87,7 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethod {
       final Function1D<BlackFunctionData, Double> func = blackFunction.getPriceFunction(swaption);
       pv = func.evaluate(dataBlack) * (swaption.isLong() ? 1.0 : -1.0);
     } else { // With extrapolation
-      final DoublesPair expiryMaturity = new DoublesPair(swaption.getTimeToExpiry(), maturity);
+      final DoublesPair expiryMaturity = DoublesPair.of(swaption.getTimeToExpiry(), maturity);
       final double alpha = sabrData.getSABRParameter().getAlpha(expiryMaturity);
       final double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
       final double rho = sabrData.getSABRParameter().getRho(expiryMaturity);
@@ -122,11 +122,11 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethod {
     // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
     final double dfDr = -swaption.getSettlementTime() * discountFactorSettle;
     final List<DoublesPair> list = new ArrayList<>();
-    list.add(new DoublesPair(swaption.getSettlementTime(), dfDr));
+    list.add(DoublesPair.of(swaption.getSettlementTime(), dfDr));
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     resultMap.put(multicurves.getName(ccy), list);
     MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMap);
-    final DoublesPair expiryMaturity = new DoublesPair(swaption.getTimeToExpiry(), maturity);
+    final DoublesPair expiryMaturity = DoublesPair.of(swaption.getTimeToExpiry(), maturity);
     final double alpha = sabrData.getSABRParameter().getAlpha(expiryMaturity);
     final double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
     final double rho = sabrData.getSABRParameter().getRho(expiryMaturity);
@@ -159,7 +159,7 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethod {
     final double pvbp = METHOD_SWAP.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
     final double maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - swaption.getSettlementTime();
     final double discountFactorSettle = multicurves.getDiscountFactor(ccy, swaption.getSettlementTime());
-    final DoublesPair expiryMaturity = new DoublesPair(swaption.getTimeToExpiry(), maturity);
+    final DoublesPair expiryMaturity = DoublesPair.of(swaption.getTimeToExpiry(), maturity);
     final double alpha = sabrData.getSABRParameter().getAlpha(expiryMaturity);
     final double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
     final double rho = sabrData.getSABRParameter().getRho(expiryMaturity);

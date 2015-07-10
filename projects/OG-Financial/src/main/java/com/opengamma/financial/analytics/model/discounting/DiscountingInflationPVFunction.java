@@ -9,6 +9,7 @@ import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import org.threeten.bp.Instant;
@@ -19,6 +20,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -39,7 +41,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  */
 public class DiscountingInflationPVFunction extends DiscountingInflationFunction {
   /** The present value calculator */
-  private static final InstrumentDerivativeVisitor<InflationProviderInterface, MultipleCurrencyAmount> CALCULATOR =
+  private static final InstrumentDerivativeVisitor<ParameterInflationProviderInterface, MultipleCurrencyAmount> CALCULATOR =
       PresentValueDiscountingInflationCalculator.getInstance();
 
   /**
@@ -63,6 +65,11 @@ public class DiscountingInflationPVFunction extends DiscountingInflationFunction
         final MultipleCurrencyAmount mca = derivative.accept(CALCULATOR, data);
         final ValueSpecification spec = new ValueSpecification(PRESENT_VALUE, target.toSpecification(), properties);
         return Collections.singleton(new ComputedValue(spec, mca.getAmount(currency)));
+      }
+
+      @Override
+      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
+        return getResults(context, target);
       }
     };
   }

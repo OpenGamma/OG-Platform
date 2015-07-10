@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -63,24 +64,40 @@ public class ConfigMetaDataResult extends AbstractMetaDataResult {
     return ConfigMetaDataResult.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 7511639:  // configTypes
-        return getConfigTypes();
-    }
-    return super.propertyGet(propertyName, quiet);
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the list if valid configuration types.
+   * This is only populated if requested.
+   * @return the value of the property, not null
+   */
+  public List<Class<?>> getConfigTypes() {
+    return _configTypes;
   }
 
-  @SuppressWarnings("unchecked")
+  /**
+   * Sets the list if valid configuration types.
+   * This is only populated if requested.
+   * @param configTypes  the new value of the property, not null
+   */
+  public void setConfigTypes(List<Class<?>> configTypes) {
+    JodaBeanUtils.notNull(configTypes, "configTypes");
+    this._configTypes.clear();
+    this._configTypes.addAll(configTypes);
+  }
+
+  /**
+   * Gets the the {@code configTypes} property.
+   * This is only populated if requested.
+   * @return the property, not null
+   */
+  public final Property<List<Class<?>>> configTypes() {
+    return metaBean().configTypes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 7511639:  // configTypes
-        setConfigTypes((List<Class<?>>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
+  public ConfigMetaDataResult clone() {
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override
@@ -99,37 +116,27 @@ public class ConfigMetaDataResult extends AbstractMetaDataResult {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigTypes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConfigTypes());
     return hash ^ super.hashCode();
   }
 
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the list if valid configuration types.
-   * This is only populated if requested.
-   * @return the value of the property
-   */
-  public List<Class<?>> getConfigTypes() {
-    return _configTypes;
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("ConfigMetaDataResult{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
   }
 
-  /**
-   * Sets the list if valid configuration types.
-   * This is only populated if requested.
-   * @param configTypes  the new value of the property
-   */
-  public void setConfigTypes(List<Class<?>> configTypes) {
-    this._configTypes.clear();
-    this._configTypes.addAll(configTypes);
-  }
-
-  /**
-   * Gets the the {@code configTypes} property.
-   * This is only populated if requested.
-   * @return the property, not null
-   */
-  public final Property<List<Class<?>>> configTypes() {
-    return metaBean().configTypes().createProperty(this);
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("configTypes").append('=').append(JodaBeanUtils.toString(getConfigTypes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -192,6 +199,33 @@ public class ConfigMetaDataResult extends AbstractMetaDataResult {
      */
     public final MetaProperty<List<Class<?>>> configTypes() {
       return _configTypes;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 7511639:  // configTypes
+          return ((ConfigMetaDataResult) bean).getConfigTypes();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 7511639:  // configTypes
+          ((ConfigMetaDataResult) bean).setConfigTypes((List<Class<?>>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ConfigMetaDataResult) bean)._configTypes, "configTypes");
+      super.validate(bean);
     }
 
   }

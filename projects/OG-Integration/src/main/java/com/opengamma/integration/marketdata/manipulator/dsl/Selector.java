@@ -14,40 +14,32 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.SelectorResolver;
-import com.opengamma.engine.marketdata.manipulator.StructureIdentifier;
-import com.opengamma.engine.marketdata.manipulator.StructureType;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.RegexUtils;
 import com.opengamma.util.money.Currency;
 
 /**
  * Selector base class for data structures that will be selected by name and currency.
- * @param <T> The type of data structure handled by this selector
  */
-/* package */ abstract class Selector<T> implements DistinctMarketDataSelector {
+/* package */ abstract class Selector implements DistinctMarketDataSelector {
 
   private final Set<String> _names;
   private final Set<Currency> _currencies;
   private final PatternWrapper _nameMatchPattern;
   private final PatternWrapper _nameLikePattern;
   private final Set<String> _calcConfigNames;
-  private final Class<T> _type;
-  private final Set<StructureType> _structureTypes;
 
   /* package */ Selector(Set<String> calcConfigNames,
                          Set<String> names,
                          Set<Currency> currencies,
                          Pattern nameMatchPattern,
-                         Pattern nameLikePattern, Class<T> type,
-                         StructureType structureType) {
-    ArgumentChecker.notNull(type, "type");
-    ArgumentChecker.notNull(structureType, "structureType");
+                         Pattern nameLikePattern) {
     _calcConfigNames = calcConfigNames;
     _names = names;
     _currencies = currencies;
     _nameMatchPattern = PatternWrapper.wrap(nameMatchPattern);
     _nameLikePattern = PatternWrapper.wrap(nameLikePattern);
-    _type = type;
-    _structureTypes = ImmutableSet.of(structureType);
   }
 
   /* package */ Set<String> getNames() {
@@ -95,30 +87,21 @@ import com.opengamma.util.money.Currency;
   }
 
   @Override
-  public DistinctMarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId,
+  public DistinctMarketDataSelector findMatchingSelector(ValueSpecification valueSpecification,
                                                          String calcConfigName,
                                                          SelectorResolver resolver) {
+    ArgumentChecker.notNull(valueSpecification, "valueSpecification");
     if (_calcConfigNames != null && !_calcConfigNames.contains(calcConfigName)) {
       return null;
     }
-    Object value = structureId.getValue();
-    if (!_type.isInstance(value)) {
-      return null;
-    }
-    T input = _type.cast(value);
-    if (matches(input)) {
+    if (matches(valueSpecification)) {
       return this;
     } else {
       return null;
     }
   }
 
-  /* package */ abstract boolean matches(T key);
-
-  @Override
-  public Set<StructureType> getApplicableStructureTypes() {
-    return _structureTypes;
-  }
+  /* package */ abstract boolean matches(ValueSpecification valueSpecification);
 
   @Override
   public int hashCode() {
@@ -126,9 +109,7 @@ import com.opengamma.util.money.Currency;
                         _currencies,
                         _nameMatchPattern,
                         _nameLikePattern,
-                        _calcConfigNames,
-                        _type,
-                        _structureTypes);
+                        _calcConfigNames);
   }
 
   @Override
@@ -144,9 +125,7 @@ import com.opengamma.util.money.Currency;
         Objects.equals(this._currencies, other._currencies) &&
         Objects.equals(this._nameMatchPattern, other._nameMatchPattern) &&
         Objects.equals(this._nameLikePattern, other._nameLikePattern) &&
-        Objects.equals(this._calcConfigNames, other._calcConfigNames) &&
-        Objects.equals(this._type, other._type) &&
-        Objects.equals(this._structureTypes, other._structureTypes);
+        Objects.equals(this._calcConfigNames, other._calcConfigNames);
   }
 
   @Override
@@ -157,8 +136,6 @@ import com.opengamma.util.money.Currency;
         ", _nameMatchPattern=" + _nameMatchPattern +
         ", _nameLikePattern=" + _nameLikePattern +
         ", _calcConfigNames=" + _calcConfigNames +
-        ", _type=" + _type +
-        ", _structureTypes=" + _structureTypes +
         "]";
   }
 
@@ -228,7 +205,7 @@ import com.opengamma.util.money.Currency;
       if (_nameMatchPattern != null) {
         throw new IllegalStateException("Only one of named() and nameMatches() and nameLike() can be used");
       }
-      _nameLikePattern = SimulationUtils.patternForGlob(glob);
+      _nameLikePattern = RegexUtils.globToPattern(glob);
       return this;
     }
 

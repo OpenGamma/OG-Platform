@@ -12,10 +12,12 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class BlackImpliedVolatilityWithGreeksTest {
 
   private static final double EPS = 1.e-8;

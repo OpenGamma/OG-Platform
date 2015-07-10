@@ -28,6 +28,7 @@ import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.async.AsynchronousOperation;
 import com.opengamma.util.async.ResultCallback;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * A {@link ViewComputationCache} that supports an asynchronous write behind update of the underlying cache.
@@ -391,13 +392,13 @@ public class WriteBehindViewComputationCache implements DeferredViewComputationC
         int size = specifications.size();
         final List<ValueSpecification> cacheMisses = new ArrayList<ValueSpecification>(size - 1);
         result = new ArrayList<Pair<ValueSpecification, Object>>(size);
-        result.add(Pair.of(specification, object));
+        result.add(Pairs.of(specification, object));
         for (final ValueSpecification specification2 : specifications) {
           // Note the check below; if the write has since completed, the specification we originally hit may now be a miss
           if (specification != specification2) {
             final Object object2 = getBuffered(specification2);
             if (object2 != null) {
-              result.add(Pair.of(specification2, object2));
+              result.add(Pairs.of(specification2, object2));
             } else {
               cacheMisses.add(specification2);
             }
@@ -408,7 +409,7 @@ public class WriteBehindViewComputationCache implements DeferredViewComputationC
         if (size == 1) {
           final ValueSpecification specification2 = cacheMisses.get(0);
           final Object value = getUnderlying().getValue(specification2);
-          result.add(Pair.of(specification2, value));
+          result.add(Pairs.of(specification2, value));
           if (value != null) {
             putBuffered(specification2, value);
           }
@@ -438,13 +439,13 @@ public class WriteBehindViewComputationCache implements DeferredViewComputationC
         int size = specifications.size();
         final List<ValueSpecification> cacheMisses = new ArrayList<ValueSpecification>(size - 1);
         result = new ArrayList<Pair<ValueSpecification, Object>>(size);
-        result.add(Pair.of(specification, object));
+        result.add(Pairs.of(specification, object));
         for (final ValueSpecification specification2 : specifications) {
           // Note the check below; if the write has since completed, the specification we originally hit may now be a miss
           if (specification != specification2) {
             final Object object2 = getBuffered(specification2);
             if (object2 != null) {
-              result.add(Pair.of(specification2, object2));
+              result.add(Pairs.of(specification2, object2));
             } else {
               cacheMisses.add(specification2);
             }
@@ -455,7 +456,7 @@ public class WriteBehindViewComputationCache implements DeferredViewComputationC
         if (size == 1) {
           final ValueSpecification specification2 = cacheMisses.get(0);
           final Object value = getUnderlying().getValue(specification2, filter);
-          result.add(Pair.of(specification2, value));
+          result.add(Pairs.of(specification2, value));
           if (value != null) {
             putBuffered(specification2, value);
           }

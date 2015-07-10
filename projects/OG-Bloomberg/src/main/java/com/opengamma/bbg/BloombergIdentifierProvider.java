@@ -45,6 +45,7 @@ import com.opengamma.id.ExternalIdWithDates;
 import com.opengamma.master.historicaltimeseries.ExternalIdResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Loads identifier bundle with dates for a given identifier.
@@ -314,7 +315,7 @@ public class BloombergIdentifierProvider implements ExternalIdResolver {
     if (validFrom != null && validTo != null && validFrom.isAfter(validTo)) {
       validFrom = null;
     }
-    return Pair.of(validFrom, validTo);
+    return Pairs.of(validFrom, validTo);
   }
 
 }

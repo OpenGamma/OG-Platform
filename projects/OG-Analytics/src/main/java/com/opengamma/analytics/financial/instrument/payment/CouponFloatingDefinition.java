@@ -17,7 +17,8 @@ import com.opengamma.util.money.Currency;
 /**
  * Class describing a generic floating payment coupon with a unique fixing date.
  */
-public abstract class CouponFloatingDefinition extends CouponDefinition implements InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
+public abstract class CouponFloatingDefinition extends CouponDefinition 
+    implements InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
    * The coupon fixing date.
@@ -38,7 +39,7 @@ public abstract class CouponFloatingDefinition extends CouponDefinition implemen
       final double accrualFactor, final double notional, final ZonedDateTime fixingDate) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional);
     ArgumentChecker.notNull(fixingDate, "fixing date");
-    ArgumentChecker.isTrue(!fixingDate.isAfter(paymentDate), "payment date strictly before fixing");
+    ArgumentChecker.isTrue(!fixingDate.isAfter(paymentDate), "fixing date {} must be before or same as payment date {}", fixingDate, paymentDate);
     _fixingDate = fixingDate;
   }
 

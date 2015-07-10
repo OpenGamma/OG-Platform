@@ -5,20 +5,22 @@
  */
 package com.opengamma.engine.function.config;
 
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
-
-import com.opengamma.util.ArgumentChecker;
 import java.util.Map;
+
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Static function configuration representation
@@ -78,50 +80,6 @@ public class StaticFunctionConfiguration extends DirectBean implements FunctionC
     return StaticFunctionConfiguration.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 95245328:  // definitionClassName
-        return getDefinitionClassName();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 95245328:  // definitionClassName
-        setDefinitionClassName((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_definitionClassName, "definitionClassName");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      StaticFunctionConfiguration other = (StaticFunctionConfiguration) obj;
-      return JodaBeanUtils.equal(getDefinitionClassName(), other.getDefinitionClassName());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDefinitionClassName());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the definitionClassName.
@@ -146,6 +104,48 @@ public class StaticFunctionConfiguration extends DirectBean implements FunctionC
    */
   public final Property<String> definitionClassName() {
     return metaBean().definitionClassName().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public StaticFunctionConfiguration clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      StaticFunctionConfiguration other = (StaticFunctionConfiguration) obj;
+      return JodaBeanUtils.equal(getDefinitionClassName(), other.getDefinitionClassName());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDefinitionClassName());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("StaticFunctionConfiguration{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("definitionClassName").append('=').append(JodaBeanUtils.toString(getDefinitionClassName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -207,6 +207,31 @@ public class StaticFunctionConfiguration extends DirectBean implements FunctionC
      */
     public final MetaProperty<String> definitionClassName() {
       return _definitionClassName;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 95245328:  // definitionClassName
+          return ((StaticFunctionConfiguration) bean).getDefinitionClassName();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 95245328:  // definitionClassName
+          ((StaticFunctionConfiguration) bean).setDefinitionClassName((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((StaticFunctionConfiguration) bean)._definitionClassName, "definitionClassName");
     }
 
   }

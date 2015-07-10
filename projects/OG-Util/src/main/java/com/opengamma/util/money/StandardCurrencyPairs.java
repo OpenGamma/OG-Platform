@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import au.com.bytecode.opencsv.CSVReader;
 
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Look up whether you a pair of currencies is in the standard order
@@ -42,7 +43,7 @@ public class StandardCurrencyPairs {
         String numerator = row[0].trim();
         String denominator = row[1].trim();
         try {
-          s_currencyPairs.add(Pair.of(Currency.of(numerator), Currency.of(denominator)));
+          s_currencyPairs.add(Pairs.of(Currency.of(numerator), Currency.of(denominator)));
         } catch (IllegalArgumentException iae) {
           s_logger.warn("Couldn't create currency from " + filename + ":" + line);
         }
@@ -54,11 +55,11 @@ public class StandardCurrencyPairs {
   }
 
   public static boolean isStandardPair(Currency numerator, Currency denominator) {
-    return s_currencyPairs.contains(Pair.of(numerator, denominator));
+    return s_currencyPairs.contains(Pairs.of(numerator, denominator));
   }
 
   public static boolean isSingleCurrencyNumerator(Currency ccy) {
-    return s_currencyPairs.contains(Pair.of(ccy, Currency.USD));
+    return s_currencyPairs.contains(Pairs.of(ccy, Currency.USD));
   }
 
 }

@@ -68,7 +68,10 @@ public class ComputedValueFudgeBuilder implements FudgeBuilder<ComputedValue> {
   /*package*/static Object getValueObject(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     FudgeField fudgeField;
     fudgeField = msg.getByName(VALUE_KEY);
-    Validate.notNull(fudgeField, "Fudge message is not a ComputedValue - field 'value' is not present");
+    if (fudgeField == null) {
+      return null;
+    }
+    //Validate.notNull(fudgeField, "Fudge message is not a ComputedValue - field 'value' is not present");
     final Object valueObject = deserializer.fieldValueToObject(fudgeField);
     return valueObject;
   }

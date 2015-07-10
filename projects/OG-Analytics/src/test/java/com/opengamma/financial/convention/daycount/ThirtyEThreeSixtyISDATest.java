@@ -13,11 +13,13 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Test ThirtyEThreeSixtyISDA.
  */
+@Test(groups = TestGroup.UNIT)
 public class ThirtyEThreeSixtyISDATest {
   private static final ThirtyEThreeSixtyISDA DC = new ThirtyEThreeSixtyISDA();
   protected static final ZonedDateTime D1 = DateUtils.getUTCDate(2010, 1, 1);
@@ -57,7 +59,7 @@ public class ThirtyEThreeSixtyISDATest {
   @Test
   public void testNoAccruedInterest1() {
     assertEquals(DC.getAccruedInterest(D1, D1, COUPON, true), 0, 0);
-    assertEquals(DC.getConventionName(), "30E/360 ISDA");
+    assertEquals(DC.getName(), "30E/360 ISDA");
   }
 
   @Test(expectedExceptions = NotImplementedException.class)
@@ -88,6 +90,6 @@ public class ThirtyEThreeSixtyISDATest {
   @Test
   public void testNoAccruedInterest2() {
     assertEquals(DC.getAccruedInterest(D4, D4, COUPON, true), 0, 0);
-    assertEquals(DC.getConventionName(), "30E/360 ISDA");
+    assertEquals(DC.getName(), "30E/360 ISDA");
   }
 }

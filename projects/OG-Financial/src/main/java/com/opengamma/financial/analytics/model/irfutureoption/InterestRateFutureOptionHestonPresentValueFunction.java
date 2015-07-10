@@ -32,7 +32,6 @@ import com.opengamma.analytics.financial.model.option.pricing.fourier.FourierPri
 import com.opengamma.analytics.financial.model.option.pricing.fourier.HestonCharacteristicExponent;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
@@ -72,20 +71,34 @@ import com.opengamma.util.money.Currency;
  */
 public class InterestRateFutureOptionHestonPresentValueFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionHestonPresentValueFunction.class);
-  private InterestRateFutureOptionTradeConverterDeprecated _converter;
   private FixedIncomeConverterDataProvider _dataConverter;
+  private ConfigDBCurveCalculationConfigSource _curveCalculationConfigSource;
 
-  @Override
-  public void init(final FunctionCompilationContext context) {
+  private InterestRateFutureOptionTradeConverterDeprecated getConverter(final FunctionCompilationContext context) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    return new InterestRateFutureOptionTradeConverterDeprecated(new InterestRateFutureOptionSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, securitySource,
+        context.getComputationTargetResolver().getVersionCorrection()));
+  }
+
+  private InterestRateFutureOptionTradeConverterDeprecated getConverter(final FunctionExecutionContext context) {
+    final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(context);
+    final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(context);
+    final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(context);
+    final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
+    return new InterestRateFutureOptionTradeConverterDeprecated(new InterestRateFutureOptionSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, securitySource,
+        context.getComputationTargetResolver().getVersionCorrection()));
+  }
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context); // TODO [PLAT-5966] Remove
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
-    _converter = new InterestRateFutureOptionTradeConverterDeprecated(
-        new InterestRateFutureOptionSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, securitySource));
-    _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
-    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+    _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, securitySource, timeSeriesResolver);
+    _curveCalculationConfigSource = ConfigDBCurveCalculationConfigSource.init(context, this);
   }
 
   @Override
@@ -94,12 +107,10 @@ public class InterestRateFutureOptionHestonPresentValueFunction extends Abstract
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
-    final InstrumentDefinition<InstrumentDerivative> irFutureOptionDefinition = (InstrumentDefinition<InstrumentDerivative>) _converter.convert(target.getTrade());
+    final InstrumentDefinition<InstrumentDerivative> irFutureOptionDefinition = (InstrumentDefinition<InstrumentDerivative>) getConverter(executionContext).convert(target.getTrade());
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
-    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
-    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
+    final MultiCurveCalculationConfig curveCalculationConfig = _curveCalculationConfigSource.getConfig(curveCalculationConfigName);
     if (curveCalculationConfig == null) {
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
@@ -109,9 +120,7 @@ public class InterestRateFutureOptionHestonPresentValueFunction extends Abstract
     final double price = irFutureOption.accept(new MyDerivativeVisitor(target, inputs, curves));
     final ValueSpecification valueSpecification = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), createValueProperties()
         .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
-        .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(ValuePropertyNames.SMILE_FITTING_METHOD, "Heston")
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName).with(ValuePropertyNames.SURFACE, surfaceName).with(ValuePropertyNames.SMILE_FITTING_METHOD, "Heston")
         .with(ValuePropertyNames.CALCULATION_METHOD, "Fourier").get());
     return Sets.newHashSet(new ComputedValue(valueSpecification, price));
   }
@@ -142,9 +151,7 @@ public class InterestRateFutureOptionHestonPresentValueFunction extends Abstract
       return null;
     }
     final String curveCalculationConfigName = curveCalculationConfigNames.iterator().next();
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
-    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
+    final MultiCurveCalculationConfig curveCalculationConfig = _curveCalculationConfigSource.getConfig(curveCalculationConfigName);
     if (curveCalculationConfig == null) {
       s_logger.error("Could not find curve calculation configuration named " + curveCalculationConfigName);
       return null;
@@ -153,9 +160,9 @@ public class InterestRateFutureOptionHestonPresentValueFunction extends Abstract
     if (!ComputationTargetSpecification.of(currency).equals(curveCalculationTarget)) {
       return null;
     }
-    requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
+    requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, _curveCalculationConfigSource));
     requirements.add(getSurfaceRequirement(target, surfaceName));
-    final Set<ValueRequirement> timeSeriesRequirements = _dataConverter.getConversionTimeSeriesRequirements(trade.getSecurity(), _converter.convert(trade));
+    final Set<ValueRequirement> timeSeriesRequirements = _dataConverter.getConversionTimeSeriesRequirements(trade.getSecurity(), getConverter(context).convert(trade));
     if (timeSeriesRequirements == null) {
       return null;
     }
@@ -165,11 +172,8 @@ public class InterestRateFutureOptionHestonPresentValueFunction extends Abstract
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties resultProperties = createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
-        .withAny(ValuePropertyNames.SURFACE)
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
-        .with(ValuePropertyNames.SMILE_FITTING_METHOD, "Heston")
+    final ValueProperties resultProperties = createValueProperties().with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
+        .withAny(ValuePropertyNames.SURFACE).withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG).with(ValuePropertyNames.SMILE_FITTING_METHOD, "Heston")
         .with(ValuePropertyNames.CALCULATION_METHOD, "Fourier").get();
     final ValueSpecification resultSpecification = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), resultProperties);
     return Sets.newHashSet(resultSpecification);
@@ -177,9 +181,7 @@ public class InterestRateFutureOptionHestonPresentValueFunction extends Abstract
 
   private ValueRequirement getSurfaceRequirement(final ComputationTarget target, final String surfaceName) {
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
-    final ValueProperties properties = ValueProperties
-        .with(ValuePropertyNames.CURRENCY, currency.getCode())
-        .with(ValuePropertyNames.SURFACE, surfaceName)
+    final ValueProperties properties = ValueProperties.with(ValuePropertyNames.CURRENCY, currency.getCode()).with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION).get();
     return new ValueRequirement(ValueRequirementNames.HESTON_SURFACES, ComputationTargetSpecification.of(currency), properties);
   }
@@ -214,7 +216,7 @@ public class InterestRateFutureOptionHestonPresentValueFunction extends Abstract
 
     @Override
     public Double visitInterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumTransaction option) {
-      return visitInterestRateFutureOptionPremiumSecurity(option.getUnderlyingOption());
+      return visitInterestRateFutureOptionPremiumSecurity(option.getUnderlyingSecurity());
     }
 
     @Override
@@ -232,7 +234,7 @@ public class InterestRateFutureOptionHestonPresentValueFunction extends Abstract
 
     @Override
     public Double visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction option) {
-      return visitInterestRateFutureOptionMarginSecurity(option.getUnderlyingOption());
+      return visitInterestRateFutureOptionMarginSecurity(option.getUnderlyingSecurity());
     }
 
     private HestonCharacteristicExponent getModelParameters(final ComputationTarget target, final FunctionInputs inputs, final double t, final double k) {
@@ -251,7 +253,8 @@ public class InterestRateFutureOptionHestonPresentValueFunction extends Abstract
       final InterpolatedDoublesSurface vol0Surface = surfaces.getVol0Surface();
       final InterpolatedDoublesSurface omegaSurface = surfaces.getOmegaSurface();
       final InterpolatedDoublesSurface rhoSurface = surfaces.getRhoSurface();
-      return new HestonCharacteristicExponent(kappaSurface.getZValue(t, k), thetaSurface.getZValue(t, k), vol0Surface.getZValue(t, k), omegaSurface.getZValue(t, k), rhoSurface.getZValue(t, k));
+      return new HestonCharacteristicExponent(kappaSurface.getZValue(t, k), thetaSurface.getZValue(t, k), vol0Surface.getZValue(t, k), omegaSurface.getZValue(t, k), rhoSurface.getZValue(t,
+          k));
     }
   }
 }

@@ -40,6 +40,11 @@ public class IborIndex extends IndexDeposit {
   private final Period _tenor;
 
   /**
+   * {@link IborIndex} is used as a key within the curve system, thus {@link #hashCode()} needs to be fast.
+   */
+  private final int _hashCode;
+
+  /**
    * Constructor from the index details. The name is set to "Ibor".
    * @param currency The index currency.
    * @param tenor The index tenor.
@@ -75,6 +80,7 @@ public class IborIndex extends IndexDeposit {
     _dayCount = dayCount;
     _businessDayConvention = businessDayConvention;
     _endOfMonth = endOfMonth;
+    _hashCode = generateHashCode();
   }
 
   /**
@@ -124,6 +130,10 @@ public class IborIndex extends IndexDeposit {
 
   @Override
   public int hashCode() {
+    return _hashCode;
+  }
+
+  private int generateHashCode() {
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + _businessDayConvention.hashCode();
@@ -140,9 +150,6 @@ public class IborIndex extends IndexDeposit {
       return true;
     }
     if (!super.equals(obj)) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
       return false;
     }
     final IborIndex other = (IborIndex) obj;

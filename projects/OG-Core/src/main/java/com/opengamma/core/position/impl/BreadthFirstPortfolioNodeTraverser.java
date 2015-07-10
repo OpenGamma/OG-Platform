@@ -29,6 +29,7 @@ public class BreadthFirstPortfolioNodeTraverser extends PortfolioNodeTraverser {
    * 
    * @param portfolioNode the node to start from, null does nothing
    */
+  @Override
   public void traverse(final PortfolioNode portfolioNode) {
     if (portfolioNode == null) {
       return;

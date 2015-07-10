@@ -9,9 +9,9 @@ import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.id.ExternalId;
@@ -30,10 +30,10 @@ public class SwapSecurityFudgeBuilderTest extends AbstractFudgeBuilderTestCase {
   private static final ZonedDateTime EFFECTIVE_DATE = DateUtils.getUTCDate(2013, 7, 1);
   private static final ZonedDateTime MATURITY = DateUtils.getUTCDate(2023, 7, 1);
   private static final String COUNTERPARTY = "OG";
-  private static final DayCount DC = DayCountFactory.INSTANCE.getDayCount("Act/360");
+  private static final DayCount DC = DayCounts.ACT_360;
   private static final Frequency FREQUENCY = SimpleFrequency.SEMI_ANNUAL;
   private static final ExternalId REGION_ID = ExternalId.of("Test", "US");
-  private static final BusinessDayConvention BDC = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention BDC = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final Notional NOTIONAL = new InterestRateNotional(Currency.USD, 10000);
   private static final boolean EOM = true;
 

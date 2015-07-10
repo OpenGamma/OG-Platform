@@ -8,6 +8,7 @@ package com.opengamma.analytics.math.interpolation;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -17,13 +18,12 @@ public class LinearExtrapolator1D extends Interpolator1D {
   private final Interpolator1D _interpolator;
   private final double _eps;
 
-  public LinearExtrapolator1D(final Interpolator1D interpolator) {
+  public LinearExtrapolator1D(final Interpolator1D interpolator) { 
     this(interpolator, 1e-8);
   }
 
-  public LinearExtrapolator1D(final Interpolator1D interpolator, double eps) {
-    Validate.notNull(interpolator, "interpolator");
-    _interpolator = interpolator;
+  public LinearExtrapolator1D(final Interpolator1D interpolator, final double eps) {
+    _interpolator = ArgumentChecker.notNull(interpolator, "interpolator");
     _eps = eps;
   }
 
@@ -75,6 +75,7 @@ public class LinearExtrapolator1D extends Interpolator1D {
   private Double leftExtrapolate(final Interpolator1DDataBundle data, final Double value) {
     Validate.notNull(data, "data");
     Validate.notNull(value, "value");
+
     final double x = data.firstKey();
     final double y = data.firstValue();
     final double eps = _eps * (data.lastKey() - x);

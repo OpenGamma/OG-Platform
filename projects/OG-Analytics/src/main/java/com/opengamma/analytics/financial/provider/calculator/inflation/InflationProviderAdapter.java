@@ -8,17 +8,19 @@ package com.opengamma.analytics.financial.provider.calculator.inflation;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 
 /**
  * 
  * @param <RESULT_TYPE> The result-type for the provider.
  */
-public class InflationProviderAdapter<RESULT_TYPE> extends InstrumentDerivativeVisitorSameMethodAdapter<InflationProviderInterface, RESULT_TYPE> {
-  private final InstrumentDerivativeVisitor<MulticurveProviderInterface, RESULT_TYPE> _visitor;
+public class InflationProviderAdapter<RESULT_TYPE> 
+  extends InstrumentDerivativeVisitorSameMethodAdapter<ParameterInflationProviderInterface, RESULT_TYPE> {
+  
+  private final InstrumentDerivativeVisitor<ParameterProviderInterface, RESULT_TYPE> _visitor;
 
-  public InflationProviderAdapter(final InstrumentDerivativeVisitor<MulticurveProviderInterface, RESULT_TYPE> visitor) {
+  public InflationProviderAdapter(final InstrumentDerivativeVisitor<ParameterProviderInterface, RESULT_TYPE> visitor) {
     _visitor = visitor;
   }
 
@@ -28,7 +30,7 @@ public class InflationProviderAdapter<RESULT_TYPE> extends InstrumentDerivativeV
   }
 
   @Override
-  public RESULT_TYPE visit(final InstrumentDerivative derivative, final InflationProviderInterface data) {
+  public RESULT_TYPE visit(final InstrumentDerivative derivative, final ParameterInflationProviderInterface data) {
     return derivative.accept(_visitor, data.getMulticurveProvider());
   }
 

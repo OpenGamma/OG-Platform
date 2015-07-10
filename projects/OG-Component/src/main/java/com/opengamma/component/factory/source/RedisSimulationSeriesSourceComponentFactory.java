@@ -8,6 +8,7 @@ package com.opengamma.component.factory.source;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -119,86 +120,6 @@ public class RedisSimulationSeriesSourceComponentFactory extends AbstractCompone
   @Override
   public RedisSimulationSeriesSourceComponentFactory.Meta metaBean() {
     return RedisSimulationSeriesSourceComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -745461486:  // redisConnector
-        return getRedisConnector();
-      case -2024915987:  // redisPrefix
-        return getRedisPrefix();
-      case 1789464955:  // database
-        return getDatabase();
-      case 1652633173:  // simulationDate
-        return getSimulationDate();
-      case -614707837:  // publishRest
-        return isPublishRest();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -745461486:  // redisConnector
-        setRedisConnector((RedisConnector) newValue);
-        return;
-      case -2024915987:  // redisPrefix
-        setRedisPrefix((String) newValue);
-        return;
-      case 1789464955:  // database
-        setDatabase((Integer) newValue);
-        return;
-      case 1652633173:  // simulationDate
-        setSimulationDate((LocalDate) newValue);
-        return;
-      case -614707837:  // publishRest
-        setPublishRest((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      RedisSimulationSeriesSourceComponentFactory other = (RedisSimulationSeriesSourceComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getRedisConnector(), other.getRedisConnector()) &&
-          JodaBeanUtils.equal(getRedisPrefix(), other.getRedisPrefix()) &&
-          JodaBeanUtils.equal(getDatabase(), other.getDatabase()) &&
-          JodaBeanUtils.equal(getSimulationDate(), other.getSimulationDate()) &&
-          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisPrefix());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDatabase());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSimulationDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -353,6 +274,66 @@ public class RedisSimulationSeriesSourceComponentFactory extends AbstractCompone
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public RedisSimulationSeriesSourceComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      RedisSimulationSeriesSourceComponentFactory other = (RedisSimulationSeriesSourceComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          JodaBeanUtils.equal(getRedisConnector(), other.getRedisConnector()) &&
+          JodaBeanUtils.equal(getRedisPrefix(), other.getRedisPrefix()) &&
+          JodaBeanUtils.equal(getDatabase(), other.getDatabase()) &&
+          JodaBeanUtils.equal(getSimulationDate(), other.getSimulationDate()) &&
+          (isPublishRest() == other.isPublishRest()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRedisConnector());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRedisPrefix());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDatabase());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSimulationDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("RedisSimulationSeriesSourceComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("redisConnector").append('=').append(JodaBeanUtils.toString(getRedisConnector())).append(',').append(' ');
+    buf.append("redisPrefix").append('=').append(JodaBeanUtils.toString(getRedisPrefix())).append(',').append(' ');
+    buf.append("database").append('=').append(JodaBeanUtils.toString(getDatabase())).append(',').append(' ');
+    buf.append("simulationDate").append('=').append(JodaBeanUtils.toString(getSimulationDate())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code RedisSimulationSeriesSourceComponentFactory}.
    */
@@ -491,6 +472,57 @@ public class RedisSimulationSeriesSourceComponentFactory extends AbstractCompone
      */
     public final MetaProperty<Boolean> publishRest() {
       return _publishRest;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((RedisSimulationSeriesSourceComponentFactory) bean).getClassifier();
+        case -745461486:  // redisConnector
+          return ((RedisSimulationSeriesSourceComponentFactory) bean).getRedisConnector();
+        case -2024915987:  // redisPrefix
+          return ((RedisSimulationSeriesSourceComponentFactory) bean).getRedisPrefix();
+        case 1789464955:  // database
+          return ((RedisSimulationSeriesSourceComponentFactory) bean).getDatabase();
+        case 1652633173:  // simulationDate
+          return ((RedisSimulationSeriesSourceComponentFactory) bean).getSimulationDate();
+        case -614707837:  // publishRest
+          return ((RedisSimulationSeriesSourceComponentFactory) bean).isPublishRest();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((RedisSimulationSeriesSourceComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -745461486:  // redisConnector
+          ((RedisSimulationSeriesSourceComponentFactory) bean).setRedisConnector((RedisConnector) newValue);
+          return;
+        case -2024915987:  // redisPrefix
+          ((RedisSimulationSeriesSourceComponentFactory) bean).setRedisPrefix((String) newValue);
+          return;
+        case 1789464955:  // database
+          ((RedisSimulationSeriesSourceComponentFactory) bean).setDatabase((Integer) newValue);
+          return;
+        case 1652633173:  // simulationDate
+          ((RedisSimulationSeriesSourceComponentFactory) bean).setSimulationDate((LocalDate) newValue);
+          return;
+        case -614707837:  // publishRest
+          ((RedisSimulationSeriesSourceComponentFactory) bean).setPublishRest((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((RedisSimulationSeriesSourceComponentFactory) bean)._classifier, "classifier");
+      super.validate(bean);
     }
 
   }

@@ -30,17 +30,27 @@ public class FunctionalSurfaceAdditiveShiftFunction implements SurfaceShiftFunct
   public FunctionalDoublesSurface evaluate(final FunctionalDoublesSurface surface, final double shift, final String newName) {
     Validate.notNull(surface, "surface");
     final Function<Double, Double> f = surface.getFunction();
-    final Function<Double, Double> shiftedFunction = new Function<Double, Double>() {
-
-      @Override
-      public Double evaluate(final Double... xy) {
-        return f.evaluate(xy) + shift;
-      }
-
-    };
+    final Function<Double, Double> shiftedFunction = new ShiftedFunction(shift, f);
     return FunctionalDoublesSurface.from(shiftedFunction, newName);
   }
 
+  private static class ShiftedFunction implements Function<Double, Double> {
+    
+    private final double _shift;
+    private final Function<Double, Double> _f;
+    
+    public ShiftedFunction(double shift, Function<Double, Double> f) {
+      this._shift = shift;
+      this._f = f;
+    }
+
+    @Override
+    public Double evaluate(final Double... xy) {
+      return _f.evaluate(xy) + _shift;
+    }
+    
+  }
+  
   /**
    * {@inheritDoc}
    * @return Not supported

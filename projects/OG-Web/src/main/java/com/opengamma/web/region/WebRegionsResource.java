@@ -124,7 +124,7 @@ public class WebRegionsResource extends AbstractWebRegionResource {
       historyRequest.setPagingRequest(PagingRequest.ONE);
       RegionHistoryResult historyResult = data().getRegionMaster().history(historyRequest);
       if (historyResult.getDocuments().size() == 0) {
-        return null;
+        throw ex;
       }
       data().setRegion(historyResult.getFirstDocument());
     }
@@ -136,6 +136,7 @@ public class WebRegionsResource extends AbstractWebRegionResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     RegionSearchRequest searchRequest = new RegionSearchRequest();

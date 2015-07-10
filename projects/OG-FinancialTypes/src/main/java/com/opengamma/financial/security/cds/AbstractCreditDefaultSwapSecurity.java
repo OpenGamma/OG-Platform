@@ -7,6 +7,7 @@ package com.opengamma.financial.security.cds;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -186,179 +187,6 @@ public abstract class AbstractCreditDefaultSwapSecurity extends FinancialSecurit
   @Override
   public AbstractCreditDefaultSwapSecurity.Meta metaBean() {
     return AbstractCreditDefaultSwapSecurity.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 97926:  // buy
-        return isBuy();
-      case 2087835226:  // protectionBuyer
-        return getProtectionBuyer();
-      case 769920952:  // protectionSeller
-        return getProtectionSeller();
-      case 480652046:  // referenceEntity
-        return getReferenceEntity();
-      case -2129778896:  // startDate
-        return getStartDate();
-      case -930389515:  // effectiveDate
-        return getEffectiveDate();
-      case -414641441:  // maturityDate
-        return getMaturityDate();
-      case 1873675528:  // stubType
-        return getStubType();
-      case 144480214:  // couponFrequency
-        return getCouponFrequency();
-      case 1905311443:  // dayCount
-        return getDayCount();
-      case -1002835891:  // businessDayConvention
-        return getBusinessDayConvention();
-      case -1168632905:  // immAdjustMaturityDate
-        return isImmAdjustMaturityDate();
-      case -490317146:  // adjustEffectiveDate
-        return isAdjustEffectiveDate();
-      case -261898226:  // adjustMaturityDate
-        return isAdjustMaturityDate();
-      case 1585636160:  // notional
-        return getNotional();
-      case 2100149628:  // includeAccruedPremium
-        return isIncludeAccruedPremium();
-      case 2103482633:  // protectionStart
-        return isProtectionStart();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 97926:  // buy
-        setBuy((Boolean) newValue);
-        return;
-      case 2087835226:  // protectionBuyer
-        setProtectionBuyer((ExternalId) newValue);
-        return;
-      case 769920952:  // protectionSeller
-        setProtectionSeller((ExternalId) newValue);
-        return;
-      case 480652046:  // referenceEntity
-        setReferenceEntity((ExternalId) newValue);
-        return;
-      case -2129778896:  // startDate
-        setStartDate((ZonedDateTime) newValue);
-        return;
-      case -930389515:  // effectiveDate
-        setEffectiveDate((ZonedDateTime) newValue);
-        return;
-      case -414641441:  // maturityDate
-        setMaturityDate((ZonedDateTime) newValue);
-        return;
-      case 1873675528:  // stubType
-        setStubType((StubType) newValue);
-        return;
-      case 144480214:  // couponFrequency
-        setCouponFrequency((Frequency) newValue);
-        return;
-      case 1905311443:  // dayCount
-        setDayCount((DayCount) newValue);
-        return;
-      case -1002835891:  // businessDayConvention
-        setBusinessDayConvention((BusinessDayConvention) newValue);
-        return;
-      case -1168632905:  // immAdjustMaturityDate
-        setImmAdjustMaturityDate((Boolean) newValue);
-        return;
-      case -490317146:  // adjustEffectiveDate
-        setAdjustEffectiveDate((Boolean) newValue);
-        return;
-      case -261898226:  // adjustMaturityDate
-        setAdjustMaturityDate((Boolean) newValue);
-        return;
-      case 1585636160:  // notional
-        setNotional((InterestRateNotional) newValue);
-        return;
-      case 2100149628:  // includeAccruedPremium
-        setIncludeAccruedPremium((Boolean) newValue);
-        return;
-      case 2103482633:  // protectionStart
-        setProtectionStart((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_buy, "buy");
-    JodaBeanUtils.notNull(_protectionBuyer, "protectionBuyer");
-    JodaBeanUtils.notNull(_protectionSeller, "protectionSeller");
-    JodaBeanUtils.notNull(_referenceEntity, "referenceEntity");
-    JodaBeanUtils.notNull(_startDate, "startDate");
-    JodaBeanUtils.notNull(_effectiveDate, "effectiveDate");
-    JodaBeanUtils.notNull(_maturityDate, "maturityDate");
-    JodaBeanUtils.notNull(_stubType, "stubType");
-    JodaBeanUtils.notNull(_couponFrequency, "couponFrequency");
-    JodaBeanUtils.notNull(_dayCount, "dayCount");
-    JodaBeanUtils.notNull(_businessDayConvention, "businessDayConvention");
-    JodaBeanUtils.notNull(_immAdjustMaturityDate, "immAdjustMaturityDate");
-    JodaBeanUtils.notNull(_adjustEffectiveDate, "adjustEffectiveDate");
-    JodaBeanUtils.notNull(_adjustMaturityDate, "adjustMaturityDate");
-    JodaBeanUtils.notNull(_notional, "notional");
-    JodaBeanUtils.notNull(_includeAccruedPremium, "includeAccruedPremium");
-    JodaBeanUtils.notNull(_protectionStart, "protectionStart");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      AbstractCreditDefaultSwapSecurity other = (AbstractCreditDefaultSwapSecurity) obj;
-      return JodaBeanUtils.equal(isBuy(), other.isBuy()) &&
-          JodaBeanUtils.equal(getProtectionBuyer(), other.getProtectionBuyer()) &&
-          JodaBeanUtils.equal(getProtectionSeller(), other.getProtectionSeller()) &&
-          JodaBeanUtils.equal(getReferenceEntity(), other.getReferenceEntity()) &&
-          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
-          JodaBeanUtils.equal(getEffectiveDate(), other.getEffectiveDate()) &&
-          JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
-          JodaBeanUtils.equal(getStubType(), other.getStubType()) &&
-          JodaBeanUtils.equal(getCouponFrequency(), other.getCouponFrequency()) &&
-          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
-          JodaBeanUtils.equal(isImmAdjustMaturityDate(), other.isImmAdjustMaturityDate()) &&
-          JodaBeanUtils.equal(isAdjustEffectiveDate(), other.isAdjustEffectiveDate()) &&
-          JodaBeanUtils.equal(isAdjustMaturityDate(), other.isAdjustMaturityDate()) &&
-          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(isIncludeAccruedPremium(), other.isIncludeAccruedPremium()) &&
-          JodaBeanUtils.equal(isProtectionStart(), other.isProtectionStart()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(isBuy());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProtectionBuyer());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProtectionSeller());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceEntity());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEffectiveDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStubType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCouponFrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isImmAdjustMaturityDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isAdjustEffectiveDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isAdjustMaturityDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIncludeAccruedPremium());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isProtectionStart());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -813,6 +641,94 @@ public abstract class AbstractCreditDefaultSwapSecurity extends FinancialSecurit
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      AbstractCreditDefaultSwapSecurity other = (AbstractCreditDefaultSwapSecurity) obj;
+      return (isBuy() == other.isBuy()) &&
+          JodaBeanUtils.equal(getProtectionBuyer(), other.getProtectionBuyer()) &&
+          JodaBeanUtils.equal(getProtectionSeller(), other.getProtectionSeller()) &&
+          JodaBeanUtils.equal(getReferenceEntity(), other.getReferenceEntity()) &&
+          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
+          JodaBeanUtils.equal(getEffectiveDate(), other.getEffectiveDate()) &&
+          JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
+          JodaBeanUtils.equal(getStubType(), other.getStubType()) &&
+          JodaBeanUtils.equal(getCouponFrequency(), other.getCouponFrequency()) &&
+          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
+          JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
+          (isImmAdjustMaturityDate() == other.isImmAdjustMaturityDate()) &&
+          (isAdjustEffectiveDate() == other.isAdjustEffectiveDate()) &&
+          (isAdjustMaturityDate() == other.isAdjustMaturityDate()) &&
+          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
+          (isIncludeAccruedPremium() == other.isIncludeAccruedPremium()) &&
+          (isProtectionStart() == other.isProtectionStart()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = hash * 31 + JodaBeanUtils.hashCode(isBuy());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProtectionBuyer());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProtectionSeller());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReferenceEntity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEffectiveDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStubType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCouponFrequency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isImmAdjustMaturityDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isAdjustEffectiveDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isAdjustMaturityDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isIncludeAccruedPremium());
+    hash = hash * 31 + JodaBeanUtils.hashCode(isProtectionStart());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(576);
+    buf.append("AbstractCreditDefaultSwapSecurity{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("buy").append('=').append(JodaBeanUtils.toString(isBuy())).append(',').append(' ');
+    buf.append("protectionBuyer").append('=').append(JodaBeanUtils.toString(getProtectionBuyer())).append(',').append(' ');
+    buf.append("protectionSeller").append('=').append(JodaBeanUtils.toString(getProtectionSeller())).append(',').append(' ');
+    buf.append("referenceEntity").append('=').append(JodaBeanUtils.toString(getReferenceEntity())).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
+    buf.append("effectiveDate").append('=').append(JodaBeanUtils.toString(getEffectiveDate())).append(',').append(' ');
+    buf.append("maturityDate").append('=').append(JodaBeanUtils.toString(getMaturityDate())).append(',').append(' ');
+    buf.append("stubType").append('=').append(JodaBeanUtils.toString(getStubType())).append(',').append(' ');
+    buf.append("couponFrequency").append('=').append(JodaBeanUtils.toString(getCouponFrequency())).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
+    buf.append("businessDayConvention").append('=').append(JodaBeanUtils.toString(getBusinessDayConvention())).append(',').append(' ');
+    buf.append("immAdjustMaturityDate").append('=').append(JodaBeanUtils.toString(isImmAdjustMaturityDate())).append(',').append(' ');
+    buf.append("adjustEffectiveDate").append('=').append(JodaBeanUtils.toString(isAdjustEffectiveDate())).append(',').append(' ');
+    buf.append("adjustMaturityDate").append('=').append(JodaBeanUtils.toString(isAdjustMaturityDate())).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
+    buf.append("includeAccruedPremium").append('=').append(JodaBeanUtils.toString(isIncludeAccruedPremium())).append(',').append(' ');
+    buf.append("protectionStart").append('=').append(JodaBeanUtils.toString(isProtectionStart())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code AbstractCreditDefaultSwapSecurity}.
    */
@@ -1127,6 +1043,128 @@ public abstract class AbstractCreditDefaultSwapSecurity extends FinancialSecurit
      */
     public final MetaProperty<Boolean> protectionStart() {
       return _protectionStart;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 97926:  // buy
+          return ((AbstractCreditDefaultSwapSecurity) bean).isBuy();
+        case 2087835226:  // protectionBuyer
+          return ((AbstractCreditDefaultSwapSecurity) bean).getProtectionBuyer();
+        case 769920952:  // protectionSeller
+          return ((AbstractCreditDefaultSwapSecurity) bean).getProtectionSeller();
+        case 480652046:  // referenceEntity
+          return ((AbstractCreditDefaultSwapSecurity) bean).getReferenceEntity();
+        case -2129778896:  // startDate
+          return ((AbstractCreditDefaultSwapSecurity) bean).getStartDate();
+        case -930389515:  // effectiveDate
+          return ((AbstractCreditDefaultSwapSecurity) bean).getEffectiveDate();
+        case -414641441:  // maturityDate
+          return ((AbstractCreditDefaultSwapSecurity) bean).getMaturityDate();
+        case 1873675528:  // stubType
+          return ((AbstractCreditDefaultSwapSecurity) bean).getStubType();
+        case 144480214:  // couponFrequency
+          return ((AbstractCreditDefaultSwapSecurity) bean).getCouponFrequency();
+        case 1905311443:  // dayCount
+          return ((AbstractCreditDefaultSwapSecurity) bean).getDayCount();
+        case -1002835891:  // businessDayConvention
+          return ((AbstractCreditDefaultSwapSecurity) bean).getBusinessDayConvention();
+        case -1168632905:  // immAdjustMaturityDate
+          return ((AbstractCreditDefaultSwapSecurity) bean).isImmAdjustMaturityDate();
+        case -490317146:  // adjustEffectiveDate
+          return ((AbstractCreditDefaultSwapSecurity) bean).isAdjustEffectiveDate();
+        case -261898226:  // adjustMaturityDate
+          return ((AbstractCreditDefaultSwapSecurity) bean).isAdjustMaturityDate();
+        case 1585636160:  // notional
+          return ((AbstractCreditDefaultSwapSecurity) bean).getNotional();
+        case 2100149628:  // includeAccruedPremium
+          return ((AbstractCreditDefaultSwapSecurity) bean).isIncludeAccruedPremium();
+        case 2103482633:  // protectionStart
+          return ((AbstractCreditDefaultSwapSecurity) bean).isProtectionStart();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 97926:  // buy
+          ((AbstractCreditDefaultSwapSecurity) bean).setBuy((Boolean) newValue);
+          return;
+        case 2087835226:  // protectionBuyer
+          ((AbstractCreditDefaultSwapSecurity) bean).setProtectionBuyer((ExternalId) newValue);
+          return;
+        case 769920952:  // protectionSeller
+          ((AbstractCreditDefaultSwapSecurity) bean).setProtectionSeller((ExternalId) newValue);
+          return;
+        case 480652046:  // referenceEntity
+          ((AbstractCreditDefaultSwapSecurity) bean).setReferenceEntity((ExternalId) newValue);
+          return;
+        case -2129778896:  // startDate
+          ((AbstractCreditDefaultSwapSecurity) bean).setStartDate((ZonedDateTime) newValue);
+          return;
+        case -930389515:  // effectiveDate
+          ((AbstractCreditDefaultSwapSecurity) bean).setEffectiveDate((ZonedDateTime) newValue);
+          return;
+        case -414641441:  // maturityDate
+          ((AbstractCreditDefaultSwapSecurity) bean).setMaturityDate((ZonedDateTime) newValue);
+          return;
+        case 1873675528:  // stubType
+          ((AbstractCreditDefaultSwapSecurity) bean).setStubType((StubType) newValue);
+          return;
+        case 144480214:  // couponFrequency
+          ((AbstractCreditDefaultSwapSecurity) bean).setCouponFrequency((Frequency) newValue);
+          return;
+        case 1905311443:  // dayCount
+          ((AbstractCreditDefaultSwapSecurity) bean).setDayCount((DayCount) newValue);
+          return;
+        case -1002835891:  // businessDayConvention
+          ((AbstractCreditDefaultSwapSecurity) bean).setBusinessDayConvention((BusinessDayConvention) newValue);
+          return;
+        case -1168632905:  // immAdjustMaturityDate
+          ((AbstractCreditDefaultSwapSecurity) bean).setImmAdjustMaturityDate((Boolean) newValue);
+          return;
+        case -490317146:  // adjustEffectiveDate
+          ((AbstractCreditDefaultSwapSecurity) bean).setAdjustEffectiveDate((Boolean) newValue);
+          return;
+        case -261898226:  // adjustMaturityDate
+          ((AbstractCreditDefaultSwapSecurity) bean).setAdjustMaturityDate((Boolean) newValue);
+          return;
+        case 1585636160:  // notional
+          ((AbstractCreditDefaultSwapSecurity) bean).setNotional((InterestRateNotional) newValue);
+          return;
+        case 2100149628:  // includeAccruedPremium
+          ((AbstractCreditDefaultSwapSecurity) bean).setIncludeAccruedPremium((Boolean) newValue);
+          return;
+        case 2103482633:  // protectionStart
+          ((AbstractCreditDefaultSwapSecurity) bean).setProtectionStart((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((AbstractCreditDefaultSwapSecurity) bean)._buy, "buy");
+      JodaBeanUtils.notNull(((AbstractCreditDefaultSwapSecurity) bean)._protectionBuyer, "protectionBuyer");
+      JodaBeanUtils.notNull(((AbstractCreditDefaultSwapSecurity) bean)._protectionSeller, "protectionSeller");
+      JodaBeanUtils.notNull(((AbstractCreditDefaultSwapSecurity) bean)._referenceEntity, "referenceEntity");
+      JodaBeanUtils.notNull(((AbstractCreditDefaultSwapSecurity) bean)._startDate, "startDate");
+      JodaBeanUtils.notNull(((AbstractCreditDefaultSwapSecurity) bean)._effectiveDate, "effectiveDate");
+      JodaBeanUtils.notNull(((AbstractCreditDefaultSwapSecurity) bean)._maturityDate, "maturityDate");
+      JodaBeanUtils.notNull(((AbstractCreditDefaultSwapSecurity) bean)._stubType, "stubType");
+      JodaBeanUtils.notNull(((AbstractCreditDefaultSwapSecurity) bean)._couponFrequency, "couponFrequency");
+      JodaBeanUtils.notNull(((AbstractCreditDefaultSwapSecurity) bean)._dayCount, "dayCount");
+      JodaBeanUtils.notNull(((AbstractCreditDefaultSwapSecurity) bean)._businessDayConvention, "businessDayConvention");
+      JodaBeanUtils.notNull(((AbstractCreditDefaultSwapSecurity) bean)._immAdjustMaturityDate, "immAdjustMaturityDate");
+      JodaBeanUtils.notNull(((AbstractCreditDefaultSwapSecurity) bean)._adjustEffectiveDate, "adjustEffectiveDate");
+      JodaBeanUtils.notNull(((AbstractCreditDefaultSwapSecurity) bean)._adjustMaturityDate, "adjustMaturityDate");
+      JodaBeanUtils.notNull(((AbstractCreditDefaultSwapSecurity) bean)._notional, "notional");
+      JodaBeanUtils.notNull(((AbstractCreditDefaultSwapSecurity) bean)._includeAccruedPremium, "includeAccruedPremium");
+      JodaBeanUtils.notNull(((AbstractCreditDefaultSwapSecurity) bean)._protectionStart, "protectionStart");
+      super.validate(bean);
     }
 
   }

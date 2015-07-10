@@ -8,6 +8,7 @@ package com.opengamma.master.historicaltimeseries;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -91,65 +92,6 @@ public class ManageableHistoricalTimeSeries extends DirectBean
   @Override
   public ManageableHistoricalTimeSeries.Meta metaBean() {
     return ManageableHistoricalTimeSeries.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case 2084044265:  // versionInstant
-        return getVersionInstant();
-      case 434256035:  // correctionInstant
-        return getCorrectionInstant();
-      case 779431844:  // timeSeries
-        return getTimeSeries();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case 2084044265:  // versionInstant
-        setVersionInstant((Instant) newValue);
-        return;
-      case 434256035:  // correctionInstant
-        setCorrectionInstant((Instant) newValue);
-        return;
-      case 779431844:  // timeSeries
-        setTimeSeries((LocalDateDoubleTimeSeries) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ManageableHistoricalTimeSeries other = (ManageableHistoricalTimeSeries) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getVersionInstant(), other.getVersionInstant()) &&
-          JodaBeanUtils.equal(getCorrectionInstant(), other.getCorrectionInstant()) &&
-          JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionInstant());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrectionInstant());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -262,6 +204,57 @@ public class ManageableHistoricalTimeSeries extends DirectBean
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public ManageableHistoricalTimeSeries clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ManageableHistoricalTimeSeries other = (ManageableHistoricalTimeSeries) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getVersionInstant(), other.getVersionInstant()) &&
+          JodaBeanUtils.equal(getCorrectionInstant(), other.getCorrectionInstant()) &&
+          JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVersionInstant());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCorrectionInstant());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("ManageableHistoricalTimeSeries{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("versionInstant").append('=').append(JodaBeanUtils.toString(getVersionInstant())).append(',').append(' ');
+    buf.append("correctionInstant").append('=').append(JodaBeanUtils.toString(getCorrectionInstant())).append(',').append(' ');
+    buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(getTimeSeries())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ManageableHistoricalTimeSeries}.
    */
@@ -368,6 +361,41 @@ public class ManageableHistoricalTimeSeries extends DirectBean
      */
     public final MetaProperty<LocalDateDoubleTimeSeries> timeSeries() {
       return _timeSeries;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return ((ManageableHistoricalTimeSeries) bean).getUniqueId();
+        case 2084044265:  // versionInstant
+          return ((ManageableHistoricalTimeSeries) bean).getVersionInstant();
+        case 434256035:  // correctionInstant
+          return ((ManageableHistoricalTimeSeries) bean).getCorrectionInstant();
+        case 779431844:  // timeSeries
+          return ((ManageableHistoricalTimeSeries) bean).getTimeSeries();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          ((ManageableHistoricalTimeSeries) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case 2084044265:  // versionInstant
+          ((ManageableHistoricalTimeSeries) bean).setVersionInstant((Instant) newValue);
+          return;
+        case 434256035:  // correctionInstant
+          ((ManageableHistoricalTimeSeries) bean).setCorrectionInstant((Instant) newValue);
+          return;
+        case 779431844:  // timeSeries
+          ((ManageableHistoricalTimeSeries) bean).setTimeSeries((LocalDateDoubleTimeSeries) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

@@ -5,6 +5,8 @@
  */
 package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
+import java.util.Map;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -12,19 +14,19 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
-import org.threeten.bp.LocalDate;
-import java.util.Map;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.LocalDate;
 
 @XmlRootElement()
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -73,65 +75,6 @@ public class AdditionalCashflow extends DirectBean {
   @Override
   public AdditionalCashflow.Meta metaBean() {
     return AdditionalCashflow.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -702720581:  // cashflowType
-        return getCashflowType();
-      case -1651301782:  // counterparty
-        return getCounterparty();
-      case 976931461:  // monetaryAmount
-        return getMonetaryAmount();
-      case -703220177:  // cashflowDate
-        return getCashflowDate();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -702720581:  // cashflowType
-        setCashflowType((CashflowType) newValue);
-        return;
-      case -1651301782:  // counterparty
-        setCounterparty((IdWrapper) newValue);
-        return;
-      case 976931461:  // monetaryAmount
-        setMonetaryAmount((MonetaryAmount) newValue);
-        return;
-      case -703220177:  // cashflowDate
-        setCashflowDate((LocalDate) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      AdditionalCashflow other = (AdditionalCashflow) obj;
-      return JodaBeanUtils.equal(getCashflowType(), other.getCashflowType()) &&
-          JodaBeanUtils.equal(getCounterparty(), other.getCounterparty()) &&
-          JodaBeanUtils.equal(getMonetaryAmount(), other.getMonetaryAmount()) &&
-          JodaBeanUtils.equal(getCashflowDate(), other.getCashflowDate());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCashflowType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCounterparty());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMonetaryAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCashflowDate());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -232,6 +175,57 @@ public class AdditionalCashflow extends DirectBean {
    */
   public final Property<LocalDate> cashflowDate() {
     return metaBean().cashflowDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public AdditionalCashflow clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      AdditionalCashflow other = (AdditionalCashflow) obj;
+      return JodaBeanUtils.equal(getCashflowType(), other.getCashflowType()) &&
+          JodaBeanUtils.equal(getCounterparty(), other.getCounterparty()) &&
+          JodaBeanUtils.equal(getMonetaryAmount(), other.getMonetaryAmount()) &&
+          JodaBeanUtils.equal(getCashflowDate(), other.getCashflowDate());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCashflowType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCounterparty());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMonetaryAmount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCashflowDate());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("AdditionalCashflow{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("cashflowType").append('=').append(JodaBeanUtils.toString(getCashflowType())).append(',').append(' ');
+    buf.append("counterparty").append('=').append(JodaBeanUtils.toString(getCounterparty())).append(',').append(' ');
+    buf.append("monetaryAmount").append('=').append(JodaBeanUtils.toString(getMonetaryAmount())).append(',').append(' ');
+    buf.append("cashflowDate").append('=').append(JodaBeanUtils.toString(getCashflowDate())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -341,6 +335,41 @@ public class AdditionalCashflow extends DirectBean {
      */
     public final MetaProperty<LocalDate> cashflowDate() {
       return _cashflowDate;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -702720581:  // cashflowType
+          return ((AdditionalCashflow) bean).getCashflowType();
+        case -1651301782:  // counterparty
+          return ((AdditionalCashflow) bean).getCounterparty();
+        case 976931461:  // monetaryAmount
+          return ((AdditionalCashflow) bean).getMonetaryAmount();
+        case -703220177:  // cashflowDate
+          return ((AdditionalCashflow) bean).getCashflowDate();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -702720581:  // cashflowType
+          ((AdditionalCashflow) bean).setCashflowType((CashflowType) newValue);
+          return;
+        case -1651301782:  // counterparty
+          ((AdditionalCashflow) bean).setCounterparty((IdWrapper) newValue);
+          return;
+        case 976931461:  // monetaryAmount
+          ((AdditionalCashflow) bean).setMonetaryAmount((MonetaryAmount) newValue);
+          return;
+        case -703220177:  // cashflowDate
+          ((AdditionalCashflow) bean).setCashflowDate((LocalDate) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

@@ -29,12 +29,16 @@ import com.opengamma.util.money.Currency;
 public class AnnuityDefinition<P extends PaymentDefinition> implements InstrumentDefinitionWithData<Annuity<? extends Payment>, DoubleTimeSeries<ZonedDateTime>> {
   /**
    * The list of payments or coupons. All payments have the same currency. All payments have the same sign or are 0.
+   * There should be at least one payment.
    */
   private final P[] _payments;
   /**
    * Flag indicating if the annuity is payer (true) or receiver (false). Deduced from the first non-zero amount;
    * if all amounts don't have the same sign, the flag can be incorrect.
+   * @deprecated This flag does not work correctly if the amounts do not have the same sign or if the notionals
+   * are zero
    */
+  @Deprecated
   private final boolean _isPayer;
   /**
    * The calendar, not null
@@ -50,11 +54,10 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
     ArgumentChecker.noNulls(payments, "payments");
     ArgumentChecker.isTrue(payments.length > 0, "Have no payments in annuity");
     ArgumentChecker.notNull(calendar, "calendar");
-    double amount = payments[0].getReferenceAmount();
+    final double amount = payments[0].getReferenceAmount();
     final Currency currency0 = payments[0].getCurrency();
     for (int loopcpn = 1; loopcpn < payments.length; loopcpn++) {
       ArgumentChecker.isTrue(currency0.equals(payments[loopcpn].getCurrency()), "currency not the same for all payments");
-      amount = Double.doubleToLongBits(amount) == 0 ? payments[loopcpn].getReferenceAmount() : amount; // amount contains the first non-zero element if any and 0 if not.
     }
     _payments = payments;
     _isPayer = amount < 0;
@@ -89,7 +92,10 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
   /**
    * Gets the isPayer field.
    * @return isPayer flag.
+   * @deprecated The payer flag is no longer used; the sign of the notional
+   * determines whether a leg is paid or received
    */
+  @Deprecated
   public boolean isPayer() {
     return _isPayer;
   }
@@ -165,48 +171,6 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
     return true;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Annuity<? extends Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    final List<Payment> resultList = new ArrayList<>();
-    for (int loopcoupon = 0; loopcoupon < _payments.length; loopcoupon++) {
-      if (!date.isAfter(_payments[loopcoupon].getPaymentDate())) {
-        resultList.add(_payments[loopcoupon].toDerivative(date, yieldCurveNames));
-      }
-    }
-    return new Annuity<>(resultList.toArray(new Payment[resultList.size()]));
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @SuppressWarnings("unchecked")
-  @Override
-  public Annuity<? extends Payment> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.notNull(indexFixingTS, "index fixing time series");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    final List<Payment> resultList = new ArrayList<>();
-    for (final P payment : _payments) {
-      //TODO check this
-      if (!date.isAfter(payment.getPaymentDate())) {
-        if (payment instanceof InstrumentDefinitionWithData) {
-          resultList.add(((InstrumentDefinitionWithData<? extends Payment, DoubleTimeSeries<ZonedDateTime>>) payment).toDerivative(date, indexFixingTS, yieldCurveNames));
-        } else {
-          resultList.add(payment.toDerivative(date, yieldCurveNames));
-        }
-      }
-    }
-    return new Annuity<>(resultList.toArray(new Payment[resultList.size()]));
-  }
-
   @Override
   public Annuity<? extends Payment> toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
@@ -227,6 +191,7 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
     final List<Payment> resultList = new ArrayList<>();
     for (final P payment : _payments) {
       //TODO check this
+      //TODO The comparison should be done on LocalDate and not on ZonedDateTime, to avoid jumps during the day. PLAT-6872
       if (!date.isAfter(payment.getPaymentDate())) {
         if (payment instanceof InstrumentDefinitionWithData) {
           resultList.add(((InstrumentDefinitionWithData<? extends Payment, DoubleTimeSeries<ZonedDateTime>>) payment).toDerivative(date, indexFixingTS));

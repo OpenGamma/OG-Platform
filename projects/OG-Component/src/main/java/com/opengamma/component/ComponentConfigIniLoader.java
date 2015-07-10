@@ -5,16 +5,13 @@
  */
 package com.opengamma.component;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.core.io.Resource;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ResourceUtils;
 
@@ -48,7 +45,7 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
    * @param logger  the logger, not null
    * @param properties  the properties in use, not null
    */
-  public ComponentConfigIniLoader(ComponentLogger logger, ConcurrentMap<String, String> properties) {
+  public ComponentConfigIniLoader(ComponentLogger logger, ConfigProperties properties) {
     super(logger, properties);
   }
 
@@ -61,6 +58,7 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
    * @param resource  the config resource to load, not null
    * @param depth  the depth of the properties file, used for logging
    * @param config  the config being loaded, not null
+   * @throws ComponentConfigException if the resource cannot be read
    */
   public void load(final Resource resource, final int depth, final ComponentConfig config) {
     ArgumentChecker.notNull(resource, "resource");
@@ -70,7 +68,7 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
       overrideProperties(config);
       
     } catch (RuntimeException ex) {
-      throw new OpenGammaRuntimeException("Unable to load INI file: " + resource, ex);
+      throw new ComponentConfigException("Unable to load INI file: " + resource, ex);
     }
   }
 
@@ -83,6 +81,7 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
    * @param depth  the depth of the properties file, used for logging
    * @param config  the config being loaded, not null
    * @return the config, not null
+   * @throws ComponentConfigException if the resource has an invalid format
    */
   private void doLoad(final Resource resource, final int depth, final ComponentConfig config) {
     List<String> lines = readLines(resource);
@@ -96,35 +95,38 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
       }
       if (line.startsWith("[") && line.endsWith("]")) {
         group = line.substring(1, line.length() - 1);
+        config.addGroup(group);
         
       } else if (group == null) {
-        throw new OpenGammaRuntimeException("Invalid format, properties must be specified within a [group], line " + lineNum);
+        throw new ComponentConfigException("Invalid format, properties must be specified within a [group], line " + lineNum);
         
       } else {
         int equalsPosition = line.indexOf('=');
         if (equalsPosition < 0) {
-          throw new OpenGammaRuntimeException("Invalid format, line " + lineNum);
+          throw new ComponentConfigException("Invalid format, line " + lineNum);
         }
         String key = line.substring(0, equalsPosition).trim();
         String value = line.substring(equalsPosition + 1).trim();
         if (key.length() == 0) {
-          throw new IllegalArgumentException("Invalid empty key, line " + lineNum);
+          throw new ComponentConfigException("Invalid empty key, line " + lineNum);
         }
         if (config.contains(group, key)) {
-          throw new IllegalArgumentException("Invalid file, key '" + key + "' specified twice, line " + lineNum);
+          throw new ComponentConfigException("Invalid file, key '" + key + "' specified twice, line " + lineNum);
         }
         
         // resolve ${} references
-        value = resolveProperty(value, lineNum);
-        
-        // handle includes
-        if (key.equals(ComponentManager.MANAGER_INCLUDE)) {
-          handleInclude(resource, value, depth, config);
-        } else {
-          // store property
-          config.put(group, key, value);
-          if (group.equals("global")) {
-            getProperties().put(key, value);
+        ConfigProperty resolved = getProperties().resolveProperty(key, value, lineNum);
+        if (resolved != null) {
+          // handle includes
+          if (key.equals(ComponentManager.MANAGER_INCLUDE)) {
+            handleInclude(resource, resolved.getValue(), depth, config);
+          } else {
+            // store property
+            config.getGroup(group).add(resolved);
+            // global section treated as setup of properties (which do not override)
+            if (group.equals("global")) {
+              getProperties().addIfAbsent(resolved);
+            }
           }
         }
       }
@@ -138,6 +140,7 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
    * @param includeFile  the resource to include, not null
    * @param depth  the depth of the properties file, used for logging
    * @param config  the config being loaded, not null
+   * @throws ComponentConfigException if the included resource cannot be found or read
    */
   private void handleInclude(final Resource baseResource, String includeFile, final int depth, final ComponentConfig config) {
     // find resource
@@ -148,7 +151,7 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
       try {
         include = baseResource.createRelative(includeFile);
       } catch (Exception ex2) {
-        throw new OpenGammaRuntimeException(ex2.getMessage(), ex2);
+        throw new ComponentConfigException(ex2.getMessage(), ex2);
       }
     }
     
@@ -157,7 +160,7 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
     try {
       doLoad(include, depth + 1, config);
     } catch (RuntimeException ex) {
-      throw new OpenGammaRuntimeException("Unable to load INI file: " + include, ex);
+      throw new ComponentConfigException("Unable to load INI file: " + include, ex);
     }
   }
 
@@ -171,33 +174,15 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
    * @param config  the config to update, not null
    */
   private void overrideProperties(final ComponentConfig config) {
-    List<String[]> iniProperties = extractIniOverrideProperties();
-    for (String[] array : iniProperties) {
-      config.getGroup(array[0]);  // validate group (but returns a copy of the inner map)
-      config.put(array[0], array[1], array[2]);
-      getLogger().logDebug("  Replacing group property: [" + array[0] + "]." + array[1] + "=" + array[2]);
-    }
-  }
-
-  /**
-   * Extracts any properties that match the group name style "[group].key".
-   * <p>
-   * These directly override any INI file settings.
-   * 
-   * @return the extracted set of INI properties, not null
-   */
-  private List<String[]> extractIniOverrideProperties() {
-    List<String[]> extracted = new ArrayList<String[]>();
-    for (String key : getProperties().keySet()) {
-      Matcher matcher = GROUP_OVERRIDE.matcher(key);
+    for (ConfigProperty cp : getProperties().values()) {
+      Matcher matcher = GROUP_OVERRIDE.matcher(cp.getKey());
       if (matcher.matches()) {
         String group = matcher.group(1);
         String propertyKey = matcher.group(2);
-        String[] array = {group, propertyKey, getProperties().get(key)};
-        extracted.add(array);
+        config.getGroup(group).add(cp.withKey(propertyKey));
+        getLogger().logDebug("  Replacing group property: [" + group + "]." + propertyKey + "=" + cp.loggableValue());
       }
     }
-    return extracted;
   }
 
 }

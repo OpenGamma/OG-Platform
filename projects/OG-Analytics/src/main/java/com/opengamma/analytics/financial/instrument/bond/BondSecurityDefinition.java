@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.bond;
@@ -14,6 +14,7 @@ import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondSecurity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -48,14 +49,19 @@ public abstract class BondSecurityDefinition<N extends PaymentDefinition, C exte
   /**
    * The bond issuer name.
    */
-  private final String _issuer;
+  private final String _issuerName;
+  /**
+   * The issuer.
+   */
+  private final LegalEntity _issuer;
   /**
    * The bond repo type.
    */
   private final String _repoType;
 
   /**
-   * Bond constructor from all the bond details.
+   * Bond constructor from all the bond details. The repo type is set to an empty string and the legal entity
+   * only contains the issuer name.
    * @param nominal The notional payments. For bullet bond, it is restricted to a single payment.
    * @param coupon The bond coupons. The coupons notional and currency should be in line with the bond nominal.
    * @param exCouponDays Number of days before the payment of the coupon is detached from the bond (and paid to the then owner).
@@ -65,19 +71,36 @@ public abstract class BondSecurityDefinition<N extends PaymentDefinition, C exte
    */
   public BondSecurityDefinition(final AnnuityDefinition<N> nominal, final AnnuityDefinition<C> coupon, final int exCouponDays, final int settlementDays,
       final Calendar calendar, final String issuer) {
-    ArgumentChecker.notNull(nominal, "Nominal");
-    ArgumentChecker.notNull(coupon, "Coupon");
-    ArgumentChecker.isTrue(nominal.getCurrency().equals(coupon.getCurrency()), "Currency of nominal and coupons should be the same");
-    ArgumentChecker.isTrue(!nominal.isPayer(), "Notional should be positive");
-    ArgumentChecker.isTrue(!coupon.isPayer(), "Coupon notional should be positive");
-    _nominal = nominal;
-    _coupon = coupon;
-    // TODO: check that the coupon and nominal correspond in term of remaining notional (in the case of amortization)
-    _exCouponDays = exCouponDays;
-    _settlementDays = settlementDays;
-    _calendar = calendar;
-    _issuer = issuer;
-    _repoType = "";
+    this(nominal, coupon, exCouponDays, settlementDays, calendar, new LegalEntity(null, issuer, null, null, null), "");
+  }
+
+  /**
+   * Bond constructor from all the bond details. The repo type is set to an empty string.
+   * @param nominal The notional payments. For bullet bond, it is restricted to a single payment.
+   * @param coupon The bond coupons. The coupons notional and currency should be in line with the bond nominal.
+   * @param exCouponDays Number of days before the payment of the coupon is detached from the bond (and paid to the then owner).
+   * @param settlementDays Standard number of days between trade date and trade settlement. Used for clean price and yield computation.
+   * @param calendar The calendar used to compute the standard settlement date.
+   * @param issuer The issuer name.
+   */
+  public BondSecurityDefinition(final AnnuityDefinition<N> nominal, final AnnuityDefinition<C> coupon, final int exCouponDays, final int settlementDays,
+      final Calendar calendar, final LegalEntity issuer) {
+    this(nominal, coupon, exCouponDays, settlementDays, calendar, issuer, "");
+  }
+
+  /**
+   * Bond constructor from all the bond details. The legal entity only contains the issuer name.
+   * @param nominal The notional payments. For bullet bond, it is restricted to a single payment.
+   * @param coupon The bond coupons. The coupons notional and currency should be in line with the bond nominal.
+   * @param exCouponDays Number of days before the payment of the coupon is detached from the bond (and paid to the then owner).
+   * @param settlementDays Standard number of days between trade date and trade settlement. Used for clean price and yield computation.
+   * @param calendar The calendar used to compute the standard settlement date.
+   * @param issuer The issuer name.
+   * @param repoType The repo type name.
+   */
+  public BondSecurityDefinition(final AnnuityDefinition<N> nominal, final AnnuityDefinition<C> coupon, final int exCouponDays, final int settlementDays,
+      final Calendar calendar, final String issuer, final String repoType) {
+    this(nominal, coupon, exCouponDays, settlementDays, calendar, new LegalEntity(null, issuer, null, null, null), repoType);
   }
 
   /**
@@ -91,19 +114,22 @@ public abstract class BondSecurityDefinition<N extends PaymentDefinition, C exte
    * @param repoType The repo type name.
    */
   public BondSecurityDefinition(final AnnuityDefinition<N> nominal, final AnnuityDefinition<C> coupon, final int exCouponDays, final int settlementDays,
-      final Calendar calendar, final String issuer, final String repoType) {
+      final Calendar calendar, final LegalEntity issuer, final String repoType) {
     ArgumentChecker.notNull(nominal, "Nominal");
     ArgumentChecker.notNull(coupon, "Coupons");
     ArgumentChecker.isTrue(nominal.getCurrency().equals(coupon.getCurrency()), "Currency of nominal {} and coupons {} should be the same", nominal.getCurrency(),
         coupon.getCurrency());
-    ArgumentChecker.isTrue(!nominal.isPayer(), "Notional should be positive");
-    ArgumentChecker.isTrue(!coupon.isPayer(), "Coupon notional should be positive");
+    ArgumentChecker.isTrue(nominal.getNthPayment(nominal.getNumberOfPayments() - 1).getReferenceAmount() > 0, "Notional should be positive");
+    ArgumentChecker.isTrue(coupon.getNthPayment(coupon.getNumberOfPayments() - 1).getReferenceAmount() > 0, "Coupon notional should be positive");
+    ArgumentChecker.notNull(issuer, "issuer");
+    ArgumentChecker.notNull(repoType, "repo type");
     _nominal = nominal;
     _coupon = coupon;
     // TODO: check that the coupon and nominal correspond in term of remaining notional (in the case of amortization)
     _exCouponDays = exCouponDays;
     _settlementDays = settlementDays;
     _calendar = calendar;
+    _issuerName = issuer.getShortName();
     _issuer = issuer;
     _repoType = repoType;
   }
@@ -125,7 +151,7 @@ public abstract class BondSecurityDefinition<N extends PaymentDefinition, C exte
   }
 
   /**
-   * Gets the number of ex-coupon days.
+   * Gets the number of ex-coupon days (business days).
    * @return The ex-coupon days.
    */
   public int getExCouponDays() {
@@ -145,6 +171,14 @@ public abstract class BondSecurityDefinition<N extends PaymentDefinition, C exte
    * @return The issuer name.
    */
   public String getIssuer() {
+    return _issuerName;
+  }
+
+  /**
+   * Gets the issuer.
+   * @return The issuer
+   */
+  public LegalEntity getIssuerEntity() {
     return _issuer;
   }
 
@@ -208,13 +242,13 @@ public abstract class BondSecurityDefinition<N extends PaymentDefinition, C exte
     if (!ObjectUtils.equals(_coupon, other._coupon)) {
       return false;
     }
-    if (_exCouponDays != other._exCouponDays) {
+    if (!ObjectUtils.equals(_nominal, other._nominal)) {
       return false;
     }
     if (!ObjectUtils.equals(_issuer, other._issuer)) {
       return false;
     }
-    if (!ObjectUtils.equals(_nominal, other._nominal)) {
+    if (_exCouponDays != other._exCouponDays) {
       return false;
     }
     if (!ObjectUtils.equals(_repoType, other._repoType)) {

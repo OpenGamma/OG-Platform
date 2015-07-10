@@ -22,10 +22,12 @@ import com.opengamma.analytics.financial.model.volatility.smile.function.Volatil
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class MixedLogNormalModelFitterTest extends SmileModelFitterTest<MixedLogNormalModelData> {
   private static RandomEngine RANDOM = new MersenneTwister();
   private static Logger LOGGER = LoggerFactory.getLogger(MixedLogNormalModelFitterTest.class);

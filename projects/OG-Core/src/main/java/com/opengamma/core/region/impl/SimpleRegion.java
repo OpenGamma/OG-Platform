@@ -10,8 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.threeten.bp.ZoneId;
-
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -24,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.flexi.FlexiBean;
+import org.threeten.bp.ZoneId;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.Region;
@@ -53,40 +53,40 @@ public class SimpleRegion extends DirectBean
   /**
    * The unique identifier of the region.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true, overrideSet = true)
   private UniqueId _uniqueId;
   /**
    * The bundle of identifiers that define the region.
    * This will include the country, currency and time-zone.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private ExternalIdBundle _externalIdBundle = ExternalIdBundle.EMPTY;
   /**
    * The classification of the region.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private RegionClassification _classification;
   /**
    * The unique identifiers of the parent regions.
    * For example, a country might be a member of the World, UN, European Union and NATO.
    */
-  @PropertyDefinition(set = "setClearAddAll")
+  @PropertyDefinition(set = "setClearAddAll", overrideGet = true)
   private Set<UniqueId> _parentRegionIds = new HashSet<UniqueId>();
   /**
    * The short descriptive name for the region.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private String _name = "";
   /**
    * The full descriptive name for the region.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private String _fullName = "";
   /**
    * The extensible data store for additional information, not null.
    * Applications may store additional region based information here.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private final FlexiBean _data = new FlexiBean();
 
   /**
@@ -110,6 +110,7 @@ public class SimpleRegion extends DirectBean
    * Gets the country.
    * @return the value of the property
    */
+  @Override
   public Country getCountry() {
     String code = _externalIdBundle.getValue(ExternalSchemes.ISO_COUNTRY_ALPHA2);
     return (code != null ? Country.of(code) : null);
@@ -132,6 +133,7 @@ public class SimpleRegion extends DirectBean
    * Gets the currency.
    * @return the value of the property
    */
+  @Override
   public Currency getCurrency() {
     String code = _externalIdBundle.getValue(ExternalSchemes.ISO_CURRENCY_ALPHA3);
     return (code != null ? Currency.of(code) : null);
@@ -156,6 +158,7 @@ public class SimpleRegion extends DirectBean
    * for municipalities.
    * @return the value of the property
    */
+  @Override
   public ZoneId getTimeZone() {
     String id = _externalIdBundle.getValue(ExternalSchemes.TZDB_TIME_ZONE);
     return (id != null ? ZoneId.of(id) : null);
@@ -192,100 +195,12 @@ public class SimpleRegion extends DirectBean
     return SimpleRegion.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case -736922008:  // externalIdBundle
-        return getExternalIdBundle();
-      case 382350310:  // classification
-        return getClassification();
-      case 1273190810:  // parentRegionIds
-        return getParentRegionIds();
-      case 3373707:  // name
-        return getName();
-      case 1330852282:  // fullName
-        return getFullName();
-      case 3076010:  // data
-        return getData();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case -736922008:  // externalIdBundle
-        setExternalIdBundle((ExternalIdBundle) newValue);
-        return;
-      case 382350310:  // classification
-        setClassification((RegionClassification) newValue);
-        return;
-      case 1273190810:  // parentRegionIds
-        setParentRegionIds((Set<UniqueId>) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case 1330852282:  // fullName
-        setFullName((String) newValue);
-        return;
-      case 3076010:  // data
-        setData((FlexiBean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_externalIdBundle, "externalIdBundle");
-    JodaBeanUtils.notNull(_name, "name");
-    JodaBeanUtils.notNull(_fullName, "fullName");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SimpleRegion other = (SimpleRegion) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getExternalIdBundle(), other.getExternalIdBundle()) &&
-          JodaBeanUtils.equal(getClassification(), other.getClassification()) &&
-          JodaBeanUtils.equal(getParentRegionIds(), other.getParentRegionIds()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getFullName(), other.getFullName()) &&
-          JodaBeanUtils.equal(getData(), other.getData());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundle());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassification());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getParentRegionIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFullName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getData());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the unique identifier of the region.
    * @return the value of the property
    */
+  @Override
   public UniqueId getUniqueId() {
     return _uniqueId;
   }
@@ -294,6 +209,7 @@ public class SimpleRegion extends DirectBean
    * Sets the unique identifier of the region.
    * @param uniqueId  the new value of the property
    */
+  @Override
   public void setUniqueId(UniqueId uniqueId) {
     this._uniqueId = uniqueId;
   }
@@ -312,6 +228,7 @@ public class SimpleRegion extends DirectBean
    * This will include the country, currency and time-zone.
    * @return the value of the property, not null
    */
+  @Override
   public ExternalIdBundle getExternalIdBundle() {
     return _externalIdBundle;
   }
@@ -340,6 +257,7 @@ public class SimpleRegion extends DirectBean
    * Gets the classification of the region.
    * @return the value of the property
    */
+  @Override
   public RegionClassification getClassification() {
     return _classification;
   }
@@ -366,6 +284,7 @@ public class SimpleRegion extends DirectBean
    * For example, a country might be a member of the World, UN, European Union and NATO.
    * @return the value of the property
    */
+  @Override
   public Set<UniqueId> getParentRegionIds() {
     return _parentRegionIds;
   }
@@ -394,6 +313,7 @@ public class SimpleRegion extends DirectBean
    * Gets the short descriptive name for the region.
    * @return the value of the property, not null
    */
+  @Override
   public String getName() {
     return _name;
   }
@@ -420,6 +340,7 @@ public class SimpleRegion extends DirectBean
    * Gets the full descriptive name for the region.
    * @return the value of the property, not null
    */
+  @Override
   public String getFullName() {
     return _fullName;
   }
@@ -445,8 +366,9 @@ public class SimpleRegion extends DirectBean
   /**
    * Gets the extensible data store for additional information, not null.
    * Applications may store additional region based information here.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
+  @Override
   public FlexiBean getData() {
     return _data;
   }
@@ -454,9 +376,10 @@ public class SimpleRegion extends DirectBean
   /**
    * Sets the extensible data store for additional information, not null.
    * Applications may store additional region based information here.
-   * @param data  the new value of the property
+   * @param data  the new value of the property, not null
    */
   public void setData(FlexiBean data) {
+    JodaBeanUtils.notNull(data, "data");
     this._data.clear();
     this._data.putAll(data);
   }
@@ -468,6 +391,66 @@ public class SimpleRegion extends DirectBean
    */
   public final Property<FlexiBean> data() {
     return metaBean().data().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public SimpleRegion clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SimpleRegion other = (SimpleRegion) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getExternalIdBundle(), other.getExternalIdBundle()) &&
+          JodaBeanUtils.equal(getClassification(), other.getClassification()) &&
+          JodaBeanUtils.equal(getParentRegionIds(), other.getParentRegionIds()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getFullName(), other.getFullName()) &&
+          JodaBeanUtils.equal(getData(), other.getData());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundle());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getClassification());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getParentRegionIds());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFullName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getData());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(256);
+    buf.append("SimpleRegion{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("externalIdBundle").append('=').append(JodaBeanUtils.toString(getExternalIdBundle())).append(',').append(' ');
+    buf.append("classification").append('=').append(JodaBeanUtils.toString(getClassification())).append(',').append(' ');
+    buf.append("parentRegionIds").append('=').append(JodaBeanUtils.toString(getParentRegionIds())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("fullName").append('=').append(JodaBeanUtils.toString(getFullName())).append(',').append(' ');
+    buf.append("data").append('=').append(JodaBeanUtils.toString(getData())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -626,6 +609,65 @@ public class SimpleRegion extends DirectBean
      */
     public final MetaProperty<FlexiBean> data() {
       return _data;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return ((SimpleRegion) bean).getUniqueId();
+        case -736922008:  // externalIdBundle
+          return ((SimpleRegion) bean).getExternalIdBundle();
+        case 382350310:  // classification
+          return ((SimpleRegion) bean).getClassification();
+        case 1273190810:  // parentRegionIds
+          return ((SimpleRegion) bean).getParentRegionIds();
+        case 3373707:  // name
+          return ((SimpleRegion) bean).getName();
+        case 1330852282:  // fullName
+          return ((SimpleRegion) bean).getFullName();
+        case 3076010:  // data
+          return ((SimpleRegion) bean).getData();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          ((SimpleRegion) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case -736922008:  // externalIdBundle
+          ((SimpleRegion) bean).setExternalIdBundle((ExternalIdBundle) newValue);
+          return;
+        case 382350310:  // classification
+          ((SimpleRegion) bean).setClassification((RegionClassification) newValue);
+          return;
+        case 1273190810:  // parentRegionIds
+          ((SimpleRegion) bean).setParentRegionIds((Set<UniqueId>) newValue);
+          return;
+        case 3373707:  // name
+          ((SimpleRegion) bean).setName((String) newValue);
+          return;
+        case 1330852282:  // fullName
+          ((SimpleRegion) bean).setFullName((String) newValue);
+          return;
+        case 3076010:  // data
+          ((SimpleRegion) bean).setData((FlexiBean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((SimpleRegion) bean)._externalIdBundle, "externalIdBundle");
+      JodaBeanUtils.notNull(((SimpleRegion) bean)._name, "name");
+      JodaBeanUtils.notNull(((SimpleRegion) bean)._fullName, "fullName");
+      JodaBeanUtils.notNull(((SimpleRegion) bean)._data, "data");
     }
 
   }

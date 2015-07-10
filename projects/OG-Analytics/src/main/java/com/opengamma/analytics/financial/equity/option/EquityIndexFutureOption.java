@@ -44,7 +44,9 @@ public class EquityIndexFutureOption implements InstrumentDerivative {
    */
   public EquityIndexFutureOption(final double expiry, final EquityIndexFuture underlying, final double strike, final ExerciseDecisionType exerciseType, final boolean isCall,
       final double pointValue, double referencePrice) {
-    if (expiry < 0.0) { throw new OpenGammaRuntimeException("Expired"); }
+    if (expiry < 0.0) {
+      throw new OpenGammaRuntimeException("Expired");
+    }
     ArgumentChecker.notNull(underlying, "underlying");
     ArgumentChecker.notNegativeOrZero(strike, "strike");
     ArgumentChecker.notNull(exerciseType, "exercise type");

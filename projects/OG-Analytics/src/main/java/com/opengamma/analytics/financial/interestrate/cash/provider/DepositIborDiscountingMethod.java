@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
@@ -53,7 +54,7 @@ public final class DepositIborDiscountingMethod {
     ArgumentChecker.notNull(deposit, "Deposit");
     ArgumentChecker.notNull(multicurves, "Multicurves");
     final double dfEnd = multicurves.getDiscountFactor(deposit.getCurrency(), deposit.getEndTime());
-    final double pv = deposit.getAccrualFactor() * (deposit.getRate() - multicurves.getForwardRate(deposit.getIndex(), deposit.getStartTime(),
+    final double pv = deposit.getAccrualFactor() * (deposit.getRate() - multicurves.getSimplyCompoundForwardRate(deposit.getIndex(), deposit.getStartTime(),
         deposit.getEndTime(), deposit.getAccrualFactor())) * dfEnd;
     return MultipleCurrencyAmount.of(deposit.getCurrency(), pv);
   }
@@ -68,21 +69,32 @@ public final class DepositIborDiscountingMethod {
     ArgumentChecker.notNull(deposit, "Deposit");
     ArgumentChecker.notNull(multicurves, "Multicurves");
     final double dfEnd = multicurves.getDiscountFactor(deposit.getCurrency(), deposit.getEndTime());
-    final double forward = multicurves.getForwardRate(deposit.getIndex(), deposit.getStartTime(), deposit.getEndTime(), deposit.getAccrualFactor());
+    final double forward = multicurves.getSimplyCompoundForwardRate(deposit.getIndex(), deposit.getStartTime(), deposit.getEndTime(), deposit.getAccrualFactor());
     // Backward sweep
     final double forwardBar = deposit.getAccrualFactor() * dfEnd;
     final double dfEndBar = deposit.getAccrualFactor() * (deposit.getRate() - forward);
     final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
     final List<ForwardSensitivity> listForward = new ArrayList<>();
-    listForward.add(new ForwardSensitivity(deposit.getStartTime(), deposit.getEndTime(), deposit.getAccrualFactor(), forwardBar));
+    listForward.add(new SimplyCompoundedForwardSensitivity(deposit.getStartTime(), deposit.getEndTime(), deposit.getAccrualFactor(), forwardBar));
     mapFwd.put(multicurves.getName(deposit.getIndex()), listForward);
     final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
     final List<DoublesPair> listDiscounting = new ArrayList<>();
-    listDiscounting.add(new DoublesPair(deposit.getEndTime(), -deposit.getEndTime() * dfEnd * dfEndBar));
+    listDiscounting.add(DoublesPair.of(deposit.getEndTime(), -deposit.getEndTime() * dfEnd * dfEndBar));
     mapDsc.put(multicurves.getName(deposit.getCurrency()), listDiscounting);
     MultipleCurrencyMulticurveSensitivity result = new MultipleCurrencyMulticurveSensitivity();
     result = result.plus(deposit.getCurrency(), MulticurveSensitivity.of(mapDsc, mapFwd));
     return result;
+  }
+
+  /**
+   * Computes the Ibor fixing deposit representation par rate.
+   * When deposit has already start the number may not be meaning full as only the final payment remains (no initial payment).
+   * @param deposit The deposit.
+   * @param multicurve The curves.
+   * @return The spread.
+   */
+  public double parRate(final DepositIbor deposit, final MulticurveProviderInterface multicurve) {
+    return multicurve.getSimplyCompoundForwardRate(deposit.getIndex(), deposit.getStartTime(), deposit.getEndTime(), deposit.getAccrualFactor());
   }
 
   /**
@@ -93,7 +105,7 @@ public final class DepositIborDiscountingMethod {
    * @return The spread.
    */
   public double parSpread(final DepositIbor deposit, final MulticurveProviderInterface multicurve) {
-    return multicurve.getForwardRate(deposit.getIndex(), deposit.getStartTime(), deposit.getEndTime(), deposit.getAccrualFactor()) - deposit.getRate();
+    return multicurve.getSimplyCompoundForwardRate(deposit.getIndex(), deposit.getStartTime(), deposit.getEndTime(), deposit.getAccrualFactor()) - deposit.getRate();
   }
 
   /**
@@ -108,7 +120,7 @@ public final class DepositIborDiscountingMethod {
     ArgumentChecker.notNull(multicurve, "Multicurves");
     final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
     final List<ForwardSensitivity> listForward = new ArrayList<>();
-    listForward.add(new ForwardSensitivity(deposit.getStartTime(), deposit.getEndTime(), deposit.getAccrualFactor(), 1.0));
+    listForward.add(new SimplyCompoundedForwardSensitivity(deposit.getStartTime(), deposit.getEndTime(), deposit.getAccrualFactor(), 1.0));
     mapFwd.put(multicurve.getName(deposit.getIndex()), listForward);
     return MulticurveSensitivity.ofForward(mapFwd);
   }

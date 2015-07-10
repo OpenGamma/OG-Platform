@@ -15,6 +15,7 @@ import java.util.Map;
 import javax.servlet.ServletContext;
 
 import org.apache.commons.lang.StringUtils;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -122,29 +123,36 @@ public class FreemarkerConfigurationComponentFactory extends AbstractComponentFa
     return FreemarkerConfigurationComponentFactory.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 826348548:  // templateLocations
-        return getTemplateLocations();
-    }
-    return super.propertyGet(propertyName, quiet);
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the locations of the templates.
+   * @return the value of the property, not empty
+   */
+  public String getTemplateLocations() {
+    return _templateLocations;
   }
 
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 826348548:  // templateLocations
-        setTemplateLocations((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
+  /**
+   * Sets the locations of the templates.
+   * @param templateLocations  the new value of the property, not empty
+   */
+  public void setTemplateLocations(String templateLocations) {
+    JodaBeanUtils.notEmpty(templateLocations, "templateLocations");
+    this._templateLocations = templateLocations;
   }
 
+  /**
+   * Gets the the {@code templateLocations} property.
+   * @return the property, not null
+   */
+  public final Property<String> templateLocations() {
+    return metaBean().templateLocations().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
-  protected void validate() {
-    JodaBeanUtils.notEmpty(_templateLocations, "templateLocations");
-    super.validate();
+  public FreemarkerConfigurationComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override
@@ -163,34 +171,27 @@ public class FreemarkerConfigurationComponentFactory extends AbstractComponentFa
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTemplateLocations());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTemplateLocations());
     return hash ^ super.hashCode();
   }
 
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the locations of the templates.
-   * @return the value of the property, not null
-   */
-  public String getTemplateLocations() {
-    return _templateLocations;
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("FreemarkerConfigurationComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
   }
 
-  /**
-   * Sets the locations of the templates.
-   * @param templateLocations  the new value of the property, not null
-   */
-  public void setTemplateLocations(String templateLocations) {
-    JodaBeanUtils.notEmpty(templateLocations, "templateLocations");
-    this._templateLocations = templateLocations;
-  }
-
-  /**
-   * Gets the the {@code templateLocations} property.
-   * @return the property, not null
-   */
-  public final Property<String> templateLocations() {
-    return metaBean().templateLocations().createProperty(this);
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("templateLocations").append('=').append(JodaBeanUtils.toString(getTemplateLocations())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -252,6 +253,32 @@ public class FreemarkerConfigurationComponentFactory extends AbstractComponentFa
      */
     public final MetaProperty<String> templateLocations() {
       return _templateLocations;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 826348548:  // templateLocations
+          return ((FreemarkerConfigurationComponentFactory) bean).getTemplateLocations();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 826348548:  // templateLocations
+          ((FreemarkerConfigurationComponentFactory) bean).setTemplateLocations((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notEmpty(((FreemarkerConfigurationComponentFactory) bean)._templateLocations, "templateLocations");
+      super.validate(bean);
     }
 
   }
