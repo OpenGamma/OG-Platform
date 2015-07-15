@@ -1,0 +1,8 @@
+language: java
+jdk:
+  - oraclejdk7
+install: /bin/true
+script: mvn package -e -B -Dstrict
+cache:
+  directories:
+  - $HOME/.m2
