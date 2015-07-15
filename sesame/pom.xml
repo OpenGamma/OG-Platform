@@ -71,7 +71,42 @@
         </plugins>
       </build>
     </profile>
-  </profiles>
+    <!-- bin zip file, invoked at end of build using -Ddist-bin -->
+	<!-- this will be run when calling 'mvn package' or a later phase -->
+    <profile>
+      <id>dist-bin</id>
+      <activation>
+        <property>
+          <name>dist-bin</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>${maven-antrun-plugin.version}</version>
+            <inherited>false</inherited>
+            <executions>
+              <execution>
+                <id>bin</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+				    <property name="version" value="${project.version}" />
+                    <ant antfile="${basedir}/pom-ant.xml" target="dist-bin" />
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+</profiles>
 
   <!-- ==================================================================== -->
   <properties>

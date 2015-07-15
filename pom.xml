@@ -1154,13 +1154,13 @@
         </plugins>
       </build>
     </profile>
-    <!-- bin zip file, invoked using mvn validate -Ddist-bin -->
+    <!-- bin zip file, invoked using mvn validate -Ddist-bin-after -->
 	<!-- this must be run after a previous run of mvn package -->
     <profile>
-      <id>dist-bin</id>
+      <id>dist-bin-after</id>
       <activation>
         <property>
-          <name>dist-bin</name>
+          <name>dist-bin-after</name>
         </property>
       </activation>
       <build>

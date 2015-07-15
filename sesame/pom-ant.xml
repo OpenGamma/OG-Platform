@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="og-platform">
+  <!-- Ant build that performs tasks not well suited to Maven -->
+
+  <target name="dist-bin">
+    <delete dir="target/dist-bin" />
+    <mkdir dir="target/dist-bin" />
+
+    <copy toDir="target/dist-bin/og-platform-${version}">
+      <fileset dir=".." includes="LICENSE.txt"/>
+	</copy>
+    <copy toDir="target/dist-bin/og-platform-${version}">
+      <fileset dir=".." includes="README.txt"/>
+	</copy>
+    <copy toDir="target/dist-bin/og-platform-${version}/lib" flatten="true">
+      <fileset dir=".." includes="**/target/*${version}.jar"/>
+	</copy>
+    <copy toDir="target/dist-bin/og-platform-${version}/sources" flatten="true">
+      <fileset dir=".." includes="**/target/*${version}-sources.jar"/>
+	</copy>
+
+    <delete file="target/opengamma-platform-${version}-bin.zip" />
+    <delete file="target/opengamma-platform-${version}-bin.tar" />
+    <delete file="target/opengamma-platform-${version}-bin.tar.bz2" />
+    <delete file="target/opengamma-platform-${version}-bin.tar.gz" />
+
+    <zip destfile="target/opengamma-platform-${version}-bin.zip" basedir="target/dist-bin" />
+    <tar destfile="target/opengamma-platform-${version}-bin.tar" longfile="gnu" basedir="target/dist-bin" />
+    <bzip2 destfile="target/opengamma-platform-${version}-bin.tar.bz2" src="target/opengamma-platform-${version}-bin.tar" />
+    <delete file="target/opengamma-platform-${version}-bin.tar" />
+  </target>
+
+</project>
