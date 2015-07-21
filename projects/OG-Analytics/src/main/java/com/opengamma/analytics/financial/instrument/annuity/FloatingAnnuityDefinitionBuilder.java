@@ -52,9 +52,9 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
   
   private Double _gearing;
 
-  /**
-   * Parameters used to adjust the reset dates. This is an optional field.
-   */
+  /** Parameters used to adjust the reset dates, i.e. the dates used to forecast the synthetic deposit underlying
+   * the Ibor rates. The underlying calendar is usually the calendar of the currency the Ibor index is referring to. 
+   * This is an optional field.*/
   private AdjustedDateParameters _adjustedResetDateParameters;
   
   /**
@@ -63,9 +63,8 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
    */
   private DateRelativeTo _resetRelativeTo = DateRelativeTo.START;
   
-  /**
-   * Parameters used to adjust the fixing dates. This is an optional field.
-   */
+  /** Parameters used to adjust the fixing dates from the reference date. The underlying calendar is usually the 
+   * calendar of the place where the fixing take place (GBLO for Libor). This is an optional field. */
   private OffsetAdjustedDateParameters _adjustedFixingDateParameters;
   
   /**
@@ -639,7 +638,7 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
       } else {
         // See TODO below about reset BDC used instead of fixing BDC
         ZonedDateTime fixingPeriodStartDate = _adjustedResetDateParameters.getBusinessDayConvention()
-            .adjustDate(_adjustedFixingDateParameters.getCalendar(), adjustedAccrualStartDate);
+            .adjustDate(_adjustedResetDateParameters.getCalendar(), adjustedAccrualStartDate);
         if (isFirstCoupon) {
           // Ensure that the forward period dates are adjusted for first coupon
           fixingPeriodStartDate = _adjustedResetDateParameters.getBusinessDayConvention().adjustDate(
