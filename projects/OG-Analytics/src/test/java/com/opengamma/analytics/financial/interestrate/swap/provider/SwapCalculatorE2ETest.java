@@ -133,27 +133,27 @@ public class SwapCalculatorE2ETest {
   @Test
   /** Test present value for a swap LIBOR3M + Spread V LIBOR6M. */
   public void presentValue3M6M() {
-    presentValueTest(SwapInstrumentsDataSet.BS_3M_S_6M, MULTICURVE_OIS, USD, -13844.3872,
+    presentValueTest(SwapInstrumentsDataSet.BS_3M_S_6M, MULTICURVE_OIS, USD, -21875.3763, // -13844.3872,
         "Basis swap L3M v L6M: present value");
-    presentValueTest(SwapInstrumentsDataSet.BS_3M_S_6M, MULTICURVE_FFS, USD, 83456.1099,
+    presentValueTest(SwapInstrumentsDataSet.BS_3M_S_6M, MULTICURVE_FFS, USD, 77275.5802, // 83456.1099,
         "Basis swap L3M v L6M: present value");
   }
 
   @Test
   /** Test present value for a swap LIBOR1M Compounding V LIBOR3M. */
   public void presentValue1MCmp3M() {
-    presentValueTest(SwapInstrumentsDataSet.BS_1MCMP_3M, MULTICURVE_OIS, USD, -340426.6128,
+    presentValueTest(SwapInstrumentsDataSet.BS_1MCMP_3M, MULTICURVE_OIS, USD, -342591.8856, // -340426.6128, //
         "Basis swap L1MFlat v L3M: present value");
-    presentValueTest(SwapInstrumentsDataSet.BS_1MCMP_3M, MULTICURVE_FFS, USD, -529528.6102,
+    presentValueTest(SwapInstrumentsDataSet.BS_1MCMP_3M, MULTICURVE_FFS, USD, -530867.6701, // -529528.6102,
         "Basis swap L1MFlat v L3M: present value");
   }
 
   @Test
   /** Test present value for a swap LIBOR1M Compounding FLAT + Spread V LIBOR3M. */
   public void presentValue1MSpreadFlat3M() {
-    presentValueTest(SwapInstrumentsDataSet.BS_1MCMP_S_3M, MULTICURVE_OIS, USD, 152384.9704,
+    presentValueTest(SwapInstrumentsDataSet.BS_1MCMP_S_3M, MULTICURVE_OIS, USD, 150219.6976, // 152384.9704,
         "Basis swap L1MFlat v L3M: present value");
-    presentValueTest(SwapInstrumentsDataSet.BS_1MCMP_S_3M, MULTICURVE_FFS, USD, -40720.9318,
+    presentValueTest(SwapInstrumentsDataSet.BS_1MCMP_S_3M, MULTICURVE_FFS, USD, -42059.9916,  // -40720.9318,
         "Basis swap L1MFlat v L3M: present value");
   }
 
@@ -378,26 +378,23 @@ public class SwapCalculatorE2ETest {
   @Test
   /** Test Bucketed PV01 for a swap LIBOR3M + Spread V LIBOR6M. */
   public void BucketedPV01BS3M6M() {
-    final double[] deltaDsc = 
-      {0.0052, 0.0052, -0.0001, 0.0016, -0.0149,
-      0.7604, -5.5533, -2.9892, -22.2481, -37.7274, 
-      -41.8728, -24.0496, -43.6660, 12.2553, -31.6188, -49.6446, 598.0190 };
-    final double[] deltaFwd3 = 
-      {-2591.4459, -2619.3357, -812.9288, 1.3646, 3.5382, 
-      36.6063, 54.6148, -33.8631, 185.7332, -429.3245, 
-      -186.3951, -26.0288, 0.0000, 0.0000, 0.0000 }; // Swap 6M curve as spread to 3M.
-    final double[] deltaFwd6 = 
-      {4442.0847, 1584.5644, -101.6016, 80.0868, -1.6158, 
-      3.4711, 0.4096, 52.3150, -68443.8927, -28842.1969, 
+    final double[] deltaDsc =
+    {0.0075, 0.0075, -0.0001, 0.0016, -0.0103, 0.7778, -5.5386, -2.8894, -21.9283, -37.3247,
+      -41.4967, -23.7696, -43.2694, 12.6994, -31.2223, -49.6524, 598.2788 };
+    final double[] deltaFwd3 =
+    {-2591.5372, -2619.3693, -812.8589, 43.9557, -11.0705, 44.8080, 40.4064, -33.2664, 193.6617, -466.1282,
+      -186.7083, -26.0371, 0.0000, 0.0000, 0.0000 }; // Swap 6M curve as spread to 3M.
+    final double[] deltaFwd6 =
+    {4442.1046, 1584.1646, -44.5508, 51.2340, 13.8415, 4.0097, -6.7514, 66.4129, -68496.6308, -28851.4300,
       0.0000, 0.0000, 0.0000, 0.0000 };
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity = new LinkedHashMap<>();
     sensitivity.put(ObjectsPair.of(MULTICURVE_OIS.getName(USD), USD), new DoubleMatrix1D(deltaDsc));
     sensitivity.put(ObjectsPair.of(MULTICURVE_OIS.getName(USDLIBOR3M), USD), new DoubleMatrix1D(deltaFwd3));
     sensitivity.put(ObjectsPair.of(MULTICURVE_OIS.getName(USDLIBOR6M), USD), new DoubleMatrix1D(deltaFwd6));
     final MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
-    final MultipleCurrencyParameterSensitivity pvpsComputed = 
+    final MultipleCurrencyParameterSensitivity pvpsComputed =
         MQSBC.fromInstrument(SwapInstrumentsDataSet.BS_3M_S_6M, MULTICURVE_OIS, BLOCK_OIS).multipliedBy(BP1);
-    AssertSensitivityObjects.assertEquals("Basis swap L3M v L6M: bucketed deltas", 
+    AssertSensitivityObjects.assertEquals("Basis swap L3M v L6M: bucketed deltas",
         pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
   }
 
