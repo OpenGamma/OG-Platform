@@ -103,7 +103,6 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -307,7 +306,7 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
           final double[] t = new double[n];
           final double[] r = new double[n];
           int i = 0;
-          final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Act/360"); //TODO: Get the convention from the curve.
+          final DayCount dayCount = DayCounts.ACT_360; //TODO: Get the convention from the curve.
           final List<InstrumentDerivative> derivatives = new ArrayList<>();
           for (final FixedIncomeStrip strip : _impliedDefinition.getStrips()) {
             final Tenor tenor = strip.getCurveNodePointTime();
