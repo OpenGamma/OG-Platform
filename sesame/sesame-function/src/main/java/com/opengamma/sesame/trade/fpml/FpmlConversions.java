@@ -118,6 +118,9 @@ public final class FpmlConversions {
   public static RollConvention rollConvention(String fmplRollConventionName) {
     Integer dom = Ints.tryParse(fmplRollConventionName);
     if (dom != null) {
+      if (dom == 31) {
+        return RollConvention.EOM;
+      }
       return RollConvention.dayOfMonth(dom);
     }
     if ("NONE".equals(fmplRollConventionName)) {
