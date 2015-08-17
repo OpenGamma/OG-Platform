@@ -18,6 +18,7 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.OffsetTime;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeParseException;
 
 import com.google.common.base.Optional;
@@ -30,6 +31,7 @@ import com.google.common.io.ByteSource;
 import com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod;
 import com.opengamma.analytics.financial.instrument.annuity.DateRelativeTo;
 import com.opengamma.analytics.financial.instrument.annuity.OffsetType;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Trade;
@@ -470,7 +472,7 @@ public final class FpmlTradeParser {
       leg.setAccrualPeriodBusinessDayConvention(calcBda.getFirst());
       leg.setAccrualPeriodFrequency(accrualFreq);
       leg.setCompoundingMethod(compoundingMethod);
-      legs.add(parseFixedFloat(legEl, calcEl, effectiveDate, leg));
+      legs.add(parseFixedFloat(legEl, calcEl, effectiveDate, terminationDate, leg));
     }
     InterestRateSwapSecurity swapSecurity = new InterestRateSwapSecurity(
         ExternalIdBundle.EMPTY, "Parsed from FpML", effectiveDate, terminationDate, legs);
@@ -486,7 +488,7 @@ public final class FpmlTradeParser {
 
   // interpret based on fixed or float
   private InterestRateSwapLeg parseFixedFloat(
-      XmlElement legEl, XmlElement calcEl, LocalDate effectiveDate, FixedInterestRateSwapLeg leg) {
+      XmlElement legEl, XmlElement calcEl, LocalDate effectiveDate, LocalDate terminationDate, FixedInterestRateSwapLeg leg) {
     Optional<XmlElement> fixedOptEl = calcEl.getChildOptional("fixedRateSchedule");
     Optional<XmlElement> floatingOptEl = calcEl.getChildOptional("floatingRateCalculation");
 
@@ -554,10 +556,10 @@ public final class FpmlTradeParser {
       validateNotPresent(spreadOptEl.get(), "type");
       Pair<ImmutableList<LocalDate>, ImmutableList<Double>> spreads = parseSchedule(spreadOptEl.get(), effectiveDate);
       if (spreads.getFirst().size() != 1) {
-        // TODO: could try to create period index from dates
-        throw new FpmlParseException("Floating leg must have a single spread");
+        floating.setSpreadSchedule(bestMatchSpreadSchedule(spreads, effectiveDate, terminationDate, leg));
+      } else {
+        floating.setSpreadSchedule(new Rate(spreads.getSecond().get(0)));
       }
-      floating.setSpreadSchedule(new Rate(spreads.getSecond().get(0)));
     }
     // initial fixed rate
     Optional<XmlElement> initialRateOptEl = floatingEl.getChildOptional("initialRate");
@@ -605,6 +607,24 @@ public final class FpmlTradeParser {
       floating.setRateCutoffDaysOffset(-cutOff.getDays());
     }
     return floating;
+  }
+
+  private Rate bestMatchSpreadSchedule(
+      Pair<ImmutableList<LocalDate>, ImmutableList<Double>> spreads,
+      LocalDate effectiveDate,
+      LocalDate terminationDate,
+      FixedInterestRateSwapLeg leg) {
+    
+//    StubType type = leg.getStubCalculationMethod() != null ? leg.getStubCalculationMethod().getType() : StubType.NONE;
+//    ZonedDateTime[] unadjusted = ScheduleCalculator.getUnadjustedDateSchedule(
+//        effectiveDate.atStartOfDay(ZoneOffset.UTC),
+//        terminationDate.atStartOfDay(ZoneOffset.UTC),
+//        ((PeriodFrequency) leg.getAccrualPeriodFrequency()).getPeriod(),
+//        type == StubType.SHORT_END || type == StubType.SHORT_START,
+//        type == StubType.SHORT_START || type == StubType.LONG_START);
+
+    // lower level code cannot handle varying spreads
+    throw new FpmlParseException("Floating leg must have a single spread");
   }
 
   //-------------------------------------------------------------------------
