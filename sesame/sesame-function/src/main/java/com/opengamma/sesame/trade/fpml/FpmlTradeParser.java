@@ -7,6 +7,8 @@ package com.opengamma.sesame.trade.fpml;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +20,6 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.OffsetTime;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
-import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeParseException;
 
 import com.google.common.base.Optional;
@@ -31,7 +32,6 @@ import com.google.common.io.ByteSource;
 import com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod;
 import com.opengamma.analytics.financial.instrument.annuity.DateRelativeTo;
 import com.opengamma.analytics.financial.instrument.annuity.OffsetType;
-import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Trade;
@@ -39,6 +39,7 @@ import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
@@ -192,7 +193,7 @@ public final class FpmlTradeParser {
   //-------------------------------------------------------------------------
   // FRA
   //-------------------------------------------------------------------------
-  private ForwardRateAgreementTrade parseFraTrade(XmlElement fraEl, LocalDate tradeDate) {
+  private TradeWrapper<?> parseFraTrade(XmlElement fraEl, LocalDate tradeDate) {
     // payment date must be same as start date
     // FRAs with an interpolated index are not supported
     // payment business day convention is not used
@@ -215,6 +216,12 @@ public final class FpmlTradeParser {
       throw new FpmlParseException(
           "Neither buyerPartyReference nor sellerPartyReference contain our party ID: " + _ourPartyHrefId);
     }
+    // discounting
+    String fraDiscounting = fraEl.getChildSingle("fraDiscounting").getContent();
+    boolean isdaDiscounting = "ISDA".equals(fraDiscounting);
+    if (!isdaDiscounting && !"NONE".equals(fraDiscounting)) {
+      throw new FpmlParseException("Only fraDiscounting = ISDA or fraDiscounting = NONE is supported");
+    }
     // start date
     LocalDate startDate = parseDate(fraEl.getChildSingle("adjustedEffectiveDate"));
     // end date
@@ -222,11 +229,12 @@ public final class FpmlTradeParser {
     // payment date
     XmlElement paymentDateEl = fraEl.getChildSingle("paymentDate");
     LocalDate paymentDate = parseDate(paymentDateEl.getChildSingle("unadjustedDate"));
-    if (!startDate.equals(paymentDate)) {
+    if (isdaDiscounting && !startDate.equals(paymentDate)) {
       throw new FpmlParseException("Only startDate = paymentDate is supported");
     }
     XmlElement paymentDateAdjEl = paymentDateEl.getChildSingle("dateAdjustments");
-    Set<ExternalId> paymentCalendars = parseBusinessDayAdjustments(paymentDateAdjEl).getSecond();
+    Pair<BusinessDayConvention, Set<ExternalId>> payAdj = parseBusinessDayAdjustments(paymentDateAdjEl);
+    Set<ExternalId> paymentCalendars = payAdj.getSecond();
     // fixing offset
     int fixingLag = -parseRelativeDateOffsetDays(fraEl.getChildSingle("fixingDateOffset"));
     Pair<BusinessDayConvention, Set<ExternalId>> fixingAdjustments =
@@ -241,33 +249,86 @@ public final class FpmlTradeParser {
     // index
     Frequency indexTenor = parseIndexFrequency(fraEl);
     ExternalId indexId = parseIndexId(fraEl);
-    // discounting
-    String fraDiscounting = fraEl.getChildSingle("fraDiscounting").getContent();
-    if (!"ISDA".equals(fraDiscounting)) {
-      throw new FpmlParseException("Only fraDiscounting = ISDA is supported");
+    
+    if (isdaDiscounting) {
+      ForwardRateAgreementSecurity fraSecurity = new ForwardRateAgreementSecurity(
+          notional.getCurrency(),
+          indexId,
+          indexTenor,
+          startDate,
+          endDate,
+          fixedRate,
+          notional.getAmount() * sign,
+          null,  // derived fixingDate
+          dayCount,
+          fixingAdjustments.getFirst(),
+          fixingAdjustments.getSecond(),
+          paymentCalendars,
+          fixingLag);
+      Trade trade = new SimpleTrade(
+          fraSecurity,
+          BigDecimal.ONE,
+          new SimpleCounterparty(counterparty),
+          tradeDate,
+          OffsetTime.of(LocalTime.MIDNIGHT, ZoneOffset.UTC));
+      return new ForwardRateAgreementTrade(trade);
+      
+    } else {
+      // simulate fraDiscounting = NONE as a swap
+      StubCalculationMethod fixedStub = StubCalculationMethod.builder()
+          .type(StubType.SHORT_START)
+          .firstStubEndDate(endDate)
+          .firstStubRate(fixedRate)
+          .build();
+      FixedInterestRateSwapLeg fixedLeg = new FixedInterestRateSwapLeg();
+      fixedLeg.setNotional(InterestRateSwapNotional.of(notional.getCurrency(), notional.getAmount()));
+      fixedLeg.setPayReceiveType(sign == 1 ? PayReceiveType.PAY : PayReceiveType.RECEIVE);
+      fixedLeg.setStubCalculationMethod(fixedStub);
+      fixedLeg.setDayCountConvention(dayCount);
+      fixedLeg.setRollConvention(RollConvention.NONE);
+      fixedLeg.setPaymentDateCalendars(paymentCalendars);
+      fixedLeg.setPaymentDateBusinessDayConvention(payAdj.getFirst());
+      fixedLeg.setPaymentDateFrequency(PeriodFrequency.ANNUAL);
+      fixedLeg.setPaymentDateRelativeTo(DateRelativeTo.END);
+      fixedLeg.setPaymentOffset(0);
+      fixedLeg.setAccrualPeriodCalendars(Collections.<ExternalId>emptySet());
+      fixedLeg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.FOLLOWING);
+      fixedLeg.setAccrualPeriodFrequency(PeriodFrequency.ANNUAL);
+      fixedLeg.setCompoundingMethod(CompoundingMethod.NONE);
+      
+      StubCalculationMethod floatStub = StubCalculationMethod.builder()
+          .type(StubType.SHORT_START)
+          .firstStubEndDate(endDate)
+          .firstStubStartReferenceRateId(indexId)
+          .build();
+      FixedInterestRateSwapLeg floatLeg = new FixedInterestRateSwapLeg();
+      floatLeg.setNotional(InterestRateSwapNotional.of(notional.getCurrency(), notional.getAmount()));
+      floatLeg.setPayReceiveType(sign == 1 ? PayReceiveType.RECEIVE : PayReceiveType.PAY);
+      floatLeg.setStubCalculationMethod(floatStub);
+      floatLeg.setDayCountConvention(dayCount);
+      floatLeg.setRollConvention(RollConvention.NONE);
+      floatLeg.setPaymentDateCalendars(paymentCalendars);
+      floatLeg.setPaymentDateBusinessDayConvention(payAdj.getFirst());
+      floatLeg.setPaymentDateFrequency(PeriodFrequency.ANNUAL);
+      floatLeg.setPaymentDateRelativeTo(DateRelativeTo.END);
+      floatLeg.setPaymentOffset(0);
+      floatLeg.setAccrualPeriodCalendars(Collections.<ExternalId>emptySet());
+      floatLeg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.FOLLOWING);
+      floatLeg.setAccrualPeriodFrequency(PeriodFrequency.ANNUAL);
+      floatLeg.setCompoundingMethod(CompoundingMethod.NONE);
+      
+      List<InterestRateSwapLeg> legs = Arrays.<InterestRateSwapLeg>asList(fixedLeg, floatLeg);
+      InterestRateSwapSecurity swapSecurity = new InterestRateSwapSecurity(
+          ExternalIdBundle.EMPTY, "Parsed from FpML", startDate, endDate, legs);
+      swapSecurity.setNotionalExchange(NotionalExchange.NO_EXCHANGE);
+      Trade trade = new SimpleTrade(
+          swapSecurity,
+          BigDecimal.ONE,
+          new SimpleCounterparty(counterparty),
+          tradeDate,
+          OffsetTime.of(LocalTime.MIDNIGHT, ZoneOffset.UTC));
+      return new InterestRateSwapTrade(trade);
     }
-
-    ForwardRateAgreementSecurity fraSecurity = new ForwardRateAgreementSecurity(
-        notional.getCurrency(),
-        indexId,
-        indexTenor,
-        startDate,
-        endDate,
-        fixedRate,
-        notional.getAmount() * sign,
-        null,  // derived fixingDate
-        dayCount,
-        fixingAdjustments.getFirst(),
-        fixingAdjustments.getSecond(),
-        paymentCalendars,
-        fixingLag);
-    Trade trade = new SimpleTrade(
-        fraSecurity,
-        BigDecimal.ONE,
-        new SimpleCounterparty(counterparty),
-        tradeDate,
-        OffsetTime.of(LocalTime.MIDNIGHT, ZoneOffset.UTC));
-    return new ForwardRateAgreementTrade(trade);
   }
 
   //-------------------------------------------------------------------------
