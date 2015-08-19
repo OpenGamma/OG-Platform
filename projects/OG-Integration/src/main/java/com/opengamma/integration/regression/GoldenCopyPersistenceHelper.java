@@ -9,9 +9,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-
-import net.sf.saxon.s9api.Processor;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
@@ -24,8 +24,8 @@ import org.fudgemsg.wire.xml.FudgeXMLStreamReader;
 import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
 
 import com.google.common.base.Throwables;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import com.opengamma.util.xml.FormattingXmlStreamWriter;
 
 /**
  * 
@@ -70,8 +70,7 @@ public class GoldenCopyPersistenceHelper {
     String viewName = goldenCopy.getViewName();
     String snapshotName = goldenCopy.getSnapshotName();
     String name = buildFilename(viewName, snapshotName);
-    Processor p = new Processor(false);
-    
+
     if (!_goldenCopyDir.exists()) {
       boolean createdDirOk = _goldenCopyDir.mkdirs();
       if (!createdDirOk) {
@@ -80,7 +79,7 @@ public class GoldenCopyPersistenceHelper {
     }
     
     try (FileWriter writer = new FileWriter(new File(_goldenCopyDir, name));
-        FudgeMsgWriter fudgeMsgWriter = createMsgWriter(p, writer);
+        FudgeMsgWriter fudgeMsgWriter = createMsgWriter(writer);
         ) {
       MutableFudgeMsg msg = serializer.objectToFudgeMsg(goldenCopy);
       fudgeMsgWriter.writeMessage(msg);
@@ -92,15 +91,16 @@ public class GoldenCopyPersistenceHelper {
 
   }
 
-  private FudgeMsgWriter createMsgWriter(Processor p, FileWriter writer) {
-    
-    XMLStreamWriter xmlStreamWriter = FormattingXmlStreamWriter.builder(writer)
-                                                               .indent(true)
-                                                               .build();
-    
+  private FudgeMsgWriter createMsgWriter(FileWriter writer) {
+    XMLStreamWriter xmlStreamWriter;
+
+    try {
+      xmlStreamWriter = XMLOutputFactory.newFactory().createXMLStreamWriter(writer);
+    } catch (XMLStreamException e) {
+      throw new OpenGammaRuntimeException("Failed to create XMLStreamWriter", e);
+    }
     FudgeXMLStreamWriter streamWriter = new FudgeXMLStreamWriter(FUDGE_CONTEXT, xmlStreamWriter);
     FudgeMsgWriter fudgeMsgWriter = new FudgeMsgWriter(streamWriter);
-    
     return fudgeMsgWriter;
   }
 

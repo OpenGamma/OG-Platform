@@ -10,6 +10,10 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
@@ -19,7 +23,6 @@ import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import com.opengamma.util.xml.FormattingXmlStreamWriter;
 
 /**
  * Responsible for serializing a ViewInputs object so that it
@@ -74,10 +77,13 @@ public class ViewResultsSerializer {
   private void serialize(OutputStream outputStream, Object object) {
     try (Writer writer = new OutputStreamWriter(outputStream)) {
       FudgeContext ctx = OpenGammaFudgeContext.getInstance();
+      XMLStreamWriter xmlStreamWriter;
 
-      FormattingXmlStreamWriter xmlStreamWriter = FormattingXmlStreamWriter.builder(writer)
-          .indent(true)
-          .build();
+      try {
+        xmlStreamWriter = XMLOutputFactory.newFactory().createXMLStreamWriter(writer);
+      } catch (XMLStreamException e) {
+        throw new OpenGammaRuntimeException("Failed to create XMLStreamWriter", e);
+      }
       FudgeXMLStreamWriter streamWriter = new FudgeXMLStreamWriter(ctx, xmlStreamWriter);
       FudgeMsgWriter fudgeMsgWriter = new FudgeMsgWriter(streamWriter);
       MutableFudgeMsg msg = (new FudgeSerializer(ctx)).objectToFudgeMsg(object);

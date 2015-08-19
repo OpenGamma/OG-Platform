@@ -13,6 +13,10 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
@@ -25,8 +29,8 @@ import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import com.opengamma.util.xml.FormattingXmlStreamWriter;
 
 /**
  * Implementation of I/O using an XML representation of the Fudge binary encoding. Note that this is simply a human readable form of the Fudge binary data - as a result it is not as efficient or
@@ -98,9 +102,13 @@ public class FudgeXMLFormat implements RegressionIO.Format {
   public void write(final Object context, final Object o, final OutputStream dest) throws IOException {
     final Context ctx = (Context) context;
     final Writer writer = new OutputStreamWriter(dest);
-    FormattingXmlStreamWriter xmlStreamWriter = FormattingXmlStreamWriter.builder(writer)
-                                               .indent(true)
-                                               .build();
+    XMLStreamWriter xmlStreamWriter;
+
+    try {
+      xmlStreamWriter = XMLOutputFactory.newFactory().createXMLStreamWriter(writer);
+    } catch (XMLStreamException e) {
+      throw new OpenGammaRuntimeException("Failed to create XMLStreamWriter", e);
+    }
     final FudgeXMLStreamWriter streamWriter = new FudgeXMLStreamWriter(ctx._ctx, xmlStreamWriter);
     // Don't close fudgeMsgWriter; the caller will close the stream later
     @SuppressWarnings("resource")
