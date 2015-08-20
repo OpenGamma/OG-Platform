@@ -377,16 +377,15 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     assertEquals("Forex vanilla option: forward forex rate", fwd, fwdExpected, TOLERANCE_RELATIVE);
   }
 
-  //  @Test
-  //  /**
-  //   * Tests the forward Forex rate through the method and through the calculator.
-  //   */
-  //  public void forwardRateMethodVsCalculator() {
-  //    final double fwdMethod = METHOD_OPTION.forwardForexRate(FOREX_CALL_OPTION, SMILE_BUNDLE);
-  //    final ForwardRateForexCalculator FWDC = ForwardRateForexCalculator.getInstance();
-  //    final double fwdCalculator = FOREX_CALL_OPTION.accept(FWDC, SMILE_BUNDLE);
-  //    assertEquals("Forex: forward rate", fwdMethod, fwdCalculator, TOLERANCE_RELATIVE);
-  //  }
+  @Test
+  /** Tests the delta for a Forex option. */
+  public void delta() {
+    final CurrencyAmount delta = METHOD_OPTION.delta(FOREX_CALL_OPTION, SMILE_FLAT_MULTICURVES, true);
+    final MultipleCurrencyAmount pvM = METHOD_OPTION.presentValue(FOREX_CALL_OPTION, SMILE_M_MULTICURVES);
+    final MultipleCurrencyAmount pvP = METHOD_OPTION.presentValue(FOREX_CALL_OPTION, SMILE_P_MULTICURVES);
+    double deltaExpected = (pvP.getAmount(USD) - pvM.getAmount(USD)) / (2 * SHIFT);
+    assertEquals("Forex: delta", deltaExpected, delta.getAmount(), TOLERANCE_PV_DELTA);
+  }
 
   @Test
   /**

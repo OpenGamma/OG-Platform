@@ -137,7 +137,9 @@ public final class ForexOptionVanillaBlackSmileMethod {
   }
 
   /**
-   * Computes the delta of the Forex option. The delta is the first order derivative of the option present value to the spot fx rate.
+   * Computes the delta of the Forex option. 
+   * The delta is the first order derivative of the option present value to the spot fx rate. 
+   * The derivative suppose constant volatilities when the fx rate changes (sticky strike).
    * @param optionForex The Forex option, not null
    * @param smileMulticurves The curve and smile data, not null
    * @param directQuote Flag indicating if the delta should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)

@@ -106,7 +106,9 @@ public class ForexOptionDigitalCallSpreadBlackSmileMethod {
   }
 
   /**
-   * Computes the delta of the Forex option. The relative is the first order derivative of the pv.
+   * Computes the delta of the Forex option. 
+   * The delta is the first order derivative of the option present value to the spot fx rate. 
+   * The derivative suppose constant volatilities when the fx rate changes (sticky strike).
    * @param optionDigital The option.
    * @param smileMulticurves The curve and smile data.
    * @return The delta.

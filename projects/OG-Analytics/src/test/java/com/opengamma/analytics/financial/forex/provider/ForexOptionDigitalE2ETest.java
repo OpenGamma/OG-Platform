@@ -40,6 +40,7 @@ import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolat
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -81,50 +82,14 @@ public class ForexOptionDigitalE2ETest {
   private static final double SPOT_USDCNH = 6.2191;
   private static final double SPOT_AUDUSD = 0.73805;
   private static final double SPOT_EURUSD = 1.08815;
-  private static final double[] FORWARDS_NZDUSD = new double[] {0.653421, 0.652062, 0.650623, 0.649145, 0.645075,
-    0.641623, 0.638285, 0.63255, 0.62722, 0.6189, 0.6103, 0.60205, 0.5961, 0.58695, 0.57805, 0.5678, 0.55715 };
   private static final double[] FORWARDS_USDCNH = new double[] {6.23396, 6.2481, 6.2606, 6.3101, 6.34985, 6.3991,
-    6.5591 };
-  private static final double[] FORWARDS_AUDUSD = new double[] {0.737768, 0.736723, 0.73561, 0.734434, 0.73109,
-    0.72823, 0.725625, 0.718132, 0.712425, 0.7056, 0.70155, 0.6931, 0.68255, 0.67505, 0.67195, 0.6596, 0.62965 };
-  private static final double[] FORWARDS_EURUSD = new double[] {1.088244, 1.088601, 1.08906, 1.089648, 1.09175,
-    1.094234, 1.097503, 1.1153, 1.138033, 1.16271, 1.187652, 1.2093, 1.2337, 1.251025, 1.2692, 1.287175, 1.35755,
-    1.43805, 1.806031988, 1.873398828 };
+    6.5591 }; // Forward used to compute the discounting curve in CNH
   private static final DateTimeFormatter DDMMYYYY = new DateTimeFormatterBuilder().appendValue(DAY_OF_MONTH, 2)
       .appendLiteral("/").appendValue(MONTH_OF_YEAR, 2).appendLiteral("/").appendValue(YEAR, 4).toFormatter();
-  private static final LocalDate[] DATES_NZDUSD = new LocalDate[] {LocalDate.parse("13/08/2015", DDMMYYYY),
-    LocalDate.parse("08/09/2015", DDMMYYYY), LocalDate.parse("06/10/2015", DDMMYYYY),
-    LocalDate.parse("06/11/2015", DDMMYYYY), LocalDate.parse("08/02/2016", DDMMYYYY),
-    LocalDate.parse("06/05/2016", DDMMYYYY), LocalDate.parse("08/08/2016", DDMMYYYY),
-    LocalDate.parse("07/02/2017", DDMMYYYY), LocalDate.parse("07/08/2017", DDMMYYYY),
-    LocalDate.parse("06/08/2018", DDMMYYYY), LocalDate.parse("06/08/2019", DDMMYYYY),
-    LocalDate.parse("06/08/2020", DDMMYYYY), LocalDate.parse("06/08/2021", DDMMYYYY),
-    LocalDate.parse("08/08/2022", DDMMYYYY), LocalDate.parse("07/08/2023", DDMMYYYY),
-    LocalDate.parse("06/08/2024", DDMMYYYY), LocalDate.parse("06/08/2025", DDMMYYYY) };
   private static final LocalDate[] DATES_USDCNH = new LocalDate[] {LocalDate.parse("08/09/2015", DDMMYYYY),
     LocalDate.parse("06/10/2015", DDMMYYYY), LocalDate.parse("06/11/2015", DDMMYYYY),
     LocalDate.parse("16/02/2016", DDMMYYYY), LocalDate.parse("06/05/2016", DDMMYYYY),
     LocalDate.parse("08/08/2016", DDMMYYYY), LocalDate.parse("07/08/2017", DDMMYYYY) };
-  private static final LocalDate[] DATES_AUDUSD = new LocalDate[] {LocalDate.parse("13/08/2015", DDMMYYYY),
-    LocalDate.parse("08/09/2015", DDMMYYYY), LocalDate.parse("06/10/2015", DDMMYYYY),
-    LocalDate.parse("06/11/2015", DDMMYYYY), LocalDate.parse("08/02/2016", DDMMYYYY),
-    LocalDate.parse("06/05/2016", DDMMYYYY), LocalDate.parse("08/08/2016", DDMMYYYY),
-    LocalDate.parse("08/08/2017", DDMMYYYY), LocalDate.parse("07/08/2018", DDMMYYYY),
-    LocalDate.parse("06/08/2019", DDMMYYYY), LocalDate.parse("06/08/2020", DDMMYYYY),
-    LocalDate.parse("06/08/2021", DDMMYYYY), LocalDate.parse("08/08/2022", DDMMYYYY),
-    LocalDate.parse("08/08/2023", DDMMYYYY), LocalDate.parse("06/08/2024", DDMMYYYY),
-    LocalDate.parse("06/08/2025", DDMMYYYY), LocalDate.parse("06/08/2030", DDMMYYYY) };
-  private static final LocalDate[] DATES_EURUSD = new LocalDate[] {LocalDate.parse("13/08/2015", DDMMYYYY),
-    LocalDate.parse("08/09/2015", DDMMYYYY), LocalDate.parse("06/10/2015", DDMMYYYY),
-    LocalDate.parse("06/11/2015", DDMMYYYY), LocalDate.parse("08/02/2016", DDMMYYYY),
-    LocalDate.parse("06/05/2016", DDMMYYYY), LocalDate.parse("08/08/2016", DDMMYYYY),
-    LocalDate.parse("07/08/2017", DDMMYYYY), LocalDate.parse("06/08/2018", DDMMYYYY),
-    LocalDate.parse("06/08/2019", DDMMYYYY), LocalDate.parse("06/08/2020", DDMMYYYY),
-    LocalDate.parse("06/08/2021", DDMMYYYY), LocalDate.parse("08/08/2022", DDMMYYYY),
-    LocalDate.parse("07/08/2023", DDMMYYYY), LocalDate.parse("06/08/2024", DDMMYYYY),
-    LocalDate.parse("06/08/2025", DDMMYYYY), LocalDate.parse("06/08/2030", DDMMYYYY),
-    LocalDate.parse("06/08/2035", DDMMYYYY), LocalDate.parse("07/08/2045", DDMMYYYY),
-    LocalDate.parse("08/08/2050", DDMMYYYY) };
   private static final Currency CNH = Currency.of("CNH");
   private static final FXMatrix FX_MATRIX;
   static {
@@ -146,7 +111,7 @@ public class ForexOptionDigitalE2ETest {
   private static final String CNH_DSC_NAME = "CNH Dsc";
   private static final double[] RATES_USD = new double[] {0.00126, 0.001505, 0.001915, 0.0025375, 0.003114, 0.003947,
     0.005536, 0.007271, 0.0092, 0.011275, 0.013347, 0.015062, 0.016723, 0.0128225, 0.0154065, 0.017465, 0.019145,
-    0.020495, 0.0215865, 0.022466, 0.023212 };
+    0.020495, 0.0215865, 0.022466, 0.023212 }; // Zero coupon rates
   private static final double[] RATES_AUD = new double[] {0.0205, 0.0211, 0.0215, 0.0226, 0.02241, 0.02215, 0.02198,
     0.02247, 0.02275, 0.0237, 0.02495, 0.026463, 0.027913, 0.0291065, 0.030225, 0.031125, 0.031945 };
   private static final double[] RATES_NZD = new double[] {0.03, 0.031, 0.0306, 0.0302, 0.028896, 0.028083, 0.027764,
@@ -202,7 +167,7 @@ public class ForexOptionDigitalE2ETest {
       int n = rates[i].length;
       double[] times = new double[n];
       for (int j = 0; j < n; ++j) {
-        times[j] = DAY_COUNT.getDayCountFraction(VALUATION_DATE, dates[i][j]);
+        times[j] = TimeCalculator.getTimeBetween(VALUATION_DATE, dates[i][j]);
         if (i == 0) {
           RATES_CNH[j] = RATES_USD[j]
               + Math.log(CUBIC_FLAT_LINEAR.interpolate(bundle, times[j]) / SPOT_USDCNH) / times[j];
@@ -362,7 +327,8 @@ public class ForexOptionDigitalE2ETest {
   private static final ParameterSensitivityParameterCalculator<BlackForexSmileProviderInterface> PSC = new
       ParameterSensitivityParameterCalculator<>(PVSC);
 
-  private static final double TOL = 1.0e-12;
+  private static final double TOL = 1.0e-8;
+  private static final boolean PRINT = false;
 
   public void testAUDUSD() {
     MultipleCurrencyAmount pv = METHOD_SPREAD.presentValue(DERIVATIVE_AUDUSD, PROVIDER_AUDUSD);
@@ -376,17 +342,16 @@ public class ForexOptionDigitalE2ETest {
         METHOD_SPREAD.presentValueBlackVolatilitySensitivity(DERIVATIVE_AUDUSD, PROVIDER_AUDUSD);
     PresentValueForexBlackVolatilityNodeSensitivityDataBundle volSensi =
         METHOD_SPREAD.presentValueBlackVolatilityNodeSensitivity(DERIVATIVE_AUDUSD, PROVIDER_AUDUSD);
-    assertEquals(pv.getAmount(USD), 343261.4067903608, TOL * SETTLE_CURRENCY_NOTIONAL);
-    assertEquals(delta.getAmount(), -7992644.913095474, TOL * SETTLE_CURRENCY_NOTIONAL);
-    assertEquals(gamma.getAmount(), 8.064697542149353E7, TOL * SETTLE_CURRENCY_NOTIONAL);
+    assertEquals(pv.getAmount(USD), 342743.8725, TOL * SETTLE_CURRENCY_NOTIONAL);
+    assertEquals(delta.getAmount(), -8027937.8774, TOL * SETTLE_CURRENCY_NOTIONAL);
+    assertEquals(gamma.getAmount(), 81601543.8955, TOL * SETTLE_CURRENCY_NOTIONAL);
 
-    boolean print = false;
-    if (print) {
+    if (PRINT) {
       System.out.println("PV: " + pv);
       System.out.println("Currency exposure: " + ce);
       System.out.println("PV delta: " + delta);
       System.out.println("PV gamma: " + gamma);
-      System.out.println("Bucketed PV01: " + sensi);
+      System.out.println("Bucketed PV01 (zero-rates): " + sensi);
       System.out.println("PV vega: " + vega.getVega());
       System.out.println("Bucketed PV vega:");
       System.out.println("  absolute delta: " + volSensi.getDelta());
@@ -412,12 +377,12 @@ public class ForexOptionDigitalE2ETest {
     assertEquals(gamma.getAmount(), 2.7112557412446594E8, TOL * SETTLE_CURRENCY_NOTIONAL);
 
     boolean print = false;
-    if (print) {
+    if (PRINT) {
       System.out.println("PV: " + pv);
       System.out.println("Currency exposure: " + ce);
       System.out.println("PV delta: " + delta);
       System.out.println("PV gamma: " + gamma);
-      System.out.println("Bucketed PV01: " + sensi);
+      System.out.println("Bucketed PV01 (zero-rates): " + sensi);
       System.out.println("PV vega: " + vega.getVega());
       System.out.println("Bucketed PV vega:");
       System.out.println("  absolute delta: " + volSensi.getDelta());
@@ -438,15 +403,14 @@ public class ForexOptionDigitalE2ETest {
         METHOD_SPREAD.presentValueBlackVolatilitySensitivity(DERIVATIVE_NZDUSD, PROVIDER_NZDUSD);
     PresentValueForexBlackVolatilityNodeSensitivityDataBundle volSensi =
         METHOD_SPREAD.presentValueBlackVolatilityNodeSensitivity(DERIVATIVE_NZDUSD, PROVIDER_NZDUSD);
-    assertEquals(pv.getAmount(USD), 157169.61789094657, TOL * SETTLE_CURRENCY_NOTIONAL);
-    assertEquals(delta.getAmount(), -4326636.963881731, TOL * SETTLE_CURRENCY_NOTIONAL);
-    assertEquals(gamma.getAmount(), 8.467425902230835E7, TOL * SETTLE_CURRENCY_NOTIONAL);
+    assertEquals(pv.getAmount(USD), 157169.3731, TOL * SETTLE_CURRENCY_NOTIONAL);
+    assertEquals(delta.getAmount(), -4326631.7014, TOL * SETTLE_CURRENCY_NOTIONAL);
+    assertEquals(gamma.getAmount(), 84674218.4853, TOL * SETTLE_CURRENCY_NOTIONAL);
 
-    boolean print = false;
-    if (print) {
+    if (PRINT) {
       System.out.println("PV: " + pv);
       System.out.println("Currency exposure: " + ce);
-      System.out.println("PV delta: " + delta);
+      System.out.println("Bucketed PV01 (zero-rates): " + sensi);
       System.out.println("PV gamma: " + gamma);
       System.out.println("Bucketed PV01: " + sensi);
       System.out.println("PV vega: " + vega.getVega());
@@ -476,11 +440,10 @@ public class ForexOptionDigitalE2ETest {
     assertEquals(delta.getAmount(), -1.4636480454570957E7, TOL * SETTLE_CURRENCY_NOTIONAL);
     assertEquals(gamma.getAmount(), 4.626467186570426E8, TOL * SETTLE_CURRENCY_NOTIONAL);
 
-    boolean print = false;
-    if (print) {
+    if (PRINT) {
       System.out.println("PV: " + pv);
       System.out.println("Currency exposure: " + ce);
-      System.out.println("PV delta: " + delta);
+      System.out.println("Bucketed PV01 (zero-rates): " + sensi);
       System.out.println("PV gamma: " + gamma);
       System.out.println("Bucketed PV01: " + sensi);
       System.out.println("PV vega: " + vega.getVega());
