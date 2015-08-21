@@ -47,6 +47,7 @@ import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.FxMatrixMarketDataBuilder;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFactory;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
+import com.opengamma.sesame.marketdata.InflationMulticurveMarketDataBuilder;
 import com.opengamma.sesame.marketdata.IssuerMulticurveMarketDataBuilder;
 import com.opengamma.sesame.marketdata.MulticurveMarketDataBuilder;
 import com.opengamma.sesame.marketdata.SnapshotMarketDataFactory;
@@ -103,7 +104,8 @@ public class MarketDataEnvironmentComponentFactory extends AbstractComponentFact
                                          fxMatrixBuilder(),
                                          fxRateBuilder(),
                                          creditCurveMarketDataBuilder(),
-                                         isdaYieldCurveMarketDataBuilder());
+                                         isdaYieldCurveMarketDataBuilder(),
+                                         inflationMulticurveBuilder());
 
     repo.registerComponent(MarketDataEnvironmentFactory.class, _classifier, environmentFactory);
   }
@@ -151,6 +153,35 @@ public class MarketDataEnvironmentComponentFactory extends AbstractComponentFact
 
     return FunctionModel.build(MulticurveMarketDataBuilder.class, config, _componentMap);
   }
+
+  /**
+   * Creates a builder that provides multicurve bundles.
+   *
+   * @return a builder that provides multicurve bundles.
+   */
+  protected InflationMulticurveMarketDataBuilder inflationMulticurveBuilder() {
+    FunctionModelConfig config =
+        config(
+            arguments(
+                function(
+                    DefaultCurveNodeConverterFn.class,
+                    argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
+                function(
+                    MulticurveDiscountBuildingRepository.class,
+                    argument("toleranceAbs", 1e-9),
+                    argument("toleranceRel", 1e-9),
+                    argument("stepMaximum", 1000)),
+                function(
+                    ConfigDBCurveSpecificationBuilder.class,
+                    argument("versionCorrection", VersionCorrection.LATEST))),
+            implementations(
+                CurveSpecificationBuilder.class, ConfigDBCurveSpecificationBuilder.class,
+                CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
+                HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class));
+
+    return FunctionModel.build(InflationMulticurveMarketDataBuilder.class, config, _componentMap);
+  }
+
 
   /**
    * Creates a builder that provides Credit Curve Market Data.

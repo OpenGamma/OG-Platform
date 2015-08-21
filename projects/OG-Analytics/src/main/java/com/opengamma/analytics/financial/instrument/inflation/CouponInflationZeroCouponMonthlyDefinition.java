@@ -164,7 +164,7 @@ public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationD
 
   @Override
   public CouponInflationZeroCouponMonthly toDerivative(final ZonedDateTime date) {
-    throw new OpenGammaRuntimeException("a time serie is needed");
+    throw new OpenGammaRuntimeException("a time series is needed");
   }
 
   @Override

@@ -35,24 +35,24 @@ public class DefaultInflationSwapConverterFn implements InflationSwapConverterFn
 
   private static final Logger s_logger = LoggerFactory.getLogger(DefaultInflationSwapConverterFn.class);
 
-  private final InflationSwapSecurityConverter _secToDefnConverter;
-  private final FixedIncomeConverterDataProvider _defnToDerivConverter;
+  private final InflationSwapSecurityConverter _securityConverter;
+  private final FixedIncomeConverterDataProvider _definitionConverter;
   private final FixingsFn _fixingsFn;
   private final FunctionCache _cache;
 
   /**
-   * @param secToDefnConverter converts an {@link ZeroCouponInflationSwapSecurity} to a {@link SwapDefinition}
-   * @param defnToDerivConverter converts a {@link SwapDefinition} to a {@link InstrumentDerivative}
+   * @param securityConverter converts an {@link ZeroCouponInflationSwapSecurity} to a {@link SwapDefinition}
+   * @param definitionConverter converts a {@link SwapDefinition} to a {@link InstrumentDerivative}
    * @param fixingsFn provides time series of fixings for the security
    * @param cache for caching definitions and derivatives
    */
-  public DefaultInflationSwapConverterFn(InflationSwapSecurityConverter secToDefnConverter,
-                                         FixedIncomeConverterDataProvider defnToDerivConverter,
+  public DefaultInflationSwapConverterFn(InflationSwapSecurityConverter securityConverter,
+                                         FixedIncomeConverterDataProvider definitionConverter,
                                          FixingsFn fixingsFn,
                                          FunctionCache cache) {
     _cache = ArgumentChecker.notNull(cache, "functionCache");
-    _secToDefnConverter = ArgumentChecker.notNull(secToDefnConverter, "secToDefnConverter");
-    _defnToDerivConverter = ArgumentChecker.notNull(defnToDerivConverter, "defnToDerivConverter");
+    _securityConverter = ArgumentChecker.notNull(securityConverter, "securityConverter");
+    _definitionConverter = ArgumentChecker.notNull(definitionConverter, "defnToDerivConverter");
     _fixingsFn = ArgumentChecker.notNull(fixingsFn, "htsFn");
   }
 
@@ -71,9 +71,10 @@ public class DefaultInflationSwapConverterFn implements InflationSwapConverterFn
         key, new Callable<Pair<SwapFixedInflationZeroCouponDefinition, InstrumentDerivative>>() {
           @Override
           public Pair<SwapFixedInflationZeroCouponDefinition, InstrumentDerivative> call() throws Exception {
-            SwapFixedInflationZeroCouponDefinition definition = (SwapFixedInflationZeroCouponDefinition) security.accept(_secToDefnConverter);
+            SwapFixedInflationZeroCouponDefinition definition =
+                (SwapFixedInflationZeroCouponDefinition) security.accept(_securityConverter);
             InstrumentDerivative derivative =
-                _defnToDerivConverter.convert(security, definition, env.getValuationTime(), fixings);
+                _definitionConverter.convert(security, definition, env.getValuationTime(), fixings);
             return Pairs.of(definition, derivative);
           }
         });

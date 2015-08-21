@@ -208,7 +208,7 @@ public class DefaultFixingsFn implements FixingsFn {
         ids.add(id.toBundle());
       }
       if (receiveLeg instanceof InflationIndexSwapLeg) {
-        ExternalId id = ((InflationIndexSwapLeg) payLeg).getIndexId();
+        ExternalId id = ((InflationIndexSwapLeg) receiveLeg).getIndexId();
         ids.add(id.toBundle());
       }
 
