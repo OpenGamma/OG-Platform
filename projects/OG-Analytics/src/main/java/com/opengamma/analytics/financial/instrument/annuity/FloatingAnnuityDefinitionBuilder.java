@@ -658,7 +658,7 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
         }
         double fixingPeriodYearFraction = AnnuityDefinitionBuilder.getDayCountFraction(
             Period.ZERO.equals(getAccrualPeriodFrequency()) ? Period.ofYears(1) : getAccrualPeriodFrequency(),
-            _adjustedResetDateParameters.getCalendar(), getDayCount(),
+            _adjustedResetDateParameters.getCalendar(), index.getDayCount(),
             couponStub != null ? couponStub.getStubType() : StubType.NONE,
             couponStub != null ? couponStub.getStubType() : StubType.NONE,
             fixingPeriodStartDate, fixingPeriodEndDate, isFirstCoupon, isLastCoupon);
@@ -721,7 +721,7 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
             actualFixingPeriodEndDate = ZonedDateTime.of(couponStub.getEffectiveDate(), LocalTime.of(0, 0), ZoneId.of("UTC"));
             fixingPeriodYearFraction = AnnuityDefinitionBuilder.getDayCountFraction(
                 Period.ZERO.equals(getAccrualPeriodFrequency()) ? Period.ofYears(1) : getAccrualPeriodFrequency(),
-                _adjustedResetDateParameters.getCalendar(), getDayCount(), couponStub.getStubType(), couponStub.getStubType(),
+                _adjustedResetDateParameters.getCalendar(), index.getDayCount(), couponStub.getStubType(), couponStub.getStubType(),
                 fixingPeriodStartDate, actualFixingPeriodEndDate, isFirstCoupon, isLastCoupon);
           } else {
             actualFixingPeriodEndDate = fixingPeriodEndDate;
