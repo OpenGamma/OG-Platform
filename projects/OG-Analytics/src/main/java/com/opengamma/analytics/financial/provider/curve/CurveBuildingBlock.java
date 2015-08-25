@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.curve;
 
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
@@ -16,7 +17,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Class describing a block of curves build together.
  */
-public class CurveBuildingBlock {
+public class CurveBuildingBlock implements Serializable {
 
   /**
    * The list of curve in the block as a map: Name to a pair of integers:

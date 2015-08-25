@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.math.interpolation.data;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -16,7 +17,7 @@ import com.opengamma.util.ArgumentChecker;
  * {@link NavigableMap}.
  * 
  */
-public class NavigableMapInterpolator1DDataBundle implements Interpolator1DDataBundle {
+public class NavigableMapInterpolator1DDataBundle implements Interpolator1DDataBundle, Serializable {
   private final NavigableMap<Double, Double> _backingMap;
 
   public NavigableMapInterpolator1DDataBundle(final NavigableMap<Double, Double> backingMap) {

@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.math.interpolation.data;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import com.opengamma.util.ArgumentChecker;
@@ -12,7 +13,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class Interpolator1DQuadraticSplineDataBundle implements Interpolator1DDataBundle {
+public class Interpolator1DQuadraticSplineDataBundle implements Interpolator1DDataBundle, Serializable {
   private final Interpolator1DDataBundle _underlyingData;
   private final double[] _a;
   private final double[] _b;

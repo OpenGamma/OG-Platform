@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.math.interpolation.data;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import org.apache.commons.lang.NotImplementedException;
@@ -18,7 +19,8 @@ import com.opengamma.util.ArgumentChecker;
  * For certain methods of {@link PiecewisePolynomialInterpolator} introducing extra breakpoints, {@link PiecewisePolynomialResultsWithSensitivity} is not well-defined
  * In this case, finite difference approximation is used to derive node sensitivity
  */
-public class Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle implements Interpolator1DDataBundle {
+public class Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle
+    implements Interpolator1DDataBundle, Serializable {
 
   private final PiecewisePolynomialResult _poly;
   private final PiecewisePolynomialResult[] _polyUp;

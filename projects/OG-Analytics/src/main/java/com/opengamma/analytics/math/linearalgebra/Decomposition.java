@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.math.linearalgebra;
 
+import java.io.Serializable;
+
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 
@@ -13,6 +15,8 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
  * @param <S> The type of the decomposition result
  */
 
-public abstract class Decomposition<S extends DecompositionResult> extends Function1D<DoubleMatrix2D, S> {
+public abstract class Decomposition<S extends DecompositionResult>
+    extends Function1D<DoubleMatrix2D, S>
+    implements Serializable {
 
 }

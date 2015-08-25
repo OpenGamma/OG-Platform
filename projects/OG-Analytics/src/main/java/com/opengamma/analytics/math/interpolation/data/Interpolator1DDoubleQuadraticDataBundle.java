@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.math.interpolation.data;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
@@ -13,7 +15,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class Interpolator1DDoubleQuadraticDataBundle implements Interpolator1DDataBundle {
+public class Interpolator1DDoubleQuadraticDataBundle implements Interpolator1DDataBundle, Serializable {
   private final Interpolator1DDataBundle _underlyingData;
   private RealPolynomialFunction1D[] _quadratics;
   private RealPolynomialFunction1D[] _quadraticsFirstDerivative;

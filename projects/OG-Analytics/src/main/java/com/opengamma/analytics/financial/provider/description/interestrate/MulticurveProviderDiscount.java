@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.description.interestrate;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,7 +32,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * Class describing a "market" with discounting, forward, price index and credit curves.
  * The forward rate are computed as the ratio of discount factors stored in {@link YieldAndDiscountCurve}.
  */
-public class MulticurveProviderDiscount implements MulticurveProviderInterface {
+public class MulticurveProviderDiscount implements MulticurveProviderInterface, Serializable {
 
   private static final Logger s_logger = LoggerFactory.getLogger(MulticurveProviderDiscount.class);
 

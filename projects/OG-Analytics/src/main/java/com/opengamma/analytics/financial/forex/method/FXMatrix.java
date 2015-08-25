@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.forex.method;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -21,7 +22,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Class describing a set of currencies and all the cross rates between them.
  */
-public class FXMatrix {
+public class FXMatrix implements Serializable {
 
   /**
    * The map between the currencies and their order.

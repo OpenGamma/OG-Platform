@@ -7,6 +7,7 @@ package com.opengamma.analytics.math.interpolation;
 
 import static com.opengamma.analytics.math.matrix.MatrixAlgebraFactory.OG_ALGEBRA;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import com.opengamma.analytics.math.linearalgebra.Decomposition;
@@ -21,7 +22,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
  * "solve" for 1-dimensional problem and "solveMultiDim" for  multi-dimensional problem should be implemented in inherited classes
  * "getKnotsMat1D" is overridden in certain cases 
  */
-abstract class CubicSplineSolver {
+abstract class CubicSplineSolver implements Serializable {
 
   private final Decomposition<LUDecompositionResult> _luObj = new LUDecompositionCommons();
 
