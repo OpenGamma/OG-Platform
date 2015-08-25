@@ -48,6 +48,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.rolldate.RollConvention;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
@@ -117,6 +118,16 @@ public class FloatingAnnuityDefinitionBuilderTest {
           .rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0))
           .resetDateAdjustmentParameters(ADJUSTED_DATE_LIBOR).accrualPeriodParameters(ADJUSTED_DATE_LIBOR)
           .dayCount(USDLIBOR3M.getDayCount()).fixingDateAdjustmentParameters(OFFSET_ADJ_LIBOR).currency(USD)
+          .spread(SPREAD_1).build();
+ 
+  @SuppressWarnings("unchecked")  /* Day count different from the Index day count */
+  private static final AnnuityDefinition<? extends CouponDefinition> IBOR_LEG_2_DEFINITION =
+      (AnnuityDefinition<? extends CouponDefinition>) new FloatingAnnuityDefinitionBuilder()
+          .payer(PAYER_1).notional(NOTIONAL_PROV_1).startDate(EFFECTIVE_DATE_1).endDate(MATURITY_DATE_1)
+          .index(USDLIBOR3M).accrualPeriodFrequency(PAYMENT_PERIOD_3)
+          .rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0))
+          .resetDateAdjustmentParameters(ADJUSTED_DATE_LIBOR).accrualPeriodParameters(ADJUSTED_DATE_LIBOR)
+          .dayCount(DayCounts.THIRTY_360).fixingDateAdjustmentParameters(OFFSET_ADJ_LIBOR).currency(USD)
           .spread(SPREAD_1).build();
 
   private static final AnnuityDefinition<? extends CouponDefinition> IBOR_LEG_EOM_DEFINITION =
@@ -200,6 +211,51 @@ public class FloatingAnnuityDefinitionBuilderTest {
           ScheduleCalculator.getAdjustedDate(referenceDates[loopcpn], USDLIBOR3M, NYC);
       assertEquals("FloatingAnnuityDefinitionBuilderTest: coupon ibor", cpn.getFixingPeriodEndDate().toLocalDate(),
           fixingPeriodEndDate.toLocalDate());
+      double fixingAF = USDLIBOR3M.getDayCount().getDayCountFraction(referenceDates[loopcpn], fixingPeriodEndDate);
+      assertEquals("FloatingAnnuityDefinitionBuilderTest: coupon ibor", cpn.getFixingPeriodAccrualFactor(),
+          fixingAF);
+      assertEquals("FloatingAnnuityDefinitionBuilderTest: coupon ibor", cpn.getSpread(), SPREAD_1, TOLERANCE_RATE);
+      assertEquals("FloatingAnnuityDefinitionBuilderTest: coupon ibor", cpn.getNotional(), NOTIONAL_1, TOLERANCE_AMOUNT);
+    }
+  }
+
+  @Test
+  public void couponIbor2() {
+    int nbIborCpn = TENOR_YEAR_1 * 4;
+    assertEquals("FloatingAnnuityDefinitionBuilderTest: coupon ibor", 
+        IBOR_LEG_2_DEFINITION.getNumberOfPayments(), nbIborCpn);
+    assertEquals("FloatingAnnuityDefinitionBuilderTest: coupon ibor",
+        IBOR_LEG_2_DEFINITION.getNthPayment(nbIborCpn - 1).getPaymentDate().toLocalDate(), MATURITY_DATE_1);
+    ZonedDateTime effectiveDateTime = DateUtils.getUTCDate(EFFECTIVE_DATE_1.getYear(),
+        EFFECTIVE_DATE_1.getMonthValue(),
+        EFFECTIVE_DATE_1.getDayOfMonth());
+    ZonedDateTime[] referenceDates = new ZonedDateTime[nbIborCpn + 1];
+    for (int loopcpn = 0; loopcpn <= nbIborCpn; loopcpn++) {
+      referenceDates[loopcpn] = ScheduleCalculator.getAdjustedDate(effectiveDateTime,
+          PAYMENT_PERIOD_3.multipliedBy(loopcpn), ADJUSTED_DATE_FEDFUND.getBusinessDayConvention(), NYC);
+    }
+    for (int loopcpn = 0; loopcpn < nbIborCpn; loopcpn++) {
+      assertTrue("FloatingAnnuityDefinitionBuilderTest: coupon ibor",
+          IBOR_LEG_2_DEFINITION.getNthPayment(loopcpn) instanceof CouponIborSpreadDefinition);
+      CouponIborSpreadDefinition cpn = (CouponIborSpreadDefinition) IBOR_LEG_2_DEFINITION.getNthPayment(loopcpn);
+      // Payment dates
+      assertEquals("FloatingAnnuityDefinitionBuilderTest: coupon ibor", cpn.getPaymentDate().toLocalDate(),
+          referenceDates[loopcpn + 1].toLocalDate());
+      // Fixing dates
+      ZonedDateTime fixingDate =
+          ScheduleCalculator.getAdjustedDate(referenceDates[loopcpn], -USDLIBOR3M.getSpotLag(), NYC);
+      assertEquals("FloatingAnnuityDefinitionBuilderTest: coupon ibor", cpn.getFixingDate().toLocalDate(),
+          fixingDate.toLocalDate());
+      // Fixing underlying dates
+      assertEquals("FloatingAnnuityDefinitionBuilderTest: coupon ibor", cpn.getFixingPeriodStartDate().toLocalDate(),
+          referenceDates[loopcpn].toLocalDate());
+      ZonedDateTime fixingPeriodEndDate = 
+          ScheduleCalculator.getAdjustedDate(referenceDates[loopcpn], USDLIBOR3M, NYC);
+      assertEquals("FloatingAnnuityDefinitionBuilderTest: coupon ibor", cpn.getFixingPeriodEndDate().toLocalDate(),
+          fixingPeriodEndDate.toLocalDate());
+      double fixingAF = USDLIBOR3M.getDayCount().getDayCountFraction(referenceDates[loopcpn], fixingPeriodEndDate);
+      assertEquals("FloatingAnnuityDefinitionBuilderTest: coupon ibor", cpn.getFixingPeriodAccrualFactor(),
+          fixingAF);
       assertEquals("FloatingAnnuityDefinitionBuilderTest: coupon ibor", cpn.getSpread(), SPREAD_1, TOLERANCE_RATE);
       assertEquals("FloatingAnnuityDefinitionBuilderTest: coupon ibor", cpn.getNotional(), NOTIONAL_1, TOLERANCE_AMOUNT);
     }
