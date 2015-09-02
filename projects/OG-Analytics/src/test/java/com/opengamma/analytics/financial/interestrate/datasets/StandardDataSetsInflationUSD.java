@@ -405,4 +405,7 @@ public class StandardDataSetsInflationUSD {
   
   private static final Map<IborIndex,ZonedDateTimeDoubleTimeSeries> HTS_IBOR = new HashMap<>();
   
+  public static IndexON getIndexON() {
+    return USDFEDFUND;
+  }
 }

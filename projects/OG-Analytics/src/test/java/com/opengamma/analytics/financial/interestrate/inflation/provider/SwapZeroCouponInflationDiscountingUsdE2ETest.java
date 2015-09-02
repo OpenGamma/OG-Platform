@@ -16,6 +16,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflationMaster;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflationZeroCoupon;
+import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedInflationZeroCouponDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -38,6 +39,7 @@ import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * End-to-end tests for inflation curve calibration and pricing of inflation zero-coupon swaps.
@@ -205,4 +207,83 @@ public class SwapZeroCouponInflationDiscountingUsdE2ETest {
         pvpsComputed1, pvpsComputed3, TOLERANCE_PV_DELTA);
   }
   
+  @Test
+  public void bucketedZeroRatePv01Node() {
+    IndexON index = StandardDataSetsInflationUSD.getIndexON();
+    double[] expectedOIS = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0 };
+    double[] expected1 = new double[] {0.2391924970613193, 3.9334293371931075, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0 };
+    double[] expected2 = new double[] {0.2391924970613193, 3.9334293371931075, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0 };
+    double[] expected3 = new double[] {0.2391924970613193, 3.9334293371931075, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0 };
+    MultipleCurrencyParameterSensitivity computed1 =
+        PSC.calculateSensitivity(ZCI_1, MULTICURVE_INFL_1).multipliedBy(BP1);
+    MultipleCurrencyParameterSensitivity computed2 =
+        PSC.calculateSensitivity(ZCI_1, MULTICURVE_INFL_2).multipliedBy(BP1);
+    MultipleCurrencyParameterSensitivity computed3 =
+        PSC.calculateSensitivity(ZCI_1, MULTICURVE_INFL_3).multipliedBy(BP1);
+    assertArrayRelative("bucketedZeroRatePv01Node", expected1,
+        computed1.getSensitivity(Pairs.of(MULTICURVE_INFL_1.getName(US_CPI), USD)).getData(), TOLERANCE_PV);
+    assertArrayRelative("bucketedZeroRatePv01Node", expectedOIS,
+        computed1.getSensitivity(Pairs.of(MULTICURVE_INFL_1.getName(index), USD)).getData(), TOLERANCE_PV);
+    assertArrayRelative("bucketedZeroRatePv01Node", expected2,
+        computed2.getSensitivity(Pairs.of(MULTICURVE_INFL_2.getName(US_CPI), USD)).getData(), TOLERANCE_PV);
+    assertArrayRelative("bucketedZeroRatePv01Node", expectedOIS,
+        computed2.getSensitivity(Pairs.of(MULTICURVE_INFL_2.getName(index), USD)).getData(), TOLERANCE_PV);
+    assertArrayRelative("bucketedZeroRatePv01Node", expected3,
+        computed3.getSensitivity(Pairs.of(MULTICURVE_INFL_3.getName(US_CPI), USD)).getData(), TOLERANCE_PV);
+    assertArrayRelative("bucketedZeroRatePv01Node", expectedOIS,
+        computed3.getSensitivity(Pairs.of(MULTICURVE_INFL_3.getName(index), USD)).getData(), TOLERANCE_PV);
+
+  }
+
+  @Test
+  public void bucketedZeroRatePv01Aged() {
+    IndexON index = StandardDataSetsInflationUSD.getIndexON();
+    double[] expectedPr1 = new double[] {0.0, 0.0, 0.0, 3.2884348703648847, 0.7763062873998817, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    double[] expectedOn1 = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -181.78857803005081,
+      -55.38361696256043, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    double[] expectedPr2 = new double[] {0.0, 0.0, 0.0, 3.2884348703648847, 0.7763062873998817, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    double[] expectedOn2 = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -181.7885780300487,
+      -55.383616962559806, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    double[] expectedPr3 = new double[] {0.0, 0.0, 0.0, 3.288434870364886, 0.776306287399882, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0 };
+    double[] expectedOn3 = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -181.7885780300488,
+      -55.38361696255983, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    MultipleCurrencyParameterSensitivity computed1 =
+        PSC.calculateSensitivity(ZCI_2, MULTICURVE_INFL_1).multipliedBy(BP1);
+    MultipleCurrencyParameterSensitivity computed2 =
+        PSC.calculateSensitivity(ZCI_2, MULTICURVE_INFL_2).multipliedBy(BP1);
+    MultipleCurrencyParameterSensitivity computed3 =
+        PSC.calculateSensitivity(ZCI_2, MULTICURVE_INFL_3).multipliedBy(BP1);
+    assertArrayRelative("bucketedZeroRatePv01Node", expectedPr1,
+        computed1.getSensitivity(Pairs.of(MULTICURVE_INFL_1.getName(US_CPI), USD)).getData(), TOLERANCE_PV);
+    assertArrayRelative("bucketedZeroRatePv01Node", expectedOn1,
+        computed1.getSensitivity(Pairs.of(MULTICURVE_INFL_1.getName(index), USD)).getData(), TOLERANCE_PV);
+    assertArrayRelative("bucketedZeroRatePv01Node", expectedPr2,
+        computed2.getSensitivity(Pairs.of(MULTICURVE_INFL_2.getName(US_CPI), USD)).getData(), TOLERANCE_PV);
+    assertArrayRelative("bucketedZeroRatePv01Node", expectedOn2,
+        computed2.getSensitivity(Pairs.of(MULTICURVE_INFL_2.getName(index), USD)).getData(), TOLERANCE_PV);
+    assertArrayRelative("bucketedZeroRatePv01Node", expectedPr3,
+        computed3.getSensitivity(Pairs.of(MULTICURVE_INFL_3.getName(US_CPI), USD)).getData(), TOLERANCE_PV);
+    assertArrayRelative("bucketedZeroRatePv01Node", expectedOn3,
+        computed3.getSensitivity(Pairs.of(MULTICURVE_INFL_3.getName(index), USD)).getData(), TOLERANCE_PV);
+  }
+
+  private static void assertArrayRelative(String message, double[] expected, double[] obtained, double relativeTol) {
+    int nData = expected.length;
+    assertEquals(message, nData, obtained.length);
+    for (int i = 0; i < nData; ++i) {
+      assertRelative(message, expected[i], obtained[i], relativeTol);
+    }
+  }
+
+  private static void assertRelative(String message, double expected, double obtained, double relativeTol) {
+    double ref = Math.max(Math.abs(expected), 1.0);
+    assertEquals(message, expected, obtained, ref * relativeTol);
+  }
 }
