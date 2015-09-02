@@ -169,16 +169,16 @@ public class SwapZeroCouponInflationDiscountingUsdE2ETest {
     final MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
     final MultipleCurrencyParameterSensitivity pvpsComputed1 = 
         MQSBC.fromInstrument(ZCI_1, MULTICURVE_INFL_1, BLOCK_INFL_1).multipliedBy(BP1);
-    AssertSensitivityObjects.assertEquals("Zero-coupon Inflation swap: Bucketed PV01", 
-        pvpsExpected, pvpsComputed1, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("Zero-coupon Inflation swap: Bucketed PV01",
+                                          pvpsExpected, pvpsComputed1, TOLERANCE_PV_DELTA);
     final MultipleCurrencyParameterSensitivity pvpsComputed2 = 
         MQSBC.fromInstrument(ZCI_1, MULTICURVE_INFL_2, BLOCK_INFL_2).multipliedBy(BP1);
-    AssertSensitivityObjects.assertEquals("Zero-coupon Inflation swap: Bucketed PV01", 
-        pvpsComputed1, pvpsComputed2, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("Zero-coupon Inflation swap: Bucketed PV01",
+                                          pvpsComputed1, pvpsComputed2, TOLERANCE_PV_DELTA);
     final MultipleCurrencyParameterSensitivity pvpsComputed3 = 
         MQSBC.fromInstrument(ZCI_1, MULTICURVE_INFL_3, BLOCK_INFL_3).multipliedBy(BP1);
-    AssertSensitivityObjects.assertEquals("Zero-coupon Inflation swap: Bucketed PV01", 
-        pvpsComputed1, pvpsComputed3, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("Zero-coupon Inflation swap: Bucketed PV01",
+                                          pvpsComputed1, pvpsComputed3, TOLERANCE_PV_DELTA);
   }
   
   @Test
@@ -195,16 +195,16 @@ public class SwapZeroCouponInflationDiscountingUsdE2ETest {
     MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
     MultipleCurrencyParameterSensitivity pvpsComputed1 = 
         MQSBC.fromInstrument(ZCI_2, MULTICURVE_INFL_1, BLOCK_INFL_1).multipliedBy(BP1);
-    AssertSensitivityObjects.assertEquals("Zero-coupon Inflation swap: Bucketed PV01", 
-        pvpsExpected, pvpsComputed1, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("Zero-coupon Inflation swap: Bucketed PV01",
+                                          pvpsExpected, pvpsComputed1, TOLERANCE_PV_DELTA);
     final MultipleCurrencyParameterSensitivity pvpsComputed2 = 
         MQSBC.fromInstrument(ZCI_2, MULTICURVE_INFL_2, BLOCK_INFL_2).multipliedBy(BP1);
-    AssertSensitivityObjects.assertEquals("Zero-coupon Inflation swap: Bucketed PV01", 
-        pvpsComputed1, pvpsComputed2, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("Zero-coupon Inflation swap: Bucketed PV01",
+                                          pvpsComputed1, pvpsComputed2, TOLERANCE_PV_DELTA);
     final MultipleCurrencyParameterSensitivity pvpsComputed3 = 
         MQSBC.fromInstrument(ZCI_2, MULTICURVE_INFL_3, BLOCK_INFL_3).multipliedBy(BP1);
-    AssertSensitivityObjects.assertEquals("Zero-coupon Inflation swap: Bucketed PV01", 
-        pvpsComputed1, pvpsComputed3, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("Zero-coupon Inflation swap: Bucketed PV01",
+                                          pvpsComputed1, pvpsComputed3, TOLERANCE_PV_DELTA);
   }
   
   @Test
@@ -260,17 +260,17 @@ public class SwapZeroCouponInflationDiscountingUsdE2ETest {
         PSC.calculateSensitivity(ZCI_2, MULTICURVE_INFL_2).multipliedBy(BP1);
     MultipleCurrencyParameterSensitivity computed3 =
         PSC.calculateSensitivity(ZCI_2, MULTICURVE_INFL_3).multipliedBy(BP1);
-    assertArrayRelative("bucketedZeroRatePv01Node", expectedPr1,
+    assertArrayRelative("bucketedZeroRatePv01Aged", expectedPr1,
         computed1.getSensitivity(Pairs.of(MULTICURVE_INFL_1.getName(US_CPI), USD)).getData(), TOLERANCE_PV);
-    assertArrayRelative("bucketedZeroRatePv01Node", expectedOn1,
+    assertArrayRelative("bucketedZeroRatePv01Aged", expectedOn1,
         computed1.getSensitivity(Pairs.of(MULTICURVE_INFL_1.getName(index), USD)).getData(), TOLERANCE_PV);
-    assertArrayRelative("bucketedZeroRatePv01Node", expectedPr2,
+    assertArrayRelative("bucketedZeroRatePv01Aged", expectedPr2,
         computed2.getSensitivity(Pairs.of(MULTICURVE_INFL_2.getName(US_CPI), USD)).getData(), TOLERANCE_PV);
-    assertArrayRelative("bucketedZeroRatePv01Node", expectedOn2,
+    assertArrayRelative("bucketedZeroRatePv01Aged", expectedOn2,
         computed2.getSensitivity(Pairs.of(MULTICURVE_INFL_2.getName(index), USD)).getData(), TOLERANCE_PV);
-    assertArrayRelative("bucketedZeroRatePv01Node", expectedPr3,
+    assertArrayRelative("bucketedZeroRatePv01Aged", expectedPr3,
         computed3.getSensitivity(Pairs.of(MULTICURVE_INFL_3.getName(US_CPI), USD)).getData(), TOLERANCE_PV);
-    assertArrayRelative("bucketedZeroRatePv01Node", expectedOn3,
+    assertArrayRelative("bucketedZeroRatePv01Aged", expectedOn3,
         computed3.getSensitivity(Pairs.of(MULTICURVE_INFL_3.getName(index), USD)).getData(), TOLERANCE_PV);
   }
 

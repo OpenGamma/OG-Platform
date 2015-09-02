@@ -16,12 +16,16 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.mockito.Mockito.mock;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -34,18 +38,22 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderDiscount;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.matrix.IdentityMatrix;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
@@ -59,8 +67,12 @@ import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.impl.SimpleRegion;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.exposure.CurrencyExposureFunction;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
+import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRateNode;
+import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
@@ -77,6 +89,10 @@ import com.opengamma.financial.security.swap.Notional;
 import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.impl.InMemoryConfigMaster;
+import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionMaster;
@@ -89,7 +105,11 @@ import com.opengamma.master.security.impl.MasterSecuritySource;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
+import com.opengamma.sesame.CurveDefinitionCurveLabellingFn;
+import com.opengamma.sesame.CurveDefinitionFn;
+import com.opengamma.sesame.CurveLabellingFn;
 import com.opengamma.sesame.CurveSelector;
+import com.opengamma.sesame.DefaultCurveDefinitionFn;
 import com.opengamma.sesame.DefaultFixingsFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.FixingsFn;
@@ -119,11 +139,13 @@ import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSerie
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.util.function.Function;
-import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 @Test(groups = TestGroup.UNIT)
 public class ZeroCouponInflationSwapTest {
@@ -161,9 +183,7 @@ public class ZeroCouponInflationSwapTest {
       Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
 
-  /*
-   * Discounting Curve
-   */
+  // Discounting Curve
   private static final String USD_DSC_NAME = "USD Dsc";
   private static final double[] USD_DSC_TIME = new double[] {0.0027397260273972603, 0.0136986301369863, 0.1095890410958904,
                                                              0.18904109589041096, 0.27123287671232876, 0.5178082191780822,
@@ -177,46 +197,63 @@ public class ZeroCouponInflationSwapTest {
                                                              0.007148138535707508, 0.011417234937364525, 0.015484713638367467,
                                                              0.01894872475170524, 0.02177798040124286, 0.024146976832379798,
                                                              0.02610320121432829, 0.027814843351943817 };
-  private static final InterpolatedDoublesCurve USD_DSC = new InterpolatedDoublesCurve(USD_DSC_TIME,
-                                                                                       USD_DSC_RATE,
-                                                                                       LINEAR_FLAT,
-                                                                                       true,
-                                                                                       USD_DSC_NAME);
-  private static final YieldAndDiscountCurve USD_RATE_DSC = new YieldCurve(USD_DSC_NAME, USD_DSC);
+  private static final YieldAndDiscountCurve USD_DSC_CURVE =
+      new YieldCurve(USD_DSC_NAME, new InterpolatedDoublesCurve(USD_DSC_TIME,
+                                                                USD_DSC_RATE,
+                                                                LINEAR_FLAT,
+                                                                true,
+                                                                USD_DSC_NAME));
 
-  /*
-   * Index Curve
-   */
-  private static final String NAME_USD_PRICE_INDEX = "US CPI-U";
-  private static ExternalId PRICE_INDEX_ID = ExternalId.of("SEC", NAME_USD_PRICE_INDEX);
-  private static final double[] INDEX_VALUE_USD = new double[]  {242.88404516129032, 248.03712245417105, 252.98128118335094,
+  // Index Curve
+  private static final String USD_INDEX_NAME = "US CPI-U";
+  private static ExternalId PRICE_INDEX_ID = ExternalId.of("SEC", USD_INDEX_NAME);
+  private static final double[] USD_INDEX_VALUE = new double[]  {242.88404516129032, 248.03712245417105, 252.98128118335094,
                                                                  258.0416354687366, 263.20242369585515, 268.4653023378886,
                                                                  273.83617795725064, 279.3124974961296, 284.8987721100803,
                                                                  290.5954768446179, 302.3336095056465, 320.8351638061777,
                                                                  354.2203489141063, 391.08797576744865, 431.7913437911175};
-  private static final double[] TIME_VALUE_USD = new double[] {0.893150684931507, 1.894071412530878, 2.893150684931507,
+  private static final double[] USD_INDEX_TIME = new double[] {0.893150684931507, 1.894071412530878, 2.893150684931507,
                                                                3.893150684931507, 4.893150684931507, 5.894071412530878,
                                                                6.893150684931507, 7.893150684931507, 8.893150684931507,
                                                                9.894071412530877, 11.893150684931507, 14.893150684931507,
                                                                19.893150684931506, 24.893150684931506, 29.894071412530877 };
-  private static final InterpolatedDoublesCurve CURVE_USD = InterpolatedDoublesCurve.from(TIME_VALUE_USD,
-                                                                                          INDEX_VALUE_USD,
-                                                                                          LINEAR_FLAT,
-                                                                                          NAME_USD_PRICE_INDEX);
-  private static final PriceIndexCurveSimple PRICE_INDEX_CURVE_USD = new PriceIndexCurveSimple(CURVE_USD);
+
+  private static final PriceIndexCurveSimple USD_PRICE_INDEX_CURVE =
+      new PriceIndexCurveSimple(InterpolatedDoublesCurve.from(USD_INDEX_TIME,
+                                                              USD_INDEX_VALUE,
+                                                              LINEAR_FLAT,
+                                                              USD_INDEX_NAME));
 
 
   private static InflationProviderBundle buildCurveBundle() {
-    String NAME_USD_PRICE_INDEX = "US CPI-U";
-    IndexPrice PRICE_INDEX_USD = new IndexPrice(NAME_USD_PRICE_INDEX, Currency.USD);
+    IndexPrice PRICE_INDEX_USD = new IndexPrice(USD_INDEX_NAME, USD);
     InflationIssuerProviderDiscount provider = new InflationIssuerProviderDiscount();
-    provider.setCurve(Currency.USD, USD_RATE_DSC);
-    provider.setCurve(PRICE_INDEX_USD, PRICE_INDEX_CURVE_USD);
+    provider.setCurve(USD, USD_DSC_CURVE);
+    provider.setCurve(PRICE_INDEX_USD, USD_PRICE_INDEX_CURVE);
+
+    CurveBuildingBlockBundle blockBundle = new CurveBuildingBlockBundle();
+    blockBundle.add(USD_DSC_NAME,
+                    buildCurveBlock(USD_DSC_NAME, USD_DSC_CURVE.getNumberOfParameters()),
+                    buildJacobian(USD_DSC_CURVE.getNumberOfParameters()));
+    blockBundle.add(USD_INDEX_NAME,
+                    buildCurveBlock(USD_INDEX_NAME, USD_PRICE_INDEX_CURVE.getNumberOfParameters()),
+                    buildJacobian(USD_PRICE_INDEX_CURVE.getNumberOfParameters()));
 
     return InflationProviderBundle.builder()
-            .curveBuildingBlockBundle(new CurveBuildingBlockBundle())
+            .curveBuildingBlockBundle(blockBundle)
             .parameterInflationProvider(provider)
             .build();
+  }
+
+  private static DoubleMatrix2D buildJacobian(int params) {
+    // have pre-calibrated curve so jacobian is the identity matrix
+    return new IdentityMatrix(params);
+  }
+
+  private static CurveBuildingBlock buildCurveBlock(String configCurveName, int params) {
+    LinkedHashMap<String, Pair<Integer, Integer>> curveBlock = Maps.newLinkedHashMap();
+    curveBlock.put(configCurveName, Pairs.of(0, params));
+    return new CurveBuildingBlock(curveBlock);
   }
 
   private static MarketDataEnvironment getMarketDataEnvironment() {
@@ -235,7 +272,7 @@ public class ZeroCouponInflationSwapTest {
     String counterpartyName = "US GOV";
     Frequency frequency = SimpleFrequency.SEMI_ANNUAL;
     BusinessDayConvention convention = BusinessDayConventions.MODIFIED_FOLLOWING;
-    Notional notional = new InterestRateNotional(Currency.USD, 10_000_000);
+    Notional notional = new InterestRateNotional(USD, 10_000_000);
     boolean eom = true;
     SimpleCounterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, counterpartyName));
 
@@ -271,24 +308,24 @@ public class ZeroCouponInflationSwapTest {
                                         LocalDate.of(2000, 1, 1),
                                         OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC));
     trade.setPremium(0.0);
-    trade.setPremiumCurrency(Currency.USD);
+    trade.setPremiumCurrency(USD);
     return new ZeroCouponInflationSwapTrade(trade);
   }
 
   private static ImmutableMap<Class<?>, Object> generateBaseComponents() {
-    return generateComponentMap(mockHolidaySource(),
-                                mockRegionSource(),
+    return generateComponentMap(holidaySource(),
+                                regionSource(),
                                 mock(ConventionSource.class),
                                 mock(ConventionBundleSource.class),
                                 mock(LegalEntitySource.class),
-                                mock(ConfigSource.class),
-                                mockSecuritySource(),
+                                configSource(),
+                                securitySource(),
                                 mock(HistoricalTimeSeriesSource.class),
                                 mock(HistoricalTimeSeriesResolver.class),
                                 mock(CurrencyMatrix.class));
   }
 
-  private static HolidaySource mockHolidaySource() {
+  private static HolidaySource holidaySource() {
     return new WeekendHolidaySource();
   }
 
@@ -302,7 +339,7 @@ public class ZeroCouponInflationSwapTest {
     return seriesBuilder.build();
   }
 
-  private static RegionSource mockRegionSource() {
+  private static RegionSource regionSource() {
     RegionMaster regionMaster = new InMemoryRegionMaster();
     SimpleRegion regionUs = new SimpleRegion();
     regionUs.addExternalId(REGION_ID);
@@ -312,9 +349,36 @@ public class ZeroCouponInflationSwapTest {
     return new MasterRegionSource(regionMaster);
   }
 
-  private static SecuritySource mockSecuritySource() {
+  private static CurveNode buildZeroRateCurveNode(Tenor tenor) {
+    return new ContinuouslyCompoundedRateNode(null, tenor, tenor.toFormattedString().substring(1));
+  }
+
+  private static ConfigSource configSource() {
+    ConfigMaster configMaster = new InMemoryConfigMaster();
+
+    Set<CurveNode> indexNodes = new LinkedHashSet<>();
+    for (double years : USD_INDEX_TIME) {
+      Tenor tenor = Tenor.parse("P" + Math.round(years * 365) + "D");
+      indexNodes.add(buildZeroRateCurveNode(tenor));
+    }
+
+    Set<CurveNode> discountingNodes = new LinkedHashSet<>();
+    for (double years : USD_DSC_TIME) {
+      Tenor tenor = Tenor.parse("P" + Math.round(years * 365) + "D");
+      discountingNodes.add(buildZeroRateCurveNode(tenor));
+    }
+
+    CurveDefinition indexDefinition = new CurveDefinition(USD_INDEX_NAME, indexNodes);
+    CurveDefinition discountingDefinition = new CurveDefinition(USD_DSC_NAME, discountingNodes);
+
+    configMaster.add(new ConfigDocument(ConfigItem.of(indexDefinition)));
+    configMaster.add(new ConfigDocument(ConfigItem.of(discountingDefinition)));
+    return new MasterConfigSource(configMaster);
+  }
+
+  private static SecuritySource securitySource() {
     SecurityMaster securityMaster = new InMemorySecurityMaster();
-    PriceIndex priceIndex = new PriceIndex(NAME_USD_PRICE_INDEX, CONVENTION_ID);
+    PriceIndex priceIndex = new PriceIndex(USD_INDEX_NAME, CONVENTION_ID);
     priceIndex.setUniqueId(UniqueId.of("SEC", "1"));
     priceIndex.setExternalIdBundle(PRICE_INDEX_ID.toBundle());
     securityMaster.add(new SecurityDocument(priceIndex));
@@ -349,6 +413,8 @@ public class ZeroCouponInflationSwapTest {
                 ZeroCouponInflationSwapFn.class, DiscountingZeroCouponInflationSwapFn.class,
                 HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
                 CurveSelector.class, MarketExposureSelector.class,
+                CurveLabellingFn.class, CurveDefinitionCurveLabellingFn.class,
+                CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
                 FixingsFn.class, DefaultFixingsFn.class,
                 FunctionCache.class, NoOpFunctionCache.class
             ));
@@ -380,25 +446,37 @@ public class ZeroCouponInflationSwapTest {
     assertSuccess(resultPV);
 
     MultipleCurrencyAmount mca = resultPV.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(EXPECTED_PV1, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(USD).getAmount(), is(closeTo(EXPECTED_PV1, STD_TOLERANCE_PV)));
 
   }
 
-  @Test(enabled = false) //Need to provide Curve Building Block
+  @Test
   public void testCalculateBucketedPV01Trade1() throws Exception {
 
     MarketDataEnvironment ENV = getMarketDataEnvironment();
-    Result<MultipleCurrencyParameterSensitivity> result = _functionRunner.runFunction(
-        ARGS, ENV, new Function<Environment, Result<MultipleCurrencyParameterSensitivity>>() {
+    Result<BucketedCurveSensitivities> result = _functionRunner.runFunction(
+        ARGS, ENV, new Function<Environment, Result<BucketedCurveSensitivities>>() {
           @Override
-          public Result<MultipleCurrencyParameterSensitivity> apply(Environment env) {
+          public Result<BucketedCurveSensitivities> apply(Environment env) {
             return _function.calculateBucketedPV01(env, _trade1);
           }
         });
     assertSuccess(result);
 
-    MultipleCurrencyParameterSensitivity mcps = result.getValue();
+    BucketedCurveSensitivities mcps = result.getValue();
 
+    double[] expectedDsc = new double[] {0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d};
+    double[] expectedIndex = new double[] {0.2391924970613193, 3.9334293371931075, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d };
+
+    assertArrayRelative("BucketedPV01Trade1 Index",
+                        expectedIndex,
+                        mcps.getSensitivities().get(Pairs.of(USD_INDEX_NAME, USD)).getValues(),
+                        STD_TOLERANCE_PV);
+
+    assertArrayRelative("BucketedPV01Trade1 Discounting",
+                        expectedDsc,
+                        mcps.getSensitivities().get(Pairs.of(USD_DSC_NAME, USD)).getValues(),
+                        STD_TOLERANCE_PV);
   }
 
   @Test
@@ -415,24 +493,47 @@ public class ZeroCouponInflationSwapTest {
     assertSuccess(resultPV);
 
     MultipleCurrencyAmount mca = resultPV.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(EXPECTED_PV2, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(USD).getAmount(), is(closeTo(EXPECTED_PV2, STD_TOLERANCE_PV)));
 
   }
 
-  @Test(enabled = false) //Need to provide Curve Building Block
+  @Test
   public void testCalculateBucketedPV01Trade2() throws Exception {
 
     MarketDataEnvironment ENV = getMarketDataEnvironment();
-    Result<MultipleCurrencyParameterSensitivity> result = _functionRunner.runFunction(
-        ARGS, ENV, new Function<Environment, Result<MultipleCurrencyParameterSensitivity>>() {
+    Result<BucketedCurveSensitivities> result = _functionRunner.runFunction(
+        ARGS, ENV, new Function<Environment, Result<BucketedCurveSensitivities>>() {
           @Override
-          public Result<MultipleCurrencyParameterSensitivity> apply(Environment env) {
+          public Result<BucketedCurveSensitivities> apply(Environment env) {
             return _function.calculateBucketedPV01(env, _trade2);
           }
         });
     assertSuccess(result);
 
-    MultipleCurrencyParameterSensitivity mcps = result.getValue();
+    BucketedCurveSensitivities mcps = result.getValue();
+
+    double[] expectedDsc = new double[] {0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, -181.78857803005081, -55.38361696256043, 0d, 0d, 0d, 0d, 0d };
+    double[] expectedIndex = new double[] {0d, 0d, 0d, 3.2884348703648847, 0.7763062873998817, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d };
+
+    assertArrayRelative("BucketedPV01Trade2 Index",
+                        expectedIndex,
+                        mcps.getSensitivities().get(Pairs.of(USD_INDEX_NAME, USD)).getValues(),
+                        STD_TOLERANCE_PV);
+
+    assertArrayRelative("BucketedPV01Trade2 Discounting",
+                        expectedDsc,
+                        mcps.getSensitivities().get(Pairs.of(USD_DSC_NAME, USD)).getValues(),
+                        STD_TOLERANCE_PV);
 
   }
+
+  private static void assertArrayRelative(String message, double[] expected, double[] obtained, double relativeTol) {
+    int nData = expected.length;
+    assertEquals(message, nData, obtained.length);
+    for (int i = 0; i < nData; ++i) {
+      double ref = Math.max(Math.abs(expected[i]), 1.0);
+      assertThat(message, obtained[i], is(closeTo(expected[i], ref * relativeTol)));
+    }
+  }
+
 }

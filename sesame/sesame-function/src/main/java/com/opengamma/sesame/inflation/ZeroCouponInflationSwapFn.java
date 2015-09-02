@@ -5,7 +5,7 @@
  */
 package com.opengamma.sesame.inflation;
 
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.function.Output;
@@ -38,7 +38,7 @@ public interface ZeroCouponInflationSwapFn {
    * @return result containing the bucketed PV01 if successful, a Failure otherwise
    */
   @Output(OutputNames.BUCKETED_PV01)
-  Result<MultipleCurrencyParameterSensitivity> calculateBucketedPV01(Environment env, ZeroCouponInflationSwapTrade trade);
+  Result<BucketedCurveSensitivities> calculateBucketedPV01(Environment env, ZeroCouponInflationSwapTrade trade);
 
 
 
