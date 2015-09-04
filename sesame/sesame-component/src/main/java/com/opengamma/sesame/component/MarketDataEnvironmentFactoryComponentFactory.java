@@ -64,6 +64,7 @@ public class MarketDataEnvironmentFactoryComponentFactory extends AbstractCompon
             MarketDataBuilders.raw(_componentMap, _timeSeriesDataSource),
             MarketDataBuilders.multicurve(_componentMap, currencyMatrixLink),
             MarketDataBuilders.issuerMulticurve(_componentMap, currencyMatrixLink),
+            MarketDataBuilders.inflationMulticurve(_componentMap, currencyMatrixLink),
             MarketDataBuilders.security(),
             MarketDataBuilders.fxMatrix(),
             MarketDataBuilders.fxRate(currencyMatrixLink));

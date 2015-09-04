@@ -27,6 +27,9 @@ import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.InflationIndexSwapLeg;
+import com.opengamma.financial.security.swap.SwapLeg;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -191,6 +194,26 @@ public class DefaultFixingsFn implements FixingsFn {
       }
       return getTimeSeriesBundle(MarketDataRequirementNames.MARKET_VALUE,
                                  security.getEffectiveDate(),
+                                 Period.ofYears(1),
+                                 ids.toArray(new ExternalIdBundle[ids.size()]));
+    }
+
+    @Override
+    public Result<HistoricalTimeSeriesBundle> visitZeroCouponInflationSwapSecurity(ZeroCouponInflationSwapSecurity security) {
+      Collection<ExternalIdBundle> ids = new ArrayList<>();
+      SwapLeg payLeg = security.getPayLeg();
+      SwapLeg receiveLeg = security.getReceiveLeg();
+      if (payLeg instanceof InflationIndexSwapLeg) {
+        ExternalId id = ((InflationIndexSwapLeg) payLeg).getIndexId();
+        ids.add(id.toBundle());
+      }
+      if (receiveLeg instanceof InflationIndexSwapLeg) {
+        ExternalId id = ((InflationIndexSwapLeg) receiveLeg).getIndexId();
+        ids.add(id.toBundle());
+      }
+
+      return getTimeSeriesBundle(MarketDataRequirementNames.MARKET_VALUE,
+                                 security.getEffectiveDate().toLocalDate(),
                                  Period.ofYears(1),
                                  ids.toArray(new ExternalIdBundle[ids.size()]));
     }

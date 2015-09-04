@@ -21,6 +21,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.opengamma.OpenGammaRuntimeException;
@@ -273,8 +274,10 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
         SnapshotDataBundle dataBundle = createDataBundle(marketDataBundle, bundleRequirement, curveNodes);
         String curveName = curveDefinition.getName();
         SnapshotDataBundle perturbedData = perturbCurveData(curveNodes, dataBundle, curveName, dataBundlePerturbations);
+        Map<CurveNodeWithIdentifier, InstrumentDefinition> definitionMap =
+            createInstrumentDefinition(perturbedData, fxMatrix, valuationTime, curveNodes);
         List<InstrumentDerivative> derivatives =
-            createInstrumentDerivatives(marketDataBundle, perturbedData, fxMatrix, valuationTime, curveNodes);
+            createInstrumentDerivatives(marketDataBundle, valuationTime, definitionMap);
         configTypes.putAll(curveName, curveConfigTypes);
 
         iborIndexByCurveName.putAll(curveName, createIborIndices(curveConfigTypes));
@@ -340,6 +343,19 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
   }
 
   /**
+   * Creates an array for parameter guesses for the curve.
+   * Protected to allow override in sub classes.
+   *
+   * @param curveNodes the curve nodes
+   * @return an array of doubles containing parameter guesses
+   */
+  protected double[] getParameterGuessForCurves(Set<CurveNodeWithIdentifier> curveNodes) {
+    double[] parameterGuessForCurves = new double[curveNodes.size()];
+    Arrays.fill(parameterGuessForCurves, 0.02);
+    return parameterGuessForCurves;
+  }
+
+  /**
    * Creates a {@code SingleCurveBundle} from a curve definition, curve generator and its instrument derivatives.
    *
    * @param valuationTime the valuation time for which the curve is required
@@ -352,8 +368,7 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
                                                                       AbstractCurveDefinition curveDefinition,
                                                                       Set<CurveNodeWithIdentifier> curveNodes,
                                                                       List<InstrumentDerivative> derivatives) {
-    double[] parameterGuessForCurves = new double[curveNodes.size()];
-    Arrays.fill(parameterGuessForCurves, 0.02);
+    double[] parameterGuessForCurves = getParameterGuessForCurves(curveNodes);
     GeneratorYDCurve curveGenerator = createCurveGenerator(curveDefinition, valuationTime.toLocalDate());
     double[] startingPoint = curveGenerator.initialGuess(parameterGuessForCurves);
     InstrumentDerivative[] derivativeArray = derivatives.toArray(new InstrumentDerivative[derivatives.size()]);
@@ -390,31 +405,50 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
    * Creates derivatives for the nodes on a curve.
    *
    * @param marketDataBundle the market data environment
-   * @param snapshot market data for the nodes TODO remove this all the way down through the analytics
-   * @param fxMatrix FX rates for the currencies used by the curve node instruments
    * @param valuationTime the valuation time for which the curve is required
-   * @param nodes the curve nodes
+   * @param defs the curve nodes to instrument definition map
    * @return the derivatives for the instruments used by the curve nodes
    */
   private List<InstrumentDerivative> createInstrumentDerivatives(MarketDataBundle marketDataBundle,
-                                                                 SnapshotDataBundle snapshot,
-                                                                 FXMatrix fxMatrix,
                                                                  ZonedDateTime valuationTime,
-                                                                 Set<CurveNodeWithIdentifier> nodes) {
+                                                                 Map<CurveNodeWithIdentifier, InstrumentDefinition> defs) {
     ImmutableList.Builder<InstrumentDerivative> derivativesForCurve = ImmutableList.builder();
 
     // TODO this is required because the definition factory and converter were originally engine functions
     // they could be migrated away from using environment now they're not used in the engine
     SimpleEnvironment env = new SimpleEnvironment(valuationTime, marketDataBundle);
 
+    for (Map.Entry<CurveNodeWithIdentifier, InstrumentDefinition> entry : defs.entrySet()) {
+      Result<InstrumentDerivative> derivativeResult =
+          _curveNodeConverter.getDerivative(env, entry.getKey(), entry.getValue(), valuationTime);
+      derivativesForCurve.add(derivativeResult.getValue());
+    }
+
+    return derivativesForCurve.build();
+  }
+
+  /**
+   * Creates definitions for the nodes on a curve.
+   *
+   * @param snapshot market data for the nodes TODO remove this all the way down through the analytics
+   * @param fxMatrix FX rates for the currencies used by the curve node instruments
+   * @param valuationTime the valuation time for which the curve is required
+   * @param nodes the curve nodes
+   * @return the definitions for the instruments used by the curve nodes
+   */
+  private Map<CurveNodeWithIdentifier, InstrumentDefinition> createInstrumentDefinition(SnapshotDataBundle snapshot,
+                                                                                        FXMatrix fxMatrix,
+                                                                                        ZonedDateTime valuationTime,
+                                                                                        Set<CurveNodeWithIdentifier> nodes) {
+    ImmutableMap.Builder<CurveNodeWithIdentifier, InstrumentDefinition> definitions = ImmutableMap.builder();
+
     for (CurveNodeWithIdentifier node : nodes) {
       InstrumentDefinition<?> instrumentDefn =
           _definitionFactory.createInstrumentDefinition(node, snapshot, valuationTime, fxMatrix);
-      Result<InstrumentDerivative> derivativeResult =
-          _curveNodeConverter.getDerivative(env, node, instrumentDefn, valuationTime);
-      derivativesForCurve.add(derivativeResult.getValue());
+      definitions.put(node, instrumentDefn);
+
     }
-    return derivativesForCurve.build();
+    return definitions.build();
   }
 
   /**

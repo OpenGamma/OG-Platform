@@ -16,6 +16,7 @@ import java.util.List;
 import org.threeten.bp.Period;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.analytics.financial.provider.curve.inflation.InflationDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.curve.issuer.IssuerDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.curve.multicurve.MulticurveDiscountBuildingRepository;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -33,6 +34,7 @@ import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.FxMatrixMarketDataBuilder;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
+import com.opengamma.sesame.marketdata.InflationMulticurveMarketDataBuilder;
 import com.opengamma.sesame.marketdata.IssuerMulticurveMarketDataBuilder;
 import com.opengamma.sesame.marketdata.MulticurveMarketDataBuilder;
 
@@ -114,6 +116,36 @@ public class MarketDataBuilders {
                 HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class));
 
     return FunctionModel.build(IssuerMulticurveMarketDataBuilder.class, config, componentMap);
+  }
+
+  /**
+   * Creates a builder for inflation multicurve bundles.
+   *
+   * @param componentMap singleton components supplied by the system
+   * @return a builder for inflation multicurve bundles
+   */
+  public static InflationMulticurveMarketDataBuilder inflationMulticurve(ComponentMap componentMap,
+                                                                         ConfigLink<CurrencyMatrix> currencyMatrixLink) {
+    FunctionModelConfig config =
+        config(
+            arguments(
+                function(
+                    DefaultCurveNodeConverterFn.class,
+                    argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
+                function(
+                    InflationDiscountBuildingRepository.class,
+                    argument("toleranceAbs", 1e-9),
+                    argument("toleranceRel", 1e-9),
+                    argument("stepMaximum", 1000)),
+                function(
+                    ConfigDBCurveSpecificationBuilder.class,
+                    argument("versionCorrection", VersionCorrection.LATEST))),
+            implementations(
+                CurveSpecificationBuilder.class, ConfigDBCurveSpecificationBuilder.class,
+                CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
+                HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class));
+
+    return FunctionModel.build(InflationMulticurveMarketDataBuilder.class, config, componentMap);
   }
 
   /**
@@ -203,6 +235,7 @@ public class MarketDataBuilders {
     return ImmutableList.of(raw(componentMap, timeSeriesDataSource),
                             multicurve(componentMap, currencyMatrixLink),
                             issuerMulticurve(componentMap, currencyMatrixLink),
+                            inflationMulticurve(componentMap, currencyMatrixLink),
                             fxMatrix(),
                             fxRate(currencyMatrixLink),
                             security(),
