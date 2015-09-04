@@ -277,7 +277,7 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
         Map<CurveNodeWithIdentifier, InstrumentDefinition> definitionMap =
             createInstrumentDefinition(perturbedData, fxMatrix, valuationTime, curveNodes);
         List<InstrumentDerivative> derivatives =
-            createInstrumentDerivatives(marketDataBundle, valuationTime, definitionMap, curveNodes);
+            createInstrumentDerivatives(marketDataBundle, valuationTime, definitionMap);
         configTypes.putAll(curveName, curveConfigTypes);
 
         iborIndexByCurveName.putAll(curveName, createIborIndices(curveConfigTypes));
@@ -406,24 +406,24 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
    *
    * @param marketDataBundle the market data environment
    * @param valuationTime the valuation time for which the curve is required
-   * @param nodes the curve nodes
+   * @param defs the curve nodes to instrument definition map
    * @return the derivatives for the instruments used by the curve nodes
    */
   private List<InstrumentDerivative> createInstrumentDerivatives(MarketDataBundle marketDataBundle,
                                                                  ZonedDateTime valuationTime,
-                                                                 Map<CurveNodeWithIdentifier, InstrumentDefinition> defs,
-                                                                 Set<CurveNodeWithIdentifier> nodes) {
+                                                                 Map<CurveNodeWithIdentifier, InstrumentDefinition> defs) {
     ImmutableList.Builder<InstrumentDerivative> derivativesForCurve = ImmutableList.builder();
 
     // TODO this is required because the definition factory and converter were originally engine functions
     // they could be migrated away from using environment now they're not used in the engine
     SimpleEnvironment env = new SimpleEnvironment(valuationTime, marketDataBundle);
 
-    for (CurveNodeWithIdentifier node : nodes) {
+    for (Map.Entry<CurveNodeWithIdentifier, InstrumentDefinition> entry : defs.entrySet()) {
       Result<InstrumentDerivative> derivativeResult =
-          _curveNodeConverter.getDerivative(env, node, defs.get(node), valuationTime);
+          _curveNodeConverter.getDerivative(env, entry.getKey(), entry.getValue(), valuationTime);
       derivativesForCurve.add(derivativeResult.getValue());
     }
+
     return derivativesForCurve.build();
   }
 
