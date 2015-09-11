@@ -31,6 +31,11 @@ import com.opengamma.util.tuple.DoublesPair;
 public class ForexOptionDigitalCallSpreadBlackSmileMethod {
 
   /**
+   * Default spread.
+   */
+  private static final double DEFAULT_SPREAD = 1.0e-4;
+
+  /**
    * The relative spread used in the call-spread pricing. The call spread strikes are (for an original strike K), K*(1-spread) and K*(1+spread).
    */
   private final double _spread;
@@ -39,6 +44,13 @@ public class ForexOptionDigitalCallSpreadBlackSmileMethod {
    * The base method for the pricing of standard vanilla options.
    */
   private static final ForexOptionVanillaBlackSmileMethod BASE_METHOD = ForexOptionVanillaBlackSmileMethod.getInstance();
+
+  /**
+   * Constructor of the digital pricing method with default spread.
+   */
+  public ForexOptionDigitalCallSpreadBlackSmileMethod() {
+    this(DEFAULT_SPREAD);
+  }
 
   /**
    * Constructor of the digital pricing method.
@@ -94,12 +106,30 @@ public class ForexOptionDigitalCallSpreadBlackSmileMethod {
   }
 
   /**
+   * Computes the delta of the Forex option. 
+   * The delta is the first order derivative of the option present value to the spot fx rate. 
+   * The derivative suppose constant volatilities when the fx rate changes (sticky strike).
+   * @param optionDigital The option.
+   * @param smileMulticurves The curve and smile data.
+   * @return The delta.
+   */
+  public CurrencyAmount delta(ForexOptionDigital optionDigital, BlackForexSmileProviderInterface smileMulticurves) {
+    ArgumentChecker.notNull(optionDigital, "Forex option");
+    ForexOptionVanilla[] callSpread = callSpread(optionDigital, getSpread());
+    // Spread value
+    CurrencyAmount deltaM = BASE_METHOD.delta(callSpread[0], smileMulticurves, optionDigital.payDomestic());
+    CurrencyAmount deltaP = BASE_METHOD.delta(callSpread[1], smileMulticurves, optionDigital.payDomestic());
+    return deltaM.plus(deltaP);
+  }
+
+  /**
    * Computes the relative gamma of the Forex option. The relative gamma is the second order derivative of the pv relative to the option notional.
    * @param optionDigital The option.
    * @param smileMulticurves The curve and smile data.
    * @return The gamma.
    */
-  public double gammaRelative(final ForexOptionDigital optionDigital, final BlackForexSmileProviderInterface smileMulticurves) {
+  public double gammaRelative(final ForexOptionDigital optionDigital,
+      final BlackForexSmileProviderInterface smileMulticurves) {
     final CurrencyAmount gamma = gamma(optionDigital, smileMulticurves);
     return gamma.getAmount() / Math.abs(optionDigital.getUnderlyingForex().getPaymentCurrency2().getAmount());
   }
@@ -180,8 +210,12 @@ public class ForexOptionDigitalCallSpreadBlackSmileMethod {
         }
       }
     }
-    return new PresentValueForexBlackVolatilityNodeSensitivityDataBundle(optionDigital.getUnderlyingForex().getCurrency1(), optionDigital.getUnderlyingForex().getCurrency2(), new DoubleMatrix1D(
-        volatilityModel.getTimeToExpiration()), new DoubleMatrix1D(volatilityModel.getDeltaFull()), new DoubleMatrix2D(vega));
+    return new PresentValueForexBlackVolatilityNodeSensitivityDataBundle(
+        optionDigital.getUnderlyingForex().getCurrency1(),
+        optionDigital.getUnderlyingForex().getCurrency2(),
+        new DoubleMatrix1D(volatilityModel.getTimeToExpiration()),
+        new DoubleMatrix1D(volatilityModel.getDeltaFullReverse()),
+        new DoubleMatrix2D(vega));
   }
 
   protected ForexOptionVanilla[] callSpread(final ForexOptionDigital optionDigital, final double spread) {

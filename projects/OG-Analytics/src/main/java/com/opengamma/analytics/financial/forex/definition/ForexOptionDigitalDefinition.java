@@ -13,8 +13,7 @@ import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCounts;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -132,8 +131,7 @@ public class ForexOptionDigitalDefinition implements InstrumentDefinition<Instru
   public ForexOptionDigital toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
     final Forex fx = _underlyingForex.toDerivative(date);
-    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
-    final double expirationTime = actAct.getDayCountFraction(date, _expirationDate);
+    final double expirationTime = TimeCalculator.getTimeBetween(date, _expirationDate);
     return new ForexOptionDigital(fx, expirationTime, _isCall, _isLong, _payDomestic);
   }
 

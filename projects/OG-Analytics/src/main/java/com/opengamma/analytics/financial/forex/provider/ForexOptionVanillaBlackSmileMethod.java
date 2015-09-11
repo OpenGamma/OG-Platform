@@ -137,6 +137,28 @@ public final class ForexOptionVanillaBlackSmileMethod {
   }
 
   /**
+   * Computes the delta of the Forex option. 
+   * The delta is the first order derivative of the option present value to the spot fx rate. 
+   * The derivative suppose constant volatilities when the fx rate changes (sticky strike).
+   * @param optionForex The Forex option, not null
+   * @param smileMulticurves The curve and smile data, not null
+   * @param directQuote Flag indicating if the delta should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
+   * @return The delta.
+   */
+  public CurrencyAmount delta(
+      ForexOptionVanilla optionForex,
+      BlackForexSmileProviderInterface smileMulticurves,
+      boolean directQuote) {
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smileMulticurves, "Smile");
+    ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()),
+        "Option currencies not compatible with smile data");
+    double deltaRelative = deltaRelative(optionForex, smileMulticurves, directQuote);
+    return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(),
+        deltaRelative * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()));
+  }
+
+  /**
    * Computes the relative delta of the Forex option. The relative delta is the amount in the foreign currency equivalent to the option up to the first order divided by the option notional.
    * @param optionForex The Forex option.
    * @param smileMulticurves The curve and smile data.
