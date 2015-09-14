@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_og-timeseries" default="compile.module.og-timeseries">
+  <dirname property="module.og-timeseries.basedir" file="${ant.file.module_og-timeseries}"/>
+  
+  <property name="module.jdk.home.og-timeseries" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.og-timeseries" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.og-timeseries" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.og-timeseries" value="-encoding UTF-8 -source 1.7 -target 1.7 ${compiler.args}"/>
+  
+  <property name="og-timeseries.output.dir" value="${module.og-timeseries.basedir}/target/classes"/>
+  <property name="og-timeseries.testoutput.dir" value="${module.og-timeseries.basedir}/target/test-classes"/>
+  
+  <path id="og-timeseries.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="og-timeseries.module.production.classpath">
+    <path refid="${module.jdk.classpath.og-timeseries}"/>
+    <path refid="library.maven:_org.threeten:threetenbp:0.8.1.classpath"/>
+    <path refid="library.maven:_org.testng:testng:6.8.5.classpath"/>
+    <path refid="library.maven:_com.beust:jcommander:1.27.classpath"/>
+  </path>
+  
+  <path id="og-timeseries.runtime.production.module.classpath">
+    <pathelement location="${og-timeseries.output.dir}"/>
+    <path refid="library.maven:_org.threeten:threetenbp:0.8.1.classpath"/>
+  </path>
+  
+  <path id="og-timeseries.module.classpath">
+    <path refid="${module.jdk.classpath.og-timeseries}"/>
+    <pathelement location="${og-timeseries.output.dir}"/>
+    <path refid="library.maven:_org.threeten:threetenbp:0.8.1.classpath"/>
+    <path refid="library.maven:_org.testng:testng:6.8.5.classpath"/>
+    <path refid="library.maven:_com.beust:jcommander:1.27.classpath"/>
+    <path refid="library.maven:_org.mockito:mockito-core:1.9.5.classpath"/>
+    <path refid="library.maven:_org.hamcrest:hamcrest-core:1.3.classpath"/>
+    <path refid="library.maven:_org.objenesis:objenesis:1.0.classpath"/>
+  </path>
+  
+  <path id="og-timeseries.runtime.module.classpath">
+    <pathelement location="${og-timeseries.testoutput.dir}"/>
+    <pathelement location="${og-timeseries.output.dir}"/>
+    <path refid="library.maven:_org.threeten:threetenbp:0.8.1.classpath"/>
+    <path refid="library.maven:_org.testng:testng:6.8.5.classpath"/>
+    <path refid="library.maven:_com.beust:jcommander:1.27.classpath"/>
+    <path refid="library.maven:_org.mockito:mockito-core:1.9.5.classpath"/>
+    <path refid="library.maven:_org.hamcrest:hamcrest-core:1.3.classpath"/>
+    <path refid="library.maven:_org.objenesis:objenesis:1.0.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.og-timeseries">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.og-timeseries">
+    <patternset refid="excluded.from.module.og-timeseries"/>
+  </patternset>
+  
+  <path id="og-timeseries.module.sourcepath">
+    <dirset dir="${module.og-timeseries.basedir}">
+      <include name="src/main/java"/>
+    </dirset>
+  </path>
+  
+  <path id="og-timeseries.module.test.sourcepath">
+    <dirset dir="${module.og-timeseries.basedir}">
+      <include name="src/test/java"/>
+      <include name="src/test/resources"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.og-timeseries" depends="compile.module.og-timeseries.production,compile.module.og-timeseries.tests" description="Compile module og-timeseries"/>
+  
+  <target name="compile.module.og-timeseries.production" depends="register.custom.compilers" description="Compile module og-timeseries; production classes">
+    <mkdir dir="${og-timeseries.output.dir}"/>
+    <javac2 destdir="${og-timeseries.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.og-timeseries}/javac">
+      <compilerarg line="${compiler.args.og-timeseries}"/>
+      <bootclasspath refid="og-timeseries.module.bootclasspath"/>
+      <classpath refid="og-timeseries.module.production.classpath"/>
+      <src refid="og-timeseries.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.og-timeseries"/>
+    </javac2>
+    
+    <copy todir="${og-timeseries.output.dir}">
+      <fileset dir="${module.og-timeseries.basedir}/src/main/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.og-timeseries.tests" depends="register.custom.compilers,compile.module.og-timeseries.production" description="compile module og-timeseries; test classes" unless="skip.tests">
+    <mkdir dir="${og-timeseries.testoutput.dir}"/>
+    <javac2 destdir="${og-timeseries.testoutput.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.og-timeseries}/javac">
+      <compilerarg line="${compiler.args.og-timeseries}"/>
+      <bootclasspath refid="og-timeseries.module.bootclasspath"/>
+      <classpath refid="og-timeseries.module.classpath"/>
+      <src refid="og-timeseries.module.test.sourcepath"/>
+      <patternset refid="excluded.from.compilation.og-timeseries"/>
+    </javac2>
+    
+    <copy todir="${og-timeseries.testoutput.dir}">
+      <fileset dir="${module.og-timeseries.basedir}/src/test/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.og-timeseries.basedir}/src/test/resources">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="clean.module.og-timeseries" description="cleanup module">
+    <delete dir="${og-timeseries.output.dir}"/>
+    <delete dir="${og-timeseries.testoutput.dir}"/>
+  </target>
+</project>

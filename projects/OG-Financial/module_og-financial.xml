@@ -1,0 +1,541 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_og-financial" default="compile.module.og-financial">
+  <dirname property="module.og-financial.basedir" file="${ant.file.module_og-financial}"/>
+  
+  <property name="module.jdk.home.og-financial" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.og-financial" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.og-financial" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.og-financial" value="-encoding UTF-8 -source 1.7 -target 1.7 ${compiler.args}"/>
+  
+  <property name="og-financial.output.dir" value="${module.og-financial.basedir}/target/classes"/>
+  <property name="og-financial.testoutput.dir" value="${module.og-financial.basedir}/target/test-classes"/>
+  
+  <path id="og-financial.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="og-financial.module.production.classpath">
+    <path refid="${module.jdk.classpath.og-financial}"/>
+    <pathelement location="${og-financial-types.output.dir}"/>
+    <pathelement location="${og-master.output.dir}"/>
+    <pathelement location="${og-core.output.dir}"/>
+    <pathelement location="${og-util.output.dir}"/>
+    <pathelement location="${og-timeseries.output.dir}"/>
+    <path refid="library.maven:_org.threeten:threetenbp:0.8.1.classpath"/>
+    <path refid="library.maven:_com.opengamma.tools:scripts:1.4.2.classpath"/>
+    <path refid="library.maven:_commons-lang:commons-lang:2.6.classpath"/>
+    <path refid="library.maven:_commons-io:commons-io:2.4.classpath"/>
+    <path refid="library.maven:_org.freemarker:freemarker:2.3.19.classpath"/>
+    <path refid="library.maven:_org.reflections:reflections:0.9.9-rc1.classpath"/>
+    <path refid="library.maven:_com.google.guava:guava:14.0.1.classpath"/>
+    <path refid="library.maven:_org.javassist:javassist:3.16.1-ga.classpath"/>
+    <path refid="library.maven:_com.opengamma:lambdava:0.3.classpath"/>
+    <path refid="library.maven:_net.sf.saxon:saxon-he:9.4.classpath"/>
+    <path refid="library.maven:_org.jdom:jdom:1.1.classpath"/>
+    <path refid="library.maven:_xom:xom:1.2.5.classpath"/>
+    <path refid="library.maven:_xml-apis:xml-apis:1.3.03.classpath"/>
+    <path refid="library.maven:_xerces:xercesimpl:2.8.0.classpath"/>
+    <path refid="library.maven:_xalan:xalan:2.7.0.classpath"/>
+    <path refid="library.maven:_dom4j:dom4j:1.6.1.classpath"/>
+    <path refid="library.maven:_xml-resolver:xml-resolver:1.2.classpath"/>
+    <path refid="library.maven:_commons-collections:commons-collections:3.2.1.classpath"/>
+    <path refid="library.maven:_commons-cli:commons-cli:1.2.classpath"/>
+    <path refid="library.maven:_commons-codec:commons-codec:1.8.classpath"/>
+    <path refid="library.maven:_org.fudgemsg:fudge-java:0.3.9.19.classpath"/>
+    <path refid="library.maven:_commons-beanutils:commons-beanutils:1.8.3.classpath"/>
+    <path refid="library.maven:_com.opengamma.external.json:json:1.0.0.v20101106.classpath"/>
+    <path refid="library.maven:_org.fudgemsg:fudge-proto:0.3.9.7.classpath"/>
+    <path refid="library.maven:_org.antlr:antlr:3.5.classpath"/>
+    <path refid="library.maven:_org.antlr:antlr-runtime:3.5.classpath"/>
+    <path refid="library.maven:_org.antlr:stringtemplate:3.2.1.classpath"/>
+    <path refid="library.maven:_antlr:antlr:2.7.7.classpath"/>
+    <path refid="library.maven:_org.antlr:st4:4.0.7.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpclient:4.2.5.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpcore:4.2.4.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpcore-nio:4.2.4.classpath"/>
+    <path refid="library.maven:_org.joda:joda-convert:1.6.classpath"/>
+    <path refid="library.maven:_org.joda:joda-beans:0.9.7.classpath"/>
+    <path refid="library.maven:_it.unimi.dsi:fastutil:6.5.6.classpath"/>
+    <path refid="library.maven:_net.sf.opencsv:opencsv:2.3.classpath"/>
+    <path refid="library.maven:_org.codehaus.woodstox:woodstox-core-asl:4.2.0.classpath"/>
+    <path refid="library.maven:_javax.xml.stream:stax-api:1.0-2.classpath"/>
+    <path refid="library.maven:_org.codehaus.woodstox:stax2-api:3.1.1.classpath"/>
+    <path refid="library.maven:_org.apache.shiro:shiro-web:1.2.3.classpath"/>
+    <path refid="library.maven:_org.apache.shiro:shiro-core:1.2.3.classpath"/>
+    <path refid="library.maven:_org.slf4j:slf4j-api:1.7.5.classpath"/>
+    <path refid="library.maven:_org.slf4j:log4j-over-slf4j:1.7.5.classpath"/>
+    <path refid="library.maven:_org.slf4j:jcl-over-slf4j:1.7.5.classpath"/>
+    <path refid="library.maven:_ch.qos.logback:logback-core:1.0.13.classpath"/>
+    <path refid="library.maven:_ch.qos.logback:logback-classic:1.0.13.classpath"/>
+    <path refid="library.maven:_com.codahale.metrics:metrics-core:3.0.1.classpath"/>
+    <path refid="library.maven:_com.codahale.metrics:metrics-ganglia:3.0.1.classpath"/>
+    <path refid="library.maven:_info.ganglia.gmetric4j:gmetric4j:1.0.3.classpath"/>
+    <path refid="library.maven:_org.acplt:oncrpc:1.0.7.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-core:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-beans:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-context:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-aop:3.2.3.release.classpath"/>
+    <path refid="library.maven:_aopalliance:aopalliance:1.0.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-expression:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-context-support:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-jms:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-tx:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-test:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-web:3.2.3.release.classpath"/>
+    <path refid="library.maven:_javax.servlet:javax.servlet-api:3.0.1.classpath"/>
+    <path refid="library.maven:_com.sun.jersey:jersey-servlet:1.17.1.classpath"/>
+    <path refid="library.maven:_com.sun.jersey:jersey-server:1.17.1.classpath"/>
+    <path refid="library.maven:_asm:asm:3.1.classpath"/>
+    <path refid="library.maven:_com.sun.jersey:jersey-core:1.17.1.classpath"/>
+    <path refid="library.maven:_com.sun.jersey:jersey-client:1.17.1.classpath"/>
+    <path refid="library.maven:_com.sun.jersey.contribs:jersey-multipart:1.17.1.classpath"/>
+    <path refid="library.maven:_org.jvnet:mimepull:1.6.classpath"/>
+    <path refid="library.maven:_com.sun.jersey.contribs:jersey-spring:1.17.1.classpath"/>
+    <path refid="library.maven:_javax.jms:jms-api:1.1-rev-1.classpath"/>
+    <path refid="library.maven:_net.sf.ehcache:ehcache-core:2.6.3.classpath"/>
+    <path refid="library.maven:_redis.clients:jedis:2.1.0.classpath"/>
+    <path refid="library.maven:_commons-pool:commons-pool:1.6.classpath"/>
+    <path refid="library.maven:_org.mindrot:jbcrypt:0.3m.classpath"/>
+    <path refid="library.maven:_com.opengamma:og-region-data:1.0.0.v20110908a.classpath"/>
+    <pathelement location="${og-analytics.output.dir}"/>
+    <path refid="library.maven:_org.apache.commons:commons-math:2.1.classpath"/>
+    <path refid="library.maven:_colt:colt:1.2.0.classpath"/>
+    <path refid="library.maven:_concurrent:concurrent:1.3.4.classpath"/>
+    <path refid="library.maven:_net.sourceforge.jtransforms:jtransforms:2.4.0.classpath"/>
+    <path refid="library.maven:_com.googlecode.json-simple:json-simple:1.1.1.classpath"/>
+    <path refid="library.maven:_org.apache.poi:poi:3.9.classpath"/>
+    <pathelement location="${og-provider.output.dir}"/>
+    <pathelement location="${og-livedata.output.dir}"/>
+    <pathelement location="${og-security.output.dir}"/>
+    <path refid="library.maven:_org.springframework.security:spring-security-core:3.2.3.release.classpath"/>
+    <pathelement location="${og-engine.output.dir}"/>
+    <path refid="library.maven:_com.sleepycat:je:4.0.92.classpath"/>
+    <path refid="library.maven:_de.odysseus.juel:juel-api:2.2.6.classpath"/>
+    <path refid="library.maven:_de.odysseus.juel:juel-impl:2.2.6.classpath"/>
+    <path refid="library.maven:_org.apache.activemq:activemq-core:5.7.0.classpath"/>
+    <path refid="library.maven:_org.apache.activemq:kahadb:5.7.0.classpath"/>
+    <path refid="library.maven:_org.fusesource.mqtt-client:mqtt-client:1.3.classpath"/>
+    <path refid="library.maven:_org.fusesource.hawtdispatch:hawtdispatch-transport:1.11.classpath"/>
+    <path refid="library.maven:_org.fusesource.hawtdispatch:hawtdispatch:1.11.classpath"/>
+    <path refid="library.maven:_org.fusesource.hawtbuf:hawtbuf:1.9.classpath"/>
+    <path refid="library.maven:_org.jasypt:jasypt:1.9.0.classpath"/>
+    <path refid="library.maven:_org.apache.activemq:activemq-pool:5.7.0.classpath"/>
+  </path>
+  
+  <path id="og-financial.runtime.production.module.classpath">
+    <pathelement location="${og-financial.output.dir}"/>
+    <path refid="og-financial-types.runtime.production.module.classpath"/>
+    <path refid="og-master.runtime.production.module.classpath"/>
+    <path refid="og-core.runtime.production.module.classpath"/>
+    <path refid="og-util.runtime.production.module.classpath"/>
+    <path refid="og-timeseries.runtime.production.module.classpath"/>
+    <path refid="library.maven:_org.threeten:threetenbp:0.8.1.classpath"/>
+    <path refid="library.maven:_com.opengamma.tools:scripts:1.4.2.classpath"/>
+    <path refid="library.maven:_commons-lang:commons-lang:2.6.classpath"/>
+    <path refid="library.maven:_commons-io:commons-io:2.4.classpath"/>
+    <path refid="library.maven:_org.freemarker:freemarker:2.3.19.classpath"/>
+    <path refid="library.maven:_org.reflections:reflections:0.9.9-rc1.classpath"/>
+    <path refid="library.maven:_com.google.guava:guava:14.0.1.classpath"/>
+    <path refid="library.maven:_org.javassist:javassist:3.16.1-ga.classpath"/>
+    <path refid="library.maven:_com.opengamma:lambdava:0.3.classpath"/>
+    <path refid="library.maven:_net.sf.saxon:saxon-he:9.4.classpath"/>
+    <path refid="library.maven:_org.jdom:jdom:1.1.classpath"/>
+    <path refid="library.maven:_xom:xom:1.2.5.classpath"/>
+    <path refid="library.maven:_xml-apis:xml-apis:1.3.03.classpath"/>
+    <path refid="library.maven:_xerces:xercesimpl:2.8.0.classpath"/>
+    <path refid="library.maven:_xalan:xalan:2.7.0.classpath"/>
+    <path refid="library.maven:_dom4j:dom4j:1.6.1.classpath"/>
+    <path refid="library.maven:_xml-resolver:xml-resolver:1.2.classpath"/>
+    <path refid="library.maven:_commons-collections:commons-collections:3.2.1.classpath"/>
+    <path refid="library.maven:_commons-cli:commons-cli:1.2.classpath"/>
+    <path refid="library.maven:_commons-codec:commons-codec:1.8.classpath"/>
+    <path refid="library.maven:_org.fudgemsg:fudge-java:0.3.9.19.classpath"/>
+    <path refid="library.maven:_commons-beanutils:commons-beanutils:1.8.3.classpath"/>
+    <path refid="library.maven:_com.opengamma.external.json:json:1.0.0.v20101106.classpath"/>
+    <path refid="library.maven:_org.fudgemsg:fudge-proto:0.3.9.7.classpath"/>
+    <path refid="library.maven:_org.antlr:antlr:3.5.classpath"/>
+    <path refid="library.maven:_org.antlr:antlr-runtime:3.5.classpath"/>
+    <path refid="library.maven:_org.antlr:stringtemplate:3.2.1.classpath"/>
+    <path refid="library.maven:_antlr:antlr:2.7.7.classpath"/>
+    <path refid="library.maven:_org.antlr:st4:4.0.7.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpclient:4.2.5.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpcore:4.2.4.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpcore-nio:4.2.4.classpath"/>
+    <path refid="library.maven:_org.joda:joda-convert:1.6.classpath"/>
+    <path refid="library.maven:_org.joda:joda-beans:0.9.7.classpath"/>
+    <path refid="library.maven:_it.unimi.dsi:fastutil:6.5.6.classpath"/>
+    <path refid="library.maven:_net.sf.opencsv:opencsv:2.3.classpath"/>
+    <path refid="library.maven:_org.codehaus.woodstox:woodstox-core-asl:4.2.0.classpath"/>
+    <path refid="library.maven:_javax.xml.stream:stax-api:1.0-2.classpath"/>
+    <path refid="library.maven:_org.codehaus.woodstox:stax2-api:3.1.1.classpath"/>
+    <path refid="library.maven:_org.apache.shiro:shiro-web:1.2.3.classpath"/>
+    <path refid="library.maven:_org.apache.shiro:shiro-core:1.2.3.classpath"/>
+    <path refid="library.maven:_org.slf4j:slf4j-api:1.7.5.classpath"/>
+    <path refid="library.maven:_org.slf4j:log4j-over-slf4j:1.7.5.classpath"/>
+    <path refid="library.maven:_org.slf4j:jcl-over-slf4j:1.7.5.classpath"/>
+    <path refid="library.maven:_ch.qos.logback:logback-core:1.0.13.classpath"/>
+    <path refid="library.maven:_ch.qos.logback:logback-classic:1.0.13.classpath"/>
+    <path refid="library.maven:_com.codahale.metrics:metrics-core:3.0.1.classpath"/>
+    <path refid="library.maven:_com.codahale.metrics:metrics-ganglia:3.0.1.classpath"/>
+    <path refid="library.maven:_info.ganglia.gmetric4j:gmetric4j:1.0.3.classpath"/>
+    <path refid="library.maven:_org.acplt:oncrpc:1.0.7.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-core:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-beans:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-context:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-aop:3.2.3.release.classpath"/>
+    <path refid="library.maven:_aopalliance:aopalliance:1.0.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-expression:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-context-support:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-jms:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-tx:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-test:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-web:3.2.3.release.classpath"/>
+    <path refid="library.maven:_javax.servlet:javax.servlet-api:3.0.1.classpath"/>
+    <path refid="library.maven:_com.sun.jersey:jersey-servlet:1.17.1.classpath"/>
+    <path refid="library.maven:_com.sun.jersey:jersey-server:1.17.1.classpath"/>
+    <path refid="library.maven:_asm:asm:3.1.classpath"/>
+    <path refid="library.maven:_com.sun.jersey:jersey-core:1.17.1.classpath"/>
+    <path refid="library.maven:_com.sun.jersey:jersey-client:1.17.1.classpath"/>
+    <path refid="library.maven:_com.sun.jersey.contribs:jersey-multipart:1.17.1.classpath"/>
+    <path refid="library.maven:_org.jvnet:mimepull:1.6.classpath"/>
+    <path refid="library.maven:_com.sun.jersey.contribs:jersey-spring:1.17.1.classpath"/>
+    <path refid="library.maven:_javax.jms:jms-api:1.1-rev-1.classpath"/>
+    <path refid="library.maven:_net.sf.ehcache:ehcache-core:2.6.3.classpath"/>
+    <path refid="library.maven:_redis.clients:jedis:2.1.0.classpath"/>
+    <path refid="library.maven:_commons-pool:commons-pool:1.6.classpath"/>
+    <path refid="library.maven:_org.mindrot:jbcrypt:0.3m.classpath"/>
+    <path refid="library.maven:_com.opengamma:og-region-data:1.0.0.v20110908a.classpath"/>
+    <path refid="og-analytics.runtime.production.module.classpath"/>
+    <path refid="library.maven:_org.apache.commons:commons-math:2.1.classpath"/>
+    <path refid="library.maven:_colt:colt:1.2.0.classpath"/>
+    <path refid="library.maven:_concurrent:concurrent:1.3.4.classpath"/>
+    <path refid="library.maven:_net.sourceforge.jtransforms:jtransforms:2.4.0.classpath"/>
+    <path refid="library.maven:_com.googlecode.json-simple:json-simple:1.1.1.classpath"/>
+    <path refid="library.maven:_org.apache.poi:poi:3.9.classpath"/>
+    <path refid="og-provider.runtime.production.module.classpath"/>
+    <path refid="og-livedata.runtime.production.module.classpath"/>
+    <path refid="og-security.runtime.production.module.classpath"/>
+    <path refid="library.maven:_org.springframework.security:spring-security-core:3.2.3.release.classpath"/>
+    <path refid="og-engine.runtime.production.module.classpath"/>
+    <path refid="library.maven:_com.sleepycat:je:4.0.92.classpath"/>
+    <path refid="library.maven:_de.odysseus.juel:juel-api:2.2.6.classpath"/>
+    <path refid="library.maven:_de.odysseus.juel:juel-impl:2.2.6.classpath"/>
+    <path refid="library.maven:_org.apache.activemq:activemq-core:5.7.0.classpath"/>
+    <path refid="library.maven:_org.apache.activemq:kahadb:5.7.0.classpath"/>
+    <path refid="library.maven:_org.fusesource.mqtt-client:mqtt-client:1.3.classpath"/>
+    <path refid="library.maven:_org.fusesource.hawtdispatch:hawtdispatch-transport:1.11.classpath"/>
+    <path refid="library.maven:_org.fusesource.hawtdispatch:hawtdispatch:1.11.classpath"/>
+    <path refid="library.maven:_org.fusesource.hawtbuf:hawtbuf:1.9.classpath"/>
+    <path refid="library.maven:_org.jasypt:jasypt:1.9.0.classpath"/>
+    <path refid="library.maven:_org.apache.activemq:activemq-pool:5.7.0.classpath"/>
+  </path>
+  
+  <path id="og-financial.module.classpath">
+    <path refid="${module.jdk.classpath.og-financial}"/>
+    <pathelement location="${og-financial.output.dir}"/>
+    <pathelement location="${og-financial-types.testoutput.dir}"/>
+    <pathelement location="${og-financial-types.output.dir}"/>
+    <pathelement location="${og-master.testoutput.dir}"/>
+    <pathelement location="${og-master.output.dir}"/>
+    <pathelement location="${og-core.testoutput.dir}"/>
+    <pathelement location="${og-core.output.dir}"/>
+    <pathelement location="${og-util.testoutput.dir}"/>
+    <pathelement location="${og-util.output.dir}"/>
+    <pathelement location="${og-timeseries.testoutput.dir}"/>
+    <pathelement location="${og-timeseries.output.dir}"/>
+    <path refid="library.maven:_org.threeten:threetenbp:0.8.1.classpath"/>
+    <path refid="library.maven:_com.opengamma.tools:scripts:1.4.2.classpath"/>
+    <path refid="library.maven:_commons-lang:commons-lang:2.6.classpath"/>
+    <path refid="library.maven:_commons-io:commons-io:2.4.classpath"/>
+    <path refid="library.maven:_org.freemarker:freemarker:2.3.19.classpath"/>
+    <path refid="library.maven:_org.reflections:reflections:0.9.9-rc1.classpath"/>
+    <path refid="library.maven:_com.google.guava:guava:14.0.1.classpath"/>
+    <path refid="library.maven:_org.javassist:javassist:3.16.1-ga.classpath"/>
+    <path refid="library.maven:_com.opengamma:lambdava:0.3.classpath"/>
+    <path refid="library.maven:_net.sf.saxon:saxon-he:9.4.classpath"/>
+    <path refid="library.maven:_org.jdom:jdom:1.1.classpath"/>
+    <path refid="library.maven:_xom:xom:1.2.5.classpath"/>
+    <path refid="library.maven:_xml-apis:xml-apis:1.3.03.classpath"/>
+    <path refid="library.maven:_xerces:xercesimpl:2.8.0.classpath"/>
+    <path refid="library.maven:_xalan:xalan:2.7.0.classpath"/>
+    <path refid="library.maven:_dom4j:dom4j:1.6.1.classpath"/>
+    <path refid="library.maven:_xml-resolver:xml-resolver:1.2.classpath"/>
+    <path refid="library.maven:_commons-collections:commons-collections:3.2.1.classpath"/>
+    <path refid="library.maven:_commons-cli:commons-cli:1.2.classpath"/>
+    <path refid="library.maven:_commons-codec:commons-codec:1.8.classpath"/>
+    <path refid="library.maven:_org.fudgemsg:fudge-java:0.3.9.19.classpath"/>
+    <path refid="library.maven:_commons-beanutils:commons-beanutils:1.8.3.classpath"/>
+    <path refid="library.maven:_com.opengamma.external.json:json:1.0.0.v20101106.classpath"/>
+    <path refid="library.maven:_org.fudgemsg:fudge-proto:0.3.9.7.classpath"/>
+    <path refid="library.maven:_org.antlr:antlr:3.5.classpath"/>
+    <path refid="library.maven:_org.antlr:antlr-runtime:3.5.classpath"/>
+    <path refid="library.maven:_org.antlr:stringtemplate:3.2.1.classpath"/>
+    <path refid="library.maven:_antlr:antlr:2.7.7.classpath"/>
+    <path refid="library.maven:_org.antlr:st4:4.0.7.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpclient:4.2.5.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpcore:4.2.4.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpcore-nio:4.2.4.classpath"/>
+    <path refid="library.maven:_org.joda:joda-convert:1.6.classpath"/>
+    <path refid="library.maven:_org.joda:joda-beans:0.9.7.classpath"/>
+    <path refid="library.maven:_it.unimi.dsi:fastutil:6.5.6.classpath"/>
+    <path refid="library.maven:_net.sf.opencsv:opencsv:2.3.classpath"/>
+    <path refid="library.maven:_org.codehaus.woodstox:woodstox-core-asl:4.2.0.classpath"/>
+    <path refid="library.maven:_javax.xml.stream:stax-api:1.0-2.classpath"/>
+    <path refid="library.maven:_org.codehaus.woodstox:stax2-api:3.1.1.classpath"/>
+    <path refid="library.maven:_org.apache.shiro:shiro-web:1.2.3.classpath"/>
+    <path refid="library.maven:_org.apache.shiro:shiro-core:1.2.3.classpath"/>
+    <path refid="library.maven:_org.slf4j:slf4j-api:1.7.5.classpath"/>
+    <path refid="library.maven:_org.slf4j:log4j-over-slf4j:1.7.5.classpath"/>
+    <path refid="library.maven:_org.slf4j:jcl-over-slf4j:1.7.5.classpath"/>
+    <path refid="library.maven:_ch.qos.logback:logback-core:1.0.13.classpath"/>
+    <path refid="library.maven:_ch.qos.logback:logback-classic:1.0.13.classpath"/>
+    <path refid="library.maven:_com.codahale.metrics:metrics-core:3.0.1.classpath"/>
+    <path refid="library.maven:_com.codahale.metrics:metrics-ganglia:3.0.1.classpath"/>
+    <path refid="library.maven:_info.ganglia.gmetric4j:gmetric4j:1.0.3.classpath"/>
+    <path refid="library.maven:_org.acplt:oncrpc:1.0.7.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-core:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-beans:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-context:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-aop:3.2.3.release.classpath"/>
+    <path refid="library.maven:_aopalliance:aopalliance:1.0.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-expression:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-context-support:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-jms:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-tx:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-test:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-web:3.2.3.release.classpath"/>
+    <path refid="library.maven:_javax.servlet:javax.servlet-api:3.0.1.classpath"/>
+    <path refid="library.maven:_com.sun.jersey:jersey-servlet:1.17.1.classpath"/>
+    <path refid="library.maven:_com.sun.jersey:jersey-server:1.17.1.classpath"/>
+    <path refid="library.maven:_asm:asm:3.1.classpath"/>
+    <path refid="library.maven:_com.sun.jersey:jersey-core:1.17.1.classpath"/>
+    <path refid="library.maven:_com.sun.jersey:jersey-client:1.17.1.classpath"/>
+    <path refid="library.maven:_com.sun.jersey.contribs:jersey-multipart:1.17.1.classpath"/>
+    <path refid="library.maven:_org.jvnet:mimepull:1.6.classpath"/>
+    <path refid="library.maven:_com.sun.jersey.contribs:jersey-spring:1.17.1.classpath"/>
+    <path refid="library.maven:_javax.jms:jms-api:1.1-rev-1.classpath"/>
+    <path refid="library.maven:_net.sf.ehcache:ehcache-core:2.6.3.classpath"/>
+    <path refid="library.maven:_redis.clients:jedis:2.1.0.classpath"/>
+    <path refid="library.maven:_commons-pool:commons-pool:1.6.classpath"/>
+    <path refid="library.maven:_org.mindrot:jbcrypt:0.3m.classpath"/>
+    <path refid="library.maven:_com.opengamma:og-region-data:1.0.0.v20110908a.classpath"/>
+    <pathelement location="${og-analytics.testoutput.dir}"/>
+    <pathelement location="${og-analytics.output.dir}"/>
+    <path refid="library.maven:_org.apache.commons:commons-math:2.1.classpath"/>
+    <path refid="library.maven:_colt:colt:1.2.0.classpath"/>
+    <path refid="library.maven:_concurrent:concurrent:1.3.4.classpath"/>
+    <path refid="library.maven:_net.sourceforge.jtransforms:jtransforms:2.4.0.classpath"/>
+    <path refid="library.maven:_com.googlecode.json-simple:json-simple:1.1.1.classpath"/>
+    <path refid="library.maven:_org.apache.poi:poi:3.9.classpath"/>
+    <pathelement location="${og-provider.testoutput.dir}"/>
+    <pathelement location="${og-provider.output.dir}"/>
+    <pathelement location="${og-livedata.testoutput.dir}"/>
+    <pathelement location="${og-livedata.output.dir}"/>
+    <pathelement location="${og-security.testoutput.dir}"/>
+    <pathelement location="${og-security.output.dir}"/>
+    <path refid="library.maven:_org.springframework.security:spring-security-core:3.2.3.release.classpath"/>
+    <pathelement location="${og-engine.testoutput.dir}"/>
+    <pathelement location="${og-engine.output.dir}"/>
+    <path refid="library.maven:_com.sleepycat:je:4.0.92.classpath"/>
+    <path refid="library.maven:_de.odysseus.juel:juel-api:2.2.6.classpath"/>
+    <path refid="library.maven:_de.odysseus.juel:juel-impl:2.2.6.classpath"/>
+    <path refid="library.maven:_org.apache.activemq:activemq-core:5.7.0.classpath"/>
+    <path refid="library.maven:_org.apache.activemq:kahadb:5.7.0.classpath"/>
+    <path refid="library.maven:_org.fusesource.mqtt-client:mqtt-client:1.3.classpath"/>
+    <path refid="library.maven:_org.fusesource.hawtdispatch:hawtdispatch-transport:1.11.classpath"/>
+    <path refid="library.maven:_org.fusesource.hawtdispatch:hawtdispatch:1.11.classpath"/>
+    <path refid="library.maven:_org.fusesource.hawtbuf:hawtbuf:1.9.classpath"/>
+    <path refid="library.maven:_org.jasypt:jasypt:1.9.0.classpath"/>
+    <path refid="library.maven:_org.apache.activemq:activemq-pool:5.7.0.classpath"/>
+    <path refid="library.maven:_org.testng:testng:6.8.5.classpath"/>
+    <path refid="library.maven:_com.beust:jcommander:1.27.classpath"/>
+    <path refid="library.maven:_org.mockito:mockito-core:1.9.5.classpath"/>
+    <path refid="library.maven:_org.hamcrest:hamcrest-core:1.3.classpath"/>
+    <path refid="library.maven:_org.objenesis:objenesis:1.0.classpath"/>
+  </path>
+  
+  <path id="og-financial.runtime.module.classpath">
+    <pathelement location="${og-financial.testoutput.dir}"/>
+    <pathelement location="${og-financial.output.dir}"/>
+    <path refid="og-financial-types.runtime.module.classpath"/>
+    <path refid="og-master.runtime.module.classpath"/>
+    <path refid="og-core.runtime.module.classpath"/>
+    <path refid="og-util.runtime.module.classpath"/>
+    <path refid="og-timeseries.runtime.module.classpath"/>
+    <path refid="library.maven:_org.threeten:threetenbp:0.8.1.classpath"/>
+    <path refid="library.maven:_com.opengamma.tools:scripts:1.4.2.classpath"/>
+    <path refid="library.maven:_commons-lang:commons-lang:2.6.classpath"/>
+    <path refid="library.maven:_commons-io:commons-io:2.4.classpath"/>
+    <path refid="library.maven:_org.freemarker:freemarker:2.3.19.classpath"/>
+    <path refid="library.maven:_org.reflections:reflections:0.9.9-rc1.classpath"/>
+    <path refid="library.maven:_com.google.guava:guava:14.0.1.classpath"/>
+    <path refid="library.maven:_org.javassist:javassist:3.16.1-ga.classpath"/>
+    <path refid="library.maven:_com.opengamma:lambdava:0.3.classpath"/>
+    <path refid="library.maven:_net.sf.saxon:saxon-he:9.4.classpath"/>
+    <path refid="library.maven:_org.jdom:jdom:1.1.classpath"/>
+    <path refid="library.maven:_xom:xom:1.2.5.classpath"/>
+    <path refid="library.maven:_xml-apis:xml-apis:1.3.03.classpath"/>
+    <path refid="library.maven:_xerces:xercesimpl:2.8.0.classpath"/>
+    <path refid="library.maven:_xalan:xalan:2.7.0.classpath"/>
+    <path refid="library.maven:_dom4j:dom4j:1.6.1.classpath"/>
+    <path refid="library.maven:_xml-resolver:xml-resolver:1.2.classpath"/>
+    <path refid="library.maven:_commons-collections:commons-collections:3.2.1.classpath"/>
+    <path refid="library.maven:_commons-cli:commons-cli:1.2.classpath"/>
+    <path refid="library.maven:_commons-codec:commons-codec:1.8.classpath"/>
+    <path refid="library.maven:_org.fudgemsg:fudge-java:0.3.9.19.classpath"/>
+    <path refid="library.maven:_commons-beanutils:commons-beanutils:1.8.3.classpath"/>
+    <path refid="library.maven:_com.opengamma.external.json:json:1.0.0.v20101106.classpath"/>
+    <path refid="library.maven:_org.fudgemsg:fudge-proto:0.3.9.7.classpath"/>
+    <path refid="library.maven:_org.antlr:antlr:3.5.classpath"/>
+    <path refid="library.maven:_org.antlr:antlr-runtime:3.5.classpath"/>
+    <path refid="library.maven:_org.antlr:stringtemplate:3.2.1.classpath"/>
+    <path refid="library.maven:_antlr:antlr:2.7.7.classpath"/>
+    <path refid="library.maven:_org.antlr:st4:4.0.7.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpclient:4.2.5.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpcore:4.2.4.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpcore-nio:4.2.4.classpath"/>
+    <path refid="library.maven:_org.joda:joda-convert:1.6.classpath"/>
+    <path refid="library.maven:_org.joda:joda-beans:0.9.7.classpath"/>
+    <path refid="library.maven:_it.unimi.dsi:fastutil:6.5.6.classpath"/>
+    <path refid="library.maven:_net.sf.opencsv:opencsv:2.3.classpath"/>
+    <path refid="library.maven:_org.codehaus.woodstox:woodstox-core-asl:4.2.0.classpath"/>
+    <path refid="library.maven:_javax.xml.stream:stax-api:1.0-2.classpath"/>
+    <path refid="library.maven:_org.codehaus.woodstox:stax2-api:3.1.1.classpath"/>
+    <path refid="library.maven:_org.apache.shiro:shiro-web:1.2.3.classpath"/>
+    <path refid="library.maven:_org.apache.shiro:shiro-core:1.2.3.classpath"/>
+    <path refid="library.maven:_org.slf4j:slf4j-api:1.7.5.classpath"/>
+    <path refid="library.maven:_org.slf4j:log4j-over-slf4j:1.7.5.classpath"/>
+    <path refid="library.maven:_org.slf4j:jcl-over-slf4j:1.7.5.classpath"/>
+    <path refid="library.maven:_ch.qos.logback:logback-core:1.0.13.classpath"/>
+    <path refid="library.maven:_ch.qos.logback:logback-classic:1.0.13.classpath"/>
+    <path refid="library.maven:_com.codahale.metrics:metrics-core:3.0.1.classpath"/>
+    <path refid="library.maven:_com.codahale.metrics:metrics-ganglia:3.0.1.classpath"/>
+    <path refid="library.maven:_info.ganglia.gmetric4j:gmetric4j:1.0.3.classpath"/>
+    <path refid="library.maven:_org.acplt:oncrpc:1.0.7.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-core:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-beans:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-context:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-aop:3.2.3.release.classpath"/>
+    <path refid="library.maven:_aopalliance:aopalliance:1.0.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-expression:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-context-support:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-jms:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-tx:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-test:3.2.3.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-web:3.2.3.release.classpath"/>
+    <path refid="library.maven:_javax.servlet:javax.servlet-api:3.0.1.classpath"/>
+    <path refid="library.maven:_com.sun.jersey:jersey-servlet:1.17.1.classpath"/>
+    <path refid="library.maven:_com.sun.jersey:jersey-server:1.17.1.classpath"/>
+    <path refid="library.maven:_asm:asm:3.1.classpath"/>
+    <path refid="library.maven:_com.sun.jersey:jersey-core:1.17.1.classpath"/>
+    <path refid="library.maven:_com.sun.jersey:jersey-client:1.17.1.classpath"/>
+    <path refid="library.maven:_com.sun.jersey.contribs:jersey-multipart:1.17.1.classpath"/>
+    <path refid="library.maven:_org.jvnet:mimepull:1.6.classpath"/>
+    <path refid="library.maven:_com.sun.jersey.contribs:jersey-spring:1.17.1.classpath"/>
+    <path refid="library.maven:_javax.jms:jms-api:1.1-rev-1.classpath"/>
+    <path refid="library.maven:_net.sf.ehcache:ehcache-core:2.6.3.classpath"/>
+    <path refid="library.maven:_redis.clients:jedis:2.1.0.classpath"/>
+    <path refid="library.maven:_commons-pool:commons-pool:1.6.classpath"/>
+    <path refid="library.maven:_org.mindrot:jbcrypt:0.3m.classpath"/>
+    <path refid="library.maven:_com.opengamma:og-region-data:1.0.0.v20110908a.classpath"/>
+    <path refid="og-analytics.runtime.module.classpath"/>
+    <path refid="library.maven:_org.apache.commons:commons-math:2.1.classpath"/>
+    <path refid="library.maven:_colt:colt:1.2.0.classpath"/>
+    <path refid="library.maven:_concurrent:concurrent:1.3.4.classpath"/>
+    <path refid="library.maven:_net.sourceforge.jtransforms:jtransforms:2.4.0.classpath"/>
+    <path refid="library.maven:_com.googlecode.json-simple:json-simple:1.1.1.classpath"/>
+    <path refid="library.maven:_org.apache.poi:poi:3.9.classpath"/>
+    <path refid="og-provider.runtime.module.classpath"/>
+    <path refid="og-livedata.runtime.module.classpath"/>
+    <path refid="og-security.runtime.module.classpath"/>
+    <path refid="library.maven:_org.springframework.security:spring-security-core:3.2.3.release.classpath"/>
+    <path refid="og-engine.runtime.module.classpath"/>
+    <path refid="library.maven:_com.sleepycat:je:4.0.92.classpath"/>
+    <path refid="library.maven:_de.odysseus.juel:juel-api:2.2.6.classpath"/>
+    <path refid="library.maven:_de.odysseus.juel:juel-impl:2.2.6.classpath"/>
+    <path refid="library.maven:_org.apache.activemq:activemq-core:5.7.0.classpath"/>
+    <path refid="library.maven:_org.apache.activemq:kahadb:5.7.0.classpath"/>
+    <path refid="library.maven:_org.fusesource.mqtt-client:mqtt-client:1.3.classpath"/>
+    <path refid="library.maven:_org.fusesource.hawtdispatch:hawtdispatch-transport:1.11.classpath"/>
+    <path refid="library.maven:_org.fusesource.hawtdispatch:hawtdispatch:1.11.classpath"/>
+    <path refid="library.maven:_org.fusesource.hawtbuf:hawtbuf:1.9.classpath"/>
+    <path refid="library.maven:_org.jasypt:jasypt:1.9.0.classpath"/>
+    <path refid="library.maven:_org.apache.activemq:activemq-pool:5.7.0.classpath"/>
+    <path refid="library.maven:_org.testng:testng:6.8.5.classpath"/>
+    <path refid="library.maven:_com.beust:jcommander:1.27.classpath"/>
+    <path refid="library.maven:_org.mockito:mockito-core:1.9.5.classpath"/>
+    <path refid="library.maven:_org.hamcrest:hamcrest-core:1.3.classpath"/>
+    <path refid="library.maven:_org.objenesis:objenesis:1.0.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.og-financial">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.og-financial">
+    <patternset refid="excluded.from.module.og-financial"/>
+  </patternset>
+  
+  <path id="og-financial.module.sourcepath">
+    <dirset dir="${module.og-financial.basedir}">
+      <include name="src/main/java"/>
+    </dirset>
+  </path>
+  
+  <path id="og-financial.module.test.sourcepath">
+    <dirset dir="${module.og-financial.basedir}">
+      <include name="src/test/java"/>
+      <include name="src/test/resources"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.og-financial" depends="compile.module.og-financial.production,compile.module.og-financial.tests" description="Compile module og-financial"/>
+  
+  <target name="compile.module.og-financial.production" depends="register.custom.compilers,compile.module.og-financial-types,compile.module.og-master,compile.module.og-core,compile.module.og-util,compile.module.og-timeseries,compile.module.og-analytics,compile.module.og-provider,compile.module.og-livedata,compile.module.og-security,compile.module.og-engine" description="Compile module og-financial; production classes">
+    <mkdir dir="${og-financial.output.dir}"/>
+    <javac2 destdir="${og-financial.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.og-financial}/javac">
+      <compilerarg line="${compiler.args.og-financial}"/>
+      <bootclasspath refid="og-financial.module.bootclasspath"/>
+      <classpath refid="og-financial.module.production.classpath"/>
+      <src refid="og-financial.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.og-financial"/>
+    </javac2>
+    
+    <copy todir="${og-financial.output.dir}">
+      <fileset dir="${module.og-financial.basedir}/src/main/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.og-financial.tests" depends="register.custom.compilers,compile.module.og-financial.production" description="compile module og-financial; test classes" unless="skip.tests">
+    <mkdir dir="${og-financial.testoutput.dir}"/>
+    <javac2 destdir="${og-financial.testoutput.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.og-financial}/javac">
+      <compilerarg line="${compiler.args.og-financial}"/>
+      <bootclasspath refid="og-financial.module.bootclasspath"/>
+      <classpath refid="og-financial.module.classpath"/>
+      <src refid="og-financial.module.test.sourcepath"/>
+      <patternset refid="excluded.from.compilation.og-financial"/>
+    </javac2>
+    
+    <copy todir="${og-financial.testoutput.dir}">
+      <fileset dir="${module.og-financial.basedir}/src/test/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.og-financial.basedir}/src/test/resources">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="clean.module.og-financial" description="cleanup module">
+    <delete dir="${og-financial.output.dir}"/>
+    <delete dir="${og-financial.testoutput.dir}"/>
+  </target>
+</project>

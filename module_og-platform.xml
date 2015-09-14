@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_og-platform" default="compile.module.og-platform">
+  <dirname property="module.og-platform.basedir" file="${ant.file.module_og-platform}"/>
+  
+  <property name="module.jdk.home.og-platform" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.og-platform" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.og-platform" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.og-platform" value="-encoding UTF-8 -source 1.7 -target 1.7 ${compiler.args}"/>
+  
+  <property name="og-platform.output.dir" value="${module.og-platform.basedir}/target/classes"/>
+  <property name="og-platform.testoutput.dir" value="${module.og-platform.basedir}/target/test-classes"/>
+  
+  <path id="og-platform.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="og-platform.module.production.classpath">
+    <path refid="${module.jdk.classpath.og-platform}"/>
+  </path>
+  
+  <path id="og-platform.runtime.production.module.classpath">
+    <pathelement location="${sesame-function.output.dir}"/>
+  </path>
+  
+  <path id="og-platform.module.classpath">
+    <path refid="${module.jdk.classpath.og-platform}"/>
+    <pathelement location="${sesame-function.output.dir}"/>
+    <path refid="library.maven:_org.testng:testng:6.8.5.classpath"/>
+    <path refid="library.maven:_com.beust:jcommander:1.27.classpath"/>
+    <path refid="library.maven:_org.mockito:mockito-core:1.9.5.classpath"/>
+    <path refid="library.maven:_org.hamcrest:hamcrest-core:1.3.classpath"/>
+    <path refid="library.maven:_org.objenesis:objenesis:1.0.classpath"/>
+  </path>
+  
+  <path id="og-platform.runtime.module.classpath">
+    <pathelement location="${sesame-function.testoutput.dir}"/>
+    <pathelement location="${sesame-function.output.dir}"/>
+    <path refid="library.maven:_org.testng:testng:6.8.5.classpath"/>
+    <path refid="library.maven:_com.beust:jcommander:1.27.classpath"/>
+    <path refid="library.maven:_org.mockito:mockito-core:1.9.5.classpath"/>
+    <path refid="library.maven:_org.hamcrest:hamcrest-core:1.3.classpath"/>
+    <path refid="library.maven:_org.objenesis:objenesis:1.0.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.og-platform">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.og-platform">
+    <patternset refid="excluded.from.module.og-platform"/>
+  </patternset>
+  
+  
+  <target name="compile.module.og-platform" depends="compile.module.og-platform.production,compile.module.og-platform.tests" description="Compile module og-platform"/>
+  
+  <target name="compile.module.og-platform.production" depends="register.custom.compilers" description="Compile module og-platform; production classes"/>
+  
+  <target name="compile.module.og-platform.tests" depends="register.custom.compilers,compile.module.og-platform.production" description="compile module og-platform; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.og-platform" description="cleanup module">
+    <delete dir="${og-platform.output.dir}"/>
+    <delete dir="${og-platform.testoutput.dir}"/>
+  </target>
+</project>
