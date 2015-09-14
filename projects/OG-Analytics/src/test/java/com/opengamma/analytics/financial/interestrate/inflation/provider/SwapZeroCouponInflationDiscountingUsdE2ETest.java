@@ -23,6 +23,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsInflationUSD;
 import com.opengamma.analytics.financial.interestrate.datasets.StandardTimeSeriesInflationDataSets;
 import com.opengamma.analytics.financial.provider.calculator.inflation.MarketQuoteInflationSensitivityBlockCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflation.ParRateInflationDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueCurveSensitivityDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
@@ -53,6 +54,8 @@ public class SwapZeroCouponInflationDiscountingUsdE2ETest {
   /** Calculators **/
   private static final PresentValueDiscountingInflationCalculator PVDIC = 
       PresentValueDiscountingInflationCalculator.getInstance();
+  private static final ParRateInflationDiscountingCalculator PRIC = 
+      ParRateInflationDiscountingCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingInflationCalculator PVCSDIC = 
       PresentValueCurveSensitivityDiscountingInflationCalculator.getInstance();
   private static final ParameterSensitivityInflationParameterCalculator<ParameterInflationProviderInterface> PSC = 
@@ -76,11 +79,9 @@ public class SwapZeroCouponInflationDiscountingUsdE2ETest {
   private static final Pair<InflationProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_INFL_4_PAIR = 
       StandardDataSetsInflationUSD.getCurvesUsdOisUsCpiSeasonality(CALIBRATION_DATE);
   private static final InflationProviderDiscount MULTICURVE_INFL_4 = MULTICURVE_INFL_4_PAIR.getFirst();
-  private static final CurveBuildingBlockBundle BLOCK_INFL_4 = MULTICURVE_INFL_4_PAIR.getSecond();
   private static final Pair<InflationProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_INFL_5_PAIR = 
       StandardDataSetsInflationUSD.getCurvesUsdOisUsCpiCurrent(CALIBRATION_DATE);
   private static final InflationProviderDiscount MULTICURVE_INFL_5 = MULTICURVE_INFL_5_PAIR.getFirst();
-  private static final CurveBuildingBlockBundle BLOCK_INFL_5 = MULTICURVE_INFL_5_PAIR.getSecond();
   private static final ZonedDateTimeDoubleTimeSeries HTS_CPI = 
       StandardTimeSeriesInflationDataSets.timeSeriesUsCpi(CALIBRATION_DATE);
 
@@ -108,6 +109,7 @@ public class SwapZeroCouponInflationDiscountingUsdE2ETest {
       new ZonedDateTimeDoubleTimeSeries[] {HTS_CPI, HTS_CPI});
   
   private static final double TOLERANCE_PV = 1.0E-3;
+  private static final double TOLERANCE_RATE = 1.0E-8;
   private static final double TOLERANCE_PV_DELTA = 1.0E-1;
   private static final double BP1 = 1.0E-4;
   
@@ -137,6 +139,34 @@ public class SwapZeroCouponInflationDiscountingUsdE2ETest {
     MultipleCurrencyAmount pv3 = ZCI_2.accept(PVDIC, MULTICURVE_INFL_3);
     assertEquals("SwapZeroCouponInflationUsdDiscountingE2ETest: present value", 
         pv1.getAmount(USD), pv3.getAmount(USD), TOLERANCE_PV);
+  }
+  
+  @Test
+  public void parRateNode() {
+    double prExpectd = 0.0200;
+    Double pr1 = ZCI_1.accept(PRIC, MULTICURVE_INFL_1);
+    assertEquals("SwapZeroCouponInflationUsdDiscountingE2ETest: par rate", 
+        prExpectd, pr1, TOLERANCE_RATE);
+    Double pr2 = ZCI_1.accept(PRIC, MULTICURVE_INFL_2);
+    assertEquals("SwapZeroCouponInflationUsdDiscountingE2ETest: par rate", 
+        pr1, pr2, TOLERANCE_RATE);
+    Double pr3 = ZCI_1.accept(PRIC, MULTICURVE_INFL_3);
+    assertEquals("SwapZeroCouponInflationUsdDiscountingE2ETest: par rate", 
+        pr1, pr3, TOLERANCE_RATE);
+  }
+  
+  @Test
+  public void parRateAged() {
+    double pvExpectd = 0.02104793312426101;
+    Double pv1 = ZCI_2.accept(PRIC, MULTICURVE_INFL_1);
+    assertEquals("SwapZeroCouponInflationUsdDiscountingE2ETest: par rate", 
+        pvExpectd, pv1, TOLERANCE_RATE);
+    Double pv2 = ZCI_2.accept(PRIC, MULTICURVE_INFL_2);
+    assertEquals("SwapZeroCouponInflationUsdDiscountingE2ETest: par rate", 
+        pv1, pv2, TOLERANCE_RATE);
+    Double pv3 = ZCI_2.accept(PRIC, MULTICURVE_INFL_3);
+    assertEquals("SwapZeroCouponInflationUsdDiscountingE2ETest: par rate", 
+        pv1, pv3, TOLERANCE_RATE);
   }
   
   @Test
