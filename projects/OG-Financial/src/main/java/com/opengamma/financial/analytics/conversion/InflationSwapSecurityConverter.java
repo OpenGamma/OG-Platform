@@ -30,6 +30,7 @@ import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
 import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Converts {@link YearOnYearInflationSwapSecurity} and {@link ZeroCouponInflationSwapSecurity} into the
@@ -83,7 +84,7 @@ public class InflationSwapSecurityConverter extends FinancialSecurityVisitorAdap
 
     final Security sec = _securitySource.getSingle(indexLeg.getIndexId().toBundle());
     if (sec == null) {
-      throw new OpenGammaRuntimeException("Ibor index with id " + indexLeg.getIndexId() + " was null");
+      throw new OpenGammaRuntimeException("Price index with id " + indexLeg.getIndexId() + " was null");
     }
     final com.opengamma.financial.security.index.PriceIndex indexSecurity = (com.opengamma.financial.security.index.PriceIndex) sec;
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
@@ -94,13 +95,13 @@ public class InflationSwapSecurityConverter extends FinancialSecurityVisitorAdap
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, fixedLeg.getRegionId());
     final Period paymentPeriod = ConversionUtils.getTenor(indexLeg.getFrequency());
     final Period maturityTenor = security.getMaturityTenor().getPeriod();
-    boolean isMonthly;
+    boolean isInterpolated;
     switch (indexLeg.getInterpolationMethod()) {
       case MONTH_START_LINEAR:
-        isMonthly = true;
+        isInterpolated = true;
         break;
       case NONE:
-        isMonthly = false;
+        isInterpolated = false;
         break;
       default:
         throw new OpenGammaRuntimeException("Cannot handle interpolation method of type " + indexLeg.getInterpolationMethod());
@@ -110,7 +111,7 @@ public class InflationSwapSecurityConverter extends FinancialSecurityVisitorAdap
     final int quotationMonthLag = indexLeg.getQuotationIndexationLag();
     final boolean exchangeNotional = security.isExchangeInitialNotional() && security.isExchangeFinalNotional();
     final double notional = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
-    if (isMonthly) {
+    if (!isInterpolated) {
       return SwapFixedInflationYearOnYearDefinition.fromMonthly(priceIndex, security.getEffectiveDate(), paymentPeriod, (int) (maturityTenor.toTotalMonths() / 12), fixedRate,
           notional, isPayer, businessDayConvention, calendar, isEOM, fixedLegDayCount, conventionalMonthLag, quotationMonthLag, exchangeNotional);
     }
@@ -139,7 +140,7 @@ public class InflationSwapSecurityConverter extends FinancialSecurityVisitorAdap
 
     final Security sec = _securitySource.getSingle(indexLeg.getIndexId().toBundle());
     if (sec == null) {
-      throw new OpenGammaRuntimeException("Ibor index with id " + indexLeg.getIndexId() + " was null");
+      throw new OpenGammaRuntimeException("Price index with id " + indexLeg.getIndexId() + " was null");
     }
     final com.opengamma.financial.security.index.PriceIndex indexSecurity = (com.opengamma.financial.security.index.PriceIndex) sec;
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
@@ -147,14 +148,14 @@ public class InflationSwapSecurityConverter extends FinancialSecurityVisitorAdap
     final boolean isEOM = fixedLeg.isEom();
     final BusinessDayConvention businessDayConvention = fixedLeg.getBusinessDayConvention();
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, fixedLeg.getRegionId());
-    final int swapMaturityTenor = (int) Math.round(indexLeg.getDayCount().getDayCountFraction(security.getEffectiveDate(), security.getMaturityDate()));
-    boolean isMonthly;
+    final int swapMaturityTenor = (int) Math.round(DateUtils.getDifferenceInYears(security.getEffectiveDate(), security.getMaturityDate()));
+    boolean isInterpolated;
     switch (indexLeg.getInterpolationMethod()) {
       case MONTH_START_LINEAR:
-        isMonthly = true;
+        isInterpolated = true;
         break;
       case NONE:
-        isMonthly = false;
+        isInterpolated = false;
         break;
       default:
         throw new OpenGammaRuntimeException("Cannot handle interpolation method of type " + indexLeg.getInterpolationMethod());
@@ -163,7 +164,7 @@ public class InflationSwapSecurityConverter extends FinancialSecurityVisitorAdap
     final int conventionalMonthLag = indexLeg.getConventionalIndexationLag();
     final int quotationMonthLag = indexLeg.getQuotationIndexationLag();
     final double notional = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
-    if (isMonthly) {
+    if (!isInterpolated) {
       return SwapFixedInflationZeroCouponDefinition.fromMonthly(priceIndex, security.getEffectiveDate(), swapMaturityTenor, fixedRate,
           notional, isPayer, businessDayConvention, calendar, isEOM, conventionalMonthLag, quotationMonthLag);
     }

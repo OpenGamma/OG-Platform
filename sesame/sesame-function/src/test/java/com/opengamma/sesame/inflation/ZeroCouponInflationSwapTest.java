@@ -175,7 +175,7 @@ public class ZeroCouponInflationSwapTest {
                                                                         DateUtils.getUTCDate(2019, 1, 10),
                                                                         0.01);
 
-  private static final ExternalId CONVENTION_ID = ExternalId.of("CONVENTION", "USD Libor");
+  private static final ExternalId CONVENTION_ID = ExternalId.of("CONVENTION", "TEST");
   private static final ExternalId REGION_ID =  ExternalSchemes.financialRegionId("US");
 
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
@@ -269,7 +269,7 @@ public class ZeroCouponInflationSwapTest {
                                                               double rate) {
 
     ZonedDateTime effectiveDate = tradeDate.plusDays(2);
-    String counterpartyName = "US GOV";
+    String counterpartyName = "TEST";
     Frequency frequency = SimpleFrequency.SEMI_ANNUAL;
     BusinessDayConvention convention = BusinessDayConventions.MODIFIED_FOLLOWING;
     Notional notional = new InterestRateNotional(USD, 10_000_000);
@@ -293,7 +293,7 @@ public class ZeroCouponInflationSwapTest {
                                                                  PRICE_INDEX_ID,
                                                                  3,
                                                                  3,
-                                                                 InterpolationMethod.NONE);
+                                                                 InterpolationMethod.MONTH_START_LINEAR);
 
     ZeroCouponInflationSwapSecurity security = new ZeroCouponInflationSwapSecurity(tradeDate,
                                                                                    effectiveDate,
@@ -349,8 +349,9 @@ public class ZeroCouponInflationSwapTest {
     return new MasterRegionSource(regionMaster);
   }
 
-  private static CurveNode buildZeroRateCurveNode(Tenor tenor) {
-    return new ContinuouslyCompoundedRateNode(null, tenor, tenor.toFormattedString().substring(1));
+  private static CurveNode buildCurveNode(Tenor tenor) {
+    //Not the correct node to use for inflation, but in this case it is only used for labeling
+    return new ContinuouslyCompoundedRateNode("Mapper", tenor, tenor.toFormattedString().substring(1));
   }
 
   private static ConfigSource configSource() {
@@ -359,13 +360,13 @@ public class ZeroCouponInflationSwapTest {
     Set<CurveNode> indexNodes = new LinkedHashSet<>();
     for (double years : USD_INDEX_TIME) {
       Tenor tenor = Tenor.parse("P" + Math.round(years * 365) + "D");
-      indexNodes.add(buildZeroRateCurveNode(tenor));
+      indexNodes.add(buildCurveNode(tenor));
     }
 
     Set<CurveNode> discountingNodes = new LinkedHashSet<>();
     for (double years : USD_DSC_TIME) {
       Tenor tenor = Tenor.parse("P" + Math.round(years * 365) + "D");
-      discountingNodes.add(buildZeroRateCurveNode(tenor));
+      discountingNodes.add(buildCurveNode(tenor));
     }
 
     CurveDefinition indexDefinition = new CurveDefinition(USD_INDEX_NAME, indexNodes);

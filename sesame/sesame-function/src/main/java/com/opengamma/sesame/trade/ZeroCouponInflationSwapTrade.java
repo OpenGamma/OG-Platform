@@ -103,7 +103,6 @@ public final class ZeroCouponInflationSwapTrade extends TradeWrapper<ZeroCouponI
     return _tradeBundle;
   }
 
-
   //-----------------------------------------------------------------------
   /**
    * Returns a builder that allows this bean to be mutated.
