@@ -7,8 +7,10 @@ package com.opengamma.analytics.financial.provider.calculator.inflationissuer;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorDelegate;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BillTransactionDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondCapitalIndexedTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.provider.DepositCounterpartDiscountingMethod;
@@ -23,36 +25,36 @@ import com.opengamma.analytics.financial.provider.sensitivity.inflation.Inflatio
  * transaction version of instruments like bonds and bills, as the purchase price
  * information is necessary to calculate a meaningful par spread.
  */
-public final class ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator 
+public final class ParSpreadMarketQuoteCurveSensitivityInflationIssuerDiscountingCalculator 
   extends InstrumentDerivativeVisitorDelegate<ParameterInflationIssuerProviderInterface, InflationSensitivity> {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator INSTANCE = 
-      new ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator();
+  private static final ParSpreadMarketQuoteCurveSensitivityInflationIssuerDiscountingCalculator INSTANCE = 
+      new ParSpreadMarketQuoteCurveSensitivityInflationIssuerDiscountingCalculator();
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator getInstance() {
+  public static ParSpreadMarketQuoteCurveSensitivityInflationIssuerDiscountingCalculator getInstance() {
     return INSTANCE;
   }
 
   /**
    * Private constructor.
    */
-  private ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator() {
+  private ParSpreadMarketQuoteCurveSensitivityInflationIssuerDiscountingCalculator() {
     super(new InflationIssuerProviderAdapter<>(ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalculator.getInstance()));
   }
 
-  /** Calculator for deposits */
+  /** Calculators */
   private static final DepositCounterpartDiscountingMethod METHOD_DEPO_CTPY = DepositCounterpartDiscountingMethod.getInstance();
-  /** Calculator for bill transactions */
   private static final BillTransactionDiscountingMethod METHOD_BILL_TR = BillTransactionDiscountingMethod.getInstance();
-  /** Calculator for bond transactions */
   private static final BondTransactionDiscountingMethod METHOD_BOND_TR = BondTransactionDiscountingMethod.getInstance();
+  private static final BondCapitalIndexedTransactionDiscountingMethod METHOD_CAPINDBOND_TR = 
+      BondCapitalIndexedTransactionDiscountingMethod.getInstance();
 
   //     -----     Deposit     -----
 
@@ -73,6 +75,12 @@ public final class ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountin
     return InflationSensitivity.of(METHOD_BOND_TR.parSpreadCurveSensitivity(bond, issuercurves.getIssuerProvider()));
   }
 
-  // TODO : add inflation bonds
+  //     -----     Bond Inflation     -----
+  
+  @Override
+  public InflationSensitivity visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction<?> bond, 
+      final ParameterInflationIssuerProviderInterface curves) {
+    return METHOD_CAPINDBOND_TR.parSpreadCurveSensitivity(bond, curves);
+  }
 
 }
