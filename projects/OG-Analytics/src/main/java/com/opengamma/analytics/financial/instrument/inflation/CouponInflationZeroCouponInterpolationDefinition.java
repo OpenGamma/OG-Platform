@@ -173,7 +173,8 @@ public class CouponInflationZeroCouponInterpolationDefinition extends CouponInfl
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    * @return The inflation zero-coupon.
    */
-  public static CouponInflationZeroCouponInterpolationDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
+  public static CouponInflationZeroCouponInterpolationDefinition from(final ZonedDateTime accrualStartDate,
+                                                                      final ZonedDateTime paymentDate, final double notional,
       final IndexPrice priceIndex, final int conventionalMonthLag, final int monthLag, final boolean payNotional) {
     final ZonedDateTime refInterpolatedStartDate = accrualStartDate.minusMonths(monthLag);
     final ZonedDateTime[] referenceStartDates = new ZonedDateTime[2];
