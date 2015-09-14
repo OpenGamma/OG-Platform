@@ -25,6 +25,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthly;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.provider.calculator.inflation.NetAmountInflationCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflation.ParRateInflationDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueCurveSensitivityDiscountingInflationCalculator;
@@ -45,6 +46,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
@@ -89,27 +91,43 @@ public class CouponInflationZeroCouponMonthlyDiscountingMethodTest {
   private static final ParameterSensitivityInflationParameterCalculator<ParameterInflationProviderInterface> PSC = new ParameterSensitivityInflationParameterCalculator<>(PVCSDC);
   private static final ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalculator PS_PV_FDC = new ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalculator(PVIC, SHIFT_FD);
   // Calculator and swap generator for the test of the parspread
-  private static final ParSpreadInflationMarketQuoteDiscountingCalculator PSIMQDC = ParSpreadInflationMarketQuoteDiscountingCalculator.getInstance();
-  private static final ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalculator PSIMQSDC = ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalculator.getInstance();
-  private static final GeneratorSwapFixedInflationZeroCoupon GENERATOR_INFLATION_SWAP = GeneratorSwapFixedInflationMaster.getInstance().getGenerator("EURHICP");
+  private static final ParSpreadInflationMarketQuoteDiscountingCalculator PSIMQDC = 
+      ParSpreadInflationMarketQuoteDiscountingCalculator.getInstance();
+  private static final ParRateInflationDiscountingCalculator PRIDC = 
+      ParRateInflationDiscountingCalculator.getInstance();
+  private static final ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalculator PSIMQSDC = 
+      ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalculator.getInstance();
+  private static final GeneratorSwapFixedInflationZeroCoupon GENERATOR_INFLATION_SWAP = 
+      GeneratorSwapFixedInflationMaster.getInstance().getGenerator("EURHICP");
   private static final double MARKET_QUOTE = 0.017381814641219;
   private static final GeneratorAttributeIR GENERATOR = new GeneratorAttributeIR(Period.ofYears(10));
-  private static final SwapFixedInflationZeroCouponDefinition SWAP_DEFINITION = GENERATOR_INFLATION_SWAP.generateInstrument(PRICING_DATE, MARKET_QUOTE, NOTIONAL,
-      GENERATOR);
-  private static final InstrumentDerivative SWAP_DERIVATIVE = SWAP_DEFINITION.toDerivative(PRICING_DATE, new ZonedDateTimeDoubleTimeSeries[] {(ZonedDateTimeDoubleTimeSeries) priceIndexTS,
-    (ZonedDateTimeDoubleTimeSeries) priceIndexTS });
+  private static final SwapFixedInflationZeroCouponDefinition SWAP_DEFINITION = GENERATOR_INFLATION_SWAP
+      .generateInstrument(PRICING_DATE, MARKET_QUOTE, NOTIONAL, GENERATOR);
+  private static final InstrumentDerivative SWAP_DERIVATIVE = SWAP_DEFINITION.toDerivative(PRICING_DATE, 
+      new ZonedDateTimeDoubleTimeSeries[] {(ZonedDateTimeDoubleTimeSeries) priceIndexTS,
+      (ZonedDateTimeDoubleTimeSeries) priceIndexTS });
 
-  /**
-   * Tests the present value.
-   */
   @Test
   public void parSpreadOnASwap() {
     final double parSpread = SWAP_DERIVATIVE.accept(PSIMQDC, MARKET.getInflationProvider());
     final Swap<?, ?> swap = (Swap<?, ?>) SWAP_DERIVATIVE;
-    final double estimatedPriceIndex = MARKET.getInflationProvider().getPriceIndex(PRICE_INDEX_EUR, ((CouponInflationZeroCouponMonthly) swap.getSecondLeg().getNthPayment(0)).getReferenceEndTime());
+    final double estimatedPriceIndex = MARKET.getInflationProvider().getPriceIndex(PRICE_INDEX_EUR, 
+        ((CouponInflationZeroCouponMonthly) swap.getSecondLeg().getNthPayment(0)).getReferenceEndTime());
     final double indexStartValue = ((CouponInflationZeroCouponMonthly) swap.getSecondLeg().getNthPayment(0)).getIndexStartValue();
     final Double parSpreadCalculated = Math.pow(estimatedPriceIndex / indexStartValue, 1.0 / 10.0) - 1 - MARKET_QUOTE;
-    assertEquals("Zero-coupon inflation DiscountingMethod: Present value", parSpread, parSpreadCalculated, 10e-8);
+    assertEquals("Zero-coupon inflation DiscountingMethod: par spread", parSpread, parSpreadCalculated, 10e-8);
+  }
+  
+  @Test
+  public void parRateOnASwap() {
+    double parRate = SWAP_DERIVATIVE.accept(PRIDC, MARKET.getInflationProvider());
+    SwapFixedInflationZeroCouponDefinition swap0Definition = GENERATOR_INFLATION_SWAP
+        .generateInstrument(PRICING_DATE, parRate, NOTIONAL, GENERATOR);
+    InstrumentDerivative swap0 = swap0Definition.toDerivative(PRICING_DATE, 
+        new ZonedDateTimeDoubleTimeSeries[] {(ZonedDateTimeDoubleTimeSeries) priceIndexTS, 
+        (ZonedDateTimeDoubleTimeSeries) priceIndexTS });
+    double pv = swap0.accept(PVIC, MARKET.getInflationProvider()).getAmount(Currency.EUR);
+    assertEquals("Zero-coupon inflation DiscountingMethod: par rate", pv, 0, TOLERANCE_PV);
   }
 
   @Test
