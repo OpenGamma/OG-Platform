@@ -155,7 +155,12 @@ public class ZeroCouponInflationSwapTest {
    */
   private static final double EXPECTED_PV1 = 0d;
   private static final double EXPECTED_PV2 = 557423.3817;
+
+  private static final double EXPECTED_PAR_RATE1 = 0.0200;
+  private static final double EXPECTED_PAR_RATE2 = 0.02104793312426101;
+
   private static final double STD_TOLERANCE_PV = 1.0E-3;
+  private static final double STD_TOLERANCE_RATE = 1.0E-8;
 
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 10, 9);
   private static final String CURVE_BUNDLE = "Curve Bundle";
@@ -452,6 +457,22 @@ public class ZeroCouponInflationSwapTest {
   }
 
   @Test
+  public void testCalculateParRateTrade1() throws Exception {
+
+    MarketDataEnvironment ENV = getMarketDataEnvironment();
+    Result<Double> resultParRate = _functionRunner.runFunction(
+        ARGS, ENV, new Function<Environment, Result<Double>>() {
+          @Override
+          public Result<Double> apply(Environment env) {
+            return _function.calculateParRate(env, _trade1);
+          }
+        });
+    assertSuccess(resultParRate);
+    assertThat(resultParRate.getValue(), is(closeTo(EXPECTED_PAR_RATE1, STD_TOLERANCE_RATE)));
+
+  }
+
+  @Test
   public void testCalculateBucketedPV01Trade1() throws Exception {
 
     MarketDataEnvironment ENV = getMarketDataEnvironment();
@@ -495,6 +516,22 @@ public class ZeroCouponInflationSwapTest {
 
     MultipleCurrencyAmount mca = resultPV.getValue();
     assertThat(mca.getCurrencyAmount(USD).getAmount(), is(closeTo(EXPECTED_PV2, STD_TOLERANCE_PV)));
+
+  }
+
+  @Test
+  public void testCalculateParRateTrade2() throws Exception {
+
+    MarketDataEnvironment ENV = getMarketDataEnvironment();
+    Result<Double> resultParRate = _functionRunner.runFunction(
+        ARGS, ENV, new Function<Environment, Result<Double>>() {
+          @Override
+          public Result<Double> apply(Environment env) {
+            return _function.calculateParRate(env, _trade2);
+          }
+        });
+    assertSuccess(resultParRate);
+    assertThat(resultParRate.getValue(), is(closeTo(EXPECTED_PAR_RATE2, STD_TOLERANCE_RATE)));
 
   }
 
