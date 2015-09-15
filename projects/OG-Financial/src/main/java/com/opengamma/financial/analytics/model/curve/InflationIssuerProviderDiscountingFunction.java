@@ -41,8 +41,8 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedInflationZeroC
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
-import com.opengamma.analytics.financial.provider.calculator.inflationissuer.ParSpreadMarketQuoteCurveSensitivityInflationIssuerDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.calculator.inflationissuer.ParSpreadMarketQuoteInflationIssuerDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflationissuer.ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflationissuer.ParSpreadInflationMarketQuoteIssuerDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.curve.MultiCurveBundle;
 import com.opengamma.analytics.financial.provider.curve.SingleCurveBundle;
@@ -113,17 +113,17 @@ public class InflationIssuerProviderDiscountingFunction extends
   private static final Logger s_logger = LoggerFactory.getLogger(InflationIssuerProviderDiscountingFunction.class);
   /** The calculator */
 
-  private static final ParSpreadMarketQuoteInflationIssuerDiscountingCalculator PSIMQC = ParSpreadMarketQuoteInflationIssuerDiscountingCalculator.getInstance();
+  private static final ParSpreadInflationMarketQuoteIssuerDiscountingCalculator PSIMQC = ParSpreadInflationMarketQuoteIssuerDiscountingCalculator.getInstance();
   /** The sensitivity calculator */
 
-  private static final ParSpreadMarketQuoteCurveSensitivityInflationIssuerDiscountingCalculator PSIMQCSC =
-      ParSpreadMarketQuoteCurveSensitivityInflationIssuerDiscountingCalculator.getInstance();
+  private static final ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator PSIMQCSC =
+      ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator.getInstance();
 
-  private static final ParSpreadMarketQuoteInflationIssuerDiscountingCalculator PSIMQCWI = ParSpreadMarketQuoteInflationIssuerDiscountingCalculator.getInstance();
+  private static final ParSpreadInflationMarketQuoteIssuerDiscountingCalculator PSIMQCWI = ParSpreadInflationMarketQuoteIssuerDiscountingCalculator.getInstance();
   /** The sensitivity calculator */
 
-  private static final ParSpreadMarketQuoteCurveSensitivityInflationIssuerDiscountingCalculator PSIMQCSCWI =
-      ParSpreadMarketQuoteCurveSensitivityInflationIssuerDiscountingCalculator.getInstance();
+  private static final ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator PSIMQCSCWI =
+      ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator.getInstance();
 
   /**
     * @param configurationName The configuration name, not null

@@ -8,7 +8,6 @@ package com.opengamma.analytics.financial.provider.calculator.generic;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
@@ -150,15 +149,6 @@ public final class LastFixingEndTimeCalculator extends InstrumentDerivativeVisit
   @Override
   public Double visitCouponInflationYearOnYearInterpolation(final CouponInflationYearOnYearInterpolation coupon) {
     return coupon.getReferenceEndTime()[1];
-  }
-
-  // -----     Bond     -----
-  
-  @Override
-  public Double visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction<?> bond) {
-    double timeCoupon = bond.getBondTransaction().getCoupon().accept(this);
-    double timeNotional = bond.getBondTransaction().getNominal().accept(this);
-    return Math.max(timeCoupon, timeNotional);
   }
 
 }

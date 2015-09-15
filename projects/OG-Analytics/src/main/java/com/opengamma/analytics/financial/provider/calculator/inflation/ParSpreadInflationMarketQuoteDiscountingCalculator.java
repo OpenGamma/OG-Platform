@@ -84,7 +84,7 @@ public final class ParSpreadInflationMarketQuoteDiscountingCalculator
     return METHOD_FRA.parSpread(fra, inflation.getMulticurveProvider());
   }
 
-  //     -----      Swaps     -----
+  //-----      Swaps     -----
 
   /**
   * For swaps the ParSpread is the spread to be added on each coupon of the first leg to obtain a present value of zero.
@@ -116,7 +116,7 @@ public final class ParSpreadInflationMarketQuoteDiscountingCalculator
     return visitSwap(swap, inflation);
   }
 
-  //     -----     Futures     -----
+  //-----     Futures     -----
 
   @Override
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final ParameterInflationProviderInterface inflation) {

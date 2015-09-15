@@ -39,9 +39,9 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
-import com.opengamma.analytics.financial.provider.calculator.inflationissuer.ParSpreadMarketQuoteCurveSensitivityInflationIssuerDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.calculator.inflationissuer.ParSpreadMarketQuoteInflationIssuerDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.calculator.inflationissuer.PresentValueInflationIssuerDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflationissuer.ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflationissuer.ParSpreadInflationMarketQuoteIssuerDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflationissuer.PresentValueDiscountingInflationIssuerCalculator;
 import com.opengamma.analytics.financial.provider.curve.inflationissuer.InflationIssuerDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderDiscount;
@@ -146,9 +146,9 @@ public class InflationBuildingCurveSimpleWithIssuerTestUS {
   private static List<Pair<InflationIssuerProviderDiscount, CurveBuildingBlockBundle>> CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK = new ArrayList<>();
 
   // Calculator
-  private static final PresentValueInflationIssuerDiscountingCalculator PVIC = PresentValueInflationIssuerDiscountingCalculator.getInstance();
-  private static final ParSpreadMarketQuoteInflationIssuerDiscountingCalculator PSIMQC = ParSpreadMarketQuoteInflationIssuerDiscountingCalculator.getInstance();
-  private static final ParSpreadMarketQuoteCurveSensitivityInflationIssuerDiscountingCalculator PSIMQCSC = ParSpreadMarketQuoteCurveSensitivityInflationIssuerDiscountingCalculator.getInstance();
+  private static final PresentValueDiscountingInflationIssuerCalculator PVIC = PresentValueDiscountingInflationIssuerCalculator.getInstance();
+  private static final ParSpreadInflationMarketQuoteIssuerDiscountingCalculator PSIMQC = ParSpreadInflationMarketQuoteIssuerDiscountingCalculator.getInstance();
+  private static final ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator PSIMQCSC = ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator.getInstance();
 
   private static final InflationIssuerDiscountBuildingRepository CURVE_BUILDING_REPOSITORY = new InflationIssuerDiscountBuildingRepository(TOLERANCE_ROOT, TOLERANCE_ROOT, STEP_MAX);
 

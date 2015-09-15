@@ -251,11 +251,6 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
       }
     }
     throw new IllegalArgumentException("Could not get curve for " + name);
-//    try{
-//      return _issuerProvider.getCurve(name);
-//    } catch {
-//      return _inflationProvider.getCurve(name);
-//    }
   }
 
   @Override

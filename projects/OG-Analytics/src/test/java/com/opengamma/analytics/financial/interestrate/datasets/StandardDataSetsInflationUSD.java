@@ -100,9 +100,8 @@ public class StandardDataSetsInflationUSD {
       CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, 
           Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   private static final LastFixingEndTimeCalculator LAST_FIXING_END_CALCULATOR = LastFixingEndTimeCalculator.getInstance();
-  public static final double[] SEASONAL_FACTORS =
-      { 1.0082, 1.0026, 0.9990, 1.0018, 1.0024, 1.0004, 1.0012, 1.0012, 0.9974, 0.99795, 0.9999 };
-//    {1.005, 1.001, 1.01, .999, .998, .9997, 1.004, 1.006, .994, .993, .9991 };
+  public static final double[] SEASONAL_FACTORS = 
+    {1.005, 1.001, 1.01, .999, .998, .9997, 1.004, 1.006, .994, .993, .9991 };
   
   /** Market values for the dsc USD curve */
   private static final double[] OIS_MARKET_QUOTES = new double[] {0.0016, 0.0016,
@@ -116,7 +115,7 @@ public class StandardDataSetsInflationUSD {
   private static final Period[] DSC_1_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1),
     Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
     Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
-    Period.ofYears(6), Period.ofYears(7), Period.ofYears(10), Period.ofYears(20), Period.ofYears(30) };
+    Period.ofYears(6), Period.ofYears(7), Period.ofYears(8), Period.ofYears(9), Period.ofYears(10) };
   private static final GeneratorAttributeIR[] DSC_1_USD_ATTR = new GeneratorAttributeIR[DSC_1_USD_TENOR.length];
   static {
     for (int loopins = 0; loopins < 2; loopins++) {

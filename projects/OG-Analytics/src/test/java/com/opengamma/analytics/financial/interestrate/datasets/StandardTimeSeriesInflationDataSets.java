@@ -16,7 +16,7 @@ import com.opengamma.util.time.DateUtils;
  */
 public class StandardTimeSeriesInflationDataSets {
 
-  /** ===== USD CPI Index ===== */ /** CPURNSA Index*/
+  /** ===== USD HICP Index ===== */ /** CPURNSA Index*/
 //TODO : put the right value for 2005, 2006, 2007, 2008
   private static final double[] USCPI_VALUE_2005 = new double[] {
     211.143, 212.193, 212.709, 213.240, 213.856, 215.693, 215.351, 215.834, 215.969, 216.177, 216.330, 215.949 };
@@ -37,7 +37,7 @@ public class StandardTimeSeriesInflationDataSets {
   private static final double[] USCPI_VALUE_2013 = new double[] {
     230.280, 232.166, 232.773, 232.531, 232.945, 233.504, 233.596, 233.877, 234.149, 233.546, 233.069, 233.049 };
   private static final double[] USCPI_VALUE_2014 = new double[] {
-    233.916, 234.781, 236.293, 237.072, 237.900, 238.343, 238.250, 237.852, 238.343, 238.25 };
+    233.916, 234.781, 236.293, 237.072, 237.900, 238.343, 238.250, 237.852 };
   private static final double[] USCPI_VALUE = new double[9 * 12 + USCPI_VALUE_2014.length];
   static {
     System.arraycopy(USCPI_VALUE_2005, 0, USCPI_VALUE, 0, 12);

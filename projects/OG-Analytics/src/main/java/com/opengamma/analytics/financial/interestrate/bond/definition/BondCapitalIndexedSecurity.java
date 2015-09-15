@@ -201,7 +201,7 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
   }
 
   /**
-   * Gets the settlement cash flow of the bond for a price of 1 and the bond notional described by an inflation coupon.
+   * Gets the settlement cash flow of the bond for a price of 1 described by an inflation coupon.
    * @return The settlement flow.
    */
   public Coupon getSettlement() {

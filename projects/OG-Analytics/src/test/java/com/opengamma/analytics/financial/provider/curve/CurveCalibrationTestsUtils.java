@@ -18,7 +18,6 @@ import com.google.common.collect.LinkedListMultimap;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurve;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
-import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
@@ -570,12 +569,6 @@ public class CurveCalibrationTestsUtils {
     if (instrument instanceof SwapFuturesPriceDeliverableTransactionDefinition) {
       return ((SwapFuturesPriceDeliverableTransactionDefinition) instrument).toDerivative(calibrationDate, 0.0);
     } // Trade date = today, reference price not used.
-    if ( instrument instanceof BondCapitalIndexedTransactionDefinition<?>) {
-      BondCapitalIndexedTransactionDefinition<?> bond = (BondCapitalIndexedTransactionDefinition<?>) instrument;
-      IndexPrice index = ((CouponInflationDefinition)(bond.getUnderlyingBond().getCoupons().getNthPayment(0))).getPriceIndex();
-      ZonedDateTimeDoubleTimeSeries hts = htsPrice.get(index);
-      return bond.toDerivative(calibrationDate, hts);
-    }
     return instrument.toDerivative(calibrationDate);
   }
   
