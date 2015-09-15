@@ -39,7 +39,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * The notion of "spread" will depend of each instrument.
  */
 public final class ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalculator 
-  extends InstrumentDerivativeVisitorAdapter<ParameterInflationProviderInterface, InflationSensitivity> {
+    extends InstrumentDerivativeVisitorAdapter<ParameterInflationProviderInterface, InflationSensitivity> {
 
   /**
    * The unique instance of the calculator.
