@@ -40,6 +40,14 @@ public interface ZeroCouponInflationSwapFn {
   @Output(OutputNames.BUCKETED_PV01)
   Result<BucketedCurveSensitivities> calculateBucketedPV01(Environment env, ZeroCouponInflationSwapTrade trade);
 
-
+  /**
+   * Calculate the par rate for a zero coupon inflation trade.
+   *
+   * @param env the environment used for calculation
+   * @param trade the ZeroCouponInflationSwapTrade to calculate the par rate for
+   * @return result containing the par rate if successful, a Failure otherwise
+   */
+  @Output(OutputNames.PAR_RATE)
+  Result<Double> calculateParRate(Environment env, ZeroCouponInflationSwapTrade trade);
 
 }

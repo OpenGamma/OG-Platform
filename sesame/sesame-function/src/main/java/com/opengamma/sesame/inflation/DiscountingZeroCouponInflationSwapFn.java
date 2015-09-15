@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedInflationZeroC
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.calculator.inflation.MarketQuoteInflationSensitivityBlockCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflation.ParRateInflationDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueCurveSensitivityDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
@@ -45,6 +46,9 @@ public class DiscountingZeroCouponInflationSwapFn implements ZeroCouponInflation
 
   private static final InstrumentDerivativeVisitor<ParameterInflationProviderInterface, MultipleCurrencyAmount> PV_CALC =
       PresentValueDiscountingInflationCalculator.getInstance();
+
+  private static final ParRateInflationDiscountingCalculator PAR_RATE_CALC =
+      ParRateInflationDiscountingCalculator.getInstance();
 
   private static final PresentValueCurveSensitivityDiscountingInflationCalculator PVCSDIC =
       PresentValueCurveSensitivityDiscountingInflationCalculator.getInstance();
@@ -108,6 +112,21 @@ public class DiscountingZeroCouponInflationSwapFn implements ZeroCouponInflation
       }
 
       return Result.success(BucketedCurveSensitivities.of(labelledMatrix1DMap));
+    }
+  }
+
+  @Override
+  public Result<Double> calculateParRate(Environment env, ZeroCouponInflationSwapTrade trade) {
+    Result<InflationProviderBundle> bundleResult = _inflationProviderFn.getInflationBundle(env, trade);
+    Result<Pair<SwapFixedInflationZeroCouponDefinition, InstrumentDerivative>> tradeResults =
+        _converter.convert(env, trade.getSecurity());
+
+    if (!bundleResult.isSuccess() || !tradeResults.isSuccess()) {
+      return Result.failure(bundleResult, tradeResults);
+    } else {
+      ParameterInflationProviderInterface data = bundleResult.getValue().getParameterInflationProvider();
+      InstrumentDerivative inflationDerivative = tradeResults.getValue().getSecond();
+      return Result.success(inflationDerivative.accept(PAR_RATE_CALC, data));
     }
   }
 

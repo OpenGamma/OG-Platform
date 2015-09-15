@@ -18,8 +18,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Compute the spread to be added to the market standard quote of the instrument for which the present value of the instrument is zero.
- * The notion of "market quote" will depend of each instrument.
+ * Get the single fixed rate that makes the PV of the instrument zero
  */
 public final class ParRateInflationDiscountingCalculator 
     extends InstrumentDerivativeVisitorAdapter<ParameterInflationProviderInterface, Double> {
@@ -53,9 +52,7 @@ public final class ParRateInflationDiscountingCalculator
   //-----      Swaps     -----
 
   /**
-  * For swaps the ParSpread is the spread to be added on each coupon of the first leg to obtain a present value of zero.
-  * It is computed as the opposite of the present value of the swap in currency of the first leg divided by the present value of a basis point
-  * of the first leg (as computed by the PresentValueBasisPointCalculator).
+  * Get the single fixed rate that makes the PV of the instrument zero
   * @param swap The swap.
   * @param inflation The inflation curves and multi-curves provider.
   * @return The par spread.
