@@ -102,7 +102,7 @@ public class SwapUsdAnalysis {
   private static final boolean PAYER_2 = true;
 
   private static final LocalDate EFFECTIVE_DATE_3 = LocalDate.of(2014, 7, 18);
-  private static final LocalDate MATURITY_DATE_3 = LocalDate.of(2016, 7, 18);
+  private static final LocalDate MATURITY_DATE_3 = LocalDate.of(2019, 7, 18);
   private static final double FIXED_RATE_3 = 0.0100;
   private static final boolean PAYER_3 = true;
 
@@ -353,5 +353,37 @@ public class SwapUsdAnalysis {
     ExportUtils.consolePrint(pvmqs4Ffs2, MULTICURVE_FFS_2);
 
   }
+  
+  @Test(enabled = false)
+  public void performanceCalibration() {
+    long startTime, endTime;
+    final int nbTest = 100;
 
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      RecentDataSetsMulticurveStandardUsd.getCurvesUSDOisL3(VALUATION_DATE);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " curve construction / 2 units: " + (endTime - startTime) + " ms");
+    // Performance note: Curve construction 2 units: 22-Oct-2014: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 2500 ms for 100 sets.  
+  }
+  
+  @Test(enabled = true)
+  public void performanceBucketedPv01() {
+    Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> pair = 
+        RecentDataSetsMulticurveStandardUsd.getCurvesUSDOisL3(VALUATION_DATE);
+    
+    long startTime, endTime;
+    final int nbTest = 1000;
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      @SuppressWarnings("unused")
+      MultipleCurrencyParameterSensitivity pvmqs3Fut = MQSBC.fromInstrument(IRS_3, pair.getFirst(), pair.getSecond());
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " bucketed PV01 30Y: " + (endTime - startTime) + " ms");
+    // Performance note: Curve construction 2 units: 22-Oct-2014: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 400 ms for 1000 30Y swaps.
+  }
+  
 }

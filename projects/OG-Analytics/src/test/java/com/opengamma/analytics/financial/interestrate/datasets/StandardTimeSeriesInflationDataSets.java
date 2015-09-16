@@ -37,7 +37,7 @@ public class StandardTimeSeriesInflationDataSets {
   private static final double[] USCPI_VALUE_2013 = new double[] {
     230.280, 232.166, 232.773, 232.531, 232.945, 233.504, 233.596, 233.877, 234.149, 233.546, 233.069, 233.049 };
   private static final double[] USCPI_VALUE_2014 = new double[] {
-    233.916, 234.781, 236.293, 237.072, 237.900, 238.343, 238.250, 237.852 };
+    233.916, 234.781, 236.293, 237.072, 237.900, 238.343, 238.250, 237.852, 238.343, 238.25 };
   private static final double[] USCPI_VALUE = new double[9 * 12 + USCPI_VALUE_2014.length];
   static {
     System.arraycopy(USCPI_VALUE_2005, 0, USCPI_VALUE, 0, 12);

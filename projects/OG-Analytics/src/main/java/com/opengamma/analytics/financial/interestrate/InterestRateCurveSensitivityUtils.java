@@ -212,6 +212,21 @@ public class InterestRateCurveSensitivityUtils {
   }
 
   /**
+   * Check that the values of a list of sensitivities are below with a given tolerance.
+   * @param sensi1 The first sensitivity (as a list).
+   * @param tolerance The tolerance.
+   * @return True if the all the values are below the tolerance and False if not.
+   */
+  public static boolean compare(final List<DoublesPair> sensi1, final double tolerance) {
+    for (int looptime = 0; looptime < sensi1.size(); looptime++) {
+      if (Math.abs(sensi1.get(looptime).second) > tolerance) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
    * Compare two maps of sensitivities with a given tolerance. The tolerance is used for both the time and the value. The two sensitivities are suppose to be in the same time order.
    * @param sensi1 The first sensitivity (as a map).
    * @param sensi2 The second sensitivity (as a map).
@@ -227,14 +242,19 @@ public class InterestRateCurveSensitivityUtils {
           return false;
         }
       } else {
-        return false;
+        if (!compare(entry.getValue(), tolerance)) {
+          return false;
+        }
       }
     }
     for (final String name : sensi2.keySet()) {
       if (!(sensi1.containsKey(name))) {
-        return false;
+        if (!compare(sensi2.get(name), tolerance)) {
+          return false;
+        }
       }
     }
     return true;
   }
+  
 }
