@@ -1,5 +1,11 @@
 # OpenGamma Platform
 
+## v2.19
+
+### Enhancements
+
+* Engine Support for Zero Coupon Inflation Swaps - PV, Par Rate and Bucketed Sensitivities
+
 ## v2.18
 
 ### Bug Fixes

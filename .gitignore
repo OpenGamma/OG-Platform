@@ -57,6 +57,7 @@ docs.sqlite3
 .settings/
 /target/
 /examples/target/
+pom.xml.versionsBackup
 
 # IntelliJ config files
 *.iws
