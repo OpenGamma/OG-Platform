@@ -973,7 +973,7 @@ public class FixedIncomeConverterDataProvider {
               }
             }
             try {
-              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS });
+              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, payLegTS });
             } catch (final OpenGammaRuntimeException e) {
               final ExternalId id = ((InflationIndexSwapLeg) payLeg).getIndexId();
               throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id +
@@ -1018,7 +1018,7 @@ public class FixedIncomeConverterDataProvider {
             }
 
             try {
-              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS });
+              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, payLegTS });
             } catch (final OpenGammaRuntimeException e) {
               final ExternalId id = ((InflationIndexSwapLeg) payLeg).getIndexId();
               throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id +
@@ -1086,7 +1086,7 @@ public class FixedIncomeConverterDataProvider {
               }
             }
             try {
-              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS });
+              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, payLegTS });
             } catch (final OpenGammaRuntimeException e) {
               final ExternalId id = ((InflationIndexSwapLeg) payLeg).getIndexId();
               throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id +
@@ -1129,7 +1129,7 @@ public class FixedIncomeConverterDataProvider {
               }
             }
             try {
-              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS });
+              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, payLegTS});
             } catch (final OpenGammaRuntimeException e) {
               final ExternalId id = ((InflationIndexSwapLeg) payLeg).getIndexId();
               throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id +
