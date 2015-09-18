@@ -1,5 +1,11 @@
 # OpenGamma Platform
 
+## v2.19.1
+
+### Bug Fixes
+
+* Fix timeseries data provider for inflation swaps
+
 ## v2.19
 
 ### Enhancements
