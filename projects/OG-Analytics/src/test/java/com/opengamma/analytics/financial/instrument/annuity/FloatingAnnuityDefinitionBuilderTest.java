@@ -178,6 +178,31 @@ public class FloatingAnnuityDefinitionBuilderTest {
         expectedFixingPeriodEnd, cpn0.getFixingPeriodEndDate().toLocalDate());
   }
 
+  @SuppressWarnings("unchecked")
+  @Test
+  public void coupon_ibor_non_standard_fixing_offset() {
+    OffsetAdjustedDateParameters offsetAdj5d =
+        new OffsetAdjustedDateParameters(-5, OffsetType.BUSINESS, GBLO, BusinessDayConventions.FOLLOWING);
+    AnnuityDefinition<? extends CouponDefinition> IBOR_LEG_STARTHOL_DEFINITION =
+        (AnnuityDefinition<? extends CouponDefinition>) new FloatingAnnuityDefinitionBuilder()
+            .payer(PAYER_1).notional(NOTIONAL_PROV_1).startDate(LocalDate.of(2015, 8, 31)).endDate(LocalDate.of(2016, 8, 31))
+            .index(USDLIBOR3M).accrualPeriodFrequency(PAYMENT_PERIOD_3)
+            .rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0))
+            .resetDateAdjustmentParameters(ADJUSTED_DATE_LIBOR).accrualPeriodParameters(ADJUSTED_DATE_LIBOR)
+            .dayCount(DayCounts.THIRTY_360).fixingDateAdjustmentParameters(offsetAdj5d).currency(USD)
+            .spread(SPREAD_1).build();    
+    CouponIborSpreadDefinition cpn0 = (CouponIborSpreadDefinition) IBOR_LEG_STARTHOL_DEFINITION.getNthPayment(0);
+    LocalDate expectedFixing = LocalDate.of(2015, 8, 24);
+    LocalDate expectedFixingPeriodStart = LocalDate.of(2015, 8, 26);
+    LocalDate expectedFixingPeriodEnd = LocalDate.of(2015, 11, 28);
+    assertEquals("FloatingAnnuityDefinitionBuilderTest: fixing dates",
+        expectedFixing, cpn0.getFixingDate().toLocalDate());
+    assertEquals("FloatingAnnuityDefinitionBuilderTest: fixing dates",
+        expectedFixingPeriodStart, cpn0.getFixingPeriodStartDate().toLocalDate());
+    assertEquals("FloatingAnnuityDefinitionBuilderTest: fixing dates",
+        expectedFixingPeriodEnd, cpn0.getFixingPeriodEndDate().toLocalDate());
+  }
+
   @Test
   public void arithmeticAverage() {
     int nbOnAaCpn = TENOR_YEAR_1 * 4;
