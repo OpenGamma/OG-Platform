@@ -55,8 +55,9 @@ public final class ScheduleCalculator {
   /**
    * Return a good business date computed from a given date and shifted by a certain number of business days.
    * If the number of shift days is 0, the return date is the next business day.
-   * If the number of shift days is non-zero (positive or negative), a 0 shift is first applied and then a one business day shift is applied as many time as the absolute value of the shift.
-   * If the shift is positive, the one business day is to the future., if the shift is negative, the one business day is to the past.
+   * If the number of shift days is non-zero (positive or negative), a 0 shift is first applied and then a one business 
+   * day shift is applied as many time as the absolute value of the shift. If the shift is positive, the one business 
+   * day is to the future, if the shift is negative, the one business day is to the past.
    * @param date The initial date.
    * @param shiftDays The number of days of the adjustment. Can be negative or positive.
    * @param calendar The calendar representing the good business days.
@@ -823,7 +824,8 @@ public final class ScheduleCalculator {
     return result;
   }
 
-  public static ZonedDateTime getAdjustedDate(final ZonedDateTime originalDate, final BusinessDayConvention convention, final Calendar calendar, final int offset) {
+  public static ZonedDateTime getAdjustedDate(final ZonedDateTime originalDate, final BusinessDayConvention convention, 
+      final Calendar calendar, final int offset) {
     ArgumentChecker.notNull(originalDate, "date");
     ArgumentChecker.notNull(convention, "convention");
     ArgumentChecker.notNull(calendar, "calendar");
