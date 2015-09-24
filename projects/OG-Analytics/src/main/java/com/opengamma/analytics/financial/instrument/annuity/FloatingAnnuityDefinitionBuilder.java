@@ -30,10 +30,8 @@ import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAv
 import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONSpreadDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.daycount.ActualActualISDA;
 import com.opengamma.financial.convention.rolldate.GeneralRollDateAdjuster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -867,7 +865,7 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
     return coupon;
   }
   
-  private static Pair<Double, Double> getInterpolationWeights(ZonedDateTime accrualStartDate, 
+  public static Pair<Double, Double> getInterpolationWeights(ZonedDateTime accrualStartDate, 
       ZonedDateTime accrualEndDate, ZonedDateTime firstInterpolatedDate, ZonedDateTime secondInterpolatedDate) {
     ArgumentChecker.isTrue(!accrualEndDate.isBefore(firstInterpolatedDate), 
         "First interpolated date {} should be before or equal to the accrual end date {}", 
@@ -878,17 +876,14 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
     ArgumentChecker.isTrue(firstInterpolatedDate.isBefore(secondInterpolatedDate), 
         "First interpolated date {} should be strictly before the second interpolated date {}",
         firstInterpolatedDate, secondInterpolatedDate);
-
-    ActualActualISDA dayCount = new ActualActualISDA();
-    double timeToPeriodEnd = TimeCalculator.getTimeBetween(accrualStartDate, accrualEndDate, dayCount);
-    double timeToFirstInterpolatedRateDate = TimeCalculator.getTimeBetween(accrualStartDate, firstInterpolatedDate,
-        dayCount);
-    double timeToSecondInterpolatedRateDate = TimeCalculator.getTimeBetween(accrualStartDate, secondInterpolatedDate,
-        dayCount);
-    double weightDenominator = timeToSecondInterpolatedRateDate - timeToFirstInterpolatedRateDate;
-    double weightFirstIndex = (timeToSecondInterpolatedRateDate - timeToPeriodEnd) / weightDenominator;
-    double weightSecondIndex = (timeToPeriodEnd - timeToFirstInterpolatedRateDate) / weightDenominator;
-
+    double daysToPeriodEnd = accrualEndDate.toLocalDate().toEpochDay() - accrualStartDate.toLocalDate().toEpochDay();
+    double daysToFirstInterpolatedRateDate = 
+        firstInterpolatedDate.toLocalDate().toEpochDay() - accrualStartDate.toLocalDate().toEpochDay();
+    double daysToSecondInterpolatedRateDate = 
+        secondInterpolatedDate.toLocalDate().toEpochDay() - accrualStartDate.toLocalDate().toEpochDay();
+    double weightDenominator = daysToSecondInterpolatedRateDate - daysToFirstInterpolatedRateDate;
+    double weightFirstIndex = (daysToSecondInterpolatedRateDate - daysToPeriodEnd) / weightDenominator;
+    double weightSecondIndex = (daysToPeriodEnd - daysToFirstInterpolatedRateDate) / weightDenominator;
     return Pairs.of(weightFirstIndex, weightSecondIndex);
   }
   

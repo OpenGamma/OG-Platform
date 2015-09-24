@@ -53,6 +53,7 @@ import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.rolldate.RollConvention;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Test the builder of floating annuities.
@@ -386,6 +387,26 @@ public class FloatingAnnuityDefinitionBuilderTest {
       assertEquals("FloatingAnnuityDefinitionBuilderTest: coupon ibor - notional", cpn.getNotional(),
           NOTIONAL_1, TOLERANCE_AMOUNT);
     }
+  }
+  
+  /** Check the weights for stub interpolation */
+  @Test
+  public void stub_interpolation_weights(){
+    double toleranceWeight = 1.0E-8;
+    ZonedDateTime accrualStartDate = DateUtils.getUTCDate(2015, 7, 4);
+    ZonedDateTime accrualEndDate = DateUtils.getUTCDate(2015, 11, 27);
+    ZonedDateTime firstInterpolatedDate = DateUtils.getUTCDate(2015, 10, 6);
+    ZonedDateTime secondInterpolatedDate = DateUtils.getUTCDate(2016, 1, 6);
+    Pair<Double, Double> weights = FloatingAnnuityDefinitionBuilder
+        .getInterpolationWeights(accrualStartDate, accrualEndDate, firstInterpolatedDate, secondInterpolatedDate);
+    double weight1Expected =
+        ((double)(secondInterpolatedDate.toLocalDate().toEpochDay() - accrualEndDate.toLocalDate().toEpochDay()))
+            / (secondInterpolatedDate.toLocalDate().toEpochDay() - firstInterpolatedDate.toLocalDate().toEpochDay());
+    double weight2Expected =
+        ((double)(accrualEndDate.toLocalDate().toEpochDay() - firstInterpolatedDate.toLocalDate().toEpochDay()))
+            / (secondInterpolatedDate.toLocalDate().toEpochDay() - firstInterpolatedDate.toLocalDate().toEpochDay());
+    assertEquals("Stub Interpolation Weights", weight1Expected, weights.getFirst(), toleranceWeight);
+    assertEquals("Stub Interpolation Weights", weight2Expected, weights.getSecond(), toleranceWeight);
   }
 
   /**
