@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.instrument.annuity;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Arrays;
 
@@ -100,6 +101,31 @@ public class FixedAnnuityDefinitionBuilderTest {
       assertEquals("FixedAnnuityDefinitionBuilderTest: vanilla", FIXED_LEG_1_DEFINITION.getNthPayment(loopcpn).getPaymentDate().toLocalDate(),
           expectedPaymentDate.toLocalDate());
     }
+  }
+
+  /** Tests when the end date of a zero-coupon (frequency = Period.ZERO) is adjusted.*/
+  @Test
+  public void adjusted_end_date_zc() {
+    AnnuityDefinition<?> fixedLegDefinition = new FixedAnnuityDefinitionBuilder()
+        .payer(PAYER_1).
+        currency(USD).
+        notional(NOTIONAL_PROV_1).
+        startDate(LocalDate.of(2015, 5, 29)).
+        endDate(LocalDate.of(2015, 8, 29)).
+        dayCount(USD6MLIBOR3M.getFixedLegDayCount()).
+        accrualPeriodFrequency(Period.ZERO).
+        rate(FIXED_RATE_1).
+        accrualPeriodParameters(ADJUSTED_DATE_LIBOR)
+        .compoundingMethod(CompoundingMethod.NONE)
+        .build();
+    assertEquals(fixedLegDefinition.getNumberOfPayments(), 1);
+    assertTrue(fixedLegDefinition.getNthPayment(0) instanceof CouponFixedDefinition);
+    CouponFixedDefinition cpn = (CouponFixedDefinition) fixedLegDefinition.getNthPayment(0);
+    assertEquals(LocalDate.of(2015, 8, 31), cpn.getPaymentDate().toLocalDate());
+    assertEquals(LocalDate.of(2015, 5, 29), cpn.getAccrualStartDate().toLocalDate());
+    assertEquals(LocalDate.of(2015, 8, 31), cpn.getAccrualEndDate().toLocalDate());
+    assertEquals(USD6MLIBOR3M.getFixedLegDayCount().getDayCountFraction(LocalDate.of(2015, 5, 29), LocalDate.of(2015, 8, 31)),
+        cpn.getPaymentYearFraction());
   }
 
   /**

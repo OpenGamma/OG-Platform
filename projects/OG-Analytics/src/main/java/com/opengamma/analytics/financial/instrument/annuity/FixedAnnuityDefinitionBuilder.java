@@ -135,11 +135,11 @@ public class FixedAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionBuil
           getCurrency(),
           paymentDate,
           getStartDate(),
-          getEndDate(),
+          adjustedEndDate,
           AnnuityDefinitionBuilder.getDayCountFraction(getAccrualPeriodFrequency(), accrualCalendar, getDayCount(),
               getStartStub() != null ? getStartStub().getStubType() : StubType.NONE,
               getEndStub() != null ? getEndStub().getStubType() : StubType.NONE,
-              getStartDate(), getEndDate(), true, true),
+              getStartDate(), adjustedEndDate, true, true),
           (isPayer() ? -1 : 1) * getNotional().getAmount(getStartDate().toLocalDate()),
           _rate);
     } else {
