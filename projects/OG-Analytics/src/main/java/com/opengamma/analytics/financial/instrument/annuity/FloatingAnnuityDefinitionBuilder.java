@@ -652,7 +652,7 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
         ZonedDateTime fixingPeriodEndDate;
         if (_index instanceof IborIndex) {
           fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(
-              fixingDate, (index).getSpotLag(), _adjustedFixingDateParameters.getCalendar());
+              fixingDate, index.getSpotLag(), _adjustedFixingDateParameters.getCalendar());
           fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(
               fixingPeriodStartDate, index, _adjustedResetDateParameters.getCalendar());
         } else {
