@@ -7,6 +7,8 @@ package com.opengamma.analytics.math.interpolation.data;
 
 import static com.opengamma.analytics.math.matrix.MatrixAlgebraFactory.OG_ALGEBRA;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.math.linearalgebra.InverseTridiagonalMatrixCalculator;
@@ -18,7 +20,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBundle {
+public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBundle, Serializable {
   private final Interpolator1DDataBundle _underlyingData;
   private double[] _secondDerivatives;
   private double[][] _secondDerivativesSensitivities;

@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -29,7 +30,7 @@ import com.opengamma.util.time.Tenor;
  * A curve node ID for a curve node with a specific tenor.
  */
 @BeanDefinition
-public final class TenorCurveNodeId implements CurveNodeId, ImmutableBean {
+public final class TenorCurveNodeId implements CurveNodeId, ImmutableBean, Serializable {
 
   /** The tenor of the curve node. */
   @PropertyDefinition(validate = "notNull")
@@ -74,6 +75,11 @@ public final class TenorCurveNodeId implements CurveNodeId, ImmutableBean {
   static {
     JodaBeanUtils.registerMetaBean(TenorCurveNodeId.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.

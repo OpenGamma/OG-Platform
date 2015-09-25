@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.math.curve;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import org.joda.beans.BeanBuilder;
@@ -17,8 +18,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  * Parent class for a family of curves that have real <i>x</i> and <i>y</i> values.
  */
 @BeanDefinition
-public abstract class DoublesCurve
-    extends Curve<Double, Double> {
+public abstract class DoublesCurve extends Curve<Double, Double> implements Serializable {
 
   /**
    * Constructor
@@ -65,6 +65,11 @@ public abstract class DoublesCurve
   static {
     JodaBeanUtils.registerMetaBean(DoublesCurve.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   @Override
   public DoublesCurve.Meta metaBean() {

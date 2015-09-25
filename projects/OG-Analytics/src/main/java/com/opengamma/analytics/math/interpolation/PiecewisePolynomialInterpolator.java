@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.math.interpolation;
 
+import java.io.Serializable;
+
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
@@ -12,7 +14,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Abstract class for interpolations based on piecewise polynomial functions 
  */
-public abstract class PiecewisePolynomialInterpolator {
+public abstract class PiecewisePolynomialInterpolator implements Serializable {
 
   /**
    * @param xValues X values of data

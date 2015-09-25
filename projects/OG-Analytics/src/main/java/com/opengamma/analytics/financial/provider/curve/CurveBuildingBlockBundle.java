@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.curve;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -19,7 +20,7 @@ import com.opengamma.util.tuple.Pairs;
  * Bundle of curves names and the curve building block associated.
  */
 // TODO: [PLAT-5768] Should this be part of the MulticurveProvider?
-public class CurveBuildingBlockBundle {
+public class CurveBuildingBlockBundle implements Serializable {
 
   /**
    * The map with the bundle of curves names to pairs of curve building blocks and the relevant part of the inverse Jacobian matrix.

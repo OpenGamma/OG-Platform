@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.math.interpolation.data;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import com.opengamma.util.ArgumentChecker;
@@ -13,7 +14,7 @@ import com.opengamma.util.ArgumentChecker;
  * An implementation of {@link Interpolator1DDataBundle} which holds all data in two
  * parallel-sorted double arrays.
  */
-public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
+public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle, Serializable {
   private final double[] _keys;
   private final double[] _values;
   private final int _n;

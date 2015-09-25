@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.math.matrix;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
@@ -12,7 +13,7 @@ import org.apache.commons.lang.Validate;
 /**
  * A minimal implementation of a vector (in the mathematical sense) that contains doubles.
  */
-public class DoubleMatrix1D implements Matrix<Double> {
+public class DoubleMatrix1D implements Matrix<Double>, Serializable {
   private final double[] _data;
   private final int _elements;
   /** Empty vector */

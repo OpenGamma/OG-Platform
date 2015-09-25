@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.math.matrix;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.util.ArgumentChecker;
@@ -13,7 +15,7 @@ import com.opengamma.util.ArgumentChecker;
  * A minimal implementation of a 2D matrix of doubles.
  *
  */
-public class DoubleMatrix2D implements Matrix<Double> {
+public class DoubleMatrix2D implements Matrix<Double>, Serializable {
   private final double[][] _data;
   private final int _rows;
   private final int _columns;

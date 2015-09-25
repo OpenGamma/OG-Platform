@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.util.ArgumentChecker;
@@ -13,7 +15,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Class describing an deposit-like index (in particular Ibor and OIS).
  */
-public abstract class IndexDeposit {
+public abstract class IndexDeposit implements Serializable {
 
   /**
    * The name of the index. Not null.

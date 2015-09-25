@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.math.interpolation;
 
+import java.io.Serializable;
+
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 
@@ -17,7 +19,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
  * _order: Number of coefficients in polynomial, which is equal to (polynomial degree) + 1
  * _dim: Number of splines
  */
-public class PiecewisePolynomialResult {
+public class PiecewisePolynomialResult implements Serializable {
 
   private DoubleMatrix1D _knots;
   private DoubleMatrix2D _coefMatrix;

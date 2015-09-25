@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.math.interpolation.data;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.NotImplementedException;
 
 import com.opengamma.analytics.math.interpolation.PiecewisePolynomialInterpolator;
@@ -14,7 +16,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Data bundle for PiecewisePolynomialInterpolator1D
  */
-public class Interpolator1DPiecewisePoynomialDataBundle implements Interpolator1DDataBundle {
+public class Interpolator1DPiecewisePoynomialDataBundle implements Interpolator1DDataBundle, Serializable {
 
   private final PiecewisePolynomialResultsWithSensitivity _poly;
   private final Interpolator1DDataBundle _underlyingData;

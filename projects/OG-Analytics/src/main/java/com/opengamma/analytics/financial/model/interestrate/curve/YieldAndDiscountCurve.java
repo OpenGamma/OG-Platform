@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.model.interestrate.curve;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
@@ -20,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
  * <p>The relation between the rate <i>r(t)</i> at the maturity <i>t</i> and the discount factor
  * <i>df(t)</i> is <i>df(t)=e<sup>-r(t)t</sup></i>.
  */
-public abstract class YieldAndDiscountCurve implements InterestRateModel<Double> {
+public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>, Serializable {
 
   /**
    * The curve name.
