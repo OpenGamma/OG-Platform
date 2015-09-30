@@ -1,5 +1,20 @@
 # OpenGamma Platform
 
+## v2.20
+
+### Bug Fixes
+
+* Correctly pass time-series to analytics for inflation swaps
+* Compute fixing date correctly when non-standard offsets used, or when fixing and payment calendars are different
+* Support average Ibor-like floating coupons
+* Use correct weights for stub interpolation
+* Correctly adjust end accrual date for zero-coupons
+* Correctly compute reset dates using coupon index when this differs from the main index of the leg
+
+### Enhancements
+
+* Make market data types serializable
+
 ## v2.19
 
 ### Enhancements
