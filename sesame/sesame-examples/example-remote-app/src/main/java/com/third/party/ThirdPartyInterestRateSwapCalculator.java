@@ -61,6 +61,18 @@ public class ThirdPartyInterestRateSwapCalculator implements InterestRateSwapCal
 
   /* Not implemented */
   @Override
+  public Result<SwapLegCashFlows> calculateFullPayLegCashFlows() {
+    throw new UnsupportedOperationException();
+  }
+
+  /* Not implemented */
+  @Override
+  public Result<SwapLegCashFlows> calculateFullReceiveLegCashFlows() {
+    throw new UnsupportedOperationException();
+  }
+
+  /* Not implemented */
+  @Override
   public Result<SwapLegCashFlows> calculatePayLegCashFlows() {
     throw new UnsupportedOperationException();
   }

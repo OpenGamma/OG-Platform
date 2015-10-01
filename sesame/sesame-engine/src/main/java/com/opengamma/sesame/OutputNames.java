@@ -160,6 +160,14 @@ public final class OutputNames {
    */
   public static final String RECEIVE_LEG_CASH_FLOWS = "Receive Leg Cash Flow Details";
   /**
+   * The full cash flows of the swap pay leg, including past cash flows.
+   */
+  public static final String FULL_PAY_LEG_CASH_FLOWS = "Full Pay Leg Cash Flow Details";
+  /**
+   * The full cash flows of the swap receive leg, including past cash flows.
+   */
+  public static final String FULL_RECEIVE_LEG_CASH_FLOWS = "Full Receive Leg Cash Flow Details";
+  /**
    * The present value of the swap pay leg.
    */
   public static final String PAY_LEG_PRESENT_VALUE = "Pay Leg Present Value";

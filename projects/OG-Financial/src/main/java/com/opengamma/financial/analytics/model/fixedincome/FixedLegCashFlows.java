@@ -55,57 +55,75 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
   private final List<FixedCashFlowDetails> _cashFlowDetails;
 
   /**
-   * All arrays must be the same length.
    * @param startAccrualDates The start accrual dates, not null
    * @param endAccrualDates The end accrual dates, not null
    * @param discountFactors The discount factors, not null
    * @param paymentTimes The payment times, not null
    * @param paymentDates The payment dates, not null
-   * @param paymentFractions The payment year fractions, not null
    * @param paymentAmounts The payment amounts, not null
    * @param notionals The notionals, not null
    * @param fixedRates The fixed rates, not null
+   * @param full whether to include full list of cash flows
    */
   public FixedLegCashFlows(List<LocalDate> startAccrualDates,
                            List<LocalDate> endAccrualDates,
                            List<Double> discountFactors,
                            List<Double> paymentTimes,
                            List<LocalDate> paymentDates,
-                           List<Double> paymentFractions,
                            List<CurrencyAmount> paymentAmounts,
                            List<CurrencyAmount> notionals,
-                           List<Double> fixedRates) {
+                           List<Double> fixedRates,
+                           boolean full) {
 
     ArgumentChecker.notNull(startAccrualDates, "startAccrualDates");
     ArgumentChecker.notNull(endAccrualDates, "endAccrualDates");
     ArgumentChecker.notNull(discountFactors, "discountFactors");
     ArgumentChecker.notNull(paymentTimes, "paymentTimes");
     ArgumentChecker.notNull(paymentDates, "paymentDates");
-    ArgumentChecker.notNull(paymentFractions, "paymentFractions");
     ArgumentChecker.notNull(paymentAmounts, "paymentAmounts");
     ArgumentChecker.notNull(notionals, "notionals");
     ArgumentChecker.notNull(fixedRates, "fixedRates");
-    
-    int n = startAccrualDates.size();
-    ArgumentChecker.isTrue(n == endAccrualDates.size(), "Must have same number of start and end accrual dates");
-    ArgumentChecker.isTrue(n == discountFactors.size(), "Must have same number of start accrual dates and discount factors");
-    ArgumentChecker.isTrue(n == paymentTimes.size(), "Must have same number of start accrual dates and payment times");
-    ArgumentChecker.isTrue(n == paymentDates.size(), "Must have same number of start accrual dates and payment dates");
-    ArgumentChecker.isTrue(n == paymentFractions.size(), "Must have same number of start accrual dates and payment year fractions");
-    ArgumentChecker.isTrue(n == paymentAmounts.size(), "Must have same number of start accrual dates and payment amounts");
-    ArgumentChecker.isTrue(n == notionals.size(), "Must have same number of start accrual dates and notionals");
-    ArgumentChecker.isTrue(n == fixedRates.size(), "Must have same number of start accrual dates and fixed rates");
-    
+
+    int allFlows = startAccrualDates.size();
+    int futureFlows = paymentTimes.size();
+    int diff = allFlows - futureFlows;
+
+    ArgumentChecker.isTrue(full ? allFlows >= futureFlows : allFlows == futureFlows, "Number of future cash flows must be less than or equal to full list of cash flows");
+
+    ArgumentChecker.isTrue(futureFlows == discountFactors.size(), "Must have same number of payment times and discount factors");
+    ArgumentChecker.isTrue(futureFlows == fixedRates.size(), "Must have same number of payment times and fixed rates");
+    ArgumentChecker.isTrue(futureFlows == paymentAmounts.size(), "Must have same number of payment times and payment amounts");
+
+    ArgumentChecker.isTrue(allFlows == endAccrualDates.size(), "Must have same number of start and end accrual dates");
+    ArgumentChecker.isTrue(allFlows == paymentDates.size(), "Must have same number of start accrual dates and payment dates");
+    ArgumentChecker.isTrue(allFlows == notionals.size(), "Must have same number of start accrual dates and notionals");
+
     List<FixedCashFlowDetails> cashFlows = new ArrayList<>();
-    for (int i = 0; i < n; i++) {
+
+    //First deal with any past cash flows
+    for (int i = 0; i < diff; i ++) {
       FixedCashFlowDetails.Builder builder = (FixedCashFlowDetails.Builder) FixedCashFlowDetails.builder()
           .accrualStartDate(startAccrualDates.get(i))
           .accrualEndDate(endAccrualDates.get(i))
-          .accrualFactor(paymentTimes.get(i))
           .paymentDate(paymentDates.get(i))
-          .df(discountFactors.get(i))
           .notional(notionals.get(i));
+      cashFlows.add(builder.build());
+    }
 
+    //Next deal with future cash flows, any arrays with length 'allFlows' will need to be adjusted by 'diff'
+    for (int i = 0; i < futureFlows; i++) {
+      int allOffset = i + diff;
+      //with offset
+      FixedCashFlowDetails.Builder builder = (FixedCashFlowDetails.Builder) FixedCashFlowDetails.builder()
+          .accrualStartDate(startAccrualDates.get(allOffset))
+          .accrualEndDate(endAccrualDates.get(allOffset))
+          .paymentDate(paymentDates.get(allOffset))
+          .notional(notionals.get(allOffset));
+
+      //without offset
+      builder
+          .accrualFactor(paymentTimes.get(i))
+          .df(discountFactors.get(i));
       if (paymentAmounts.get(i) != null) {
         builder.projectedAmount(paymentAmounts.get(i));
       }
@@ -118,8 +136,43 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
 
       cashFlows.add(builder.build());
     }
-    
+
     _cashFlowDetails = cashFlows;
+  }
+
+  /**
+   * All arrays must be the same length.
+   * @param startAccrualDates The start accrual dates, not null
+   * @param endAccrualDates The end accrual dates, not null
+   * @param discountFactors The discount factors, not null
+   * @param paymentTimes The payment times, not null
+   * @param paymentDates The payment dates, not null
+   * @param paymentFractions The payment year fractions, not null
+   * @param paymentAmounts The payment amounts, not null
+   * @param notionals The notionals, not null
+   * @param fixedRates The fixed rates, not null
+   * @deprecated use constructor that takes the 'full' boolean
+   */
+  @Deprecated
+  public FixedLegCashFlows(List<LocalDate> startAccrualDates,
+                           List<LocalDate> endAccrualDates,
+                           List<Double> discountFactors,
+                           List<Double> paymentTimes,
+                           List<LocalDate> paymentDates,
+                           List<Double> paymentFractions,
+                           List<CurrencyAmount> paymentAmounts,
+                           List<CurrencyAmount> notionals,
+                           List<Double> fixedRates) {
+
+    this(startAccrualDates,
+         endAccrualDates,
+         discountFactors,
+         paymentTimes,
+         paymentDates,
+         paymentAmounts,
+         notionals,
+         fixedRates,
+         false);
   }
   
   /**

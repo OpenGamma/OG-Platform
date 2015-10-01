@@ -109,6 +109,26 @@ public class DiscountingInterestRateSwapFn implements InterestRateSwapFn {
   }
 
   @Override
+  public Result<SwapLegCashFlows> calculateFullReceiveLegCashFlows(Environment env, InterestRateSwapSecurity security) {
+    Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFactory.createCalculator(env, security);
+
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return calculatorResult.getValue().calculateFullReceiveLegCashFlows();
+  }
+
+  @Override
+  public Result<SwapLegCashFlows> calculateFullPayLegCashFlows(Environment env, InterestRateSwapSecurity security) {
+    Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFactory.createCalculator(env, security);
+
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return calculatorResult.getValue().calculateFullPayLegCashFlows();
+  }
+
+  @Override
   public Result<MultipleCurrencyAmount> calculateReceiveLegPv(Environment env, InterestRateSwapSecurity security) {
     Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFactory.createCalculator(env, security);
 

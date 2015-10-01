@@ -75,7 +75,9 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * @param spreads The spreads, not null
    * @param gearings The gearings, not null
    * @param indexTenors The index tenors, not null
+   * @deprecated use constructor that takes the 'full' boolean
    */
+  @Deprecated
   public FloatingLegCashFlows(List<LocalDate> startAccrualDates,
                               List<LocalDate> endAccrualDates,
                               List<Double> accrualYearFractions,
@@ -92,10 +94,58 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
                               List<Double> spreads,
                               List<Double> gearings,
                               List<Set<Tenor>> indexTenors) {
+   this(startAccrualDates,
+        endAccrualDates,
+        fixingStart,
+        fixingEnd,
+        fixingYearFractions,
+        forwardRates,
+        fixedRates,
+        paymentDates,
+        paymentTimes,
+        paymentDiscountFactors,
+        projectedAmounts,
+        notionals,
+        spreads,
+        gearings,
+        false);
+  }
+  
+  /**
+   * @param startAccrualDates The start accrual dates, not null
+   * @param endAccrualDates The end accrual dates, not null
+   * @param fixingStart The fixing start dates, not null
+   * @param fixingEnd The fixing end dates, not null
+   * @param fixingYearFractions The fixing year fractions, not null
+   * @param forwardRates The forward rates, not null
+   * @param fixedRates The fixed rates, not null
+   * @param paymentDates The payment dates, not null
+   * @param paymentTimes The payment times, not null
+   * @param paymentDiscountFactors The payment discount factors, not null
+   * @param projectedAmounts The projected amounts, not null
+   * @param notionals The notionals, not null
+   * @param spreads The spreads, not null
+   * @param gearings The gearings, not null
+   * @param full whether to include full list of cash flows
+   */
+  public FloatingLegCashFlows(List<LocalDate> startAccrualDates,
+                              List<LocalDate> endAccrualDates,
+                              List<LocalDate> fixingStart,
+                              List<LocalDate> fixingEnd,
+                              List<Double> fixingYearFractions,
+                              List<Double> forwardRates,
+                              List<Double> fixedRates,
+                              List<LocalDate> paymentDates,
+                              List<Double> paymentTimes,
+                              List<Double> paymentDiscountFactors,
+                              List<CurrencyAmount> projectedAmounts,
+                              List<CurrencyAmount> notionals,
+                              List<Double> spreads,
+                              List<Double> gearings,
+                              boolean full) {
 
     ArgumentChecker.notNull(startAccrualDates, "startAccrualDates");
     ArgumentChecker.notNull(endAccrualDates, "endAccrualDates");
-    ArgumentChecker.notNull(accrualYearFractions, "accrualYearFractions");
     ArgumentChecker.notNull(fixingStart, "fixingStart");
     ArgumentChecker.notNull(fixingEnd, "fixingEnd");
     ArgumentChecker.notNull(fixingYearFractions, "fixingYearFractions");
@@ -108,38 +158,38 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     ArgumentChecker.notNull(notionals, "notionals");
     ArgumentChecker.notNull(spreads, "spreads");
     ArgumentChecker.notNull(gearings, "gearings");
-    ArgumentChecker.notNull(indexTenors, "indexTenors");
 
-    int n = notionals.size();
-    ArgumentChecker.isTrue(n == startAccrualDates.size(), "number of accrual start dates must equal number of notionals");
-    ArgumentChecker.isTrue(n == endAccrualDates.size(), "number of accrual end dates must equal number of notionals");
-    ArgumentChecker.isTrue(n == accrualYearFractions.size(), "number of accrual year fractions must equal number of notionals");
-    ArgumentChecker.isTrue(n == fixingStart.size(), "number of fixing start dates must equal number of notionals");
-    ArgumentChecker.isTrue(n == fixingEnd.size(), "number of fixing end dates must equal number of notionals");
-    ArgumentChecker.isTrue(n == fixingYearFractions.size(), "number of fixing year fractions must equal number of notionals");
-    ArgumentChecker.isTrue(n == forwardRates.size(), "number of forward rates must equal number of notionals");
-    ArgumentChecker.isTrue(n == fixedRates.size(), "number of fixed rates must equal number of notionals");
-    ArgumentChecker.isTrue(n == paymentDates.size(), "number of payment dates must equal number of notionals");
-    ArgumentChecker.isTrue(n == paymentDiscountFactors.size(), "number of payment discount factors must equal number of notionals");
-    ArgumentChecker.isTrue(n == projectedAmounts.size(), "number of projected amounts must equal number of notionals");
-    ArgumentChecker.isTrue(n == spreads.size(), "number of spreads must equal number of notionals");
-    ArgumentChecker.isTrue(n == gearings.size(), "number of gearings must equal number of notionals");
-    ArgumentChecker.isTrue(n == indexTenors.size(), "number of index tenors must equal number of notionals");
-    
+    int allFlows = notionals.size();
+    int futureFlows = paymentTimes.size();
+    int diff = allFlows - futureFlows;
+
+    ArgumentChecker.isTrue(full ? allFlows >= futureFlows : allFlows == futureFlows, "Number of future cash flows must be less than or equal to full list of cash flows");
+
+    ArgumentChecker.isTrue(futureFlows == projectedAmounts.size(), "number of projected amounts must equal number of payment times");
+    ArgumentChecker.isTrue(futureFlows == forwardRates.size(), "number of forward rates must equal number of payment times");
+    ArgumentChecker.isTrue(futureFlows == fixedRates.size(), "number of fixed rates must equal number of payment times");
+    ArgumentChecker.isTrue(futureFlows == paymentDiscountFactors.size(), "number of payment discount factors must equal number of payment times");
+
+    ArgumentChecker.isTrue(allFlows == startAccrualDates.size(), "number of accrual start dates must equal number of notionals");
+    ArgumentChecker.isTrue(allFlows == endAccrualDates.size(), "number of accrual end dates must equal number of notionals");
+    ArgumentChecker.isTrue(allFlows == fixingStart.size(), "number of fixing start dates must equal number of notionals");
+    ArgumentChecker.isTrue(allFlows == fixingEnd.size(), "number of fixing end dates must equal number of notionals");
+    ArgumentChecker.isTrue(allFlows == fixingYearFractions.size(), "number of fixing year fractions must equal number of notionals");
+    ArgumentChecker.isTrue(allFlows == paymentDates.size(), "number of payment dates must equal number of notionals");
+    ArgumentChecker.isTrue(allFlows == spreads.size(), "number of spreads must equal number of notionals");
+    ArgumentChecker.isTrue(allFlows == gearings.size(), "number of gearings must equal number of notionals");
+
     List<FloatingCashFlowDetails> cashFlows = new ArrayList<>();
-    for (int i = 0; i < n; i++) {
+
+    //First deal with any past cash flows
+    for (int i = 0; i < diff; i ++) {
       FloatingCashFlowDetails.Builder builder = (FloatingCashFlowDetails.Builder) FloatingCashFlowDetails.builder()
           .spread(spreads.get(i))
           .gearing(gearings.get(i))
-          .projectedAmount(projectedAmounts.get(i))
-          .presentValue(projectedAmounts.get(i).multipliedBy(paymentDiscountFactors.get(i)))
+          .notional(notionals.get(i))
           .accrualStartDate(startAccrualDates.get(i))
           .accrualEndDate(endAccrualDates.get(i))
-          .accrualFactor(paymentTimes.get(i))
-          .paymentDate(paymentDates.get(i))
-          .df(paymentDiscountFactors.get(i))
-          .notional(notionals.get(i));
-
+          .paymentDate(paymentDates.get(i));
       if (fixingStart.get(i) != null) {
         builder.fixingStartDate(fixingStart.get(i));
       }
@@ -149,16 +199,44 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
       if (fixingYearFractions.get(i) != null) {
         builder.fixingYearFrac(fixingYearFractions.get(i));
       }
+      cashFlows.add(builder.build());
+    }
+
+    //Next deal with future cash flows, any arrays with length 'allFlows' will need to be adjusted by 'diff'
+    for (int i = 0; i < futureFlows; i++) {
+      int allOffset = i + diff;
+      //with offset
+      FloatingCashFlowDetails.Builder builder = (FloatingCashFlowDetails.Builder) FloatingCashFlowDetails.builder()
+          .spread(spreads.get(allOffset))
+          .gearing(gearings.get(allOffset))
+          .accrualStartDate(startAccrualDates.get(allOffset))
+          .accrualEndDate(endAccrualDates.get(allOffset))
+          .paymentDate(paymentDates.get(allOffset))
+          .notional(notionals.get(allOffset));
       if (fixingStart.get(i) != null) {
-        builder.fixingStartDate(fixingStart.get(i));
+        builder.fixingStartDate(fixingStart.get(allOffset));
       }
+      if (fixingEnd.get(i) != null) {
+        builder.fixingEndDate(fixingEnd.get(allOffset));
+      }
+      if (fixingYearFractions.get(i) != null) {
+        builder.fixingYearFrac(fixingYearFractions.get(allOffset));
+      }
+
+      //without offset
+      builder
+          .projectedAmount(projectedAmounts.get(i))
+          .presentValue(projectedAmounts.get(i).multipliedBy(paymentDiscountFactors.get(i)))
+          .accrualFactor(paymentTimes.get(i))
+          .df(paymentDiscountFactors.get(i));
       if (forwardRates.get(i) != null) {
         builder.forwardRate(forwardRates.get(i));
       }
       if (fixedRates.get(i) != null) {
         builder.fixedRate(fixedRates.get(i));
       }
-      cashFlows.add((FloatingCashFlowDetails) builder.build());
+
+      cashFlows.add(builder.build());
     }
     
     _cashFlowDetails = cashFlows;

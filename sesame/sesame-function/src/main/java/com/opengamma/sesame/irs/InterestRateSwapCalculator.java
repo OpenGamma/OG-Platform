@@ -59,6 +59,20 @@ public interface InterestRateSwapCalculator {
   Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01();
 
   /**
+   * Calculate the swap pay leg full cash flow, including past cash flows.
+   *
+   * @return result containing the cash flows if successful, a Failure otherwise
+   */
+  Result<SwapLegCashFlows> calculateFullPayLegCashFlows();
+
+  /**
+   * Calculate the swap receive leg full cash flow, including past cash flows.
+   *
+   * @return result containing the cash flows if successful, a Failure otherwise
+   */
+  Result<SwapLegCashFlows> calculateFullReceiveLegCashFlows();
+
+  /**
    * Calculate the swap pay leg cash flow.
    *
    * @return result containing the cash flows if successful, a Failure otherwise

@@ -5,11 +5,11 @@
  */
 package com.opengamma.financial.analytics.model.fixedincome;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
+import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Lists;
@@ -22,11 +22,9 @@ import com.opengamma.analytics.financial.interestrate.AnnuityFixedRatesVisitor;
 import com.opengamma.analytics.financial.interestrate.AnnuityFixingDatesVisitor;
 import com.opengamma.analytics.financial.interestrate.AnnuityFixingYearFractionsVisitor;
 import com.opengamma.analytics.financial.interestrate.AnnuityGearingsVisitor;
-import com.opengamma.analytics.financial.interestrate.AnnuityIndexTenorsVisitor;
 import com.opengamma.analytics.financial.interestrate.AnnuityNotionalsVisitor;
 import com.opengamma.analytics.financial.interestrate.AnnuityPaymentAmountsVisitor;
 import com.opengamma.analytics.financial.interestrate.AnnuityPaymentDatesVisitor;
-import com.opengamma.analytics.financial.interestrate.AnnuityPaymentFractionsVisitor;
 import com.opengamma.analytics.financial.interestrate.AnnuityPaymentTimesVisitor;
 import com.opengamma.analytics.financial.interestrate.AnnuitySpreadsVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
@@ -40,7 +38,6 @@ import com.opengamma.analytics.financial.interestrate.swap.provider.AnnuityProje
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.financial.security.irs.PayReceiveType;
 import com.opengamma.util.money.CurrencyAmount;
-import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -62,7 +59,9 @@ public final class CashFlowDetailsCalculator extends InstrumentDerivativeVisitor
     AnnuityDefinition<? extends PaymentDefinition> legDefinition;
     SwapDefinition swapDefinition = provider.getDefinition();
     Annuity<? extends Payment> legDerivative;
-    ZonedDateTime valuationTime = provider.getZonedDateTime();
+    boolean full = provider.isFull();
+    // if full cash flows are required override valuation data to epoch
+    ZonedDateTime valuationTime = full ? ZonedDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC) : provider.getZonedDateTime();
     MulticurveProviderInterface bundle = provider.getMulticurveProviderInterface();
 
     boolean isDerivativeFirstLegPay = swapDerivative.getFirstLeg().getNthPayment(0).getReferenceAmount() < 0;
@@ -76,46 +75,48 @@ public final class CashFlowDetailsCalculator extends InstrumentDerivativeVisitor
       legDerivative = isDerivativeFirstLegPay ? swapDerivative.getSecondLeg() : swapDerivative.getFirstLeg();
     }
 
-    //sanitize the derivative/definition arrays
+    //data from derivative - only future cash flows
     List<Double> paymentTimes = Doubles.asList(legDerivative.accept(AnnuityPaymentTimesVisitor.getInstance()));
-    List<Double> paymentFractions = Doubles.asList(legDerivative.accept(AnnuityPaymentFractionsVisitor.getInstance()));
     List<Double> discountFactors = Doubles.asList(legDerivative.accept(AnnuityDiscountFactorsVisitor.getInstance(), bundle));
-    List<CurrencyAmount> notionals = Lists.newArrayList(legDefinition.accept(AnnuityNotionalsVisitor.getInstance(), valuationTime));
     List<Double> fixedRates = Lists.newArrayList(legDerivative.accept(AnnuityFixedRatesVisitor.getInstance()));
     List<CurrencyAmount> paymentAmounts = Lists.newArrayList(legDerivative.accept(AnnuityPaymentAmountsVisitor.getInstance()));
 
+    //data from definition - can include past cash flows
+    List<CurrencyAmount> notionals = Lists.newArrayList(legDefinition.accept(AnnuityNotionalsVisitor.getInstance(), valuationTime));
     Pair<LocalDate[], LocalDate[]> accrualDates = legDefinition.accept(AnnuityAccrualDatesVisitor.getInstance(), valuationTime);
-    List<LocalDate> accrualStartDates = Lists.newArrayList(accrualDates.getFirst());
-    List<LocalDate> accrualEndDates = Lists.newArrayList(accrualDates.getSecond());
+    List<LocalDate> startAccrualDates = Lists.newArrayList(accrualDates.getFirst());
+    List<LocalDate> endAccrualDates = Lists.newArrayList(accrualDates.getSecond());
     List<LocalDate> paymentDates = Lists.newArrayList(legDefinition.accept(AnnuityPaymentDatesVisitor.getInstance(), valuationTime));
 
     if (provider.isFixed()) {
-      return new FixedLegCashFlows(accrualStartDates,
-          accrualEndDates,
+      return new FixedLegCashFlows(
+          startAccrualDates,
+          endAccrualDates,
           discountFactors,
           paymentTimes,
           paymentDates,
-          paymentFractions,
           paymentAmounts,
           notionals,
-          fixedRates);
+          fixedRates,
+          full);
     }
 
-    //sanitize the derivative/definition arrays
-    List<Double> fixingYearFractions = Lists.newArrayList(legDefinition.accept(AnnuityFixingYearFractionsVisitor.getInstance(), valuationTime));
+    //data from derivative - only future cash flows
     List<Double> forwardRates = Lists.newArrayList(legDerivative.accept(AnnuityForwardRatesVisitor.getInstance(), bundle));
+    List<CurrencyAmount> projectedAmounts = Lists.newArrayList(legDerivative.accept(AnnuityProjectedPaymentsVisitor.getInstance(), bundle));
+
+    //data from definition - can include past cash flows
+    List<Double> fixingYearFractions = Lists.newArrayList(legDefinition.accept(AnnuityFixingYearFractionsVisitor.getInstance(), valuationTime));
     List<Double> spreads = Doubles.asList(legDefinition.accept(AnnuitySpreadsVisitor.getInstance(), valuationTime));
     List<Double> gearings = Doubles.asList(legDefinition.accept(AnnuityGearingsVisitor.getInstance(), valuationTime));
-    List<CurrencyAmount> projectedAmounts = Lists.newArrayList(legDerivative.accept(AnnuityProjectedPaymentsVisitor.getInstance(), bundle));
-    List<Set<Tenor>> indexTenors = Lists.newArrayList(legDefinition.accept(AnnuityIndexTenorsVisitor.getInstance(), valuationTime));
-
     Pair<LocalDate[], LocalDate[]> fixingDates = legDefinition.accept(AnnuityFixingDatesVisitor.getInstance(), valuationTime);
     List<LocalDate> fixingStartDates = Lists.newArrayList(fixingDates.getFirst());
     List<LocalDate> fixingEndDates = Lists.newArrayList(fixingDates.getSecond());
 
-    return new FloatingLegCashFlows(accrualStartDates,
-        accrualEndDates,
-        paymentFractions,
+
+    return new FloatingLegCashFlows(
+        startAccrualDates,
+        endAccrualDates,
         fixingStartDates,
         fixingEndDates,
         fixingYearFractions,
@@ -128,7 +129,7 @@ public final class CashFlowDetailsCalculator extends InstrumentDerivativeVisitor
         notionals,
         spreads,
         gearings,
-        indexTenors);
+        full);
   }
 
 }
