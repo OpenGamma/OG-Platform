@@ -42,7 +42,7 @@ public final class FixedCashFlowDetails extends AbstractCashFlowDetails implemen
    * The fixed rate of the cash flow.
    */
   @PropertyDefinition
-  private final double _rate;
+  private final Double _rate;
 
   /**
    * The projected amount of the cash flow.
@@ -113,7 +113,7 @@ public final class FixedCashFlowDetails extends AbstractCashFlowDetails implemen
    * Gets the fixed rate of the cash flow.
    * @return the value of the property
    */
-  public double getRate() {
+  public Double getRate() {
     return _rate;
   }
 
@@ -204,7 +204,7 @@ public final class FixedCashFlowDetails extends AbstractCashFlowDetails implemen
      * The meta-property for the {@code rate} property.
      */
     private final MetaProperty<Double> _rate = DirectMetaProperty.ofImmutable(
-        this, "rate", FixedCashFlowDetails.class, Double.TYPE);
+        this, "rate", FixedCashFlowDetails.class, Double.class);
     /**
      * The meta-property for the {@code projectedAmount} property.
      */
@@ -314,7 +314,7 @@ public final class FixedCashFlowDetails extends AbstractCashFlowDetails implemen
    */
   public static final class Builder extends AbstractCashFlowDetails.Builder {
 
-    private double _rate;
+    private Double _rate;
     private CurrencyAmount _projectedAmount;
     private CurrencyAmount _presentValue;
 
@@ -403,7 +403,7 @@ public final class FixedCashFlowDetails extends AbstractCashFlowDetails implemen
      * @param rate  the new value
      * @return this, for chaining, not null
      */
-    public Builder rate(double rate) {
+    public Builder rate(Double rate) {
       this._rate = rate;
       return this;
     }

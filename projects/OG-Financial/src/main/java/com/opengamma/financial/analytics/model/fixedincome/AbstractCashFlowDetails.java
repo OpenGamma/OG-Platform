@@ -74,8 +74,8 @@ public abstract class AbstractCashFlowDetails implements CashFlowDetails, Immuta
   /**
    * The accrual factor of the cash flow.
    */
-  @PropertyDefinition(validate = "notNull")
-  private final double _accrualFactor;
+  @PropertyDefinition
+  private final Double _accrualFactor;
 
   /**
    * The currency and notional amount of the cash flow.
@@ -86,8 +86,8 @@ public abstract class AbstractCashFlowDetails implements CashFlowDetails, Immuta
   /**
    * The discount factor used to discount the cash flow.
    */
-  @PropertyDefinition(validate = "notNull")
-  private final double _df;
+  @PropertyDefinition
+  private final Double _df;
   
   /**
    * Constructs a cash flow details instance from the OG-Analytics definition and derivative forms of a cash flow, using
@@ -131,9 +131,7 @@ public abstract class AbstractCashFlowDetails implements CashFlowDetails, Immuta
     JodaBeanUtils.notNull(builder._paymentDate, "paymentDate");
     JodaBeanUtils.notNull(builder._accrualStartDate, "accrualStartDate");
     JodaBeanUtils.notNull(builder._accrualEndDate, "accrualEndDate");
-    JodaBeanUtils.notNull(builder._accrualFactor, "accrualFactor");
     JodaBeanUtils.notNull(builder._notional, "notional");
-    JodaBeanUtils.notNull(builder._df, "df");
     this._paymentDate = builder._paymentDate;
     this._accrualStartDate = builder._accrualStartDate;
     this._accrualEndDate = builder._accrualEndDate;
@@ -187,9 +185,9 @@ public abstract class AbstractCashFlowDetails implements CashFlowDetails, Immuta
   //-----------------------------------------------------------------------
   /**
    * Gets the accrual factor of the cash flow.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
-  public double getAccrualFactor() {
+  public Double getAccrualFactor() {
     return _accrualFactor;
   }
 
@@ -205,9 +203,9 @@ public abstract class AbstractCashFlowDetails implements CashFlowDetails, Immuta
   //-----------------------------------------------------------------------
   /**
    * Gets the discount factor used to discount the cash flow.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
-  public double getDf() {
+  public Double getDf() {
     return _df;
   }
 
@@ -298,7 +296,7 @@ public abstract class AbstractCashFlowDetails implements CashFlowDetails, Immuta
      * The meta-property for the {@code accrualFactor} property.
      */
     private final MetaProperty<Double> _accrualFactor = DirectMetaProperty.ofImmutable(
-        this, "accrualFactor", AbstractCashFlowDetails.class, Double.TYPE);
+        this, "accrualFactor", AbstractCashFlowDetails.class, Double.class);
     /**
      * The meta-property for the {@code notional} property.
      */
@@ -308,7 +306,7 @@ public abstract class AbstractCashFlowDetails implements CashFlowDetails, Immuta
      * The meta-property for the {@code df} property.
      */
     private final MetaProperty<Double> _df = DirectMetaProperty.ofImmutable(
-        this, "df", AbstractCashFlowDetails.class, Double.TYPE);
+        this, "df", AbstractCashFlowDetails.class, Double.class);
     /**
      * The meta-properties.
      */
@@ -450,9 +448,9 @@ public abstract class AbstractCashFlowDetails implements CashFlowDetails, Immuta
     private LocalDate _paymentDate;
     private LocalDate _accrualStartDate;
     private LocalDate _accrualEndDate;
-    private double _accrualFactor;
+    private Double _accrualFactor;
     private CurrencyAmount _notional;
-    private double _df;
+    private Double _df;
 
     /**
      * Restricted constructor.
@@ -581,11 +579,10 @@ public abstract class AbstractCashFlowDetails implements CashFlowDetails, Immuta
 
     /**
      * Sets the {@code accrualFactor} property in the builder.
-     * @param accrualFactor  the new value, not null
+     * @param accrualFactor  the new value
      * @return this, for chaining, not null
      */
-    public Builder accrualFactor(double accrualFactor) {
-      JodaBeanUtils.notNull(accrualFactor, "accrualFactor");
+    public Builder accrualFactor(Double accrualFactor) {
       this._accrualFactor = accrualFactor;
       return this;
     }
@@ -603,11 +600,10 @@ public abstract class AbstractCashFlowDetails implements CashFlowDetails, Immuta
 
     /**
      * Sets the {@code df} property in the builder.
-     * @param df  the new value, not null
+     * @param df  the new value
      * @return this, for chaining, not null
      */
-    public Builder df(double df) {
-      JodaBeanUtils.notNull(df, "df");
+    public Builder df(Double df) {
       this._df = df;
       return this;
     }

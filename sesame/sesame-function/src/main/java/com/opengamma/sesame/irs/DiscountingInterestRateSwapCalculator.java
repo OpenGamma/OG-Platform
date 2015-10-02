@@ -332,12 +332,22 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
 
   @Override
   public Result<SwapLegCashFlows> calculatePayLegCashFlows() {
-    return Result.success(_derivative.accept(CFDC, createCashFlowDetailsProvider(PayReceiveType.PAY)));
+    return Result.success(_derivative.accept(CFDC, createCashFlowDetailsProvider(PayReceiveType.PAY, false)));
   }
 
   @Override
   public Result<SwapLegCashFlows> calculateReceiveLegCashFlows() {
-    return Result.success(_derivative.accept(CFDC, createCashFlowDetailsProvider(PayReceiveType.RECEIVE)));
+    return Result.success(_derivative.accept(CFDC, createCashFlowDetailsProvider(PayReceiveType.RECEIVE, false)));
+  }
+
+  @Override
+  public Result<SwapLegCashFlows> calculateFullPayLegCashFlows() {
+    return Result.success(_derivative.accept(CFDC, createCashFlowDetailsProvider(PayReceiveType.PAY, true)));
+  }
+
+  @Override
+  public Result<SwapLegCashFlows> calculateFullReceiveLegCashFlows() {
+    return Result.success(_derivative.accept(CFDC, createCashFlowDetailsProvider(PayReceiveType.RECEIVE, true)));
   }
 
   @Override
@@ -375,8 +385,8 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
     return definitionConverter.convert(security, _definition, valuationTime, fixings);
   }
 
-  private CashFlowDetailsProvider createCashFlowDetailsProvider(PayReceiveType type) {
-    return new CashFlowDetailsProvider(_bundle, _valuationTime, _definition, _security, type);
+  private CashFlowDetailsProvider createCashFlowDetailsProvider(PayReceiveType type, boolean full) {
+    return new CashFlowDetailsProvider(_bundle, _valuationTime, _definition, _security, type, full);
   }
 
   private boolean isFirstLegPay() {

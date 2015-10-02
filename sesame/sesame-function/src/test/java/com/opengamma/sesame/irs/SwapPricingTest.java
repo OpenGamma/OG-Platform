@@ -33,6 +33,7 @@ import org.threeten.bp.OffsetTime;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -51,6 +52,7 @@ import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCrossSensitivities;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
+import com.opengamma.financial.analytics.model.fixedincome.CashFlowFormatter;
 import com.opengamma.financial.analytics.model.fixedincome.FixedLegCashFlows;
 import com.opengamma.financial.analytics.model.fixedincome.FloatingLegCashFlows;
 import com.opengamma.financial.analytics.model.fixedincome.SwapLegCashFlows;
@@ -471,6 +473,72 @@ public class SwapPricingTest {
     return new InterestRateSwapTrade(trade);
   }
 
+  @Test
+  public void fixedVsLiborSwapWithFixingLegDetails() {
+    Result<SwapLegCashFlows> payFullResult = _functionRunner.runFunction(ARGS, new Function<Environment, Result<SwapLegCashFlows>>() {
+       @Override
+       public Result<SwapLegCashFlows> apply(Environment env) {
+         return _swapFunction.calculateFullPayLegCashFlows(
+             env,
+             _fixedVsLiborWithFixingSwapSecurity);
+       }
+     });
+
+    Result<SwapLegCashFlows> receiveFullResult = _functionRunner.runFunction(ARGS, new Function<Environment, Result<SwapLegCashFlows>>() {
+      @Override
+      public Result<SwapLegCashFlows> apply(Environment env) {
+        return _swapFunction.calculateFullReceiveLegCashFlows(
+            env,
+            _fixedVsLiborWithFixingSwapSecurity);
+      }
+    });
+
+    Result<SwapLegCashFlows> payResult = _functionRunner.runFunction(ARGS, new Function<Environment, Result<SwapLegCashFlows>>() {
+      @Override
+      public Result<SwapLegCashFlows> apply(Environment env) {
+        return _swapFunction.calculatePayLegCashFlows(
+            env,
+            _fixedVsLiborWithFixingSwapSecurity);
+      }
+    });
+
+    Result<SwapLegCashFlows> receiveResult = _functionRunner.runFunction(ARGS, new Function<Environment, Result<SwapLegCashFlows>>() {
+      @Override
+      public Result<SwapLegCashFlows> apply(Environment env) {
+        return _swapFunction.calculateReceiveLegCashFlows(
+            env,
+            _fixedVsLiborWithFixingSwapSecurity);
+      }
+    });
+
+    assertSuccess(receiveResult);
+    assertSuccess(payResult);
+    assertSuccess(receiveFullResult);
+    assertSuccess(payFullResult);
+
+    assertThat(payResult.getValue(), is((instanceOf(FixedLegCashFlows.class))));
+    assertThat(payFullResult.getValue(), is((instanceOf(FixedLegCashFlows.class))));
+    assertThat(receiveResult.getValue(), is((instanceOf(FloatingLegCashFlows.class))));
+    assertThat(receiveFullResult.getValue(), is((instanceOf(FloatingLegCashFlows.class))));
+
+    FixedLegCashFlows pay = (FixedLegCashFlows) payResult.getValue();
+    FixedLegCashFlows payFull = (FixedLegCashFlows) payFullResult.getValue();
+    FloatingLegCashFlows receive = (FloatingLegCashFlows) receiveResult.getValue();
+    FloatingLegCashFlows receiveFull = (FloatingLegCashFlows) receiveFullResult.getValue();
+
+    assertThat(pay.getNotionals().size(), is(3));
+    assertThat(payFull.getNotionals().size(), is(4));
+    assertThat(receive.getNotionals().size(), is(5));
+    assertThat(receiveFull.getNotionals().size(), is(8));
+
+    List flows = ImmutableList.of(payResult.getValue(),
+                                  receiveResult.getValue(),
+                                  payFullResult.getValue(),
+                                  receiveFullResult.getValue());
+
+    CashFlowFormatter.asciiFormatter().formatSwapCashflows(flows);
+    CashFlowFormatter.csvFormatter().formatSwapCashflows(flows);
+  }
 
   @Test
   public void fixedVsLibor3mSwapLegDetails() {

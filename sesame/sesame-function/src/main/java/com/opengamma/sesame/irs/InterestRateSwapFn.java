@@ -68,6 +68,26 @@ public interface InterestRateSwapFn {
   Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(Environment env, InterestRateSwapSecurity security);
 
   /**
+   * Calculate the receive leg full cash flow for a Swap leg, including past cash flows.
+   *
+   * @param env the environment used for calculation
+   * @param security the InterestRateSwapSecurity to calculate the cash flows for
+   * @return result containing the fixed cash flows if successful, a Failure otherwise
+   */
+  @Output(OutputNames.FULL_RECEIVE_LEG_CASH_FLOWS)
+  Result<SwapLegCashFlows> calculateFullReceiveLegCashFlows(Environment env, InterestRateSwapSecurity security);
+
+  /**
+   * Calculate the pay leg full cash flow for a Swap leg, including past cash flows.
+   *
+   * @param env the environment used for calculation
+   * @param security the InterestRateSwapSecurity to calculate the cash flows for
+   * @return result containing the fixed cash flows if successful, a Failure otherwise
+   */
+  @Output(OutputNames.FULL_PAY_LEG_CASH_FLOWS)
+  Result<SwapLegCashFlows> calculateFullPayLegCashFlows(Environment env, InterestRateSwapSecurity security);
+
+  /**
    * Calculate the receive leg cash flow for a Swap leg.
    *
    * @param env the environment used for calculation

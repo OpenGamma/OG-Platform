@@ -134,19 +134,19 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
   /**
    * The index tenors of the cash flow.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private final Set<Tenor> _indexTenors;
 
   /**
    * The projected amount of the cash flow.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private final CurrencyAmount _projectedAmount;
 
   /**
    * The present value of the cash flow.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private final CurrencyAmount _presentValue;
   
   /**
@@ -211,9 +211,6 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
    */
   private FloatingCashFlowDetails(FloatingCashFlowDetails.Builder builder) {
     super(builder);
-    JodaBeanUtils.notNull(builder._indexTenors, "indexTenors");
-    JodaBeanUtils.notNull(builder._projectedAmount, "projectedAmount");
-    JodaBeanUtils.notNull(builder._presentValue, "presentValue");
     this._fixingStartDate = builder._fixingStartDate;
     this._fixingEndDate = builder._fixingEndDate;
     this._fixingYearFrac = builder._fixingYearFrac;
@@ -221,7 +218,7 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
     this._forwardRate = builder._forwardRate;
     this._spread = builder._spread;
     this._gearing = builder._gearing;
-    this._indexTenors = ImmutableSet.copyOf(builder._indexTenors);
+    this._indexTenors = (builder._indexTenors != null ? ImmutableSet.copyOf(builder._indexTenors) : null);
     this._projectedAmount = builder._projectedAmount;
     this._presentValue = builder._presentValue;
   }
@@ -297,7 +294,7 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
   //-----------------------------------------------------------------------
   /**
    * Gets the index tenors of the cash flow.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public Set<Tenor> getIndexTenors() {
     return _indexTenors;
@@ -306,7 +303,7 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
   //-----------------------------------------------------------------------
   /**
    * Gets the projected amount of the cash flow.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public CurrencyAmount getProjectedAmount() {
     return _projectedAmount;
@@ -315,7 +312,7 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
   //-----------------------------------------------------------------------
   /**
    * Gets the present value of the cash flow.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public CurrencyAmount getPresentValue() {
     return _presentValue;
@@ -655,7 +652,7 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
     private Double _forwardRate;
     private Double _spread;
     private Double _gearing;
-    private Set<Tenor> _indexTenors = new HashSet<Tenor>();
+    private Set<Tenor> _indexTenors;
     private CurrencyAmount _projectedAmount;
     private CurrencyAmount _presentValue;
 
@@ -677,7 +674,7 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
       this._forwardRate = beanToCopy.getForwardRate();
       this._spread = beanToCopy.getSpread();
       this._gearing = beanToCopy.getGearing();
-      this._indexTenors = new HashSet<Tenor>(beanToCopy.getIndexTenors());
+      this._indexTenors = (beanToCopy.getIndexTenors() != null ? new HashSet<Tenor>(beanToCopy.getIndexTenors()) : null);
       this._projectedAmount = beanToCopy.getProjectedAmount();
       this._presentValue = beanToCopy.getPresentValue();
     }
@@ -854,11 +851,10 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
 
     /**
      * Sets the {@code indexTenors} property in the builder.
-     * @param indexTenors  the new value, not null
+     * @param indexTenors  the new value
      * @return this, for chaining, not null
      */
     public Builder indexTenors(Set<Tenor> indexTenors) {
-      JodaBeanUtils.notNull(indexTenors, "indexTenors");
       this._indexTenors = indexTenors;
       return this;
     }
@@ -866,7 +862,7 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
     /**
      * Sets the {@code indexTenors} property in the builder
      * from an array of objects.
-     * @param indexTenors  the new value, not null
+     * @param indexTenors  the new value
      * @return this, for chaining, not null
      */
     public Builder indexTenors(Tenor... indexTenors) {
@@ -875,22 +871,20 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
 
     /**
      * Sets the {@code projectedAmount} property in the builder.
-     * @param projectedAmount  the new value, not null
+     * @param projectedAmount  the new value
      * @return this, for chaining, not null
      */
     public Builder projectedAmount(CurrencyAmount projectedAmount) {
-      JodaBeanUtils.notNull(projectedAmount, "projectedAmount");
       this._projectedAmount = projectedAmount;
       return this;
     }
 
     /**
      * Sets the {@code presentValue} property in the builder.
-     * @param presentValue  the new value, not null
+     * @param presentValue  the new value
      * @return this, for chaining, not null
      */
     public Builder presentValue(CurrencyAmount presentValue) {
-      JodaBeanUtils.notNull(presentValue, "presentValue");
       this._presentValue = presentValue;
       return this;
     }
