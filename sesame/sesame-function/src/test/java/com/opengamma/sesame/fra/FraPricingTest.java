@@ -15,6 +15,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.core.IsNull.notNullValue;
+import static org.testng.Assert.assertTrue;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -22,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
@@ -44,6 +46,11 @@ import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCrossSensitivities;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
+import com.opengamma.financial.analytics.model.fixedincome.FixedCashFlowDetails;
+import com.opengamma.financial.analytics.model.fixedincome.FixedLegCashFlows;
+import com.opengamma.financial.analytics.model.fixedincome.FloatingCashFlowDetails;
+import com.opengamma.financial.analytics.model.fixedincome.FloatingLegCashFlows;
+import com.opengamma.financial.analytics.model.fixedincome.SwapLegCashFlows;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
@@ -107,6 +114,8 @@ public class FraPricingTest {
   private static final LocalDate MARKET_DATA_DATE = LocalDate.of(2014, 1, 22);
 
   private static final double EXPECTED_PV = 23182.5437;
+  private static final double EXPECTED_PAY_LEG = -8368.1461;
+  private static final double EXPECTED_REC_LEG = 31550.6898;
   private static final double EXPECTED_PAR_RATE = 0.003315;
   private static final Map<Pair<String, Currency>, DoubleMatrix1D> EXPECTED_BUCKETED_PV01 =
       ImmutableMap.<Pair<String, Currency>, DoubleMatrix1D>builder()
@@ -235,6 +244,46 @@ public class FraPricingTest {
     assertThat(parRate, is(closeTo(EXPECTED_PAR_RATE, STD_TOLERANCE_RATE)));
   }
 
+
+  @Test
+  public void payCashflowsFRA() {
+    Result<SwapLegCashFlows> resultCashflows = _functionRunner.runFunction(
+        ARGS, new Function<Environment, Result<SwapLegCashFlows>>() {
+          @Override
+          public Result<SwapLegCashFlows> apply(Environment env) {
+            return _fraFunction.calculatePayLegCashFlows(env, _forwardRateAgreementSecurity);
+          }
+        });
+    assertSuccess(resultCashflows);
+    SwapLegCashFlows resultObject = resultCashflows.getValue();
+    assertTrue(resultObject instanceof FloatingLegCashFlows);
+    FloatingLegCashFlows flows = (FloatingLegCashFlows) resultObject;
+    assertThat(flows.getCashFlowDetails().size(), is(1));
+    FloatingCashFlowDetails details = flows.getCashFlowDetails().get(0);
+    Assert.assertEquals(details.getPresentValue().getAmount(), EXPECTED_PAY_LEG, STD_TOLERANCE_PV);
+  }
+
+
+  @Test
+  public void recCashflowsFRA() {
+    Result<SwapLegCashFlows> resultCashflows = _functionRunner.runFunction(
+        ARGS, new Function<Environment, Result<SwapLegCashFlows>>() {
+          @Override
+          public Result<SwapLegCashFlows> apply(Environment env) {
+            return _fraFunction.calculateReceiveLegCashFlows(env, _forwardRateAgreementSecurity);
+          }
+        });
+    assertSuccess(resultCashflows);
+    SwapLegCashFlows resultObject = resultCashflows.getValue();
+    assertTrue(resultObject instanceof FixedLegCashFlows);
+    FixedLegCashFlows flows = (FixedLegCashFlows) resultObject;
+    assertThat(flows.getCashFlowDetails().size(), is(1));
+    FixedCashFlowDetails details = flows.getCashFlowDetails().get(0);
+    Assert.assertEquals(details.getPresentValue().getAmount(), EXPECTED_REC_LEG, STD_TOLERANCE_PV);
+  }
+
+
+  
   @Test
   public void discountingForwardRateAgreementPV() {
     Result<MultipleCurrencyAmount> resultPV = _functionRunner.runFunction(

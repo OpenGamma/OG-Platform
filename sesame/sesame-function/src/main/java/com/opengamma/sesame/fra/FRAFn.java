@@ -8,12 +8,15 @@ package com.opengamma.sesame.fra;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCrossSensitivities;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
+import com.opengamma.financial.analytics.model.fixedincome.FraCashFlowDetailsCalculator;
+import com.opengamma.financial.analytics.model.fixedincome.SwapLegCashFlows;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.trade.ForwardRateAgreementTrade;
+import com.opengamma.sesame.trade.InterestRateSwapTrade;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -184,5 +187,53 @@ public interface FRAFn {
    */
   @Output(OutputNames.BUCKETED_GAMMA)
   Result<BucketedCurveSensitivities> calculateBucketedGamma(Environment env, ForwardRateAgreementTrade trade);
+  
+  /**
+   * Calculates receive cashflows on the FRA. See note on 
+   * {@link FraCashFlowDetailsCalculator} for further details
+   * on how these are generated.
+   * 
+   * @param env the environment used for calculation
+   * @param trade the FRA to calculate cashflows for
+   * @return the receive cashflows
+   */
+  @Output(OutputNames.RECEIVE_LEG_CASH_FLOWS)
+  Result<SwapLegCashFlows> calculateReceiveLegCashFlows(Environment env, ForwardRateAgreementTrade trade);
+
+  /**
+   * Calculates pay cashflows on the FRA. See note on 
+   * {@link FraCashFlowDetailsCalculator} for further details
+   * on how these are generated.
+   * 
+   * @param env the environment used for calculation
+   * @param trade the FRA to calculate cashflows for
+   * @return the pay cashflows
+   */
+  @Output(OutputNames.PAY_LEG_CASH_FLOWS)
+  Result<SwapLegCashFlows> calculatePayLegCashFlows(Environment env, ForwardRateAgreementTrade trade);
+
+  /**
+   * Calculates pay cashflows on the FRA. See note on 
+   * {@link FraCashFlowDetailsCalculator} for further details
+   * on how these are generated.
+   * 
+   * @param env the environment used for calculation
+   * @param security the security to price
+   * @return the pay cashflows
+   */
+  Result<SwapLegCashFlows> calculatePayLegCashFlows(Environment env, ForwardRateAgreementSecurity security);
+
+  /**
+   * Calculates receive cashflows on the FRA. See note on 
+   * {@link FraCashFlowDetailsCalculator} for further details
+   * on how these are generated.
+   * 
+   * @param env the environment used for calculation
+   * @param security the security to price
+   * @return the receive cashflows
+   */
+  Result<SwapLegCashFlows> calculateReceiveLegCashFlows(Environment env, ForwardRateAgreementSecurity security);
+
+
   
 }
