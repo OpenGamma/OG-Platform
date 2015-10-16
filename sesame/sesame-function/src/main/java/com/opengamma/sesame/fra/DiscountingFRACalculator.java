@@ -13,7 +13,9 @@ import java.util.Set;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.calculator.discounting.CrossGammaMultiCurveCalculator;
@@ -40,13 +42,17 @@ import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCrossSensitivities;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
+import com.opengamma.financial.analytics.model.fixedincome.FraCashFlowDetailsCalculator;
+import com.opengamma.financial.analytics.model.fixedincome.SwapLegCashFlows;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
+import com.opengamma.financial.security.irs.PayReceiveType;
 import com.opengamma.sesame.CurveMatrixLabeller;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
@@ -112,6 +118,12 @@ public class DiscountingFRACalculator implements FRACalculator {
    * The curve labellers.
    */
   private final Map<String, CurveMatrixLabeller> _curveLabellers;
+  
+  /**
+   * The FRA definition.
+   */
+  private ForwardRateAgreementDefinition _definition;
+
 
   /**
    * Creates a calculator for a FRA.
@@ -162,7 +174,8 @@ public class DiscountingFRACalculator implements FRACalculator {
     ArgumentChecker.notNull(valuationTime, "valuationTime");
     ArgumentChecker.notNull(definitionConverter, "definitionConverter");
     ArgumentChecker.notNull(fixings, "fixings");
-    _derivative = createInstrumentDerivative(security, fraConverter, valuationTime, definitionConverter, fixings);
+    _definition = (ForwardRateAgreementDefinition) security.accept(fraConverter);
+    _derivative = _definition.toDerivative(valuationTime);
     _bundle = ArgumentChecker.notNull(bundle, "bundle");
     _curveBuildingBlockBundle = ArgumentChecker.notNull(curveBuildingBlockBundle, "curveBuildingBlockBundle");
     _curveLabellers = ArgumentChecker.notNull(curveLabellers, "curveLabellers");
@@ -193,15 +206,6 @@ public class DiscountingFRACalculator implements FRACalculator {
                                                           ZonedDateTime valuationTime) {
     InstrumentDefinition<?> definition = security.accept(fraConverter);
     return definition.toDerivative(valuationTime);
-  }
-  
-  private InstrumentDerivative createInstrumentDerivative(ForwardRateAgreementSecurity security,
-      FRASecurityConverter fraConverter,
-      ZonedDateTime valuationTime,
-      FixedIncomeConverterDataProvider definitionConverter,
-      HistoricalTimeSeriesBundle fixings) {
-    InstrumentDefinition<?> definition = security.accept(fraConverter);
-    return definitionConverter.convert(security, definition, valuationTime, fixings);
   }
 
   @Override
@@ -264,4 +268,16 @@ public class DiscountingFRACalculator implements FRACalculator {
     return Result.success(BucketedCurveSensitivities.of(labelledMatrix1DMap));
   }
 
+  @Override
+  public Result<SwapLegCashFlows> calculateReceiveCashFlows() {
+    SwapLegCashFlows flows = _derivative.accept(new FraCashFlowDetailsCalculator(_bundle, PayReceiveType.RECEIVE), _definition);
+    return Result.success(flows);
+  }
+
+  @Override
+  public Result<SwapLegCashFlows> calculatePayCashFlows() {
+    SwapLegCashFlows flows = _derivative.accept(new FraCashFlowDetailsCalculator(_bundle, PayReceiveType.PAY), _definition);
+    return Result.success(flows);
+  }
+  
 }

@@ -9,6 +9,8 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCrossSensitivities;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
+import com.opengamma.financial.analytics.model.fixedincome.FraCashFlowDetailsCalculator;
+import com.opengamma.financial.analytics.model.fixedincome.SwapLegCashFlows;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -69,5 +71,23 @@ public interface FRACalculator {
    * @return the bucketed Gamma
    */
   Result<BucketedCurveSensitivities> calculateBucketedGamma();
+
+  /**
+   * Calculates receive cashflows on the FRA. See note on 
+   * {@link FraCashFlowDetailsCalculator} for further details
+   * on how these are generated.
+   * 
+   * @return the receive cashflows
+   */
+  Result<SwapLegCashFlows> calculateReceiveCashFlows();
+
+  /**
+   * Calculates pay cashflows on the FRA. See note on 
+   * {@link FraCashFlowDetailsCalculator} for further details
+   * on how these are generated.
+   * 
+   * @return the pay cashflows
+   */
+  Result<SwapLegCashFlows> calculatePayCashFlows();
 
 }

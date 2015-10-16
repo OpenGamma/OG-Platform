@@ -6,6 +6,8 @@
 package com.opengamma.analytics.financial.instrument.fra;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
@@ -386,5 +388,17 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
       return false;
     }
     return true;
+  }
+  
+  @Override
+  public String toString() {
+    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+        .appendToString(super.toString())
+        .append("iborIndex", _index)
+        .append("fixingPeriodAccrualFactor", _fixingPeriodAccrualFactor)
+        .append("rate", _rate)
+        .append("fixingPeriodStartDate", _fixingPeriodStartDate)
+        .append("fixingPeriodEndDate", _fixingPeriodEndDate)
+        .toString();  
   }
 }

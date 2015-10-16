@@ -8,6 +8,7 @@ package com.opengamma.sesame.fra;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCrossSensitivities;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
+import com.opengamma.financial.analytics.model.fixedincome.SwapLegCashFlows;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.sesame.Environment;
@@ -135,6 +136,26 @@ public class DiscountingFRAFn implements FRAFn {
   }
 
   @Override
+  public Result<SwapLegCashFlows> calculateReceiveLegCashFlows(Environment env, ForwardRateAgreementSecurity security) {
+    Result<FRACalculator> calculatorResult = _fraCalculatorFactory.createCalculator(env, security);
+    
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return calculatorResult.getValue().calculateReceiveCashFlows();
+  }
+
+  @Override
+  public Result<SwapLegCashFlows> calculatePayLegCashFlows(Environment env, ForwardRateAgreementSecurity security) {
+    Result<FRACalculator> calculatorResult = _fraCalculatorFactory.createCalculator(env, security);
+    
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return calculatorResult.getValue().calculatePayCashFlows();
+  }
+  
+  @Override
   public Result<Double> calculateParRate(Environment env, ForwardRateAgreementTrade trade) {
     Result<FRACalculator> calculatorResult = _fraCalculatorFactory.createCalculator(env, trade);
     if (!calculatorResult.isSuccess()) {
@@ -187,6 +208,26 @@ public class DiscountingFRAFn implements FRAFn {
       return Result.failure(calculatorResult);
     }
     return calculatorResult.getValue().calculateBucketedGamma();
+  }
+
+  @Override
+  public Result<SwapLegCashFlows> calculateReceiveLegCashFlows(Environment env, ForwardRateAgreementTrade trade) {
+    Result<FRACalculator> calculatorResult = _fraCalculatorFactory.createCalculator(env, trade);
+    
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return calculatorResult.getValue().calculateReceiveCashFlows();
+  }
+
+  @Override
+  public Result<SwapLegCashFlows> calculatePayLegCashFlows(Environment env, ForwardRateAgreementTrade trade) {
+    Result<FRACalculator> calculatorResult = _fraCalculatorFactory.createCalculator(env, trade);
+    
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return calculatorResult.getValue().calculatePayCashFlows();
   }
 
 }
