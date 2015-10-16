@@ -1,5 +1,11 @@
 # OpenGamma Platform
 
+## v2.21
+
+### Enhancements
+
+* Cashflows for FRAs
+
 ## v2.20
 
 ### Bug Fixes
