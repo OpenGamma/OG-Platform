@@ -5,6 +5,7 @@
  */
 
 /**
+ * <p>This package contains push notifications (no longer used).</p>
  * <em>THIS IS OUT OF DATE. SEE {@link com.opengamma.web.analytics.rest}</em>
  * <p>This package provides push notifications when changes occur to resources requested through the REST interface.
  * This includes analytics data, entities and queries for entities.</p>

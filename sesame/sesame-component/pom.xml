@@ -18,12 +18,6 @@
 
   <!-- ==================================================================== -->
   <inceptionYear>2014</inceptionYear>
-  <licenses>
-    <license>
-      <name>Proprietary OpenGamma licensing</name>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
 
   <!-- ==================================================================== -->
   <dependencies>
