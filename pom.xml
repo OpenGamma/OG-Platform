@@ -1285,7 +1285,6 @@
                 <configuration>
                   <subpackages>com.opengamma</subpackages>
                   <excludePackageNames>com.opengamma.solutions</excludePackageNames>
-                  <additionalparam>-Xdoclint:none</additionalparam>
                   <maxmemory>2048m</maxmemory>
                 </configuration>
               </execution>
