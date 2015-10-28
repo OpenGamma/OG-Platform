@@ -1261,6 +1261,39 @@
         </plugins>
       </reporting>
     </profile>
+    <!-- if "javadoc-jar" property is set on command line then build/attach javadoc jars -->
+    <profile>
+      <id>javadoc-jar</id>
+      <activation>
+        <property>
+          <name>javadoc-jar</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>${maven-javadoc-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>aggregate-jar</goal>
+                </goals>
+                <configuration>
+                  <subpackages>com.opengamma</subpackages>
+                  <excludePackageNames>com.opengamma.solutions</excludePackageNames>
+                  <additionalparam>-Xdoclint:none</additionalparam>
+                  <maxmemory>2048m</maxmemory>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 
   <!-- ==================================================================== -->
