@@ -278,9 +278,9 @@ public class ISDACompliantYieldCurveBuild {
     if (guess == 0.0 && func.evaluate(guess) == 0.0) {
       return curve;
     }
-    final double[] bracket = BRACKETER.getBracketedPoints(func, 0.8 * guess, 1.25 * guess, 0, Double.POSITIVE_INFINITY);
+    final double[] bracket = BRACKETER.getBracketedPoints(func, 0.8 * guess, 1.25 * guess, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
     // final double r = ROOTFINDER.getRoot(func, bracket[0], bracket[1]);
-    final double r = ROOTFINDER.getRoot(func, grad, bracket[0], bracket[1]);
+    final double r = bracket[0] > bracket[1] ? ROOTFINDER.getRoot(func, bracket[1], bracket[0]) : ROOTFINDER.getRoot(func, grad, bracket[0], bracket[1]);
     return curve.withRate(r, curveIndex);
   }
 
