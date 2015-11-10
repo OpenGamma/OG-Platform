@@ -24,12 +24,11 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.position.Trade;
 import com.opengamma.financial.security.future.BondFutureSecurity;
-import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 
 /**
  * Trade wrapper for bond future trades.
  */
-@BeanDefinition
+@BeanDefinition(cacheHashCode = true)
 public final class BondFutureTrade extends TradeWrapper<BondFutureSecurity> implements ImmutableBean {
 
   @PropertyDefinition(overrideGet = true)
@@ -67,6 +66,11 @@ public final class BondFutureTrade extends TradeWrapper<BondFutureSecurity> impl
   static {
     JodaBeanUtils.registerMetaBean(BondFutureTrade.Meta.INSTANCE);
   }
+
+  /**
+   * The cached hash code, using the racy single-check idiom.
+   */
+  private int cachedHashCode;
 
   /**
    * Returns a builder used to create an instance of the bean.
@@ -124,8 +128,12 @@ public final class BondFutureTrade extends TradeWrapper<BondFutureSecurity> impl
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeBundle());
+    int hash = cachedHashCode;
+    if (hash == 0) {
+      hash = getClass().hashCode();
+      hash = hash * 31 + JodaBeanUtils.hashCode(getTradeBundle());
+      cachedHashCode = hash;
+    }
     return hash;
   }
 

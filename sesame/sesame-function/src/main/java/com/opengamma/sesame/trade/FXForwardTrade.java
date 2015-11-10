@@ -28,7 +28,7 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 /**
  * Trade wrapper for FXForward trades.
  */
-@BeanDefinition
+@BeanDefinition(cacheHashCode = true)
 public final class FXForwardTrade extends TradeWrapper<FXForwardSecurity> implements ImmutableBean {
 
   @PropertyDefinition(overrideGet = true)
@@ -66,6 +66,11 @@ public final class FXForwardTrade extends TradeWrapper<FXForwardSecurity> implem
   static {
     JodaBeanUtils.registerMetaBean(FXForwardTrade.Meta.INSTANCE);
   }
+
+  /**
+   * The cached hash code, using the racy single-check idiom.
+   */
+  private int cachedHashCode;
 
   /**
    * Returns a builder used to create an instance of the bean.
@@ -123,8 +128,12 @@ public final class FXForwardTrade extends TradeWrapper<FXForwardSecurity> implem
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeBundle());
+    int hash = cachedHashCode;
+    if (hash == 0) {
+      hash = getClass().hashCode();
+      hash = hash * 31 + JodaBeanUtils.hashCode(getTradeBundle());
+      cachedHashCode = hash;
+    }
     return hash;
   }
 

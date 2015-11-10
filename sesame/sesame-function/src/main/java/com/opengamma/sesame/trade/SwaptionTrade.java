@@ -28,7 +28,7 @@ import com.opengamma.financial.security.option.SwaptionSecurity;
 /**
  * Trade wrapper for Swaption trades.
  */
-@BeanDefinition
+@BeanDefinition(cacheHashCode = true)
 public final class SwaptionTrade extends TradeWrapper<SwaptionSecurity> implements ImmutableBean {
 
   @PropertyDefinition(overrideGet = true)
@@ -67,6 +67,11 @@ public final class SwaptionTrade extends TradeWrapper<SwaptionSecurity> implemen
   static {
     JodaBeanUtils.registerMetaBean(SwaptionTrade.Meta.INSTANCE);
   }
+
+  /**
+   * The cached hash code, using the racy single-check idiom.
+   */
+  private int cachedHashCode;
 
   /**
    * Returns a builder used to create an instance of the bean.
@@ -124,8 +129,12 @@ public final class SwaptionTrade extends TradeWrapper<SwaptionSecurity> implemen
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeBundle());
+    int hash = cachedHashCode;
+    if (hash == 0) {
+      hash = getClass().hashCode();
+      hash = hash * 31 + JodaBeanUtils.hashCode(getTradeBundle());
+      cachedHashCode = hash;
+    }
     return hash;
   }
 
