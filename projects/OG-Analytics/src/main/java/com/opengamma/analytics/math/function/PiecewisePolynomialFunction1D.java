@@ -50,14 +50,14 @@ public class PiecewisePolynomialFunction1D {
     }
 
     for (int j = 0; j < dim; ++j) {
-      final double[] coefs = coefMatrix.getRowVector(dim * indicator + j).getData();
+      final double[] coefs = coefMatrix.getRowVector(dim * indicator + j, false).getData();
       res[j] = getValue(coefs, xKey, knots[indicator]);
 
       ArgumentChecker.isFalse(Double.isInfinite(res[j]), "Too large input");
       ArgumentChecker.isFalse(Double.isNaN(res[j]), "Too large input");
     }
 
-    return new DoubleMatrix1D(res);
+    return new DoubleMatrix1D(res, false);
   }
 
   /**
@@ -95,14 +95,14 @@ public class PiecewisePolynomialFunction1D {
             }
           }
         }
-        final double[] coefs = coefMatrix.getRowVector(dim * indicator + k).getData();
+        final double[] coefs = coefMatrix.getRowVector(dim * indicator + k, false).getData();
         res[k][j] = getValue(coefs, xKeys[j], knots[indicator]);
         ArgumentChecker.isFalse(Double.isInfinite(res[k][j]), "Too large input");
         ArgumentChecker.isFalse(Double.isNaN(res[k][j]), "Too large input");
       }
     }
 
-    return new DoubleMatrix2D(res);
+    return DoubleMatrix2D.noCopy(res);
   }
 
   /**
@@ -146,7 +146,7 @@ public class PiecewisePolynomialFunction1D {
             }
           }
 
-          final double[] coefs = coefMatrix.getRowVector(dim * indicator + k).getData();
+          final double[] coefs = coefMatrix.getRowVector(dim * indicator + k, false).getData();
           res[k][l][j] = getValue(coefs, xKeys[l][j], knots[indicator]);
           ArgumentChecker.isFalse(Double.isInfinite(res[k][l][j]), "Too large input");
           ArgumentChecker.isFalse(Double.isNaN(res[k][l][j]), "Too large input");
@@ -156,7 +156,7 @@ public class PiecewisePolynomialFunction1D {
 
     DoubleMatrix2D[] resMat = new DoubleMatrix2D[dim];
     for (int i = 0; i < dim; ++i) {
-      resMat[i] = new DoubleMatrix2D(res[i]);
+      resMat[i] = DoubleMatrix2D.noCopy(res[i]);
     }
 
     return resMat;
@@ -190,7 +190,7 @@ public class PiecewisePolynomialFunction1D {
       }
     }
 
-    PiecewisePolynomialResult ppDiff = new PiecewisePolynomialResult(new DoubleMatrix1D(knots), new DoubleMatrix2D(res), nCoefs - 1, pp.getDimensions());
+    PiecewisePolynomialResult ppDiff = new PiecewisePolynomialResult(new DoubleMatrix1D(knots), DoubleMatrix2D.noCopy(res), nCoefs - 1, pp.getDimensions());
 
     return evaluate(ppDiff, xKey);
   }
@@ -256,7 +256,7 @@ public class PiecewisePolynomialFunction1D {
       }
     }
 
-    PiecewisePolynomialResult ppDiff = new PiecewisePolynomialResult(new DoubleMatrix1D(knots), new DoubleMatrix2D(res), nCoefs - 1, pp.getDimensions());
+    PiecewisePolynomialResult ppDiff = new PiecewisePolynomialResult(new DoubleMatrix1D(knots), DoubleMatrix2D.noCopy(res), nCoefs - 1, pp.getDimensions());
 
     return evaluate(ppDiff, xKey);
   }
@@ -289,7 +289,7 @@ public class PiecewisePolynomialFunction1D {
       }
     }
 
-    PiecewisePolynomialResult ppDiff = new PiecewisePolynomialResult(new DoubleMatrix1D(knots), new DoubleMatrix2D(res), nCoefs - 1, pp.getDimensions());
+    PiecewisePolynomialResult ppDiff = new PiecewisePolynomialResult(new DoubleMatrix1D(knots), DoubleMatrix2D.noCopy(res), nCoefs - 1, pp.getDimensions());
 
     return evaluate(ppDiff, xKeys);
   }
@@ -349,7 +349,7 @@ public class PiecewisePolynomialFunction1D {
     for (int i = 0; i < nKnots - 1; ++i) {
       res[i][nCoefs] = constTerms[i];
     }
-    final PiecewisePolynomialResult ppInt = new PiecewisePolynomialResult(new DoubleMatrix1D(knots), new DoubleMatrix2D(res), nCoefs + 1, 1);
+    final PiecewisePolynomialResult ppInt = new PiecewisePolynomialResult(new DoubleMatrix1D(knots), DoubleMatrix2D.noCopy(res), nCoefs + 1, 1);
 
     return evaluate(ppInt, xKey).getData()[0];
   }
@@ -412,7 +412,7 @@ public class PiecewisePolynomialFunction1D {
       res[i][nCoefs] = constTerms[i];
     }
 
-    final PiecewisePolynomialResult ppInt = new PiecewisePolynomialResult(new DoubleMatrix1D(knots), new DoubleMatrix2D(res), nCoefs + 1, 1);
+    final PiecewisePolynomialResult ppInt = new PiecewisePolynomialResult(new DoubleMatrix1D(knots), DoubleMatrix2D.noCopy(res), nCoefs + 1, 1);
 
     return new DoubleMatrix1D(evaluate(ppInt, xKeys).getData()[0]);
   }

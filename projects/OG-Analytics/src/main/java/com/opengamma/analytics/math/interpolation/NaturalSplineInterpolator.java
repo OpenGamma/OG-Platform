@@ -139,7 +139,7 @@ public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
 
     for (int i = 0; i < nIntervals; ++i) {
       for (int j = 0; j < dim; ++j) {
-        resMatrix[dim * i + j] = coefMatrix[j].getRowVector(i).getData();
+        resMatrix[dim * i + j] = coefMatrix[j].getRowVector(i, false).getData();
       }
     }
 
@@ -150,7 +150,7 @@ public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
       }
     }
 
-    return new PiecewisePolynomialResult(this._solver.getKnotsMat1D(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
+    return new PiecewisePolynomialResult(this._solver.getKnotsMat1D(xValuesSrt), DoubleMatrix2D.noCopy(resMatrix), nCoefs, dim);
   }
 
   @Override

@@ -128,11 +128,11 @@ public class ConstrainedCubicSplineInterpolator extends PiecewisePolynomialInter
 
     for (int i = 0; i < nIntervals; ++i) {
       for (int j = 0; j < dim; ++j) {
-        resMatrix[dim * i + j] = coefMatrix[j].getRowVector(i).getData();
+        resMatrix[dim * i + j] = coefMatrix[j].getRowVector(i, false).getData();
       }
     }
 
-    return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
+    return new PiecewisePolynomialResult(new DoubleMatrix1D(xValuesSrt, false), DoubleMatrix2D.noCopy(resMatrix), nCoefs, dim);
   }
 
   @Override

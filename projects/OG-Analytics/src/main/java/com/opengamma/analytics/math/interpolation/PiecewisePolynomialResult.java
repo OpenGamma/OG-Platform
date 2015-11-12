@@ -20,7 +20,8 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
  * _dim: Number of splines
  */
 public class PiecewisePolynomialResult implements Serializable {
-
+  private static final long serialVersionUID = 1L;
+  
   private DoubleMatrix1D _knots;
   private DoubleMatrix2D _coefMatrix;
   private int _nIntervals;
