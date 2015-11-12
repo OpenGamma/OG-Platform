@@ -103,12 +103,22 @@ public class DoubleMatrix2D implements Matrix<Double>, Serializable {
   }
 
   /**
-   * Returns the row for a particular index.
+   * Returns a copy of the row for a particular index.
    * @param index The index
    * @return The row
    */
   public DoubleMatrix1D getRowVector(final int index) {
-    return new DoubleMatrix1D(_data[index]);
+    return getRowVector(index, true);
+  }
+
+  /**
+   * Returns the row for a particular index.
+   * @param index The index
+   * @param copy  Whether to copy existing data
+   * @return The row
+   */
+  public DoubleMatrix1D getRowVector(final int index, final boolean copy) {
+    return new DoubleMatrix1D(_data[index], copy);
   }
 
   /**
@@ -121,7 +131,7 @@ public class DoubleMatrix2D implements Matrix<Double>, Serializable {
     for (int i = 0; i < _rows; i++) {
       res[i] = _data[i][index];
     }
-    return new DoubleMatrix1D(res);
+    return new DoubleMatrix1D(res, false);
   }
 
   /**

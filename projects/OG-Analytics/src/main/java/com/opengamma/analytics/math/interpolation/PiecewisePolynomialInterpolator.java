@@ -58,7 +58,7 @@ public abstract class PiecewisePolynomialInterpolator implements Serializable {
         }
       }
     }
-    final double[] coefs = coefMatrix.getRowVector(indicator).getData();
+    final double[] coefs = coefMatrix.getRowVector(indicator, false).getData();
     res = getValue(coefs, xKey, knots[indicator]);
     ArgumentChecker.isFalse(Double.isInfinite(res), "Too large input");
     ArgumentChecker.isFalse(Double.isNaN(res), "Too large input");
@@ -99,13 +99,13 @@ public abstract class PiecewisePolynomialInterpolator implements Serializable {
           }
         }
       }
-      final double[] coefs = coefMatrix.getRowVector(indicator).getData();
+      final double[] coefs = coefMatrix.getRowVector(indicator, false).getData();
       res[j] = getValue(coefs, xKeys[j], knots[indicator]);
       ArgumentChecker.isFalse(Double.isInfinite(res[j]), "Too large input");
       ArgumentChecker.isFalse(Double.isNaN(res[j]), "Too large input");
     }
 
-    return new DoubleMatrix1D(res);
+    return new DoubleMatrix1D(res, false);
   }
 
   /**
@@ -127,7 +127,7 @@ public abstract class PiecewisePolynomialInterpolator implements Serializable {
 
     for (int i = 0; i < keyDim; ++i) {
       for (int j = 0; j < keyLength; ++j) {
-        res[i][j] = interpolate(xValues, yValues, matrix.getRowVector(i).getData()).getData()[j];
+        res[i][j] = interpolate(xValues, yValues, matrix.getRowVector(i, false).getData()).getData()[j];
       }
     }
 
@@ -149,7 +149,7 @@ public abstract class PiecewisePolynomialInterpolator implements Serializable {
     double[] res = new double[dim];
 
     for (int i = 0; i < dim; ++i) {
-      res[i] = interpolate(xValues, matrix.getRowVector(i).getData(), x);
+      res[i] = interpolate(xValues, matrix.getRowVector(i, false).getData(), x);
     }
 
     return new DoubleMatrix1D(res);

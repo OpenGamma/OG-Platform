@@ -129,7 +129,7 @@ public class MonotoneConvexSplineInterpolator extends PiecewisePolynomialInterpo
       }
     }
 
-    final double[] coefs = coefsMatrixIntegrate.getRowVector(indicator).getData();
+    final double[] coefs = coefsMatrixIntegrate.getRowVector(indicator, false).getData();
 
     final double res = getValue(coefs, x, knots[indicator]);
     ArgumentChecker.isFalse(Double.isInfinite(res), "Too large/small data values or xKey");
@@ -162,13 +162,13 @@ public class MonotoneConvexSplineInterpolator extends PiecewisePolynomialInterpo
         }
       }
 
-      final double[] coefs = coefsMatrixIntegrate.getRowVector(indicator).getData();
+      final double[] coefs = coefsMatrixIntegrate.getRowVector(indicator, false).getData();
       res[j] = getValue(coefs, x[j], knots[indicator]);
       ArgumentChecker.isFalse(Double.isInfinite(res[j]), "Too large/small data values or xKey");
       ArgumentChecker.isFalse(Double.isNaN(res[j]), "Too large/small data values or xKey");
     }
 
-    return new DoubleMatrix1D(res);
+    return new DoubleMatrix1D(res, false);
   }
 
   @Override
@@ -197,14 +197,14 @@ public class MonotoneConvexSplineInterpolator extends PiecewisePolynomialInterpo
           }
         }
 
-        final double[] coefs = coefsMatrixIntegrate.getRowVector(indicator).getData();
+        final double[] coefs = coefsMatrixIntegrate.getRowVector(indicator, false).getData();
         res[j][k] = getValue(coefs, xMatrix[j][k], knots[indicator]);
         ArgumentChecker.isFalse(Double.isInfinite(res[j][k]), "Too large input");
         ArgumentChecker.isFalse(Double.isNaN(res[j][k]), "Too large input");
       }
     }
 
-    return new DoubleMatrix2D(res);
+    return DoubleMatrix2D.noCopy(res);
   }
 
   /**
@@ -299,7 +299,7 @@ public class MonotoneConvexSplineInterpolator extends PiecewisePolynomialInterpo
       }
     }
 
-    final double[] coefs = coefsMatrix.getRowVector(indicator).getData();
+    final double[] coefs = coefsMatrix.getRowVector(indicator, false).getData();
 
     final double res = getValue(coefs, x, knots[indicator]);
     ArgumentChecker.isFalse(Double.isInfinite(res), "Too large/small data values or xKey");
@@ -338,11 +338,11 @@ public class MonotoneConvexSplineInterpolator extends PiecewisePolynomialInterpo
         }
       }
 
-      final double[] coefs = coefsMatrix.getRowVector(indicator).getData();
+      final double[] coefs = coefsMatrix.getRowVector(indicator, false).getData();
       res[j] = getValue(coefs, x[j], knots[indicator]);
     }
 
-    return new DoubleMatrix1D(res);
+    return new DoubleMatrix1D(res, false);
   }
 
   /**

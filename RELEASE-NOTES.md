@@ -1,5 +1,11 @@
 # OpenGamma Platform
 
+## v2.22
+
+### Enhancements
+
+* Improve interpolator performance by removing unnecessary array copies
+
 ## v2.21
 
 ### Enhancements
