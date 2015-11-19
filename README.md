@@ -1,24 +1,24 @@
-Welcome to the OpenGamma Platform!
-----------------------------------
-OpenGamma's flagship technology for financial institutions, the OpenGamma
-Platform, is a comprehensive solution for financial analytics capable of
-satisfying the full range of front-office and risk requirements.
-It supports pre-trade ad-hoc calculations, near-real-time streaming analytics,
-batch/overnight risk calculations, and complex historical scenarios and
-stress tests in the same system.
+OpenGamma Platform
+------------------
+This repository contains the source code of the OpenGamma Platform.
 
-Built as a completely open architecture, the OpenGamma Platform is designed so
-that every component can be individually used, or individually replaced, based
-on customer requirements. We don't believe in forklift upgrades, and we built
-the OpenGamma Platform so that they're never necessary: individual projects can
-use OpenGamma components when they provide a clear advantage, and later migrate
-additional portions of their infrastructure if and when time and resources
-permit.
+This is OpenGamma's server-oriented solution for financial analytics,
+developed since 2009, and used in production by institutions all over
+the world to satisfy a wide range of front-office and risk requirements.
 
-Visit the developer website at http://developers.opengamma.com for more
-information, downloads, docs and more.
+Visit the developers website at http://developers.opengamma.com for more
+information.
 
 [![OpenGamma](http://developers.opengamma.com/res/display/default/chrome/masthead_logo.png "OpenGamma")](http://developers.opengamma.com)
+
+
+Platform News
+-------------
+
+OpenGamma is developing our next-generation, open source toolkit for
+market risk - called Strata.
+
+The code is available on GitHub at https://github.com/OpenGamma/Strata. For more information, see the [Strata Documentation](http://opengamma.github.io/StrataDocs).
 
 
 Installing and building OpenGamma
