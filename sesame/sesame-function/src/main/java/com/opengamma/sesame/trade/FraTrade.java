@@ -28,7 +28,7 @@ import com.opengamma.financial.security.fra.FRASecurity;
 /**
  * Trade wrapper for FRA trades.
  */
-@BeanDefinition
+@BeanDefinition(cacheHashCode = true)
 public final class FraTrade extends TradeWrapper<FRASecurity> implements ImmutableBean {
 
   @PropertyDefinition(overrideGet = true)
@@ -66,6 +66,11 @@ public final class FraTrade extends TradeWrapper<FRASecurity> implements Immutab
   static {
     JodaBeanUtils.registerMetaBean(FraTrade.Meta.INSTANCE);
   }
+
+  /**
+   * The cached hash code, using the racy single-check idiom.
+   */
+  private int cachedHashCode;
 
   /**
    * Returns a builder used to create an instance of the bean.
@@ -123,8 +128,12 @@ public final class FraTrade extends TradeWrapper<FRASecurity> implements Immutab
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeBundle());
+    int hash = cachedHashCode;
+    if (hash == 0) {
+      hash = getClass().hashCode();
+      hash = hash * 31 + JodaBeanUtils.hashCode(getTradeBundle());
+      cachedHashCode = hash;
+    }
     return hash;
   }
 
