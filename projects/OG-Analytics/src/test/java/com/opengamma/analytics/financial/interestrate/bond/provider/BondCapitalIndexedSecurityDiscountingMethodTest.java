@@ -76,6 +76,8 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   private static final double SHIFT_FD = 1.0E-9;
   private static final double TOLERANCE_PV_DELTA = 1.0E+2;
   private static final double TOLERANCE_SENSI_DELTA = 1.0E-6;
+  private static final double TOLERANCE_YIELD = 1.0E-8;
+  private static final double TOLERANCE_PRICE = 1.0E-8;
 
   private static final ZonedDateTime PRICING_DATE = DateUtils.getUTCDate(2011, 8, 8);
   private static final BondCapitalIndexedSecurityDiscountingMethod METHOD_BOND_INFLATION = new BondCapitalIndexedSecurityDiscountingMethod();
@@ -244,8 +246,10 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   private static final Period COUPON_PERIOD_TIPS_1 = Period.ofMonths(6);
   private static final int SETTLEMENT_DAYS_TIPS_1 = 1;
 
-  private static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> BOND_SECURITY_TIPS_1_DEFINITION = BondCapitalIndexedSecurityDefinition
-      .fromInterpolation(PRICE_INDEX_USCPI, MONTH_LAG_TIPS_1, START_DATE_TIPS_1, INDEX_START_TIPS_1, MATURITY_DATE_TIPS_1, COUPON_PERIOD_TIPS_1, NOTIONAL_TIPS_1, REAL_RATE_TIPS_1, BUSINESS_DAY_USD,
+  private static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> 
+  BOND_SECURITY_TIPS_1_DEFINITION = BondCapitalIndexedSecurityDefinition
+      .fromInterpolation(PRICE_INDEX_USCPI, MONTH_LAG_TIPS_1, START_DATE_TIPS_1, INDEX_START_TIPS_1, 
+          MATURITY_DATE_TIPS_1, COUPON_PERIOD_TIPS_1, NOTIONAL_TIPS_1, REAL_RATE_TIPS_1, BUSINESS_DAY_USD,
           SETTLEMENT_DAYS_TIPS_1, CALENDAR_USD, DAY_COUNT_TIPS_1, YIELD_CONVENTION_TIPS_1, IS_EOM_TIPS_1, ISSUER_US_GOVT);
   private static final DoubleTimeSeries<ZonedDateTime> US_CPI = MulticurveProviderDiscountDataSets.usCpiFrom2009();
   private static final BondCapitalIndexedSecurity<Coupon> BOND_SECURITY_TIPS_1 = 
@@ -345,12 +349,36 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
       double pvAtFirstCoupon = 0;
 
       for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
-        pvAtFirstCoupon += ((CouponInflationGearing) BOND_SECURITY_TIPS_1.getCoupon().getNthPayment(loopcpn)).getFactor() / BOND_SECURITY_TIPS_1.getCouponPerYear() / Math.pow(factorOnPeriod, loopcpn);
+        pvAtFirstCoupon += ((CouponInflationGearing) BOND_SECURITY_TIPS_1.getCoupon().getNthPayment(loopcpn)).getFactor() 
+            / BOND_SECURITY_TIPS_1.getCouponPerYear() / Math.pow(factorOnPeriod, loopcpn);
       }
       pvAtFirstCoupon += 1.0 / Math.pow(factorOnPeriod, nbCoupon - 1);
-      dirtyRealPriceExpected[loopyield] = pvAtFirstCoupon / (1 + BOND_SECURITY_TIPS_1.getAccrualFactorToNextCoupon() * yield[loopyield] / BOND_SECURITY_TIPS_1.getCouponPerYear());
-      assertEquals("Inflation Capital Indexed bond: yield " + loopyield, dirtyRealPriceExpected[loopyield], dirtyRealPrice[loopyield], 1.0E-8);
+      dirtyRealPriceExpected[loopyield] = pvAtFirstCoupon / 
+          (1 + BOND_SECURITY_TIPS_1.getAccrualFactorToNextCoupon() * yield[loopyield] / BOND_SECURITY_TIPS_1.getCouponPerYear());
+      assertEquals("Inflation Capital Indexed bond: yield " + loopyield, 
+          dirtyRealPriceExpected[loopyield], dirtyRealPrice[loopyield], TOLERANCE_YIELD);
     }
+  }
+
+  @Test
+  public void yieldRealFromCurves() {
+      double yield = METHOD_BOND_INFLATION.yieldRealFromCurves(BOND_SECURITY_TIPS_1, MARKET);
+      double cleanRealPrice = METHOD_BOND_INFLATION.cleanRealPriceFromCurves(BOND_SECURITY_TIPS_1, MARKET);
+      double dirtyRealPrice = METHOD_BOND_INFLATION.dirtyRealPriceFromCurves(BOND_SECURITY_TIPS_1, MARKET);
+      double yield2 = METHOD_BOND_INFLATION.yieldRealFromCleanRealPrice(BOND_SECURITY_TIPS_1, cleanRealPrice);
+      double yield3 = METHOD_BOND_INFLATION.yieldRealFromDirtyRealPrice(BOND_SECURITY_TIPS_1, dirtyRealPrice);
+      assertEquals("Inflation Capital Indexed bond: yield ", yield, yield2, TOLERANCE_YIELD);
+      assertEquals("Inflation Capital Indexed bond: yield ", yield, yield3, TOLERANCE_YIELD);
+  }
+
+  @Test
+  public void yieldRealFromCurvesFirstCouponFixed() {
+    ZonedDateTime valuationDate = DateUtils.getUTCDate(2012, 1, 2);
+    BondCapitalIndexedSecurity<Coupon> security = BOND_SECURITY_TIPS_1_DEFINITION.toDerivative(valuationDate, US_CPI);
+    double yield = METHOD_BOND_INFLATION.yieldRealFromCurves(security, MARKET);
+    double priceRealDirtyExpected = METHOD_BOND_INFLATION.dirtyPriceFromRealYield(security, yield);
+    double priceRealDirty = METHOD_BOND_INFLATION.dirtyRealPriceFromCurves(security, MARKET);
+    assertEquals("Inflation Capital Indexed bond: yield ", priceRealDirtyExpected, priceRealDirty, TOLERANCE_PRICE);
   }
 
   @Test

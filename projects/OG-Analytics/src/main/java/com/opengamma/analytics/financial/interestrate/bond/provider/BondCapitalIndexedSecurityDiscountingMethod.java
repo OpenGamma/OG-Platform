@@ -11,6 +11,7 @@ import static com.opengamma.financial.convention.yield.SimpleYieldConvention.US_
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationGearing;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolationGearing;
@@ -179,15 +180,16 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    * @param curves The issuer and inflation curve provider.
    * @return The clean price.
    */
-  public double cleanRealPriceFromCurves(final BondCapitalIndexedSecurity<?> bond, 
-      final InflationIssuerProviderInterface curves) {
+  public double cleanRealPriceFromCurves(
+      BondCapitalIndexedSecurity<?> bond, 
+      InflationIssuerProviderInterface curves) {
     Validate.notNull(bond, "Coupon");
     Validate.notNull(curves, "Curves");
     Currency ccy = bond.getCurrency();
     double indexRatioAtSettlement = bond.getIndexRatio();
     double notional = bond.getCoupon().getNthPayment(0).getNotional();
-    MultipleCurrencyAmount nominalAccruedInterest = 
-      bond.getSettlement().accept(PVIC, curves.getInflationProvider()).multipliedBy(bond.getAccruedInterest());
+    MultipleCurrencyAmount nominalAccruedInterest =
+        bond.getSettlement().accept(PVIC, curves.getInflationProvider()).multipliedBy(bond.getAccruedInterest() / notional);
     double df = curves.getMulticurveProvider().getDiscountFactor(bond.getCurrency(), bond.getSettlementTime());
     double pv = presentValue(bond, curves).getAmount(bond.getCurrency());
     double pvPriceNominal = pv - nominalAccruedInterest.getAmount(ccy);
@@ -235,16 +237,19 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
   /**
    * Compute the dirty price of a bond security from curves.
    * @param bond The bond security.
-   * @param issuerMulticurves The issuer and multi-curves provider.
+   * @param curves The issuer and multi-curves provider.
    * @return The dirty price.
    */
-  public double dirtyRealPriceFromCurves(final BondCapitalIndexedSecurity<?> bond, final InflationIssuerProviderInterface issuerMulticurves) {
+  public double dirtyRealPriceFromCurves(
+      BondCapitalIndexedSecurity<?> bond, 
+      InflationIssuerProviderInterface curves) {
     ArgumentChecker.notNull(bond, "Bond");
-    ArgumentChecker.notNull(issuerMulticurves, "Issuer and multi-curves provider");
-    final MultipleCurrencyAmount pv = presentValue(bond, issuerMulticurves);
+    ArgumentChecker.notNull(curves, "Issuer and multi-curves provider");
+    final MultipleCurrencyAmount pv = presentValue(bond, curves);
     final double settlement = bond.getIndexRatio();
     final double notional = bond.getCoupon().getNthPayment(0).getNotional();
-    return pv.getAmount(bond.getCurrency()) / settlement / notional;
+    double df = curves.getMulticurveProvider().getDiscountFactor(bond.getCurrency(), bond.getSettlementTime());
+    return pv.getAmount(bond.getCurrency()) / df / settlement / notional;
   }
 
   /**
@@ -286,12 +291,21 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
     if (yieldConvention.equals(US_IL_REAL)) {
       // Coupon period rate to next coupon and simple rate from next coupon to settlement.
       double pvAtFirstCoupon;
+      double cpnRate = 0.0;
+      if (bond.getCoupon().getNthPayment(0) instanceof CouponInflationGearing) {
+        cpnRate = ((CouponInflationGearing) bond.getCoupon().getNthPayment(0)).getFactor();
+      } else if (bond.getCoupon().getNumberOfPayments() > 1
+          && (bond.getCoupon().getNthPayment(1) instanceof CouponInflationGearing)) {
+        cpnRate = ((CouponInflationGearing) bond.getCoupon().getNthPayment(1)).getFactor();
+      } else {
+        throw new OpenGammaRuntimeException("Cannot deal with real yield when all inflation coupons have fixed.");
+      }
       if (Math.abs(yield) > 1.0E-8) {
         final double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
         final double vn = Math.pow(factorOnPeriod, 1 - nbCoupon);
-        pvAtFirstCoupon = ((CouponInflationGearing) bond.getCoupon().getNthPayment(0)).getFactor() / yield * (factorOnPeriod - vn) + vn;
+        pvAtFirstCoupon = cpnRate / yield * (factorOnPeriod - vn) + vn;
       } else {
-        pvAtFirstCoupon = ((CouponInflationGearing) bond.getCoupon().getNthPayment(0)).getFactor() / bond.getCouponPerYear() * nbCoupon + 1;
+        pvAtFirstCoupon = cpnRate / bond.getCouponPerYear() * nbCoupon + 1;
       }
       return pvAtFirstCoupon / (1 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear());
     }
