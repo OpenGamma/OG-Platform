@@ -239,7 +239,7 @@ public class BondCapitalIndexedDiscountingE2ETest {
   
   @Test
   public void yieldRealTips() {
-    double yieldRealExpected = -0.012391583129356336;
+    double yieldRealExpected = -0.01240932682604121;
     double yieldReal = METHOD_CAPIND_BOND_SEC.yieldRealFromCurves(TIPS_16_TRA.getBondStandard(), INFL_ISSUER_GOVT_2);
     assertEquals("BondCapitalIndexedDiscountingE2E: real yield TIPS", yieldRealExpected, yieldReal, TOLERANCE_PRICE);
   }
