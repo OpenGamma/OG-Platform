@@ -101,7 +101,7 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     List<FixedCashFlowDetails> cashFlows = new ArrayList<>();
 
     //First deal with any past cash flows
-    for (int i = 0; i < diff; i ++) {
+    for (int i = 0; i < diff; i++) {
       FixedCashFlowDetails.Builder builder = (FixedCashFlowDetails.Builder) FixedCashFlowDetails.builder()
           .accrualStartDate(startAccrualDates.get(i))
           .accrualEndDate(endAccrualDates.get(i))

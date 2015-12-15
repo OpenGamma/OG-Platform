@@ -214,7 +214,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodGBPTest {
   private static final BondCapitalIndexedSecurity<Coupon> BOND_SECURITY_CORP_1 = BOND_SECURITY_CORP_1_DEFINITION.toDerivative(PRICING_DATE_3, UK_RPI);
 
   private static final double PRICE_CLEAN_CORP = 1.20; // Real price
-  private static final double YIELD_CORP = -0.03891519; // Real Yield 
+  private static final double YIELD_CORP = -0.03891519; // Real Yield External source
 
   @Test
   /**
