@@ -1,5 +1,11 @@
 # OpenGamma Platform
 
+## v2.23
+
+### Bug Fixes
+
+* Correct yield formula for US inflation-linked bonds
+
 ## v2.22
 
 ### Bug Fixes
