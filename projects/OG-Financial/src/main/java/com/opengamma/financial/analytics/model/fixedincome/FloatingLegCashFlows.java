@@ -182,7 +182,7 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     List<FloatingCashFlowDetails> cashFlows = new ArrayList<>();
 
     //First deal with any past cash flows
-    for (int i = 0; i < diff; i ++) {
+    for (int i = 0; i < diff; i++) {
       FloatingCashFlowDetails.Builder builder = (FloatingCashFlowDetails.Builder) FloatingCashFlowDetails.builder()
           .spread(spreads.get(i))
           .gearing(gearings.get(i))

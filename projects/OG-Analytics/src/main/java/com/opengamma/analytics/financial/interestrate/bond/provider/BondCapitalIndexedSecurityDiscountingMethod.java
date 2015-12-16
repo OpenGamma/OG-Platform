@@ -303,9 +303,9 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
       if (Math.abs(yield) > 1.0E-8) {
         final double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
         final double vn = Math.pow(factorOnPeriod, 1 - nbCoupon);
-        pvAtFirstCoupon = cpnRate / yield * (factorOnPeriod - vn) + vn;
+        pvAtFirstCoupon = cpnRate * bond.getCouponPerYear() / yield * (factorOnPeriod - vn) + vn;
       } else {
-        pvAtFirstCoupon = cpnRate / bond.getCouponPerYear() * nbCoupon + 1;
+        pvAtFirstCoupon = cpnRate * nbCoupon + 1; /// bond.getCouponPerYear()
       }
       return pvAtFirstCoupon / (1 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear());
     }
