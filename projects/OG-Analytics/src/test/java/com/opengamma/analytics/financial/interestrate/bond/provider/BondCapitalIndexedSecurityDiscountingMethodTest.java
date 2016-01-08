@@ -402,7 +402,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   }
   
   /**
-   * Tests the clean, dirty and yield vs external hard-coded values.
+   * Tests the clean, dirty and yield vs externally checked hard-coded values.
    */
   @Test(enabled = true)
   public void priceYieldExternalValues1() {
@@ -411,7 +411,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
     final InflationIssuerProviderDiscount market = MulticurveProviderDiscountDataSets.createMarket1(pricingDate20110817);
     final double cleanRealPrice = 1.00;
     final BondCapitalIndexedSecurity<Coupon> bond_110817 = BOND_SECURITY_TIPS_1_DEFINITION.toDerivative(pricingDate20110817, US_CPI);
-    final double referenceIndexExpected = 225.83129; // 18-Aug // 225.83910 17-Aug:
+    final double referenceIndexExpected = 225.83129; // Interpolated 18-Aug
     final MultipleCurrencyAmount netAmountSettle = bond_110817.getSettlement().accept(NADIC, market.getInflationProvider());
     double df = market.getDiscountFactor(bond_110817.getCurrency(), bond_110817.getSettlement().getPaymentTime());
     final double referenceIndexComputed = netAmountSettle.getAmount(bond_110817.getCurrency()) / df

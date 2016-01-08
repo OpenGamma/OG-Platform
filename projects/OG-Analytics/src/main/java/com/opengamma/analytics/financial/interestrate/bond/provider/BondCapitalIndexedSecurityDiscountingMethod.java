@@ -305,7 +305,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
         final double vn = Math.pow(factorOnPeriod, 1 - nbCoupon);
         pvAtFirstCoupon = cpnRate * bond.getCouponPerYear() / yield * (factorOnPeriod - vn) + vn;
       } else {
-        pvAtFirstCoupon = cpnRate * nbCoupon + 1; /// bond.getCouponPerYear()
+        pvAtFirstCoupon = cpnRate * nbCoupon + 1;
       }
       return pvAtFirstCoupon / (1 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear());
     }
@@ -385,7 +385,9 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
     /**
      * Inner function used to find the yield.
      */
+    @SuppressWarnings("serial")
     final Function1D<Double, Double> priceResidual = new Function1D<Double, Double>() {
+
       @Override
       public Double evaluate(final Double y) {
         return dirtyPriceFromRealYield(bond, y) - dirtyPrice;
@@ -424,6 +426,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
     /**
      * Inner function used to find the yield.
      */
+    @SuppressWarnings("serial")
     final Function1D<Double, Double> priceResidual = new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double y) {
@@ -628,6 +631,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
 
     ArgumentChecker.notNull(bond, "Bond");
     ArgumentChecker.notNull(issuerMulticurves, "Issuer and multi-curves provider");
+    @SuppressWarnings("serial")
     final Function1D<Double, Double> residual = new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double z) {
@@ -680,6 +684,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
     ArgumentChecker.notNull(issuerMulticurves, "Issuer and multi-curves provider");
     final Currency ccy = bond.getCurrency();
 
+    @SuppressWarnings("serial")
     final Function1D<Double, Double> residual = new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double z) {
