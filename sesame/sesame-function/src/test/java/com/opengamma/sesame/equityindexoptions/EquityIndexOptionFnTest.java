@@ -35,13 +35,11 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.surface.DoublesSurface;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.analytics.math.surface.NodalDoublesSurface;
@@ -139,7 +137,10 @@ public class EquityIndexOptionFnTest {
 
   private static MarketDataEnvironment ENV = createMarketDataEnvironment();
 
-  private static final EquityIndexOptionTrade EQUITY_INDEX_OPTION_TRADE = createOptionTrade();
+  private static final EquityIndexOptionTrade EQUITY_INDEX_OPTION_TRADE_1 = createOptionTrade(BigDecimal.ONE);
+
+  private static final BigDecimal POSITION_SIZE = BigDecimal.valueOf(5);
+  private static final EquityIndexOptionTrade EQUITY_INDEX_OPTION_TRADE_2 = createOptionTrade(POSITION_SIZE);
 
   private static final MulticurveBundle createBundle() {
     Interpolator1D linearFlat =
@@ -172,12 +173,11 @@ public class EquityIndexOptionFnTest {
     return builder.build();
   }
 
-  private static EquityIndexOptionTrade createOptionTrade() {
+  private static EquityIndexOptionTrade createOptionTrade(BigDecimal quantity) {
     Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
-    BigDecimal tradeQuantity = BigDecimal.valueOf(1);
     LocalDate tradeDate = LocalDate.of(2000, 1, 1);
     OffsetTime tradeTime = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
-    SimpleTrade trade = new SimpleTrade(createEquityIndexOptionSecurity(), tradeQuantity, counterparty, tradeDate, tradeTime);
+    SimpleTrade trade = new SimpleTrade(createEquityIndexOptionSecurity(), quantity, counterparty, tradeDate, tradeTime);
     trade.setPremium(0.0);
     trade.setPremiumCurrency(Currency.JPY);
     return new EquityIndexOptionTrade(trade);
@@ -330,7 +330,7 @@ public class EquityIndexOptionFnTest {
         new Function<Environment, Result<CurrencyAmount>>() {
           @Override
           public Result<CurrencyAmount> apply(Environment env) {
-            return _functionPriceSurface.calculatePv(env, EQUITY_INDEX_OPTION_TRADE);
+            return _functionPriceSurface.calculatePv(env, EQUITY_INDEX_OPTION_TRADE_1);
           }
         });
     assertThat(result.isSuccess(), is(true));
@@ -344,7 +344,7 @@ public class EquityIndexOptionFnTest {
         new Function<Environment, Result<CurrencyAmount>>() {
           @Override
           public Result<CurrencyAmount> apply(Environment env) {
-            return _functionFlatForward.calculatePv(env, EQUITY_INDEX_OPTION_TRADE);
+            return _functionFlatForward.calculatePv(env, EQUITY_INDEX_OPTION_TRADE_1);
           }
         });
     assertThat(result.isSuccess(), is(true));
@@ -357,11 +357,25 @@ public class EquityIndexOptionFnTest {
         new Function<Environment, Result<CurrencyAmount>>() {
           @Override
           public Result<CurrencyAmount> apply(Environment env) {
-            return _functionForward.calculatePv(env, EQUITY_INDEX_OPTION_TRADE);
+            return _functionForward.calculatePv(env, EQUITY_INDEX_OPTION_TRADE_1);
           }
         });
     assertThat(result.isSuccess(), is(true));
     assertThat(result.getValue().getAmount(), is(closeTo(EXPECTED_PV, TOLERANCE_PV)));
+  }
+
+  @Test
+  public void testPresentValuePositionScalingWithForwardCurve() {
+    Result<CurrencyAmount> result = _functionRunner.runFunction(
+        ARGS, ENV,
+        new Function<Environment, Result<CurrencyAmount>>() {
+          @Override
+          public Result<CurrencyAmount> apply(Environment env) {
+            return _functionForward.calculatePv(env, EQUITY_INDEX_OPTION_TRADE_2);
+          }
+        });
+    assertThat(result.isSuccess(), is(true));
+    assertThat(result.getValue().getAmount(), is(closeTo(POSITION_SIZE.doubleValue() * EXPECTED_PV, TOLERANCE_PV)));
   }
 
   @Test
@@ -371,7 +385,7 @@ public class EquityIndexOptionFnTest {
         new Function<Environment, Result<Double>>() {
           @Override
           public Result<Double> apply(Environment env) {
-            return _functionForward.calculateDelta(env, EQUITY_INDEX_OPTION_TRADE);
+            return _functionForward.calculateDelta(env, EQUITY_INDEX_OPTION_TRADE_1);
           }
         });
     assertThat(result.isSuccess(), is(true));
@@ -385,7 +399,7 @@ public class EquityIndexOptionFnTest {
         new Function<Environment, Result<Double>>() {
           @Override
           public Result<Double> apply(Environment env) {
-            return _functionForward.calculateGamma(env, EQUITY_INDEX_OPTION_TRADE);
+            return _functionForward.calculateGamma(env, EQUITY_INDEX_OPTION_TRADE_1);
           }
         });
     assertThat(result.isSuccess(), is(true));
@@ -399,7 +413,7 @@ public class EquityIndexOptionFnTest {
         new Function<Environment, Result<Double>>() {
           @Override
           public Result<Double> apply(Environment env) {
-            return _functionForward.calculateVega(env, EQUITY_INDEX_OPTION_TRADE);
+            return _functionForward.calculateVega(env, EQUITY_INDEX_OPTION_TRADE_1);
           }
         });
     assertThat(result.isSuccess(), is(true));
@@ -413,11 +427,25 @@ public class EquityIndexOptionFnTest {
         new Function<Environment, Result<Double>>() {
           @Override
           public Result<Double> apply(Environment env) {
-            return _functionForward.calculatePv01(env, EQUITY_INDEX_OPTION_TRADE);
+            return _functionForward.calculatePv01(env, EQUITY_INDEX_OPTION_TRADE_1);
           }
         });
     assertThat(result.isSuccess(), is(true));
     assertThat(result.getValue(), is(closeTo(EXPECTED_PV01, TOLERANCE_GREEKS)));
+  }
+
+  @Test
+  public void testPV01PositionScalingWithForwardCurve() {
+    Result<Double> result = _functionRunner.runFunction(
+        ARGS, ENV,
+        new Function<Environment, Result<Double>>() {
+          @Override
+          public Result<Double> apply(Environment env) {
+            return _functionForward.calculatePv01(env, EQUITY_INDEX_OPTION_TRADE_2);
+          }
+        });
+    assertThat(result.isSuccess(), is(true));
+    assertThat(result.getValue(), is(closeTo(POSITION_SIZE.doubleValue() * EXPECTED_PV01, TOLERANCE_GREEKS)));
   }
 
   @Test
@@ -427,7 +455,7 @@ public class EquityIndexOptionFnTest {
         new Function<Environment,Result<BucketedCurveSensitivities>>() {
           @Override
           public Result<BucketedCurveSensitivities> apply(Environment env) {
-            return _functionForward.calculateBucketedPv01(env, EQUITY_INDEX_OPTION_TRADE);
+            return _functionForward.calculateBucketedPv01(env, EQUITY_INDEX_OPTION_TRADE_1);
           }
         });
     assertThat(result.isSuccess(), is(true));
