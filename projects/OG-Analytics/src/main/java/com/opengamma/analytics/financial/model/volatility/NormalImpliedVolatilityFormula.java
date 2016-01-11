@@ -79,6 +79,8 @@ public class NormalImpliedVolatilityFormula {
         final BracketRoot bracketer = new BracketRoot();
         final BisectionSingleRootFinder rootFinder = new BisectionSingleRootFinder(EPS);
         final Function1D<Double, Double> func = new Function1D<Double, Double>() {
+          private static final long serialVersionUID = 1L;
+
           @SuppressWarnings({"synthetic-access" })
           @Override
           public Double evaluate(final Double volatility) {
