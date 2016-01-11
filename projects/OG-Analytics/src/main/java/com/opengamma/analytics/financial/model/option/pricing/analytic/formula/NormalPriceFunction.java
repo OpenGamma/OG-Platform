@@ -27,7 +27,7 @@ public class NormalPriceFunction implements OptionPriceFunction<NormalFunctionDa
     final double strike = option.getStrike();
     final double t = option.getTimeToExpiry();
     return new Function1D<NormalFunctionData, Double>() {
-
+      private static final long serialVersionUID = 1L;
       @SuppressWarnings("synthetic-access")
       @Override
       public final Double evaluate(final NormalFunctionData data) {
