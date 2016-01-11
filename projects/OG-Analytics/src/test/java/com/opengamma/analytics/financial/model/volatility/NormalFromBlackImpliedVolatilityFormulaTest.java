@@ -41,12 +41,12 @@ public class NormalFromBlackImpliedVolatilityFormulaTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void wrong_strike() {
-    NormalFromBlackImpliedVolatilityFormula.impliedVolatilityApproximate(FORWARD, -1.0d, T, 0.20d);
+    NormalImpliedVolatilityFormula.impliedVolatilityFromBlackApproximated(FORWARD, -1.0d, T, 0.20d);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void wrong_forward() {
-    NormalFromBlackImpliedVolatilityFormula.impliedVolatilityApproximate(-1.0d, FORWARD, T, 0.20d);
+    NormalImpliedVolatilityFormula.impliedVolatilityFromBlackApproximated(-1.0d, FORWARD, T, 0.20d);
   }
 
   @Test
@@ -57,8 +57,8 @@ public class NormalFromBlackImpliedVolatilityFormulaTest {
 
   private void priceCheck(double[] strikes) {
     for (int i = 0; i < N; i++) {
-      double ivNormalComputed = NormalFromBlackImpliedVolatilityFormula
-          .impliedVolatilityApproximate(FORWARD, strikes[i], T, SIGMA_BLACK[i]);
+      double ivNormalComputed = NormalImpliedVolatilityFormula
+          .impliedVolatilityFromBlackApproximated(FORWARD, strikes[i], T, SIGMA_BLACK[i]);
       EuropeanVanillaOption o = new EuropeanVanillaOption(strikes[i], T, true);
       NormalFunctionData d = new NormalFunctionData(FORWARD, DF, ivNormalComputed);
       double priceNormalComputed = FUNCTION_PRICE_NORMAL.getPriceFunction(o).evaluate(d);
