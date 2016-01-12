@@ -6,6 +6,7 @@
 package com.opengamma.sesame.equityindexoptions;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.threeten.bp.ZonedDateTime;
 
@@ -37,6 +38,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
 /**
@@ -65,7 +67,8 @@ public class DefaultEquityIndexOptionFn implements EquityIndexOptionFn {
   public Result<CurrencyAmount> calculatePv(Environment env, EquityIndexOptionTrade trade) {
     Result<Double> result = calculateResult(env, trade, PV_CALC);
     if (result.isSuccess()) {
-      CurrencyAmount amount = CurrencyAmount.of(trade.getSecurity().getCurrency(), result.getValue());
+      double scaledValue = trade.getTrade().getQuantity().doubleValue() * result.getValue();
+      CurrencyAmount amount = CurrencyAmount.of(trade.getSecurity().getCurrency(), scaledValue);
       return Result.success(amount);
     } else {
       return Result.failure(result);
@@ -111,7 +114,9 @@ public class DefaultEquityIndexOptionFn implements EquityIndexOptionFn {
     if (Result.allSuccessful(dataResult)) {
       StaticReplicationDataBundle bundle = dataResult.getValue();
       InstrumentDerivative derivative = createInstrumentDerivative(trade, env.getValuationTime());
-      return Result.success(SENSITIVITY_CALC.calcPV01(derivative, bundle));
+      double pv01 = SENSITIVITY_CALC.calcPV01(derivative, bundle);
+      double scaledPv01 = trade.getTrade().getQuantity().doubleValue() * pv01;
+      return Result.success(scaledPv01);
     } else {
       return Result.failure(dataResult);
     }
@@ -141,11 +146,12 @@ public class DefaultEquityIndexOptionFn implements EquityIndexOptionFn {
         map.put(name, deltaBucketed);
         SimpleParameterSensitivity sensitivity = new SimpleParameterSensitivity(map);
         CurveMatrixLabeller labeller = new CurveMatrixLabeller(dayBuilder.build());
-        DoubleLabelledMatrix1D doubleLabelledMatrix1D =
-            labeller.labelMatrix(sensitivity.multipliedBy(BP).getSensitivity(name));
-        ImmutableMap.of(Pairs.of(name, currency), doubleLabelledMatrix1D);
-        return Result.success(BucketedCurveSensitivities.of(ImmutableMap.of(Pairs.of(name, currency),
-                                                                            doubleLabelledMatrix1D)));
+        double scalingFactor = BP * trade.getTrade().getQuantity().doubleValue();
+        DoubleMatrix1D bucketedPv01 = sensitivity.multipliedBy(scalingFactor).getSensitivity(name);
+        DoubleLabelledMatrix1D labelledBucketedPv01 = labeller.labelMatrix(bucketedPv01);
+        Map<Pair<String, Currency>, DoubleLabelledMatrix1D> sensitivitiesByCurve =
+            ImmutableMap.of(Pairs.of(name, currency), labelledBucketedPv01);
+        return Result.success(BucketedCurveSensitivities.of(sensitivitiesByCurve));
       } else {
         return Result.failure(FailureStatus.INVALID_INPUT, "Can only handle YieldCurve instances of YieldAndDiscountCurve");
       }
