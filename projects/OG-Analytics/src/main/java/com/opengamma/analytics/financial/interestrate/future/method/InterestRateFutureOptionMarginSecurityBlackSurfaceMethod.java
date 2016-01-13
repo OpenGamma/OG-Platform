@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.interestrate.future.method;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
-import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureOptionMarginSecurityBlackSmileMethod;
+import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureOptionMarginSecurityBlackRateMethod;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
@@ -22,7 +22,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * Method for the pricing of interest rate future options with margin process. The pricing is done with a Black approach on the future rate (1.0-price).
  * The Black parameters are represented by (expiration-strike-delay) surfaces. The "delay" is the time between option expiration and future last trading date,
  * i.e. 0 for quarterly options and x for x-year mid-curve options. The future prices are computed without convexity adjustments.
- * @deprecated Use {@link InterestRateFutureOptionMarginSecurityBlackSmileMethod}
+ * @deprecated Use {@link InterestRateFutureOptionMarginSecurityBlackRateMethod}
  */
 @Deprecated
 public final class InterestRateFutureOptionMarginSecurityBlackSurfaceMethod extends InterestRateFutureOptionMarginSecurityMethod {

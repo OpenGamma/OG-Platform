@@ -53,7 +53,7 @@ public class CapFloorIborBlackSmileMethodTest {
   private static final Currency EUR = EURIBOR3M.getCurrency();
   private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getEURCalendar();
 
-  private static final InterpolatedDoublesSurface BLACK_SURF = BlackDataSets.createBlackSurfaceExpiryStrike();
+  private static final InterpolatedDoublesSurface BLACK_SURF = BlackDataSets.createBlackSurfaceExpiryStrikeRate();
   private static final BlackSmileCapParameters BLACK_PARAM = new BlackSmileCapParameters(BLACK_SURF, EURIBOR3M);
   private static final BlackSmileCapProviderDiscount BLACK_MULTICURVES = new BlackSmileCapProviderDiscount(MULTICURVES, BLACK_PARAM);
 

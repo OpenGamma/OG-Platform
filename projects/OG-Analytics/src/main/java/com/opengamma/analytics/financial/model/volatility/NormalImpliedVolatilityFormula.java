@@ -100,7 +100,7 @@ public class NormalImpliedVolatilityFormula {
   }
   
   /**
-   * Compute the implied volatility using an approximate explicit transformation formula.
+   * Computes the implied volatility using an approximate explicit transformation formula.
    * <p>
    * The forward and the strike must be positive.
    * <p>

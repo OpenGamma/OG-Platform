@@ -35,10 +35,15 @@ public class BlackDataSets {
       new double[] {2, 2, 2, 10, 10, 10 },
       new double[] {0.35, 0.34, 0.25, 0.30, 0.25, 0.20 },
       INTERPOLATOR_LINEAR_2D);
-  private static final InterpolatedDoublesSurface BLACK_SURFACE_EXP_STR = InterpolatedDoublesSurface.from(
+  private static final InterpolatedDoublesSurface BLACK_SURFACE_EXP_STR_RATE = InterpolatedDoublesSurface.from(
       new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0, 0.5, 1.0, 5.0 },
       new double[] {0.01, 0.01, 0.01, 0.02, 0.02, 0.02, 0.03, 0.03, 0.03 },
       new double[] {0.35, 0.34, 0.25, 0.30, 0.25, 0.20, 0.28, 0.23, 0.18 },
+      INTERPOLATOR_LINEAR_2D);
+  private static final InterpolatedDoublesSurface BLACK_SURFACE_EXP_STR_PRICE = InterpolatedDoublesSurface.from(
+      new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0, 0.5, 1.0, 5.0 },
+      new double[] {0.99, 0.99, 0.99, 0.98, 0.98, 0.98, 0.98, 0.98, 0.98 },
+      new double[] {0.010, 0.011, 0.012, 0.011, 0.012, 0.013, 0.012, 0.013, 0.014 },
       INTERPOLATOR_LINEAR_2D);
   private static final BlackFlatSwaptionParameters BLACK_SWAPTION_EUR6 = new BlackFlatSwaptionParameters(BLACK_SURFACE_EXP_TEN, EUR1YEURIBOR6M);
   private static final BlackFlatSwaptionParameters BLACK_SWAPTION_EUR3 = new BlackFlatSwaptionParameters(BLACK_SURFACE_EXP_TEN, EUR1YEURIBOR3M);
@@ -47,8 +52,21 @@ public class BlackDataSets {
     return BLACK_SURFACE_EXP_TEN;
   }
 
-  public static InterpolatedDoublesSurface createBlackSurfaceExpiryStrike() {
-    return BLACK_SURFACE_EXP_STR;
+  public static InterpolatedDoublesSurface createBlackSurfaceExpiryStrikeRate() {
+    return BLACK_SURFACE_EXP_STR_RATE;
+  }
+
+  public static InterpolatedDoublesSurface createBlackSurfaceExpiryStrikePrice() {
+    return BLACK_SURFACE_EXP_STR_PRICE;
+  }
+
+  public static InterpolatedDoublesSurface createBlackSurfaceExpiryStrikePrice(double shift) {
+    double[] z = BLACK_SURFACE_EXP_STR_PRICE.getZDataAsPrimitive().clone();
+    for(int i=0; i<z.length; i++){
+      z[i] += shift;
+    }
+    return InterpolatedDoublesSurface.from(BLACK_SURFACE_EXP_STR_PRICE.getXDataAsPrimitive(), 
+        BLACK_SURFACE_EXP_STR_PRICE.getYDataAsPrimitive(), z, BLACK_SURFACE_EXP_STR_PRICE.getInterpolator());
   }
 
   public static InterpolatedDoublesSurface createBlackSurfaceExpiryTenorShift(final double shift) {

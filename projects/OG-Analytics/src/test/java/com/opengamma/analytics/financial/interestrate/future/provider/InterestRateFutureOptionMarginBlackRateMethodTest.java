@@ -41,7 +41,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * Test.
  */
 @Test(groups = TestGroup.UNIT)
-public class InterestRateFutureOptionMarginBlackSmileMethodTest {
+public class InterestRateFutureOptionMarginBlackRateMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final IborIndex[] IBOR_INDEXES = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd();
@@ -66,8 +66,9 @@ public class InterestRateFutureOptionMarginBlackSmileMethodTest {
   private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2011, 9, 16);
   private static final boolean IS_CALL = true;
 
-  private static final InterestRateFutureOptionMarginSecurityDefinition OPTION_ERU2_DEFINITION = new InterestRateFutureOptionMarginSecurityDefinition(ERU2_DEFINITION, EXPIRATION_DATE, STRIKE, IS_CALL);
-  private static final InterestRateFutureOptionMarginSecurity OPTION_ERU2 = OPTION_ERU2_DEFINITION.toDerivative(REFERENCE_DATE);
+  public static final InterestRateFutureOptionMarginSecurityDefinition OPTION_ERU2_DEFINITION = 
+      new InterestRateFutureOptionMarginSecurityDefinition(ERU2_DEFINITION, EXPIRATION_DATE, STRIKE, IS_CALL);
+  public static final InterestRateFutureOptionMarginSecurity OPTION_ERU2 = OPTION_ERU2_DEFINITION.toDerivative(REFERENCE_DATE);
 
   // Transaction
   private static final int QUANTITY = -123;
@@ -83,7 +84,7 @@ public class InterestRateFutureOptionMarginBlackSmileMethodTest {
   private static final InterestRateFutureOptionMarginTransaction TRANSACTION_2 = TRANSACTION_2_DEFINITION.toDerivative(REFERENCE_DATE, MARGIN_PRICE);
 
   private static final InterestRateFutureSecurityDiscountingMethod METHOD_FUTURES = InterestRateFutureSecurityDiscountingMethod.getInstance();
-  private static final InterestRateFutureOptionMarginSecurityBlackSmileMethod METHOD_SECURITY_OPTION_BLACK = InterestRateFutureOptionMarginSecurityBlackSmileMethod.getInstance();
+  private static final InterestRateFutureOptionMarginSecurityBlackRateMethod METHOD_SECURITY_OPTION_BLACK = InterestRateFutureOptionMarginSecurityBlackRateMethod.getInstance();
   private static final InterestRateFutureOptionMarginTransactionBlackSmileMethod METHOD_TRANSACTION_OPTION_BLACK = InterestRateFutureOptionMarginTransactionBlackSmileMethod.getInstance();
 
   private static final PresentValueBlackSTIRFutureOptionCalculator PVBFC = PresentValueBlackSTIRFutureOptionCalculator.getInstance();
