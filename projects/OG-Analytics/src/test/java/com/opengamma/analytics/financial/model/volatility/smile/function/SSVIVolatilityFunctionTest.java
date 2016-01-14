@@ -36,12 +36,12 @@ public class SSVIVolatilityFunctionTest {
   }
 
   private static final double TOLERANCE_VOL = 1.0E-10;
-  private static final double TOLERANCE_AD = 1.0E-7;
+  private static final double TOLERANCE_AD = 1.0E-6;
 
   @Test
   public void volatility() { // Function versus local implementation of formula
     double theta = VOL_ATM * VOL_ATM * TIME_EXP;
-    double phi = ETA * Math.sqrt(theta);
+    double phi = ETA / Math.sqrt(theta);
     for (int i = 0; i < N; i++) {
       double k = Math.log(STRIKES[i] / FORWARD);
       double w = 0.5 * theta * (1.0d + RHO * phi * k + Math.sqrt(Math.pow(phi * k + RHO, 2) + (1.0d - RHO * RHO)));

@@ -29,7 +29,7 @@ public final class ValueDerivatives {
    */
   public ValueDerivatives(double value, double[] derivatives) {
     this._value = value;
-    this._derivatives = derivatives;
+    this._derivatives = derivatives.clone();
   }
 
   /**
@@ -52,11 +52,22 @@ public final class ValueDerivatives {
   }
 
   /**
-   * Returns the derivatives vector.
+   * Returns a copy of the derivatives vector. 
+   * <p>
+   * As a copy of the derivative vector is created, this method should be used only when a copy is really required.
    * @return the derivatives
    */
   public double[] getDerivatives() {
-    return _derivatives;
+    return _derivatives.clone();
+  }
+
+  /**
+   * Returns the derivatives at the given index.
+   * @param i  the index 
+   * @return the derivatives
+   */
+  public double getDerivatives(int i) {
+    return _derivatives[i];
   }
 
   @Override

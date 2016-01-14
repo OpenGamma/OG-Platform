@@ -72,7 +72,7 @@ public final class InterestRateFutureOptionMarginSecurityBlackSsviPriceMethod
     double volatilityBar = priceAdjoint[2] * priceBar;
     double[] derivatives = new double[3];
     for (int i = 0; i < 3; i++) {
-      derivatives[i] = volatilityAd.getDerivatives()[i + 3] * volatilityBar;
+      derivatives[i] = volatilityAd.getDerivatives(i + 3) * volatilityBar;
     }
     return ValueDerivatives.of(priceAdjoint[0], derivatives);
   }

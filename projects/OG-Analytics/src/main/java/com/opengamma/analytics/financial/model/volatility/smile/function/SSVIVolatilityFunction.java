@@ -34,7 +34,7 @@ public class SSVIVolatilityFunction {
     ArgumentChecker.isTrue(forward > 0, "strike must be strctly positive");
     ArgumentChecker.isTrue(timeToExpiry > 0, "time to expiration must be strctly positive");
     double theta = volatilityAtm * volatilityAtm * timeToExpiry;
-    double phi = eta * Math.sqrt(theta);
+    double phi = eta / Math.sqrt(theta);
     double k = Math.log(strike / forward);
     double w = 0.5 * theta * (1.0d + rho * phi * k + Math.sqrt(1.0d + 2 * rho * phi * k + phi * k * phi * k)); 
     return Math.sqrt(w / timeToExpiry);
@@ -60,13 +60,13 @@ public class SSVIVolatilityFunction {
     ArgumentChecker.isTrue(timeToExpiry > 0, "time to expiration must be strctly positive");
     double theta = volatilityAtm * volatilityAtm * timeToExpiry;
     double stheta = Math.sqrt(theta);
-    double phi = eta * stheta;
+    double phi = eta / stheta;
     double k = Math.log(strike / forward);
     double s = Math.sqrt(1.0d + 2 * rho * phi * k + phi * k * phi * k);
     double w = 0.5 * theta * (1.0d + rho * phi * k + s);
     double volatility = Math.sqrt(w / timeToExpiry);
     // Backward sweep.
-    double[] derivatives = new double[7]; // 6 inputs + phi
+    double[] derivatives = new double[6]; // 6 inputs
     double volatilityBar = 1.0; // OK
     double wBar = 0.5 * volatility / w * volatilityBar; // OK
     derivatives[2] += -0.5 * volatility / timeToExpiry * volatilityBar;
@@ -80,8 +80,8 @@ public class SSVIVolatilityFunction {
     kBar += (rho * phi + phi * phi * k) / s * sBar;
     derivatives[1] += 1.0d / strike * kBar; // OK
     derivatives[0] += -1.0d / forward * kBar; // OK
-    derivatives[5] += stheta * phiBar;
-    double sthetaBar = eta * phiBar;
+    derivatives[5] += phiBar / stheta;
+    double sthetaBar = -eta / (stheta * stheta) * phiBar;
     thetaBar += 0.5 / stheta * sthetaBar;
     derivatives[3] += 2 * volatilityAtm * timeToExpiry * thetaBar;
     derivatives[2] += volatilityAtm * volatilityAtm * thetaBar;

@@ -64,8 +64,8 @@ public class BlackStirFuturesSsviPriceProvider implements BlackSTIRFuturesProvid
    * @param delay The delay between expiration of the option and last trading date of the underlying futures.
    * @param strikePrice The strike price (not the strike rate).
    * @param futuresPrice The price of the underlying futures.
-   * @return  The volatility and its derivatives with respect to the inputs. The order of the derivatives are:
-   * [0] price, [1] strike, [2] expiry, [3] ATM vol, [4] rho, [5] eta.
+   * @return  The volatility and its derivatives with respect to the inputs. In the {@link ValueDerivatives} object,
+   * the order of the derivatives are: [0] price, [1] strike, [2] expiry, [3] ATM vol, [4] rho, [5] eta.
    */
   public ValueDerivatives volatilityAdjoint(
       double expiry, double delay, double strikePrice, double futuresPrice) {

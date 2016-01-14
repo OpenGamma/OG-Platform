@@ -120,7 +120,7 @@ public class InterestRateFutureOptionMarginSecurityBlackSsviPriceMethodTest {
         .volatilityAdjoint(FUTURES_PRICE, STRIKE_PRICE, TIME_EXP, VOLATILITY_ATM.getYValue(TIME_EXP), RHO, ETA);
     for (int i = 0; i < 3; i++) {
       assertEquals("SSVI formula: price SSVI parameters sensitivity",
-          ssviPriceSensitivity.getDerivatives()[i], ssviVolSensitivity.getDerivatives()[i + 3] * vega,
+          ssviPriceSensitivity.getDerivatives(i), ssviVolSensitivity.getDerivatives(i+3) * vega,
           TOLERANCE_PRICE_DELTA);
     }
   }
@@ -147,9 +147,9 @@ public class InterestRateFutureOptionMarginSecurityBlackSsviPriceMethodTest {
     DoubleMatrix1D fd = d.evaluate(new DoubleMatrix1D(0.0, 0.0, 0.0));
     for (int j = 0; j < 3; j++) {
       assertEquals("SSVI formula: price SSVI parameters sensitivity",
-          fd.getEntry(j), ssviPriceSensitivity.getDerivatives()[j], TOLERANCE_PRICE_DELTA);
+          fd.getEntry(j), ssviPriceSensitivity.getDerivatives(j), TOLERANCE_PRICE_DELTA);
       assertEquals("SSVI formula: price SSVI parameters sensitivity",
-          (fd.getEntry(j) - ssviPriceSensitivity.getDerivatives()[j]) / ssviPriceSensitivity.getDerivatives()[j], 0.0,
+          (fd.getEntry(j) - ssviPriceSensitivity.getDerivatives(j)) / ssviPriceSensitivity.getDerivatives()[j], 0.0,
           TOLERANCE_PRICE_DELTA_RELATIVE);
     }
   }
