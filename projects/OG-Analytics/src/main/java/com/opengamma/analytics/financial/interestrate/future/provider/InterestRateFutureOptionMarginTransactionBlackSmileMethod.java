@@ -27,7 +27,7 @@ public final class InterestRateFutureOptionMarginTransactionBlackSmileMethod ext
    * Constructor.
    */
   private InterestRateFutureOptionMarginTransactionBlackSmileMethod() {
-    super(InterestRateFutureOptionMarginSecurityBlackSmileMethod.getInstance());
+    super(InterestRateFutureOptionMarginSecurityBlackRateMethod.getInstance());
   }
 
   /**
@@ -43,8 +43,8 @@ public final class InterestRateFutureOptionMarginTransactionBlackSmileMethod ext
    * @return The method.
    */
   @Override
-  public InterestRateFutureOptionMarginSecurityBlackSmileMethod getSecurityMethod() {
-    return (InterestRateFutureOptionMarginSecurityBlackSmileMethod) super.getSecurityMethod();
+  public InterestRateFutureOptionMarginSecurityBlackRateMethod getSecurityMethod() {
+    return (InterestRateFutureOptionMarginSecurityBlackRateMethod) super.getSecurityMethod();
   }
 
   /**

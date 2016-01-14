@@ -18,30 +18,33 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Method for the pricing of interest rate future options with margin process. The pricing is done with a Black approach on the future rate (1.0-price).
- * The Black parameters are represented by (expiration-strike-delay) surfaces. The "delay" is the time between option expiration and future last trading date,
- * i.e. 0 for quarterly options and x for x-year mid-curve options. The future prices are computed without convexity adjustments.
+ * Method for the pricing of interest rate future options with margin process. 
+ * The pricing is done with a Black approach on the future rate (1.0-price).
+ * The Black parameters are represented by (expiration-strike-delay) surfaces. 
+ * The "delay" is the time between option expiration and future last trading date,
+ * i.e. 0 for quarterly options and x for x-year mid-curve options. 
+ * The future prices are computed without convexity adjustments.
  */
-public final class InterestRateFutureOptionMarginSecurityBlackSmileMethod extends 
+public class InterestRateFutureOptionMarginSecurityBlackRateMethod extends 
     InterestRateFutureOptionMarginSecurityGenericMethod<BlackSTIRFuturesProviderInterface> {
 
   /**
    * Creates the method unique instance.
    */
-  private static final InterestRateFutureOptionMarginSecurityBlackSmileMethod INSTANCE = 
-      new InterestRateFutureOptionMarginSecurityBlackSmileMethod();
+  private static final InterestRateFutureOptionMarginSecurityBlackRateMethod INSTANCE = 
+      new InterestRateFutureOptionMarginSecurityBlackRateMethod();
 
   /**
    * Constructor.
    */
-  private InterestRateFutureOptionMarginSecurityBlackSmileMethod() {
+  public InterestRateFutureOptionMarginSecurityBlackRateMethod() {
   }
 
   /**
    * Return the method unique instance.
    * @return The instance.
    */
-  public static InterestRateFutureOptionMarginSecurityBlackSmileMethod getInstance() {
+  public static InterestRateFutureOptionMarginSecurityBlackRateMethod getInstance() {
     return INSTANCE;
   }
 
