@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.marketdata;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -29,7 +30,7 @@ import com.opengamma.util.money.Currency;
  * Identifies the market data for an FX rate.
  */
 @BeanDefinition(builderScope = "private")
-public final class FxRateId implements MarketDataId<Double>, ImmutableBean {
+public final class FxRateId implements MarketDataId<Double>, ImmutableBean, Serializable {
 
   /** The currency pair whose rate this identifies. */
   @PropertyDefinition(validate = "notNull")

@@ -5,6 +5,7 @@
  */
 package com.opengamma.util.paging;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +39,7 @@ import com.opengamma.util.PublicAPI;
  */
 @PublicAPI
 @BeanDefinition(builderScope = "private")
-public final class PagingRequest implements ImmutableBean {
+public final class PagingRequest implements ImmutableBean, Serializable {
 
   /**
    * A default size for paging.

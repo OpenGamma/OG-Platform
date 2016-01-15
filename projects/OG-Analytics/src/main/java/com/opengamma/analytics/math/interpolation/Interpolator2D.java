@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.math.interpolation;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
@@ -13,7 +14,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * A base class for two-dimensional interpolation.
  */
-public abstract class Interpolator2D implements Interpolator<Map<Double, Interpolator1DDataBundle>, DoublesPair> {
+public abstract class Interpolator2D implements Interpolator<Map<Double, Interpolator1DDataBundle>, DoublesPair>, Serializable {
 
   /**
    * @param dataBundle

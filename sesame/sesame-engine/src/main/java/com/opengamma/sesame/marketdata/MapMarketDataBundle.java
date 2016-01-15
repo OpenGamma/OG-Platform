@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.marketdata;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -34,7 +35,7 @@ import com.opengamma.util.time.LocalDateRange;
  * Simple market data bundle containing market data items in a map.
  */
 @BeanDefinition(builderScope = "private")
-public final class MapMarketDataBundle implements MarketDataBundle, ImmutableBean {
+public final class MapMarketDataBundle implements MarketDataBundle, ImmutableBean, Serializable {
 
   /** The time for which this market data is valid. */
   @PropertyDefinition(validate = "notNull", get = "private")

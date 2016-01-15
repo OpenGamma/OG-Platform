@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
+import java.io.Serializable;
 import java.text.DecimalFormat;
 
 import org.apache.commons.lang.Validate;
@@ -20,7 +21,7 @@ import com.opengamma.id.ExternalScheme;
 /**
  *
  */
-public class BloombergBondFuturePriceCurveInstrumentProvider implements FuturePriceCurveInstrumentProvider<Number> {
+public class BloombergBondFuturePriceCurveInstrumentProvider implements FuturePriceCurveInstrumentProvider<Number>, Serializable {
 
   private static final DecimalFormat FORMATTER = new DecimalFormat("##.###");
   static {

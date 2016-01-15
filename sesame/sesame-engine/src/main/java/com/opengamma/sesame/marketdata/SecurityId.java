@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.marketdata;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -36,7 +37,7 @@ import com.opengamma.util.ArgumentChecker;
  * @param <S> the type of the security
  */
 @BeanDefinition(builderScope = "private")
-public final class SecurityId<T, S extends Security> implements MarketDataId<T>, ImmutableBean {
+public final class SecurityId<T, S extends Security> implements MarketDataId<T>, ImmutableBean, Serializable{
 
   /** ID of the security. */
   @PropertyDefinition(validate = "notNull")

@@ -5,6 +5,7 @@
  */
 package com.opengamma.core.change;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -25,7 +26,7 @@ import com.opengamma.util.PublicSPI;
  * This class is mutable and thread-safe using concurrent collections.
  */
 @PublicSPI
-public class BasicChangeManager implements ChangeManager {
+public class BasicChangeManager implements ChangeManager, Serializable {
 
   private static final Logger s_logger = LoggerFactory.getLogger(BasicChangeManager.class);
   

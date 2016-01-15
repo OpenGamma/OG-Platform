@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.marketdata;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -30,7 +31,7 @@ import com.opengamma.util.ArgumentChecker;
  * The name of a field in a piece of market data.
  */
 @BeanDefinition(builderScope = "private")
-public final class FieldName implements Comparable<FieldName>, ImmutableBean {
+public final class FieldName implements Comparable<FieldName>, ImmutableBean, Serializable {
 
   /** The field name. */
   @PropertyDefinition(validate = "notNull")

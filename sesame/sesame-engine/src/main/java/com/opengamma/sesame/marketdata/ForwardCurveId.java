@@ -5,28 +5,30 @@
  */
 package com.opengamma.sesame.marketdata;
 
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.ImmutableBean;
-import org.joda.beans.PropertyDefinition;
-
-import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+
 import org.joda.beans.Bean;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+
 /**
  * Identifies a forward curve by name.
  */
 @BeanDefinition
-public class ForwardCurveId implements MarketDataId<ForwardCurve>, ImmutableBean {
+public class ForwardCurveId implements MarketDataId<ForwardCurve>, ImmutableBean, Serializable {
 
   /** The name of the forward curve. */
   @PropertyDefinition(validate = "notEmpty")

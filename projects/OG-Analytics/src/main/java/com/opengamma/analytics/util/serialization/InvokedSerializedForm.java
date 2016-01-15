@@ -134,6 +134,10 @@ public final class InvokedSerializedForm implements Serializable {
     return null;
   }
 
+  public Object readResolve() {
+    return readReplace();
+  }
+
   public Object readReplace() {
     Class<?> clazz = (getOuterInstance() != null) ? getOuterInstance().getClass() : getOuterClass();
     do {

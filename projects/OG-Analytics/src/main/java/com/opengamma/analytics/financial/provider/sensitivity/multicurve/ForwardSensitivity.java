@@ -5,12 +5,14 @@
  */
 package com.opengamma.analytics.financial.provider.sensitivity.multicurve;
 
+import java.io.Serializable;
+
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Object representing the sensitivity to a forward curve at a reference point (start time, end time, accrual factor).
  */
-public abstract class ForwardSensitivity {
+public abstract class ForwardSensitivity implements Serializable {
   private final double _startTime;
   private final double _endTime;
   private final double _accrualFactor;

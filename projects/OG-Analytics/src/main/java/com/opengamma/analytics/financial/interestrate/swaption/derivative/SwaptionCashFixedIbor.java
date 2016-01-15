@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.interestrate.swaption.derivative;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -19,7 +21,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Class describing a European swaption on a vanilla swap with cash delivery.
  */
-public final class SwaptionCashFixedIbor extends EuropeanVanillaOption implements InstrumentDerivative {
+public final class SwaptionCashFixedIbor extends EuropeanVanillaOption implements InstrumentDerivative, Serializable {
 
   /**
    * Swap underlying the swaption. The swap should be of vanilla type.

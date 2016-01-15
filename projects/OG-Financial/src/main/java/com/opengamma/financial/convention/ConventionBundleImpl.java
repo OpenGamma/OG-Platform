@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.convention;
 
+import java.io.Serializable;
+
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
@@ -23,7 +25,7 @@ import com.opengamma.util.time.Tenor;
  * An implementation of ConventionBundle for use by the InMemoryConventionBundleMaster.  Note it is NOT immutable, because the master needs to be able to assign
  * UniqueIds to it retrospectively, and to be able to update the bundle.
  */
-public class ConventionBundleImpl implements ConventionBundle {
+public class ConventionBundleImpl implements ConventionBundle, Serializable {
 
   private UniqueId _uniqueId;
   private ExternalIdBundle _bundle;

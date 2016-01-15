@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.marketdata;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.Set;
 
@@ -15,7 +16,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Market data ID identifying an FX matrix for a particular set of currencies.
  */
-public final class FxMatrixId implements MarketDataId<FXMatrix> {
+public final class FxMatrixId implements MarketDataId<FXMatrix>, Serializable {
 
   private final Set<Currency> _currencies;
 

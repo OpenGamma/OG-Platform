@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.math.surface;
 
+import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -18,7 +19,7 @@ import com.opengamma.util.tuple.Pair;
  * @param <U> The type of the y data
  * @param <V> The type of the z data
  */
-public abstract class Surface<T, U, V> {
+public abstract class Surface<T, U, V> implements Serializable {
   private static final AtomicLong ATOMIC = new AtomicLong();
   private final String _name;
 

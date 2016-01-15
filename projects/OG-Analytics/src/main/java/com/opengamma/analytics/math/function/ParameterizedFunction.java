@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.math.function;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.NelsonSiegelSvennsonBondCurveModel;
@@ -45,7 +47,7 @@ import com.opengamma.analytics.util.serialization.InvokedSerializedForm;
  * @param <T> Type of parameters
  * @param <U> Type of result
  */
-public abstract class ParameterizedFunction<S, T, U> {
+public abstract class ParameterizedFunction<S, T, U> implements Serializable {
 
   /**
    * @param x The value at which the function is to be evaluated

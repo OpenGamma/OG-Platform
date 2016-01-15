@@ -6,6 +6,7 @@
 package com.opengamma.sesame;
 
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -31,7 +32,7 @@ import com.opengamma.util.ArgumentChecker;
  * Simple wrapper class holding the results of a issuer provider calibration.
  */
 @BeanDefinition
-public final class IssuerProviderBundle implements ImmutableBean {
+public final class IssuerProviderBundle implements ImmutableBean, Serializable {
 
   /**
    * The calibrated issuer provider bundle.

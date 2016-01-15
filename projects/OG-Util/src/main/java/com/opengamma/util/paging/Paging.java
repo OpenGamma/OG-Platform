@@ -5,6 +5,7 @@
  */
 package com.opengamma.util.paging;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -35,7 +36,7 @@ import com.opengamma.util.ArgumentChecker;
  * This class is immutable and thread-safe.
  */
 @BeanDefinition(builderScope = "private")
-public final class Paging implements ImmutableBean {
+public final class Paging implements ImmutableBean, Serializable {
 
   /**
    * The request.

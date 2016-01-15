@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import org.apache.commons.lang.Validate;
@@ -23,7 +24,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *  Provider of commodity Future Instrument ID's.
  */
-public class BloombergCommodityFuturePriceCurveInstrumentProvider implements FuturePriceCurveInstrumentProvider<Number> {
+public class BloombergCommodityFuturePriceCurveInstrumentProvider implements FuturePriceCurveInstrumentProvider<Number>, Serializable {
 
   /**
    * Gets the expiryRules.

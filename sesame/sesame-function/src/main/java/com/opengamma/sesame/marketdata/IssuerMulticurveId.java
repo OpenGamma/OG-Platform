@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.marketdata;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -31,7 +32,7 @@ import com.opengamma.util.ArgumentChecker;
  * Identifier of a bundle of curves.
  */
 @BeanDefinition(builderScope = "private")
-public final class IssuerMulticurveId implements MarketDataId<IssuerProviderBundle>, ImmutableBean {
+public final class IssuerMulticurveId implements MarketDataId<IssuerProviderBundle>, ImmutableBean, Serializable {
 
   /** The name of the bundle. */
   @PropertyDefinition(validate = "notEmpty")

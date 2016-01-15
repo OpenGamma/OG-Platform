@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.math.interpolation.data;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
@@ -12,7 +13,7 @@ import org.apache.commons.lang.Validate;
 /**
  * 
  */
-public class Interpolator2DDataBundle {
+public class Interpolator2DDataBundle implements Serializable{
   private final double[] _xData;
   private final double[] _yData;
   private final double[] _zData;

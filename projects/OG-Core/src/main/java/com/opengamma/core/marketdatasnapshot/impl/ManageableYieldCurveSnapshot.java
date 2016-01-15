@@ -5,6 +5,7 @@
  */
 package com.opengamma.core.marketdatasnapshot.impl;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -33,7 +34,7 @@ import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
  * Mutable snapshot of yield curve data.
  */
 @BeanDefinition
-public final class ManageableYieldCurveSnapshot implements ImmutableBean, YieldCurveSnapshot {
+public final class ManageableYieldCurveSnapshot implements ImmutableBean, YieldCurveSnapshot, Serializable {
 
   /**
    * The valuation instant.

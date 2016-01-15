@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.equity;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -16,7 +18,7 @@ import com.opengamma.util.money.Currency;
 /**
  *
  */
-public class Equity implements InstrumentDerivative {
+public class Equity implements InstrumentDerivative , Serializable{
   /** The entity */
   private final LegalEntity _entity;
   /** The currency */

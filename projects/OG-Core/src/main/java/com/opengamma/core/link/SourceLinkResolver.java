@@ -5,6 +5,8 @@
  */
 package com.opengamma.core.link;
 
+import java.io.Serializable;
+
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.Source;
 import com.opengamma.id.VersionCorrection;
@@ -21,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
  * @param <T> the type of object provided by the resolver
  * @param <S> the source used to resolve the link
  */
-/* package */ abstract class SourceLinkResolver<I, T, S extends Source<?>> implements LinkResolver<I, T> {
+/* package */ abstract class SourceLinkResolver<I, T, S extends Source<?>> implements LinkResolver<I, T> , Serializable {
 
   /**
    * The specific service context to be used to look up service providers.

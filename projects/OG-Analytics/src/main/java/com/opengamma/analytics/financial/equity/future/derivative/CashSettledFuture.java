@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.equity.future.derivative;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
@@ -16,7 +18,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public abstract class CashSettledFuture implements InstrumentDerivative {
+public abstract class CashSettledFuture implements InstrumentDerivative, Serializable {
   private final double _timeToExpiry;
   private final double _timeToSettlement;
   private final double _referencePrice;

@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.forwardcurve;
 
+import java.io.Serializable;
+
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.analytics.ircurve.IndexType;
@@ -14,7 +16,7 @@ import com.opengamma.util.time.Tenor;
 /**
  *
  */
-public abstract class ForwardSwapCurveInstrumentProvider implements ForwardCurveInstrumentProvider {
+public abstract class ForwardSwapCurveInstrumentProvider implements ForwardCurveInstrumentProvider, Serializable {
 
   public abstract ExternalId getInstrument(LocalDate curveDate, Tenor tenor, Tenor forwardTenor);
 

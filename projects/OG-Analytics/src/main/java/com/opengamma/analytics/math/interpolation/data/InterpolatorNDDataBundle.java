@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.math.interpolation.data;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -16,7 +17,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class InterpolatorNDDataBundle {
+public class InterpolatorNDDataBundle implements Serializable {
   private final List<Pair<double[], Double>> _data;
 
   public InterpolatorNDDataBundle(final List<Pair<double[], Double>> data) {

@@ -5,13 +5,13 @@
  */
 package com.opengamma.sesame.marketdata;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -31,7 +31,7 @@ import com.google.common.collect.ImmutableMap;
  * The data is stored in the map in the order the scenarios were added
  */
 @BeanDefinition
-public class MapScenarioMarketDataEnvironment implements ScenarioMarketDataEnvironment, ImmutableBean {
+public class MapScenarioMarketDataEnvironment implements ScenarioMarketDataEnvironment, ImmutableBean, Serializable {
 
   /** The market data for each scenario, keyed by scenario ID */
   @PropertyDefinition(validate = "notNull")

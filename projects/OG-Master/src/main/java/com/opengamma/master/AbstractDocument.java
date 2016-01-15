@@ -5,6 +5,7 @@
  */
 package com.opengamma.master;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import org.joda.beans.Bean;
@@ -36,7 +37,7 @@ import com.opengamma.util.PublicSPI;
 @PublicSPI
 @BeanDefinition
 public abstract class AbstractDocument extends DirectBean
-    implements UniqueIdentifiable, MutableUniqueIdentifiable, ObjectIdentifiable {
+    implements UniqueIdentifiable, MutableUniqueIdentifiable, ObjectIdentifiable, Serializable {
 
   /**
    * The start of an interval that the version of the document is accurate for.

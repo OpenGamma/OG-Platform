@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.model.volatility.surface;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -25,7 +26,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * 
  */
-public class VolatilitySurface implements VolatilityModel<DoublesPair> {
+public class VolatilitySurface implements VolatilityModel<DoublesPair>, Serializable {
   private final Surface<Double, Double, Double> _surface;
   /** x-axis */
   public static final Axis EXPIRY_AXIS = Axis.X; // TODO Review

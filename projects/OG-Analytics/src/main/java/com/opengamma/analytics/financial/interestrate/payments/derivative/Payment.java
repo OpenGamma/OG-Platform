@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -15,7 +17,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Class describing a generic payment.
  */
-public abstract class Payment implements InstrumentDerivative {
+public abstract class Payment implements InstrumentDerivative, Serializable {
 
   /**
    * The index currency.

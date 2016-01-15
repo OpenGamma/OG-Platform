@@ -5,6 +5,7 @@
  */
 package com.opengamma.core.link;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -30,7 +31,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  * @param <T> the type of the object being linked to
  */
 @BeanDefinition
-public final class LinkIdentifier<I, T> implements ImmutableBean {
+public final class LinkIdentifier<I, T> implements ImmutableBean, Serializable {
 
   /**
    * The identifier for the linked object, not null.

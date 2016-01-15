@@ -5,10 +5,12 @@
  */
 package com.opengamma.analytics.financial.curve.interestrate.generator;
 
+import java.io.Serializable;
+
 /**
  * common interface for describing and generating inflation and yield curves in curve construction process.
  */
-public abstract class GeneratorCurve {
+public abstract class GeneratorCurve implements Serializable {
 
   /**
    * Returns the number of parameters expected to generate the curve.

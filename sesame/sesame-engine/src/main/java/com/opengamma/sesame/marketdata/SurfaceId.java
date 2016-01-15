@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.marketdata;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -21,15 +22,13 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.surface.DoublesSurface;
-import com.opengamma.analytics.math.surface.Surface;
 
 /**
  * Identifies a surface by name.
  */
 @BeanDefinition
-public final class SurfaceId implements MarketDataId<DoublesSurface>, ImmutableBean {
+public final class SurfaceId implements MarketDataId<DoublesSurface>, ImmutableBean, Serializable {
 
   /** The name of the surface. */
   @PropertyDefinition(validate = "notEmpty")

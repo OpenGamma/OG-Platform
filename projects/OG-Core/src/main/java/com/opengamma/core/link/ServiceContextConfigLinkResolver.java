@@ -5,6 +5,7 @@
  */
 package com.opengamma.core.link;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -25,7 +26,7 @@ import com.opengamma.service.VersionCorrectionProvider;
  *
  * @param <T> the type of config object to be resolved
  */
-/* package */ final class ServiceContextConfigLinkResolver<T> extends SourceLinkResolver<String, T, ConfigSource> {
+/* package */ final class ServiceContextConfigLinkResolver<T> extends SourceLinkResolver<String, T, ConfigSource> implements Serializable {
 
   /**
    * Logger for the class.

@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.forwardcurve;
 
+import java.io.Serializable;
+
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -20,7 +22,7 @@ import com.opengamma.util.time.Tenor;
 /**
  *
  */
-public class BloombergFXForwardCurveInstrumentProvider implements ForwardCurveInstrumentProvider {
+public class BloombergFXForwardCurveInstrumentProvider implements ForwardCurveInstrumentProvider, Serializable {
   private static final String DATA_FIELD = MarketDataRequirementNames.MARKET_VALUE;
   private static final DataFieldType FIELD_TYPE = DataFieldType.OUTRIGHT;
   private static final ExternalScheme SCHEME = ExternalSchemes.BLOOMBERG_TICKER;

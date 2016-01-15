@@ -5,6 +5,7 @@
  */
 package com.opengamma.core.marketdatasnapshot.impl;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import org.joda.beans.Bean;
@@ -43,7 +44,7 @@ import com.opengamma.util.PublicSPI;
  */
 @BeanDefinition
 @PublicSPI
-public class ManageableMarketDataSnapshot extends DirectBean implements StructuredMarketDataSnapshot {
+public class ManageableMarketDataSnapshot extends DirectBean implements StructuredMarketDataSnapshot, Serializable {
 
   /**
    * The unique identifier of the snapshot. This must be null when adding to a master and not null when retrieved from a master.

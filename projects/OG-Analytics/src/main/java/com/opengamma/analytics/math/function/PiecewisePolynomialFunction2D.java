@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.math.function;
 
+import java.io.Serializable;
+
 import com.opengamma.analytics.math.interpolation.PiecewisePolynomialResult2D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
@@ -13,7 +15,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class PiecewisePolynomialFunction2D {
+public class PiecewisePolynomialFunction2D implements Serializable{
 
   /**
    * Default constructor

@@ -19,7 +19,8 @@ import com.opengamma.util.money.Currency;
 /**
  * Class describing a Forward Rate Agreement (FRA).
  */
-public class ForwardRateAgreement extends CouponFloating {
+public class
+ForwardRateAgreement extends CouponFloating {
 
   /**
    * Ibor-like index on which the FRA fixes. The index currency should be the same as the instrument currency.

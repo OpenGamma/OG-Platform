@@ -5,6 +5,7 @@
  */
 package com.opengamma.core.marketdatasnapshot.impl;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -36,7 +37,7 @@ import com.opengamma.util.tuple.Triple;
  * 
  */
 @BeanDefinition
-public class ManageableVolatilityCubeSnapshot implements Bean, VolatilityCubeSnapshot {
+public class ManageableVolatilityCubeSnapshot implements Bean, VolatilityCubeSnapshot, Serializable {
 
   /**
    * The values in the snapshot.
