@@ -19,12 +19,12 @@ import com.opengamma.util.ArgumentChecker;
  * Method for the pricing of bond future options with margin process. The pricing is done with a Black approach.
  * The future prices are computed without convexity adjustments.
  */
-public final class BondFutureOptionMarginSecurityBlackSmileMethod extends
+public class BondFutureOptionMarginSecurityBlackPriceMethod extends
     BondFutureOptionMarginSecurityGenericMethod<BlackBondFuturesProviderInterface> {
 
   /** The method default instance. */
-  private static final BondFutureOptionMarginSecurityBlackSmileMethod DEFAULT =
-      new BondFutureOptionMarginSecurityBlackSmileMethod();
+  private static final BondFutureOptionMarginSecurityBlackPriceMethod DEFAULT =
+      new BondFutureOptionMarginSecurityBlackPriceMethod();
 
   /** The Black function used in the pricing. */
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
@@ -35,7 +35,7 @@ public final class BondFutureOptionMarginSecurityBlackSmileMethod extends
   /**
    * Default constructor.
    */
-  private BondFutureOptionMarginSecurityBlackSmileMethod() {
+  public BondFutureOptionMarginSecurityBlackPriceMethod() {
     _methodFutures = BondFuturesSecurityDiscountingMethod.getInstance();
   }
   
@@ -44,16 +44,24 @@ public final class BondFutureOptionMarginSecurityBlackSmileMethod extends
    * sensitivity of the underlying futures.
    * @param methodFutures The bond futures method.
    */
-  public BondFutureOptionMarginSecurityBlackSmileMethod(FuturesSecurityIssuerMethod methodFutures) {
+  public BondFutureOptionMarginSecurityBlackPriceMethod(FuturesSecurityIssuerMethod methodFutures) {
     _methodFutures = methodFutures;
   }
 
   /**
-   * Return the method unique instance.
+   * Return the method default instance.
    * @return The instance.
    */
-  public static BondFutureOptionMarginSecurityBlackSmileMethod getInstance() {
+  public static BondFutureOptionMarginSecurityBlackPriceMethod getInstance() {
     return DEFAULT;
+  }
+  
+  /**
+   * Returns the pricing method for the underlying futures.
+   * @return  the method
+   */
+  public FuturesSecurityIssuerMethod getMethodFutures() {
+    return _methodFutures;
   }
 
   /**
