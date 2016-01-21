@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
@@ -138,8 +139,15 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
       throw new OpenGammaRuntimeException("Unable to get spreads");
     }
     final double[] spreads = ArrayUtils.toPrimitive(spreadObject.getYData());
+    boolean useBucketStart = security.getAttributes().containsKey("bucketStartDate");
     //final String pillarString = IMMDateGenerator.isIMMDate(security.getMaturityDate()) ? requirement.getConstraint(ISDAFunctionConstants.ISDA_BUCKET_TENORS) : ISDACompliantCreditCurveFunction.NON_IMM_PILLAR_TENORS;
-    final ZonedDateTime[] bucketDates = SpreadCurveFunctions.getPillarDates(now, spreadObject.getXData());
+    final ZonedDateTime[] bucketDates;
+    if (useBucketStart) {
+      ZonedDateTime bucketStart = LocalDate.parse(security.getAttributes().get("bucketStartDate")).atStartOfDay(now.getZone());
+      bucketDates = SpreadCurveFunctions.getPillarDatesFromBucketStart(bucketStart, spreadObject.getXData()); 
+    } else {
+      bucketDates = SpreadCurveFunctions.getPillarDates(now, spreadObject.getXData());
+    }
     final CDSQuoteConvention[] quotes = SpreadCurveFunctions.getQuotes(security.getMaturityDate(), spreads, security.getParSpread(), quoteConvention, false);
 
     // spreads
@@ -158,7 +166,14 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
       bucketCDSs[i] = security.accept(visitor);
     }
 
-    final ZonedDateTime[] pillarDates = SpreadCurveFunctions.getPillarDates(now, pillarObject.getXData());
+    final ZonedDateTime[] pillarDates;
+    if (useBucketStart) {
+      ZonedDateTime bucketStart = LocalDate.parse(security.getAttributes().get("bucketStartDate")).atStartOfDay(now.getZone());
+      pillarDates = SpreadCurveFunctions.getPillarDatesFromBucketStart(bucketStart, pillarObject.getXData());
+    } else {
+      pillarDates = SpreadCurveFunctions.getPillarDates(now, pillarObject.getXData());
+    }
+        
     final CDSAnalytic[] pillarCDSs = new CDSAnalytic[pillarDates.length];
     for (int i = 0; i < pillarCDSs.length; i++) {
       //security.setMaturityDate(bucketDates[i]);

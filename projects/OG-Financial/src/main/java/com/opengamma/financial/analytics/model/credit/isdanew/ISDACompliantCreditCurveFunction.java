@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.threeten.bp.Clock;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
@@ -219,13 +220,20 @@ public class ISDACompliantCreditCurveFunction extends AbstractFunction.NonCompil
                                                       pricingCDS,
                                                       security.getParSpread());
 
+    final boolean useBucketStart = security.getAttributes().containsKey("bucketStartDate");
     ISDACompliantCreditCurve creditCurve;
     NodalTenorDoubleCurve modifiedSpreadCurve;
     NodalTenorDoubleCurve modifiedPillarCurve;
 
     if (IMMDateGenerator.isIMMDate(security.getMaturityDate())) {
       final String pillarString = requirement.getConstraint(ISDAFunctionConstants.ISDA_BUCKET_TENORS);
-      final ZonedDateTime[] bucketDates = SpreadCurveFunctions.getPillarDates(now, pillarString);
+      final ZonedDateTime[] bucketDates; 
+      if (useBucketStart) {
+        ZonedDateTime bucketStart = LocalDate.parse(security.getAttributes().get("bucketStartDate")).atStartOfDay(now.getZone());
+        bucketDates = SpreadCurveFunctions.getPillarDatesFromBucketStart(bucketStart, pillarString);
+      } else {
+        bucketDates = SpreadCurveFunctions.getPillarDates(now, pillarString);
+      }
       final ZonedDateTime[] pillarDates = bucketDates;
       double[] spreads = SpreadCurveFunctions.getSpreadCurveNew(spreadCurve,
                                                                 bucketDates,
@@ -253,8 +261,20 @@ public class ISDACompliantCreditCurveFunction extends AbstractFunction.NonCompil
       // non IMM date - pillars set to fixed set
       final String pillarString = NON_IMM_PILLAR_TENORS;
       final String bucketString = requirement.getConstraint(ISDAFunctionConstants.ISDA_BUCKET_TENORS);
-      final ZonedDateTime[] bucketDates = SpreadCurveFunctions.getPillarDatesNoAdjustment(now, bucketString);
-      final ZonedDateTime[] pillarDates = SpreadCurveFunctions.getPillarDatesNoAdjustment(now, pillarString);
+      final ZonedDateTime[] bucketDates; 
+      if (useBucketStart) {
+        ZonedDateTime bucketStart = LocalDate.parse(security.getAttributes().get("bucketStartDate")).atStartOfDay(now.getZone());
+        bucketDates = SpreadCurveFunctions.getPillarDatesFromBucketStart(bucketStart, bucketString);
+      } else {
+        bucketDates = SpreadCurveFunctions.getPillarDatesNoAdjustment(now, bucketString);
+      }
+      final ZonedDateTime[] pillarDates;
+      if (useBucketStart) {
+        ZonedDateTime bucketStart = LocalDate.parse(security.getAttributes().get("bucketStartDate")).atStartOfDay(now.getZone());
+        pillarDates = SpreadCurveFunctions.getPillarDatesFromBucketStart(bucketStart, pillarString);
+      } else {
+        pillarDates = SpreadCurveFunctions.getPillarDatesNoAdjustment(now, pillarString);
+      } 
       double[] bucketSpreads = SpreadCurveFunctions.getSpreadCurveNew(spreadCurve,
                                                                       bucketDates,
                                                                       security.getStartDate(),

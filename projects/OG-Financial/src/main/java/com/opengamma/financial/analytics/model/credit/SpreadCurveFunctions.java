@@ -77,6 +77,23 @@ public class SpreadCurveFunctions {
     return dates.toArray(new ZonedDateTime[dates.size()]);
   }
 
+  public static final ZonedDateTime[] getPillarDatesFromBucketStart(final ZonedDateTime bucketStart, final String inputs) {
+    if (inputs == null || inputs.isEmpty()) {
+      return getDefaultBucketsFromBucketStart(bucketStart);
+    }
+    final List<ZonedDateTime> dates = new ArrayList<>();
+    for (final String tenorOrDate : inputs.split(",")) {
+      if (tenorOrDate.startsWith("P")) { // tenor
+        final Tenor tenor = Tenor.of(Period.parse(tenorOrDate));
+        dates.add(bucketStart.plus(tenor.getPeriod()));
+      } else { // date
+        final LocalDate date = LocalDate.parse(tenorOrDate);
+        dates.add(date.atStartOfDay(bucketStart.getZone()));
+      }
+    }
+    return dates.toArray(new ZonedDateTime[dates.size()]);
+  }
+
   public static final ZonedDateTime[] getPillarDatesNoAdjustment(final ZonedDateTime now, final String inputs) {
     if (inputs == null || inputs.isEmpty()) {
       return getDefaultBuckets(now);
@@ -102,6 +119,14 @@ public class SpreadCurveFunctions {
     return dates;
   }
 
+  public static final ZonedDateTime[] getPillarDatesFromBucketStart(final ZonedDateTime bucketStart, final Tenor[] tenors) {
+    final ZonedDateTime[] dates = new ZonedDateTime[tenors.length];
+    for (int i = 0; i < tenors.length; i++) {
+      dates[i] = bucketStart.plus(tenors[i].getPeriod());
+    }
+    return dates;
+  }
+
   public static final ZonedDateTime[] getPillarDatesNoAdjustment(final ZonedDateTime now, final Tenor[] tenors) {
     final ZonedDateTime[] dates = new ZonedDateTime[tenors.length];
     for (int i = 0; i < tenors.length; i++) {
@@ -115,6 +140,15 @@ public class SpreadCurveFunctions {
     int i = 0;
     for (final Tenor tenor : BUCKET_TENORS) {
       dates[i++] = IMMDateGenerator.getNextIMMDate(now, tenor);
+    }
+    return dates;
+  }
+
+  public static final ZonedDateTime[] getDefaultBucketsFromBucketStart(final ZonedDateTime bucketStart) {
+    final ZonedDateTime[] dates = new ZonedDateTime[BUCKET_TENORS.size()];
+    int i = 0;
+    for (final Tenor tenor : BUCKET_TENORS) {
+      dates[i++] = bucketStart.plus(tenor.getPeriod());
     }
     return dates;
   }
