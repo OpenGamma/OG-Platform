@@ -18,7 +18,7 @@ import com.opengamma.util.money.Currency;
 /**
  *
  */
-public class Equity implements InstrumentDerivative , Serializable{
+public class Equity implements InstrumentDerivative, Serializable{
   /** The entity */
   private final LegalEntity _entity;
   /** The currency */
