@@ -49,7 +49,7 @@ import com.opengamma.util.OpenGammaClock;
   private final MarketDataProvider _underlying;
   private final RandomizingMarketDataSpecification _marketDataSpec;
   // TODO does this need to be a class map? will it ever have to deal with subtyping?
-  private final Map<Class<?>, Randomizer<?>> _randomizers = ImmutableMap.of(
+  private final Map<Class<?>, Randomizer<?>> _randomizers = ImmutableMap.<Class<?>, Randomizer<?>>of(
       Double.class, new DoubleRandomizer(),
       SnapshotDataBundle.class, new SnapshotDataBundleRandomizer());
 
