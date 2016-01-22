@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.interestrate.swap.derivative;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -16,7 +17,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Class describing a generic swap with multiple legs.
  */
-public class SwapMultileg implements InstrumentDerivative {
+public class SwapMultileg implements InstrumentDerivative, Serializable {
 
   /**
    * The swap first leg.

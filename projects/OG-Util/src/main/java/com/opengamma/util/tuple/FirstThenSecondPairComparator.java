@@ -5,6 +5,7 @@
  */
 package com.opengamma.util.tuple;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 /**
@@ -22,7 +23,7 @@ import java.util.Comparator;
  * @param <A> the first element type
  * @param <B> the second element type
  */
-public final class FirstThenSecondPairComparator<A extends Comparable<A>, B extends Comparable<B>> implements Comparator<Pair<A, B>> {
+public final class FirstThenSecondPairComparator<A extends Comparable<A>, B extends Comparable<B>> implements Comparator<Pair<A, B>>, Serializable {
 
   /**
    * Singleton instance that relies on both elements in the pair being {@link Comparable}.

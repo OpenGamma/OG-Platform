@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
@@ -24,7 +26,7 @@ import com.opengamma.util.time.Tenor;
 /**
  * Provides market data ids for synthetic futures.
  */
-public class SyntheticFutureCurveInstrumentProvider implements CurveInstrumentProvider {
+public class SyntheticFutureCurveInstrumentProvider implements CurveInstrumentProvider, Serializable {
   /** The ticker scheme */
   private static final ExternalScheme SCHEME = ExternalSchemes.OG_SYNTHETIC_TICKER;
   /** The month codes */

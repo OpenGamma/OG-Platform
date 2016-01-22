@@ -5,6 +5,8 @@
  */
 package com.opengamma.core.link;
 
+import java.io.Serializable;
+
 import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.id.ExternalIdBundle;
@@ -18,7 +20,7 @@ import com.opengamma.service.VersionCorrectionProvider;
  * @param <C> the type of convention object to be resolved
  */
 /* package */ final class ServiceContextConventionLinkResolver<C extends Convention>
-    extends SourceLinkResolver<ExternalIdBundle, C, ConventionSource> {
+    extends SourceLinkResolver<ExternalIdBundle, C, ConventionSource> implements Serializable {
 
   /**
    * Creates the resolver using the default service context.

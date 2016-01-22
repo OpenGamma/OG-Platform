@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.marketdata;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -27,7 +28,7 @@ import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurf
  * Identifies a volatility surface by name.
  */
 @BeanDefinition
-public final class VolatilitySurfaceId implements MarketDataId<VolatilitySurface>, ImmutableBean {
+public final class VolatilitySurfaceId implements MarketDataId<VolatilitySurface>, ImmutableBean, Serializable {
 
   /** The name of the volatility surface. */
   @PropertyDefinition(validate = "notEmpty")

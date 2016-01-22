@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.curve;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ import com.opengamma.util.time.Tenor;
  * maps are then used to generate market data requests in curve construction.
  */
 @Config(description = "Curve node ID mapper", group = ConfigGroups.CURVES)
-public class CurveNodeIdMapper {
+public class CurveNodeIdMapper implements Serializable {
   /** The name of this configuration */
   private final String _name;
   /** Curve instrument providers for bill nodes */

@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.marketdata;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -34,7 +35,7 @@ import com.opengamma.id.ExternalIdBundle;
  * @param <T> the type of the market data
  */
 @BeanDefinition(builderScope = "private")
-public final class RawId<T> implements MarketDataId, ImmutableBean {
+public final class RawId<T> implements MarketDataId, ImmutableBean, Serializable {
 
   /** The ID of the market data. */
   @PropertyDefinition(validate = "notNull")

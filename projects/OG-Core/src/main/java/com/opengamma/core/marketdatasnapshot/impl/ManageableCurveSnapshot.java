@@ -5,6 +5,8 @@
  */
 package com.opengamma.core.marketdatasnapshot.impl;
 
+import java.io.Serializable;
+
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
@@ -17,7 +19,7 @@ import com.opengamma.core.marketdatasnapshot.CurveSnapshot;
 /**
  * Mutable snapshot of curve data.
  */
-public class ManageableCurveSnapshot implements CurveSnapshot {
+public class ManageableCurveSnapshot implements CurveSnapshot, Serializable {
 
   /**
    * The valuation instant.

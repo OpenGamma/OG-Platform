@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.sensitivity.multicurve;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +19,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Class describing a present value curve sensitivity for multi-curves framework.
  */
-public class MulticurveSensitivity {
+public class MulticurveSensitivity implements Serializable {
 
   /**
    * The map containing the sensitivity to the yield (continuously compounded) (for discounting and issuer specific curves).

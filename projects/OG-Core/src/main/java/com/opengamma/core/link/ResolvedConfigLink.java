@@ -5,6 +5,7 @@
  */
 package com.opengamma.core.link;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -33,7 +34,7 @@ import com.opengamma.util.ArgumentChecker;
 @BeanDefinition
 public final class ResolvedConfigLink<C>
     extends ConfigLink<C>
-    implements ImmutableBean {
+    implements ImmutableBean, Serializable {
 
   /**
    * The config instance.

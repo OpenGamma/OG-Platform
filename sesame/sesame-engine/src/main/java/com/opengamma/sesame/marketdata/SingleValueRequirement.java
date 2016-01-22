@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.marketdata;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -31,7 +32,7 @@ import com.opengamma.util.ArgumentChecker;
  * Contains information about a single piece of market data that is required for a calculation.
  */
 @BeanDefinition
-public final class SingleValueRequirement extends MarketDataRequirement implements ImmutableBean {
+public final class SingleValueRequirement extends MarketDataRequirement implements ImmutableBean, Serializable {
 
   /** The ID of the data */
   @PropertyDefinition(validate = "notNull")

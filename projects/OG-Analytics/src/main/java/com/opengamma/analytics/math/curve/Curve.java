@@ -5,24 +5,25 @@
  */
 package com.opengamma.analytics.math.curve;
 
+import java.io.Serializable;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.joda.beans.Bean;
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-
-import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.util.ArgumentChecker;
-import java.util.Map;
-import java.util.Set;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Defines a general curve <i>(x, y)</i> class. The <i>x</i> and <i>y</i> data can be any type.
@@ -33,7 +34,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  */
 @BeanDefinition
 public abstract class Curve<T extends Comparable<T>, U>
-    implements Bean {
+    implements Bean, Serializable {
 
   /**
    * Atomic used to generate a name.

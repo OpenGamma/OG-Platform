@@ -5,6 +5,7 @@
  */
 package com.opengamma.core.marketdatasnapshot;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +19,7 @@ import com.opengamma.id.ExternalIdBundle;
  * <p>
  * This class is mutable and not thread-safe.
  */
-public final class SnapshotDataBundle {
+public final class SnapshotDataBundle implements Serializable {
 
   /**
    * The market values in the bundle.

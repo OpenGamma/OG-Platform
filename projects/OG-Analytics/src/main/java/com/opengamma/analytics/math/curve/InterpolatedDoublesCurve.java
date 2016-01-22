@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.math.curve;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +19,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
@@ -25,14 +27,13 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
 
 /**
  * A curve that is defined by a set of nodal points (i.e. <i>x-y</i> data) and an interpolator
  * to return values of <i>y</i> for values of <i>x</i> that do not lie on nodal <i>x</i> values. 
  */
 @BeanDefinition
-public class InterpolatedDoublesCurve extends ArraysDoublesCurve {
+public class InterpolatedDoublesCurve extends ArraysDoublesCurve implements Serializable {
 
   /**
    * The data bundle.

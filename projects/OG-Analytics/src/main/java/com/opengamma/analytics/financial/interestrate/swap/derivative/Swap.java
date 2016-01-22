@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.interestrate.swap.derivative;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -18,7 +20,7 @@ import com.opengamma.util.ArgumentChecker;
  * @param <P1> The type of the payments in the payLeg
  * @param <P2> The type of the payments in the receiveLeg
  */
-public class Swap<P1 extends Payment, P2 extends Payment> implements InstrumentDerivative {
+public class Swap<P1 extends Payment, P2 extends Payment> implements InstrumentDerivative, Serializable {
 
   /**
    * The swap first leg.

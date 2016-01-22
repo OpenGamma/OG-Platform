@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.math.function;
 
+import java.io.Serializable;
+
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -12,7 +14,7 @@ import com.opengamma.util.ArgumentChecker;
  * @param <S> Type of the arguments
  * @param <T> Return type of the function
  */
-public abstract class FunctionND<S, T> implements Function<S, T> {
+public abstract class FunctionND<S, T> implements Function<S, T>, Serializable {
 
   /**
    * Implementation of the interface.

@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.math.curve;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * Note that if the constructor is told that unsorted data are sorted then no sorting will take place, which will give unpredictable results.
  */
 @BeanDefinition
-public abstract class ArraysDoublesCurve extends DoublesCurve {
+public abstract class ArraysDoublesCurve extends DoublesCurve implements Serializable {
 
   /**
    * The size of the data points.

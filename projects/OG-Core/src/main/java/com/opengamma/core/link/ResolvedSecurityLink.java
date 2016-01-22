@@ -5,6 +5,7 @@
  */
 package com.opengamma.core.link;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -35,7 +36,7 @@ import com.opengamma.util.ArgumentChecker;
 @BeanDefinition
 public final class ResolvedSecurityLink<S extends Security>
     extends SecurityLink<S>
-    implements ImmutableBean {
+    implements ImmutableBean, Serializable {
 
   /**
    * The security instance.

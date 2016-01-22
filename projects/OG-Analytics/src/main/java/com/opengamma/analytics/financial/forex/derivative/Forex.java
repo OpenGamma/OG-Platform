@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.forex.derivative;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
@@ -17,7 +19,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Class describing a foreign exchange transaction (spot or forward).
  */
-public class Forex implements InstrumentDerivative {
+public class Forex implements InstrumentDerivative, Serializable {
 
   /**
    * The payment in the first currency.

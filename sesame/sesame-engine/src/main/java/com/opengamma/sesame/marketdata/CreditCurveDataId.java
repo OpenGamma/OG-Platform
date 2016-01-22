@@ -5,6 +5,7 @@
 */
 package com.opengamma.sesame.marketdata;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -23,13 +24,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.financial.analytics.isda.credit.CreditCurveData;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
-import com.opengamma.financial.analytics.isda.credit.CreditCurveDataSnapshot;
 
 /**
 * Identifies a CreditCurveData by snapshot name and key.
 */
 @BeanDefinition
-public class CreditCurveDataId implements MarketDataId<CreditCurveData>, ImmutableBean {
+public class CreditCurveDataId implements MarketDataId<CreditCurveData>, ImmutableBean, Serializable {
 
   /** The name of the credit curve snapshot. */
   @PropertyDefinition(validate = "notEmpty")

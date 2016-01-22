@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.model.interestrate.curve;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
@@ -18,7 +20,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class ForwardCurve {
+public class ForwardCurve implements Serializable {
   private static final RungeKuttaIntegrator1D INTEGRATOR = new RungeKuttaIntegrator1D();
   private final Curve<Double, Double> _fwdCurve;
   private final Curve<Double, Double> _drift;

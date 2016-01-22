@@ -5,30 +5,31 @@
  */
 package com.opengamma.core.marketdatasnapshot.impl;
 
+import java.io.Serializable;
 import java.util.Map;
+import java.util.Set;
 
 import org.joda.beans.Bean;
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-
-import com.opengamma.core.marketdatasnapshot.SurfaceSnapshot;
-import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
-import com.opengamma.util.tuple.Pair;
-import java.util.Set;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.core.marketdatasnapshot.SurfaceSnapshot;
+import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
+import com.opengamma.util.tuple.Pair;
+
 /**
  * Mutable snapshot of curve data.
  */
 @BeanDefinition
-public class ManageableSurfaceSnapshot implements Bean, SurfaceSnapshot {
+public class ManageableSurfaceSnapshot implements Bean, SurfaceSnapshot, Serializable {
 
   /**
    * The values.

@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.math.integration;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +19,7 @@ import com.opengamma.analytics.math.function.Function1D;
  * @param <T> Type of the function output and result
  * @param <U> Type of the function inputs and integration bounds
  */
-public abstract class Integrator1D<T, U> implements Integrator<T, U, Function1D<U, T>> {
+public abstract class Integrator1D<T, U> implements Integrator<T, U, Function1D<U, T>>, Serializable {
   private static final Logger s_logger = LoggerFactory.getLogger(Integrator1D.class);
 
   /**

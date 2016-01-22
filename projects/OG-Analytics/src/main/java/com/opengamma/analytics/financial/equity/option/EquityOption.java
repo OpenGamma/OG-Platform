@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.equity.option;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.ExerciseDecisionType;
@@ -17,7 +19,7 @@ import com.opengamma.util.money.Currency;
 /**
  * OG-Analytics derivative of the exchange traded Equity Index Option
  */
-public class EquityOption implements InstrumentDerivative {
+public class EquityOption implements InstrumentDerivative, Serializable {
   /** The time to expiry in years*/
   private final double _timeToExpiry;
   /** The time to settlement in years */

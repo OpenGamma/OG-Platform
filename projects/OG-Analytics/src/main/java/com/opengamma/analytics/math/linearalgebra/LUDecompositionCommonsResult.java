@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.math.linearalgebra;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.Validate;
 import org.apache.commons.math.linear.DecompositionSolver;
 import org.apache.commons.math.linear.LUDecomposition;
@@ -16,7 +18,7 @@ import com.opengamma.analytics.math.util.wrapper.CommonsMathWrapper;
 /**
  * Wrapper for results of the Commons implementation of LU decomposition ({@link LUDecompositionCommons})
  */
-public class LUDecompositionCommonsResult implements LUDecompositionResult {
+public class LUDecompositionCommonsResult implements LUDecompositionResult, Serializable {
   private final double _determinant;
   private final DoubleMatrix2D _l;
   private final DoubleMatrix2D _p;

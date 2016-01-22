@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.math.cube;
 
+import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -19,7 +20,7 @@ import com.opengamma.util.tuple.Triple;
  * @param <U> The type of the z data
  * @param <V> The type of the values
  */
-public abstract class Cube<S, T, U, V> {
+public abstract class Cube<S, T, U, V> implements Serializable {
   private static final AtomicLong ATOMIC = new AtomicLong();
   private final String _name;
 

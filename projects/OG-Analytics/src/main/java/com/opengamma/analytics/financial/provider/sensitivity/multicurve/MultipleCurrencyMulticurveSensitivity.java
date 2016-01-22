@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.sensitivity.multicurve;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -20,7 +21,7 @@ import com.opengamma.util.money.Currency;
  * Class describing a the sensitivity of some value (present value, par rate, etc) to a family of yield curves.
  * The currency in which the sensitivity is expressed is indicated through a map.
  */
-public class MultipleCurrencyMulticurveSensitivity {
+public class MultipleCurrencyMulticurveSensitivity implements Serializable {
 
   /**
    * The backing map for the sensitivities in the different currencies. Not null.

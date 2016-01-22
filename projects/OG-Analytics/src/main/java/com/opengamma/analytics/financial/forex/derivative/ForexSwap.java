@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.forex.derivative;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
@@ -15,7 +17,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Class describing a Forex swap transaction (with a near and far leg).
  */
-public class ForexSwap implements InstrumentDerivative {
+public class ForexSwap implements InstrumentDerivative, Serializable {
 
   /**
    * The near leg.

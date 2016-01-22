@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.marketdata;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -35,7 +36,7 @@ import com.opengamma.util.ArgumentChecker;
  * Simple market data environment containing market data items in maps.
  */
 @BeanDefinition(builderScope = "private")
-public final class MapMarketDataEnvironment implements MarketDataEnvironment, ImmutableBean {
+public final class MapMarketDataEnvironment implements MarketDataEnvironment, ImmutableBean, Serializable {
 
   /** Single items of market data, keyed by their ID. */
   @PropertyDefinition(validate = "notNull")

@@ -5,6 +5,7 @@
  */
 package com.opengamma.master;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import org.joda.beans.Bean;
@@ -36,7 +37,7 @@ import com.opengamma.util.paging.PagingRequest;
  */
 @PublicSPI
 @BeanDefinition
-public abstract class AbstractSearchRequest extends DirectBean implements PagedRequest {
+public abstract class AbstractSearchRequest extends DirectBean implements PagedRequest, Serializable {
 
   /**
    * The scheme of the unique identifier of the underlying master to search. Wildcards are not allowed.

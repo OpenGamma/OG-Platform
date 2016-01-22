@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.marketdata;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -34,7 +35,7 @@ import com.opengamma.util.time.LocalDateRange;
  * TODO review: Chris - I'm not keen on the design of this, revisit. particularly the time series
  */
 @BeanDefinition(builderScope = "private")
-public final class MarketDataTime implements ImmutableBean {
+public final class MarketDataTime implements ImmutableBean, Serializable {
 
   static final MarketDataTime VALUATION_TIME = new MarketDataTime(null, null, null, Type.VALUATION_TIME);
 

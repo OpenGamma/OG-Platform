@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.math.interpolation;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -13,7 +14,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 /**
  * Hermite interpolation is determined if one specifies first derivatives for a cubic interpolant and first and second derivatives for a quintic interpolant
  */
-public class HermiteCoefficientsProvider {
+public class HermiteCoefficientsProvider implements Serializable{
 
   /**
    * @param values (yValues_i)

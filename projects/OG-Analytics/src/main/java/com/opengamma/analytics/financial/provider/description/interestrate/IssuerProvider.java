@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.description.interestrate;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,7 +33,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Class describing a provider with multi-curves and issuer-specific curves.
  */
-public class IssuerProvider implements IssuerProviderInterface {
+public class IssuerProvider implements IssuerProviderInterface, Serializable {
   private static final Logger s_logger = LoggerFactory.getLogger(IssuerProvider.class);
 
   /**

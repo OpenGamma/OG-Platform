@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.model.volatility.discrete;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.opengamma.analytics.math.function.VectorFunctionProvider;
@@ -14,7 +15,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Abstraction for anything that provides a {@link DiscreteVolatilityFunction} for a set of expiry-strike points
  */
-public abstract class DiscreteVolatilityFunctionProvider implements VectorFunctionProvider<DoublesPair> {
+public abstract class DiscreteVolatilityFunctionProvider implements VectorFunctionProvider<DoublesPair>, Serializable {
 
   /**
    * Make a {@link DiscreteVolatilityFunction} for the given expiry-strike points; this will map from some model 

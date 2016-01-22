@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.math.function;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -14,7 +15,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * abstraction for anything that provides a {@link VectorFunction} for a set of data points (as Double)
  */
-public abstract class DoublesVectorFunctionProvider implements VectorFunctionProvider<Double> {
+public abstract class DoublesVectorFunctionProvider implements VectorFunctionProvider<Double>, Serializable {
 
   @Override
   public VectorFunction from(final List<Double> x) {

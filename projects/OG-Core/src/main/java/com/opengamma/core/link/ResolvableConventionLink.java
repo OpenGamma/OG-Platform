@@ -5,6 +5,7 @@
  */
 package com.opengamma.core.link;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -33,7 +34,7 @@ import com.opengamma.util.ArgumentChecker;
  * @param <T> type of the convention
  */
 @BeanDefinition
-public class ResolvableConventionLink<T extends Convention> extends ConventionLink<T> implements ImmutableBean {
+public class ResolvableConventionLink<T extends Convention> extends ConventionLink<T> implements ImmutableBean, Serializable {
 
   @PropertyDefinition(validate = "notNull")
   private final LinkIdentifier<ExternalIdBundle, T> _identifier;
