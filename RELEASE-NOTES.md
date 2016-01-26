@@ -1,5 +1,17 @@
 # OpenGamma Platform
 
+## v2.24
+
+### Bug Fixes
+
+* Ensure correct scaling by position quantity in equity index option results
+
+### Enhancements
+
+* Added utilities to convert between Normal and Black volatilities
+* Added SSVI volatility formula, applied to pricing of STIR futures with Black on price
+* Increase coverage of serializable market data types and containers
+
 ## v2.23
 
 ### Bug Fixes
