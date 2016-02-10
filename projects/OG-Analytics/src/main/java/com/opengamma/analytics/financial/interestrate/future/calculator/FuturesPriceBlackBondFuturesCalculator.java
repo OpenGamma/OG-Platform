@@ -10,7 +10,7 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutu
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionPremiumTransaction;
-import com.opengamma.analytics.financial.interestrate.future.provider.BondFutureOptionMarginSecurityBlackSmileMethod;
+import com.opengamma.analytics.financial.interestrate.future.provider.BondFutureOptionMarginSecurityBlackPriceMethod;
 import com.opengamma.analytics.financial.interestrate.future.provider.BondFuturesOptionPremiumSecurityBlackBondFuturesMethod;
 import com.opengamma.analytics.financial.interestrate.future.provider.FuturesSecurityIssuerMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesProviderInterface;
@@ -26,7 +26,7 @@ public final class FuturesPriceBlackBondFuturesCalculator
   private static final FuturesPriceBlackBondFuturesCalculator DEFAULT = new FuturesPriceBlackBondFuturesCalculator();
   
   /** The method used to compute futures option */
-  private final BondFutureOptionMarginSecurityBlackSmileMethod _methodFuturesOptionMargin;
+  private final BondFutureOptionMarginSecurityBlackPriceMethod _methodFuturesOptionMargin;
   private static final BondFuturesOptionPremiumSecurityBlackBondFuturesMethod METHOD_FUT_OPT_PREMIUM =
       BondFuturesOptionPremiumSecurityBlackBondFuturesMethod.getInstance();
 
@@ -42,7 +42,7 @@ public final class FuturesPriceBlackBondFuturesCalculator
    * Default constructor.
    */
   private FuturesPriceBlackBondFuturesCalculator() {
-    _methodFuturesOptionMargin = BondFutureOptionMarginSecurityBlackSmileMethod.getInstance();
+    _methodFuturesOptionMargin = BondFutureOptionMarginSecurityBlackPriceMethod.getInstance();
   }
 
   /**
@@ -51,7 +51,7 @@ public final class FuturesPriceBlackBondFuturesCalculator
    * @param methodFutures The method used to compute futures option.
    */
   public FuturesPriceBlackBondFuturesCalculator(FuturesSecurityIssuerMethod methodFutures) {
-    _methodFuturesOptionMargin = new BondFutureOptionMarginSecurityBlackSmileMethod(methodFutures);
+    _methodFuturesOptionMargin = new BondFutureOptionMarginSecurityBlackPriceMethod(methodFutures);
   }
 
   //     -----     Futures options    -----

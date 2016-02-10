@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.interestrate.future.calculator;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginSecurity;
-import com.opengamma.analytics.financial.interestrate.future.provider.BondFutureOptionMarginSecurityBlackSmileMethod;
+import com.opengamma.analytics.financial.interestrate.future.provider.BondFutureOptionMarginSecurityBlackPriceMethod;
 import com.opengamma.analytics.financial.interestrate.future.provider.FuturesSecurityIssuerMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
@@ -24,7 +24,7 @@ public final class FuturesPriceCurveSensitivityBlackBondFuturesCalculator
       new FuturesPriceCurveSensitivityBlackBondFuturesCalculator();
   
   /** The method used to compute futures option. */
-  private final BondFutureOptionMarginSecurityBlackSmileMethod _methodFuturesOption;
+  private final BondFutureOptionMarginSecurityBlackPriceMethod _methodFuturesOption;
 
   /**
    * Gets the calculator instance.
@@ -38,7 +38,7 @@ public final class FuturesPriceCurveSensitivityBlackBondFuturesCalculator
    * Constructor.
    */
   private FuturesPriceCurveSensitivityBlackBondFuturesCalculator() {
-    _methodFuturesOption = BondFutureOptionMarginSecurityBlackSmileMethod.getInstance();
+    _methodFuturesOption = BondFutureOptionMarginSecurityBlackPriceMethod.getInstance();
   }
 
   /**
@@ -47,7 +47,7 @@ public final class FuturesPriceCurveSensitivityBlackBondFuturesCalculator
    * @param methodFutures The method used to compute futures option.
    */
   public FuturesPriceCurveSensitivityBlackBondFuturesCalculator(FuturesSecurityIssuerMethod methodFutures) {
-    _methodFuturesOption = new BondFutureOptionMarginSecurityBlackSmileMethod(methodFutures);
+    _methodFuturesOption = new BondFutureOptionMarginSecurityBlackPriceMethod(methodFutures);
   }
 
   //     -----     Futures options    -----

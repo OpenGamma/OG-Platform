@@ -10,7 +10,7 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutu
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesOptionPremiumTransaction;
-import com.opengamma.analytics.financial.interestrate.future.provider.BondFutureOptionMarginSecurityBlackSmileMethod;
+import com.opengamma.analytics.financial.interestrate.future.provider.BondFutureOptionMarginSecurityBlackPriceMethod;
 import com.opengamma.analytics.financial.interestrate.future.provider.BondFuturesOptionPremiumSecurityBlackBondFuturesMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesProviderInterface;
 
@@ -39,8 +39,8 @@ public final class GammaBlackBondFuturesCalculator extends InstrumentDerivativeV
   }
 
   /** The method used to compute the future option price */
-  private static final BondFutureOptionMarginSecurityBlackSmileMethod METHOD_FUTURE_OPTION_MARGIN = 
-      BondFutureOptionMarginSecurityBlackSmileMethod.getInstance();
+  private static final BondFutureOptionMarginSecurityBlackPriceMethod METHOD_FUTURE_OPTION_MARGIN = 
+      BondFutureOptionMarginSecurityBlackPriceMethod.getInstance();
   private static final BondFuturesOptionPremiumSecurityBlackBondFuturesMethod METHOD_FUTURE_OPTION_PREMIUM = 
       BondFuturesOptionPremiumSecurityBlackBondFuturesMethod.getInstance();
   

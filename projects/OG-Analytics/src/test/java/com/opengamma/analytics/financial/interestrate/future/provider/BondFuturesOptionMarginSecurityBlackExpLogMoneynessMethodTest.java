@@ -53,8 +53,8 @@ public class BondFuturesOptionMarginSecurityBlackExpLogMoneynessMethodTest {
       LAST_TRADING_DATE_OPT, EXPIRY_DATE_OPT, STRIKE_116, IS_CALL);
   private static final BondFuturesOptionMarginSecurityDefinition PUT_BOBL_116_DEFINITION = new BondFuturesOptionMarginSecurityDefinition(BOBLM4_DEFINITION,
       LAST_TRADING_DATE_OPT, EXPIRY_DATE_OPT, STRIKE_116, !IS_CALL);
-  private static final BondFuturesOptionMarginSecurity CALL_BOBL_116 = CALL_BOBL_116_DEFINITION.toDerivative(REFERENCE_DATE);
-  private static final BondFuturesOptionMarginSecurity PUT_BOBL_116 = PUT_BOBL_116_DEFINITION.toDerivative(REFERENCE_DATE);
+  public static final BondFuturesOptionMarginSecurity CALL_BOBL_116 = CALL_BOBL_116_DEFINITION.toDerivative(REFERENCE_DATE);
+  public static final BondFuturesOptionMarginSecurity PUT_BOBL_116 = PUT_BOBL_116_DEFINITION.toDerivative(REFERENCE_DATE);
   /** Black surface expiry/log-moneyness */
   final private static InterpolatedDoublesSurface BLACK_SURFACE = StandardDataSetsBlack.blackSurfaceExpiryLogMoneyness();
   /** Curves for a specific issuer name */
@@ -69,7 +69,7 @@ public class BondFuturesOptionMarginSecurityBlackExpLogMoneynessMethodTest {
   private static final BondFuturesOptionMarginSecurityBlackBondFuturesMethod METHOD_OPT = BondFuturesOptionMarginSecurityBlackBondFuturesMethod.getDefaultInstance();
   private static final BondFuturesSecurityDiscountingMethod METHOD_FUTURE = BondFuturesSecurityDiscountingMethod.getInstance();
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
-  private static final BondFutureOptionMarginSecurityBlackSmileMethod METHOD_SMILE = BondFutureOptionMarginSecurityBlackSmileMethod
+  private static final BondFutureOptionMarginSecurityBlackPriceMethod METHOD_SMILE = BondFutureOptionMarginSecurityBlackPriceMethod
       .getInstance();
 
   /** Tolerances */
