@@ -1,5 +1,11 @@
 # OpenGamma Platform
 
+## v2.25
+
+### Enhancements
+
+* Improvement of performance of Sesame memoization with large portfolios
+
 ## v2.24
 
 ### Bug Fixes
