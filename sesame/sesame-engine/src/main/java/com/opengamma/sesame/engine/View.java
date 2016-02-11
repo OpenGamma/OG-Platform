@@ -77,6 +77,7 @@ import com.opengamma.sesame.trace.CallGraph;
 import com.opengamma.sesame.trace.Tracer;
 import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.result.Failure;
 import com.opengamma.util.result.Result;
 
 /**
@@ -349,7 +350,8 @@ public class View {
                                originalContext, 
                                cycleInitializer.getCache(), 
                                _cacheThreadLocal, 
-                               AnalyticsEnvironment.getInstance());
+                               AnalyticsEnvironment.getInstance(),
+                               false);
 
     ListenableFuture<List<TaskResult>> tasksFuture =
         runAsync(calculationArguments, marketData, cycleInitializer, threadLocalWrapper, inputs);
@@ -389,7 +391,8 @@ public class View {
                                originalContext, 
                                cycleInitializer.getCache(), 
                                _cacheThreadLocal, 
-                               AnalyticsEnvironment.getInstance());
+                               AnalyticsEnvironment.getInstance(),
+                               true);
     ZonedDateTime valuationTime = calculationArguments.getValuationTime();
     GatheringMarketDataBundle gatheringBundle = GatheringMarketDataBundle.create(suppliedData.toBundle());
     MarketDataEnvironment marketData = new GatheringMarketDataEnvironment(gatheringBundle, valuationTime);
@@ -807,17 +810,20 @@ public class View {
     private final ThreadLocal<Cache<Object, Object>> _cacheThreadLocal;
     private final Cache<Object, Object> _cache;
     private final AnalyticsEnvironment _targetEnvironment;
+    private final boolean _requirementsGathering;
 
     private ThreadLocalWrapper(ServiceContext cycleServiceContext,
                                ServiceContext originalServiceContext,
                                Cache<Object, Object> cache,
                                ThreadLocal<Cache<Object, Object>> cacheThreadLocal,
-                               AnalyticsEnvironment analyticsEnvironment) {
+                               AnalyticsEnvironment analyticsEnvironment,
+                               boolean requirementsGathering) {
       _cycleServiceContext = cycleServiceContext;
       _originalServiceContext = originalServiceContext;
       _cache = cache;
       _cacheThreadLocal = cacheThreadLocal;
       _targetEnvironment = analyticsEnvironment;
+      _requirementsGathering = requirementsGathering;
     }
 
     /**
@@ -829,6 +835,9 @@ public class View {
       _cacheThreadLocal.set(_cache);
       ThreadLocalServiceContext.init(_cycleServiceContext);
       AnalyticsEnvironment.setInstance(_targetEnvironment);
+      if (_requirementsGathering) {
+        Failure.turnOffStackTraces();
+      }
     }
 
     /**
@@ -838,6 +847,9 @@ public class View {
       _cacheThreadLocal.remove();
       ThreadLocalServiceContext.init(_originalServiceContext);
       AnalyticsEnvironment.setInstance(previousEnvironment);
+      if (_requirementsGathering) {
+        Failure.turnOnStackTraces();
+      }
     }
   }
 }

@@ -8,6 +8,7 @@ package com.opengamma.analytics.math.interpolation;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.TreeMap;
 
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
@@ -57,6 +58,13 @@ public class GridInterpolator2D extends Interpolator2D {
 
   public Map<Double, Interpolator1DDataBundle> getDataBundle(final Map<DoublesPair, Double> data) {
     ArgumentChecker.notNull(data, "data");
+    final TreeMap<DoublesPair, Double> sorted = new TreeMap<>(_comparator);
+    sorted.putAll(data);
+    return testData(sorted);
+  }
+  
+  public Map<Double, Interpolator1DDataBundle> getDataBundleFromSorted(final SortedMap<DoublesPair, Double> data) {
+    ArgumentChecker.notNull(data, "data");
     return testData(data);
   }
 
@@ -104,9 +112,7 @@ public class GridInterpolator2D extends Interpolator2D {
   }
   private Map<Double, Interpolator1DDataBundle> testData(final Map<DoublesPair, Double> data) {
     final Map<Double, Interpolator1DDataBundle> result = new TreeMap<>();
-    final TreeMap<DoublesPair, Double> sorted = new TreeMap<>(_comparator);
-    sorted.putAll(data);
-    final Iterator<Map.Entry<DoublesPair, Double>> iterator = sorted.entrySet().iterator();
+    final Iterator<Map.Entry<DoublesPair, Double>> iterator = data.entrySet().iterator();
     final Map.Entry<DoublesPair, Double> firstEntry = iterator.next();
     double x = firstEntry.getKey().first;
     Map<Double, Double> yzValues = new TreeMap<>();

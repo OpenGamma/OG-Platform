@@ -1,5 +1,13 @@
 # OpenGamma Platform
 
+## v2.25
+
+### Enhancements
+
+* Improvement of performance of Sesame memoization with large portfolios
+* Significant improvement to Sesame requirements gathering performance with large market data environments
+* Improvement in performance of InterpolatedDoublesSurface.init()
+
 ## v2.24
 
 ### Bug Fixes
