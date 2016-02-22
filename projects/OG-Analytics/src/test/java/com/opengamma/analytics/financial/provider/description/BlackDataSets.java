@@ -42,7 +42,7 @@ public class BlackDataSets {
       INTERPOLATOR_LINEAR_2D);
   private static final InterpolatedDoublesSurface BLACK_SURFACE_EXP_STR_PRICE = InterpolatedDoublesSurface.from(
       new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0, 0.5, 1.0, 5.0 },
-      new double[] {0.99, 0.99, 0.99, 0.98, 0.98, 0.98, 0.98, 0.98, 0.98 },
+      new double[] {0.99, 0.99, 0.99, 0.98, 0.98, 0.98, 0.97, 0.97, 0.97 },
       new double[] {0.010, 0.011, 0.012, 0.011, 0.012, 0.013, 0.012, 0.013, 0.014 },
       INTERPOLATOR_LINEAR_2D);
   private static final BlackFlatSwaptionParameters BLACK_SWAPTION_EUR6 = new BlackFlatSwaptionParameters(BLACK_SURFACE_EXP_TEN, EUR1YEURIBOR6M);
@@ -105,9 +105,9 @@ public class BlackDataSets {
    * @return The surface.
    */
   public static BlackFlatSwaptionParameters createBlackSwaptionEUR6Shift(final int index, final double shift) {
-    final double[] vol = new double[] {0.35, 0.34, 0.25, 0.30, 0.25, 0.20 };
+    final double[] vol = BLACK_SURFACE_EXP_TEN.getZDataAsPrimitive().clone();
     vol[index] += shift;
-    final InterpolatedDoublesSurface surfaceShift = InterpolatedDoublesSurface.from(new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0 }, new double[] {2, 2, 2, 10, 10, 10 }, vol, INTERPOLATOR_LINEAR_2D);
+    final InterpolatedDoublesSurface surfaceShift = InterpolatedDoublesSurface.from(BLACK_SURFACE_EXP_TEN.getXDataAsPrimitive(), BLACK_SURFACE_EXP_TEN.getYDataAsPrimitive(), vol, INTERPOLATOR_LINEAR_2D);
     return new BlackFlatSwaptionParameters(surfaceShift, EUR1YEURIBOR6M);
   }
 
