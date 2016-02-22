@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.forex.method.EmptyFXMatrix;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
@@ -129,7 +130,7 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
 
   @Override
   public Result<FXMatrix> getFXMatrix(Environment env, Set<Currency> currencies) {
-    FXMatrix matrix = new FXMatrix();
+    FXMatrix matrix = EmptyFXMatrix.INSTANCE;
     Currency refCurr = null;
     List<Result<?>> failures = new ArrayList<>();
 
@@ -144,6 +145,9 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
 
         Result<Double> marketDataResult = _marketDataFn.getFxRate(env, currencyPair);
         if (marketDataResult.isSuccess()) {
+          if (EmptyFXMatrix.INSTANCE == matrix) {
+            matrix = new FXMatrix();
+          }
           matrix.addCurrency(currencyPair.getCounter(), currencyPair.getBase(), marketDataResult.getValue());
         } else {
           failures.add(marketDataResult);

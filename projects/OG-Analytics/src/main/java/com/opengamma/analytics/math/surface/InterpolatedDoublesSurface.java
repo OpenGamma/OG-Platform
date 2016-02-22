@@ -7,8 +7,6 @@ package com.opengamma.analytics.math.surface;
 
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import org.apache.commons.lang.ObjectUtils;
 
@@ -17,7 +15,6 @@ import com.opengamma.analytics.math.interpolation.Interpolator2D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.FirstThenSecondDoublesPairComparator;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
@@ -450,14 +447,11 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
 
   // TODO this logic should be in the interpolator
   private void init() {
-    final SortedMap<DoublesPair, Double> map = new TreeMap<>(new FirstThenSecondDoublesPairComparator());
     final double[] x = getXDataAsPrimitive();
     final double[] y = getYDataAsPrimitive();
     final double[] z = getZDataAsPrimitive();
-    for (int i = 0; i < size(); i++) {
-      map.put(DoublesPair.of(x[i], y[i]), z[i]);
-    }
-    _data = _interpolator.getDataBundleFromSorted(map);
+    
+    _data = _interpolator.getDataBundleFromUnsorted(x, y, z, false);
   }
 
   /**

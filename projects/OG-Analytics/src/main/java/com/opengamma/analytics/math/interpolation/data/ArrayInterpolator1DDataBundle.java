@@ -9,12 +9,14 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ParallelArrayBinarySort;
 
 /**
  * An implementation of {@link Interpolator1DDataBundle} which holds all data in two
  * parallel-sorted double arrays.
  */
 public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle, Serializable {
+  private static final long serialVersionUID = 1L;
   private final double[] _keys;
   private final double[] _values;
   private final int _n;
@@ -32,7 +34,7 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle, 
     _values = Arrays.copyOf(values, values.length);
     _n = keys.length;
     if (!inputsSorted) {
-      parallelBinarySort();
+      ParallelArrayBinarySort.parallelBinarySort(_keys, _values);
     }
     checkSameKeys();
   }
@@ -41,48 +43,6 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle, 
     for (int i = 1; i < _n; i++) {
       ArgumentChecker.isTrue(Double.doubleToLongBits(_keys[i - 1]) != Double.doubleToLongBits(_keys[i]), "Equal nodes in interpolator {}", _keys[i - 1]);
     }
-  }
-
-  /**
-   * Sort the content of _keys and _values simultaneously so that
-   * both match the correct ordering.
-   */
-  private void parallelBinarySort() {
-    dualArrayQuickSort(_keys, _values, 0, _n - 1);
-  }
-
-  private static void dualArrayQuickSort(final double[] keys, final double[] values, final int left, final int right) {
-    if (right > left) {
-      final int pivot = (left + right) >> 1;
-      final int pivotNewIndex = partition(keys, values, left, right, pivot);
-      dualArrayQuickSort(keys, values, left, pivotNewIndex - 1);
-      dualArrayQuickSort(keys, values, pivotNewIndex + 1, right);
-    }
-  }
-
-  private static int partition(final double[] keys, final double[] values, final int left, final int right,
-      final int pivot) {
-    final double pivotValue = keys[pivot];
-    swap(keys, values, pivot, right);
-    int storeIndex = left;
-    for (int i = left; i < right; i++) {
-      if (keys[i] <= pivotValue) {
-        swap(keys, values, i, storeIndex);
-        storeIndex++;
-      }
-    }
-    swap(keys, values, storeIndex, right);
-    return storeIndex;
-  }
-
-  private static void swap(final double[] keys, final double[] values, final int first, final int second) {
-    double t = keys[first];
-    keys[first] = keys[second];
-    keys[second] = t;
-
-    t = values[first];
-    values[first] = values[second];
-    values[second] = t;
   }
 
   @Override

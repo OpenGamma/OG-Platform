@@ -24,7 +24,42 @@ public class ParallelArrayBinarySort {
     Validate.notNull(values, "y data");
     Validate.isTrue(keys.length == values.length);
     final int n = keys.length;
-    dualArrayQuickSort(keys, values, 0, n - 1);
+    tripleArrayQuickSort(keys, values, null, 0, n - 1);
+  }
+
+  /**
+   * Sort the content of keys and values simultaneously so that
+   * both match the correct ordering. Alters the arrays in place.
+   * Allow control over range of ordering for subarray ordering.
+   * @param keys The keys
+   * @param values The values
+   * @param start Starting point (0-based)
+   * @param end Final point (0-based, inclusive)
+   */
+  public static void parallelBinarySort(final double[] keys, final double[] values, final int start, final int end) {
+    Validate.notNull(keys, "x data");
+    Validate.notNull(values, "y data");
+    Validate.isTrue(keys.length == values.length);
+    Validate.isTrue(start >= 0);
+    Validate.isTrue(end < keys.length);
+    tripleArrayQuickSort(keys, values, null, start, end);
+  }
+
+  /**
+   * Sort the content of keys and two sets of values simultaneously so that
+   * both match the correct ordering. Alters the arrays in place.
+   * @param keys The keys
+   * @param values1 The first set of values
+   * @param values2 The second set of values
+   */
+  public static void parallelBinarySort(final double[] keys, final double[] values1, final double[] values2) {
+    Validate.notNull(keys, "x data");
+    Validate.notNull(values1, "y data 1");
+    Validate.notNull(values2, "y data 2");
+    Validate.isTrue(keys.length == values1.length);
+    Validate.isTrue(keys.length == values2.length);
+    final int n = keys.length;
+    tripleArrayQuickSort(keys, values1, values2, 0, n - 1);
   }
 
   /**
@@ -159,12 +194,13 @@ public class ParallelArrayBinarySort {
 
   /** quick sorts */
   /** hard coded types */
-  private static void dualArrayQuickSort(final double[] keys, final double[] values, final int left, final int right) {
+  private static void tripleArrayQuickSort(final double[] keys, final double[] values1, final double[] values2,
+      final int left, final int right) {
     if (right > left) {
       final int pivot = (left + right) >> 1;
-      final int pivotNewIndex = partition(keys, values, left, right, pivot);
-      dualArrayQuickSort(keys, values, left, pivotNewIndex - 1);
-      dualArrayQuickSort(keys, values, pivotNewIndex + 1, right);
+      final int pivotNewIndex = partition(keys, values1, values2, left, right, pivot);
+      tripleArrayQuickSort(keys, values1, values2, left, pivotNewIndex - 1);
+      tripleArrayQuickSort(keys, values1, values2, pivotNewIndex + 1, right);
     }
   }
 
@@ -252,17 +288,17 @@ public class ParallelArrayBinarySort {
 
   /** partitions */
   /** hard coded types */
-  private static int partition(final double[] keys, final double[] values, final int left, final int right, final int pivot) {
+  private static int partition(final double[] keys, final double[] values1, final double[] values2, final int left, final int right, final int pivot) {
     final double pivotValue = keys[pivot];
-    swap(keys, values, pivot, right);
+    swap(keys, values1, values2, pivot, right);
     int storeIndex = left;
     for (int i = left; i < right; i++) {
       if (keys[i] <= pivotValue) {
-        swap(keys, values, i, storeIndex);
+        swap(keys, values1, values2, i, storeIndex);
         storeIndex++;
       }
     }
-    swap(keys, values, storeIndex, right);
+    swap(keys, values1, values2, storeIndex, right);
     return storeIndex;
   }
 
@@ -395,13 +431,21 @@ public class ParallelArrayBinarySort {
 
   /** swappers */
   /** hardcoded */
-  private static void swap(final double[] keys, final double[] values, final int first, final int second) {
+  private static void swap(final double[] keys, final double[] values1, final double[] values2,
+      final int first, final int second) {
     double t = keys[first];
     keys[first] = keys[second];
     keys[second] = t;
-    t = values[first];
-    values[first] = values[second];
-    values[second] = t;
+    if (values1 != null) {
+      t = values1[first];
+      values1[first] = values1[second];
+      values1[second] = t;
+    }
+    if (values2 != null) {
+      t = values2[first];
+      values2[first] = values2[second];
+      values2[second] = t;
+    }
   }
 
   private static void swap(final float[] keys, final double[] values, final int first, final int second) {
