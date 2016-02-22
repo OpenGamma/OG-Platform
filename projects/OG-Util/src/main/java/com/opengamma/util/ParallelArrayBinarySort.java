@@ -28,6 +28,24 @@ public class ParallelArrayBinarySort {
   }
 
   /**
+   * Sort the content of keys and values simultaneously so that
+   * both match the correct ordering. Alters the arrays in place.
+   * Allow control over range of ordering for subarray ordering.
+   * @param keys The keys
+   * @param values The values
+   * @param start Starting point (0-based)
+   * @param end Final point (0-based, inclusive)
+   */
+  public static void parallelBinarySort(final double[] keys, final double[] values, final int start, final int end) {
+    Validate.notNull(keys, "x data");
+    Validate.notNull(values, "y data");
+    Validate.isTrue(keys.length == values.length);
+    Validate.isTrue(start >= 0);
+    Validate.isTrue(end < keys.length);
+    tripleArrayQuickSort(keys, values, null, start, end);
+  }
+
+  /**
    * Sort the content of keys and two sets of values simultaneously so that
    * both match the correct ordering. Alters the arrays in place.
    * @param keys The keys

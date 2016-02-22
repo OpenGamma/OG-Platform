@@ -30,6 +30,8 @@ public class ParallelArrayBinarySortTest {
   private static final double[] X2D = new double[] {1, 7, 3, 4, 9, 10, 8, 2, 5, 6 };
   private static final double[] Y2D = new double[] {2, 14, 6, 8, 18, 20, 16, 4, 10, 12 };
   private static final double[] Z2D = new double[] {5, 35, 15, 20, 45, 50, 40, 10, 25, 30 };
+  private static final double[] X3D = new double[] {1, 3, 4, 7, 9, 10, 8, 2, 5, 6 };
+  private static final double[] Y3D = new double[] {2, 6, 8, 14, 18, 20, 16, 4, 10, 12 };
 
   private static final int[] X1I = new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
   private static final int[] Y1I = new int[] {2, 4, 6, 8, 10, 12, 14, 16, 18, 20 };
@@ -127,6 +129,16 @@ public class ParallelArrayBinarySortTest {
     ParallelArrayBinarySort.parallelBinarySort(x2, y2);
     assertTrue(Arrays.equals(X1D, x2));
     assertTrue(Arrays.equals(Y1D, y2));
+  }
+
+  @Test
+  public void testDoublesSortByDoubleSubset() {
+    final int n = X1D.length;
+    final double[] x2 = Arrays.copyOf(X2D, n);
+    final double[] y2 = Arrays.copyOf(Y2D, n);
+    ParallelArrayBinarySort.parallelBinarySort(x2, y2, 0, 4);
+    assertTrue(Arrays.equals(X3D, x2));
+    assertTrue(Arrays.equals(Y3D, y2));
   }
 
   @Test
