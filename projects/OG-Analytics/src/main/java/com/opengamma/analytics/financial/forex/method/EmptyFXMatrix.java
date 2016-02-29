@@ -9,8 +9,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.CurrencyAmount;
-import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * An immutable and empty FXMatrix.
@@ -35,17 +33,15 @@ public class EmptyFXMatrix extends FXMatrix {
 
   @Override
   public double getFxRate(Currency ccy1, Currency ccy2) {
+    if (ccy1.equals(ccy2)) {
+      return 1;
+    }
     throw new UnsupportedOperationException("No currencies in an EmptyFXMatrix");
   }
 
   @Override
   public boolean containsPair(Currency ccy1, Currency ccy2) {
     return false;
-  }
-
-  @Override
-  public CurrencyAmount convert(MultipleCurrencyAmount amount, Currency ccy) {
-    throw new UnsupportedOperationException("No currencies in an EmptyFXMatrix");
   }
 
   @Override
@@ -88,7 +84,7 @@ public class EmptyFXMatrix extends FXMatrix {
     if (obj instanceof EmptyFXMatrix) {
       return true;
     }
-    return false;
+    return super.equals(obj);
   }
 
 }

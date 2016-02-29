@@ -262,7 +262,8 @@ public class FXMatrix implements Serializable {
     if (obj == null) {
       return false;
     }
-    if (getClass() != obj.getClass()) {
+    // Special case for EmptyFXMatrix.
+    if (!(obj instanceof FXMatrix)) {
       return false;
     }
     final FXMatrix other = (FXMatrix) obj;
