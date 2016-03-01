@@ -26,12 +26,16 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle, 
   }
 
   public ArrayInterpolator1DDataBundle(final double[] keys, final double[] values, final boolean inputsSorted) {
+    this(keys, values, inputsSorted, true);
+  }
+
+  public ArrayInterpolator1DDataBundle(final double[] keys, final double[] values, final boolean inputsSorted, final boolean copy) {
     ArgumentChecker.notNull(keys, "Keys must not be null.");
     ArgumentChecker.notNull(values, "Values must not be null.");
     ArgumentChecker.isTrue((keys.length == values.length), "keys and values must be same length.");
     ArgumentChecker.isTrue((keys.length > 0), "Must have at least two data points.");
-    _keys = Arrays.copyOf(keys, keys.length);
-    _values = Arrays.copyOf(values, values.length);
+    _keys = copy ? Arrays.copyOf(keys, keys.length) : keys;
+    _values = copy ? Arrays.copyOf(values, values.length) : values;
     _n = keys.length;
     if (!inputsSorted) {
       ParallelArrayBinarySort.parallelBinarySort(_keys, _values);
