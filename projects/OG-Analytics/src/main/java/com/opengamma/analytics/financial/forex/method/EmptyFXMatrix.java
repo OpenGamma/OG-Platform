@@ -11,19 +11,19 @@ import java.util.Map;
 import com.opengamma.util.money.Currency;
 
 /**
- * An immutable and empty FXMatrix.
+ * An immutable and empty FXMatrix. This is written as a singleton pattern.
  */
-public class EmptyFXMatrix extends FXMatrix {
+public final class EmptyFXMatrix extends FXMatrix {
   private static final long serialVersionUID = 1L;
   private static final double[][] RATES_MATRIX = new double[0][0];
   private static final Map<Currency, Integer> CURRENCIES_MAP = Collections.emptyMap();
   
   /**
-   * Singleton to avoid creating this unnecessarily.
+   * The singleton instance.
    */
   public static final EmptyFXMatrix INSTANCE = new EmptyFXMatrix();
   
-  public EmptyFXMatrix() {
+  private EmptyFXMatrix() {
   }
 
   @Override

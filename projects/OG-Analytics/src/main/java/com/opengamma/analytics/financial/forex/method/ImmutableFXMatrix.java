@@ -29,6 +29,11 @@ public class ImmutableFXMatrix extends FXMatrix {
   }
 
   @Override
+  public void updateRates(Currency ccyToUpdate, Currency ccyReference, double fxRate) {
+    throw new UnsupportedOperationException("This instance is immutable.");
+  }
+
+  @Override
   public FXMatrix copy() {
     return this;
   }
