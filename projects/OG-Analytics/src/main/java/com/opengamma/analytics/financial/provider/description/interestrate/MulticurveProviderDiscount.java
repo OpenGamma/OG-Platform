@@ -33,6 +33,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * The forward rate are computed as the ratio of discount factors stored in {@link YieldAndDiscountCurve}.
  */
 public class MulticurveProviderDiscount implements MulticurveProviderInterface, Serializable {
+  private static final long serialVersionUID = 1L;
 
   private static final Logger s_logger = LoggerFactory.getLogger(MulticurveProviderDiscount.class);
 
@@ -137,7 +138,7 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface, 
     final LinkedHashMap<Currency, YieldAndDiscountCurve> discountingCurves = new LinkedHashMap<>(_discountingCurves);
     final LinkedHashMap<IborIndex, YieldAndDiscountCurve> forwardIborCurves = new LinkedHashMap<>(_forwardIborCurves);
     final LinkedHashMap<IndexON, YieldAndDiscountCurve> forwardONCurves = new LinkedHashMap<>(_forwardONCurves);
-    final FXMatrix fxMatrix = new FXMatrix(_fxMatrix);
+    final FXMatrix fxMatrix = _fxMatrix.copy();
     return new MulticurveProviderDiscount(discountingCurves, forwardIborCurves, forwardONCurves, fxMatrix);
   }
 

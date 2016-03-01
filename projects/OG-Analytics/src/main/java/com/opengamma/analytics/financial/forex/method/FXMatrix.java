@@ -23,7 +23,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * Class describing a set of currencies and all the cross rates between them.
  */
 public class FXMatrix implements Serializable {
-
+  private static final long serialVersionUID = 1L;
   /**
    * The map between the currencies and their order.
    */
@@ -235,6 +235,10 @@ public class FXMatrix implements Serializable {
   public int getNumberOfCurrencies() {
     return _nbCurrencies;
   }
+  
+  public FXMatrix copy() {
+    return new FXMatrix(this);
+  }
 
   @Override
   public String toString() {
@@ -258,7 +262,8 @@ public class FXMatrix implements Serializable {
     if (obj == null) {
       return false;
     }
-    if (getClass() != obj.getClass()) {
+    // Special case for EmptyFXMatrix.
+    if (!(obj instanceof FXMatrix)) {
       return false;
     }
     final FXMatrix other = (FXMatrix) obj;

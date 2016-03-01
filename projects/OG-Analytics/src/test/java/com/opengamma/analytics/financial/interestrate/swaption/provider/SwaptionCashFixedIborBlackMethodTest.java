@@ -186,8 +186,10 @@ public class SwaptionCashFixedIborBlackMethodTest {
       final BlackFlatSwaptionParameters blackM = BlackDataSets.createBlackSwaptionEUR6Shift(loopindex, -shift);
       final BlackSwaptionFlatProvider curvesBlackM = new BlackSwaptionFlatProvider(MULTICURVES, blackM);
       final MultipleCurrencyAmount pvM = METHOD_BLACK.presentValue(SWAPTION_LONG_REC, curvesBlackM);
-      assertEquals("Swaption Black method: present value volatility sensitivity", (pvP.getCurrencyAmounts()[0].getAmount() - pvM.getCurrencyAmounts()[0].getAmount()) / (2 * shift), pvbns
-          .getSensitivity().getMap().get(DoublesPair.of(x[loopindex], y[loopindex])), TOLERANCE_DELTA);
+      double sensitivity = (pvP.getCurrencyAmounts()[0].getAmount() - pvM.getCurrencyAmounts()[0].getAmount()) / (2 * shift);
+      DoublesPair loopPoint = DoublesPair.of(x[loopindex], y[loopindex]);
+      double expected = pvbns.getSensitivity().getMap().get(loopPoint);
+      assertEquals("Swaption Black method: present value volatility sensitivity", sensitivity, expected, TOLERANCE_DELTA);
     }
   }
 
