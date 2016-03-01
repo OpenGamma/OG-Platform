@@ -51,6 +51,19 @@ public final class FastGridInterpolatedDoublesSurface extends Surface<Double, Do
     _yInterpolator = yInterpolator;
   }      
   
+  /**
+   * Factory method for constructing a new instance using primitive inputs.
+   * This method will not copy the inputs, but will sort them in place. Therefore
+   * calling code should release control over the arrays.
+   * 
+   * @param xdata X values in triplet form.
+   * @param ydata Y values in triplet form.
+   * @param zdata Z values in triplet form.
+   * @param xInterpolator X interpolator to use
+   * @param yInterpolator Y interpolator to use
+   * @param name Curve name
+   * @return a new surface instance
+   */
   public static FastGridInterpolatedDoublesSurface fromUnsortedNoCopy(
       double[] xdata, double[] ydata, double[] zdata,
       Interpolator1D xInterpolator, Interpolator1D yInterpolator,
@@ -69,16 +82,17 @@ public final class FastGridInterpolatedDoublesSurface extends Surface<Double, Do
     // First, order xyz triplet by x
     ParallelArrayBinarySort.parallelBinarySort(xdata, ydata, zdata);
     
-    // First pass through xdata: just check the cardinality of x and yz data sets
+    // First pass through xdata: just check the cardinality of x and yz data sets.
+    // Start the loop intentionally at 1 for clarity as we know that there's at least
+    // one value and we get the first x value outside the loop.
     double currentX = xdata[0];
-    int numXValues = 0;
-    for (int i = 0; i < xdata.length; i++) {
+    int numXValues = 1;
+    for (int i = 1; i < xdata.length; i++) {
       if (Double.doubleToRawLongBits(currentX) != Double.doubleToRawLongBits(xdata[i])) {
         numXValues++;
         currentX = xdata[i];
       }
     }
-    numXValues++;
     
     // Now we know the cardinality of xdata, we need to determine the cardinality
     // of each yz set.
@@ -121,6 +135,12 @@ public final class FastGridInterpolatedDoublesSurface extends Surface<Double, Do
     return new FastGridInterpolatedDoublesSurface(xdata.length, xvalues, bundles, xInterpolator, yInterpolator, name);
   }
   
+  /**
+   * Duplicate this surface, but multiply every Z value by a particular factor.
+   * 
+   * @param factor number to multiply every Z value by
+   * @return A duplicate surface with modified Z values
+   */
   public FastGridInterpolatedDoublesSurface withMultiplicativeZTransformation(double factor) {
     
     Interpolator1DDataBundle[] yzBundles = new Interpolator1DDataBundle[_yzBundles.length]; 
