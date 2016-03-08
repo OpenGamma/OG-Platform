@@ -68,7 +68,7 @@ public class SSVIVolatilityFunction {
     // Backward sweep.
     double[] derivatives = new double[6]; // 6 inputs
     double volatilityBar = 1.0; // OK
-    double wBar = 0.5 * volatility / w * volatilityBar; // OK
+    double wBar = 0.5 / (volatility * timeToExpiry) * volatilityBar; // OK
     derivatives[2] += -0.5 * volatility / timeToExpiry * volatilityBar;
     double thetaBar = w / theta * wBar;
     derivatives[4] += 0.5 * theta * phi * k * wBar; // OK

@@ -14,6 +14,8 @@ import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SSVIVolatilityFunction;
 import com.opengamma.analytics.financial.provider.description.IssuerProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesFlatProvider;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesSsviExpiryPriceProvider;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesSsviConstantPriceProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesSsviPriceProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
@@ -69,8 +71,19 @@ public class BondFutureOptionMarginSecurityBlackSsviPriceMethodTest {
     double[] vol = {0.01, 0.011, 0.012, 0.01};
     VOLATILITY_ATM = new InterpolatedDoublesCurve(times, vol, LINEAR_FLAT, true);
   }
+  private static final DoublesCurve RHO_EXPIRY;
+  private static final DoublesCurve ETA_EXPIRY;
+  static{
+    double[] times = {0.0, 0.5, 1.0, 5.0};
+    double[] rho = {0.25, 0.26, 0.27, 0.28};
+    RHO_EXPIRY = new InterpolatedDoublesCurve(times, rho, LINEAR_FLAT, true);    
+    double[] eta = {0.50, 0.48, 0.46, 0.44};
+    ETA_EXPIRY = new InterpolatedDoublesCurve(times, eta, LINEAR_FLAT, true);    
+  }
   private static final BlackBondFuturesSsviPriceProvider SSVI_PROVIDER = 
-      new BlackBondFuturesSsviPriceProvider(ISSUER_SPECIFIC_MULTICURVES, VOLATILITY_ATM, RHO, ETA, LEGAL_ENTITY_GERMANY);
+      new BlackBondFuturesSsviConstantPriceProvider(ISSUER_SPECIFIC_MULTICURVES, VOLATILITY_ATM, RHO, ETA, LEGAL_ENTITY_GERMANY);
+  private static final BlackBondFuturesSsviPriceProvider SSVI_PROVIDER_EXPIRY = 
+      new BlackBondFuturesSsviExpiryPriceProvider(ISSUER_SPECIFIC_MULTICURVES, VOLATILITY_ATM, RHO_EXPIRY, ETA_EXPIRY, LEGAL_ENTITY_GERMANY);
   /* Black equivalent */
   private static final double STRIKE_PRICE = CALL_BOBL_116.getStrike();
   private static final double FUTURES_PRICE = 
@@ -81,6 +94,11 @@ public class BondFutureOptionMarginSecurityBlackSsviPriceMethodTest {
   private static final Surface<Double, Double, Double> BLACK_SURFACE = new ConstantDoublesSurface(BLACK_IV);
   private static final BlackBondFuturesFlatProvider BLACK_PROVIDER = 
       new BlackBondFuturesFlatProvider(ISSUER_SPECIFIC_MULTICURVES, BLACK_SURFACE, LEGAL_ENTITY_GERMANY);
+  private static final double BLACK_IV_EXPIRY = SSVI_PROVIDER_EXPIRY
+      .getVolatility(TIME_EXP, 0.0, STRIKE_PRICE, FUTURES_PRICE);
+  private static final Surface<Double, Double, Double> BLACK_SURFACE_EXPIRY = new ConstantDoublesSurface(BLACK_IV_EXPIRY);
+  private static final BlackBondFuturesFlatProvider BLACK_PROVIDER_EXPIRY = 
+      new BlackBondFuturesFlatProvider(ISSUER_SPECIFIC_MULTICURVES, BLACK_SURFACE_EXPIRY, LEGAL_ENTITY_GERMANY);
 
   private static final double TOLERANCE_PRICE = 1.0E-8;
   private static final double TOLERANCE_PRICE_DELTA = 1.0E-6;
@@ -90,6 +108,13 @@ public class BondFutureOptionMarginSecurityBlackSsviPriceMethodTest {
   public void price() {
     double priceBlack = METHOD_BLACK.price(CALL_BOBL_116, BLACK_PROVIDER);
     double priceSsvi = METHOD_SSVI.price(CALL_BOBL_116, SSVI_PROVIDER);
+    assertEquals("SSVI formula: price", priceBlack, priceSsvi, TOLERANCE_PRICE);
+  }
+  
+  @Test
+  public void price_expiry_rho_eta() {
+    double priceBlack = METHOD_BLACK.price(CALL_BOBL_116, BLACK_PROVIDER_EXPIRY);
+    double priceSsvi = METHOD_SSVI.price(CALL_BOBL_116, SSVI_PROVIDER_EXPIRY);
     assertEquals("SSVI formula: price", priceBlack, priceSsvi, TOLERANCE_PRICE);
   }
   
@@ -105,6 +130,12 @@ public class BondFutureOptionMarginSecurityBlackSsviPriceMethodTest {
   public void implied_volatility() {
     double ivSsvi = METHOD_SSVI.impliedVolatility(CALL_BOBL_116, SSVI_PROVIDER);
     assertEquals("SSVI formula: implied volatility", ivSsvi, BLACK_IV, TOLERANCE_PRICE);
+  }
+
+  @Test
+  public void implied_volatility_expiry() {
+    double ivSsvi = METHOD_SSVI.impliedVolatility(CALL_BOBL_116, SSVI_PROVIDER_EXPIRY);
+    assertEquals("SSVI formula: implied volatility", ivSsvi, BLACK_IV_EXPIRY, TOLERANCE_PRICE);
   }
 
   @Test
@@ -135,6 +166,20 @@ public class BondFutureOptionMarginSecurityBlackSsviPriceMethodTest {
   }
 
   @Test
+  public void price_ssvi_sensitivity_expiry() {
+    double vega = METHOD_SSVI.vega(CALL_BOBL_116, BLACK_PROVIDER_EXPIRY);
+    ValueDerivatives ssviPriceSensitivity = METHOD_SSVI.priceSsviSensitivity(CALL_BOBL_116, SSVI_PROVIDER_EXPIRY);
+    ValueDerivatives ssviVolSensitivity = SSVIVolatilityFunction
+        .volatilityAdjoint(FUTURES_PRICE, STRIKE_PRICE, TIME_EXP, 
+            VOLATILITY_ATM.getYValue(TIME_EXP), RHO_EXPIRY.getYValue(TIME_EXP), ETA_EXPIRY.getYValue(TIME_EXP));
+    for (int i = 0; i < 3; i++) {
+      assertEquals("SSVI formula: price SSVI parameters sensitivity",
+          ssviPriceSensitivity.getDerivatives(i), ssviVolSensitivity.getDerivatives(i+3) * vega,
+          TOLERANCE_PRICE_DELTA);
+    }
+  }
+
+  @Test
   public void price_ssvi_sensitivity_fd() {
     ValueDerivatives ssviPriceSensitivity = METHOD_SSVI.priceSsviSensitivity(CALL_BOBL_116, SSVI_PROVIDER);
     Function1D<DoubleMatrix1D, Double> function = new Function1D<DoubleMatrix1D, Double>() {
@@ -146,8 +191,8 @@ public class BondFutureOptionMarginSecurityBlackSsviPriceMethodTest {
           vol[i] += x.getEntry(0);
         }
         DoublesCurve volatilityAtm = new InterpolatedDoublesCurve(VOLATILITY_ATM.getXData(), vol, LINEAR_FLAT, true);
-        BlackBondFuturesSsviPriceProvider ssviProvider =
-            new BlackBondFuturesSsviPriceProvider(ISSUER_SPECIFIC_MULTICURVES, volatilityAtm, 
+        BlackBondFuturesSsviConstantPriceProvider ssviProvider =
+            new BlackBondFuturesSsviConstantPriceProvider(ISSUER_SPECIFIC_MULTICURVES, volatilityAtm, 
                 RHO + x.getEntry(1), ETA + x.getEntry(2), LEGAL_ENTITY_GERMANY);
         return METHOD_SSVI.price(CALL_BOBL_116, ssviProvider);
       }

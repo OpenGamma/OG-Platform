@@ -13,7 +13,7 @@ import org.apache.commons.lang.Validate;
 /**
  * 
  */
-public class Interpolator2DDataBundle implements Serializable{
+public class Interpolator2DDataBundle implements Serializable {
   private final double[] _xData;
   private final double[] _yData;
   private final double[] _zData;

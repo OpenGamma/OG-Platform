@@ -16,7 +16,8 @@ import com.opengamma.analytics.financial.model.volatility.smile.function.SSVIVol
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesSmileProvider;
-import com.opengamma.analytics.financial.provider.description.interestrate.BlackStirFuturesSsviPriceProvider;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackStirFuturesSsviPriceConstantProvider;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackStirFuturesSsviPriceExpiryProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
@@ -69,8 +70,19 @@ public class InterestRateFutureOptionMarginSecurityBlackSsviPriceMethodTest {
     double[] vol = {0.01, 0.011, 0.012, 0.01};
     VOLATILITY_ATM = new InterpolatedDoublesCurve(times, vol, LINEAR_FLAT, true);
   }
-  private static final BlackStirFuturesSsviPriceProvider SSVI_PROVIDER = 
-      new BlackStirFuturesSsviPriceProvider(MULTICURVES, VOLATILITY_ATM, RHO, ETA, INDEX);
+  private static final DoublesCurve RHO_EXPIRY;
+  private static final DoublesCurve ETA_EXPIRY;
+  static{
+    double[] times = {0.0, 0.5, 1.0, 5.0};
+    double[] rho = {0.25, 0.26, 0.27, 0.28};
+    RHO_EXPIRY = new InterpolatedDoublesCurve(times, rho, LINEAR_FLAT, true);    
+    double[] eta = {0.50, 0.48, 0.46, 0.44};
+    ETA_EXPIRY = new InterpolatedDoublesCurve(times, eta, LINEAR_FLAT, true);    
+  }
+  private static final BlackStirFuturesSsviPriceConstantProvider SSVI_PROVIDER = 
+      new BlackStirFuturesSsviPriceConstantProvider(MULTICURVES, VOLATILITY_ATM, RHO, ETA, INDEX);
+  private static final BlackStirFuturesSsviPriceExpiryProvider SSVI_PROVIDER_EXPIRY = 
+      new BlackStirFuturesSsviPriceExpiryProvider(MULTICURVES, VOLATILITY_ATM, RHO_EXPIRY, ETA_EXPIRY, INDEX);
   /* Black equivalent */
   private static final double STRIKE_PRICE = OPTION_ERU2_DEFINITION.getStrike();
   private static final double FUTURES_PRICE = METHOD_BLACK.underlyingFuturesPrice(OPTION_ERU2, SSVI_PROVIDER);
@@ -80,6 +92,13 @@ public class InterestRateFutureOptionMarginSecurityBlackSsviPriceMethodTest {
   private static final Surface<Double, Double, Double> BLACK_SURFACE = new ConstantDoublesSurface(BLACK_IV);
   private static final BlackSTIRFuturesProviderInterface BLACK_PROVIDER = 
       new BlackSTIRFuturesSmileProvider(MULTICURVES, BLACK_SURFACE, INDEX);
+  
+
+  private static final double BLACK_IV_EXPIRY = SSVI_PROVIDER_EXPIRY
+      .getVolatility(TIME_EXP, 0.0, STRIKE_PRICE, FUTURES_PRICE);
+  private static final Surface<Double, Double, Double> BLACK_SURFACE_EXPIRY = new ConstantDoublesSurface(BLACK_IV_EXPIRY);
+  private static final BlackSTIRFuturesProviderInterface BLACK_PROVIDER_EXPIRY = 
+      new BlackSTIRFuturesSmileProvider(MULTICURVES, BLACK_SURFACE_EXPIRY, INDEX);
 
   private static final double TOLERANCE_PRICE = 1.0E-8;
   private static final double TOLERANCE_PRICE_DELTA = 1.0E-6;
@@ -91,11 +110,24 @@ public class InterestRateFutureOptionMarginSecurityBlackSsviPriceMethodTest {
     double priceSsvi = METHOD_SSVI.price(OPTION_ERU2, SSVI_PROVIDER);
     assertEquals("SSVI formula: price", priceBlack, priceSsvi, TOLERANCE_PRICE);
   }
+  
+  @Test
+  public void price_expiry_rho_eta() {
+    double priceBlack = METHOD_BLACK.price(OPTION_ERU2, BLACK_PROVIDER_EXPIRY);
+    double priceSsvi = METHOD_SSVI.price(OPTION_ERU2, SSVI_PROVIDER_EXPIRY);
+    assertEquals("SSVI formula: price", priceBlack, priceSsvi, TOLERANCE_PRICE);
+  }
 
   @Test
   public void implied_volatility() {
     double ivSsvi = METHOD_SSVI.impliedVolatility(OPTION_ERU2, SSVI_PROVIDER);
     assertEquals("SSVI formula: implied volatility", ivSsvi, BLACK_IV, TOLERANCE_PRICE);
+  }
+
+  @Test
+  public void implied_volatility_expiry_rho_eta() {
+    double ivSsvi = METHOD_SSVI.impliedVolatility(OPTION_ERU2, SSVI_PROVIDER_EXPIRY);
+    assertEquals("SSVI formula: implied volatility", ivSsvi, BLACK_IV_EXPIRY, TOLERANCE_PRICE);
   }
 
   @Test
@@ -126,6 +158,20 @@ public class InterestRateFutureOptionMarginSecurityBlackSsviPriceMethodTest {
   }
 
   @Test
+  public void price_ssvi_sensitivity_expiry_rho_eta() {
+    double vega = METHOD_SSVI.priceBlackSensitivity(OPTION_ERU2, BLACK_PROVIDER_EXPIRY).toSingleValue();
+    ValueDerivatives ssviPriceSensitivity = METHOD_SSVI.priceSsviSensitivity(OPTION_ERU2, SSVI_PROVIDER_EXPIRY);
+    ValueDerivatives ssviVolSensitivity = SSVIVolatilityFunction
+        .volatilityAdjoint(FUTURES_PRICE, STRIKE_PRICE, TIME_EXP, 
+            VOLATILITY_ATM.getYValue(TIME_EXP), RHO_EXPIRY.getYValue(TIME_EXP), ETA_EXPIRY.getYValue(TIME_EXP));
+    for (int i = 0; i < 3; i++) {
+      assertEquals("SSVI formula: price SSVI parameters sensitivity",
+          ssviPriceSensitivity.getDerivatives(i), ssviVolSensitivity.getDerivatives(i+3) * vega,
+          TOLERANCE_PRICE_DELTA);
+    }
+  }
+
+  @Test
   public void price_ssvi_sensitivity_fd() {
     ValueDerivatives ssviPriceSensitivity = METHOD_SSVI.priceSsviSensitivity(OPTION_ERU2, SSVI_PROVIDER);
     Function1D<DoubleMatrix1D, Double> function = new Function1D<DoubleMatrix1D, Double>() {
@@ -137,8 +183,8 @@ public class InterestRateFutureOptionMarginSecurityBlackSsviPriceMethodTest {
           vol[i] += x.getEntry(0);
         }
         DoublesCurve volatilityAtm = new InterpolatedDoublesCurve(VOLATILITY_ATM.getXData(), vol, LINEAR_FLAT, true);
-        BlackStirFuturesSsviPriceProvider ssviProvider =
-            new BlackStirFuturesSsviPriceProvider(MULTICURVES, volatilityAtm, 
+        BlackStirFuturesSsviPriceConstantProvider ssviProvider =
+            new BlackStirFuturesSsviPriceConstantProvider(MULTICURVES, volatilityAtm, 
                 RHO + x.getEntry(1), ETA + x.getEntry(2), INDEX);
         return METHOD_SSVI.price(OPTION_ERU2, ssviProvider);
       }

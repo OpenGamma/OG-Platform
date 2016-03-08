@@ -15,7 +15,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class PiecewisePolynomialFunction2D implements Serializable{
+public class PiecewisePolynomialFunction2D implements Serializable {
 
   /**
    * Default constructor
