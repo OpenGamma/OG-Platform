@@ -54,7 +54,8 @@ public final class InterestRateFutureOptionMarginSecurityBlackSsviPriceMethod
    * @return The security price SSVI parameters sensitivity. The sensitivities are to the ATM Black volatility, 
    * rho parameter and eta parameter.
    */
-  public ValueDerivatives priceSsviSensitivity(InterestRateFutureOptionMarginSecurity security, 
+  public ValueDerivatives priceSsviSensitivity(
+      InterestRateFutureOptionMarginSecurity security, 
       BlackStirFuturesSsviPriceProvider ssviData) {
     ArgumentChecker.notNull(security, "Option security");
     ArgumentChecker.notNull(ssviData, "SSVI data");
