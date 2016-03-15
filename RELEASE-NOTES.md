@@ -1,5 +1,11 @@
 # OpenGamma Platform
 
+## v2.27
+
+### Enhancements
+
+* Extend SSVI volatility formula implementation to expiry-dependent rho and eta
+
 ## v2.26
 
 ### Enhancements
