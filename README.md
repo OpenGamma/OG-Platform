@@ -1,38 +1,32 @@
-OpenGamma Platform
-------------------
-This repository contains the source code of the OpenGamma Platform.
+[![OpenGamma](http://developers.opengamma.com/res/display/default/chrome/masthead_logo.png "OpenGamma")](http://www.opengamma.com)
+
+**Please note that this project has been discontinued and is no longer under active development.**
+
+
+# Strata
+
+Our development has transitioned to Strata - OpenGamma's next generation, open source toolkit for market risk.
+
+Strata is available on GitHub at [https://github.com/OpenGamma/Strata](https://github.com/OpenGamma/Strata). Pease see the [Strata Documentation](http://opengamma.github.io/StrataDocs) for full details. 
+
+If you have any questions, please get in touch using the [OpenGamma Forums](http://forums.opengamma.com).
+
+
+# OG-Platform
+
+This repository contains the source code of the legacy OpenGamma Platform.
 
 This is OpenGamma's server-oriented solution for financial analytics,
-developed since 2009, and used in production by institutions all over
-the world to satisfy a wide range of front-office and risk requirements.
-
-Visit the developers website at http://developers.opengamma.com for more
-information.
-
-[![OpenGamma](http://developers.opengamma.com/res/display/default/chrome/masthead_logo.png "OpenGamma")](http://developers.opengamma.com)
+developed from 2009, and has been used in production to satisfy a wide range of
+front-office and risk requirements.
 
 
-Platform News
--------------
+## Installing and building OG-Platform
 
-OpenGamma is developing our next-generation, open source toolkit for
-market risk - called Strata.
-
-The code is available on GitHub at https://github.com/OpenGamma/Strata. For more information, see the [Strata Documentation](http://opengamma.github.io/StrataDocs).
-
-
-Installing and building OpenGamma
----------------------------------
 Firstly you need to make sure Apache Maven and Git are installed and working.
 Version 3.0.4 or later of Maven is required.
 
 ### Obtaining the source code
-
-The OpenGamma Platform is open source software using the Apache License v2.
-The [company](http://www.opengamma.com/) behind OpenGamma also offers support
-and some additional commercial components (The commercial components typically
-have dependencies with restrictive licensing incompatible with open source.)
-This README only refers to the open source components.
 
 The source code can be cloned using git from GitHub:
 ```
@@ -55,21 +49,15 @@ These can be skipped to save time if desired:
   mvn install -DskipTests
 ```
 
-
 ### Examples
+
 
 For examples to introduce the system, see the [sesame/sesame-examples folder](tree/master/sesame/sesame-examples).
 
 
-___
+### Eclipse
 
-Eclipse
--------
 Importing the projects into Eclipse requires following a very specific set of
 instructions to work properly.
 Full details are in the README of the eclipse subdirectory.
 
-
-More information
-----------------
-For more information go to http://developers.opengamma.com
