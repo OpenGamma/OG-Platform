@@ -76,10 +76,10 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
     setEffectiveDate(effectiveDate);
     setUnadjustedMaturityDate(unAdjustedMaturityDate);
     setLegs(Lists.newArrayList(legs));
-    Preconditions.checkArgument(getPayLeg().effectiveDate() == null, "Pay leg effective date conflict: If effective date is set on the swap, then it must not be set on the legs");
-    Preconditions.checkArgument(getReceiveLeg().effectiveDate() == null, "Rec leg effective date conflict: If effective date is set on the swap, then it must not be set on the legs");
-    Preconditions.checkArgument(getPayLeg().unadjustedMaturityDate() == null, "Pay leg termination date conflict: If termination date is set on the swap, then it must not be set on the legs");
-    Preconditions.checkArgument(getReceiveLeg().unadjustedMaturityDate() == null, "Rec leg termination date conflict: If termination date is set on the swap, then it must not be set on the legs");
+    Preconditions.checkArgument(getPayLeg().getEffectiveDate() == null, "Pay leg effective date conflict: If effective date is set on the swap, then it must not be set on the legs");
+    Preconditions.checkArgument(getReceiveLeg().getEffectiveDate() == null, "Rec leg effective date conflict: If effective date is set on the swap, then it must not be set on the legs");
+    Preconditions.checkArgument(getPayLeg().getUnadjustedMaturityDate() == null, "Pay leg termination date conflict: If termination date is set on the swap, then it must not be set on the legs");
+    Preconditions.checkArgument(getReceiveLeg().getUnadjustedMaturityDate() == null, "Rec leg termination date conflict: If termination date is set on the swap, then it must not be set on the legs");
   }
 
   @Deprecated  // CSIGNORE
@@ -89,10 +89,10 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
     setEffectiveDate(effectiveDate);
     setUnadjustedMaturityDate(unAdjustedMaturityDate);
     setLegs(Lists.newArrayList(legs));
-    Preconditions.checkArgument(getPayLeg().effectiveDate() == null, "Pay leg effective date conflict: If effective date is set on the swap, then it must not be set on the legs");
-    Preconditions.checkArgument(getReceiveLeg().effectiveDate() == null, "Rec leg effective date conflict: If effective date is set on the swap, then it must not be set on the legs");
-    Preconditions.checkArgument(getPayLeg().unadjustedMaturityDate() == null, "Pay leg termination date conflict: If termination date is set on the swap, then it must not be set on the legs");
-    Preconditions.checkArgument(getReceiveLeg().unadjustedMaturityDate() == null, "Rec leg termination date conflict: If termination date is set on the swap, then it must not be set on the legs");
+    Preconditions.checkArgument(getPayLeg().getEffectiveDate() == null, "Pay leg effective date conflict: If effective date is set on the swap, then it must not be set on the legs");
+    Preconditions.checkArgument(getReceiveLeg().getEffectiveDate() == null, "Rec leg effective date conflict: If effective date is set on the swap, then it must not be set on the legs");
+    Preconditions.checkArgument(getPayLeg().getUnadjustedMaturityDate() == null, "Pay leg termination date conflict: If termination date is set on the swap, then it must not be set on the legs");
+    Preconditions.checkArgument(getReceiveLeg().getUnadjustedMaturityDate() == null, "Rec leg termination date conflict: If termination date is set on the swap, then it must not be set on the legs");
   }
 
   public InterestRateSwapSecurity(final ExternalIdBundle id, final String name, final LocalDate effectiveDate, final LocalDate unAdjustedMaturityDate, final Collection<InterestRateSwapLeg> legs) {
@@ -102,10 +102,10 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
     setEffectiveDate(effectiveDate);
     setUnadjustedMaturityDate(unAdjustedMaturityDate);
     setLegs(Lists.newArrayList(legs));
-    Preconditions.checkArgument(getPayLeg().effectiveDate() == null, "Pay leg effective date conflict: If effective date is set on the swap, then it must not be set on the legs");
-    Preconditions.checkArgument(getReceiveLeg().effectiveDate() == null, "Rec leg effective date conflict: If effective date is set on the swap, then it must not be set on the legs");
-    Preconditions.checkArgument(getPayLeg().unadjustedMaturityDate() == null, "Pay leg termination date conflict: If termination date is set on the swap, then it must not be set on the legs");
-    Preconditions.checkArgument(getReceiveLeg().unadjustedMaturityDate() == null, "Rec leg termination date conflict: If termination date is set on the swap, then it must not be set on the legs");
+    Preconditions.checkArgument(getPayLeg().getEffectiveDate() == null, "Pay leg effective date conflict: If effective date is set on the swap, then it must not be set on the legs");
+    Preconditions.checkArgument(getReceiveLeg().getEffectiveDate() == null, "Rec leg effective date conflict: If effective date is set on the swap, then it must not be set on the legs");
+    Preconditions.checkArgument(getPayLeg().getUnadjustedMaturityDate() == null, "Pay leg termination date conflict: If termination date is set on the swap, then it must not be set on the legs");
+    Preconditions.checkArgument(getReceiveLeg().getUnadjustedMaturityDate() == null, "Rec leg termination date conflict: If termination date is set on the swap, then it must not be set on the legs");
   }
 
   public InterestRateSwapSecurity(final ExternalIdBundle id, final String name, final Collection<InterestRateSwapLeg> legs) {
@@ -115,10 +115,10 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
     setEffectiveDate(null);
     setUnadjustedMaturityDate(null);
     setLegs(Lists.newArrayList(legs));
-    Preconditions.checkArgument(getPayLeg().effectiveDate() != null, "Pay leg effective date missing: If effective date is not set on the swap, then it must be set on the legs");
-    Preconditions.checkArgument(getReceiveLeg().effectiveDate() != null, "Rec leg effective date missing: If effective date is not set on the swap, then it must be set on the legs");
-    Preconditions.checkArgument(getPayLeg().unadjustedMaturityDate() != null, "Pay leg termination date missing: If termination date is not set on the swap, then it must be set on the legs");
-    Preconditions.checkArgument(getReceiveLeg().unadjustedMaturityDate() != null, "Rec leg termination date missing: If termination date is not set on the swap, then it must be set on the legs");
+    Preconditions.checkArgument(getPayLeg().getEffectiveDate() != null, "Pay leg effective date missing: If effective date is not set on the swap, then it must be set on the legs");
+    Preconditions.checkArgument(getReceiveLeg().getEffectiveDate() != null, "Rec leg effective date missing: If effective date is not set on the swap, then it must be set on the legs");
+    Preconditions.checkArgument(getPayLeg().getUnadjustedMaturityDate() != null, "Pay leg termination date missing: If termination date is not set on the swap, then it must be set on the legs");
+    Preconditions.checkArgument(getReceiveLeg().getUnadjustedMaturityDate() != null, "Rec leg termination date missing: If termination date is not set on the swap, then it must be set on the legs");
   }
 
   public InterestRateSwapLeg getPayLeg() {
