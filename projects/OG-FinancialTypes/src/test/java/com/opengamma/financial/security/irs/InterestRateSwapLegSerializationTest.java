@@ -96,9 +96,7 @@ public class InterestRateSwapLegSerializationTest extends AbstractFudgeBuilderTe
 
     USD_FLOAT_LEG = USD_LIBOR_3M_EOM_CONVENTION.toLeg(new InterestRateSwapNotional(Currency.USD, 1e6), PayReceiveType.RECEIVE, LocalDate.of(2014, 2, 1), LocalDate.of(2024, 4, 2));
 
-    USD_FIX_FLOAT_SWAP = new InterestRateSwapSecurity(ExternalIdBundle.EMPTY, "a swap",
-                                                                           LocalDate.of(2014, 2, 1), LocalDate.of(2024, 4, 2),
-                                                                           Sets.newHashSet(USD_FIX_LEG, USD_FLOAT_LEG));
+    USD_FIX_FLOAT_SWAP = new InterestRateSwapSecurity(ExternalIdBundle.EMPTY, "a swap", Sets.newHashSet(USD_FIX_LEG, USD_FLOAT_LEG));
   }
 
   @Test
@@ -145,15 +143,15 @@ public class InterestRateSwapLegSerializationTest extends AbstractFudgeBuilderTe
     Assert.assertEquals(swapLeg.getUnadjustedMaturityDate(), LocalDate.of(2024, 4, 2));
   }
 
-  @Test
-  public void writeOutBean() {
-    try {
-      String beanToXml = JodaBeanSerialization.serializer(true).xmlWriter().write(USD_FIX_FLOAT_SWAP);
-      Files.write(beanToXml, new File("/tmp/foo"), Charset.defaultCharset());
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
+//  @Test
+//  public void writeOutBean() {
+//    try {
+//      String beanToXml = JodaBeanSerialization.serializer(true).xmlWriter().write(USD_FIX_FLOAT_SWAP);
+//      Files.write(beanToXml, new File("/tmp/foo"), Charset.defaultCharset());
+//    } catch (Exception e) {
+//      throw new RuntimeException(e);
+//    }
+//  }
 
   @Test
   public void testLegacySwap() {
