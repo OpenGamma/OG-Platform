@@ -148,6 +148,8 @@ public final class FixedInterestRateSwapLegConvention extends InterestRateSwapLe
    * @param notional  the notional (may be simple or complex)
    * @param payOrReceive  is this a pay or receive leg?
    * @param rate  the interest rate (may be simple or complex)
+   * @param effectiveDate effective date of this leg
+   * @param terminationDate unadjusted maturity date of this leg
    * @return the leg, not null
    */
   public FixedInterestRateSwapLeg toLeg(final InterestRateSwapNotional notional, final PayReceiveType payOrReceive, final Rate rate, final LocalDate effectiveDate, final LocalDate terminationDate) {

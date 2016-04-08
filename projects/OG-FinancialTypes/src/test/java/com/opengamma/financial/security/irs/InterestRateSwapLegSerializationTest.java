@@ -5,8 +5,10 @@
  */
 package com.opengamma.financial.security.irs;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.util.HashSet;
 
@@ -143,16 +145,6 @@ public class InterestRateSwapLegSerializationTest extends AbstractFudgeBuilderTe
     Assert.assertEquals(swapLeg.getUnadjustedMaturityDate(), LocalDate.of(2024, 4, 2));
   }
 
-//  @Test
-//  public void writeOutBean() {
-//    try {
-//      String beanToXml = JodaBeanSerialization.serializer(true).xmlWriter().write(USD_FIX_FLOAT_SWAP);
-//      Files.write(beanToXml, new File("/tmp/foo"), Charset.defaultCharset());
-//    } catch (Exception e) {
-//      throw new RuntimeException(e);
-//    }
-//  }
-
   @Test
   public void testLegacySwap() {
     String legacySwap = "security/irs/legacySwapWithStartAndEndDate.xml";
@@ -191,6 +183,37 @@ public class InterestRateSwapLegSerializationTest extends AbstractFudgeBuilderTe
     Assert.assertNotNull(swap.getLegs().get(1).getUnadjustedMaturityDate());
     Assert.assertEquals(swap.getLegs().get(1).getEffectiveDate(), LocalDate.of(2014, 2, 1));
     Assert.assertEquals(swap.getLegs().get(1).getUnadjustedMaturityDate(), LocalDate.of(2024, 4 , 2));
+  }
+
+  @Test
+  public void testRoundTrip() {
+    try {
+      String beanToXml = JodaBeanSerialization.serializer(true).xmlWriter().write(USD_FIX_FLOAT_SWAP);
+      InputStream is = new ByteArrayInputStream(beanToXml.getBytes("UTF-8"));
+      InterestRateSwapSecurity swap = JodaBeanSerialization.deserializer().xmlReader().read(is, InterestRateSwapSecurity.class);
+
+      Assert.assertNotNull(swap.getEffectiveDate());
+      Assert.assertNotNull(swap.getUnadjustedMaturityDate());
+      Assert.assertEquals(swap.getEffectiveDate(), LocalDate.of(2014, 2, 1));
+      Assert.assertEquals(swap.getUnadjustedMaturityDate(), LocalDate.of(2024, 4, 2));
+
+      Assert.assertEquals(swap.getLegs().size(), 2);
+      Assert.assertEquals(swap.getLegs().get(0).getNotional().getInitialAmount(), 1000000D);
+      Assert.assertEquals(swap.getLegs().get(1).getNotional().getInitialAmount(), 1000000D);
+
+      Assert.assertNotNull(swap.getLegs().get(0).getEffectiveDate());
+      Assert.assertNotNull(swap.getLegs().get(0).getUnadjustedMaturityDate());
+      Assert.assertEquals(swap.getLegs().get(0).getEffectiveDate(), LocalDate.of(2014, 3, 1));
+      Assert.assertEquals(swap.getLegs().get(0).getUnadjustedMaturityDate(), LocalDate.of(2024, 3, 2));
+
+      Assert.assertNotNull(swap.getLegs().get(1).getEffectiveDate());
+      Assert.assertNotNull(swap.getLegs().get(1).getUnadjustedMaturityDate());
+      Assert.assertEquals(swap.getLegs().get(1).getEffectiveDate(), LocalDate.of(2014, 2, 1));
+      Assert.assertEquals(swap.getLegs().get(1).getUnadjustedMaturityDate(), LocalDate.of(2024, 4, 2));
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+
   }
 
 

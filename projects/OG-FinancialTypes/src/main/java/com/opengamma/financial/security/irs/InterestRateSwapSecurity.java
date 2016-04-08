@@ -173,7 +173,7 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
   /**
    * If termination date is present at the swap level, that is the value to use.
    * If the termination date is null, then there must be termination dates defined on the legs.
-   * In this case return the minimum value between the two legs.
+   * In this case return the maximum value between the two legs.
    * @return termination date for the swap
    */
   public LocalDate getUnadjustedMaturityDate() {

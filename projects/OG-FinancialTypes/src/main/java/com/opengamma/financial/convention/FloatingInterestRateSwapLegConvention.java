@@ -281,6 +281,8 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
    *
    * @param notional  the notional (may be simple or complex)
    * @param payOrReceive  is this a pay or receive leg?
+   * @param effectiveDate effective date of this leg
+   * @param terminationDate unadjusted maturity date of this leg
    * @return the leg, not null
    */
   public FloatingInterestRateSwapLeg toLeg(final InterestRateSwapNotional notional, final PayReceiveType payOrReceive, final LocalDate effectiveDate, final LocalDate terminationDate) {
