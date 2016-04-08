@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.security.irs.FloatingInterestRateSwapLeg">
+ <notional>
+  <currency>USD</currency>
+  <amount>1000000.0</amount>
+  <dates/>
+  <notionals/>
+  <shiftTypes/>
+ </notional>
+ <payReceiveType>RECEIVE</payReceiveType>
+ <dayCountConvention>Actual/360</dayCountConvention>
+ <rollConvention>EOM</rollConvention>
+ <effectiveDate>2014-02-01</effectiveDate>
+ <unadjustedMaturityDate>2024-04-02</unadjustedMaturityDate>
+ <maturityDateCalendars>
+  <item>ISDA_HOLIDAY~USNY,GBLO</item>
+ </maturityDateCalendars>
+ <maturityDateBusinessDayConvention>Modified Following</maturityDateBusinessDayConvention>
+ <paymentDateCalendars>
+  <item>ISDA_HOLIDAY~USNY,GBLO</item>
+ </paymentDateCalendars>
+ <paymentDateBusinessDayConvention>Modified Following</paymentDateBusinessDayConvention>
+ <paymentDateFrequency>Quarterly</paymentDateFrequency>
+ <paymentDateRelativeTo>END</paymentDateRelativeTo>
+ <paymentOffset>0</paymentOffset>
+ <accrualPeriodCalendars>
+  <item>ISDA_HOLIDAY~USNY,GBLO</item>
+ </accrualPeriodCalendars>
+ <accrualPeriodBusinessDayConvention>Modified Following</accrualPeriodBusinessDayConvention>
+ <accrualPeriodFrequency>Quarterly</accrualPeriodFrequency>
+ <compoundingMethod>NONE</compoundingMethod>
+ <rateCutoffDaysOffset>0</rateCutoffDaysOffset>
+ <gearing>0.0</gearing>
+ <floatingReferenceRateId>Scheme~USD_LIBOR_3M FIXED</floatingReferenceRateId>
+ <floatingRateType>IBOR</floatingRateType>
+ <resetPeriodCalendars>
+  <item>ISDA_HOLIDAY~USNY,GBLO</item>
+ </resetPeriodCalendars>
+ <resetPeriodBusinessDayConvention>Modified Following</resetPeriodBusinessDayConvention>
+ <resetPeriodFrequency>Quarterly</resetPeriodFrequency>
+ <resetDateRelativeTo>START</resetDateRelativeTo>
+ <fixingDateCalendars>
+  <item>ISDA_HOLIDAY~GBLO</item>
+ </fixingDateCalendars>
+ <fixingDateBusinessDayConvention>None</fixingDateBusinessDayConvention>
+ <fixingDateOffset>2</fixingDateOffset>
+ <fixingDateOffsetType>BUSINESS</fixingDateOffsetType>
+</bean>

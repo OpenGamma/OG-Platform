@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.security.irs.FixedInterestRateSwapLeg">
+ <notional>
+  <currency>USD</currency>
+  <amount>1000000.0</amount>
+  <dates>
+   <item>-999999999-01-01</item>
+   <item>+999999999-12-31</item>
+  </dates>
+  <notionals>
+   <item>1000000.0</item>
+   <item>100000.0</item>
+  </notionals>
+  <shiftTypes>
+   <item>OUTRIGHT</item>
+   <item>OUTRIGHT</item>
+  </shiftTypes>
+ </notional>
+ <payReceiveType>PAY</payReceiveType>
+ <dayCountConvention>Actual/360</dayCountConvention>
+ <rollConvention>EOM</rollConvention>
+ <effectiveDate>2014-03-01</effectiveDate>
+ <unadjustedMaturityDate>2024-03-02</unadjustedMaturityDate>
+ <maturityDateCalendars>
+  <item>ISDA_HOLIDAY~USNY,GBLO</item>
+ </maturityDateCalendars>
+ <maturityDateBusinessDayConvention>Modified Following</maturityDateBusinessDayConvention>
+ <paymentDateCalendars>
+  <item>ISDA_HOLIDAY~USNY,GBLO</item>
+ </paymentDateCalendars>
+ <paymentDateBusinessDayConvention>Modified Following</paymentDateBusinessDayConvention>
+ <paymentDateFrequency>Quarterly</paymentDateFrequency>
+ <paymentDateRelativeTo>END</paymentDateRelativeTo>
+ <paymentOffset>0</paymentOffset>
+ <accrualPeriodCalendars>
+  <item>ISDA_HOLIDAY~USNY,GBLO</item>
+ </accrualPeriodCalendars>
+ <accrualPeriodBusinessDayConvention>Modified Following</accrualPeriodBusinessDayConvention>
+ <accrualPeriodFrequency>Quarterly</accrualPeriodFrequency>
+ <compoundingMethod>NONE</compoundingMethod>
+ <rate>
+  <dates>0</dates>
+  <rates>0.01234</rates>
+  <types metatype="com.opengamma.financial.security.irs.Rate$ShiftType[]">
+   <item>OUTRIGHT</item>
+  </types>
+ </rate>
+</bean>
