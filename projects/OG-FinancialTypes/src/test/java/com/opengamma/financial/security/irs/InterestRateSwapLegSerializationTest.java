@@ -6,10 +6,7 @@
 package com.opengamma.financial.security.irs;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.InputStream;
-import java.io.StringReader;
-import java.nio.charset.Charset;
 import java.util.HashSet;
 
 import org.testng.Assert;
@@ -18,7 +15,6 @@ import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.common.io.Files;
 import com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod;
 import com.opengamma.analytics.financial.instrument.annuity.DateRelativeTo;
 import com.opengamma.core.id.ExternalSchemes;
@@ -151,8 +147,8 @@ public class InterestRateSwapLegSerializationTest extends AbstractFudgeBuilderTe
     InputStream is = InterestRateSwapLegSerializationTest.class.getClassLoader().getResourceAsStream(legacySwap);
     InterestRateSwapSecurity swap = JodaBeanSerialization.deserializer().xmlReader().read(is, InterestRateSwapSecurity.class);
     Assert.assertEquals(swap.getLegs().size(), 2);
-    Assert.assertEquals(swap.getLegs().get(0).getNotional().getInitialAmount(), 1000000D);
-    Assert.assertEquals(swap.getLegs().get(1).getNotional().getInitialAmount(), 1000000D);
+    Assert.assertEquals(swap.getPayLeg().getNotional().getInitialAmount(), 1000000D);
+    Assert.assertEquals(swap.getReceiveLeg().getNotional().getInitialAmount(), 1000000D);
     Assert.assertNotNull(swap.getEffectiveDate());
     Assert.assertNotNull(swap.getUnadjustedMaturityDate());
     Assert.assertEquals(swap.getEffectiveDate(), LocalDate.of(2014, 2, 1));
@@ -163,7 +159,8 @@ public class InterestRateSwapLegSerializationTest extends AbstractFudgeBuilderTe
   public void testLatestSwap() {
     String latestSwap = "security/irs/latestSwapWithoutStartOrEndDate.xml";
     InputStream is = InterestRateSwapLegSerializationTest.class.getClassLoader().getResourceAsStream(latestSwap);
-    InterestRateSwapSecurity swap = JodaBeanSerialization.deserializer().xmlReader().read(is, InterestRateSwapSecurity.class);
+    InterestRateSwapSecurity swap = JodaBeanSerialization.deserializer().xmlReader().read(is,
+                                                                                          InterestRateSwapSecurity.class);
 
     Assert.assertNotNull(swap.getEffectiveDate());
     Assert.assertNotNull(swap.getUnadjustedMaturityDate());
@@ -171,18 +168,18 @@ public class InterestRateSwapLegSerializationTest extends AbstractFudgeBuilderTe
     Assert.assertEquals(swap.getUnadjustedMaturityDate(), LocalDate.of(2024, 4, 2));
 
     Assert.assertEquals(swap.getLegs().size(), 2);
-    Assert.assertEquals(swap.getLegs().get(0).getNotional().getInitialAmount(), 1000000D);
-    Assert.assertEquals(swap.getLegs().get(1).getNotional().getInitialAmount(), 1000000D);
+    Assert.assertEquals(swap.getPayLeg().getNotional().getInitialAmount(), 1000000D);
+    Assert.assertEquals(swap.getReceiveLeg().getNotional().getInitialAmount(), 1000000D);
 
-    Assert.assertNotNull(swap.getLegs().get(0).getEffectiveDate());
-    Assert.assertNotNull(swap.getLegs().get(0).getUnadjustedMaturityDate());
-    Assert.assertEquals(swap.getLegs().get(0).getEffectiveDate(), LocalDate.of(2014, 3, 1));
-    Assert.assertEquals(swap.getLegs().get(0).getUnadjustedMaturityDate(), LocalDate.of(2024, 3, 2));
+    Assert.assertNotNull(swap.getPayLeg().getEffectiveDate());
+    Assert.assertNotNull(swap.getPayLeg().getUnadjustedMaturityDate());
+    Assert.assertEquals(swap.getPayLeg().getEffectiveDate(), LocalDate.of(2014, 3, 1));
+    Assert.assertEquals(swap.getPayLeg().getUnadjustedMaturityDate(), LocalDate.of(2024, 3, 2));
 
-    Assert.assertNotNull(swap.getLegs().get(1).getEffectiveDate());
-    Assert.assertNotNull(swap.getLegs().get(1).getUnadjustedMaturityDate());
-    Assert.assertEquals(swap.getLegs().get(1).getEffectiveDate(), LocalDate.of(2014, 2, 1));
-    Assert.assertEquals(swap.getLegs().get(1).getUnadjustedMaturityDate(), LocalDate.of(2024, 4 , 2));
+    Assert.assertNotNull(swap.getReceiveLeg().getEffectiveDate());
+    Assert.assertNotNull(swap.getReceiveLeg().getUnadjustedMaturityDate());
+    Assert.assertEquals(swap.getReceiveLeg().getEffectiveDate(), LocalDate.of(2014, 2, 1));
+    Assert.assertEquals(swap.getReceiveLeg().getUnadjustedMaturityDate(), LocalDate.of(2024, 4, 2));
   }
 
   @Test
@@ -190,7 +187,8 @@ public class InterestRateSwapLegSerializationTest extends AbstractFudgeBuilderTe
     try {
       String beanToXml = JodaBeanSerialization.serializer(true).xmlWriter().write(USD_FIX_FLOAT_SWAP);
       InputStream is = new ByteArrayInputStream(beanToXml.getBytes("UTF-8"));
-      InterestRateSwapSecurity swap = JodaBeanSerialization.deserializer().xmlReader().read(is, InterestRateSwapSecurity.class);
+      InterestRateSwapSecurity swap = JodaBeanSerialization.deserializer().xmlReader().read(is,
+                                                                                            InterestRateSwapSecurity.class);
 
       Assert.assertNotNull(swap.getEffectiveDate());
       Assert.assertNotNull(swap.getUnadjustedMaturityDate());
@@ -198,18 +196,18 @@ public class InterestRateSwapLegSerializationTest extends AbstractFudgeBuilderTe
       Assert.assertEquals(swap.getUnadjustedMaturityDate(), LocalDate.of(2024, 4, 2));
 
       Assert.assertEquals(swap.getLegs().size(), 2);
-      Assert.assertEquals(swap.getLegs().get(0).getNotional().getInitialAmount(), 1000000D);
-      Assert.assertEquals(swap.getLegs().get(1).getNotional().getInitialAmount(), 1000000D);
+      Assert.assertEquals(swap.getPayLeg().getNotional().getInitialAmount(), 1000000D);
+      Assert.assertEquals(swap.getReceiveLeg().getNotional().getInitialAmount(), 1000000D);
 
-      Assert.assertNotNull(swap.getLegs().get(0).getEffectiveDate());
-      Assert.assertNotNull(swap.getLegs().get(0).getUnadjustedMaturityDate());
-      Assert.assertEquals(swap.getLegs().get(0).getEffectiveDate(), LocalDate.of(2014, 3, 1));
-      Assert.assertEquals(swap.getLegs().get(0).getUnadjustedMaturityDate(), LocalDate.of(2024, 3, 2));
+      Assert.assertNotNull(swap.getPayLeg().getEffectiveDate());
+      Assert.assertNotNull(swap.getPayLeg().getUnadjustedMaturityDate());
+      Assert.assertEquals(swap.getPayLeg().getEffectiveDate(), LocalDate.of(2014, 3, 1));
+      Assert.assertEquals(swap.getPayLeg().getUnadjustedMaturityDate(), LocalDate.of(2024, 3, 2));
 
-      Assert.assertNotNull(swap.getLegs().get(1).getEffectiveDate());
-      Assert.assertNotNull(swap.getLegs().get(1).getUnadjustedMaturityDate());
-      Assert.assertEquals(swap.getLegs().get(1).getEffectiveDate(), LocalDate.of(2014, 2, 1));
-      Assert.assertEquals(swap.getLegs().get(1).getUnadjustedMaturityDate(), LocalDate.of(2024, 4, 2));
+      Assert.assertNotNull(swap.getReceiveLeg().getEffectiveDate());
+      Assert.assertNotNull(swap.getReceiveLeg().getUnadjustedMaturityDate());
+      Assert.assertEquals(swap.getReceiveLeg().getEffectiveDate(), LocalDate.of(2014, 2, 1));
+      Assert.assertEquals(swap.getReceiveLeg().getUnadjustedMaturityDate(), LocalDate.of(2024, 4, 2));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
