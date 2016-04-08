@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod;
@@ -65,7 +66,18 @@ public abstract class InterestRateSwapLeg extends DirectBean {
    */
   @PropertyDefinition(validate = "notNull")
   private RollConvention _rollConvention = RollConvention.NONE;
-  
+
+  /**
+   * The effective date. Optional/nullable. If not specified, then these fields should be set on the security.
+   */
+  @PropertyDefinition()
+  private LocalDate _effectiveDate;
+
+  /**
+   * The unadjusted maturity. Optional/nullable. If not specified, then these fields should be set on the security.
+   */
+  @PropertyDefinition()
+  private LocalDate _unadjustedMaturityDate;
   
   /*
    * Maturity date parameters
@@ -293,6 +305,56 @@ public abstract class InterestRateSwapLeg extends DirectBean {
    */
   public final Property<RollConvention> rollConvention() {
     return metaBean().rollConvention().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the effective date. Optional/nullable. If not specified, then these fields should be set on the security.
+   * @return the value of the property
+   */
+  public LocalDate getEffectiveDate() {
+    return _effectiveDate;
+  }
+
+  /**
+   * Sets the effective date. Optional/nullable. If not specified, then these fields should be set on the security.
+   * @param effectiveDate  the new value of the property
+   */
+  public void setEffectiveDate(LocalDate effectiveDate) {
+    this._effectiveDate = effectiveDate;
+  }
+
+  /**
+   * Gets the the {@code effectiveDate} property.
+   * @return the property, not null
+   */
+  public final Property<LocalDate> effectiveDate() {
+    return metaBean().effectiveDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the unadjusted maturity. Optional/nullable. If not specified, then these fields should be set on the security.
+   * @return the value of the property
+   */
+  public LocalDate getUnadjustedMaturityDate() {
+    return _unadjustedMaturityDate;
+  }
+
+  /**
+   * Sets the unadjusted maturity. Optional/nullable. If not specified, then these fields should be set on the security.
+   * @param unadjustedMaturityDate  the new value of the property
+   */
+  public void setUnadjustedMaturityDate(LocalDate unadjustedMaturityDate) {
+    this._unadjustedMaturityDate = unadjustedMaturityDate;
+  }
+
+  /**
+   * Gets the the {@code unadjustedMaturityDate} property.
+   * @return the property, not null
+   */
+  public final Property<LocalDate> unadjustedMaturityDate() {
+    return metaBean().unadjustedMaturityDate().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -595,6 +657,8 @@ public abstract class InterestRateSwapLeg extends DirectBean {
           JodaBeanUtils.equal(getStubCalculationMethod(), other.getStubCalculationMethod()) &&
           JodaBeanUtils.equal(getDayCountConvention(), other.getDayCountConvention()) &&
           JodaBeanUtils.equal(getRollConvention(), other.getRollConvention()) &&
+          JodaBeanUtils.equal(getEffectiveDate(), other.getEffectiveDate()) &&
+          JodaBeanUtils.equal(getUnadjustedMaturityDate(), other.getUnadjustedMaturityDate()) &&
           JodaBeanUtils.equal(getMaturityDateCalendars(), other.getMaturityDateCalendars()) &&
           JodaBeanUtils.equal(getMaturityDateBusinessDayConvention(), other.getMaturityDateBusinessDayConvention()) &&
           JodaBeanUtils.equal(getPaymentDateCalendars(), other.getPaymentDateCalendars()) &&
@@ -618,6 +682,8 @@ public abstract class InterestRateSwapLeg extends DirectBean {
     hash = hash * 31 + JodaBeanUtils.hashCode(getStubCalculationMethod());
     hash = hash * 31 + JodaBeanUtils.hashCode(getDayCountConvention());
     hash = hash * 31 + JodaBeanUtils.hashCode(getRollConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEffectiveDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnadjustedMaturityDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityDateCalendars());
     hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityDateBusinessDayConvention());
     hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDateCalendars());
@@ -634,7 +700,7 @@ public abstract class InterestRateSwapLeg extends DirectBean {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(544);
+    StringBuilder buf = new StringBuilder(608);
     buf.append("InterestRateSwapLeg{");
     int len = buf.length();
     toString(buf);
@@ -651,6 +717,8 @@ public abstract class InterestRateSwapLeg extends DirectBean {
     buf.append("stubCalculationMethod").append('=').append(JodaBeanUtils.toString(getStubCalculationMethod())).append(',').append(' ');
     buf.append("dayCountConvention").append('=').append(JodaBeanUtils.toString(getDayCountConvention())).append(',').append(' ');
     buf.append("rollConvention").append('=').append(JodaBeanUtils.toString(getRollConvention())).append(',').append(' ');
+    buf.append("effectiveDate").append('=').append(JodaBeanUtils.toString(getEffectiveDate())).append(',').append(' ');
+    buf.append("unadjustedMaturityDate").append('=').append(JodaBeanUtils.toString(getUnadjustedMaturityDate())).append(',').append(' ');
     buf.append("maturityDateCalendars").append('=').append(JodaBeanUtils.toString(getMaturityDateCalendars())).append(',').append(' ');
     buf.append("maturityDateBusinessDayConvention").append('=').append(JodaBeanUtils.toString(getMaturityDateBusinessDayConvention())).append(',').append(' ');
     buf.append("paymentDateCalendars").append('=').append(JodaBeanUtils.toString(getPaymentDateCalendars())).append(',').append(' ');
@@ -699,6 +767,16 @@ public abstract class InterestRateSwapLeg extends DirectBean {
      */
     private final MetaProperty<RollConvention> _rollConvention = DirectMetaProperty.ofReadWrite(
         this, "rollConvention", InterestRateSwapLeg.class, RollConvention.class);
+    /**
+     * The meta-property for the {@code effectiveDate} property.
+     */
+    private final MetaProperty<LocalDate> _effectiveDate = DirectMetaProperty.ofReadWrite(
+        this, "effectiveDate", InterestRateSwapLeg.class, LocalDate.class);
+    /**
+     * The meta-property for the {@code unadjustedMaturityDate} property.
+     */
+    private final MetaProperty<LocalDate> _unadjustedMaturityDate = DirectMetaProperty.ofReadWrite(
+        this, "unadjustedMaturityDate", InterestRateSwapLeg.class, LocalDate.class);
     /**
      * The meta-property for the {@code maturityDateCalendars} property.
      */
@@ -767,6 +845,8 @@ public abstract class InterestRateSwapLeg extends DirectBean {
         "stubCalculationMethod",
         "dayCountConvention",
         "rollConvention",
+        "effectiveDate",
+        "unadjustedMaturityDate",
         "maturityDateCalendars",
         "maturityDateBusinessDayConvention",
         "paymentDateCalendars",
@@ -798,6 +878,10 @@ public abstract class InterestRateSwapLeg extends DirectBean {
           return _dayCountConvention;
         case -10223666:  // rollConvention
           return _rollConvention;
+        case -930389515:  // effectiveDate
+          return _effectiveDate;
+        case -2038917498:  // unadjustedMaturityDate
+          return _unadjustedMaturityDate;
         case 1589069014:  // maturityDateCalendars
           return _maturityDateCalendars;
         case 1997471406:  // maturityDateBusinessDayConvention
@@ -878,6 +962,22 @@ public abstract class InterestRateSwapLeg extends DirectBean {
      */
     public final MetaProperty<RollConvention> rollConvention() {
       return _rollConvention;
+    }
+
+    /**
+     * The meta-property for the {@code effectiveDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<LocalDate> effectiveDate() {
+      return _effectiveDate;
+    }
+
+    /**
+     * The meta-property for the {@code unadjustedMaturityDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<LocalDate> unadjustedMaturityDate() {
+      return _unadjustedMaturityDate;
     }
 
     /**
@@ -982,6 +1082,10 @@ public abstract class InterestRateSwapLeg extends DirectBean {
           return ((InterestRateSwapLeg) bean).getDayCountConvention();
         case -10223666:  // rollConvention
           return ((InterestRateSwapLeg) bean).getRollConvention();
+        case -930389515:  // effectiveDate
+          return ((InterestRateSwapLeg) bean).getEffectiveDate();
+        case -2038917498:  // unadjustedMaturityDate
+          return ((InterestRateSwapLeg) bean).getUnadjustedMaturityDate();
         case 1589069014:  // maturityDateCalendars
           return ((InterestRateSwapLeg) bean).getMaturityDateCalendars();
         case 1997471406:  // maturityDateBusinessDayConvention
@@ -1026,6 +1130,12 @@ public abstract class InterestRateSwapLeg extends DirectBean {
           return;
         case -10223666:  // rollConvention
           ((InterestRateSwapLeg) bean).setRollConvention((RollConvention) newValue);
+          return;
+        case -930389515:  // effectiveDate
+          ((InterestRateSwapLeg) bean).setEffectiveDate((LocalDate) newValue);
+          return;
+        case -2038917498:  // unadjustedMaturityDate
+          ((InterestRateSwapLeg) bean).setUnadjustedMaturityDate((LocalDate) newValue);
           return;
         case 1589069014:  // maturityDateCalendars
           ((InterestRateSwapLeg) bean).setMaturityDateCalendars((Set<ExternalId>) newValue);
