@@ -1,5 +1,11 @@
 # OpenGamma Platform
 
+## v2.28
+
+### Enhancements
+
+* Adding support for setting effective and termination dates at the individual swap leg level
+
 ## v2.27
 
 ### Enhancements
