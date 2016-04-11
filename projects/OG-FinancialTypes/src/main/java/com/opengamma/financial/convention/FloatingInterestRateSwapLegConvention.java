@@ -18,6 +18,7 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
@@ -280,15 +281,19 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
    *
    * @param notional  the notional (may be simple or complex)
    * @param payOrReceive  is this a pay or receive leg?
+   * @param effectiveDate effective date of this leg
+   * @param terminationDate unadjusted maturity date of this leg
    * @return the leg, not null
    */
-  public FloatingInterestRateSwapLeg toLeg(final InterestRateSwapNotional notional, final PayReceiveType payOrReceive) {
+  public FloatingInterestRateSwapLeg toLeg(final InterestRateSwapNotional notional, final PayReceiveType payOrReceive, final LocalDate effectiveDate, final LocalDate terminationDate) {
     ArgumentChecker.notNull(getDayCountConvention(), "Daycount");
     FloatingInterestRateSwapLeg leg = new FloatingInterestRateSwapLeg();
     leg.setPayReceiveType(payOrReceive);
     leg.setNotional(notional);
     leg.setDayCountConvention(getDayCountConvention());
     leg.setRollConvention(getRollConvention());
+    leg.setEffectiveDate(effectiveDate);
+    leg.setUnadjustedMaturityDate(terminationDate);
     // float leg specific parameters
     leg.setFloatingReferenceRateId(Iterators.getOnlyElement(getExternalIdBundle().iterator()));
     leg.setFloatingRateType(_rateType);
@@ -317,6 +322,17 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
     leg.setFixingDateOffset(getSettlementDays());
     leg.setFixingDateOffsetType(getSettlementDayType());
     return leg;
+  }
+
+  /**
+   * Create a leg from a convention.
+   *
+   * @param notional  the notional (may be simple or complex)
+   * @param payOrReceive  is this a pay or receive leg?
+   * @return the leg, not null
+   */
+  public FloatingInterestRateSwapLeg toLeg(final InterestRateSwapNotional notional, final PayReceiveType payOrReceive) {
+    return toLeg(notional, payOrReceive, null, null);
   }
 
   /**

@@ -22,6 +22,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.LocalDate;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
@@ -54,13 +55,13 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
   /**
    * The effective date.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(get = "manual")
   private LocalDate _effectiveDate;
 
   /**
    * The unadjusted maturity.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(get = "manual")
   private LocalDate _unadjustedMaturityDate;
 
   /**
@@ -75,6 +76,10 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
     setEffectiveDate(effectiveDate);
     setUnadjustedMaturityDate(unAdjustedMaturityDate);
     setLegs(Lists.newArrayList(legs));
+    Preconditions.checkArgument(getPayLeg().getEffectiveDate() == null, "Pay leg effective date conflict: If effective date is set on the swap, then it must not be set on the legs");
+    Preconditions.checkArgument(getReceiveLeg().getEffectiveDate() == null, "Rec leg effective date conflict: If effective date is set on the swap, then it must not be set on the legs");
+    Preconditions.checkArgument(getPayLeg().getUnadjustedMaturityDate() == null, "Pay leg termination date conflict: If termination date is set on the swap, then it must not be set on the legs");
+    Preconditions.checkArgument(getReceiveLeg().getUnadjustedMaturityDate() == null, "Rec leg termination date conflict: If termination date is set on the swap, then it must not be set on the legs");
   }
 
   @Deprecated  // CSIGNORE
@@ -84,6 +89,10 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
     setEffectiveDate(effectiveDate);
     setUnadjustedMaturityDate(unAdjustedMaturityDate);
     setLegs(Lists.newArrayList(legs));
+    Preconditions.checkArgument(getPayLeg().getEffectiveDate() == null, "Pay leg effective date conflict: If effective date is set on the swap, then it must not be set on the legs");
+    Preconditions.checkArgument(getReceiveLeg().getEffectiveDate() == null, "Rec leg effective date conflict: If effective date is set on the swap, then it must not be set on the legs");
+    Preconditions.checkArgument(getPayLeg().getUnadjustedMaturityDate() == null, "Pay leg termination date conflict: If termination date is set on the swap, then it must not be set on the legs");
+    Preconditions.checkArgument(getReceiveLeg().getUnadjustedMaturityDate() == null, "Rec leg termination date conflict: If termination date is set on the swap, then it must not be set on the legs");
   }
 
   public InterestRateSwapSecurity(final ExternalIdBundle id, final String name, final LocalDate effectiveDate, final LocalDate unAdjustedMaturityDate, final Collection<InterestRateSwapLeg> legs) {
@@ -93,6 +102,23 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
     setEffectiveDate(effectiveDate);
     setUnadjustedMaturityDate(unAdjustedMaturityDate);
     setLegs(Lists.newArrayList(legs));
+    Preconditions.checkArgument(getPayLeg().getEffectiveDate() == null, "Pay leg effective date conflict: If effective date is set on the swap, then it must not be set on the legs");
+    Preconditions.checkArgument(getReceiveLeg().getEffectiveDate() == null, "Rec leg effective date conflict: If effective date is set on the swap, then it must not be set on the legs");
+    Preconditions.checkArgument(getPayLeg().getUnadjustedMaturityDate() == null, "Pay leg termination date conflict: If termination date is set on the swap, then it must not be set on the legs");
+    Preconditions.checkArgument(getReceiveLeg().getUnadjustedMaturityDate() == null, "Rec leg termination date conflict: If termination date is set on the swap, then it must not be set on the legs");
+  }
+
+  public InterestRateSwapSecurity(final ExternalIdBundle id, final String name, final Collection<InterestRateSwapLeg> legs) {
+    super(SECURITY_TYPE);
+    setExternalIdBundle(id);
+    setName(name);
+    setEffectiveDate(null);
+    setUnadjustedMaturityDate(null);
+    setLegs(Lists.newArrayList(legs));
+    Preconditions.checkArgument(getPayLeg().getEffectiveDate() != null, "Pay leg effective date missing: If effective date is not set on the swap, then it must be set on the legs");
+    Preconditions.checkArgument(getReceiveLeg().getEffectiveDate() != null, "Rec leg effective date missing: If effective date is not set on the swap, then it must be set on the legs");
+    Preconditions.checkArgument(getPayLeg().getUnadjustedMaturityDate() != null, "Pay leg termination date missing: If termination date is not set on the swap, then it must be set on the legs");
+    Preconditions.checkArgument(getReceiveLeg().getUnadjustedMaturityDate() != null, "Rec leg termination date missing: If termination date is not set on the swap, then it must be set on the legs");
   }
 
   public InterestRateSwapLeg getPayLeg() {
@@ -119,6 +145,52 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
       }
     }
     return legs;
+  }
+
+  /**
+   * If effective date is present at the swap level, that is the value to use.
+   * If the effective date is null, then there must be effective dates defined on the legs.
+   * In this case return the minimum value between the two legs.
+   * @return effective date for the swap
+   */
+  public LocalDate getEffectiveDate() {
+    if (_effectiveDate != null) {
+      return _effectiveDate;
+    } else {
+      LocalDate leg1 = getPayLeg().getEffectiveDate();
+      LocalDate leg2 = getReceiveLeg().getEffectiveDate();
+      if (leg1 == null || leg2 == null) {
+        throw new OpenGammaRuntimeException("Cannot find effective date on swap or both legs");
+      }
+      if (leg1.isBefore(leg2)) {
+        return leg1;
+      } else {
+        return leg2;
+      }
+    }
+  }
+
+  /**
+   * If termination date is present at the swap level, that is the value to use.
+   * If the termination date is null, then there must be termination dates defined on the legs.
+   * In this case return the maximum value between the two legs.
+   * @return termination date for the swap
+   */
+  public LocalDate getUnadjustedMaturityDate() {
+    if (_unadjustedMaturityDate != null) {
+      return _unadjustedMaturityDate;
+    } else {
+      LocalDate leg1 = getPayLeg().getUnadjustedMaturityDate();
+      LocalDate leg2 = getReceiveLeg().getUnadjustedMaturityDate();
+      if (leg1 == null || leg2 == null) {
+        throw new OpenGammaRuntimeException("Cannot find termination date on swap or both legs");
+      }
+      if (leg1.isAfter(leg2)) {
+        return leg1;
+      } else {
+        return leg2;
+      }
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -237,19 +309,10 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the effective date.
-   * @return the value of the property, not null
-   */
-  public LocalDate getEffectiveDate() {
-    return _effectiveDate;
-  }
-
-  /**
    * Sets the effective date.
-   * @param effectiveDate  the new value of the property, not null
+   * @param effectiveDate  the new value of the property
    */
   public void setEffectiveDate(LocalDate effectiveDate) {
-    JodaBeanUtils.notNull(effectiveDate, "effectiveDate");
     this._effectiveDate = effectiveDate;
   }
 
@@ -263,19 +326,10 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the unadjusted maturity.
-   * @return the value of the property, not null
-   */
-  public LocalDate getUnadjustedMaturityDate() {
-    return _unadjustedMaturityDate;
-  }
-
-  /**
    * Sets the unadjusted maturity.
-   * @param unadjustedMaturityDate  the new value of the property, not null
+   * @param unadjustedMaturityDate  the new value of the property
    */
   public void setUnadjustedMaturityDate(LocalDate unadjustedMaturityDate) {
-    JodaBeanUtils.notNull(unadjustedMaturityDate, "unadjustedMaturityDate");
     this._unadjustedMaturityDate = unadjustedMaturityDate;
   }
 
@@ -494,8 +548,6 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
     @Override
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((InterestRateSwapSecurity) bean)._notionalExchange, "notionalExchange");
-      JodaBeanUtils.notNull(((InterestRateSwapSecurity) bean)._effectiveDate, "effectiveDate");
-      JodaBeanUtils.notNull(((InterestRateSwapSecurity) bean)._unadjustedMaturityDate, "unadjustedMaturityDate");
       JodaBeanUtils.notNull(((InterestRateSwapSecurity) bean)._legs, "legs");
       super.validate(bean);
     }
