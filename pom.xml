@@ -1317,7 +1317,7 @@
     <og.spring.version>3.2.3.RELEASE</og.spring.version>
     <jetty.version>8.1.11.v20130520</jetty.version>
     <jersey.version>1.17.1</jersey.version>
-    <powermock.version>1.5.5</powermock.version>
+    <powermock.version>1.6.2</powermock.version>
     <!-- Testing properties -->
     <tests.testng.maxheap>2G</tests.testng.maxheap>
     <tests.testng.logback>com/opengamma/util/warn-logback.xml</tests.testng.logback>
