@@ -1,10 +1,16 @@
 # OpenGamma Platform
 
+## v2.29
+
+### Enhancements
+
+* Upgrade Powermock dependency
+
 ## v2.28
 
 ### Enhancements
 
-* Adding support for setting effective and termination dates at the individual swap leg level
+* Add support for setting effective and termination dates at the individual swap leg level
 
 ## v2.27
 
