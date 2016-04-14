@@ -114,11 +114,25 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
   public InstrumentDefinition<?> visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
     ArgumentChecker.notNull(security, "swap security");
 
-    LocalDate startDate = security.getEffectiveDate();
-    LocalDate endDate = security.getUnadjustedMaturityDate();
-    AnnuityDefinition<?> payLeg = getAnnuityDefinition(true, startDate, endDate, security.getNotionalExchange(), security.getPayLeg());
-    AnnuityDefinition<?> receiveLeg = getAnnuityDefinition(false, startDate, endDate, security.getNotionalExchange(), security.getReceiveLeg());
-    return getDefinition(security, payLeg, receiveLeg);
+    LocalDate startDatePayLeg = security.getEffectiveDate();
+    LocalDate endDatePayLeg = security.getUnadjustedMaturityDate();
+    LocalDate startDateReceiveLeg = security.getEffectiveDate();
+    LocalDate endDateReceiveLeg = security.getUnadjustedMaturityDate();
+    InterestRateSwapLeg payLeg = security.getPayLeg();
+    InterestRateSwapLeg receiveLeg = security.getReceiveLeg();
+    // If all of the dates are present on the legs, then use those values.
+    if (payLeg != null && receiveLeg != null
+        && payLeg.getEffectiveDate() != null && receiveLeg.getEffectiveDate() != null
+        && payLeg.getUnadjustedMaturityDate() != null && receiveLeg.getEffectiveDate() != null) {
+      startDatePayLeg = payLeg.getEffectiveDate();
+      endDatePayLeg = payLeg.getUnadjustedMaturityDate();
+      startDateReceiveLeg = receiveLeg.getEffectiveDate();
+      endDateReceiveLeg = receiveLeg.getUnadjustedMaturityDate();
+    }
+
+    AnnuityDefinition<?> payLegDefinition = getAnnuityDefinition(true, startDatePayLeg, endDatePayLeg, security.getNotionalExchange(), payLeg);
+    AnnuityDefinition<?> receiveLegDefintion = getAnnuityDefinition(false, startDateReceiveLeg, endDateReceiveLeg, security.getNotionalExchange(), receiveLeg);
+    return getDefinition(security, payLegDefinition, receiveLegDefintion);
   }
 
   private class FixedFloatSwapHelper {
