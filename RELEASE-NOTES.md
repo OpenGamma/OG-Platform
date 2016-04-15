@@ -1,5 +1,11 @@
 # OpenGamma Platform
 
+## v2.30
+
+### Bug Fixes
+
+* Use swap leg-level effective and termination dates correctly
+
 ## v2.29
 
 ### Enhancements
