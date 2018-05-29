@@ -49,6 +49,8 @@ These can be skipped to save time if desired:
   mvn install -DskipTests
 ```
 
+**NOTE! You may need to use the following Maven repository in order to build: `http://maven.opengamma.com/public`**
+
 ### Examples
 
 
